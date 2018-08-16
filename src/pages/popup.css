@@ -1,0 +1,36 @@
+
+body {
+  margin: 0px;
+  padding: 0px;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+
+.main{
+  min-width: 130px;
+  max-width: 500px;
+  width: auto;
+  padding: 8px 0px 8px 0px;
+}
+
+.menu{
+  font-size: 14px;
+  display: block;
+  width: 100%;
+  line-height: 28px;
+  color: #4a4a4a;
+  background-color: white;
+  text-decoration: none;
+  padding: 0px 8px 0px 8px;
+}
+.menu:hover{
+  background-color: #ccc;
+}
+
+.menu i {
+  font-size: 15px;
+  margin-right: 10px;
+}
+
+.menu i.active{
+  color: #0a84ff;
+}

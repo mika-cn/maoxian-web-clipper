@@ -1,0 +1,33 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: #eeeeee;
+  color: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+
+.main {
+  width: 800px;
+  min-height: 800px;
+  margin: 0 auto;
+  border: 1px solid #ccc;
+  padding: 50px 20px 200px 20px;
+  background-color: #fefefe;
+}
+
+h1 {
+  border-bottom: solid 1px #ccc;
+  padding: 5px 5px 5px 5px;
+  line-height: 30px;
+}
+
+.notice-info {
+  background: #e5e5e5;
+  padding: 5px 10px 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 25px;
+}
+
+#reset-btn {
+  display: none;
+}

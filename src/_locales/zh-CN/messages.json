@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "MaoXian web clipper",
+    "description": "Name of the extension."
+  },
+
+  "extensionDescription": {
+    "message": "裁剪网页上的信息，并保存到你本地磁盘，以避免信息失效的情况发生",
+    "description": "Description of the extension."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "MaoXian web clipper",
+    "description": "Name of the extension."
+  },
+
+  "extensionDescription": {
+    "message": "Clip information from web page. save to your local machine to avoid information invalidation.",
+    "description": "Description of the extension."
+  }
+}

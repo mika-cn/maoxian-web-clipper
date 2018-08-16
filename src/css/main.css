@@ -1,0 +1,211 @@
+#MX-wc-entry {
+  all: initial; /* blocking inheritance for all properties */
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  border: 0px;
+  border-radius: 0px;
+  position: fixed;
+  top: 80px;
+  right: 10px;
+  z-index: 99999;
+}
+#MX-wc-entry::before,
+#MX-wc-entry::after,
+#MX-wc-entry *::before,
+#MX-wc-entry *::after {
+  all: unset;  /* allowing inheritance within #mydiv */
+}
+/*.MX-wc-bar { border: 1px solid #ccc; }*/
+#MX-wc-btn,.MX-wc-hint,#MX-wc-setting {
+  color: #eee;
+  font-size: 12px;
+  height: 30px;
+  line-height: 30px;
+  display: inline-block;
+}
+.MX-wc-hint {
+  background-color: #333333;
+  padding: 0px 10px 0px 10px;
+  display: none;
+}
+
+.MX-wc-bar:hover #MX-wc-setting{
+  display: inline-block;
+}
+#MX-wc-setting {
+  background-color: #aaa;
+  width: 30px;
+  text-align: center;
+  display: none;
+}
+
+.MX-wc-hint.clickable:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#MX-wc-btn {
+  background-color: #888;
+  width: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.MX-wc-bar.idle{ display: none }
+.MX-wc-bar.selecting #MX-wc-btn { background-color: red;}
+.MX-wc-bar.selected  #MX-wc-btn { background-color: green; }
+.MX-wc-bar.confirmed #MX-wc-btn { display: none}
+.MX-wc-bar.clipping  #MX-wc-btn { display: none}
+.MX-wc-bar.selected:hover + .MX-wc-help{
+  display: block;
+}
+.MX-wc-bar.selected.new-user + .MX-wc-help{
+  display: block;
+}
+
+/* help */
+.MX-wc-help{
+  display: none;
+  width: 100%;
+  margin-top: 25px;
+  /*background-color: white;*/
+}
+
+.MX-wc-help .help-group{
+  padding: 10px 15px 30px 15px;
+  border-radius: 3px;
+  background-color: rgba(51, 51, 51, 0.9);
+  color: #ffffff;
+  margin-bottom: 15px;
+  font-size: 12px;
+}
+
+.MX-wc-help table {
+  width: 100%;
+}
+.MX-wc-help tr { }
+.MX-wc-help td {
+  padding: 5px;
+}
+.MX-wc-help kbd {
+  all: unset;
+  display: inline-block;
+  font-size: 16px;
+  min-width: 20px;
+  min-height: 10px;
+  padding: 3px 5px;
+  line-height: 10px;
+  color: #ffffff;
+  text-align: center;
+  vertical-align: middle;
+}
+
+
+/* form style */
+
+.MX-wc-form {
+  width: 320px;
+  border: 1px solid #ccc;
+  padding: 40px 15px 80px 15px;
+  background-color: white;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: normal;
+  display: none;
+}
+.MX-input-group{
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.MX-input-group label, .Mx-input-group input{
+  display: block;
+}
+.MX-input-group label {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.MX-input-group input{
+  display: block;
+  font-size: 12px;
+  box-sizing: border-box;
+  height: 36px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0px 5px 0px 5px;
+}
+
+.MX-input-hint {
+  font-size: 12px;
+}
+
+.MX-input-group input:focus{
+  border: 2px solid pink;
+}
+
+.MX-wc-actions{
+  margin-top: 40px;
+}
+
+.MX-wc-action {
+  display: block;
+  text-decoration: none;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 10px;
+  color: #eee;
+  border-radius: 3px;
+}
+.MX-wc-action:hover {
+  text-decoration: none;
+  color: #eee;
+}
+.MX-wc-action:focus{
+  text-decoration: none;
+  color: #eee;
+  border: 2px solid pink;
+}
+
+.MX-wc-save-button{
+  background-color: green;
+}
+
+.MX-wc-cancel-button{
+  background-color: #aaaaaa;
+}
+
+.MX-tooltip-left {
+  /*transform: translateX(-101%) translateY(-36px);*/
+  min-width: 80px;
+  mx-width: 100%;
+  width: auto;
+  background-color: #373739;
+  color: #fff;
+  font-size: 13px;
+  cursor: default;
+  text-shadow: none;
+  padding: 10px 15px;
+  border: 1px solid #6d6e71;
+  border-top-color: #373739;
+  box-shadow: 1px 1px 2px rgba(0,0,0,.15);
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+}
+
+#MX-wc-category:focus + .MX-tooltip-left{
+  visibility: visible;
+  opacity: 1;
+}
+#MX-wc-tagstr:focus + .MX-tooltip-left{
+  visibility: visible;
+  opacity: 1;
+}
+
+
+/* overwrite awesomplete style */
+.awesomplete {
+  display: block;
+}
