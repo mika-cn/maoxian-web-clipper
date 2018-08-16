@@ -43,7 +43,7 @@ MxWcTemplate.settingPage = {
         <p>
                 <input type="checkbox" id="save-title-as-filename" /> ${t('setting.save-title-as-filename-input.label')}
           <br /><input type="checkbox" id="save-clipping-information" /> ${t('setting.clip-information-input.label')}
-          <br /><input type="checkbox" id="save-host-as-tag" /> ${t('setting.save-host-tag-input.label')}
+          <br /><input type="checkbox" id="save-domain-as-tag" /> ${t('setting.save-domain-tag-input.label')}
         </p>
       </section>
       <section class="setting-file-scheme-access">
@@ -252,6 +252,12 @@ MxWcTemplate.outputHtml = {
   },
 
   renderClippingInformation: function(v){
+    let tagHtml = t('none');
+    if(v.info.tags.length > 0) {
+      tagHtml = T.map(v.info.tags, function(tag) {
+        return "<code>" + tag + "</code>";
+      }).join(", ");
+    }
     return `
       <hr />
       <!-- clipping information -->
@@ -259,7 +265,7 @@ MxWcTemplate.outputHtml = {
         <label>${t('original_url')}: <a href="${v.info.link}" target="_blank">${t('access')}</a></label><br />
         <label>${t('created_at')}: ${v.info.created_at}</label><br />
         <label>${t('category')}: ${v.info.category}</label><br />
-        <label>${t('tags')}: ${v.info.tags.length > 0 ? v.info.tags.join(", ") : t('none')}</label>
+        <label>${t('tags')}: ${tagHtml}</label>
       </div>`;
   }
 }

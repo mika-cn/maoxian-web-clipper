@@ -2,7 +2,6 @@
 // Web-Extension Api
 const ExtApi = {};
 
-
 /*****************************
  * environment
  *****************************/
@@ -57,9 +56,27 @@ ExtApi.getCurrentTab = () => {
     browser.tabs.query({
       currentWindow: true,
       active: true
-    }).then((tabs) => { resolve(tabs[0]) });
+    }).then((tabs) => { resolve(tabs[0]) })
+    .catch((err) => {console.error(err);});
   })
 }
+
+/*****************************
+ * web navigator
+ *****************************/
+
+// Not avariable in content Script`
+// return a Promise.
+ExtApi.getAllFrames = (tabId) => {
+  return new Promise(function(resolve, _) {
+    browser.webNavigation.getAllFrames({
+      tabId: tabId
+    }).then((frames) => {
+      resolve(frames);
+    });
+  });
+}
+
 /*****************************
  * message
  *****************************/
@@ -69,14 +86,20 @@ ExtApi.addMessageListener = (listener) => {
 }
 
 // To content page
-ExtApi.sendMessageToContent = (message, tabId) => {
+ExtApi.sendMessageToContent = (message, tabId, frameId) => {
+  const defaultFrameId = 0;
+  const options = {frameId: defaultFrameId};
+  if(frameId) { options.frameId = frameId }
   return new Promise(function(resolve, _){
     if(tabId){
-      browser.tabs.sendMessage(tabId, message).then(resolve);
+      browser.tabs.sendMessage(tabId, message, options)
+        .then(resolve)
+        .catch((err) => { console.log(err) })
     }else{
       ExtApi.getCurrentTab().then((tab) => {
-        browser.tabs.sendMessage(tab.id, message)
-          .then(resolve);
+        browser.tabs.sendMessage(tab.id, message, options)
+          .then(resolve)
+          .catch((err) => {console.log(err)})
       })
     }
   })

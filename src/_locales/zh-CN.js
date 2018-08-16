@@ -27,7 +27,7 @@ I18N_DICT['zh-CN'] = {
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
-    "setting.save-host-tag-input.label": "裁剪时，添加当前域名为标签",
+    "setting.save-domain-tag-input.label": "裁剪时，添加当前域名为标签",
     "setting.save-title-as-filename-input.label": "使用标题作为文件名",
 
     //history page

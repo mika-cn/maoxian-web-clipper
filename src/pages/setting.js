@@ -27,8 +27,8 @@
       'saveClippingInformation'
     );
     initCheckBoxInput(config,
-      'save-host-as-tag',
-      'saveHostAsTag'
+      'save-domain-as-tag',
+      'saveDomainAsTag'
     );
     initCheckBoxInput(config,
       'save-title-as-filename',

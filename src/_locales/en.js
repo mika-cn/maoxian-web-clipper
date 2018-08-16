@@ -27,7 +27,7 @@ I18N_DICT['en'] = {
     "setting.notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after your allow browser to access file URLs.",
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags)",
-    "setting.save-host-tag-input.label": "Save current host as tag",
+    "setting.save-domain-tag-input.label": "Save current domain as tag",
     "setting.save-title-as-filename-input.label": "Use title as filename",
 
 

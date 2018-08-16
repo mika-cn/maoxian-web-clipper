@@ -1,7 +1,7 @@
 const ElemTool = {}
-ElemTool.cloneAndCompleteLink = (elem) => {
+ElemTool.cloneAndCompleteLink = (elem, refUrl) => {
   let clonedElem = elem.cloneNode(true); // true => deep clone
-  return T.completeElemLink(clonedElem, window.location.href);
+  return T.completeElemLink(clonedElem, refUrl);
 }
 
 // return [{:tag, :link, :assetName}]

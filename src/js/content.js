@@ -470,9 +470,9 @@
     const elem = getSelectedElement();
     if(elem){
       const titleInput = T.findElem(ID_TITLE);
-      const title = titleInput.value;
       const categoryInput = T.findElem(ID_CATEGORY);
-      const category = categoryInput.value;
+      let title = titleInput.value;
+      let category = categoryInput.value;
       if(title.trim() === ""){
         title = 'default';
       }

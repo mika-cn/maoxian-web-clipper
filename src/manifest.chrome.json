@@ -10,6 +10,7 @@
   ],
   "permissions": [
     "*://*/*",
+    "webNavigation",
     "webRequest",
     "storage",
     "tabs",
@@ -32,39 +33,51 @@
   },
   "content_scripts": [
     {
-      "css": [
-        "vendor/css/awesomplete.css",
-        "css/main.css"
-      ],
       "js": [
         "vendor/js/browser-polyfill.js",
-        "vendor/js/turndown.js",
         "vendor/js/md5.min.js",
-        "vendor/js/awesomplete.js",
-        "vendor/js/i18n.js",
+        "vendor/js/turndown.js",
         "vendor/js/strip-css-comments.js",
         "js/env.js",
         "js/tool.js",
-        "_locales/en.js",
-        "_locales/zh-CN.js",
         "js/lib/log.js",
         "js/lib/ext-api.js",
-        "js/lib/translation.js",
         "js/lib/mx-wc-storage.js",
         "js/lib/mx-wc-config.js",
-        "js/template.js",
         "js/content/elem-tool.js",
         "js/content/store.local-disk.js",
         "js/content/save-as-md.js",
         "js/content/save-as-html.js",
         "js/content/save.js",
+        "js/content-frame.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    },
+    {
+      "css": [
+        "vendor/css/awesomplete.css",
+        "css/main.css"
+      ],
+      "js": [
+        "vendor/js/awesomplete.js",
+        "vendor/js/i18n.js",
+        "_locales/en.js",
+        "_locales/zh-CN.js",
+        "js/lib/translation.js",
+        "js/template.js",
         "js/content.js"
       ],
       "matches": [
         "http://*/*",
         "https://*/*"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
   "icons": {

@@ -1,6 +1,6 @@
 
 "use strict";
-this.t = (function(I18N_DICT, ExtApi) {
+this.t = (function(I18N_DICT, locale) {
   function initTranslate(locale){
     const dict = I18N_DICT[locale]
     if(dict){
@@ -9,10 +9,10 @@ this.t = (function(I18N_DICT, ExtApi) {
       initTranslate('en');
     }
   }
-  //initTranslate('zh-CN' || ExtApi.locale);
-  initTranslate(ExtApi.locale);
+  //initTranslate('zh-CN' || locale);
+  initTranslate(locale);
 
   return (function(key) {
     return i18n(key);
   });
-})(I18N_DICT, ExtApi);
+})(I18N_DICT, browser.i18n.getUILanguage());

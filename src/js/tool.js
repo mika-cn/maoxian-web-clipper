@@ -2,6 +2,10 @@
 // Tool
 const T = {};
 
+T.createId = function() {
+  return '' + Math.round(Math.random() * 100000000000);
+}
+
 T.findElem = function(id){ return document.getElementById(id) }
 T.firstElem = function(className){ return T.queryElem(`.${className}`) }
 T.queryElem = function(selector){ return document.querySelector(selector) }
@@ -114,6 +118,7 @@ T.isUrlSameLevel = function(a, b){
   const urlb = new URL(b);
   return urla.pathname.lastIndexOf('/') === urlb.pathname.lastIndexOf('/');
 }
+
 
 T.getDoOnceObj = function(){
   return {

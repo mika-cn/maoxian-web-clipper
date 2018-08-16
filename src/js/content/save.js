@@ -3,30 +3,32 @@
 
 this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
-  // v => {:title, :category, :tags}
-  function save(v) {
-    saveHistory('category', v.category);
-    saveHistory('tags', v.tags);
+  // inputs => {:title, :category, :tags, :elem}
+  function save(inputs) {
+    const {title, category, tags, elem} = inputs;
+    saveInputHistory('category', category);
+    saveInputHistory('tags', tags);
     MxWcConfig.load().then((config) => {
       const appendTags = []
-      if (config.saveHostAsTag) {
+      if (config.saveDomainAsTag) {
         appendTags.push(window.location.host);
       }
+      // default name
       let name = 'index';
       if (config.saveTitleAsFilename) {
-        name = T.sanitizeFilename(v.title);
+        name = T.sanitizeFilename(title);
       }
-      const fold = T.joinPath([v.category, T.generateFoldname()]);
+      const fold = T.joinPath([category, T.generateFoldname()]);
       const filename = name + '.' + config.saveFormat;
       const info = {
-        id: fold.split('-').pop(),
-        format: config.saveFormat,
-        title: v.title,
-        link: window.location.href,
-        category: v.category,
-        tags: v.tags.concat(appendTags),
-        created_at: T.currentTime().toString(),
-        filename: filename
+        id         : fold.split('-').pop(),
+        format     : config.saveFormat,
+        title      : title,
+        link       : window.location.href,
+        category   : category,
+        tags       : tags.concat(appendTags),
+        created_at : T.currentTime().toString(),
+        filename   : filename
       }
 
       LocalDisk.saveIndexFile(fold, info);
@@ -37,14 +39,28 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
       saveClipHistory(fold, info);
 
+      const params = {
+        fold: fold,
+        elem: elem,
+        info: info,
+        config: config
+      }
+      // 保存整个网页如何处理
+      // 保存 iframe
+      // Iframe 不需要 clipping info
+      // Iframe 不能循环嵌套。
+      // 裁剪过程中相同的资源不能下载多次。
+      //
+
       switch(config.saveFormat){
-        case 'html': saveAsHtml(fold, v.elem, info); break;
-        case 'md': saveAsMd(fold, v.elem, info); break;
+        case 'html' : MxWcHtml.save(params); break;
+        case 'md'   : MxWcMarkdown.save(params); break;
       }
     });
   }
 
-  function saveHistory(k, v){
+  //private
+  function saveInputHistory(k, v){
     const body = {}
     body[k] = v;
     ExtApi.sendMessageToBackground({
@@ -53,6 +69,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
     });
   }
 
+  //private
   function saveClipHistory(fold, info){
     info.path = `mx-wc${fold}/index.json`;
     ExtApi.sendMessageToBackground({

@@ -25,6 +25,21 @@ function messageHandler(message, sender, senderResponse){
         downloadText(message.body);
         resolve();
         break;
+      case 'get.allFrames':
+        ExtApi.getAllFrames(sender.tab.id)
+          .then(resolve);
+        break;
+      case 'frame.toHtml':
+      case 'frame.toMd':
+        // send back
+        Log.debug(message);
+        ExtApi.sendMessageToContent(message, sender.tab.id, message.frameId)
+          .then((data) => {
+            Log.debug("BG: ", Date.now(),  data);
+            resolve(data);
+          });
+        break;
+
       default: break;
     }
   });

@@ -9,7 +9,7 @@ this.MxWcConfig = (function() {
       allowFileSchemeAccess: false,
       saveFormat: 'html',
       saveClippingInformation: true,
-      saveHostAsTag: false,
+      saveDomainAsTag: false,
       saveTitleAsFilename: false
     }
   }
