@@ -45,12 +45,6 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         info: info,
         config: config
       }
-      // 保存整个网页如何处理
-      // 保存 iframe
-      // Iframe 不需要 clipping info
-      // Iframe 不能循环嵌套。
-      // 裁剪过程中相同的资源不能下载多次。
-      //
 
       switch(config.saveFormat){
         case 'html' : MxWcHtml.save(params); break;

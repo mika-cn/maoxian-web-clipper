@@ -1,10 +1,10 @@
 const LocalDisk = {}
 
-LocalDisk.saveImageFiles = (fold, assetInfos, doOnceObj) => {
-  LocalDisk.downloadAssets(fold, assetInfos, doOnceObj);
+LocalDisk.saveImageFiles = (fold, assetInfos) => {
+  LocalDisk.downloadAssets(fold, assetInfos);
 }
-LocalDisk.saveFontFiles = (fold, assetInfos, doOnceObj) => {
-  LocalDisk.downloadAssets(fold, assetInfos, doOnceObj);
+LocalDisk.saveFontFiles = (fold, assetInfos) => {
+  LocalDisk.downloadAssets(fold, assetInfos);
 }
 
 
@@ -30,17 +30,22 @@ LocalDisk.saveTextFile = (text, mimeType, filename) => {
   });
 }
 
-LocalDisk.downloadAssets = (fold, assetInfos, doOnceObj) => {
+LocalDisk.downloadAssets = (fold, assetInfos) => {
   T.each(assetInfos, function(it){
     // same link, download once.
-    doOnceObj.restrict(it.link, function(){
-      ExtApi.sendMessageToBackground({
-        type: 'download.url',
-        body:{
-          url: it.link,
-          filename: `${fold}/${it.assetName}`
-        }
-      });
+    ExtApi.sendMessageToBackground({
+      type: 'keyStore.add',
+      body: {key: it.link}
+    }).then((canAdd) => {
+      if(canAdd) {
+        ExtApi.sendMessageToBackground({
+          type: 'download.url',
+          body:{
+            url: it.link,
+            filename: `${fold}/${it.assetName}`
+          }
+        });
+      }
     });
   });
 }

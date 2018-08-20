@@ -12,10 +12,10 @@ this.MxWcMarkdown = (function() {
     const {fold, elem, info, config} = params;
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
-      ExtApi.sendMessageToBackground({type: 'get.allFrames'})
+      ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
+      ExtApi.sendMessageToBackground({type: 'keyStore.start'})
     ]).then((values) => {
       const [mimeTypeDict, frames] = values;
-      Log.debug(frames);
       getElemHtml({
         win: window,
         frames: frames,
@@ -24,24 +24,22 @@ this.MxWcMarkdown = (function() {
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict
       }, function(html) {
-        let markdown = generateMarkDown(html, info);
-        if(config.saveClippingInformation){
-          markdown += generateMdClippingInfo(info);
-        }
-        LocalDisk.saveTextFile(markdown, 'text/markdown', `${fold}/${info.filename}`);
+        ExtApi.sendMessageToBackground({type: 'keyStore.reset'})
+          .then(() => {
+            let markdown = generateMarkDown(html, info);
+            if(config.saveClippingInformation){
+              markdown += generateMdClippingInfo(info);
+            }
+            LocalDisk.saveTextFile(markdown, 'text/markdown', `${fold}/${info.filename}`);
+          });
       });
     });
   }
 
   function getElemHtml(params, callback){
     const topFrameId = 0;
-    const {
-      win,
-      frames,
-      fold,
-      elem,
-      refUrl,
-      mimeTypeDict,
+    const { win, frames, fold,
+      elem, refUrl, mimeTypeDict,
       parentFrameId = topFrameId
     } = params;
     Log.debug("getElemHtml", refUrl);
@@ -50,65 +48,67 @@ this.MxWcMarkdown = (function() {
     const imgTags = T.getTagsByName(clonedElem, 'img')
     const imgAssetInfos = ElemTool.getAssetInfos(imgTags, 'src', mimeTypeDict);
     const assetFold = fold + '/assets';
-    LocalDisk.saveImageFiles(assetFold, imgAssetInfos, T.getDoOnceObj())
+    LocalDisk.saveImageFiles(assetFold, imgAssetInfos);
 
-    // collect current layer frames
-    const frameElems = [];
-    const promises = [];
-    T.each(frames, (frame) => {
-      console.log(parentFrameId, frame.parentFrameId);
-      if(parentFrameId === frame.parentFrameId) {
-        const selector = `iframe[src="${frame.url}"]`;
-        const frameElem = clonedElem.querySelector(selector);
-        if(frameElem){
-          frameElems.push(frameElem);
-          promises.push(
-            ExtApi.sendMessageToBackground({
-              type: 'frame.toMd',
-              to: frame.url,
-              frameId: frame.frameId,
-              body: {
-                frames: frames,
-                fold: fold,
-                mimeTypeDict: mimeTypeDict
-              }
-           })
-          );
-        }
-      }
-    });
-
-    const complete = function() {
+    handleFrames(params, clonedElem).then((clonedElem) => {
       // rewrite links
       clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
-      let elemHtml = clonedElem.outerHTML;
-      elemHtml = ElemTool.rewriteImgLink(elemHtml, imgAssetInfos);
-      Log.debug("Finish: ", refUrl);
-      callback(elemHtml);
-    }
+      let html = clonedElem.outerHTML;
+      html = ElemTool.rewriteImgLink(html, imgAssetInfos);
+      callback(html);
+    });
+  }
 
-    Log.debug("iframe length: ", promises.length);
-    if(promises.length > 0){
-      Promise.all(promises)
-        .then((frameHtmls) => {
-          T.each(frameHtmls, (frameHtml, idx) => {
-            Log.debug(idx);
-            // Replace frame element use frame html.
-            const frameElem = frameElems[idx];
-            const pNode = frameElem.parentNode;
-            const newNode = win.document.createElement("div");
-            newNode.innerHTML = frameHtml;
-            pNode.insertBefore(newNode, frameElem);
-            pNode.removeChild(frameElem);
-            Log.debug("frameElem removed");
-          });
-          complete();
-        })
-    } else {
-      Log.debug("len: ", 0);
-      complete();
-    }
+  function handleFrames(params, clonedElem) {
+    const topFrameId = 0;
+    const {win, frames, fold, mimeTypeDict,
+      parentFrameId = topFrameId } = params;
+    return new Promise(function(resolve, _){
+      // collect current layer frames
+      const frameElems = [];
+      const promises = [];
+      T.each(frames, (frame) => {
+        console.log(parentFrameId, frame.parentFrameId);
+        if(parentFrameId === frame.parentFrameId) {
+          const selector = `iframe[src="${frame.url}"]`;
+          const frameElem = clonedElem.querySelector(selector);
+          if(frameElem){
+            frameElems.push(frameElem);
+            promises.push(
+              ExtApi.sendMessageToBackground({
+                type: 'frame.toMd',
+                to: frame.url,
+                frameId: frame.frameId,
+                body: {
+                  frames: frames,
+                  fold: fold,
+                  mimeTypeDict: mimeTypeDict
+                }
+             })
+            );
+          }
+        }
+      });
 
+      Log.debug("iframe length: ", promises.length);
+      if(promises.length > 0){
+        Promise.all(promises)
+          .then((frameHtmls) => {
+            T.each(frameHtmls, (frameHtml, idx) => {
+              // Replace frame element use frame html.
+              const frameElem = frameElems[idx];
+              const pNode = frameElem.parentNode;
+              const newNode = win.document.createElement("div");
+              newNode.innerHTML = frameHtml;
+              pNode.insertBefore(newNode, frameElem);
+              pNode.removeChild(frameElem);
+            });
+            resolve(clonedElem);
+          })
+      } else {
+        resolve(clonedElem);
+      }
+    });
   }
 
 

@@ -6,6 +6,7 @@ const ExtApi = {};
  * environment
  *****************************/
 ExtApi.locale = browser.i18n.getUILanguage();
+//ExtApi.locale = 'zh-CN';
 
 function initEnvironment(){
   // not avariable in content script and popup page
@@ -94,12 +95,18 @@ ExtApi.sendMessageToContent = (message, tabId, frameId) => {
     if(tabId){
       browser.tabs.sendMessage(tabId, message, options)
         .then(resolve)
-        .catch((err) => { console.log(err) })
+        .catch((err) => {
+          console.log(message);
+          console.log(err)
+        })
     }else{
       ExtApi.getCurrentTab().then((tab) => {
         browser.tabs.sendMessage(tab.id, message, options)
           .then(resolve)
-          .catch((err) => {console.log(err)})
+          .catch((err) => {
+            console.log(message);
+            console.log(err)
+          })
       })
     }
   })

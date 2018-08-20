@@ -9,10 +9,9 @@ this.t = (function(I18N_DICT, locale) {
       initTranslate('en');
     }
   }
-  //initTranslate('zh-CN' || locale);
-  initTranslate(locale);
+  initTranslate(ExtApi.locale);
 
   return (function(key) {
     return i18n(key);
   });
-})(I18N_DICT, browser.i18n.getUILanguage());
+})(I18N_DICT, ExtApi);

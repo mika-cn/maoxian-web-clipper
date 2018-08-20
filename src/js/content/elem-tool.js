@@ -61,7 +61,8 @@ ElemTool.rewriteImgLink = (html, assetInfos) => {
   T.each(assetInfos, function(it){
     const tagHtml = it.tag.outerHTML;
     const link = it.tag.getAttribute('src');
-    let newHtml = tagHtml;
+    it.tag.removeAttribute('crossorigin');
+    let newHtml = it.tag.outerHTML;
     newHtml = newHtml.replace(link, 'assets/' + it.assetName);
     newHtml = newHtml.replace(link.replace(/&/g, '&amp;'), 'assets/' + it.assetName);
     html = html.replace(tagHtml, newHtml);

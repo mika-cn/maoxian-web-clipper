@@ -14,8 +14,17 @@ function messageHandler(message, sender, senderResponse){
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
       case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
-
-      case 'download.url'     :
+      case 'keyStore.start':
+        keyStoreService.start(resolve);
+        break;
+      case 'keyStore.add':
+        keyStoreService.add(message.body.key, resolve);
+        break;
+      case 'keyStore.reset':
+        keyStoreService.reset();
+        resolve();
+        break;
+      case 'download.url':
         storeTabId(sender, message);
         downloadUrl(message.body);
         resolve();
@@ -32,10 +41,8 @@ function messageHandler(message, sender, senderResponse){
       case 'frame.toHtml':
       case 'frame.toMd':
         // send back
-        Log.debug(message);
         ExtApi.sendMessageToContent(message, sender.tab.id, message.frameId)
           .then((data) => {
-            Log.debug("BG: ", Date.now(),  data);
             resolve(data);
           });
         break;
@@ -113,8 +120,8 @@ function downloadText(msg){
 
 function download(filename, url){
   filename = "mx-wc" + filename;
-  Log.debug(url);
-  Log.debug(filename);
+  Log.debug("download.url: ", url);
+  Log.debug("download.filename: ", filename);
   ExtApi.download({
     saveAs: false,
     filename: filename,
@@ -136,7 +143,7 @@ function downloadCompleted(downloadItemId){
   const tabId = tabIdDict.find(id);
   // file that not download through maoxian web clipper
   if(T.excludeFold(filename, 'mx-wc')){ return false }
-  if(  filename.endsWith('.html')
+  if(  filename.endsWith('.html') && !filename.endsWith('.frame.html')
     || filename.endsWith('.md')
     || filename.endsWith('.mxwc')){
     if(filename.endsWith('.mxwc')){
@@ -162,7 +169,7 @@ function filenameCreated(downloadItemId, filename){
 }
 
 function updateDownloadFold(filename){
-  if(  filename.endsWith('.html')
+  if(  filename.endsWith('.html') && !filename.endsWith('.frame.html')
     || filename.endsWith('.md')
     || filename.endsWith('.mxwc')){
     // Update download Fold, Cause user might change download fold.
@@ -204,17 +211,53 @@ function initDownloadFold(){
     });
 }
 
+
+function createKeyStoreService(){
+  const service = createLockService(50);
+
+  function add(key, callback){
+    service.get((state) => {
+      const canAdd = (state.keys.has(key) ? false : true);
+      state.keys.add(key);
+      Log.debug('KeyStore.add: ', key, canAdd);
+      callback(canAdd);
+    });
+  }
+
+  function start(callback){
+    Log.debug('keyStore.start');
+    service.start();
+    service.get((state) => {
+      state.keys = new Set();
+      callback()
+    });
+  }
+
+  function reset(){
+    Log.debug('keyStore.reset');
+    service.stop();
+  }
+
+  return {
+    start: start,
+    reset: reset,
+    add: add
+  };
+}
+
 // state
 let filenameDict = null; // downloadItemId = > filename
 let tabIdDict    = null; // filenameId = > tabId
-
+let keyStoreService = null;
 function init(){
   WebRequest.listen();
   filenameDict = T.createDict();
   tabIdDict = T.createDict();
+  keyStoreService = createKeyStoreService();
   ExtApi.bindDownloadCreatedListener(downloadCreated);
   ExtApi.bindDownloadChangedListener(downloadChanged);
   ExtApi.addMessageListener(messageHandler);
+  Log.debug("background init...");
 }
 
 init();

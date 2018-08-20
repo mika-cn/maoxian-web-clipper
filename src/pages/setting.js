@@ -22,17 +22,21 @@
 
   // section: clipping content
   function initSettingClippingContent(config) {
-    initCheckBoxInput(config,
+    initCheckboxInput(config,
       'save-clipping-information',
       'saveClippingInformation'
     );
-    initCheckBoxInput(config,
+    initCheckboxInput(config,
       'save-domain-as-tag',
       'saveDomainAsTag'
     );
-    initCheckBoxInput(config,
+    initCheckboxInput(config,
       'save-title-as-filename',
       'saveTitleAsFilename'
+    );
+    initCheckboxInput(config,
+      'enable-switch-hotkey',
+      'enableSwitchHotkey',
     );
   }
 
@@ -62,13 +66,13 @@
 
   // section: file scheme access
   function initFileSchemeAccess(config){
-    initCheckBoxInput(config,
+    initCheckboxInput(config,
       'file-scheme-access-input',
       'allowFileSchemeAccess'
     );
   }
 
-  function initCheckBoxInput(config, elemId, configKey){
+  function initCheckboxInput(config, elemId, configKey){
     const elem = T.findElem(elemId);
     elem.checked = config[configKey];
     T.bind(elem, 'click', (e) => {

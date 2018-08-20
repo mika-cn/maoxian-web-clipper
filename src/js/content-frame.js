@@ -10,18 +10,14 @@
    * }
    */
   function messageHandler(message) {
-    console.log(message);
     return new Promise(function(resolve, reject) {
       if (message.to === id) {
-        console.log(message.type, id);
         switch (message.type) {
           case 'frame.toHtml':
-            const params = getParams(message);
-            MxWcHtml.getElemHtml(params, resolve);
+            MxWcHtml.getElemHtml(getParams(message), resolve);
             break;
           case 'frame.toMd':
-            const params = getParams(message);
-            MxWcMarkdown.getElemHtml(params, resolve)
+            MxWcMarkdown.getElemHtml(getParams(message), resolve)
             break;
         }
       }

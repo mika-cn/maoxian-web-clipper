@@ -41,9 +41,9 @@ MxWcTemplate.settingPage = {
       <section class="setting-clipping-content">
         <h3>${t('setting.title.clipping-content')}</h3>
         <p>
-                <input type="checkbox" id="save-title-as-filename" /> ${t('setting.save-title-as-filename-input.label')}
-          <br /><input type="checkbox" id="save-clipping-information" /> ${t('setting.clip-information-input.label')}
-          <br /><input type="checkbox" id="save-domain-as-tag" /> ${t('setting.save-domain-tag-input.label')}
+                <input type="checkbox" id="save-title-as-filename" /><lable> ${t('setting.save-title-as-filename-input.label')}</label>
+          <br /><input type="checkbox" id="save-clipping-information" /><label> ${t('setting.clip-information-input.label')}</label>
+          <br /><input type="checkbox" id="save-domain-as-tag" /><label> ${t('setting.save-domain-tag-input.label')}</label>
         </p>
       </section>
       <section class="setting-file-scheme-access">
@@ -61,9 +61,16 @@ MxWcTemplate.settingPage = {
             <strong>${t('setting.warning')}:</strong><br />
             ${t('setting.notice.file-url-warning')}
           </div>
-          <input type="checkbox" id="file-scheme-access-input"/> ${t('setting.file-url-input.label')}
+          <input type="checkbox" id="file-scheme-access-input"/><label> ${t('setting.file-url-input.label')}</label>
         </p>
-      </section>`;
+      </section>
+      <section class="setting-hotkey">
+        <h3>${t('setting.title.hotkey')}</h3>
+        <p>
+          <input type="checkbox" id="enable-switch-hotkey" /><label> ${t('setting.enable-switch-hotkey-input.label')}</label>
+        </p>
+      </section>
+    `;
   }
 }
 
@@ -206,11 +213,30 @@ MxWcTemplate.UIHtml = {
   }
 }
 
-MxWcTemplate.outputHtml = {
+MxWcTemplate.framePage = {
+  render: function(v){
+    return `
+<!DOCTYPE html>
+<html>
+  <!-- ${v.originalSrc} -->
+  <head>
+    <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>${v.title}</title>
+    ${v.styleHtml}
+  </head>
+  ${v.html}
+</html>`;
+  }
+}
+
+MxWcTemplate.elemPage = {
   render: function(v){
   return `
 <!DOCTYPE html>
 <html>
+  <!-- OriginalSrc: ${v.info.url} -->
   <head>
     <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -245,28 +271,78 @@ MxWcTemplate.outputHtml = {
   <body style="background-color: ${v.bodyBgCss}" id="${v.bodyId}" class="${v.bodyClass}">
     <div class="mx-wc-main">
       ${v.elemHtml}
-      ${this.renderClippingInformation(v)}
+      ${MxWcTemplate.clippingInformation.render(v)}
     </div>
   </body>
 </html>`;
-  },
+  }
+}
 
-  renderClippingInformation: function(v){
-    let tagHtml = t('none');
-    if(v.info.tags.length > 0) {
-      tagHtml = T.map(v.info.tags, function(tag) {
-        return "<code>" + tag + "</code>";
-      }).join(", ");
+MxWcTemplate.bodyPage = {
+  render: function(v) {
+    let elemHtml = v.elemHtml.replace(/<body>/i, '');
+    elemHtml = elemHtml.replace(/<\/body>/i, '');
+    elemHtml = `<div id="${v.bodyId}" class="${v.bodyClass}">${elemHtml}</div>`;
+  return `
+<!DOCTYPE html>
+<html>
+  <!-- OriginalSrc: ${v.info.url} -->
+  <head>
+    <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>${v.info.title}</title>
+    ${v.styleHtml}
+    <style>
+      .mx-wc-main img {max-width: 100%;}
+      .mx-wc-main{
+        margin: 0 auto;
+      }
+      .mx-wc-main > .clipping-information{
+        margin-top: 20px;
+        background-color: #eeeeee;
+        padding: 15px;
+        border-radius: 4px;
+        color: #333;
+        font-size: 14px;
+        line-height: 22px;
+      }
+      .mx-wc-main > .clipping-information a { color: blue; }
+      .mx-wc-main > .clipping-information label { display: inline; }
+
+    </style>
+  </head>
+  <body>
+    <div class="mx-wc-main">
+      ${elemHtml}
+      ${MxWcTemplate.clippingInformation.render(v)}
+    </div>
+  </body>
+</html>`;
+  }
+}
+
+MxWcTemplate.clippingInformation = {
+  render: function(v) {
+    if(v.config.saveClippingInformation){
+      let tagHtml = t('none');
+      if(v.info.tags.length > 0) {
+        tagHtml = T.map(v.info.tags, function(tag) {
+          return "<code>" + tag + "</code>";
+        }).join(", ");
+      }
+      return `
+        <hr />
+        <!-- clipping information -->
+        <div class="clipping-information">
+          <label>${t('original_url')}: <a href="${v.info.link}" target="_blank">${t('access')}</a></label><br />
+          <label>${t('created_at')}: ${v.info.created_at}</label><br />
+          <label>${t('category')}: ${v.info.category}</label><br />
+          <label>${t('tags')}: ${tagHtml}</label>
+        </div>`;
+    } else {
+      return '';
     }
-    return `
-      <hr />
-      <!-- clipping information -->
-      <div class="clipping-information">
-        <label>${t('original_url')}: <a href="${v.info.link}" target="_blank">${t('access')}</a></label><br />
-        <label>${t('created_at')}: ${v.info.created_at}</label><br />
-        <label>${t('category')}: ${v.info.category}</label><br />
-        <label>${t('tags')}: ${tagHtml}</label>
-      </div>`;
   }
 }
 

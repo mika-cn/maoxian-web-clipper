@@ -7,30 +7,192 @@ this.MxWcHtml = (function () {
    */
   function save(params){
     Log.debug("save html");
-    const {fold, elem, info, config, doOnce = T.getDoOnceObj()} = params;
-    let clonedElem = ElemTool.cloneAndCompleteLink(elem, window.location.href);
-    ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}).then((mimeTypeDict) => {
-      const result = parseAssetInfo(clonedElem, mimeTypeDict);
-      const assetFold = fold + '/assets';
+    const {fold, elem, info, config} = params;
 
-
-      // deal internal style
-      result.internalStyles = T.map(result.styleTexts, (styleText) => {
-        return parseCss(assetFold, styleText, info.link, doOnce, mimeTypeDict);
+    Promise.all([
+      ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
+      ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
+      ExtApi.sendMessageToBackground({type: 'keyStore.start'})
+    ]).then((values) => {
+      const [mimeTypeDict, frames] = values;
+      // 获取选中元素的html
+      getElemHtml({
+        win: window,
+        frames: frames,
+        fold: fold,
+        elem: elem,
+        refUrl: window.location.href,
+        mimeTypeDict: mimeTypeDict
+      }, function(htmls) {
+        ExtApi.sendMessageToBackground({type: 'keyStore.reset'})
+          .then(() => {
+            const {styleHtml, elemHtml} = htmls;
+            // 将elemHtml 渲染进模板里，渲染成完整网页。
+            const v = getElemRenderParams(elem);
+            const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
+            v.info = info;
+            v.styleHtml = styleHtml;
+            v.elemHtml = elemHtml;
+            v.config = config;
+            const html = MxWcTemplate[page].render(v);
+            LocalDisk.saveTextFile( html, 'text/html', `${fold}/${info.filename}`);
+          });
       });
-
-      const html = generateHtml(elem, clonedElem, info, result);
-      LocalDisk.saveTextFile( html, 'text/html', `${fold}/${info.filename}`);
-
-      // deal external style
-      downloadCssFiles(assetFold, result.cssAssetInfos, doOnce, mimeTypeDict);
-
-      // download assets
-      LocalDisk.saveImageFiles(assetFold, result.imgAssetInfos, doOnce);
     });
   }
 
   function getElemHtml(params, callback){
+    const topFrameId = 0;
+    const {
+      win,
+      frames,
+      fold,
+      elem,
+      refUrl,
+      mimeTypeDict,
+      parentFrameId = topFrameId
+    } = params;
+    Log.debug('getElemHtml', refUrl);
+    const assetFold = fold + '/assets';
+    let clonedElem = ElemTool.cloneAndCompleteLink(elem, refUrl);
+    const result = parseAssetInfo(clonedElem, mimeTypeDict);
+    // deal internal style
+    result.internalStyles = T.map(result.styleTexts, (styleText) => {
+      return parseCss(assetFold, styleText, refUrl, mimeTypeDict);
+    });
+
+    // deal external style
+    downloadCssFiles(assetFold, result.cssAssetInfos, mimeTypeDict);
+
+    // download assets
+    LocalDisk.saveImageFiles(assetFold, result.imgAssetInfos);
+
+    const styleHtml = getExternalStyleHtml(result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
+    // deal frames
+    handleFrames(params, clonedElem).then((clonedElem) => {
+      let elemHtml = "";
+      if(elem.tagName === 'BODY') {
+        elemHtml = dealBodyElem(elem, clonedElem, refUrl, result);
+      } else {
+        elemHtml = dealNormalElem(elem, clonedElem, refUrl, result);
+      }
+      callback({ styleHtml: styleHtml, elemHtml: elemHtml});
+    })
+
+  }
+
+  function handleFrames(params, clonedElem) {
+    const topFrameId = 0;
+    const {win, frames, fold, mimeTypeDict,
+      parentFrameId = topFrameId } = params;
+    return new Promise(function(resolve, _){
+      // collect current layer frames
+
+      const judgeDupPromises = [];
+      const currLayerFrames = [];
+      T.each(frames, (frame) => {
+        if(parentFrameId === frame.parentFrameId) {
+          const selector = `iframe[src="${frame.url}"]`;
+          const frameElem = clonedElem.querySelector(selector);
+          if(frameElem){
+            currLayerFrames.push(frame);
+            judgeDupPromises.push(
+              ExtApi.sendMessageToBackground({
+                type: 'keyStore.add',
+                body: {key: frame.url}
+              })
+            );
+          }
+        }
+      });
+
+      if(judgeDupPromises.length === 0) {
+        resolve(clonedElem);
+      } else {
+        Promise.all(judgeDupPromises)
+          .then((values) => {
+            T.each(values, (noDuplicate, index) => {
+              const frame = currLayerFrames[index];
+              const assetName = rewriteFrameSrc(clonedElem, frame);
+              if(noDuplicate){
+                ExtApi.sendMessageToBackground({
+                  type: 'frame.toHtml',
+                  to: frame.url,
+                  frameId: frame.frameId,
+                  body: {
+                    frames: frames,
+                    fold: fold,
+                    mimeTypeDict: mimeTypeDict
+                  }
+                }).then((frameHtml) => {
+                  // render frameHtml and download frame
+                  const {styleHtml, elemHtml} = frameHtml;
+                  const html = MxWcTemplate.framePage.render({
+                    originalSrc: frame.url,
+                    title: win.document.title,
+                    styleHtml: styleHtml,
+                    html: elemHtml
+                  });
+                  LocalDisk.saveTextFile( html, 'text/html', `${fold}/${assetName}`);
+                })
+              }
+            });
+            resolve(clonedElem);
+          });
+      }
+    });
+  }
+
+
+  function rewriteFrameSrc(clonedElem, frame) {
+    const assetName = T.calcAssetName(frame.url, 'frame.html');
+    const selector = `iframe[src="${frame.url}"]`;
+    const frameElems = clonedElem.querySelectorAll(selector);
+    T.each(frameElems, (frameElem) => {
+      frameElem.src = assetName;
+    });
+    return assetName;
+  }
+
+  function dealBodyElem(elem, clonedElem, refUrl, parseResult) {
+    let html = getFixedLinkHtml(elem, clonedElem, refUrl, parseResult.imgAssetInfos);
+    html = removeUselessHtml(html, elem);
+    return html;
+  }
+
+  function dealNormalElem(elem, clonedElem, refUrl, parseResult){
+    clonedElem.classList.add("mx-wc-selected-elem");
+    clonedElem.style = (clonedElem.style.cssText || "") + "float: none; position: relative; top: 0; left: 0; margin: 0px; flex:unset; width: 100%; max-width: 100%; box-sizing: border-box;";
+    let html = getFixedLinkHtml(elem, clonedElem, refUrl, parseResult.imgAssetInfos);
+    html = removeUselessHtml(html, elem);
+    html = wrapToBody(elem, html);
+    return html
+  }
+
+
+  function getFixedLinkHtml(elem, clonedElem, refUrl, imgAssetInfos) {
+    clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
+    let html = clonedElem.outerHTML;
+    html = ElemTool.rewriteImgLink(html, imgAssetInfos)
+    return html;
+  }
+
+  function removeUselessHtml(html, elem){
+    // Extension UI
+    const mxWcEntry = T.findElem('MX-wc-entry');
+    if(mxWcEntry){
+      html = html.replace(mxWcEntry.outerHTML, '');
+    }
+    // external style tags
+    T.each(elem.querySelectorAll('link[rel=stylesheet]'), function(tag) {
+      html = html.replace(tag.outerHTML, '');
+    });
+    T.each(['style', 'script', 'noscript', 'template'], function(tagName){
+      T.each(elem.getElementsByTagName(tagName), function(tag){
+        html = html.replace(tag.outerHTML, '');
+      })
+    });
+    return html;
   }
 
   /*
@@ -48,22 +210,27 @@ this.MxWcHtml = (function () {
     }
   }
 
-  function downloadCssFiles(fold, assetInfos, doOnce, mimeTypeDict){
+  function downloadCssFiles(fold, assetInfos, mimeTypeDict){
     T.each(assetInfos, function(it){
-      doOnce.restrict(it.link, function(){
-        fetch(it.link).then(function(resp){
-          return resp.text();
-        }).then(function(txt){
-          cssText = parseCss(fold, txt, it.link, doOnce, mimeTypeDict);
-          LocalDisk.saveTextFile(cssText, 'text/css', `${fold}/${it.assetName}`);
-        });
+      ExtApi.sendMessageToBackground({
+        type: 'keyStore.add',
+        body: {key: it.link}
+      }).then((canAdd) => {
+        if(canAdd) {
+          fetch(it.link).then(function(resp){
+            return resp.text();
+          }).then(function(txt){
+            const cssText = parseCss(fold, txt, it.link, mimeTypeDict);
+            LocalDisk.saveTextFile(cssText, 'text/css', `${fold}/${it.assetName}`);
+          }).catch((err) => {console.error(err)});
+        }
       });
     });
   }
 
 
-  function parseCss(fold, styleText, refUrl, doOnce, mimeTypeDict){
-    // FIXME danger here
+  function parseCss(fold, styleText, refUrl, mimeTypeDict){
+    // FIXME danger here (order matter)
     const rule1 = {regExp: /url\("[^\)]+"\)/gm, template: 'url("$PATH")', separator: '"'};
     const rule2 = {regExp: /url\('[^\)]+'\)/gm, template: 'url("$PATH")', separator: "'"};
     const rule3 = {regExp: /url\([^\)'"]+\)/gm, template: 'url("$PATH")', separator: /\(|\)/ };
@@ -82,7 +249,7 @@ this.MxWcHtml = (function () {
     const fontRegExp = /@font-face\s?\{[^\}]+\}/gm;
     styleText = styleText.replace(fontRegExp, function(match){
       const r = parseCssTextUrl(match, refUrl, [rule1, rule2, rule3], mimeTypeDict);
-      LocalDisk.saveFontFiles(fold, r.assetInfos, doOnce, mimeTypeDict);
+      LocalDisk.saveFontFiles(fold, r.assetInfos, mimeTypeDict);
       return r.cssText;
     });
 
@@ -90,7 +257,7 @@ this.MxWcHtml = (function () {
     const cssRegExp = /@import[^;]+;/igm;
     styleText = styleText.replace(cssRegExp, function(match){
       const r = parseCssTextUrl(match, refUrl, [rule11, rule12, rule13, rule14, rule15], mimeTypeDict);
-      downloadCssFiles(fold, r.assetInfos, doOnce);
+      downloadCssFiles(fold, r.assetInfos, mimeTypeDict);
       return r.cssText;
     });
 
@@ -137,53 +304,42 @@ this.MxWcHtml = (function () {
     }
   }
 
-  function generateHtml(elem, clonedElem, info, parseResult){
-    let bodyBgCss = getBgCss(document.body);
+  function getElemRenderParams(elem){
     const bodyId = document.body.id;
     const bodyClass = document.body.className;
-    const elemWrappers = getWrappers(elem, []);
-    const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
-    const outerElemBgCss = getBgCss(outerElem);
-    const elemBgCss = getBgCss(elem);
-    if(elemBgCss == outerElemBgCss){
-      if(outerElemBgCss == 'rgb(255, 255, 255)'){
-        bodyBgCss = '#464646';
+    if (elem.tagName === 'BODY') {
+      return { bodyId: bodyId, bodyClass: bodyClass }
+    } else {
+      let bodyBgCss = getBgCss(document.body);
+      const elemWrappers = getWrappers(elem, []);
+      const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
+      const outerElemBgCss = getBgCss(outerElem);
+      const elemBgCss = getBgCss(elem);
+      if(elemBgCss == outerElemBgCss){
+        if(outerElemBgCss == 'rgb(255, 255, 255)'){
+          bodyBgCss = '#464646';
+        }else{
+          //TODO use opposite color
+          bodyBgCss = '#ffffff';
+        }
       }else{
-        //TODO use opposite color
-        bodyBgCss = '#ffffff';
+        if(elemBgCss == bodyBgCss || outerElemBgCss == bodyBgCss){
+          bodyBgCss = '#464646';
+        }
       }
-    }else{
-      if(elemBgCss == bodyBgCss || outerElemBgCss == bodyBgCss){
-        bodyBgCss = '#464646';
+      const elemWidth = getFitWidth(elem);
+      return {
+        outerElemBgCss: outerElemBgCss,
+        elemWidth: elemWidth,
+        bodyBgCss: bodyBgCss,
+        bodyId: bodyId,
+        bodyClass: bodyClass,
       }
-
     }
-
-    const elemWidth = getFitWidth(elem)
-
-    const styleHtml = getCssLinkTagsHtml(parseResult.cssAssetInfos) + getInternalStyleHtml(parseResult.internalStyles)
-
-    clonedElem.classList.add("mx-wc-selected-elem");
-    clonedElem.style = (clonedElem.style.cssText || "") + "float: none; position: relative; top: 0; left: 0; margin: 0px; flex:unset; width: 100%; max-width: 100%; box-sizing: border-box;";
-    clonedElem = ElemTool.rewriteAnchorLink(clonedElem, info.link);
-    let elemHtml = clonedElem.outerHTML;
-    elemHtml = ElemTool.rewriteImgLink(elemHtml, parseResult.imgAssetInfos)
-    T.each(['style', 'script', 'noscript', 'template'], function(tagName){
-      elemHtml = removeTagHtml(elemHtml, elem, tagName);
-    });
-    elemHtml = wrapToBody(elem, elemHtml);
-    const html = MxWcTemplate.outputHtml.render({
-      info: info,
-      styleHtml: styleHtml,
-      elemHtml: elemHtml,
-      outerElemBgCss: outerElemBgCss,
-      elemWidth: elemWidth,
-      bodyBgCss: bodyBgCss,
-      bodyId: bodyId,
-      bodyClass: bodyClass,
-    })
-    return html
   }
+
+
+
 
   /* wrap to body element */
   function wrapToBody(elem, html){
@@ -299,7 +455,7 @@ this.MxWcHtml = (function () {
 
 
   // external(css file)
-  function getCssLinkTagsHtml(assetInfos){
+  function getExternalStyleHtml(assetInfos){
     let html = "";
     T.each(assetInfos, function(it){
       const tag = it.tag.cloneNode(true);
@@ -328,14 +484,8 @@ this.MxWcHtml = (function () {
     return html;
   }
 
-  function removeTagHtml(html, elem, tagName){
-    T.each(elem.getElementsByTagName(tagName), function(tag){
-      html = html.replace(tag.outerHTML, '');
-    })
-    return html;
-  }
-
   return {
-    save: save
+    save: save,
+    getElemHtml: getElemHtml
   }
-});
+})();

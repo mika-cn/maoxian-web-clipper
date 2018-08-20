@@ -165,7 +165,7 @@
     const elem = getSelectedElement();
     if(!elem){ return; }
     const pElem = elem.parentElement;
-    if(['HTML', 'BODY'].indexOf(pElem.tagName) < 0){
+    if(['HTML'].indexOf(pElem.tagName) < 0){
       MxWc.selector.stack.push(elem);
       stopEvent(e)
       switchSelected(elem, pElem);
@@ -640,8 +640,13 @@
   }
 
   function initialize(){
-    T.bindOnce(document, "keydown", toggleSwitch);
-    Log.debug("init...");
+    MxWcConfig.load()
+      .then((config) => {
+        if(config.enableSwitchHotkey) {
+          T.bindOnce(document, "keydown", toggleSwitch);
+        }
+        Log.debug("content init...");
+      });
   }
 
   function run(){

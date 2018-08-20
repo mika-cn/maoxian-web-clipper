@@ -18,6 +18,7 @@ I18N_DICT['en'] = {
     //setting page
     "setting.warning": "Warning",
     "setting.title.save-format": "Save Format",
+    "setting.title.hotkey": "Hotkey",
     "setting.title.file-url": "File URL",
     "setting.title.clipping-content": "Clipping Content",
     "setting.notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
@@ -29,6 +30,7 @@ I18N_DICT['en'] = {
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags)",
     "setting.save-domain-tag-input.label": "Save current domain as tag",
     "setting.save-title-as-filename-input.label": "Use title as filename",
+    "setting.enable-switch-hotkey-input.label": "Enable hotkey `c` (clip switch)",
 
 
     //history page

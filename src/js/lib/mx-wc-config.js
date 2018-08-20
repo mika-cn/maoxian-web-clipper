@@ -10,7 +10,8 @@ this.MxWcConfig = (function() {
       saveFormat: 'html',
       saveClippingInformation: true,
       saveDomainAsTag: false,
-      saveTitleAsFilename: false
+      saveTitleAsFilename: false,
+      enableSwitchHotkey: false
     }
   }
 

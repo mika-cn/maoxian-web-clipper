@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*"
@@ -25,6 +25,7 @@
       "js/tool.js",
       "js/lib/log.js",
       "js/lib/ext-api.js",
+      "js/lib/lock-service.js",
       "js/lib/mx-wc-icon.js",
       "js/lib/mx-wc-storage.js",
       "js/background/web-request.js",
@@ -38,10 +39,15 @@
         "vendor/js/md5.min.js",
         "vendor/js/turndown.js",
         "vendor/js/strip-css-comments.js",
+        "vendor/js/i18n.js",
+        "_locales/en.js",
+        "_locales/zh-CN.js",
+        "js/template.js",
         "js/env.js",
         "js/tool.js",
         "js/lib/log.js",
         "js/lib/ext-api.js",
+        "js/lib/translation.js",
         "js/lib/mx-wc-storage.js",
         "js/lib/mx-wc-config.js",
         "js/content/elem-tool.js",
@@ -65,11 +71,6 @@
       ],
       "js": [
         "vendor/js/awesomplete.js",
-        "vendor/js/i18n.js",
-        "_locales/en.js",
-        "_locales/zh-CN.js",
-        "js/lib/translation.js",
-        "js/template.js",
         "js/content.js"
       ],
       "matches": [

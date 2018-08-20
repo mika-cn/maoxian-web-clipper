@@ -155,8 +155,8 @@ T.getUrlExtension = function(url){
 }
 
 // require md5 library
-T.calcAssetName = function(url){
-  const extension = T.getUrlExtension(url);
+T.calcAssetName = function(url, ext){
+  const extension = (ext || T.getUrlExtension(url));
   if(extension){
     return [md5(url), extension].join('.');
   }else{

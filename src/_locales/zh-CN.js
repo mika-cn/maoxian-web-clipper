@@ -18,6 +18,7 @@ I18N_DICT['zh-CN'] = {
     //setting page
     "setting.warning": "警告",
     "setting.title.save-format": "保存格式",
+    "setting.title.hotkey": "快捷键设置",
     "setting.title.file-url": "本地网址",
     "setting.title.clipping-content": "裁剪内容",
     "setting.notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
@@ -29,6 +30,7 @@ I18N_DICT['zh-CN'] = {
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
     "setting.save-domain-tag-input.label": "裁剪时，添加当前域名为标签",
     "setting.save-title-as-filename-input.label": "使用标题作为文件名",
+    "setting.enable-switch-hotkey-input.label": "启用快捷键 `c` (裁剪开关)",
 
     //history page
     "history.input.placeholder": "可搜索标题、标签、目录",
