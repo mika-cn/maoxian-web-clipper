@@ -344,3 +344,4 @@ T.getTagsByName = function(elem, name){
   const child = elem.getElementsByTagName(name)
   return r.concat(T.toArray(child));
 }
+

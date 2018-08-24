@@ -255,6 +255,7 @@ MxWcTemplate.elemPage = {
 
       }
       .mx-wc-main > .clipping-information{
+        text-align: left;
         margin-top: 20px;
         background-color: #eeeeee;
         padding: 15px;
@@ -299,6 +300,7 @@ MxWcTemplate.bodyPage = {
         margin: 0 auto;
       }
       .mx-wc-main > .clipping-information{
+        text-align: left;
         margin-top: 20px;
         background-color: #eeeeee;
         padding: 15px;

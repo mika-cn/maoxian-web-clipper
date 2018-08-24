@@ -46,7 +46,12 @@
           }
         })
       }else{
-        menuIds = ['clip'].concat(pageIds);
+        //browser restricted url
+        if(['addons.mozilla.org', 'chrome.google.com'].indexOf((new URL(tabUrl)).host) > -1) {
+          menuIds = pageIds;
+        } else {
+          menuIds = ['clip'].concat(pageIds);
+        }
       }
       menuIds.push('home');
       MxWcStorage.get('lastDownloadItemId')

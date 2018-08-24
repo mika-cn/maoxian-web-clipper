@@ -17,6 +17,7 @@
       initSettingFormat(config);
       initSettingClippingContent(config)
       initFileSchemeAccess(config);
+      initSettingHotkey(config);
     });
   }
 
@@ -34,6 +35,9 @@
       'save-title-as-filename',
       'saveTitleAsFilename'
     );
+  }
+
+  function initSettingHotkey(config){
     initCheckboxInput(config,
       'enable-switch-hotkey',
       'enableSwitchHotkey',
