@@ -123,11 +123,8 @@ T.prefixUrl = function(part, base){
 }
 
 T.isUrlSameLevel = function(a, b){
-  const urla = new URL(a);
-  const urlb = new URL(b);
-  return urla.pathname.slice(0, urla.pathname.lastIndexOf('/')) === urlb.pathname.slice(0, urlb.pathname.lastIndexOf('/'));
+  return a.slice(0, a.lastIndexOf('/')) === b.slice(0, b.lastIndexOf('/'));
 }
-
 
 T.getDoOnceObj = function(){
   return {
