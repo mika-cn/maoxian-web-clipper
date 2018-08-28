@@ -13,15 +13,23 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       if (config.saveDomainAsTag) {
         appendTags.push(window.location.host);
       }
-      // default name
+      // default filename
       let name = 'index';
       if (config.saveTitleAsFilename) {
         name = T.sanitizeFilename(title);
       }
-      const fold = T.joinPath([category, T.generateFoldname()]);
+
+      const foldName = T.generateFoldname();
+      const clipId = foldName.split('-').pop();
+      // deafult fold name
+      let fold = T.joinPath([category, foldName]);
+      if (config.saveTitleAsFoldName) {
+        const titleFoldName = [clipId, T.sanitizeFilename(title)].join('-');
+        fold = T.joinPath([category, titleFoldName]);
+      }
       const filename = name + '.' + config.saveFormat;
       const info = {
-        id         : fold.split('-').pop(),
+        id         : clipId,
         format     : config.saveFormat,
         title      : title,
         link       : window.location.href,

@@ -29,7 +29,8 @@ I18N_DICT['en'] = {
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags)",
     "setting.save-domain-tag-input.label": "Save current domain as tag",
-    "setting.save-title-as-filename-input.label": "Use title as filename",
+    "setting.save-title-as-fold-name-input.label": "Use title as fold name (default: Generate by extension)",
+    "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html/index.md)",
     "setting.enable-switch-hotkey-input.label": "Enable hotkey `c` (clip switch)",
 
 

@@ -35,6 +35,10 @@
       'save-title-as-filename',
       'saveTitleAsFilename'
     );
+    initCheckboxInput(config,
+      'save-title-as-fold-name',
+      'saveTitleAsFoldName'
+    );
   }
 
   function initSettingHotkey(config){

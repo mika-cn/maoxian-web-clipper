@@ -12,40 +12,47 @@
   }
 
   function parseFiles(files){
-    let jsons = []
+    let items = []
     const length = files.length;
     const msRegExp = /-(\d{9,})\//;
     for(let i=0; i < length; i++){
       const file = files[i];
       if(file.type === "application/json"){
-        const path = file.webkitRelativePath;
-        if(path.match(msRegExp)){
-          const t = parseInt(path.match(msRegExp)[1]);
-          jsons.push({t: t, file: file});
-        }else{
-          console.warn("MxWc.ErrorPathFormat", path);
+        const clip = readJson(file);
+
+        // old index.json file compatible
+        if(!clip.id) {
+          const path = file.webkitRelativePath;
+          if(path.match(msRegExp)){
+            clip.id = path.match(msRegExp)[1];
+          } else {
+            clip.id = '00' + Math.round(Math.random() * 10000000);
+          }
         }
+
+        if(!clip.format) {
+          clip.format = 'html';
+        }
+
+        items.push({t: parseInt(clip.id), clip: clip});
       }
     }
-    jsons = jsons.sort(function(a, b){ return b.t - a.t });
-    return parseJsons(jsons);
+    items = items.sort(function(a, b){ return b.t - a.t });
+    return parseClips(items);
   }
 
-  function parseJsons(jsons){
+  function parseClips(items){
     const clips = [];
     const categories = [];
     const tags = [];
-    jsons.forEach(function(it){
-      const clip = readJson(it.file);
-      clip.id = it.t.toString();
-      if(!clip.format){ clip.format = 'html'; }
-      clips.push(clip);
-      clip.tags.forEach(function(tag){
+    items.forEach(function(it){
+      clips.push(it.clip);
+      it.clip.tags.forEach(function(tag){
         if(tags.indexOf(tag) == -1){
           tags.push(tag)
         }
       });
-      const path = clip.path.replace('mx-wc/', '');
+      const path = it.clip.path.replace('mx-wc/', '');
       const parts = path.split('/');
       const category = parts.slice(0, parts.length - 2).join('/');
       if(categories.indexOf(category) == -1){

@@ -41,7 +41,8 @@ MxWcTemplate.settingPage = {
       <section class="setting-clipping-content">
         <h3>${t('setting.title.clipping-content')}</h3>
         <p>
-                <input type="checkbox" id="save-title-as-filename" /><lable> ${t('setting.save-title-as-filename-input.label')}</label>
+                <input type="checkbox" id="save-title-as-fold-name" /><lable> ${t('setting.save-title-as-fold-name-input.label')}</label>
+          <br /><input type="checkbox" id="save-title-as-filename" /><lable> ${t('setting.save-title-as-filename-input.label')}</label>
           <br /><input type="checkbox" id="save-clipping-information" /><label> ${t('setting.clip-information-input.label')}</label>
           <br /><input type="checkbox" id="save-domain-as-tag" /><label> ${t('setting.save-domain-tag-input.label')}</label>
         </p>

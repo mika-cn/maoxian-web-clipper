@@ -209,20 +209,34 @@ T.generateFoldname = function(){
 
 
 
+// @see https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names#1976050
+// @see https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file
 // More strict
 T.sanitizeFilename = function(name){
-  /*
-   * Sanitize Chars
-   * / \ < > : ? ·
-   * <space> | * "
-   * ~
-   */
-  return name
-    .replace(/[\/\?\s\|<>\\:,·]/g, '-')
-    .replace(/[\*"]/g, '')
-    .replace(/\.$/, '')
-    .replace(/~/g, '-')
-    .replace(/-+/g, '-');
+  const winReservedNames = [ 'CON', 'PRN', 'AUX', 'NUL',
+    'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+    'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
+  ];
+  if(winReservedNames.indexOf(name) > -1){
+    return "InvalidName" + name;
+  } else {
+    if(name.length > 200){
+      // Stupid windows: Path Length Limitation
+      name = name.slice(0, 200);
+    }
+    /* line1 => /  ? <space> | < > \ : ,
+     * line2 => * "
+     * line3 => period at the end.
+     * line4 => ~
+     * line5 => multiply dash to one dash
+     */
+    return name
+      .replace(/[\/\?\s\|<>\\:,\.]/g, '-')
+      .replace(/[\*"]/g, '')
+      .replace(/\.$/, '')
+      .replace(/~/g, '-')
+      .replace(/-+/g, '-');
+  }
 }
 
 T.includeFold = function(path, fold){

@@ -11,6 +11,7 @@ this.MxWcConfig = (function() {
       saveClippingInformation: true,
       saveDomainAsTag: false,
       saveTitleAsFilename: false,
+      saveTitleAsFoldName: false,
       enableSwitchHotkey: false
     }
   }
