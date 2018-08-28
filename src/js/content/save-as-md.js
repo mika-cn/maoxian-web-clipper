@@ -69,7 +69,7 @@ this.MxWcMarkdown = (function() {
       const promises = [];
       T.each(frames, (frame) => {
         console.log(parentFrameId, frame.parentFrameId);
-        if(parentFrameId === frame.parentFrameId) {
+        if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
           const selector = `iframe[src="${frame.url}"]`;
           const frameElem = clonedElem.querySelector(selector);
           if(frameElem){

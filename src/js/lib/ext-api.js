@@ -97,7 +97,8 @@ ExtApi.sendMessageToContent = (message, tabId, frameId) => {
         .then(resolve)
         .catch((err) => {
           console.log(message);
-          console.log(err)
+          console.error(err);
+          console.trace();
         })
     }else{
       ExtApi.getCurrentTab().then((tab) => {

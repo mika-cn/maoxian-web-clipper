@@ -108,6 +108,15 @@ T.maxValueKey = function(numValueObj){
 
 T.toJson = function(hash) { return JSON.stringify(hash);}
 
+T.isExtensionUrl = function(url){
+  if(url.indexOf('://') > -1) {
+    const protocol = url.split('://')[0];
+    return !!protocol.match(/-extension$/);
+  } else {
+    return false
+  }
+}
+
 
 T.prefixUrl = function(part, base){
   return (new URL(part, base)).href;

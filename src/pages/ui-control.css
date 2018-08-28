@@ -1,12 +1,18 @@
-#MX-wc-entry {
-  all: initial; /* blocking inheritance for all properties */
+
+body {
   font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+
+
+
+#MX-wc-entry {
   border: 0px;
   border-radius: 0px;
   position: fixed;
   top: 80px;
   right: 10px;
   z-index: 99999;
+  color: #eee;
 }
 #MX-wc-entry::before,
 #MX-wc-entry::after,
@@ -67,16 +73,13 @@
   display: none;
   width: 100%;
   margin-top: 25px;
-  /*background-color: white;*/
 }
 
 .MX-wc-help .help-group{
   padding: 10px 15px 30px 15px;
   border-radius: 3px;
   background-color: rgba(51, 51, 51, 0.9);
-  color: #ffffff;
   margin-bottom: 15px;
-  font-size: 12px;
 }
 
 .MX-wc-help table {
@@ -84,7 +87,9 @@
 }
 .MX-wc-help tr { }
 .MX-wc-help td {
+  color: #eee;
   padding: 5px;
+  font-size: 13px;
 }
 .MX-wc-help kbd {
   all: unset;
@@ -94,9 +99,9 @@
   min-height: 10px;
   padding: 3px 5px;
   line-height: 10px;
-  color: #ffffff;
   text-align: center;
   vertical-align: middle;
+  color: #fff;
 }
 
 
@@ -111,6 +116,7 @@
   font-size: 14px;
   font-weight: normal;
   display: none;
+  color: #888;
 }
 .MX-input-group{
   margin-bottom: 15px;

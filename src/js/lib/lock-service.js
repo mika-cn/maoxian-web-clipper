@@ -7,6 +7,7 @@ this.createLockService = function(interval) {
   let actions = [];
   let canConsume = false;
   let timeoutId = null;
+  let stopInterval = interval;
 
   function get(action) {
     if(canConsume) {
@@ -23,7 +24,7 @@ this.createLockService = function(interval) {
         const action = actions.shift();
         action(state);
       }
-      timeoutId = setTimeout(consume, interval);
+      timeoutId = setTimeout(consume, Math.max(interval, stopInterval));
     }
   }
 
@@ -34,11 +35,17 @@ this.createLockService = function(interval) {
 
   function stop(){
     get((state) => {
+      // We must stop slowly. otherwise we will lost action.
+      // console.log('slow interval');
+      stopInterval = 200;
+    });
+    get((state) => {
+      // set stopInterval back to normal interval.
+      stopInterval = interval;
       if(actions.length === 0){
         // no more action, stop now.
         stopNow();
       }else{
-        // wait action to complete
         stop();
       }
     })

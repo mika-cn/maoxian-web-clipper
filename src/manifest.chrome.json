@@ -65,12 +65,9 @@
       "all_frames": true
     },
     {
-      "css": [
-        "vendor/css/awesomplete.css",
-        "css/main.css"
-      ],
       "js": [
-        "vendor/js/awesomplete.js",
+        "js/lib/frame-msg.js",
+        "js/content/ui.js",
         "js/content.js"
       ],
       "matches": [
