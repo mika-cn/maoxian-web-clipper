@@ -5,7 +5,7 @@ ElemTool.cloneAndCompleteLink = (elem, refUrl) => {
 }
 
 // return [{:tag, :link, :assetName}]
-ElemTool.getAssetInfos = (assetTags, attrName, mimeTypeDict) => {
+ElemTool.getAssetInfos = (assetTags, attrName, mimeTypeDict, extension) => {
   let arr = [];
   T.each(assetTags, function(tag){
     const link = tag[attrName];
@@ -14,7 +14,7 @@ ElemTool.getAssetInfos = (assetTags, attrName, mimeTypeDict) => {
       const assetInfo = {
         tag: tag,
         link: link,
-        assetName: T.calcAssetName(fixedLink),
+        assetName: T.calcAssetName(fixedLink, extension),
       }
       arr.push(assetInfo);
     }

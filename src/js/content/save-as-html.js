@@ -206,7 +206,7 @@ this.MxWcHtml = (function () {
 
     return {
       imgAssetInfos: ElemTool.getAssetInfos( listA, 'src', mimeTypeDict),
-      cssAssetInfos: ElemTool.getAssetInfos( listC, 'href', mimeTypeDict),
+      cssAssetInfos: ElemTool.getAssetInfos( listC, 'href', mimeTypeDict, 'css'),
       styleTexts: T.map(listB, (tag) => { return tag.innerHTML })
     }
   }
@@ -249,7 +249,12 @@ this.MxWcHtml = (function () {
     // fonts
     const fontRegExp = /@font-face\s?\{[^\}]+\}/gm;
     styleText = styleText.replace(fontRegExp, function(match){
-      const r = parseCssTextUrl(match, refUrl, [rule1, rule2, rule3], mimeTypeDict);
+      const r = parseCssTextUrl({
+        cssText: match,
+        refUrl: refUrl,
+        rules: [rule1, rule2, rule3],
+        mimeTypeDict: mimeTypeDict
+      });
       LocalDisk.saveFontFiles(fold, r.assetInfos);
       return r.cssText;
     });
@@ -257,7 +262,13 @@ this.MxWcHtml = (function () {
     // @import css
     const cssRegExp = /@import[^;]+;/igm;
     styleText = styleText.replace(cssRegExp, function(match){
-      const r = parseCssTextUrl(match, refUrl, [rule11, rule12, rule13, rule14, rule15], mimeTypeDict);
+      const r = parseCssTextUrl({
+        cssText: match,
+        refUrl: refUrl,
+        rules: [rule11, rule12, rule13, rule14, rule15],
+        mimeTypeDict: mimeTypeDict,
+        extension: 'css'
+      });
       downloadCssFiles(fold, r.assetInfos, mimeTypeDict);
       return r.cssText;
     });
@@ -265,7 +276,9 @@ this.MxWcHtml = (function () {
     return styleText;
   }
 
-  function parseCssTextUrl(cssText, refUrl, rules, mimeTypeDict){
+  function parseCssTextUrl(params){
+    const {refUrl, rules, mimeTypeDict, extension} = params;
+    let cssText = params.cssText;
     let assetInfos = [];
     const getReplace = function(rule){
       return function(match){
@@ -273,7 +286,7 @@ this.MxWcHtml = (function () {
         if(T.isHttpProtocol(part)){
           const fullUrl = T.prefixUrl(part, refUrl);
           const fixedLink = ElemTool.fixLinkExtension(fullUrl, mimeTypeDict);
-          const assetName = T.calcAssetName(fixedLink);
+          const assetName = T.calcAssetName(fixedLink, extension);
           assetInfos.push({link: fullUrl, assetName: assetName});
           if(T.isUrlSameLevel(refUrl, window.location.href)){
             return rule.template.replace('$PATH', `assets/${assetName}`);

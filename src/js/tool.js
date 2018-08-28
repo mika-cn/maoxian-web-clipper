@@ -125,7 +125,7 @@ T.prefixUrl = function(part, base){
 T.isUrlSameLevel = function(a, b){
   const urla = new URL(a);
   const urlb = new URL(b);
-  return urla.pathname.lastIndexOf('/') === urlb.pathname.lastIndexOf('/');
+  return urla.pathname.slice(0, urla.pathname.lastIndexOf('/')) === urlb.pathname.slice(0, urlb.pathname.lastIndexOf('/'));
 }
 
 
