@@ -213,7 +213,7 @@ function initDownloadFold(){
 
 
 function createKeyStoreService(){
-  const service = createLockService(50);
+  const service = createLockService(30);
 
   function add(key, callback){
     service.get((state) => {

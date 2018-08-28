@@ -46,6 +46,9 @@ LocalDisk.downloadAssets = (fold, assetInfos) => {
           }
         });
       }
+    }).catch((err) => {
+      console.error(err);
+      console.trace();
     });
   });
 }

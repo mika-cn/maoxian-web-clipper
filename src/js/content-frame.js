@@ -43,7 +43,6 @@
     }else{
       // Iframe
       ExtApi.addMessageListener(messageHandler);
-      Window.add
     }
   }
 

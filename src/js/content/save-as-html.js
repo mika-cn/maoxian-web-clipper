@@ -91,7 +91,7 @@ this.MxWcHtml = (function () {
       const judgeDupPromises = [];
       const currLayerFrames = [];
       T.each(frames, (frame) => {
-        if(parentFrameId === frame.parentFrameId) {
+        if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
           const selector = `iframe[src="${frame.url}"]`;
           const frameElem = clonedElem.querySelector(selector);
           if(frameElem){
@@ -178,11 +178,12 @@ this.MxWcHtml = (function () {
   }
 
   function removeUselessHtml(html, elem){
-    // Extension UI
-    const mxWcEntry = T.findElem('MX-wc-entry');
-    if(mxWcEntry){
-      html = html.replace(mxWcEntry.outerHTML, '');
-    }
+    // extension Iframe
+    T.each(elem.querySelectorAll('iframe'), function(iframe){
+      if(T.isExtensionUrl(iframe.src)){
+        html = html.replace(iframe.outerHTML, '');
+      }
+    });
     // external style tags
     T.each(elem.querySelectorAll('link[rel=stylesheet]'), function(tag) {
       html = html.replace(tag.outerHTML, '');
@@ -249,7 +250,7 @@ this.MxWcHtml = (function () {
     const fontRegExp = /@font-face\s?\{[^\}]+\}/gm;
     styleText = styleText.replace(fontRegExp, function(match){
       const r = parseCssTextUrl(match, refUrl, [rule1, rule2, rule3], mimeTypeDict);
-      LocalDisk.saveFontFiles(fold, r.assetInfos, mimeTypeDict);
+      LocalDisk.saveFontFiles(fold, r.assetInfos);
       return r.cssText;
     });
 
