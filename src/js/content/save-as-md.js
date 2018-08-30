@@ -51,8 +51,8 @@ this.MxWcMarkdown = (function() {
     LocalDisk.saveImageFiles(assetFold, imgAssetInfos);
 
     handleFrames(params, clonedElem).then((clonedElem) => {
-      // rewrite links
       clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
+      clonedElem = PluginGist.handle(win, clonedElem);
       let html = clonedElem.outerHTML;
       html = ElemTool.rewriteImgLink(html, imgAssetInfos);
       callback(html);

@@ -270,7 +270,7 @@ MxWcTemplate.elemPage = {
 
     </style>
   </head>
-  <body style="background-color: ${v.bodyBgCss}" id="${v.bodyId}" class="${v.bodyClass}">
+  <body style="background-color: ${v.bodyBgCss}; min-height: 100%; height: auto;" id="${v.bodyId}" class="${v.bodyClass}">
     <div class="mx-wc-main">
       ${v.elemHtml}
       ${MxWcTemplate.clippingInformation.render(v)}

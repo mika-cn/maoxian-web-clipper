@@ -126,11 +126,10 @@ this.UI = (function(){
         // event trigger in same element
         return;
       }
-      console.log(msg);
       state.currElem = elem;
       drawSelectingStyle(elem);
     } catch(e) {
-      console.error(e);
+      Log.error(e);
     }
   }
 
@@ -171,6 +170,7 @@ this.UI = (function(){
     let el;
     try {
       el = document.elementFromPoint(x, y);
+      el = getOutermostWrapper(el);
     } finally {
       selectionIframe.element.style.pointerEvents = '';
       controlIframe.element.style.pointerEvents = '';
@@ -250,17 +250,17 @@ this.UI = (function(){
       origin: window.location.origin,
       allowOrigins: [extFrameOrigin]
     })
-    FrameMsg.addListener('mousemove', mouseMove);
-    FrameMsg.addListener('click', clickHandler);
-    FrameMsg.addListener('pressEsc', pressEsc);
-    FrameMsg.addListener('pressEnter', pressEnter);
-    FrameMsg.addListener('pressLeft', pressLeft);
-    FrameMsg.addListener('pressUp', pressUp);
-    FrameMsg.addListener('pressRight', pressRight);
-    FrameMsg.addListener('pressDown', pressDown);
-    FrameMsg.addListener('startClip', startClip);
-    FrameMsg.addListener('entryClick', entryClick);
-    FrameMsg.addListener('cancelForm', cancelForm);
+    FrameMsg.addListener('mousemove'  , mouseMove);
+    FrameMsg.addListener('click'      , clickHandler);
+    FrameMsg.addListener('pressEsc'   , pressEsc);
+    FrameMsg.addListener('pressEnter' , pressEnter);
+    FrameMsg.addListener('pressLeft'  , pressLeft);
+    FrameMsg.addListener('pressUp'    , pressUp);
+    FrameMsg.addListener('pressRight' , pressRight);
+    FrameMsg.addListener('pressDown'  , pressDown);
+    FrameMsg.addListener('startClip'  , startClip);
+    FrameMsg.addListener('entryClick' , entryClick);
+    FrameMsg.addListener('cancelForm' , cancelForm);
     console.log('listenFrameMsg');
   }
 
@@ -397,7 +397,7 @@ this.UI = (function(){
 
   function pressLeft(msg){
     if(state.clippingState === 'selected'){
-      const pElem = state.currElem.parentElement;
+      const pElem = getOutermostWrapper(state.currElem.parentElement);
       if(['HTML'].indexOf(pElem.tagName) < 0){
         MxWc.selector.stack.push(state.currElem);
         switchSelected(state.currElem, pElem);
@@ -410,7 +410,7 @@ this.UI = (function(){
     if(state.clippingState === 'selected'){
       if(MxWc.selector.stack.isEmpty()){
         let cElem = state.currElem.children[0];
-        while(cElem && isOnBlackList(cElem)){
+        while(cElem && (isOnBlackList(cElem) || isBoxSizeEq(state.currElem, cElem))){
           cElem = cElem.children[0];
         }
         if(cElem){
@@ -452,6 +452,22 @@ this.UI = (function(){
     }
   }
 
+  function getOutermostWrapper(elem){
+    if(['HTML', 'BODY'].indexOf(elem.tagName) > 0){ return elem }
+    const pElem = elem.parentElement;
+    if(isBoxSizeEq(elem, pElem)){
+      return getOutermostWrapper(pElem);
+    } else {
+      return elem;
+    }
+  }
+
+  function isBoxSizeEq(elemA, elemB) {
+    const boxA = elemA.getBoundingClientRect();
+    const boxB = elemB.getBoundingClientRect();
+    return boxA.width === boxB.width && boxA.height === boxB.height;
+  }
+
   function isOnBlackList(elem){
     const blackList = ["SCRIPT", "STYLE", "TEMPLATE"];
     return (blackList.indexOf(elem.tagName) > -1
@@ -469,7 +485,6 @@ this.UI = (function(){
   }
 
   function downloadCompleted(){
-    console.log(performance.now());
     disable();
     remove();
   }

@@ -331,6 +331,22 @@ T.isHttpProtocol = function(link){
   }
 }
 
+T.escapeHtml = function(string) {
+  return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+    return ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+      '=': '&#x3D;'
+    })[s];
+  });
+
+}
+
 T.completeElemLink = function(elem, fullUrl){
   const anchorTags = T.getTagsByName(elem, 'a');
   const imageTags  = T.getTagsByName(elem, 'img');

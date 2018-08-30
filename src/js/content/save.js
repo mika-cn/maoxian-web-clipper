@@ -41,7 +41,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
       LocalDisk.saveIndexFile(fold, info);
 
-      if(!config.saveTitleAsFilename) {
+      if(!(config.saveTitleAsFoldName || config.saveTitleAsFilename)) {
         LocalDisk.saveTitleFile(fold, info);
       }
 
