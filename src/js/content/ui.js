@@ -463,9 +463,13 @@ this.UI = (function(){
   }
 
   function isBoxSizeEq(elemA, elemB) {
-    const boxA = elemA.getBoundingClientRect();
-    const boxB = elemB.getBoundingClientRect();
-    return boxA.width === boxB.width && boxA.height === boxB.height;
+    if(elemA && elemB){
+      const boxA = elemA.getBoundingClientRect();
+      const boxB = elemB.getBoundingClientRect();
+      return boxA.width === boxB.width && boxA.height === boxB.height;
+    } else {
+      return false;
+    }
   }
 
   function isOnBlackList(elem){

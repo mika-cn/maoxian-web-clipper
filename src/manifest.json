@@ -37,6 +37,7 @@
       "js": [
         "vendor/js/browser-polyfill.js",
         "vendor/js/md5.min.js",
+        "vendor/js/mathml2latex.js",
         "vendor/js/turndown.js",
         "vendor/js/strip-css-comments.js",
         "vendor/js/i18n.js",
@@ -51,6 +52,7 @@
         "js/lib/mx-wc-storage.js",
         "js/lib/mx-wc-config.js",
         "js/lib/plugin-gist.js",
+        "js/lib/plugin-mathml.js",
         "js/content/elem-tool.js",
         "js/content/store.local-disk.js",
         "js/content/save-as-md.js",
