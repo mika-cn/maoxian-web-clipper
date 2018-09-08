@@ -44,7 +44,10 @@ this.MxWcMarkdown = (function() {
       parentFrameId = topFrameId
     } = params;
     Log.debug("getElemHtml", refUrl);
-    let clonedElem = ElemTool.cloneAndCompleteLink(elem, refUrl);
+    const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
+    let clonedElem = elem.cloneNode(true);
+    clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
+    clonedElem = T.completeElemLink(clonedElem, refUrl);
 
     const imgTags = T.getTagsByName(clonedElem, 'img')
     const imgAssetInfos = ElemTool.getAssetInfos(imgTags, 'src', mimeTypeDict);

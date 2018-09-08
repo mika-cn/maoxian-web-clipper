@@ -1,7 +1,46 @@
 const ElemTool = {}
-ElemTool.cloneAndCompleteLink = (elem, refUrl) => {
-  let clonedElem = elem.cloneNode(true); // true => deep clone
-  return T.completeElemLink(clonedElem, refUrl);
+
+ElemTool.getHiddenElementXpaths = (win, elem, xpaths=[], prefix="") => {
+  T.each(elem.children, (childElem, index) => {
+    const xpath = [prefix, '*[', index + 1, ']'].join('');
+    if(ElemTool.isElemVisible(win, childElem)) {
+      xpaths = ElemTool.getHiddenElementXpaths(
+        win, childElem, xpaths, xpath + '/');
+    } else {
+      xpaths.push(xpath);
+    }
+  })
+  return xpaths;
+}
+
+ElemTool.removeChildByXpath = (win, elem, xpaths) => {
+  xpaths.forEach((xpath) => {
+    const child = win.document.evaluate(
+      xpath,
+      elem,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null
+    ).singleNodeValue
+    if(child){
+      const pElem = child.parentElement;
+      pElem.removeChild(child);
+    } else {
+      console.warn("Xpath elem not found", xpath);
+    }
+  });
+  return elem;
+}
+
+ElemTool.isElemVisible = (win, elem) => {
+  if(elem.offsetWidth === 0 && elem.offsetHeight === 0){
+    return false
+  }
+  const style = win.getComputedStyle(elem);
+  if(style.visibility === 'hidden'){
+    return false
+  }
+  return true
 }
 
 // return [{:tag, :link, :assetName}]
