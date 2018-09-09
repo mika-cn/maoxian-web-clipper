@@ -1,9 +1,6 @@
 (function() {
   "use strict";
 
-  // use href as identify
-  const id = window.location.href;
-
   /*
    * @param {Object} message: {
    *   fold, mimeTypeDict
@@ -11,7 +8,7 @@
    */
   function messageHandler(message) {
     return new Promise(function(resolve, reject) {
-      if (message.to === id) {
+      if (message.to === window.location.href) {
         switch (message.type) {
           case 'frame.toHtml':
             MxWcHtml.getElemHtml(getParams(message), resolve);
@@ -25,8 +22,9 @@
   }
 
   function getParams(message) {
-    const {frames, fold, mimeTypeDict} = message.body;
+    const {id, frames, fold, mimeTypeDict} = message.body;
     return {
+      id: id,
       win: window,
       frames: frames,
       fold: fold,

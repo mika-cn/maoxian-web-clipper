@@ -17,6 +17,7 @@ this.MxWcMarkdown = (function() {
     ]).then((values) => {
       const [mimeTypeDict, frames] = values;
       getElemHtml({
+        id: info.id,
         win: window,
         frames: frames,
         fold: fold,
@@ -39,8 +40,14 @@ this.MxWcMarkdown = (function() {
 
   function getElemHtml(params, callback){
     const topFrameId = 0;
-    const { win, frames, fold,
-      elem, refUrl, mimeTypeDict,
+    const {
+      id,
+      win,
+      frames,
+      fold,
+      elem,
+      refUrl,
+      mimeTypeDict,
       parentFrameId = topFrameId
     } = params;
     Log.debug("getElemHtml", refUrl);
@@ -50,7 +57,12 @@ this.MxWcMarkdown = (function() {
     clonedElem = T.completeElemLink(clonedElem, refUrl);
 
     const imgTags = T.getTagsByName(clonedElem, 'img')
-    const imgAssetInfos = ElemTool.getAssetInfos(imgTags, 'src', mimeTypeDict);
+    const imgAssetInfos = ElemTool.getAssetInfos({
+      id: id,
+      assetTags: imgTags,
+      attrName: 'src',
+      mimeTypeDict: mimeTypeDict
+    });
     const assetFold = fold + '/assets';
     LocalDisk.saveImageFiles(assetFold, imgAssetInfos);
 
@@ -66,7 +78,7 @@ this.MxWcMarkdown = (function() {
 
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {win, frames, fold, mimeTypeDict,
+    const {id, win, frames, fold, mimeTypeDict,
       parentFrameId = topFrameId } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
@@ -85,6 +97,7 @@ this.MxWcMarkdown = (function() {
                 to: frame.url,
                 frameId: frame.frameId,
                 body: {
+                  id: id,
                   frames: frames,
                   fold: fold,
                   mimeTypeDict: mimeTypeDict

@@ -234,13 +234,15 @@ T.sanitizeFilename = function(name){
      * line2 => * "
      * line3 => period at the end.
      * line4 => ~
-     * line5 => multiply dash to one dash
+     * line5 => #
+     * line6 => multiply dash to one dash
      */
     return name
       .replace(/[\/\?\s\|<>\\:,\.]/g, '-')
       .replace(/[\*"]/g, '')
       .replace(/\.$/, '')
       .replace(/~/g, '-')
+      .replace(/#/g, '-')
       .replace(/-+/g, '-');
   }
 }
