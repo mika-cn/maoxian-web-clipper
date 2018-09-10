@@ -23,7 +23,6 @@ this.PluginMathML2LaTeX = (function(){
 
   function toLaTeXNode(win, math) {
     const latex = MathML2LaTeX.convert(math.outerHTML);
-    console.log('latex: ', latex);
     // use code tag to avoid turndown escape '\';
     const newNode = win.document.createElement('code');
     newNode.innerText = "LaTeX " + latex + " LaTeX";
