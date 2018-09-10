@@ -28,6 +28,7 @@ this.MxWcMarkdown = (function() {
         ExtApi.sendMessageToBackground({type: 'keyStore.reset'})
           .then(() => {
             let markdown = generateMarkDown(html, info);
+            markdown = PluginMathJax.unEscapeMathJax(markdown);
             markdown = PluginMathML2LaTeX.unEscapeLaTex(markdown);
             if(config.saveClippingInformation){
               markdown += generateMdClippingInfo(info);
@@ -69,6 +70,7 @@ this.MxWcMarkdown = (function() {
     handleFrames(params, clonedElem).then((clonedElem) => {
       clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
       clonedElem = PluginGist.handle(win, clonedElem);
+      clonedElem = PluginMathJax.handle(win, clonedElem);
       clonedElem = PluginMathML2LaTeX.handle(win, clonedElem);
       let html = clonedElem.outerHTML;
       html = ElemTool.rewriteImgLink(html, imgAssetInfos);
