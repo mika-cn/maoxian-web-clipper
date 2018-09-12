@@ -9,7 +9,7 @@ this.MxWcMarkdown = (function() {
    */
   function save(params){
     Log.debug("save markdown");
-    const {fold, elem, info, config} = params;
+    const {fold, assetFold, assetRelativePath, elem, info, config} = params;
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
       ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
@@ -21,6 +21,8 @@ this.MxWcMarkdown = (function() {
         win: window,
         frames: frames,
         fold: fold,
+        assetFold: assetFold,
+        assetRelativePath: assetRelativePath,
         elem: elem,
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict
@@ -33,7 +35,7 @@ this.MxWcMarkdown = (function() {
             if(config.saveClippingInformation){
               markdown += generateMdClippingInfo(info);
             }
-            LocalDisk.saveTextFile(markdown, 'text/markdown', `${fold}/${info.filename}`);
+            LocalDisk.saveTextFile(markdown, 'text/markdown', T.joinPath([fold, info.filename]));
           });
       });
     });
@@ -46,6 +48,8 @@ this.MxWcMarkdown = (function() {
       win,
       frames,
       fold,
+      assetFold,
+      assetRelativePath,
       elem,
       refUrl,
       mimeTypeDict,
@@ -64,23 +68,23 @@ this.MxWcMarkdown = (function() {
       attrName: 'src',
       mimeTypeDict: mimeTypeDict
     });
-    const assetFold = fold + '/assets';
     LocalDisk.saveImageFiles(assetFold, imgAssetInfos);
 
     handleFrames(params, clonedElem).then((clonedElem) => {
+      Log.debug("FrameHandlefihish");
       clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
       clonedElem = PluginGist.handle(win, clonedElem);
       clonedElem = PluginMathJax.handle(win, clonedElem);
       clonedElem = PluginMathML2LaTeX.handle(win, clonedElem);
       let html = clonedElem.outerHTML;
-      html = ElemTool.rewriteImgLink(html, imgAssetInfos);
+      html = ElemTool.rewriteImgLink(html, assetRelativePath, imgAssetInfos);
       callback(html);
     });
   }
 
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {id, win, frames, fold, mimeTypeDict,
+    const {id, win, frames, fold, assetFold, assetRelativePath, mimeTypeDict,
       parentFrameId = topFrameId } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
@@ -102,6 +106,8 @@ this.MxWcMarkdown = (function() {
                   id: id,
                   frames: frames,
                   fold: fold,
+                  assetFold: assetFold,
+                  assetRelativePath, assetRelativePath,
                   mimeTypeDict: mimeTypeDict
                 }
              })
@@ -148,14 +154,18 @@ this.MxWcMarkdown = (function() {
     md += "\n\n---------------------------------------------------\n"
     md += `\n\n${t('original_url')}: [${t('access')}](${info.link})`;
     md += `\n\n${t('created_at')}: ${info.created_at}`;
-    md += `\n\n${t('category')}: ${info.category}`;
-    let tagstr = t('none');
+    let categoryStr = t('none');
+    let tagStr = t('none');
+    if(info.category){
+      categoryStr = info.category
+    }
     if(info.tags.length > 0){
-      tagstr = T.map(info.tags, function(tag){
+      tagStr = T.map(info.tags, function(tag){
         return "`" + tag + "`";
       }).join(", ");
     }
-    md += `\n\n${t('tags')}: ${tagstr}`;
+    md += `\n\n${t('category')}: ${categoryStr}`;
+    md += `\n\n${t('tags')}: ${tagStr}`;
     md += "\n\n";
     return md
   }

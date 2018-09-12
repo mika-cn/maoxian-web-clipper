@@ -49,6 +49,21 @@ h3 {
   cursor: pointer;
 }
 
+input[type=text] {
+  display: block;
+  font-size: 12px;
+  box-sizing: border-box;
+  height: 30px;
+  width: 75%;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0px 5px 0px 5px;
+}
+
+input[type=text]:focus{
+  border: 2px solid pink;
+}
+
 .setting-format > a:hover {
   background-color: #F5F5F5;
 }

@@ -15,10 +15,32 @@
   function initUI() {
     MxWcConfig.load().then((config) => {
       initSettingFormat(config);
+      initSettingPath(config);
       initSettingClippingContent(config)
       initFileSchemeAccess(config);
       initSettingHotkey(config);
     });
+  }
+
+  function initSettingPath(config) {
+    initTextInput(config,
+      'default-category',
+      'defaultCategory'
+    );
+
+    initTextInput(config,
+      'asset-path',
+      'assetPath'
+    );
+
+    initCheckboxInput(config,
+      'save-title-as-filename',
+      'saveTitleAsFilename'
+    );
+    initCheckboxInput(config,
+      'save-title-as-fold-name',
+      'saveTitleAsFoldName'
+    );
   }
 
   // section: clipping content
@@ -30,14 +52,6 @@
     initCheckboxInput(config,
       'save-domain-as-tag',
       'saveDomainAsTag'
-    );
-    initCheckboxInput(config,
-      'save-title-as-filename',
-      'saveTitleAsFilename'
-    );
-    initCheckboxInput(config,
-      'save-title-as-fold-name',
-      'saveTitleAsFoldName'
     );
   }
 
@@ -85,6 +99,14 @@
     elem.checked = config[configKey];
     T.bind(elem, 'click', (e) => {
       MxWcConfig.update(configKey, e.target.checked);
+    });
+  }
+
+  function initTextInput(config, elemId, configKey){
+    const elem = T.findElem(elemId);
+    elem.value = config[configKey];
+    T.bind(elem, 'blur', (e) => {
+      MxWcConfig.update(configKey, e.target.value);
     });
   }
 

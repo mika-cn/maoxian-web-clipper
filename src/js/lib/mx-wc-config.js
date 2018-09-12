@@ -6,13 +6,17 @@ this.MxWcConfig = (function() {
 
   function getDefault(){
     return {
-      allowFileSchemeAccess: false,
       saveFormat: 'html',
       saveClippingInformation: true,
       saveDomainAsTag: false,
-      saveTitleAsFilename: false,
+
+      assetPath: '$CLIP-FOLD/assets', /* $MX-WC/ */
       saveTitleAsFoldName: false,
-      enableSwitchHotkey: false
+      saveTitleAsFilename: false,
+      defaultCategory: 'default',
+
+      allowFileSchemeAccess: false,
+      enableSwitchHotkey: false,
     }
   }
 

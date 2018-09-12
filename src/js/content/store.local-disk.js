@@ -1,10 +1,10 @@
 const LocalDisk = {}
 
-LocalDisk.saveImageFiles = (fold, assetInfos) => {
-  LocalDisk.downloadAssets(fold, assetInfos);
+LocalDisk.saveImageFiles = (assetFold, assetInfos) => {
+  LocalDisk.downloadAssets(assetFold, assetInfos);
 }
-LocalDisk.saveFontFiles = (fold, assetInfos) => {
-  LocalDisk.downloadAssets(fold, assetInfos);
+LocalDisk.saveFontFiles = (assetFold, assetInfos) => {
+  LocalDisk.downloadAssets(assetFold, assetInfos);
 }
 
 
@@ -30,7 +30,7 @@ LocalDisk.saveTextFile = (text, mimeType, filename) => {
   });
 }
 
-LocalDisk.downloadAssets = (fold, assetInfos) => {
+LocalDisk.downloadAssets = (assetFold, assetInfos) => {
   T.each(assetInfos, function(it){
     // same link, download once.
     ExtApi.sendMessageToBackground({
@@ -42,7 +42,7 @@ LocalDisk.downloadAssets = (fold, assetInfos) => {
           type: 'download.url',
           body:{
             url: it.link,
-            filename: `${fold}/${it.assetName}`
+            filename: T.joinPath([assetFold, it.assetName])
           }
         });
       }

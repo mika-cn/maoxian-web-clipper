@@ -119,7 +119,6 @@ function downloadText(msg){
 
 
 function download(filename, url){
-  filename = "mx-wc" + filename;
   Log.debug("download.url: ", url);
   Log.debug("download.filename: ", filename);
   ExtApi.download({

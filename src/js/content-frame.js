@@ -22,12 +22,14 @@
   }
 
   function getParams(message) {
-    const {id, frames, fold, mimeTypeDict} = message.body;
+    const {id, frames, fold, assetFold, assetRelativePath, mimeTypeDict} = message.body;
     return {
       id: id,
       win: window,
       frames: frames,
       fold: fold,
+      assetFold: assetFold,
+      assetRelativePath: assetRelativePath,
       elem: document.body,
       refUrl: window.location.href,
       mimeTypeDict: mimeTypeDict,
