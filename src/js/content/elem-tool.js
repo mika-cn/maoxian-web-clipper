@@ -48,13 +48,13 @@ ElemTool.isElemVisible = (win, elem) => {
 // }
 // return [{:tag, :link, :assetName}]
 ElemTool.getAssetInfos = (params ) => {
-  const { id, assetTags, attrName, mimeTypeDict, extension} = params;
+  const { clipId, assetTags, attrName, mimeTypeDict, extension} = params;
   let arr = [];
   T.each(assetTags, function(tag){
     const link = tag[attrName];
     if(T.isHttpProtocol(link)){
       const fixedLink = ElemTool.fixLinkExtension(link, mimeTypeDict);
-      const assetName = [id, T.calcAssetName(fixedLink, extension)].join('-');
+      const assetName = [clipId, T.calcAssetName(fixedLink, extension)].join('-');
       const assetInfo = {
         tag: tag,
         link: link,

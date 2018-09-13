@@ -17,7 +17,7 @@ this.MxWcMarkdown = (function() {
     ]).then((values) => {
       const [mimeTypeDict, frames] = values;
       getElemHtml({
-        id: info.id,
+        clipId: info.clipId,
         win: window,
         frames: frames,
         fold: fold,
@@ -44,7 +44,7 @@ this.MxWcMarkdown = (function() {
   function getElemHtml(params, callback){
     const topFrameId = 0;
     const {
-      id,
+      clipId,
       win,
       frames,
       fold,
@@ -63,7 +63,7 @@ this.MxWcMarkdown = (function() {
 
     const imgTags = T.getTagsByName(clonedElem, 'img')
     const imgAssetInfos = ElemTool.getAssetInfos({
-      id: id,
+      clipId: clipId,
       assetTags: imgTags,
       attrName: 'src',
       mimeTypeDict: mimeTypeDict
@@ -84,7 +84,7 @@ this.MxWcMarkdown = (function() {
 
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {id, win, frames, fold, assetFold, assetRelativePath, mimeTypeDict,
+    const {clipId, win, frames, fold, assetFold, assetRelativePath, mimeTypeDict,
       parentFrameId = topFrameId } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
@@ -103,7 +103,7 @@ this.MxWcMarkdown = (function() {
                 to: frame.url,
                 frameId: frame.frameId,
                 body: {
-                  id: id,
+                  clipId: clipId,
                   frames: frames,
                   fold: fold,
                   assetFold: assetFold,

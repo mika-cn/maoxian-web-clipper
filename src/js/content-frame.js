@@ -22,9 +22,9 @@
   }
 
   function getParams(message) {
-    const {id, frames, fold, assetFold, assetRelativePath, mimeTypeDict} = message.body;
+    const {clipId, frames, fold, assetFold, assetRelativePath, mimeTypeDict} = message.body;
     return {
-      id: id,
+      clipId: clipId,
       win: window,
       frames: frames,
       fold: fold,

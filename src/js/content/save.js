@@ -75,7 +75,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
 
       const info = {
-        id         : clipId,
+        clipId     : clipId,
         format     : config.saveFormat,
         title      : title,
         link       : window.location.href,

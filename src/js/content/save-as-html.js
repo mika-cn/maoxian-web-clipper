@@ -17,7 +17,7 @@ this.MxWcHtml = (function () {
       const [mimeTypeDict, frames] = values;
       // 获取选中元素的html
       getElemHtml({
-        id: info.id,
+        clipId: info.clipId,
         win: window,
         frames: frames,
         fold: fold,
@@ -47,7 +47,7 @@ this.MxWcHtml = (function () {
   function getElemHtml(params, callback){
     const topFrameId = 0;
     const {
-      id,
+      clipId,
       win,
       frames,
       fold,
@@ -63,11 +63,11 @@ this.MxWcHtml = (function () {
     let clonedElem = elem.cloneNode(true);
     clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
     clonedElem = T.completeElemLink(clonedElem, refUrl);
-    const result = parseAssetInfo(id, clonedElem, mimeTypeDict);
+    const result = parseAssetInfo(clipId, clonedElem, mimeTypeDict);
     // deal internal style
     result.internalStyles = T.map(result.styleTexts, (styleText) => {
       return parseCss({
-        id: id,
+        clipId: clipId,
         assetFold: assetFold,
         assetRelativePath: assetRelativePath,
         styleText: styleText,
@@ -77,7 +77,7 @@ this.MxWcHtml = (function () {
     });
 
     // deal external style
-    downloadCssFiles(id, assetFold, assetRelativePath, result.cssAssetInfos, mimeTypeDict);
+    downloadCssFiles(clipId, assetFold, assetRelativePath, result.cssAssetInfos, mimeTypeDict);
 
     // download assets
     LocalDisk.saveImageFiles(assetFold, result.imgAssetInfos);
@@ -99,7 +99,7 @@ this.MxWcHtml = (function () {
 
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {id, win, frames, fold, assetFold, assetRelativePath, mimeTypeDict,
+    const {clipId, win, frames, fold, assetFold, assetRelativePath, mimeTypeDict,
       parentFrameId = topFrameId } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
@@ -136,7 +136,7 @@ this.MxWcHtml = (function () {
                   to: frame.url,
                   frameId: frame.frameId,
                   body: {
-                    id: id,
+                    clipId: clipId,
                     frames: frames,
                     fold: fold,
                     assetFold: assetFold,
@@ -218,20 +218,20 @@ this.MxWcHtml = (function () {
   /*
    * assetInfo: {:tag, :link, :assetName}
    */
-  function parseAssetInfo(id, clonedElem, mimeTypeDict){
+  function parseAssetInfo(clipId, clonedElem, mimeTypeDict){
     const listA = T.getTagsByName(clonedElem, 'img');
     const listB = T.getTagsByName(document, 'style');
     const listC = document.querySelectorAll("link[rel=stylesheet]");
 
     return {
       imgAssetInfos: ElemTool.getAssetInfos({
-        id: id,
+        clipId: clipId,
         assetTags: listA,
         attrName: 'src',
         mimeTypeDict: mimeTypeDict
       }),
       cssAssetInfos: ElemTool.getAssetInfos({
-        id: id,
+        clipId: clipId,
         assetTags: listC,
         attrName: 'href',
         mimeTypeDict: mimeTypeDict,
@@ -241,7 +241,7 @@ this.MxWcHtml = (function () {
     }
   }
 
-  function downloadCssFiles(id, assetFold, assetRelativePath, assetInfos, mimeTypeDict){
+  function downloadCssFiles(clipId, assetFold, assetRelativePath, assetInfos, mimeTypeDict){
     T.each(assetInfos, function(it){
       ExtApi.sendMessageToBackground({
         type: 'keyStore.add',
@@ -252,7 +252,7 @@ this.MxWcHtml = (function () {
             return resp.text();
           }).then(function(txt){
             const cssText = parseCss({
-              id: id,
+              clipId: clipId,
               assetFold: assetFold,
               assetRelativePath: assetRelativePath,
               styleText: txt,
@@ -268,7 +268,7 @@ this.MxWcHtml = (function () {
 
 
   function parseCss(params){
-    const {id, assetFold, assetRelativePath, refUrl, mimeTypeDict} = params;
+    const {clipId, assetFold, assetRelativePath, refUrl, mimeTypeDict} = params;
     let styleText = params.styleText;
     // FIXME danger here (order matter)
     const rule1 = {regExp: /url\("[^\)]+"\)/gm, template: 'url("$PATH")', separator: '"'};
@@ -290,7 +290,7 @@ this.MxWcHtml = (function () {
     const fontRegExp = /@font-face\s?\{[^\}]+\}/gm;
     styleText = styleText.replace(fontRegExp, function(match){
       const r = parseCssTextUrl({
-        id: id,
+        clipId: clipId,
         cssText: match,
         refUrl: refUrl,
         rules: [rule1, rule2, rule3],
@@ -305,7 +305,7 @@ this.MxWcHtml = (function () {
     const cssRegExp = /@import[^;]+;/igm;
     styleText = styleText.replace(cssRegExp, function(match){
       const r = parseCssTextUrl({
-        id: id,
+        clipId: clipId,
         cssText: match,
         refUrl: refUrl,
         rules: [rule11, rule12, rule13, rule14, rule15],
@@ -313,7 +313,7 @@ this.MxWcHtml = (function () {
         mimeTypeDict: mimeTypeDict,
         extension: 'css'
       });
-      downloadCssFiles(id, assetFold, assetRelativePath, r.assetInfos, mimeTypeDict);
+      downloadCssFiles(clipId, assetFold, assetRelativePath, r.assetInfos, mimeTypeDict);
       return r.cssText;
     });
 
@@ -321,7 +321,7 @@ this.MxWcHtml = (function () {
   }
 
   function parseCssTextUrl(params){
-    const {id, refUrl, rules, assetRelativePath, mimeTypeDict, extension} = params;
+    const {clipId, refUrl, rules, assetRelativePath, mimeTypeDict, extension} = params;
     let cssText = params.cssText;
     let assetInfos = [];
     const getReplace = function(rule){
@@ -330,7 +330,7 @@ this.MxWcHtml = (function () {
         if(T.isHttpProtocol(part)){
           const fullUrl = T.prefixUrl(part, refUrl);
           const fixedLink = ElemTool.fixLinkExtension(fullUrl, mimeTypeDict);
-          const assetName = [id, T.calcAssetName(fixedLink, extension)].join('-');
+          const assetName = [clipId, T.calcAssetName(fixedLink, extension)].join('-');
           assetInfos.push({link: fullUrl, assetName: assetName});
           if(T.isUrlSameLevel(refUrl, window.location.href)){
             return rule.template.replace('$PATH', [assetRelativePath, assetName].join('/'));
