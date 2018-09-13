@@ -120,7 +120,7 @@ MxWcTemplate.historyPageClips = {
   },
   renderClip: function(clip){
     return `
-      <tr data-id="${clip.id}">
+      <tr data-id="${clip.clipId}">
         <td>${this.renderTime(clip.created_at)}</td>
         <td>${clip.category}</td>
         <td>${clip.tags.join(", ")}</td>

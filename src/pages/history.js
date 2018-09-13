@@ -12,7 +12,7 @@
   function showClip(e){
     const tr = e.target.parentElement;
     const id = tr.getAttribute('data-id');
-    const clip =  T.detect(state.currClips, (clip) => { return clip.id == id });
+    const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
     if(clip){
       Promise.all([
         MxWcStorage.get('downloadFold'),
