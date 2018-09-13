@@ -25,7 +25,7 @@
         const clipPath = clip.path.replace('index.json', filename);
         let url = clipPath;
         if(downloadFold){
-          url = "file://" + T.joinPath([downloadFold, url]);
+          url = "file://" + [downloadFold, url].join('');
         }
         if(downloadFold && allowFileScheme){
           renderClipDetailModel_openUrlDirectly(clip, url);

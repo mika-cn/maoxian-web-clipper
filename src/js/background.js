@@ -204,7 +204,7 @@ function initDownloadFold(){
         downloadText({
           mimeType: 'text/plain',
           text: "useless file, delete me :)",
-          filename: '/touch.mxwc'
+          filename: 'mx-wc/touch.mxwc'
         });
       }
     });
