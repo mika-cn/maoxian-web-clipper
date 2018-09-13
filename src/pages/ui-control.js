@@ -282,28 +282,18 @@
   }
 
   function saveForm(){
-    const titleInput = T.findElem(ID_TITLE);
-    const categoryInput = T.findElem(ID_CATEGORY);
-    let title = titleInput.value;
-    let category = categoryInput.value;
-    if(title.trim() === ""){
-      title = 'default';
-    }
-    if(category.trim() === ""){
-      category = 'default';
-    }
-    const tagstrInput = T.findElem(ID_TAGSTR);
-    const tags = T.splitTagstr(tagstrInput.value);
-
     hideForm();
     unbindListener();
 
-    sendFrameMsgToTop('startClip', {
-      title: title,
-      category: category,
-      tags: tags,
-    })
+    const titleInput = T.findElem(ID_TITLE);
+    const categoryInput = T.findElem(ID_CATEGORY);
+    const tagstrInput = T.findElem(ID_TAGSTR);
 
+    sendFrameMsgToTop('startClip', {
+      title: titleInput.value,
+      category: categoryInput.value,
+      tagstr: tagstrInput.value,
+    })
   }
 
   function cancelForm(){

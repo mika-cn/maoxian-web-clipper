@@ -12,7 +12,7 @@
   function showClip(e){
     const tr = e.target.parentElement;
     const id = tr.getAttribute('data-id');
-    const clip =  T.detect(state.currClips, (clip) => { return clip.id == id });
+    const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
     if(clip){
       Promise.all([
         MxWcStorage.get('downloadFold'),
@@ -25,7 +25,7 @@
         const clipPath = clip.path.replace('index.json', filename);
         let url = clipPath;
         if(downloadFold){
-          url = "file://" + T.joinPath([downloadFold, url]);
+          url = "file://" + [downloadFold, url].join('');
         }
         if(downloadFold && allowFileScheme){
           renderClipDetailModel_openUrlDirectly(clip, url);

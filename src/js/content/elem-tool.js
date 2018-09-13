@@ -48,13 +48,13 @@ ElemTool.isElemVisible = (win, elem) => {
 // }
 // return [{:tag, :link, :assetName}]
 ElemTool.getAssetInfos = (params ) => {
-  const { id, assetTags, attrName, mimeTypeDict, extension} = params;
+  const { clipId, assetTags, attrName, mimeTypeDict, extension} = params;
   let arr = [];
   T.each(assetTags, function(tag){
     const link = tag[attrName];
     if(T.isHttpProtocol(link)){
       const fixedLink = ElemTool.fixLinkExtension(link, mimeTypeDict);
-      const assetName = [id, T.calcAssetName(fixedLink, extension)].join('-');
+      const assetName = [clipId, T.calcAssetName(fixedLink, extension)].join('-');
       const assetInfo = {
         tag: tag,
         link: link,
@@ -101,14 +101,14 @@ ElemTool.fixLinkExtension = (link, mimeTypeDict) => {
 
 
 // rewrite link to local path.
-ElemTool.rewriteImgLink = (html, assetInfos) => {
+ElemTool.rewriteImgLink = (html, assetRelativePath, assetInfos) => {
   T.each(assetInfos, function(it){
     const tagHtml = it.tag.outerHTML;
     const link = it.tag.getAttribute('src');
     it.tag.removeAttribute('crossorigin');
     let newHtml = it.tag.outerHTML;
-    newHtml = newHtml.replace(link, 'assets/' + it.assetName);
-    newHtml = newHtml.replace(link.replace(/&/g, '&amp;'), 'assets/' + it.assetName);
+    newHtml = newHtml.replace(link, [assetRelativePath, it.assetName].join('/'));
+    newHtml = newHtml.replace(link.replace(/&/g, '&amp;'), [assetRelativePath, it.assetName].join('/'));
     html = html.replace(tagHtml, newHtml);
   });
   return html;

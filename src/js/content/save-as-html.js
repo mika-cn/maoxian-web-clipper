@@ -7,7 +7,7 @@ this.MxWcHtml = (function () {
    */
   function save(params){
     Log.debug("save html");
-    const {fold, elem, info, config} = params;
+    const {path, elem, info, config} = params;
 
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
@@ -17,13 +17,13 @@ this.MxWcHtml = (function () {
       const [mimeTypeDict, frames] = values;
       // 获取选中元素的html
       getElemHtml({
-        id: info.id,
+        clipId: info.clipId,
         win: window,
         frames: frames,
-        fold: fold,
+        path: path,
         elem: elem,
         refUrl: window.location.href,
-        mimeTypeDict: mimeTypeDict
+        mimeTypeDict: mimeTypeDict,
       }, function(htmls) {
         ExtApi.sendMessageToBackground({type: 'keyStore.reset'})
           .then(() => {
@@ -36,7 +36,7 @@ this.MxWcHtml = (function () {
             v.elemHtml = elemHtml;
             v.config = config;
             const html = MxWcTemplate[page].render(v);
-            LocalDisk.saveTextFile( html, 'text/html', `${fold}/${info.filename}`);
+            LocalDisk.saveTextFile( html, 'text/html', T.joinPath([path.clipFold, info.filename]));
           });
       });
     });
@@ -45,27 +45,26 @@ this.MxWcHtml = (function () {
   function getElemHtml(params, callback){
     const topFrameId = 0;
     const {
-      id,
+      clipId,
       win,
       frames,
-      fold,
+      path,
       elem,
       refUrl,
       mimeTypeDict,
       parentFrameId = topFrameId
     } = params;
     Log.debug('getElemHtml', refUrl);
-    const assetFold = fold + '/assets';
     const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
     let clonedElem = elem.cloneNode(true);
     clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
     clonedElem = T.completeElemLink(clonedElem, refUrl);
-    const result = parseAssetInfo(id, clonedElem, mimeTypeDict);
+    const result = parseAssetInfo(clipId, clonedElem, mimeTypeDict);
     // deal internal style
     result.internalStyles = T.map(result.styleTexts, (styleText) => {
       return parseCss({
-        id: id,
-        fold: assetFold,
+        clipId: clipId,
+        path: path,
         styleText: styleText,
         refUrl: refUrl,
         mimeTypeDict: mimeTypeDict
@@ -73,20 +72,20 @@ this.MxWcHtml = (function () {
     });
 
     // deal external style
-    downloadCssFiles(id, assetFold, result.cssAssetInfos, mimeTypeDict);
+    downloadCssFiles(clipId, path, result.cssAssetInfos, mimeTypeDict);
 
     // download assets
-    LocalDisk.saveImageFiles(assetFold, result.imgAssetInfos);
+    LocalDisk.saveImageFiles(path.assetFold, result.imgAssetInfos);
 
 
-    const styleHtml = getExternalStyleHtml(result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
+    const styleHtml = getExternalStyleHtml(path, result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
     // deal frames
     handleFrames(params, clonedElem).then((clonedElem) => {
       let elemHtml = "";
       if(elem.tagName === 'BODY') {
-        elemHtml = dealBodyElem(elem, clonedElem, refUrl, result);
+        elemHtml = dealBodyElem(elem, clonedElem, refUrl, result, path);
       } else {
-        elemHtml = dealNormalElem(elem, clonedElem, refUrl, result);
+        elemHtml = dealNormalElem(elem, clonedElem, refUrl, result, path);
       }
       callback({ styleHtml: styleHtml, elemHtml: elemHtml});
     })
@@ -95,7 +94,7 @@ this.MxWcHtml = (function () {
 
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {id, win, frames, fold, mimeTypeDict,
+    const {clipId, win, frames, path, mimeTypeDict,
       parentFrameId = topFrameId } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
@@ -132,9 +131,9 @@ this.MxWcHtml = (function () {
                   to: frame.url,
                   frameId: frame.frameId,
                   body: {
-                    id: id,
+                    clipId: clipId,
                     frames: frames,
-                    fold: fold,
+                    path: path,
                     mimeTypeDict: mimeTypeDict
                   }
                 }).then((frameHtml) => {
@@ -146,7 +145,7 @@ this.MxWcHtml = (function () {
                     styleHtml: styleHtml,
                     html: elemHtml
                   });
-                  LocalDisk.saveTextFile( html, 'text/html', `${fold}/${assetName}`);
+                  LocalDisk.saveTextFile( html, 'text/html', T.joinPath([path.clipFold, assetName]));
                 })
               }
             });
@@ -167,26 +166,26 @@ this.MxWcHtml = (function () {
     return assetName;
   }
 
-  function dealBodyElem(elem, clonedElem, refUrl, parseResult) {
-    let html = getFixedLinkHtml(elem, clonedElem, refUrl, parseResult.imgAssetInfos);
+  function dealBodyElem(elem, clonedElem, refUrl, parseResult, path) {
+    let html = getFixedLinkHtml(path, clonedElem, refUrl, parseResult.imgAssetInfos);
     html = removeUselessHtml(html, elem);
     return html;
   }
 
-  function dealNormalElem(elem, clonedElem, refUrl, parseResult){
+  function dealNormalElem(elem, clonedElem, refUrl, parseResult, path){
     clonedElem.classList.add("mx-wc-selected-elem");
     clonedElem.style = (clonedElem.style.cssText || "") + "float: none; position: relative; top: 0; left: 0; margin: 0px; flex:unset; width: 100%; max-width: 100%; box-sizing: border-box;";
-    let html = getFixedLinkHtml(elem, clonedElem, refUrl, parseResult.imgAssetInfos);
+    let html = getFixedLinkHtml(path, clonedElem, refUrl, parseResult.imgAssetInfos);
     html = removeUselessHtml(html, elem);
     html = wrapToBody(elem, html);
     return html
   }
 
 
-  function getFixedLinkHtml(elem, clonedElem, refUrl, imgAssetInfos) {
+  function getFixedLinkHtml(path, clonedElem, refUrl, imgAssetInfos) {
     clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
     let html = clonedElem.outerHTML;
-    html = ElemTool.rewriteImgLink(html, imgAssetInfos)
+    html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos)
     return html;
   }
 
@@ -212,20 +211,20 @@ this.MxWcHtml = (function () {
   /*
    * assetInfo: {:tag, :link, :assetName}
    */
-  function parseAssetInfo(id, clonedElem, mimeTypeDict){
+  function parseAssetInfo(clipId, clonedElem, mimeTypeDict){
     const listA = T.getTagsByName(clonedElem, 'img');
     const listB = T.getTagsByName(document, 'style');
     const listC = document.querySelectorAll("link[rel=stylesheet]");
 
     return {
       imgAssetInfos: ElemTool.getAssetInfos({
-        id: id,
+        clipId: clipId,
         assetTags: listA,
         attrName: 'src',
         mimeTypeDict: mimeTypeDict
       }),
       cssAssetInfos: ElemTool.getAssetInfos({
-        id: id,
+        clipId: clipId,
         assetTags: listC,
         attrName: 'href',
         mimeTypeDict: mimeTypeDict,
@@ -235,7 +234,7 @@ this.MxWcHtml = (function () {
     }
   }
 
-  function downloadCssFiles(id, fold, assetInfos, mimeTypeDict){
+  function downloadCssFiles(clipId, path, assetInfos, mimeTypeDict){
     T.each(assetInfos, function(it){
       ExtApi.sendMessageToBackground({
         type: 'keyStore.add',
@@ -246,13 +245,13 @@ this.MxWcHtml = (function () {
             return resp.text();
           }).then(function(txt){
             const cssText = parseCss({
-              id: id,
-              fold: fold,
+              clipId: clipId,
+              path: path,
               styleText: txt,
               refUrl: it.link,
               mimeTypeDict: mimeTypeDict
             });
-            LocalDisk.saveTextFile(cssText, 'text/css', `${fold}/${it.assetName}`);
+            LocalDisk.saveTextFile(cssText, 'text/css', T.joinPath([path.assetFold, it.assetName]));
           }).catch((err) => {console.error(err)});
         }
       });
@@ -261,7 +260,7 @@ this.MxWcHtml = (function () {
 
 
   function parseCss(params){
-    const {id, fold, refUrl, mimeTypeDict} = params;
+    const {clipId, path, refUrl, mimeTypeDict} = params;
     let styleText = params.styleText;
     // FIXME danger here (order matter)
     const rule1 = {regExp: /url\("[^\)]+"\)/gm, template: 'url("$PATH")', separator: '"'};
@@ -283,13 +282,14 @@ this.MxWcHtml = (function () {
     const fontRegExp = /@font-face\s?\{[^\}]+\}/gm;
     styleText = styleText.replace(fontRegExp, function(match){
       const r = parseCssTextUrl({
-        id: id,
+        clipId: clipId,
         cssText: match,
         refUrl: refUrl,
         rules: [rule1, rule2, rule3],
+        path: path,
         mimeTypeDict: mimeTypeDict
       });
-      LocalDisk.saveFontFiles(fold, r.assetInfos);
+      LocalDisk.saveFontFiles(path.assetFold, r.assetInfos);
       return r.cssText;
     });
 
@@ -297,14 +297,15 @@ this.MxWcHtml = (function () {
     const cssRegExp = /@import[^;]+;/igm;
     styleText = styleText.replace(cssRegExp, function(match){
       const r = parseCssTextUrl({
-        id: id,
+        clipId: clipId,
         cssText: match,
         refUrl: refUrl,
         rules: [rule11, rule12, rule13, rule14, rule15],
+        path: path,
         mimeTypeDict: mimeTypeDict,
         extension: 'css'
       });
-      downloadCssFiles(id, fold, r.assetInfos, mimeTypeDict);
+      downloadCssFiles(clipId, path, r.assetInfos, mimeTypeDict);
       return r.cssText;
     });
 
@@ -312,7 +313,7 @@ this.MxWcHtml = (function () {
   }
 
   function parseCssTextUrl(params){
-    const {id, refUrl, rules, mimeTypeDict, extension} = params;
+    const {clipId, refUrl, rules, path, mimeTypeDict, extension} = params;
     let cssText = params.cssText;
     let assetInfos = [];
     const getReplace = function(rule){
@@ -321,10 +322,10 @@ this.MxWcHtml = (function () {
         if(T.isHttpProtocol(part)){
           const fullUrl = T.prefixUrl(part, refUrl);
           const fixedLink = ElemTool.fixLinkExtension(fullUrl, mimeTypeDict);
-          const assetName = [id, T.calcAssetName(fixedLink, extension)].join('-');
+          const assetName = [clipId, T.calcAssetName(fixedLink, extension)].join('-');
           assetInfos.push({link: fullUrl, assetName: assetName});
           if(T.isUrlSameLevel(refUrl, window.location.href)){
-            return rule.template.replace('$PATH', `assets/${assetName}`);
+            return rule.template.replace('$PATH', [path.assetRelativePath, assetName].join('/'));
           }else{
             return rule.template.replace('$PATH', assetName);
           }
@@ -504,7 +505,7 @@ this.MxWcHtml = (function () {
 
 
   // external(css file)
-  function getExternalStyleHtml(assetInfos){
+  function getExternalStyleHtml(path, assetInfos){
     let html = "";
     T.each(assetInfos, function(it){
       const tag = it.tag.cloneNode(true);
@@ -512,8 +513,8 @@ this.MxWcHtml = (function () {
       tag.removeAttribute('integrity');
       let part = tag.outerHTML;
       const href = tag.getAttribute('href');
-      part = part.replace(href, 'assets/' + it.assetName);
-      part = part.replace(href.replace(/&/g, '&amp;'), 'assets/' + it.assetName);
+      part = part.replace(href, [path.assetRelativePath, it.assetName].join('/'));
+      part = part.replace(href.replace(/&/g, '&amp;'), [path.assetRelativePath, it.assetName].join('/'));
 
       html += "\n";
       html += part;

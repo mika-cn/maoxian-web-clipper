@@ -21,12 +21,12 @@
         const clip = readJson(file);
 
         // old index.json file compatible
-        if(!clip.id) {
+        if(!clip.clipId) {
           const path = file.webkitRelativePath;
           if(path.match(msRegExp)){
-            clip.id = path.match(msRegExp)[1];
+            clip.clipId = path.match(msRegExp)[1];
           } else {
-            clip.id = '00' + Math.round(Math.random() * 10000000);
+            clip.clipId = '00' + Math.round(Math.random() * 10000000);
           }
         }
 
@@ -34,7 +34,7 @@
           clip.format = 'html';
         }
 
-        items.push({t: parseInt(clip.id), clip: clip});
+        items.push({t: parseInt(clip.clipId), clip: clip});
       }
     }
     items = items.sort(function(a, b){ return b.t - a.t });

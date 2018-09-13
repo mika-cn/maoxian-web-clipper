@@ -41,10 +41,21 @@ MxWcTemplate.settingPage = {
       <section class="setting-clipping-content">
         <h3>${t('setting.title.clipping-content')}</h3>
         <p>
-                <input type="checkbox" id="save-title-as-fold-name" /><lable> ${t('setting.save-title-as-fold-name-input.label')}</label>
-          <br /><input type="checkbox" id="save-title-as-filename" /><lable> ${t('setting.save-title-as-filename-input.label')}</label>
-          <br /><input type="checkbox" id="save-clipping-information" /><label> ${t('setting.clip-information-input.label')}</label>
+          <input type="checkbox" id="save-clipping-information" /><label> ${t('setting.clip-information-input.label')}</label>
           <br /><input type="checkbox" id="save-domain-as-tag" /><label> ${t('setting.save-domain-tag-input.label')}</label>
+        </p>
+      </section>
+      <section class="setting-path">
+        <h3>${t('setting.title.path')}</h3>
+        <p>
+          <br /><input type="checkbox" id="save-title-as-fold-name" /><lable> ${t('setting.save-title-as-fold-name-input.label')}</label>
+          <br /><input type="checkbox" id="save-title-as-filename" /><lable> ${t('setting.save-title-as-filename-input.label')}</label>
+
+          <div class="notice-info"> ${t('setting.notice.asset-path')} </div>
+          <input type="text" id="asset-path" placeholder="${t('setting.placeholder.notblank')}"/>
+          <br />
+          <div class="notice-info"> ${t('setting.notice.default-category')}</div>
+          <input type="text" id="default-category" placeholder="${t('setting.placeholder.notblank')}"/>
         </p>
       </section>
       <section class="setting-file-scheme-access">
@@ -109,7 +120,7 @@ MxWcTemplate.historyPageClips = {
   },
   renderClip: function(clip){
     return `
-      <tr data-id="${clip.id}">
+      <tr data-id="${clip.clipId}">
         <td>${this.renderTime(clip.created_at)}</td>
         <td>${clip.category}</td>
         <td>${clip.tags.join(", ")}</td>
@@ -334,13 +345,17 @@ MxWcTemplate.clippingInformation = {
           return "<code>" + tag + "</code>";
         }).join(", ");
       }
+      let categoryHtml = t('none');
+      if(v.info.category){
+        categoryHtml = v.info.category;
+      }
       return `
         <hr />
         <!-- clipping information -->
         <div class="clipping-information">
           <label>${t('original_url')}: <a href="${v.info.link}" target="_blank">${t('access')}</a></label><br />
           <label>${t('created_at')}: ${v.info.created_at}</label><br />
-          <label>${t('category')}: ${v.info.category}</label><br />
+          <label>${t('category')}: ${categoryHtml}</label><br />
           <label>${t('tags')}: ${tagHtml}</label>
         </div>`;
     } else {

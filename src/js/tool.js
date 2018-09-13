@@ -261,7 +261,7 @@ T.sanitizePath = function(path){
 }
 
 T.joinPath = function(paths){
-  const arr = [''];
+  const arr = [];
   T.each(paths, function(path){
     path = T.sanitizePath(path);
     path = path.replace(/(\.\.\/)+/g, '');
@@ -274,6 +274,28 @@ T.joinPath = function(paths){
   return arr.join('/');
 }
 
+T.calcPath = function(currDir, destDir) {
+  const partA = currDir.split('/');
+  const partB = destDir.split('/');
+  while(true){
+    let foldA = partA[0];
+    let foldB = partB[0];
+    if(foldA === null || foldB === null){
+      break;
+    }
+    if(foldA !== foldB){
+      break;
+    }
+    partA.shift();
+    partB.shift();
+  }
+  let r = "";
+  T.each(partA, (fold) => {
+    r += '../'
+  });
+  r += partB.join('/');
+  return r;
+}
 
 T.createDict = function(){
   return {
