@@ -60,19 +60,17 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         assetRelativePath = config.assetPath.replace('$CLIP-FOLD/', '');
         assetFold = T.joinPath([fold, assetRelativePath]);
       } else {
-        if(config.assetPath === ''){
-          assetRelativePath = 'assets';
-          assetFold = T.joinPath([fold, assetRelativePath]);
-        } else {
+        if(config.assetPath.indexOf('$MX-WC') > -1){
           assetFold = T.joinPath([ROOT, config.assetPath.replace('$MX-WC/', '')]);
           assetRelativePath = T.calcPath(fold, assetFold)
+        } else {
+          assetRelativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
+          assetFold = T.joinPath([fold, assetRelativePath]);
         }
       }
 
-      Log.debug("fold: ", fold);
-      Log.debug("asset: ", assetFold);
-      Log.debug("relative: ", assetRelativePath);
-
+      const path =  { clipFold: fold, assetFold: assetFold, assetRelativePath: assetRelativePath};
+      Log.debug(path)
 
       const info = {
         clipId     : clipId,
@@ -85,22 +83,15 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         filename   : filename
       }
 
-      LocalDisk.saveIndexFile(fold, info);
+      LocalDisk.saveIndexFile(path.clipFold, info);
 
       if(!(config.saveTitleAsFoldName || config.saveTitleAsFilename)) {
-        LocalDisk.saveTitleFile(fold, info);
+        LocalDisk.saveTitleFile(path.clipFold, info);
       }
 
-      saveClipHistory(fold, info);
+      saveClipHistory(path.clipFold, info);
 
-      const params = {
-        fold: fold,
-        assetFold: assetFold,
-        assetRelativePath: assetRelativePath,
-        elem: elem,
-        info: info,
-        config: config
-      }
+      const params = { path: path, elem: elem, info: info, config: config }
 
       switch(config.saveFormat){
         case 'html' : MxWcHtml.save(params); break;
@@ -120,8 +111,8 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
   }
 
   //private
-  function saveClipHistory(fold, info){
-    info.path = `mx-wc${fold}/index.json`;
+  function saveClipHistory(clipFold, info){
+    info.path = [clipFold, 'index.json'].join('/');
     ExtApi.sendMessageToBackground({
       type: 'save.clip',
       body: {clip: info}

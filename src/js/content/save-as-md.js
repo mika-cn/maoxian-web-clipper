@@ -9,7 +9,7 @@ this.MxWcMarkdown = (function() {
    */
   function save(params){
     Log.debug("save markdown");
-    const {fold, assetFold, assetRelativePath, elem, info, config} = params;
+    const {path, elem, info, config} = params;
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
       ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
@@ -20,9 +20,7 @@ this.MxWcMarkdown = (function() {
         clipId: info.clipId,
         win: window,
         frames: frames,
-        fold: fold,
-        assetFold: assetFold,
-        assetRelativePath: assetRelativePath,
+        path: path,
         elem: elem,
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict
@@ -35,7 +33,7 @@ this.MxWcMarkdown = (function() {
             if(config.saveClippingInformation){
               markdown += generateMdClippingInfo(info);
             }
-            LocalDisk.saveTextFile(markdown, 'text/markdown', T.joinPath([fold, info.filename]));
+            LocalDisk.saveTextFile(markdown, 'text/markdown', T.joinPath([path.clipFold, info.filename]));
           });
       });
     });
@@ -47,9 +45,7 @@ this.MxWcMarkdown = (function() {
       clipId,
       win,
       frames,
-      fold,
-      assetFold,
-      assetRelativePath,
+      path,
       elem,
       refUrl,
       mimeTypeDict,
@@ -68,7 +64,7 @@ this.MxWcMarkdown = (function() {
       attrName: 'src',
       mimeTypeDict: mimeTypeDict
     });
-    LocalDisk.saveImageFiles(assetFold, imgAssetInfos);
+    LocalDisk.saveImageFiles(path.assetFold, imgAssetInfos);
 
     handleFrames(params, clonedElem).then((clonedElem) => {
       Log.debug("FrameHandlefihish");
@@ -77,14 +73,14 @@ this.MxWcMarkdown = (function() {
       clonedElem = PluginMathJax.handle(win, clonedElem);
       clonedElem = PluginMathML2LaTeX.handle(win, clonedElem);
       let html = clonedElem.outerHTML;
-      html = ElemTool.rewriteImgLink(html, assetRelativePath, imgAssetInfos);
+      html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos);
       callback(html);
     });
   }
 
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {clipId, win, frames, fold, assetFold, assetRelativePath, mimeTypeDict,
+    const {clipId, win, frames, path, mimeTypeDict,
       parentFrameId = topFrameId } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
@@ -105,9 +101,7 @@ this.MxWcMarkdown = (function() {
                 body: {
                   clipId: clipId,
                   frames: frames,
-                  fold: fold,
-                  assetFold: assetFold,
-                  assetRelativePath, assetRelativePath,
+                  path: path,
                   mimeTypeDict: mimeTypeDict
                 }
              })
