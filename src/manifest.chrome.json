@@ -29,6 +29,7 @@
       "js/lib/mx-wc-icon.js",
       "js/lib/mx-wc-storage.js",
       "js/background/web-request.js",
+      "js/background/task-handler-browser.js",
       "js/background.js"
     ]
   },
@@ -55,7 +56,7 @@
         "js/lib/plugin-mathjax.js",
         "js/lib/plugin-mathml.js",
         "js/content/elem-tool.js",
-        "js/content/store.local-disk.js",
+        "js/content/store-client.js",
         "js/content/save-as-md.js",
         "js/content/save-as-html.js",
         "js/content/save.js",

@@ -33,9 +33,10 @@ this.createLockService = function(interval) {
     consume();
   }
 
-  function stop(){
+  // perform action after other actions.
+  function last(action) {
     get((state) => {
-      // We must stop slowly. otherwise we will lost action.
+      // We must do slowly. otherwise we will lost action.
       // console.log('slow interval');
       stopInterval = 200;
     });
@@ -43,28 +44,31 @@ this.createLockService = function(interval) {
       // set stopInterval back to normal interval.
       stopInterval = interval;
       if(actions.length === 0){
-        // no more action, stop now.
-        stopNow();
+        // no more action, Do it now
+        action(state);
       }else{
-        stop();
+        last(action);
       }
     })
   }
 
-  function stopNow(){
-    canConsume = false;
-    state = {};
-    actions = [];
-    if(timeoutId){
-      console.log('clear timeout');
-      clearTimeout(timeoutId);
-      timeoutId = null;
-    }
+  function stop(){
+    last((state) => {
+      canConsume = false;
+      state = {};
+      actions = [];
+      if(timeoutId){
+        console.log('clear timeout');
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+    });
   }
 
   return {
-    get: get,
     start: start,
+    get: get,
+    last: last,
     stop: stop
   }
 }

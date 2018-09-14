@@ -7,13 +7,13 @@ this.MxWcMarkdown = (function() {
   /*
    * @param {Object} params
    */
-  function save(params){
-    Log.debug("save markdown");
+  function parse(params, callback){
+    Log.debug("markdown parser");
     const {path, elem, info, config} = params;
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
       ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
-      ExtApi.sendMessageToBackground({type: 'keyStore.start'})
+      KeyStore.start(), TaskStore.start()
     ]).then((values) => {
       const [mimeTypeDict, frames] = values;
       getElemHtml({
@@ -25,15 +25,23 @@ this.MxWcMarkdown = (function() {
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict
       }, function(html) {
-        ExtApi.sendMessageToBackground({type: 'keyStore.reset'})
-          .then(() => {
+          KeyStore.reset().then(() => {
             let markdown = generateMarkDown(html, info);
             markdown = PluginMathJax.unEscapeMathJax(markdown);
             markdown = PluginMathML2LaTeX.unEscapeLaTex(markdown);
             if(config.saveClippingInformation){
               markdown += generateMdClippingInfo(info);
             }
-            LocalDisk.saveTextFile(markdown, 'text/markdown', T.joinPath([path.clipFold, info.filename]));
+            TaskStore.add({
+              type: 'text',
+              mimeType: 'text/markdown',
+              filename: T.joinPath([path.clipFold, info.filename]),
+              text: markdown
+            });
+            TaskStore.getResult((tasks) => {
+              callback(tasks);
+              TaskStore.reset();
+            })
           });
       });
     });
@@ -64,7 +72,7 @@ this.MxWcMarkdown = (function() {
       attrName: 'src',
       mimeTypeDict: mimeTypeDict
     });
-    LocalDisk.saveImageFiles(path.assetFold, imgAssetInfos);
+    StoreClient.addImages(path.assetFold, imgAssetInfos);
 
     handleFrames(params, clonedElem).then((clonedElem) => {
       Log.debug("FrameHandlefihish");
@@ -174,7 +182,7 @@ this.MxWcMarkdown = (function() {
   }
 
   return {
-    save: save,
+    parse: parse,
     getElemHtml: getElemHtml
   }
 
