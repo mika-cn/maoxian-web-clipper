@@ -83,21 +83,51 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         filename   : filename
       }
 
-      LocalDisk.saveIndexFile(path.clipFold, info);
 
-      if(!(config.saveTitleAsFoldName || config.saveTitleAsFilename)) {
-        LocalDisk.saveTitleFile(path.clipFold, info);
+      let parser = null;
+      switch(config.saveFormat){
+        case 'html' : parser = MxWcHtml; break;
+        case 'md'   : parser = MxWcMarkdown; break;
       }
-
-      saveClipHistory(path.clipFold, info);
 
       const params = { path: path, elem: elem, info: info, config: config }
-
-      switch(config.saveFormat){
-        case 'html' : MxWcHtml.save(params); break;
-        case 'md'   : MxWcMarkdown.save(params); break;
-      }
+      parser.parse(params, (tasks) => {
+        tasks = addTitleFile(tasks, config, path, info);
+        tasks = addIndexFile(tasks, path, info);
+        Log.debug(tasks);
+        ExtApi.sendMessageToBackground({
+          type: 'handle.tasks',
+          body: { clipId: clipId, tasks: tasks }
+        })
+        saveClipHistory(path.clipFold, info);
+      })
     });
+  }
+
+  // private
+  function addTitleFile(tasks, config, path, info){
+    if(!(config.saveTitleAsFoldName || config.saveTitleAsFilename)) {
+      tasks.unshift({
+        type: 'text',
+        mimeType: 'text/plain',
+        filename: [path.clipFold,
+          `a-title__${T.sanitizeFilename(info.title)}`
+        ].join('/'),
+        text: '-'
+      })
+    }
+    return tasks;
+  }
+
+  // private
+  function addIndexFile(tasks, path, info){
+    tasks.unshift({
+      type: 'text',
+      mimeType: 'application/json',
+      filename: [path.clipFold, 'index.json'].join('/'),
+      text: T.toJson(info)
+    })
+    return tasks;
   }
 
   //private
@@ -112,10 +142,11 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
   //private
   function saveClipHistory(clipFold, info){
-    info.path = [clipFold, 'index.json'].join('/');
+    const path = [clipFold, 'index.json'].join('/');
+    const clip = Object.assign({path: path}, info);
     ExtApi.sendMessageToBackground({
       type: 'save.clip',
-      body: {clip: info}
+      body: {clip: clip}
     })
   }
 

@@ -5,14 +5,14 @@ this.MxWcHtml = (function () {
   /*
    * @param {Object} params
    */
-  function save(params){
-    Log.debug("save html");
+  function parse(params, callback){
+    Log.debug("html parser");
     const {path, elem, info, config} = params;
 
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
       ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
-      ExtApi.sendMessageToBackground({type: 'keyStore.start'})
+      KeyStore.start(), TaskStore.start()
     ]).then((values) => {
       const [mimeTypeDict, frames] = values;
       // 获取选中元素的html
@@ -25,19 +25,27 @@ this.MxWcHtml = (function () {
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict,
       }, function(htmls) {
-        ExtApi.sendMessageToBackground({type: 'keyStore.reset'})
-          .then(() => {
-            const {styleHtml, elemHtml} = htmls;
-            // 将elemHtml 渲染进模板里，渲染成完整网页。
-            const v = getElemRenderParams(elem);
-            const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
-            v.info = info;
-            v.styleHtml = styleHtml;
-            v.elemHtml = elemHtml;
-            v.config = config;
-            const html = MxWcTemplate[page].render(v);
-            LocalDisk.saveTextFile( html, 'text/html', T.joinPath([path.clipFold, info.filename]));
+        KeyStore.reset().then(() => {
+          const {styleHtml, elemHtml} = htmls;
+          // 将elemHtml 渲染进模板里，渲染成完整网页。
+          const v = getElemRenderParams(elem);
+          const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
+          v.info = info;
+          v.styleHtml = styleHtml;
+          v.elemHtml = elemHtml;
+          v.config = config;
+          const html = MxWcTemplate[page].render(v);
+          TaskStore.add({
+            type: 'text',
+            mimeType: 'text/html',
+            filename: T.joinPath([path.clipFold, info.filename]),
+            text: html
           });
+          TaskStore.getResult((tasks) => {
+            callback(tasks);
+            TaskStore.reset();
+          });
+        });
       });
     });
   }
@@ -75,7 +83,7 @@ this.MxWcHtml = (function () {
     downloadCssFiles(clipId, path, result.cssAssetInfos, mimeTypeDict);
 
     // download assets
-    LocalDisk.saveImageFiles(path.assetFold, result.imgAssetInfos);
+    StoreClient.addImages(path.assetFold, result.imgAssetInfos);
 
 
     const styleHtml = getExternalStyleHtml(path, result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
@@ -107,12 +115,7 @@ this.MxWcHtml = (function () {
           const frameElem = clonedElem.querySelector(selector);
           if(frameElem){
             currLayerFrames.push(frame);
-            judgeDupPromises.push(
-              ExtApi.sendMessageToBackground({
-                type: 'keyStore.add',
-                body: {key: frame.url}
-              })
-            );
+            judgeDupPromises.push(KeyStore.add(frame.url));
           }
         }
       });
@@ -145,7 +148,12 @@ this.MxWcHtml = (function () {
                     styleHtml: styleHtml,
                     html: elemHtml
                   });
-                  LocalDisk.saveTextFile( html, 'text/html', T.joinPath([path.clipFold, assetName]));
+                  TaskStore.add({
+                    type: 'text',
+                    mimeType: 'text/html',
+                    filename: T.joinPath([path.clipFold, assetName]),
+                    text: html
+                  })
                 })
               }
             });
@@ -236,10 +244,7 @@ this.MxWcHtml = (function () {
 
   function downloadCssFiles(clipId, path, assetInfos, mimeTypeDict){
     T.each(assetInfos, function(it){
-      ExtApi.sendMessageToBackground({
-        type: 'keyStore.add',
-        body: {key: it.link}
-      }).then((canAdd) => {
+      KeyStore.add(it.link).then((canAdd) => {
         if(canAdd) {
           fetch(it.link).then(function(resp){
             return resp.text();
@@ -251,7 +256,12 @@ this.MxWcHtml = (function () {
               refUrl: it.link,
               mimeTypeDict: mimeTypeDict
             });
-            LocalDisk.saveTextFile(cssText, 'text/css', T.joinPath([path.assetFold, it.assetName]));
+            TaskStore.add({
+              type: 'text',
+              mimeType: 'text/css',
+              filename: T.joinPath([path.assetFold, it.assetName]),
+              text: cssText
+            });
           }).catch((err) => {console.error(err)});
         }
       });
@@ -289,7 +299,7 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict
       });
-      LocalDisk.saveFontFiles(path.assetFold, r.assetInfos);
+      StoreClient.addFonts(path.assetFold, r.assetInfos);
       return r.cssText;
     });
 
@@ -535,7 +545,7 @@ this.MxWcHtml = (function () {
   }
 
   return {
-    save: save,
+    parse: parse,
     getElemHtml: getElemHtml
   }
 })();
