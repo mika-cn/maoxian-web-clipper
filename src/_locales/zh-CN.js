@@ -17,11 +17,16 @@ I18N_DICT['zh-CN'] = {
 
     //setting page
     "setting.warning": "警告",
+
+    // title
     "setting.title.save-format": "保存格式",
     "setting.title.hotkey": "快捷键设置",
     "setting.title.file-url": "本地网址",
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.path": "存储路径",
+    "setting.title.clipping-handler": "保存方式",
+
+    // notice
     "setting.notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
     "setting.notice.file-url.link-label": "查看如何设置",
     "setting.notice.file-url.help-msg": "你将需要以下信息:",
@@ -29,13 +34,23 @@ I18N_DICT['zh-CN'] = {
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
     "setting.notice.default-category": "<strong>默认目录</strong><br />使用 <strong>/</strong> 来分隔子目录<br />使用 <strong>$NONE</strong> 来表示空值（即无目录）",
     "setting.notice.asset-path": "<strong>资源路径（图片，字体……）</strong><br />使用 <strong>$CLIP-FOLD</strong> 来表示裁剪目录（由扩展生成的目录）<br />使用 <strong>$MX-WC</strong> 来表示扩展可访问的根目录（即 $downloads/mx-wc)",
+    "setting.notice.clipping-handler.intro": "<strong>浏览器下载</strong><br />使用浏览器来下载裁剪结果<br /><br /><strong>本地程序下载</strong><br />通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过插件互相冲突的问题）<br />选择本选项需先安装一个程序",
+    "setting.notice.clipping-handler.link-label": "安装地址",
+
+    // label
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
     "setting.save-domain-tag-input.label": "裁剪时，添加当前域名为标签",
     "setting.save-title-as-fold-name-input.label": "使用标题作为文件夹的名字（默认为扩展自动生成）",
-    "setting.save-title-as-filename-input.label": "使用标题作为文件名（默认为index.html 或 index.md）",
+    "setting.save-title-as-filename-input.label": "使用标题作为文件名（默认为 index.html 或 index.md ）",
     "setting.enable-switch-hotkey-input.label": "启用快捷键 `c` (裁剪开关)",
+
+    // placeholder
     "setting.placeholder.notblank": "此项不能为空",
+
+    // options
+    "setting.clipping-handler-option.browser": "浏览器下载",
+    "setting.clipping-handler-option.native-app": "本地程序下载",
 
     //history page
     "history.input.placeholder": "可搜索标题、标签、目录",

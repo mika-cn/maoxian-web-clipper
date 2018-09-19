@@ -1,4 +1,5 @@
-const TaskHandler_Browser = (function(){
+
+const ClippingHandler_Browser = (function(){
   const state = {};
 
   // msg: {:text, :mineType, :filename}
@@ -37,9 +38,11 @@ const TaskHandler_Browser = (function(){
       if(filename.endsWith('.mxwc')){
         ExtApi.deleteDownloadItem(downloadItemId);
       }else{
-        ExtApi.sendMessageToContent({ type: 'download.completed'}, state.tabId);
-        MxWcStorage.set('lastDownloadItemId', downloadItemId);
-        MxWcIcon.flicker(3);
+        state.completedAction(state.tabId, {
+          handler: 'browser',
+          filename: filename,
+          downloadItemId: downloadItemId
+        });
       }
     }else{
       // erase assets download history
@@ -86,14 +89,10 @@ const TaskHandler_Browser = (function(){
 
   function initDownloadFold(){
     init();
-    MxWcStorage.get('downloadFold').then((root) => {
-      if(!root){
-        downloadText({
-          mimeType: 'text/plain',
-          text: "useless file, delete me :)",
-          filename: 'mx-wc/touch.mxwc'
-        });
-      }
+    downloadText({
+      mimeType: 'text/plain',
+      text: "useless file, delete me :)",
+      filename: 'mx-wc/touch.mxwc'
     });
   }
 
@@ -104,6 +103,10 @@ const TaskHandler_Browser = (function(){
         case 'url' : downloadUrl(task); break;
       }
     });
+  }
+
+  function setCompletedAction(handler) {
+    state.completedAction = handler;
   }
 
   function init(tabId, clipId){
@@ -117,6 +120,7 @@ const TaskHandler_Browser = (function(){
   return {
     init: init,
     handle: handle,
+    setCompletedAction: setCompletedAction,
     initDownloadFold: initDownloadFold
   }
 

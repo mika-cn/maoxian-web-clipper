@@ -16,10 +16,23 @@
 
   function closeWindow(){ window.close() }
 
+  // can't do user action in promise, lead to (xxx may only be called from a user input handler)
   function viewLastResult(){
-    MxWcStorage.set('lastDownloadItemId', null);
-    ExtApi.openDownloadItem(state.lastDownloadItemId);
-    state.lastDownloadItemId = null;
+    if(state.isAllowFileScheme) {
+      MxWcStorage.set('lastClippingResult', null);
+      const url = 'file://' + state.lastClippingResult.filename;
+      ExtApi.createTab(url)
+      state.lastClippingResult = null;
+    } else {
+      if(state.lastClippingResult.handler === 'browser') {
+        MxWcStorage.set('lastClippingResult', null);
+        ExtApi.openDownloadItem(state.lastClippingResult.downloadItemId);
+        state.lastClippingResult = null;
+      } else {
+        // TODO show hint to user.
+        console.error("Please allow extention to access file url, first");
+      }
+    }
     closeWindow();
   }
 
@@ -54,16 +67,24 @@
         }
       }
       menuIds.push('home');
-      MxWcStorage.get('lastDownloadItemId')
-        .then((downloadItemId) => {
-          if(downloadItemId){
-            state.lastDownloadItemId = downloadItemId;
-            menuIds.unshift('last-result');
-          }
-          const html = MxWcTemplate.popupPageMenus.render({menuIds: menuIds});
-          T.queryElem('.menus').innerHTML = html;
-          bindListener();
-        })
+      Promise.all([
+        MxWcConfig.load(),
+        ExtApi.isAllowedFileSchemeAccess(),
+        MxWcStorage.get('lastClippingResult')
+      ]).then((values) => {
+        const [config, allowFileSchemeAccess, lastClippingResult] = values;
+        state.isAllowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+        state.config = config;
+
+        if(lastClippingResult){
+          state.lastClippingResult = lastClippingResult;
+          menuIds.unshift('last-result');
+        }
+        const html = MxWcTemplate.popupPageMenus.render({menuIds: menuIds});
+        T.queryElem('.menus').innerHTML = html;
+        bindListener();
+      })
+
     })
   }
 

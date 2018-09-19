@@ -38,14 +38,12 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         if(config.defaultCategory === "$NONE"){
           fold = T.joinPath([ROOT, foldName])
         } else {
-          if(config.defaultCategory === ""){
-            fold = T.joinPath([ROOT, 'default', foldName]);
-          } else {
-            fold = T.joinPath([ROOT, config.defaultCategory, foldName]);
-          }
+          category = (config.defaultCategory === '' ? 'default' : config.defaultCategory);
+          fold = T.joinPath([ROOT, category, foldName]);
         }
       } else {
         if(category === '$NONE'){
+          category = '';
           fold = T.joinPath([ROOT, foldName])
         } else {
           saveInputHistory('category', category);
@@ -96,7 +94,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         tasks = addIndexFile(tasks, path, info);
         Log.debug(tasks);
         ExtApi.sendMessageToBackground({
-          type: 'handle.tasks',
+          type: 'handle.clipping',
           body: { clipId: clipId, tasks: tasks }
         })
         saveClipHistory(path.clipFold, info);

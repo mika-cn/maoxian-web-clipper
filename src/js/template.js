@@ -35,8 +35,24 @@ MxWcTemplate.settingPage = {
     return `
       <section class="setting-format">
         <h3>${t('setting.title.save-format')}</h3>
-        <a data-id="html">HTML</a>
-        <a data-id="md">Markdown</a>
+        <div class="options" id="setting-format">
+          <a data-value="html">HTML</a>
+          <a data-value="md">Markdown</a>
+        </div>
+      </section>
+      <section class="setting-clipping-handler">
+        <h3>${t('setting.title.clipping-handler')}</h3>
+        <div class="notice-info">
+          <p>
+             ${t('setting.notice.clipping-handler.intro')}
+             <br />
+            <a href="${v.nativeAppUrl}" target="_blank">${t('setting.notice.clipping-handler.link-label')}</a><br />
+          </p>
+        </div>
+        <div class="options" id="clipping-handler">
+          <a data-value="browser">${t('setting.clipping-handler-option.browser')}</a>
+          <a data-value="native-app">${t('setting.clipping-handler-option.native-app')}</a>
+        </div>
       </section>
       <section class="setting-clipping-content">
         <h3>${t('setting.title.clipping-content')}</h3>
@@ -48,7 +64,7 @@ MxWcTemplate.settingPage = {
       <section class="setting-path">
         <h3>${t('setting.title.path')}</h3>
         <p>
-          <br /><input type="checkbox" id="save-title-as-fold-name" /><lable> ${t('setting.save-title-as-fold-name-input.label')}</label>
+               <input type="checkbox" id="save-title-as-fold-name" /><lable> ${t('setting.save-title-as-fold-name-input.label')}</label>
           <br /><input type="checkbox" id="save-title-as-filename" /><lable> ${t('setting.save-title-as-filename-input.label')}</label>
 
           <div class="notice-info"> ${t('setting.notice.asset-path')} </div>
@@ -248,7 +264,7 @@ MxWcTemplate.elemPage = {
   return `
 <!DOCTYPE html>
 <html>
-  <!-- OriginalSrc: ${v.info.url} -->
+  <!-- OriginalSrc: ${v.info.link} -->
   <head>
     <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -299,7 +315,7 @@ MxWcTemplate.bodyPage = {
   return `
 <!DOCTYPE html>
 <html>
-  <!-- OriginalSrc: ${v.info.url} -->
+  <!-- OriginalSrc: ${v.info.link} -->
   <head>
     <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

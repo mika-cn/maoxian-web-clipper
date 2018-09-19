@@ -8,6 +8,7 @@
     const elem = T.queryElem(".main");
     elem.innerHTML = MxWcTemplate.settingPage.render({
       settingFileUrlLink: MxWcLink.get('faq-allow-access-file-urls'),
+      nativeAppUrl: MxWcLink.get('native-app'),
       host: window.location.origin
     });
   }
@@ -19,9 +20,11 @@
       initSettingClippingContent(config)
       initFileSchemeAccess(config);
       initSettingHotkey(config);
+      initClippingHandler(config);
     });
   }
 
+  // section path
   function initSettingPath(config) {
     initTextInput(config,
       'default-category',
@@ -55,6 +58,7 @@
     );
   }
 
+  // section hotkey
   function initSettingHotkey(config){
     initCheckboxInput(config,
       'enable-switch-hotkey',
@@ -62,29 +66,22 @@
     );
   }
 
-
   // section: format
   function initSettingFormat(config){
-    iterateFormatBtn(function(elem){
-      T.bindOnce(elem, 'click', clickFormatBtn);
-      const elemFormat = elem.getAttribute('data-id');
-      if(config.saveFormat == elemFormat){
-        elem.classList.add('active');
-      }
-    });
+    initOptionsInput(config,
+      'setting-format',
+      'saveFormat'
+    );
   }
-  function clickFormatBtn(e){
-    iterateFormatBtn(function(elem){
-      elem.classList.remove('active');
-    });
-    const elem = e.target;
-    const format = elem.getAttribute('data-id');
-    elem.classList.add('active');
-    MxWcConfig.update('saveFormat', format);
+
+  // section: clipping-handler
+  function initClippingHandler(config) {
+    initOptionsInput(config,
+      'clipping-handler',
+      'clippingHandlerName'
+    );
   }
-  function iterateFormatBtn(fn){
-    T.each(T.queryElems(".setting-format > a"), fn);
-  }
+
 
   // section: file scheme access
   function initFileSchemeAccess(config){
@@ -109,6 +106,29 @@
       MxWcConfig.update(configKey, e.target.value);
     });
   }
+
+  function initOptionsInput(config, elemId, configKey){
+    const elem = T.findElem(elemId);
+    T.bind(elem, 'click', (e) => {
+      if(e.target.tagName === 'A'){
+        const value = e.target.getAttribute('data-value');
+        updateOptionsState(elem, value)
+        MxWcConfig.update(configKey, value)
+      }
+    });
+    updateOptionsState(elem, config[configKey]);
+  }
+
+  function updateOptionsState(elem, value) {
+    T.each(elem.children, (option) => {
+      option.classList.remove('active');
+      const optionValue = option.getAttribute('data-value');
+      if(optionValue === value){
+        option.classList.add('active');
+      }
+    });
+  }
+
 
   function init(){
     renderUi();

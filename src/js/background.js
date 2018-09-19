@@ -6,7 +6,7 @@ function messageHandler(message, sender, senderResponse){
   return new Promise(function(resolve, reject){
     switch(message.type){
       case 'get.mimeTypeDict' : WebRequest.getMimeTypeDict(resolve)     ; break     ;
-      case 'init.downloadFold': TaskHandler_Browser.initDownloadFold()  ; resolve() ; break ;
+      case 'init.downloadFold': initDownloadFold()                      ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
       case 'save.clip'        : saveClip(message.body)                  ; resolve() ; break ;
@@ -37,8 +37,8 @@ function messageHandler(message, sender, senderResponse){
         taskStoreService.reset();
         resolve();
         break;
-      case 'handle.tasks':
-        handleTasks(sender.tab.id, message.body);
+      case 'handle.clipping':
+        handleClipping(sender.tab.id, message.body);
         resolve();
         break;
       case 'get.allFrames':
@@ -59,9 +59,45 @@ function messageHandler(message, sender, senderResponse){
   });
 }
 
-function handleTasks(tabId, msg){
-  TaskHandler_Browser.init(tabId, msg.clipId);
-  TaskHandler_Browser.handle(msg.tasks);
+function handleClipping(tabId, clipping){
+  getClippingHandler((handler) => {
+    handler.setCompletedAction(onCompleted);
+    handler.init(tabId, clipping.clipId);
+    handler.handle(clipping.tasks);
+  });
+}
+
+function getClippingHandler(callback) {
+  MxWcConfig.load().then((config) => {
+    let handler = null;
+    switch(config.clippingHandlerName){
+      case 'browser':
+        handler = ClippingHandler_Browser;
+        break;
+      case 'native-app':
+        handler = ClippingHandler_NativeApp;
+        break;
+      default:
+        handler = ClippingHandler_Browser;
+    }
+    callback(handler);
+  })
+}
+
+function onCompleted(tabId, clippingResult){
+  ExtApi.sendMessageToContent({ type: 'download.completed'}, tabId);
+  MxWcStorage.set('lastClippingResult', clippingResult);
+  MxWcIcon.flicker(3);
+}
+
+function initDownloadFold(){
+  MxWcStorage.get('downloadFold').then((root) => {
+    if(!root){
+      getClippingHandler((handler) => {
+        handler.initDownloadFold();
+      });
+    }
+  });
 }
 
 function resetStates(key, states){
@@ -105,7 +141,7 @@ function saveCategory(msg){
 
 
 function createKeyStoreService(){
-  const service = createLockService(30);
+  const service = createLockService(10);
 
   function add(key, callback){
     service.get((state) => {
@@ -138,7 +174,7 @@ function createKeyStoreService(){
 }
 
 function createTaskStoreService(){
-  const service = createLockService(30);
+  const service = createLockService(10);
 
   function add(task, callback){
     Log.debug('taskStore.add')

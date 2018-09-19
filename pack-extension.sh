@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-#usage ./pack.sh 0.0.1
+#usage ./pack-extension.sh 0.0.1
 
 version=$1
 dir=$(dirname $(realpath "$0"))
 src=$(realpath "$dir/src")
-dist=$(realpath "$dir/dist")
+dist=$(realpath "$dir/dist/extension")
 
 extname="maoxian-web-clipper"
 

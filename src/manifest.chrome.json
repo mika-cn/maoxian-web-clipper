@@ -15,7 +15,8 @@
     "storage",
     "tabs",
     "downloads",
-    "downloads.open"
+    "downloads.open",
+    "nativeMessaging"
   ],
   "background": {
     "scripts": [
@@ -27,9 +28,11 @@
       "js/lib/ext-api.js",
       "js/lib/lock-service.js",
       "js/lib/mx-wc-icon.js",
+      "js/lib/mx-wc-config.js",
       "js/lib/mx-wc-storage.js",
       "js/background/web-request.js",
-      "js/background/task-handler-browser.js",
+      "js/background/clipping-handler-browser.js",
+      "js/background/clipping-handler-native-app.js",
       "js/background.js"
     ]
   },
