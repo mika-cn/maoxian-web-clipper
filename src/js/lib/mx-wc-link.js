@@ -7,11 +7,13 @@ this.MxWcLink = (function(ExtApi) {
   const remotePaths = {
     "en": {
       "home": "/index.html",
-      "faq-allow-access-file-urls": "/faq.html#allow-access-file-urls"
+      "faq-allow-access-file-urls": "/faq.html#allow-access-file-urls",
+      "native-app": "/native-app/index.html"
     },
     "zh-CN": {
       "home": "/index-zh-CN.html",
-      "faq-allow-access-file-urls": "/faq-zh-CN.html#allow-access-file-urls"
+      "faq-allow-access-file-urls": "/faq-zh-CN.html#allow-access-file-urls",
+      "native-app": "/native-app/index-zh-CN.html"
     }
   }
 

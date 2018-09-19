@@ -17,11 +17,16 @@ I18N_DICT['en'] = {
 
     //setting page
     "setting.warning": "Warning",
+
+    // title
     "setting.title.save-format": "Save Format",
     "setting.title.hotkey": "Hotkey",
     "setting.title.file-url": "File URL",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.path": "Path",
+    "setting.title.clipping-handler": "Clipping Handler",
+
+    // notice
     "setting.notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
     "setting.notice.file-url.link-label": "Learn how to setting",
     "setting.notice.file-url.help-msg": "Your will need message below:",
@@ -29,13 +34,23 @@ I18N_DICT['en'] = {
     "setting.notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after your allow browser to access file URLs.",
     "setting.notice.default-category": "<strong>Default Category</strong><br />Use <strong>/</strong> to separate sub category<br />Use <strong>$NONE</strong> to represent empty value",
     "setting.notice.asset-path": "<strong>Asset Path (image,font...)</strong><br />Use <strong>$CILP-FOLD</strong> to represent cliping fold that generate from extension<br />Use <strong>$MX-WC</strong> to represent extension root fold ($downloads/mx-wc)",
+    "setting.notice.clipping-handler.intro": "<strong>Download through browser</strong><br />Use browser to download clipping result.<br /><br /><strong>Download through native App</strong><br />Use a native application to download clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to install a native application.",
+    "setting.notice.clipping-handler.link-label": "install native App",
+
+    // label
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags)",
     "setting.save-domain-tag-input.label": "Save current domain as tag",
     "setting.save-title-as-fold-name-input.label": "Use title as fold name (default: Generate by extension)",
-    "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html/index.md)",
+    "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html or index.md)",
     "setting.enable-switch-hotkey-input.label": "Enable hotkey `c` (clip switch)",
+
+    // placeholder
     "setting.placeholder.notblank": "This value can not blank!",
+
+    // setting options
+    "setting.clipping-handler-option.browser": "Download through browser",
+    "setting.clipping-handler-option.native-app": "Download through native App",
 
 
     //history page

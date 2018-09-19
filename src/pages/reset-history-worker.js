@@ -20,13 +20,17 @@
       if(file.type === "application/json"){
         const clip = readJson(file);
 
-        // old index.json file compatible
+        // old index.json file compatible( not id attr => id => clipId )
         if(!clip.clipId) {
-          const path = file.webkitRelativePath;
-          if(path.match(msRegExp)){
-            clip.clipId = path.match(msRegExp)[1];
+          if(clip.id) {
+            clip.clipId = clip.id;
           } else {
-            clip.clipId = '00' + Math.round(Math.random() * 10000000);
+            const path = file.webkitRelativePath;
+            if(path.match(msRegExp)){
+              clip.clipId = path.match(msRegExp)[1];
+            } else {
+              clip.clipId = '00' + Math.round(Math.random() * 10000000);
+            }
           }
         }
 

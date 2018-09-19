@@ -69,9 +69,11 @@
       if(xml.match(/^<\?xml/i)){
         /* page is rss/atom ... */
       }else{
-        initialize();
-        listenMessage();
-        listenPopState();
+        setTimeout(() => {
+          initialize();
+          listenMessage();
+          listenPopState();
+        }, 0)
       }
     }
   }

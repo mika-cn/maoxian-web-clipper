@@ -10,13 +10,17 @@ this.MxWcConfig = (function() {
       saveClippingInformation: true,
       saveDomainAsTag: false,
 
-      assetPath: '$CLIP-FOLD/assets', /* $MX-WC/ */
+      /* $MX-WC/ */
+      assetPath: '$CLIP-FOLD/assets',
       saveTitleAsFoldName: false,
       saveTitleAsFilename: false,
       defaultCategory: 'default',
 
       allowFileSchemeAccess: false,
       enableSwitchHotkey: false,
+
+      /* browser, native-app */
+      clippingHandlerName: 'browser'
     }
   }
 

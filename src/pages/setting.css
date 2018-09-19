@@ -20,6 +20,7 @@ h3 {
   border-bottom: solid 1px #ccc;
 }
 
+/********** notice ***********/
 .notice-warning {
   background: #fff3cd;
   line-height: 20px;
@@ -38,17 +39,7 @@ h3 {
   margin-bottom: 15px;
 }
 
-.setting-format > a{
-  text-decoration: none;
-  display: inline-block;
-  margin-right: 10px;
-  border: solid 1px #ccc;
-  min-width: 100px;
-  text-align: center;
-  line-height: 40px;
-  cursor: pointer;
-}
-
+/********** text input ***********/
 input[type=text] {
   display: block;
   font-size: 12px;
@@ -64,11 +55,28 @@ input[type=text]:focus{
   border: 2px solid pink;
 }
 
-.setting-format > a:hover {
+/********** options(radio input) ***********/
+.options > a{
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 10px;
+  border: solid 1px #ccc;
+  padding: 5px 15px 5px 15px;
+  min-width: 100px;
+  text-align: center;
+  line-height: 40px;
+  color: #9F9F9F;
+  cursor: pointer;
+}
+
+.options > a:hover {
+  color: #333;
   background-color: #F5F5F5;
 }
 
-.setting-format > a.active{
-  border: 2px solid green;
+.options > a.active{
+  color: #333;
+  border: 2px dashed green;
   font-weight: bold;
+  background-color: #E8E8E8;
 }
