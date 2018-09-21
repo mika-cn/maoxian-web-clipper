@@ -14,6 +14,7 @@ ElemTool.getHiddenElementXpaths = (win, elem, xpaths=[], prefix="") => {
 }
 
 ElemTool.removeChildByXpath = (win, elem, xpaths) => {
+  const childToRemove = [];
   xpaths.forEach((xpath) => {
     const child = win.document.evaluate(
       xpath,
@@ -23,16 +24,23 @@ ElemTool.removeChildByXpath = (win, elem, xpaths) => {
       null
     ).singleNodeValue
     if(child){
-      const pElem = child.parentElement;
-      pElem.removeChild(child);
+      childToRemove.push(child);
     } else {
-      console.warn("Xpath elem not found", xpath);
+      console.error("Xpath elem not found", xpath);
     }
   });
+
+  childToRemove.forEach((child) => {
+    const pElem = child.parentElement;
+    pElem.removeChild(child);
+  })
   return elem;
 }
 
 ElemTool.isElemVisible = (win, elem) => {
+  if(['IMG', 'PEATURE'].indexOf(elem.tagName) > -1) {
+    return true
+  }
   if(elem.offsetWidth === 0 && elem.offsetHeight === 0){
     return false
   }
