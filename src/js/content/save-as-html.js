@@ -5,14 +5,14 @@ this.MxWcHtml = (function () {
   /*
    * @param {Object} params
    */
-  function parse(params, callback){
+  function parse(params){
     Log.debug("html parser");
     const {path, elem, info, config} = params;
 
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
       ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
-      KeyStore.start(), TaskStore.start()
+      KeyStore.init()
     ]).then((values) => {
       const [mimeTypeDict, frames] = values;
       // 获取选中元素的html
@@ -25,26 +25,21 @@ this.MxWcHtml = (function () {
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict,
       }, function(htmls) {
-        KeyStore.reset().then(() => {
-          const {styleHtml, elemHtml} = htmls;
-          // 将elemHtml 渲染进模板里，渲染成完整网页。
-          const v = getElemRenderParams(elem);
-          const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
-          v.info = info;
-          v.styleHtml = styleHtml;
-          v.elemHtml = elemHtml;
-          v.config = config;
-          const html = MxWcTemplate[page].render(v);
-          TaskStore.add({
-            type: 'text',
-            mimeType: 'text/html',
-            filename: T.joinPath([path.clipFold, info.filename]),
-            text: html
-          });
-          TaskStore.getResult((tasks) => {
-            callback(tasks);
-            TaskStore.reset();
-          });
+        const {styleHtml, elemHtml} = htmls;
+        // 将elemHtml 渲染进模板里，渲染成完整网页。
+        const v = getElemRenderParams(elem);
+        const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
+        v.info = info;
+        v.styleHtml = styleHtml;
+        v.elemHtml = elemHtml;
+        v.config = config;
+        const html = MxWcTemplate[page].render(v);
+        TaskStore.save({
+          clipId: info.clipId,
+          type: 'text',
+          mimeType: 'text/html',
+          filename: T.joinPath([path.clipFold, info.filename]),
+          text: html
         });
       });
     });
@@ -64,6 +59,7 @@ this.MxWcHtml = (function () {
     } = params;
     Log.debug('getElemHtml', refUrl);
     const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
+    Log.debug(xpaths);
     let clonedElem = elem.cloneNode(true);
     clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
     clonedElem = T.completeElemLink(clonedElem, refUrl);
@@ -83,7 +79,7 @@ this.MxWcHtml = (function () {
     downloadCssFiles(clipId, path, result.cssAssetInfos, mimeTypeDict);
 
     // download assets
-    StoreClient.addImages(path.assetFold, result.imgAssetInfos);
+    StoreClient.addImages(clipId, path.assetFold, result.imgAssetInfos);
 
 
     const styleHtml = getExternalStyleHtml(path, result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
@@ -148,7 +144,8 @@ this.MxWcHtml = (function () {
                     styleHtml: styleHtml,
                     html: elemHtml
                   });
-                  TaskStore.add({
+                  TaskStore.save({
+                    clipId: clipId,
                     type: 'text',
                     mimeType: 'text/html',
                     filename: T.joinPath([path.clipFold, assetName]),
@@ -256,7 +253,8 @@ this.MxWcHtml = (function () {
               refUrl: it.link,
               mimeTypeDict: mimeTypeDict
             });
-            TaskStore.add({
+            TaskStore.save({
+              clipId: clipId,
               type: 'text',
               mimeType: 'text/css',
               filename: T.joinPath([path.assetFold, it.assetName]),
@@ -299,7 +297,7 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict
       });
-      StoreClient.addFonts(path.assetFold, r.assetInfos);
+      StoreClient.addFonts(clipId, path.assetFold, r.assetInfos);
       return r.cssText;
     });
 

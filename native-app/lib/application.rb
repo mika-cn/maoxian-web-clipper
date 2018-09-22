@@ -51,13 +51,19 @@ class Application
   end
 
   def download_url(msg)
-    filename = File.join(root, msg['filename'])
-    mkdir(filename)
-    File.open(filename, 'wb') do |file|
-      file.write open(msg['url']).read
+    begin
+      filename = File.join(root, msg['filename'])
+      mkdir(filename)
+      File.open(filename, 'wb') do |file|
+        file.write open(msg['url']).read
+      end
+      NativeMessage.write({type: msg['type'], filename: filename})
+      Log.debug("[Done] #{filename}")
+    rescue Errno::ECONNREFUSED => e
+      Log.error("[Connect Refused] #{msg['url']} #{e.message}")
+    rescue Net::OpenTimeout => e
+      Log.error("[Net openTimeout] #{msg['url']} #{e.message}")
     end
-    NativeMessage.write({type: msg['type'], filename: filename})
-    Log.debug("[Done] #{filename}")
   end
 
   def mkdir(filename)

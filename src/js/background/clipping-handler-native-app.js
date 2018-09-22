@@ -3,11 +3,9 @@ const ClippingHandler_NativeApp = (function(){
   const APP_NAME = 'maoxian_web_clipper_native';
   const state = {};
 
-  function handle(tasks) {
-    tasks.forEach((task) => {
-      task.type = ['download', task.type].join('.');
-      state.port.postMessage(Object.assign({clipId: state.clipId}, task));
-    });
+  function handle(task) {
+    task.type = ['download', task.type].join('.');
+    state.port.postMessage(task);
   }
 
   function responseHandler(resp){

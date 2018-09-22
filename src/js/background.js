@@ -14,31 +14,14 @@ function messageHandler(message, sender, senderResponse){
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
       case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
-      case 'keyStore.start':
-        keyStoreService.start(resolve);
+      case 'keyStore.init':
+        keyStoreService.init(resolve);
         break;
       case 'keyStore.add':
         keyStoreService.add(message.body.key, resolve);
         break;
-      case 'keyStore.reset':
-        keyStoreService.reset();
-        resolve();
-        break;
-      case 'taskStore.start':
-        taskStoreService.start(resolve);
-        break;
-      case 'taskStore.add':
-        taskStoreService.add(message.body, resolve);
-        break;
-      case 'taskStore.getResult':
-        taskStoreService.getResult(resolve);
-        break;
-      case 'taskStore.reset':
-        taskStoreService.reset();
-        resolve();
-        break;
-      case 'handle.clipping':
-        handleClipping(sender.tab.id, message.body);
+      case 'save.task':
+        saveTask(sender.tab.id, message.body);
         resolve();
         break;
       case 'get.allFrames':
@@ -59,11 +42,11 @@ function messageHandler(message, sender, senderResponse){
   });
 }
 
-function handleClipping(tabId, clipping){
+function saveTask(tabId, task){
   getClippingHandler((handler) => {
     handler.setCompletedAction(onCompleted);
-    handler.init(tabId, clipping.clipId);
-    handler.handle(clipping.tasks);
+    handler.init(tabId, task.clipId);
+    handler.handle(task);
   });
 }
 
@@ -139,87 +122,35 @@ function saveCategory(msg){
 
 
 
-
 function createKeyStoreService(){
-  const service = createLockService(10);
+  const queue = T.createFunQueue();
 
   function add(key, callback){
-    service.get((state) => {
+    queue.enqueue((state) => {
       const canAdd = (state.keys.has(key) ? false : true);
       state.keys.add(key);
-      Log.debug('KeyStore.add: ', key, canAdd);
       callback(canAdd);
     });
   }
 
-  function start(callback){
-    Log.debug('keyStore.start');
-    service.start();
-    service.get((state) => {
+  function init(callback) {
+    queue.enqueue((state) => {
       state.keys = new Set();
-      callback()
+      callback();
     });
   }
 
-  function reset(){
-    Log.debug('keyStore.reset');
-    service.stop();
-  }
-
   return {
-    start: start,
-    reset: reset,
+    init: init,
     add: add
   };
 }
 
-function createTaskStoreService(){
-  const service = createLockService(10);
-
-  function add(task, callback){
-    Log.debug('taskStore.add')
-    service.get((state) => {
-      state.tasks.push(task);
-      callback();
-    });
-  }
-
-  function start(callback) {
-    Log.debug('taskStore.start');
-    service.start();
-    service.get((state) => {
-      state.tasks = [];
-      callback();
-    });
-  }
-
-  function getResult(callback) {
-    Log.debug('taskStore.getResult');
-    service.last((state) => {
-      callback(state.tasks);
-    })
-  }
-
-  function reset() {
-    Log.debug('taskStore.reset');
-    service.stop();
-  }
-
-  return {
-    start: start,
-    add: add,
-    getResult: getResult,
-    reset: reset
-  }
-}
-
 // state
 let keyStoreService = null;
-let taskStoreService = null;
 function init(){
   WebRequest.listen();
   keyStoreService = createKeyStoreService();
-  taskStoreService = createTaskStoreService();
   ExtApi.addMessageListener(messageHandler);
   Log.debug("background init...");
 }
