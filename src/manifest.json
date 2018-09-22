@@ -26,7 +26,6 @@
       "js/tool.js",
       "js/lib/log.js",
       "js/lib/ext-api.js",
-      "js/lib/lock-service.js",
       "js/lib/mx-wc-icon.js",
       "js/lib/mx-wc-config.js",
       "js/lib/mx-wc-storage.js",

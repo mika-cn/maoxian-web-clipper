@@ -88,24 +88,20 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         case 'md'   : parser = MxWcMarkdown; break;
       }
 
+      addIndexFile(path, info);
+      addTitleFile(config, path, info);
+
       const params = { path: path, elem: elem, info: info, config: config }
-      parser.parse(params, (tasks) => {
-        tasks = addTitleFile(tasks, config, path, info);
-        tasks = addIndexFile(tasks, path, info);
-        Log.debug(tasks);
-        ExtApi.sendMessageToBackground({
-          type: 'handle.clipping',
-          body: { clipId: clipId, tasks: tasks }
-        })
-        saveClipHistory(path.clipFold, info);
-      })
+      parser.parse(params)
+      saveClipHistory(path.clipFold, info);
     });
   }
 
   // private
-  function addTitleFile(tasks, config, path, info){
+  function addTitleFile(config, path, info){
     if(!(config.saveTitleAsFoldName || config.saveTitleAsFilename)) {
-      tasks.unshift({
+      TaskStore.save({
+        clipId: info.clipId,
         type: 'text',
         mimeType: 'text/plain',
         filename: [path.clipFold,
@@ -114,18 +110,17 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         text: '-'
       })
     }
-    return tasks;
   }
 
   // private
-  function addIndexFile(tasks, path, info){
-    tasks.unshift({
+  function addIndexFile(path, info){
+    TaskStore.save({
+      clipId: info.clipId,
       type: 'text',
       mimeType: 'application/json',
       filename: [path.clipFold, 'index.json'].join('/'),
       text: T.toJson(info)
     })
-    return tasks;
   }
 
   //private

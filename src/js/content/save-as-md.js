@@ -7,13 +7,13 @@ this.MxWcMarkdown = (function() {
   /*
    * @param {Object} params
    */
-  function parse(params, callback){
+  function parse(params){
     Log.debug("markdown parser");
     const {path, elem, info, config} = params;
     Promise.all([
       ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
       ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
-      KeyStore.start(), TaskStore.start()
+      KeyStore.init()
     ]).then((values) => {
       const [mimeTypeDict, frames] = values;
       getElemHtml({
@@ -25,24 +25,19 @@ this.MxWcMarkdown = (function() {
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict
       }, function(html) {
-          KeyStore.reset().then(() => {
-            let markdown = generateMarkDown(html, info);
-            markdown = PluginMathJax.unEscapeMathJax(markdown);
-            markdown = PluginMathML2LaTeX.unEscapeLaTex(markdown);
-            if(config.saveClippingInformation){
-              markdown += generateMdClippingInfo(info);
-            }
-            TaskStore.add({
-              type: 'text',
-              mimeType: 'text/markdown',
-              filename: T.joinPath([path.clipFold, info.filename]),
-              text: markdown
-            });
-            TaskStore.getResult((tasks) => {
-              callback(tasks);
-              TaskStore.reset();
-            })
-          });
+        let markdown = generateMarkDown(html, info);
+        markdown = PluginMathJax.unEscapeMathJax(markdown);
+        markdown = PluginMathML2LaTeX.unEscapeLaTex(markdown);
+        if(config.saveClippingInformation){
+          markdown += generateMdClippingInfo(info);
+        }
+        TaskStore.save({
+          clipId: info.clipId,
+          type: 'text',
+          mimeType: 'text/markdown',
+          filename: T.joinPath([path.clipFold, info.filename]),
+          text: markdown
+        });
       });
     });
   }
@@ -72,7 +67,7 @@ this.MxWcMarkdown = (function() {
       attrName: 'src',
       mimeTypeDict: mimeTypeDict
     });
-    StoreClient.addImages(path.assetFold, imgAssetInfos);
+    StoreClient.addImages(clipId, path.assetFold, imgAssetInfos);
 
     handleFrames(params, clonedElem).then((clonedElem) => {
       Log.debug("FrameHandlefihish");

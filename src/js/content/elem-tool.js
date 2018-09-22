@@ -41,10 +41,17 @@ ElemTool.isElemVisible = (win, elem) => {
   if(['IMG', 'PEATURE'].indexOf(elem.tagName) > -1) {
     return true
   }
+
+  /*
   if(elem.offsetWidth === 0 && elem.offsetHeight === 0){
     return false
   }
+  */
+
   const style = win.getComputedStyle(elem);
+  if(style.display === 'none') {
+    return false;
+  }
   if(style.visibility === 'hidden'){
     return false
   }

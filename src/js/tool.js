@@ -332,6 +332,32 @@ T.createStack = function(){
   }
 }
 
+
+T.createFunQueue = function(){
+  const state = {};
+  const queue = []
+  let running = false;
+
+  function enqueue(fun) {
+    queue.push((state) => {
+      running = true;
+      fun(state);
+      running = false;
+      next();
+    })
+    if(!running) {
+      next();
+    }
+  }
+
+  function next(){
+    const first = queue.shift();
+    if(first) { first(state) }
+  }
+
+  return {enqueue: enqueue}
+}
+
 T.isHttpProtocol = function(link){
   if(!link){ return false }
   if(link.match(/^[^\/:]+:\/\//)){

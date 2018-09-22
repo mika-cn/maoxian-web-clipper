@@ -1,6 +1,6 @@
 
 const ClippingHandler_Browser = (function(){
-  const state = {};
+  const state = {filenameDict: T.createDict()};
 
   // msg: {:text, :mineType, :filename}
   function downloadText(msg){
@@ -96,13 +96,11 @@ const ClippingHandler_Browser = (function(){
     });
   }
 
-  function handle(tasks) {
-    tasks.forEach((task) => {
-      switch(task.type){
-        case 'text': downloadText(task); break;
-        case 'url' : downloadUrl(task); break;
-      }
-    });
+  function handle(task) {
+    switch(task.type){
+      case 'text': downloadText(task); break;
+      case 'url' : downloadUrl(task); break;
+    }
   }
 
   function setCompletedAction(handler) {
@@ -110,12 +108,14 @@ const ClippingHandler_Browser = (function(){
   }
 
   function init(tabId, clipId){
+    if(!state.tabId){
+      ExtApi.bindDownloadCreatedListener(downloadCreated);
+      ExtApi.bindDownloadChangedListener(downloadChanged);
+    }
     state.tabId = tabId;
     state.clipId = clipId;
-    state.filenameDict = T.createDict();
-    ExtApi.bindDownloadCreatedListener(downloadCreated);
-    ExtApi.bindDownloadChangedListener(downloadChanged);
   }
+
 
   return {
     init: init,
