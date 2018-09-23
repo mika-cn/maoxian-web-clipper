@@ -55,7 +55,7 @@ class Application
       filename = File.join(root, msg['filename'])
       mkdir(filename)
       File.open(filename, 'wb') do |file|
-        file.write open(msg['url']).read
+        file.write open(msg['url'], msg['headers']).read
       end
       NativeMessage.write({type: msg['type'], filename: filename})
       Log.debug("[Done] #{filename}")

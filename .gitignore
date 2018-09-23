@@ -3,6 +3,7 @@ dist/extension/*.zip
 dist/native-app/*.zip
 dist/native-app/tmp
 native-app/tmp/*.log
+native-app/tmp/*.log.*
 native-app/config.yaml
 native-app/config.yaml.production
 native-app/pack.yaml

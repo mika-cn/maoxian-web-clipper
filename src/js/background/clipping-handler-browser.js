@@ -14,6 +14,9 @@ const ClippingHandler_Browser = (function(){
   function downloadUrl(msg){
     Log.debug('download.url:', msg.url);
     Log.debug('download.filename:', msg.filename);
+    /*
+     * Referer and User-Agent is restrict by browser( as unsafe headers) :(
+     */
     ExtApi.download({
       saveAs: false,
       filename: msg.filename,

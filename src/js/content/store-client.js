@@ -30,7 +30,11 @@ const StoreClient = {
             clipId: clipId,
             type: 'url',
             url: it.link,
-            filename: T.joinPath([assetFold, it.assetName])
+            filename: T.joinPath([assetFold, it.assetName]),
+            headers: {
+              "Referer": window.location.href,
+              "User-Agent": window.navigator.userAgent
+            }
           })
         }
       }).catch((err) => {
