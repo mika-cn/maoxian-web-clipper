@@ -191,22 +191,27 @@ this.UI = (function(){
   function setStateIdle(){
     state.clippingState = 'idle';
     sendFrameMsgToControl('setStateIdle');
+    dispatchMxEvent('idle');
   }
   function setStateSelecting(){
     state.clippingState = 'selecting';
     sendFrameMsgToControl('setStateSelecting');
+    dispatchMxEvent('selecting');
   }
   function setStateSelected(){
     state.clippingState = 'selected';
     sendFrameMsgToControl('setStateSelected');
+    dispatchMxEvent('selected');
   }
   function setStateConfirmed(){
     state.clippingState = 'confirmed';
     sendFrameMsgToControl('setStateConfirmed');
+    dispatchMxEvent('confirmed');
   }
   function setStateClipping(){
     state.clippingState = 'clipping';
     sendFrameMsgToControl('setStateClipping');
+    dispatchMxEvent('clipping');
   }
   function drawSelectingStyle(elem){
     sendFrameMsgToSelection('drawRect', {box: getBox(elem), color: 'red'});
@@ -224,6 +229,12 @@ this.UI = (function(){
 
   function sendFrameMsgToSelection(type, msg) {
     FrameMsg.send({to: selectionIframe.id, type: type, msg: (msg || {})});
+  }
+
+  function dispatchMxEvent(name, data) {
+    const eventName = ['mx-wc', name].join('.');
+    const e = new CustomEvent(eventName, {detail: (data || {})});
+    document.dispatchEvent(e);
   }
 
   // ----------------------------
@@ -291,7 +302,6 @@ this.UI = (function(){
       toggleScrollY(state.currElem);
     }
   }
-
 
   function switchSelected(fromElem, toElem){
     if(fromElem){

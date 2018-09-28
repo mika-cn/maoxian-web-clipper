@@ -168,7 +168,10 @@ this.MxWcMarkdown = (function() {
   }
 
   function getTurndownService(){
-    const service = new TurndownService({codeBlockStyle: 'fenced'});
+    const service = new TurndownService({
+      headingStyle: 'atx',
+      codeBlockStyle: 'fenced'
+    });
     service.addRule('ignoreTag', {
       filter: ['style', 'script', 'noscript', 'noframes', 'canvas', 'template'],
       replacement: function(content, node, options){return ''}
