@@ -34,6 +34,12 @@
           }
         }
 
+        // handle category
+        const path = clip.path.replace('mx-wc/', '');
+        const parts = path.split('/');
+        // Not safe: path relative.
+        clip.category = parts.slice(0, parts.length - 2).join('/');
+
         if(!clip.format) {
           clip.format = 'html';
         }
@@ -56,11 +62,8 @@
           tags.push(tag)
         }
       });
-      const path = it.clip.path.replace('mx-wc/', '');
-      const parts = path.split('/');
-      const category = parts.slice(0, parts.length - 2).join('/');
-      if(categories.indexOf(category) == -1){
-        categories.push(category);
+      if(categories.indexOf(it.clip.category) == -1){
+        categories.push(it.clip.category);
       }
     });
     return { clips: clips, categories: categories, tags: tags }
