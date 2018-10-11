@@ -420,7 +420,7 @@ this.UI = (function(){
     if(state.clippingState === 'selected'){
       if(MxWc.selector.stack.isEmpty()){
         let cElem = state.currElem.children[0];
-        while(cElem && (isOnBlackList(cElem) || isBoxSizeEq(state.currElem, cElem))){
+        while(cElem && (isOnBlackList(cElem) || ElemTool.isBoxSizeEq(state.currElem, cElem))){
           cElem = cElem.children[0];
         }
         if(cElem){
@@ -465,20 +465,10 @@ this.UI = (function(){
   function getOutermostWrapper(elem){
     if(['HTML', 'BODY'].indexOf(elem.tagName) > 0){ return elem }
     const pElem = elem.parentElement;
-    if(isBoxSizeEq(elem, pElem)){
+    if(ElemTool.isBoxSizeEq(elem, pElem)){
       return getOutermostWrapper(pElem);
     } else {
       return elem;
-    }
-  }
-
-  function isBoxSizeEq(elemA, elemB) {
-    if(elemA && elemB){
-      const boxA = elemA.getBoundingClientRect();
-      const boxB = elemB.getBoundingClientRect();
-      return boxA.width === boxB.width && boxA.height === boxB.height;
-    } else {
-      return false;
     }
   }
 

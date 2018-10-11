@@ -19,7 +19,6 @@ class Application
       msg = NativeMessage.read
       handle(msg)
     end
-    Log.info
   end
 
   private

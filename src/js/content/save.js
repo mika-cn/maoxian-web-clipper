@@ -18,7 +18,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         appendTags.push(window.location.host);
       }
 
-      // deal filename
+      // deal entry filename
       let name = 'index';
       if (config.saveTitleAsFilename) {
         name = T.sanitizeFilename(title);
@@ -26,10 +26,11 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       const filename = name + '.' + config.saveFormat;
 
       // deal Fold
+      const now = T.currentTime();
+      const clipId = now.str.intSec;
       const ROOT = 'mx-wc';
       let fold = null;
-      let foldName = T.generateFoldname();
-      const clipId = foldName.split('-').pop();
+      let foldName = T.generateFoldname(now);
       if (config.saveTitleAsFoldName) {
         foldName = [clipId, T.sanitizeFilename(title)].join('-');
       }
@@ -77,7 +78,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         link       : window.location.href,
         category   : category,
         tags       : tags.concat(appendTags),
-        created_at : T.currentTime().toString(),
+        created_at : now.toString(),
         filename   : filename
       }
 

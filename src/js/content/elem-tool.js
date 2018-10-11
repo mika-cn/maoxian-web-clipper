@@ -1,5 +1,15 @@
 const ElemTool = {}
 
+ElemTool.isBoxSizeEq = (elemA, elemB) => {
+  if(elemA && elemB){
+    const boxA = elemA.getBoundingClientRect();
+    const boxB = elemB.getBoundingClientRect();
+    return boxA.width === boxB.width && boxA.height === boxB.height;
+  } else {
+    return false;
+  }
+}
+
 ElemTool.getHiddenElementXpaths = (win, elem, xpaths=[], prefix="") => {
   T.each(elem.children, (childElem, index) => {
     const xpath = [prefix, '*[', index + 1, ']'].join('');

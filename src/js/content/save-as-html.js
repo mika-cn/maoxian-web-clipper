@@ -178,12 +178,20 @@ this.MxWcHtml = (function () {
   }
 
   function dealNormalElem(elem, clonedElem, refUrl, parseResult, path){
-    clonedElem.classList.add("mx-wc-selected-elem");
-    clonedElem.style = (clonedElem.style.cssText || "") + "float: none; position: relative; top: 0; left: 0; margin: 0px; flex:unset; width: 100%; max-width: 100%; box-sizing: border-box;";
+    clonedElem = fixNormalElemStyle(clonedElem);
     let html = getFixedLinkHtml(path, clonedElem, refUrl, parseResult.imgAssetInfos);
     html = removeUselessHtml(html, elem);
     html = wrapToBody(elem, html);
     return html
+  }
+
+  function fixNormalElemStyle(elem) {
+    const getFixedStyle = (element) => {
+      return (element.style.cssText || '') + "float: none; position: relative; top: 0; left: 0; margin: 0px; flex:unset; width: 100%; max-width: 100%; box-sizing: border-box;";
+    }
+    elem.classList.add("mx-wc-selected-elem");
+    elem.style = getFixedStyle(elem);
+    return elem;
   }
 
 
@@ -406,7 +414,8 @@ this.MxWcHtml = (function () {
       const tagName = pElem.tagName
       let attrs = []
       /* make sure highest priority */
-      let style = "display: block; float: none; position: relative; top: 0; left: 0; border: 0px; width: 100%; min-width:100%; max-width: 100%; min-height: auto; max-height: 100%; height: auto; padding: 0px; margin: 0px;"
+      const displayCss = (tagName == 'table' ? 'display: table;' : 'display: block;');
+      let style = displayCss + " float: none; position: relative; top: 0; left: 0; border: 0px; width: 100%; min-width:100%; max-width: 100%; min-height: auto; max-height: 100%; height: auto; padding: 0px; margin: 0px;"
       T.each(pElem.attributes, function(attr){
         if(attr.name == "style"){
           style = (attr.value || "") + style;

@@ -58,8 +58,8 @@
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(){
-      ExtApi.createTab(url);
       modal.style.display = 'none';
+      ExtApi.createTab(url);
     })
   }
 
@@ -78,8 +78,8 @@
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(){
-      ExtApi.openDownloadItem(downloadItem.id);
       modal.style.display = 'none';
+      ExtApi.openDownloadItem(downloadItem.id);
     })
   }
 
@@ -108,7 +108,9 @@
 
   function bindClipListener(){
     const tbody = T.queryElem(".history > table > tbody");
-    T.bindOnce(tbody, 'click', showClip, true);
+    if(tbody) {
+      T.bindOnce(tbody, 'click', showClip, true);
+    }
   }
 
   function initSearch(){
@@ -117,6 +119,7 @@
     searchBox.innerHTML = MxWcTemplate.historyPageSearchFields.render(v)
     const input = T.findElem(v.inputId);
     const btn = T.findElem(v.btnId);
+    input.value = getKeyword();
     T.bindOnce(input, 'keypress', searchInputListener);
     T.bindOnce(btn, 'click', searchAction);
   }
@@ -127,14 +130,23 @@
     }
   }
 
+  function getKeyword(){
+    return window.localStorage.getItem('search.keyword');
+  }
+
+  function storeKeyword(value){
+    window.localStorage.setItem('search.keyword', value);
+  }
+
   function searchAction(){
     const input = T.findElem('search');
-    const q = input.value.trim();
-    if(q == ""){
+    const keyword = input.value.trim();
+    storeKeyword(keyword);
+    if(keyword == ""){
       MxWcStorage.get('clips', []).then(renderClips);
     }else{
       MxWcStorage.get('clips', []).then((clips) => {
-        const regExp = new RegExp(q, 'i');
+        const regExp = new RegExp(keyword, 'i');
         const r = []
         T.each(clips, function(clip){
           let keep = true;

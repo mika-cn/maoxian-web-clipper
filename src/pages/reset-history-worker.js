@@ -37,7 +37,7 @@
         // handle category
         const path = clip.path.replace('mx-wc/', '');
         const parts = path.split('/');
-        // Not safe: path relative.
+        // FIXME Not safe: path relative.
         clip.category = parts.slice(0, parts.length - 2).join('/');
 
         if(!clip.format) {

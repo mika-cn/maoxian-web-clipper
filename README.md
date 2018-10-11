@@ -5,7 +5,9 @@
 
 ## Intro
 
-MaoXian Web Clipper is a browser extension to clip information from web page. save to your local machine to avoid information invalidation. Not bored registration, Not charged.
+MaoXian Web Clipper is a browser extension to clip information from web pageAnd save it to your local machine to avoid information invalidation.
+
+That's it, Not bored registration, Not charged.
 
 ## Install
 

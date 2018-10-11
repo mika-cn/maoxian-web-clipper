@@ -80,6 +80,7 @@ T.toArray = function(collection){
 }
 T.detect = function(collection, fn){
   return [].find.call(collection, fn);
+
 }
 T.select = function(collection, fn){
   const r = []
@@ -208,8 +209,8 @@ T.currentTime = function(){
   return tObj;
 }
 
-T.generateFoldname = function(){
-  const s = T.currentTime().str;
+T.generateFoldname = function(now){
+  const s = now.str;
   return `${s.year}-${s.month}-${s.day}-${s.intSec}`;
 }
 
