@@ -72,6 +72,9 @@ MxWcTemplate.settingPage = {
           <br />
           <div class="notice-info"> ${t('setting.notice.default-category')}</div>
           <input type="text" id="default-category" placeholder="${t('setting.placeholder.notblank')}"/>
+          <br />
+          <div class="notice-info"> ${t('setting.notice.default-clipping-folder-format')}</div>
+          <input type="text" id="default-clipping-folder-format" placeholder="${t('setting.placeholder.notblank')}"/>
         </p>
       </section>
       <section class="setting-file-scheme-access">

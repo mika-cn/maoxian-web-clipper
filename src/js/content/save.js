@@ -30,7 +30,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       const clipId = now.str.intSec;
       const ROOT = 'mx-wc';
       let fold = null;
-      let foldName = T.generateFoldname(now);
+      let foldName = generateClippingFoldName(config, now)
       if (config.saveTitleAsFoldName) {
         foldName = [clipId, T.sanitizeFilename(title)].join('-');
       }
@@ -96,6 +96,32 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       parser.parse(params)
       saveClipHistory(path.clipFold, info);
     });
+  }
+
+  function generateClippingFoldName(config, now) {
+    const s = now.str;
+    let foldName = '';
+    switch(config.defaultClippingFolderFormat) {
+      case '$TYPE-B':
+        foldName = [
+          s.year,
+          s.month,
+          s.day,
+          s.hour,
+          s.minute,
+          s.second
+        ].join('')
+        break;
+      default:
+        // $TYPE-A or other
+        foldName = [
+          s.year,
+          s.month,
+          s.day,
+          s.intSec
+        ].join('-');
+    }
+    return foldName;
   }
 
   // private

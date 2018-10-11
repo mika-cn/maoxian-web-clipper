@@ -20,7 +20,11 @@ this.MxWcConfig = (function() {
       enableSwitchHotkey: false,
 
       /* browser, native-app */
-      clippingHandlerName: 'browser'
+      clippingHandlerName: 'browser',
+
+      /* $TYPE-A => 2018-10-11-1539236251*/
+      /* $TYPE-B => 20181011102009 */
+      defaultClippingFolderFormat: '$TYPE-A',
     }
   }
 
