@@ -209,13 +209,6 @@ T.currentTime = function(){
   return tObj;
 }
 
-T.generateFoldname = function(now){
-  const s = now.str;
-  return `${s.year}-${s.month}-${s.day}-${s.intSec}`;
-}
-
-
-
 // @see https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names#1976050
 // @see https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file
 // More strict

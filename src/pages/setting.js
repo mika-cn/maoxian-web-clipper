@@ -44,6 +44,11 @@
       'save-title-as-fold-name',
       'saveTitleAsFoldName'
     );
+
+    initTextInput(config,
+      'default-clipping-folder-format',
+      'defaultClippingFolderFormat'
+    );
   }
 
   // section: clipping content
@@ -81,7 +86,6 @@
       'clippingHandlerName'
     );
   }
-
 
   // section: file scheme access
   function initFileSchemeAccess(config){
