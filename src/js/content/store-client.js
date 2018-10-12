@@ -15,32 +15,53 @@ const TaskStore = {
 }
 
 const StoreClient = {
-  addImages: function(clipId, assetFold, assetInfos) {
-    this.addAssets(clipId, assetFold, assetInfos);
+  addImages: function(clipId, assetFold, assetInfos, fetchAssetFirst) {
+    this.addAssets(clipId, assetFold, assetInfos, fetchAssetFirst);
   },
-  addFonts: function(clipId, assetFold, assetInfos) {
-    this.addAssets(clipId, assetFold, assetInfos);
+  addFonts: function(clipId, assetFold, assetInfos, fetchAssetFirst) {
+    this.addAssets(clipId, assetFold, assetInfos, fetchAssetFirst);
   },
-  addAssets: function(clipId, assetFold, assetInfos){
+  addAssets: function(clipId, assetFold, assetInfos, fetchAssetFirst){
     T.each(assetInfos, function(it){
       // same link, download once.
       KeyStore.add(it.link).then((canAdd) => {
         if(canAdd) {
-          TaskStore.save({
-            clipId: clipId,
-            type: 'url',
-            url: it.link,
-            filename: T.joinPath([assetFold, it.assetName]),
-            headers: {
-              "Referer": window.location.href,
-              "User-Agent": window.navigator.userAgent
-            }
-          })
+          StoreClient.addAsset(clipId, assetFold, it, fetchAssetFirst);
         }
       }).catch((err) => {
         console.error(err);
         console.trace();
       });
     });
+  },
+  addAsset: function(clipId, assetFold, assetInfo, fetchAssetFirst) {
+    this.resolvLink(assetInfo, fetchAssetFirst).then((link) => {
+      TaskStore.save({
+        clipId: clipId,
+        type: 'url',
+        url: link,
+        filename: T.joinPath([assetFold, assetInfo.assetName]),
+        headers: {
+          "Referer": window.location.href,
+          "User-Agent": window.navigator.userAgent
+        }
+      })
+    })
+  },
+  resolvLink: function(assetInfo, fetchAssetFirst){
+    if(fetchAssetFirst) {
+      return new Promise(function(resolve, reject){
+        Log.debug('FetchAsset', assetInfo.link);
+        fetch(assetInfo.link).then((resp) => {
+          resp.blob().then((blob) => {
+            resolve(URL.createObjectURL(blob));
+          })
+        })
+      });
+    } else {
+      return new Promise(function(resolve, reject){
+        resolve(assetInfo.link);
+      });
+    }
   }
 }

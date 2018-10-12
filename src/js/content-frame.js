@@ -22,7 +22,7 @@
   }
 
   function getParams(message) {
-    const {clipId, frames, path, mimeTypeDict} = message.body;
+    const {clipId, frames, path, mimeTypeDict, fetchAssetFirst} = message.body;
     return {
       clipId: clipId,
       win: window,
@@ -31,7 +31,8 @@
       elem: document.body,
       refUrl: window.location.href,
       mimeTypeDict: mimeTypeDict,
-      parentFrameId: message.frameId
+      parentFrameId: message.frameId,
+      fetchAssetFirst: fetchAssetFirst
     }
   }
 

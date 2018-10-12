@@ -24,6 +24,7 @@ this.MxWcHtml = (function () {
         elem: elem,
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict,
+        fetchAssetFirst: config.fetchAssetFirst
       }, function(htmls) {
         const {styleHtml, elemHtml} = htmls;
         // 将elemHtml 渲染进模板里，渲染成完整网页。
@@ -55,7 +56,8 @@ this.MxWcHtml = (function () {
       elem,
       refUrl,
       mimeTypeDict,
-      parentFrameId = topFrameId
+      parentFrameId = topFrameId,
+      fetchAssetFirst
     } = params;
     Log.debug('getElemHtml', refUrl);
     const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
@@ -76,10 +78,10 @@ this.MxWcHtml = (function () {
     });
 
     // deal external style
-    downloadCssFiles(clipId, path, result.cssAssetInfos, mimeTypeDict);
+    downloadCssFiles(clipId, path, result.cssAssetInfos, mimeTypeDict, fetchAssetFirst);
 
     // download assets
-    StoreClient.addImages(clipId, path.assetFold, result.imgAssetInfos);
+    StoreClient.addImages(clipId, path.assetFold, result.imgAssetInfos, fetchAssetFirst);
 
 
     const styleHtml = getExternalStyleHtml(path, result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
@@ -99,7 +101,7 @@ this.MxWcHtml = (function () {
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
     const {clipId, win, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId } = params;
+      parentFrameId = topFrameId, fetchAssetFirst } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
 
@@ -133,7 +135,8 @@ this.MxWcHtml = (function () {
                     clipId: clipId,
                     frames: frames,
                     path: path,
-                    mimeTypeDict: mimeTypeDict
+                    mimeTypeDict: mimeTypeDict,
+                    fetchAssetFirst: fetchAssetFirst
                   }
                 }).then((frameHtml) => {
                   // render frameHtml and download frame
@@ -247,7 +250,7 @@ this.MxWcHtml = (function () {
     }
   }
 
-  function downloadCssFiles(clipId, path, assetInfos, mimeTypeDict){
+  function downloadCssFiles(clipId, path, assetInfos, mimeTypeDict, fetchAssetFirst){
     T.each(assetInfos, function(it){
       KeyStore.add(it.link).then((canAdd) => {
         if(canAdd) {
@@ -259,7 +262,8 @@ this.MxWcHtml = (function () {
               path: path,
               styleText: txt,
               refUrl: it.link,
-              mimeTypeDict: mimeTypeDict
+              mimeTypeDict: mimeTypeDict,
+              fetchAssetFirst: fetchAssetFirst
             });
             TaskStore.save({
               clipId: clipId,
@@ -276,7 +280,7 @@ this.MxWcHtml = (function () {
 
 
   function parseCss(params){
-    const {clipId, path, refUrl, mimeTypeDict} = params;
+    const {clipId, path, refUrl, mimeTypeDict, fetchAssetFirst} = params;
     let styleText = params.styleText;
     // FIXME danger here (order matter)
     const rule1 = {regExp: /url\("[^\)]+"\)/gm, template: 'url("$PATH")', separator: '"'};
@@ -305,7 +309,7 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict
       });
-      StoreClient.addFonts(clipId, path.assetFold, r.assetInfos);
+      StoreClient.addFonts(clipId, path.assetFold, r.assetInfos, fetchAssetFirst);
       return r.cssText;
     });
 
@@ -321,7 +325,7 @@ this.MxWcHtml = (function () {
         mimeTypeDict: mimeTypeDict,
         extension: 'css'
       });
-      downloadCssFiles(clipId, path, r.assetInfos, mimeTypeDict);
+      downloadCssFiles(clipId, path, r.assetInfos, mimeTypeDict, fetchAssetFirst);
       return r.cssText;
     });
 

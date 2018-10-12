@@ -23,7 +23,8 @@ this.MxWcMarkdown = (function() {
         path: path,
         elem: elem,
         refUrl: window.location.href,
-        mimeTypeDict: mimeTypeDict
+        mimeTypeDict: mimeTypeDict,
+        fetchAssetFirst: config.fetchAssetFirst
       }, function(html) {
         let markdown = generateMarkDown(html, info);
         markdown = PluginMathJax.unEscapeMathJax(markdown);
@@ -52,7 +53,8 @@ this.MxWcMarkdown = (function() {
       elem,
       refUrl,
       mimeTypeDict,
-      parentFrameId = topFrameId
+      parentFrameId = topFrameId,
+      fetchAssetFirst
     } = params;
     Log.debug("getElemHtml", refUrl);
     const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
@@ -67,7 +69,7 @@ this.MxWcMarkdown = (function() {
       attrName: 'src',
       mimeTypeDict: mimeTypeDict
     });
-    StoreClient.addImages(clipId, path.assetFold, imgAssetInfos);
+    StoreClient.addImages(clipId, path.assetFold, imgAssetInfos, fetchAssetFirst);
 
     handleFrames(params, clonedElem).then((clonedElem) => {
       Log.debug("FrameHandlefihish");
@@ -84,7 +86,7 @@ this.MxWcMarkdown = (function() {
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
     const {clipId, win, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId } = params;
+      parentFrameId = topFrameId, fetchAssetFirst } = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
       const frameElems = [];
@@ -105,7 +107,8 @@ this.MxWcMarkdown = (function() {
                   clipId: clipId,
                   frames: frames,
                   path: path,
-                  mimeTypeDict: mimeTypeDict
+                  mimeTypeDict: mimeTypeDict,
+                  fetchAssetFirst: fetchAssetFirst
                 }
              })
             );
