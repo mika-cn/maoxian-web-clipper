@@ -30,6 +30,55 @@ MxWcTemplate.resetPageSelector = {
   }
 }
 
+MxWcTemplate.welcomePage = {
+  render: function(v) {
+    return `
+      <div class="installation-hint green">
+        <center><h1>${t('welcome.installation-hint')}</h1></center>
+      </div>
+      <div class="notice-info">
+        <h2 class="green">${t('welcome.sayhi')}</h2>
+        <p>${t('welcome.extra-intro')}</p>
+        <p>${this.extraStep1(v)}</p>
+        <p>${this.extraStep2(v)}</p>
+      </div>
+
+      <div class="notice-info">
+        <p>${t('welcome.notice')}</p>
+      </div>
+      <div>
+        <p>${this.lastHint(v)}</p>
+      </div>
+    `
+  },
+  extraStep1: function(v){
+    if(v.isChrome){
+      return t('welcome.extra-1-chrome');
+    } else {
+      return t('welcome.extra-1-firefox');
+    }
+  },
+  extraStep2: function(v){
+    if(v.isChrome) {
+      let html = t('welcome.extra-2-chrome');
+      html = html.replace('$extensionLink',
+        `<a href='' link='${v.chromeExtensionDetailPageUrl}' class='tab-link'>chrome-extensions</a>`
+      );
+      return html;
+    } else {
+      let html = t('welcome.extra-2-firefox');
+      html = html.replace('$allowFileUrlAccessLink',
+        `<a href="${MxWcLink.get('faq-allow-access-file-urls')}" target="_blank">Allow Access File URLs</a>`
+      );
+      return html;
+    }
+  },
+  lastHint: function(v) {
+    const linkHtml = `<a href=${MxWcLink.get('faq')} target='_blank'>FAQ</a>`;
+    return t('welcome.last-hint').replace('$faqLink', linkHtml);
+  }
+}
+
 MxWcTemplate.settingPage = {
   render: function(v){
     return `

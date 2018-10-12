@@ -14,7 +14,7 @@ this.MxWcStorage = (function(){
         .then((res) => {
           const v = res[k];
           if(defaultValue !== null && (typeof defaultValue !== 'undefined')){
-            if(v){
+            if(typeof v != 'undefined'){
               resolve(v)
             }else{
               MxWcStorage.set(k, defaultValue);

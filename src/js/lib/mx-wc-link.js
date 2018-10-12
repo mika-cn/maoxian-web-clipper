@@ -3,15 +3,18 @@
 
 this.MxWcLink = (function(ExtApi) {
   const extensionRoot = ExtApi.getURL('/');
+  const extensionId = extensionRoot.split('//')[1].replace('/', '');
   const remoteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
   const remotePaths = {
     "en": {
       "home": "/index.html",
+      "faq": "/faq.html",
       "faq-allow-access-file-urls": "/faq.html#allow-access-file-urls",
       "native-app": "/native-app/index.html"
     },
     "zh-CN": {
       "home": "/index-zh-CN.html",
+      "faq": "/faq-zh-CN.html",
       "faq-allow-access-file-urls": "/faq-zh-CN.html#allow-access-file-urls",
       "native-app": "/native-app/index-zh-CN.html"
     }
@@ -57,10 +60,21 @@ this.MxWcLink = (function(ExtApi) {
     return `/pages/${name}.html`;
   }
 
+  function isChrome(){
+    return !!extensionRoot.match(/^chrome-extension/);
+  }
+
+  function isFirefox(){
+    return !!extensionRoot.match(/^moz-extension/);
+  }
+
 
   return {
     get: get,
     extensionRoot: extensionRoot,
-    getExtensionPagePath: getExtensionPagePath
+    extensionId: extensionId,
+    getExtensionPagePath: getExtensionPagePath,
+    isChrome: isChrome,
+    isFirefox: isFirefox
   }
 })(ExtApi);

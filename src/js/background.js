@@ -146,6 +146,16 @@ function createKeyStoreService(){
   };
 }
 
+function welcomeNewUser(){
+  MxWcStorage.get('firstRunning', true)
+    .then((firstRunning) => {
+      if(firstRunning){
+        MxWcStorage.set('firstRunning', false)
+        ExtApi.createTab(MxWcLink.get('extPage.welcome'));
+      }
+    })
+}
+
 // state
 let keyStoreService = null;
 function init(){
@@ -153,6 +163,7 @@ function init(){
   keyStoreService = createKeyStoreService();
   ExtApi.addMessageListener(messageHandler);
   Log.debug("background init...");
+  welcomeNewUser();
 }
 
 init();

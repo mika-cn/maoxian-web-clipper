@@ -1,0 +1,61 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: #eeeeee;
+  color: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  font-size: 14px;
+}
+
+.main {
+  width: 800px;
+  min-height: 800px;
+  margin: 0 auto;
+  padding: 50px 20px 200px 20px;
+  /*
+  border: 1px solid #ccc;*/
+  background-color: #fefefe;
+}
+
+.green { color: #4caf50; }
+
+.installation-hint {
+  border-top: 1px dashed #4caf50;
+  border-bottom: 1px dashed #4caf50;
+  margin-bottom: 40px;
+}
+
+.main a {
+  color: #5a84b3;
+  text-decoration: underline;
+}
+
+/********** notice ***********/
+.notice-success {
+  background: #4caf50;
+  color: #f8f8f8;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 5px 10px 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.notice-warning {
+  background: #fff3cd;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 5px 10px 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.notice-info {
+  background: #d1ecf1;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 5px 10px 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
