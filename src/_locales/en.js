@@ -33,7 +33,7 @@ I18N_DICT['en'] = {
     "setting.notice.file-url.ext-id": "Extension identify",
     "setting.notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after your allow browser to access file URLs.",
     "setting.notice.default-category": "<strong>Default Category</strong><br />Use <strong>/</strong> to separate sub category<br />Use <strong>$NONE</strong> to represent empty value",
-    "setting.notice.default-clipping-folder-format": "<strong>Default Clipping Folder Format</strong><br /><strong>$TYPE-A</strong>: 2018-10-11-1539236251 <br /><strong>$TYPE-B</strong>: 20181011102009 <br />",
+    "setting.notice.default-clipping-folder-format": "<strong>Default Clipping Folder Format</strong><br /><strong>$FORMAT-A</strong>: 2018-10-11-1539236251 <br /><strong>$FORMAT-B</strong>: 20181011102009 <br />",
     "setting.notice.asset-path": "<strong>Asset Path (image,font...)</strong><br />Use <strong>$CILP-FOLD</strong> to represent cliping fold that generate from extension<br />Use <strong>$MX-WC</strong> to represent extension root fold ($downloads/mx-wc)",
     "setting.notice.clipping-handler.intro": "<strong>Download through browser</strong><br />Use browser to download clipping result.<br /><br /><strong>Download through native App</strong><br />Use a native application to download clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to install a native application.",
     "setting.notice.clipping-handler.link-label": "install native App",

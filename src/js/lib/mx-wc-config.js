@@ -22,9 +22,9 @@ this.MxWcConfig = (function() {
       /* browser, native-app */
       clippingHandlerName: 'browser',
 
-      /* $TYPE-A => 2018-10-11-1539236251*/
-      /* $TYPE-B => 20181011102009 */
-      defaultClippingFolderFormat: '$TYPE-A',
+      /* $FORMAT-A => 2018-10-11-1539236251*/
+      /* $FORMAT-B => 20181011102009 */
+      defaultClippingFolderFormat: '$FORMAT-A',
     }
   }
 

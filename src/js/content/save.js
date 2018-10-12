@@ -102,7 +102,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
     const s = now.str;
     let foldName = '';
     switch(config.defaultClippingFolderFormat) {
-      case '$TYPE-B':
+      case '$FORMAT-B':
         foldName = [
           s.year,
           s.month,
@@ -113,7 +113,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         ].join('')
         break;
       default:
-        // $TYPE-A or other
+        // $FORMAT-A or other
         foldName = [
           s.year,
           s.month,

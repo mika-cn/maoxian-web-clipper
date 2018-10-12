@@ -33,7 +33,7 @@ I18N_DICT['zh-CN'] = {
     "setting.notice.file-url.ext-id": "扩展标识",
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
     "setting.notice.default-category": "<strong>默认目录</strong><br />使用 <strong>/</strong> 来分隔子目录<br />使用 <strong>$NONE</strong> 来表示空值（即无目录）",
-    "setting.notice.default-clipping-folder-format": "<strong>默认裁剪文件夹格式</strong><br /><strong>$TYPE-A</strong>: 2018-10-11-1539236251 <br /><strong>$TYPE-B</strong>: 20181011102009 <br />",
+    "setting.notice.default-clipping-folder-format": "<strong>默认裁剪文件夹格式</strong><br /><strong>$FORMAT-A</strong>: 2018-10-11-1539236251 <br /><strong>$FORMAT-B</strong>: 20181011102009 <br />",
     "setting.notice.asset-path": "<strong>资源路径（图片，字体……）</strong><br />使用 <strong>$CLIP-FOLD</strong> 来表示裁剪目录（由扩展生成的目录）<br />使用 <strong>$MX-WC</strong> 来表示扩展可访问的根目录（即 $downloads/mx-wc)",
     "setting.notice.clipping-handler.intro": "<strong>浏览器下载</strong><br />使用浏览器来下载裁剪结果<br /><br /><strong>本地程序下载</strong><br />通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过插件互相冲突的问题）<br />选择本选项需先安装一个程序",
     "setting.notice.clipping-handler.link-label": "安装地址",
