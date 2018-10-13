@@ -157,6 +157,7 @@ T.getFileExtension = function(filename){
   }
 }
 
+// not support data protocol URLs
 T.getUrlExtension = function(url){
   return T.getFileExtension(T.getUrlFileName(url));
 }
@@ -350,6 +351,10 @@ T.createFunQueue = function(){
   }
 
   return {enqueue: enqueue}
+}
+
+T.isDataProtocol = function(link){
+  return (link.match(/^data:/i) ? true : false)
 }
 
 T.isHttpProtocol = function(link){

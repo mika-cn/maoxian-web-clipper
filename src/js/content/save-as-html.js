@@ -339,17 +339,21 @@ this.MxWcHtml = (function () {
     const getReplace = function(rule){
       return function(match){
         const part = match.split(rule.separator)[1].trim();
-        if(T.isHttpProtocol(part)){
-          const fullUrl = T.prefixUrl(part, refUrl);
-          const fixedLink = ElemTool.fixLinkExtension(fullUrl, mimeTypeDict);
-          const assetName = [clipId, T.calcAssetName(fixedLink, extension)].join('-');
+        const fullUrl = T.prefixUrl(part, refUrl);
+        if(T.isDataProtocol(link) || T.isHttpProtocol(link)) {
+          const assetName = ElemTool.getAssetName({
+            clipId: clipId,
+            link: fullUrl,
+            extension: extension,
+            mimeTypeDict: mimeTypeDict
+          });
           assetInfos.push({link: fullUrl, assetName: assetName});
           if(T.isUrlSameLevel(refUrl, window.location.href)){
             return rule.template.replace('$PATH', [path.assetRelativePath, assetName].join('/'));
           }else{
             return rule.template.replace('$PATH', assetName);
           }
-        }else{
+        } else {
           return match;
         }
       }

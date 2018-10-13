@@ -74,54 +74,78 @@ ElemTool.isElemVisible = (win, elem) => {
 // return [{:tag, :link, :assetName}]
 ElemTool.getAssetInfos = (params ) => {
   const { clipId, assetTags, attrName, mimeTypeDict, extension} = params;
-  let arr = [];
+  let assetInfos = [];
   T.each(assetTags, function(tag){
     const link = tag[attrName];
-    if(T.isHttpProtocol(link)){
-      const fixedLink = ElemTool.fixLinkExtension(link, mimeTypeDict);
-      const assetName = [clipId, T.calcAssetName(fixedLink, extension)].join('-');
-      const assetInfo = {
+    if(T.isDataProtocol(link) || T.isHttpProtocol(link)){
+      const assetName = ElemTool.getAssetName({
+        clipId: clipId,
+        link: link,
+        extension: extension,
+        mimeTypeDict: mimeTypeDict
+      });
+      assetInfos.push({
         tag: tag,
         link: link,
         assetName: assetName
-      }
-      arr.push(assetInfo);
+      });
     }
   })
-  return arr;
+  return assetInfos;
 }
 
 /*
  * Some asset link haven't file extension.
  * This will cause browser don't know how to render them (when load from local).
+ * try to fix it.
  */
-ElemTool.fixLinkExtension = (link, mimeTypeDict) => {
+ElemTool.getAssetName = function(params) {
+  const {clipId, link, extension, mimeTypeDict={}} = params;
+  const ext = ( extension ? extension : ElemTool.getLinkExtension(link, mimeTypeDict));
+  return [clipId, T.calcAssetName(link, ext)].join('-');
+}
+
+
+/*
+ * link: (protocols: http/https/data)
+ */
+ElemTool.getLinkExtension = (link, mimeTypeDict) => {
   let url = new URL(link);
-  if(url.pathname.indexOf('.') > -1){
-    return link;
-  }else{
-    const mimeType = mimeTypeDict[link];
-    if(mimeType){
-      let ext = null;
-      //TODO add webp ? etc
-      switch(mimeType){
-        case 'text/css'      : ext = 'css'; break;
-        case 'image/gif'     : ext = 'gif'; break;
-        case 'image/png'     : ext = 'png'; break;
-        case 'image/jpeg'    : ext = 'jpg'; break;
-        case 'image/svg+xml' : ext = 'svg'; break;
-        case 'image/x-icon'  : ext = 'ico'; break;
+  if(url.protocol === 'data:') {
+    //data:url
+    const mimeType = url.pathname.split(';')[0];
+    return ElemTool.mimeTypeToExtension(mimeType);
+  } else {
+    // http OR https
+    let ext = T.getUrlExtension(url.href)
+    if(ext) {
+      return ext;
+    } else {
+      const mimeType = mimeTypeDict[link];
+      if(mimeType) {
+        return ElemTool.mimeTypeToExtension(mimeType);
+      } else {
+        return '';
       }
-      if(ext){
-        url.pathname = `${url.pathname}.${ext}`
-        return url.href;
-      }else{
-        return link;
-      }
-    }else{
-      return link;
     }
   }
+}
+
+/*
+ * get file extension according to mime type.
+ */
+ElemTool.mimeTypeToExtension = function(mimeType) {
+  //TODO add webp ? etc
+  let ext = null;
+  switch(mimeType){
+    case 'text/css'      : ext = 'css'; break;
+    case 'image/gif'     : ext = 'gif'; break;
+    case 'image/png'     : ext = 'png'; break;
+    case 'image/jpeg'    : ext = 'jpg'; break;
+    case 'image/svg+xml' : ext = 'svg'; break;
+    case 'image/x-icon'  : ext = 'ico'; break;
+  }
+  return ext;
 }
 
 
