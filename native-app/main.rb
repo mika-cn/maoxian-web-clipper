@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+
 require_relative 'lib/log'
 require_relative 'lib/config'
 require_relative 'lib/application'

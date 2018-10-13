@@ -1,11 +1,13 @@
 
+require 'net/http'
 require 'open-uri'
 require 'fileutils'
+require 'base64'
 require_relative './log'
 require_relative './native_message'
 
 class Application
-  VERSION = '0.1.0'
+  VERSION = '0.1.1'
 
   attr_accessor :config
 
@@ -53,14 +55,17 @@ class Application
     begin
       filename = File.join(root, msg['filename'])
       mkdir(filename)
-      File.open(filename, 'wb') do |file|
-        file.write open(msg['url'], msg['headers']).read
+      if msg['url'] =~ /^data:/i
+        content = convert_data_url_to_bin(msg['url'])
+      else
+        content = open(msg['url'], msg['headers']).read
       end
+      File.open(filename, 'wb') {|file| file.write content}
       NativeMessage.write({type: msg['type'], filename: filename})
       Log.debug("[Done] #{filename}")
     rescue Errno::ECONNREFUSED => e
       Log.error("[Connect Refused] #{msg['url']} #{e.message}")
-    rescue Net::OpenTimeout => e
+    rescue ::Net::OpenTimeout => e
       Log.error("[Net openTimeout] #{msg['url']} #{e.message}")
     end
   end
@@ -69,6 +74,18 @@ class Application
     dir = filename[0, filename.rindex('/')]
     unless File.exist?(dir)
       FileUtils.mkdir_p(dir)
+    end
+  end
+
+  def convert_data_url_to_bin(data_url)
+    # FORMAT: data:[<mime type>][;base64],<data>
+    protocol, rest = data_url.split(':')
+    mimeType, rest = rest.split(';')
+    encode, data = rest.split(',')
+    if encode == 'base64'
+      Base64.decode64(data)
+    else
+      throw "ConvertError: unknow encode: #{encode}"
     end
   end
 
