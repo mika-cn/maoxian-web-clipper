@@ -24,7 +24,8 @@ this.MxWcHtml = (function () {
         elem: elem,
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict,
-        fetchAssetFirst: config.fetchAssetFirst
+        fetchAssetFirst: config.fetchAssetFirst,
+        saveWebFont: config.saveWebFont
       }, function(htmls) {
         const {styleHtml, elemHtml} = htmls;
         // 将elemHtml 渲染进模板里，渲染成完整网页。
@@ -57,7 +58,8 @@ this.MxWcHtml = (function () {
       refUrl,
       mimeTypeDict,
       parentFrameId = topFrameId,
-      fetchAssetFirst
+      fetchAssetFirst,
+      saveWebFont
     } = params;
     Log.debug('getElemHtml', refUrl);
     const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
@@ -78,7 +80,7 @@ this.MxWcHtml = (function () {
     });
 
     // deal external style
-    downloadCssFiles(clipId, path, result.cssAssetInfos, mimeTypeDict, fetchAssetFirst);
+    downloadCssFiles(clipId, path, result.cssAssetInfos, mimeTypeDict, fetchAssetFirst, saveWebFont);
 
     // download assets
     StoreClient.addImages(clipId, path.assetFold, result.imgAssetInfos, fetchAssetFirst);
@@ -101,7 +103,7 @@ this.MxWcHtml = (function () {
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
     const {clipId, win, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId, fetchAssetFirst } = params;
+      parentFrameId = topFrameId, fetchAssetFirst, saveWebFont} = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
 
@@ -136,7 +138,8 @@ this.MxWcHtml = (function () {
                     frames: frames,
                     path: path,
                     mimeTypeDict: mimeTypeDict,
-                    fetchAssetFirst: fetchAssetFirst
+                    fetchAssetFirst: fetchAssetFirst,
+                    saveWebFont: saveWebFont
                   }
                 }).then((frameHtml) => {
                   // render frameHtml and download frame
@@ -250,7 +253,7 @@ this.MxWcHtml = (function () {
     }
   }
 
-  function downloadCssFiles(clipId, path, assetInfos, mimeTypeDict, fetchAssetFirst){
+  function downloadCssFiles(clipId, path, assetInfos, mimeTypeDict, fetchAssetFirst, saveWebFont){
     T.each(assetInfos, function(it){
       KeyStore.add(it.link).then((canAdd) => {
         if(canAdd) {
@@ -263,7 +266,8 @@ this.MxWcHtml = (function () {
               styleText: txt,
               refUrl: it.link,
               mimeTypeDict: mimeTypeDict,
-              fetchAssetFirst: fetchAssetFirst
+              fetchAssetFirst: fetchAssetFirst,
+              saveWebFont: saveWebFont
             });
             TaskStore.save({
               clipId: clipId,
@@ -280,7 +284,7 @@ this.MxWcHtml = (function () {
 
 
   function parseCss(params){
-    const {clipId, path, refUrl, mimeTypeDict, fetchAssetFirst} = params;
+    const {clipId, path, refUrl, mimeTypeDict, fetchAssetFirst, saveWebFont} = params;
     let styleText = params.styleText;
     // FIXME danger here (order matter)
     const rule1 = {regExp: /url\("[^\)]+"\)/gm, template: 'url("$PATH")', separator: '"'};
@@ -307,7 +311,8 @@ this.MxWcHtml = (function () {
         refUrl: refUrl,
         rules: [rule1, rule2, rule3],
         path: path,
-        mimeTypeDict: mimeTypeDict
+        mimeTypeDict: mimeTypeDict,
+        saveAsset: saveWebFont
       });
       StoreClient.addFonts(clipId, path.assetFold, r.assetInfos, fetchAssetFirst);
       return r.cssText;
@@ -323,9 +328,10 @@ this.MxWcHtml = (function () {
         rules: [rule11, rule12, rule13, rule14, rule15],
         path: path,
         mimeTypeDict: mimeTypeDict,
-        extension: 'css'
+        extension: 'css',
+        saveAsset: true
       });
-      downloadCssFiles(clipId, path, r.assetInfos, mimeTypeDict, fetchAssetFirst);
+      downloadCssFiles(clipId, path, r.assetInfos, mimeTypeDict, fetchAssetFirst, saveWebFont);
       return r.cssText;
     });
 
@@ -333,25 +339,31 @@ this.MxWcHtml = (function () {
   }
 
   function parseCssTextUrl(params){
-    const {clipId, refUrl, rules, path, mimeTypeDict, extension} = params;
+    const {clipId, refUrl, rules, path, mimeTypeDict, extension, saveAsset} = params;
     let cssText = params.cssText;
     let assetInfos = [];
     const getReplace = function(rule){
       return function(match){
         const part = match.split(rule.separator)[1].trim();
         const fullUrl = T.prefixUrl(part, refUrl);
-        if(T.isDataProtocol(link) || T.isHttpProtocol(link)) {
-          const assetName = ElemTool.getAssetName({
-            clipId: clipId,
-            link: fullUrl,
-            extension: extension,
-            mimeTypeDict: mimeTypeDict
-          });
-          assetInfos.push({link: fullUrl, assetName: assetName});
-          if(T.isUrlSameLevel(refUrl, window.location.href)){
-            return rule.template.replace('$PATH', [path.assetRelativePath, assetName].join('/'));
-          }else{
-            return rule.template.replace('$PATH', assetName);
+        if(T.isDataProtocol(fullUrl) || T.isHttpProtocol(fullUrl)) {
+
+          if(saveAsset){
+            const assetName = ElemTool.getAssetName({
+              clipId: clipId,
+              link: fullUrl,
+              extension: extension,
+              mimeTypeDict: mimeTypeDict
+            });
+            assetInfos.push({link: fullUrl, assetName: assetName});
+            if(T.isUrlSameLevel(refUrl, window.location.href)){
+              return rule.template.replace('$PATH', [path.assetRelativePath, assetName].join('/'));
+            }else{
+              return rule.template.replace('$PATH', assetName);
+            }
+          } else {
+            // set path to blank
+            return rule.template.replace('$PATH', '');
           }
         } else {
           return match;

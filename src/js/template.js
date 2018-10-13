@@ -107,6 +107,7 @@ MxWcTemplate.settingPage = {
         <h3>${t('setting.title.clipping-content')}</h3>
         <p>
           <input type="checkbox" id="save-clipping-information" /><label> ${t('setting.clip-information-input.label')}</label>
+          <br /><input type="checkbox" id="save-web-font" /><label> ${t('setting.save-web-font-input.label')}</label>
           <br /><input type="checkbox" id="save-domain-as-tag" /><label> ${t('setting.save-domain-tag-input.label')}</label>
         </p>
       </section>

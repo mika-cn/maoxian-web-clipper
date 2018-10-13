@@ -7,6 +7,7 @@ this.MxWcConfig = (function() {
   function getDefault(){
     return {
       saveFormat: 'html',
+      saveWebFont: false,
       saveClippingInformation: true,
       saveDomainAsTag: false,
 

@@ -58,6 +58,10 @@
       'saveClippingInformation'
     );
     initCheckboxInput(config,
+      'save-web-font',
+      'saveWebFont'
+    );
+    initCheckboxInput(config,
       'save-domain-as-tag',
       'saveDomainAsTag'
     );
