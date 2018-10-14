@@ -121,6 +121,7 @@ const ClippingHandler_Browser = (function(){
 
 
   return {
+    name: 'browser',
     init: init,
     handle: handle,
     setCompletedAction: setCompletedAction,

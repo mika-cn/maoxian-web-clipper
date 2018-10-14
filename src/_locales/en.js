@@ -16,7 +16,7 @@ I18N_DICT['en'] = {
     "popup.menu.last-result": "Show result",
 
     //welcome page
-    "welcome.installation-hint": "MaoXian Web Clipper has been installed",
+    "welcome.installation-hint": "MaoXian Web Clipper $version has been installed",
     "welcome.sayhi": "Welcome!",
     "welcome.extra-intro": "Before you start, please take these two extra steps to ensure better experience with MaoXian.",
     "welcome.extra-1-chrome": "1. Turn off Chrome's Save As dialog so that you won't be asked where to save file for every download.<br />This can be done by clearing the checkbox before <strong><a href='' link='chrome://settings/downloads' class='tab-link'>chrome://settings</a></strong> &gt; <i>Downloads</i> &gt; <i>Ask where to save each file before downloading</i>",
@@ -48,6 +48,7 @@ I18N_DICT['en'] = {
     "setting.notice.default-clipping-folder-format": "<strong>Default Clipping Folder Format</strong><br /><strong>$FORMAT-A</strong>: 2018-10-11-1539236251 <br /><strong>$FORMAT-B</strong>: 20181011102009 <br />",
     "setting.notice.asset-path": "<strong>Asset Path (image,font...)</strong><br />Use <strong>$CILP-FOLD</strong> to represent cliping folder that generate from extension<br />Use <strong>$MX-WC</strong> to represent extension root folder ($downloads/mx-wc)",
     "setting.notice.clipping-handler.intro": "<strong>Download through browser</strong><br />Use browser to download clipping result.<br /><br /><strong>Download through native App</strong><br />Use a native application to download clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to install a native application.",
+    "setting.notice.clipping-handler.warning": "<strong> Warning! </strong> If you choose native application as your clipping handler, you must install native application first.",
     "setting.notice.clipping-handler.link-label": "install native App",
 
     // label
@@ -119,6 +120,11 @@ I18N_DICT['en'] = {
     "access": "Access",
     "created_at": "Created at",
 
+    //notifications
+    "notification.title": "Message Center",
+    "notification.hint": "Click message to delete it",
+    "notification.native-app-version-too-small": "Native Application version must >= $requiredVersion, But current installed version is $currentVersion, please update your native application",
+    "notification.native-app-connect-failed": "You configure native application as your clipping handler but you haven't install it correctly! (error message: $errorMessage)"
 
   }
 };

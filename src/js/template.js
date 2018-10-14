@@ -30,11 +30,21 @@ MxWcTemplate.resetPageSelector = {
   }
 }
 
+MxWcTemplate.notifications = {
+  render: function(v) {
+    const items = []
+    v.notifications.forEach((notification) => {
+      items.push(`<div class="notification notice-${notification.type}" data-id="${notification.id}">${[notification.createdAt, ' - ', notification.content].join('')}</div>`);
+    })
+    return items.join('');
+  }
+}
+
 MxWcTemplate.welcomePage = {
   render: function(v) {
     return `
       <div class="installation-hint green">
-        <center><h1>${t('welcome.installation-hint')}</h1></center>
+        <center><h1>${this.installationHint(v)}</h1></center>
       </div>
       <div class="notice-info">
         <h2 class="green">${t('welcome.sayhi')}</h2>
@@ -50,6 +60,9 @@ MxWcTemplate.welcomePage = {
         <p>${this.lastHint(v)}</p>
       </div>
     `
+  },
+  installationHint: function(v){
+    return t('welcome.installation-hint').replace('$version', "V" + v.version);
   },
   extraStep1: function(v){
     if(v.isChrome){
@@ -97,6 +110,9 @@ MxWcTemplate.settingPage = {
              <br />
             <a href="${v.nativeAppUrl}" target="_blank">${t('setting.notice.clipping-handler.link-label')}</a><br />
           </p>
+        </div>
+        <div class="notice-warning">
+          <p>${t('setting.notice.clipping-handler.warning')}</p>
         </div>
         <div class="options" id="clipping-handler">
           <a data-value="browser">${t('setting.clipping-handler-option.browser')}</a>
