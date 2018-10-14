@@ -35,32 +35,43 @@ const StoreClient = {
     });
   },
   addAsset: function(clipId, assetFold, assetInfo, fetchAssetFirst) {
-    this.resolvLink(assetInfo, fetchAssetFirst).then((link) => {
-      TaskStore.save({
-        clipId: clipId,
-        type: 'url',
-        url: link,
-        filename: T.joinPath([assetFold, assetInfo.assetName]),
-        headers: {
-          "Referer": window.location.href,
-          "User-Agent": window.navigator.userAgent
-        }
-      })
-    })
-  },
-  resolvLink: function(assetInfo, fetchAssetFirst){
+    const headers = { "Referer": window.location.href, "User-Agent": window.navigator.userAgent };
+    const filename = T.joinPath([assetFold, assetInfo.assetName]);
     if(fetchAssetFirst) {
-      return new Promise(function(resolve, reject){
-        Log.debug('FetchAsset', assetInfo.link);
-        fetch(assetInfo.link).then((resp) => {
-          resp.blob().then((blob) => {
-            resolve(URL.createObjectURL(blob));
-          })
+      fetch(assetInfo.link).then((resp) => {
+        resp.blob().then((blob) => {
+          if(MxWcLink.isFirefox()) {
+            // Firefox can pass blob through background.
+            // But can not access ObjectUrl that create in content script.
+            console.log("Firefox", filename);
+            TaskStore.save({
+              type: 'blob',
+              clipId: clipId,
+              blob: blob,
+              filename: filename,
+              headers: headers
+            });
+          } else {
+            // chrome can't pass blob throuth background
+            // But can access ObjectUrl that create in content script.
+            TaskStore.save({
+              type: 'url',
+              clipId: clipId,
+              url: URL.createObjectURL(blob),
+              filename: filename,
+              headers: headers
+            });
+          }
         })
-      });
+      })
+
     } else {
-      return new Promise(function(resolve, reject){
-        resolve(assetInfo.link);
+      TaskStore.save({
+        type: 'url',
+        clipId: clipId,
+        url: assetInfo.link,
+        filename: filename,
+        headers: headers
       });
     }
   }

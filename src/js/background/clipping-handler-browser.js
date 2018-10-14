@@ -11,6 +11,11 @@ const ClippingHandler_Browser = (function(){
     downloadUrl({url: url, filename: msg.filename});
   }
 
+  function downloadBlob(msg){
+    const url = URL.createObjectURL(msg.blob);
+    downloadUrl({url: url, filename: msg.filename});
+  }
+
   function downloadUrl(msg){
     Log.debug('download.url:', msg.url);
     Log.debug('download.filename:', msg.filename);
@@ -102,6 +107,7 @@ const ClippingHandler_Browser = (function(){
   function handle(task) {
     switch(task.type){
       case 'text': downloadText(task); break;
+      case 'blob': downloadBlob(task); break;
       case 'url' : downloadUrl(task); break;
     }
   }

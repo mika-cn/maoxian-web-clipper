@@ -58,6 +58,7 @@
         "js/lib/log.js",
         "js/lib/ext-api.js",
         "js/lib/translation.js",
+        "js/lib/mx-wc-link.js",
         "js/lib/mx-wc-storage.js",
         "js/lib/mx-wc-config.js",
         "js/lib/plugin-gist.js",
