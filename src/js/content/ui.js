@@ -277,7 +277,7 @@ this.UI = (function(){
 
   function startClip(msg){
     eraseHigtlightStyle();
-    msg.elem = state.currElem.cloneNode(true);
+    msg.elem = state.currElem;
     setStateClipping();
     MxWcSave.save(msg);
   }
