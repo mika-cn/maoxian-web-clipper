@@ -230,7 +230,7 @@ T.sanitizeFilename = function(name){
      * line3 => period at the end.
      * line4 => ~
      * line5 => #
-     * line6 => multiply dash to one dash
+     * line6 => multiple dash to one dash
      */
     return name
       .replace(/[\/\?\s\|<>\\:,\.]/g, '-')
@@ -440,3 +440,7 @@ T.extractVersion = function(version) {
   return version.split('.').map((it) => parseInt(it));
 }
 
+//rbgStr: rgb(255, 255, 255)
+T.extractRgbStr = function(rgbStr) {
+  return rgbStr.match(/\d{1,3}/g).map((it) => parseInt(it));
+}

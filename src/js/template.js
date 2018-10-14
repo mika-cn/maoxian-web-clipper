@@ -348,8 +348,6 @@ MxWcTemplate.elemPage = {
         margin: 0 auto;
         max-width: ${v.elemWidth}px;
         padding: 15px 15px 80px 15px;
-        border: 1px solid #ccc;
-
       }
       .mx-wc-main > .clipping-information{
         text-align: left;

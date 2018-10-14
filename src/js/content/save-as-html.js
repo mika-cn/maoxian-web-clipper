@@ -402,10 +402,12 @@ this.MxWcHtml = (function () {
       const outerElemBgCss = getBgCss(outerElem);
       const elemBgCss = getBgCss(elem);
       if(elemBgCss == outerElemBgCss){
-        if(outerElemBgCss == 'rgb(255, 255, 255)'){
+        const [r,g,b] = T.extractRgbStr(outerElemBgCss);
+        if(r == g && g == b && r - 70 >= 86){
+          // condition above means: color lighter than #868686
           bodyBgCss = '#464646';
         }else{
-          //TODO use opposite color
+          //TODO use opposite color?
           bodyBgCss = '#ffffff';
         }
       }else{
