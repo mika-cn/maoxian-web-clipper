@@ -156,6 +156,38 @@ function welcomeNewUser(){
     })
 }
 
+function checkNativeAppVersion(){
+  getClippingHandler((handler) => {
+    if(handler.name === 'native-app') {
+      const currentKey = 'check-native-app-version-' + ENV.version;
+      MxWcStorage.get(currentKey, false)
+        .then((isChecked) => {
+          if(isChecked) {
+            Log.debug(currentKey, 'checked');
+          } else {
+            handler.getVersion((result) => {
+              const link =  MxWcLink.get('extPage.notification');
+              if(result.ok) {
+                if(!T.isVersionGteq(result.version, ENV.minNativeAppVersion)) {
+                  const message = t('notification.native-app-version-too-small').replace('$requiredVersion', ENV.minNativeAppVersion).replace('$currentVersion', result.version);
+                  Log.error(message);
+                  MxWcNotification.add('danger', message);
+                  ExtApi.createTab(link);
+                }
+              } else {
+                const message = t('notification.native-app-connect-failed').replace('$errorMessage', result.message);
+                Log.error(message);
+                MxWcNotification.add('danger', message);
+                ExtApi.createTab(link);
+              }
+              MxWcStorage.set(currentKey, true);
+            })
+          }
+        });
+    }
+  })
+}
+
 // state
 let keyStoreService = null;
 function init(){
@@ -164,6 +196,7 @@ function init(){
   ExtApi.addMessageListener(messageHandler);
   Log.debug("background init...");
   welcomeNewUser();
+  checkNativeAppVersion();
 }
 
 init();

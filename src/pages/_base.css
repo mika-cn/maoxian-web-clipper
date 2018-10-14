@@ -1,0 +1,62 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: #eeeeee;
+  color: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  font-size: 14px;
+}
+
+.green { color: #4caf50; }
+
+/********** notice ***********/
+.notice-success {
+  background: #d4edda;
+  color: #155724;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.notice-danger {
+  background: #f8d7da;
+  color: #721c24;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.notice-warning {
+  background: #fff3cd;
+  color: #856404;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.notice-info {
+  background: #d1ecf1;
+  color: #0c5460;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.notice-light {
+  background: #fefefe;
+  color: #818182;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+

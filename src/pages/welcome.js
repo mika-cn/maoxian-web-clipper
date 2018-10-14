@@ -12,6 +12,7 @@ function initListener(){
 
 function getRenderV(){
   return {
+    version: ENV.version,
     isChrome: MxWcLink.isChrome(),
     chromeExtensionDetailPageUrl: "chrome://extensions?id=" + MxWcLink.extensionId
   }

@@ -1,3 +1,4 @@
+
 .main {
   width: 800px;
   min-height: 800px;
@@ -8,15 +9,7 @@
   background-color: #fefefe;
 }
 
-
-.installation-hint {
-  border-top: 1px dashed #4caf50;
-  border-bottom: 1px dashed #4caf50;
-  margin-bottom: 40px;
-}
-
 .main a {
   color: #5a84b3;
   text-decoration: underline;
 }
-

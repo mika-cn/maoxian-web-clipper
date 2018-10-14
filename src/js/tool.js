@@ -430,3 +430,13 @@ T.getTagsByName = function(elem, name){
   return r.concat(T.toArray(child));
 }
 
+T.isVersionGteq = function(versionA, versionB) {
+  const [majorA, minorA, patchA] = T.extractVersion(versionA);
+  const [majorB, minorB, patchB] = T.extractVersion(versionB);
+  return majorA >= majorB && minorA >= minorB && patchA >= patchB;
+}
+
+T.extractVersion = function(version) {
+  return version.split('.').map((it) => parseInt(it));
+}
+

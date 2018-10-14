@@ -16,7 +16,7 @@ I18N_DICT['zh-CN'] = {
     "popup.menu.last-result": "查看结果",
 
     //welcome page
-    "welcome.installation-hint": "MaoXian Web Clipper 已经安装成功",
+    "welcome.installation-hint": "MaoXian Web Clipper $version 已经安装成功",
     "welcome.sayhi": "欢迎!",
     "welcome.extra-intro": "在你开始裁剪之前，请把下面这两个额外步骤走完，以便拥有最佳体验",
     "welcome.extra-1-chrome": "1. 关闭谷歌的 ‘每次下载都询问保存位置’ 这个选项<br />这个可以通过取消复选框 <strong><a href='' link='chrome://settings/downloads' class='tab-link'>chrome://settings</a></strong> &gt; <i>下载</i> &gt; <i>每次下载都询问保存位置</i>",
@@ -47,6 +47,7 @@ I18N_DICT['zh-CN'] = {
     "setting.notice.default-clipping-folder-format": "<strong>默认裁剪文件夹格式</strong><br /><strong>$FORMAT-A</strong>: 2018-10-11-1539236251 <br /><strong>$FORMAT-B</strong>: 20181011102009 <br />",
     "setting.notice.asset-path": "<strong>资源路径（图片，字体……）</strong><br />使用 <strong>$CLIP-FOLD</strong> 来表示裁剪目录（由扩展生成的目录）<br />使用 <strong>$MX-WC</strong> 来表示扩展可访问的根目录（即 $downloads/mx-wc)",
     "setting.notice.clipping-handler.intro": "<strong>浏览器下载</strong><br />使用浏览器来下载裁剪结果<br /><br /><strong>本地程序下载</strong><br />通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过插件互相冲突的问题）<br />选择本选项需先安装一个程序",
+    "setting.notice.clipping-handler.warning": "<strong> 警告! </strong><br /> 如果你选择通过本地程序来下载裁剪结果，你必须先安装本地程序，否则扩展无法正常工作",
     "setting.notice.clipping-handler.link-label": "安装地址",
 
     // label
@@ -114,6 +115,12 @@ I18N_DICT['zh-CN'] = {
     "original_url": "原网址",
     "access": "访问",
     "created_at": "创建于",
+
+    //notifications
+    "notification.title": "消息中心",
+    "notification.hint": "删除消息，请直接点击消息",
+    "notification.native-app-version-too-small": "Native Application(本地程序) 版本必须 >= $requiredVersion, 但是当前安装的程序版本为 $currentVersion， 请更新你的本地程序",
+    "notification.native-app-connect-failed": "你设置了使用本地程序来下载裁剪结果，但是你当前的本地程序安装不成功或工作不正常 (错误信息: $errorMessage)"
 
   }
 };

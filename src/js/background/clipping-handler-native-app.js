@@ -20,6 +20,11 @@ const ClippingHandler_NativeApp = (function(){
           state.completedAction(state.tabId, { handler: 'native-app', filename: filename});
         }
         break;
+      case 'get.version':
+        if(state.getVersionCallback){
+          state.getVersionCallback({ ok: true, version: resp.version });
+        }
+        break;
       case 'get.downloadFold':
         const downloadFold = T.sanitizePath(resp.downloadFold);
         updateDownloadFold(downloadFold);
@@ -30,11 +35,18 @@ const ClippingHandler_NativeApp = (function(){
 
   // reset state.port when native application disconnected.
   function disconnectHandler(port) {
+    let errorMessage = null;
     if(browser.runtime.lastError){
-      Log.error("NativeApp: DisconnectErr:", browser.runtime.lastError.message);
+      errorMessage = "NativeApp: DisconnectErr:" + browser.runtime.lastError.message;
     }
     if(port.error){
-      Log.error("NativeApp: DisconnectErr:", port.error.message);
+      errorMessage = "NativeApp: DisconnectErr:" + port.error.message;
+    }
+    if(errorMessage) {
+      Log.error(errorMessage);
+      if(state.disconnectCallback) {
+        state.disconnectCallback(errorMessage);
+      }
     }
     state.port = null;
   }
@@ -53,6 +65,21 @@ const ClippingHandler_NativeApp = (function(){
     state.port.postMessage({type: 'get.downloadFold'})
   }
 
+  function getVersion(callback) {
+    init();
+    try{
+      state.getVersionCallback = callback;
+      state.disconnectCallback = function(message) {
+        callback({ok: false, message: message});
+      }
+      state.port.postMessage({type: 'get.version'})
+    } catch(e) {
+      // avoid other exception
+      callback({ ok: false, message: e.message })
+    }
+  }
+
+
   function init(tabId, clipId){
     state.tabId = tabId;
     state.clipId = clipId;
@@ -64,9 +91,11 @@ const ClippingHandler_NativeApp = (function(){
   }
 
   return {
+    name: 'native-app',
     init: init,
     handle: handle,
     setCompletedAction: setCompletedAction,
-    initDownloadFold: initDownloadFold
+    initDownloadFold: initDownloadFold,
+    getVersion: getVersion
   }
 })();
