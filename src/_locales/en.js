@@ -8,6 +8,9 @@ I18N_DICT['en'] = {
     "none": "none",
     "btn.confirm": "Confirm",
 
+    "op.update-success": "Update Success!",
+    "op.delete-success": "Delete Success!",
+
     //popup
     "popup.menu.clip": "Clip",
     "popup.menu.history": "History",
@@ -48,7 +51,7 @@ I18N_DICT['en'] = {
     "setting.notice.default-clipping-folder-format": "<strong>Default Clipping Folder Format</strong><br /><strong>$FORMAT-A</strong>: 2018-10-11-1539236251 <br /><strong>$FORMAT-B</strong>: 20181011102009 <br />",
     "setting.notice.asset-path": "<strong>Asset Path (image,font...)</strong><br />Use <strong>$CILP-FOLD</strong> to represent cliping folder that generate from extension<br />Use <strong>$MX-WC</strong> to represent extension root folder ($downloads/mx-wc)",
     "setting.notice.clipping-handler.intro": "<strong>Download through browser</strong><br />Use browser to download clipping result.<br /><br /><strong>Download through native App</strong><br />Use a native application to download clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to install a native application.",
-    "setting.notice.clipping-handler.warning": "<strong> Warning! </strong> If you choose native application as your clipping handler, you must install native application first.",
+    "setting.notice.clipping-handler.warning": "<strong> Warning! </strong><br /> If you choose native application as your clipping handler, you must install native application first.",
     "setting.notice.clipping-handler.link-label": "install native App",
 
     // label

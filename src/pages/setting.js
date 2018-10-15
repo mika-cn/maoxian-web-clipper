@@ -111,7 +111,9 @@
     const elem = T.findElem(elemId);
     elem.value = config[configKey];
     T.bind(elem, 'blur', (e) => {
-      MxWcConfig.update(configKey, e.target.value);
+      if(MxWcConfig.update(configKey, e.target.value)){
+        Notify.add(t('op.update-success'));
+      }
     });
   }
 
@@ -136,7 +138,6 @@
       }
     });
   }
-
 
   function init(){
     renderUi();

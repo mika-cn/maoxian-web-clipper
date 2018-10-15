@@ -8,6 +8,9 @@ I18N_DICT['zh-CN'] = {
     "none": "无",
     "btn.confirm": "确认",
 
+    "op.update-success": "更新成功!",
+    "op.delete-success": "删除成功!",
+
     //popup page
     "popup.menu.clip": "裁剪",
     "popup.menu.history": "历史",

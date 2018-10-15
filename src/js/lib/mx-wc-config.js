@@ -55,12 +55,20 @@ this.MxWcConfig = (function() {
     });
   }
 
+  /*
+   * return false if not need to update, otherwise return true.
+   */
   function update(k, v) {
     if (state.config) {
-      state.config[k] = v;
-      MxWcStorage.set('config', state.config);
+      if(state.config[k] === v){
+        return false;
+      } else {
+        state.config[k] = v;
+        MxWcStorage.set('config', state.config);
+        return true;
+      }
     } else {
-      console.error("MxWcConfig: must load config first");
+      throw new Error("MxWcConfig: must load config first");
     }
   }
 
