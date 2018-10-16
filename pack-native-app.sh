@@ -16,7 +16,7 @@ rm -f $dist/tmp/config.yaml
 rm -f $dist/tmp/config.yaml.example
 rm -f $dist/tmp/pack.yaml
 rm -f $dist/tmp/pack.yaml.example
-rm -f $dist/tmp/tmp/app.log
+rm -f $dist/tmp/tmp/*.log*
 
 echo "Create production file"
 mv $dist/tmp/config.yaml.production $dist/tmp/config.yaml
