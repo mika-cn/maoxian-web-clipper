@@ -361,6 +361,11 @@ MxWcTemplate.elemPage = {
       }
       .mx-wc-main > .clipping-information a { color: blue; }
       .mx-wc-main > .clipping-information label { display: inline; }
+      .mx-wc-main > .clipping-information label > code {
+        padding: 2px 8px;
+        background-color: rgba(200, 200, 200, 0.7);
+        font-size: 14px;
+      }
 
     </style>
   </head>
@@ -406,6 +411,11 @@ MxWcTemplate.bodyPage = {
       }
       .mx-wc-main > .clipping-information a { color: blue; }
       .mx-wc-main > .clipping-information label { display: inline; }
+      .mx-wc-main > .clipping-information label > code {
+        padding: 2px 8px;
+        background-color: rgba(200, 200, 200, 0.7);
+        font-size: 14px;
+      }
 
     </style>
   </head>
