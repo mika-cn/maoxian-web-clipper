@@ -440,7 +440,7 @@ T.extractVersion = function(version) {
   return version.split('.').map((it) => parseInt(it));
 }
 
-//rbgStr: rgb(255, 255, 255)
+//rgbStr: rgb(255, 255, 255)
 T.extractRgbStr = function(rgbStr) {
   return rgbStr.match(/\d{1,3}/g).map((it) => parseInt(it));
 }

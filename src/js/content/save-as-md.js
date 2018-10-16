@@ -94,8 +94,7 @@ this.MxWcMarkdown = (function() {
       T.each(frames, (frame) => {
         console.log(parentFrameId, frame.parentFrameId);
         if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
-          const selector = `iframe[src="${frame.url}"]`;
-          const frameElem = clonedElem.querySelector(selector);
+          const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url)
           if(frameElem){
             frameElems.push(frameElem);
             promises.push(
@@ -120,16 +119,21 @@ this.MxWcMarkdown = (function() {
       if(promises.length > 0){
         Promise.all(promises)
           .then((frameHtmls) => {
+            let container = clonedElem;
             T.each(frameHtmls, (frameHtml, idx) => {
               // Replace frame element use frame html.
               const frameElem = frameElems[idx];
-              const pNode = frameElem.parentNode;
               const newNode = win.document.createElement("div");
               newNode.innerHTML = frameHtml;
-              pNode.insertBefore(newNode, frameElem);
-              pNode.removeChild(frameElem);
+              if(container === frameElem) {
+                container = newNode;
+              } else {
+                const pNode = frameElem.parentNode;
+                pNode.insertBefore(newNode, frameElem);
+                pNode.removeChild(frameElem);
+              }
             });
-            resolve(clonedElem);
+            resolve(container);
           })
       } else {
         resolve(clonedElem);

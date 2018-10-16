@@ -183,5 +183,10 @@ ElemTool.rewriteAnchorLink = (elem, siteLink) => {
   return elem;
 }
 
-
-
+ElemTool.getFrameBySrc = function(container, src) {
+  if(container.tagName === 'IFRAME' && container.src === src) {
+    return container;
+  } else {
+    return container.querySelector(`iframe[src="${src}"]`);
+  }
+}

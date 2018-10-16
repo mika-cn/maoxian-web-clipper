@@ -43,7 +43,6 @@ const StoreClient = {
           if(MxWcLink.isFirefox()) {
             // Firefox can pass blob through background.
             // But can not access ObjectUrl that create in content script.
-            console.log("Firefox", filename);
             TaskStore.save({
               type: 'blob',
               clipId: clipId,

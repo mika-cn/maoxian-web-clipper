@@ -111,8 +111,7 @@ this.MxWcHtml = (function () {
       const currLayerFrames = [];
       T.each(frames, (frame) => {
         if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
-          const selector = `iframe[src="${frame.url}"]`;
-          const frameElem = clonedElem.querySelector(selector);
+          const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url);
           if(frameElem){
             currLayerFrames.push(frame);
             judgeDupPromises.push(KeyStore.add(frame.url));
@@ -167,13 +166,16 @@ this.MxWcHtml = (function () {
   }
 
 
-  function rewriteFrameSrc(clonedElem, frame) {
+  function rewriteFrameSrc(container, frame) {
     const assetName = T.calcAssetName(frame.url, 'frame.html');
-    const selector = `iframe[src="${frame.url}"]`;
-    const frameElems = clonedElem.querySelectorAll(selector);
-    T.each(frameElems, (frameElem) => {
-      frameElem.src = assetName;
-    });
+    if(container.tagName === 'IFRAME' && container.src == frame.url) {
+      container.src = assetName;
+    } else {
+      const frameElems = container.querySelectorAll(`iframe[src="${frame.url}"]`);
+      T.each(frameElems, (frameElem) => {
+        frameElem.src = assetName;
+      });
+    }
     return assetName;
   }
 
