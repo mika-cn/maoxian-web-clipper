@@ -250,7 +250,7 @@ T.excludeFold = function(path, fold){
   return !T.includeFold(path, fold);
 }
 
-// sanitize window path separator \
+// sanitize windows path separator \
 T.sanitizePath = function(path){
   return path.replace(/\\/g, '/')
 }
@@ -327,7 +327,7 @@ T.createStack = function(){
   }
 }
 
-
+// function queue
 T.createFunQueue = function(){
   const state = {};
   const queue = []

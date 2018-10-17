@@ -33,7 +33,7 @@
       mimeTypeDict: mimeTypeDict,
       parentFrameId: message.frameId,
       fetchAssetFirst: fetchAssetFirst,
-      safeWebFont: saveWebFont
+      saveWebFont: saveWebFont
     }
   }
 
