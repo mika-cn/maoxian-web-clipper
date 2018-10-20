@@ -19,13 +19,19 @@ function clickNotification(e) {
 
 function renderNotifications(){
   MxWcNotification.get((notifications) => {
-    const title = "<center><h1>" + t('notification.title') + "</h1></center>";
-    const hint = "<div class='notice-light'>" + t('notification.hint') + '</div>';
-    const html = title + hint + MxWcTemplate.notifications.render({
-      notifications: notifications});
-    T.queryElem('.main').innerHTML = html;
+    const template = T.findElem('notification-tpl').innerHTML;
+    const items = [];
+    notifications.forEach((notification) => {
+      items.push(T.renderTemplate(template, {
+        id: notification.id,
+        type: notification.type,
+        content: [notification.createdAt, ' - ', notification.content].join('')
+      }));
+    });
+    T.setHtml('.notifications', items.join(''));
     bindEventListener();
   })
+  i18nPage();
 }
 
 

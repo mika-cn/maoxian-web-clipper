@@ -1,272 +1,6 @@
 
 const MxWcTemplate = {}
 
-MxWcTemplate.popupPageMenus = {
-  render: function(v){
-    const icons = {
-      "last-result" : "fas fa-check-square active",
-      "clip"        : "fas fa-crop",
-      "history"     : "fas fa-bars",
-      "setting"     : "fas fa-cog",
-      "home"        : "fas fa-home",
-    }
-    let html = "";
-    v.menuIds.forEach(function(menuId){
-      html += `<a class="menu" data-id="${menuId}"><i class="${icons[menuId]}"></i>${t("popup.menu." + menuId)}</a>`
-    });
-    return html;
-  }
-}
-
-MxWcTemplate.resetPageSelector = {
-  render: function(v){
-    return `
-        <div class="notice-info">
-          ${t('reset.hint')}
-        </div>
-        <input id="myInput" type="file" accept="application/json" webkitdirectory directory/>
-        <button id="reset-btn" >${t('btn.confirm')}</button>
-    `;
-  }
-}
-
-MxWcTemplate.notifications = {
-  render: function(v) {
-    const items = []
-    v.notifications.forEach((notification) => {
-      items.push(`<div class="notification notice-${notification.type}" data-id="${notification.id}">${[notification.createdAt, ' - ', notification.content].join('')}</div>`);
-    })
-    return items.join('');
-  }
-}
-
-MxWcTemplate.welcomePage = {
-  render: function(v) {
-    return `
-      <div class="installation-hint green">
-        <center><h1>${this.installationHint(v)}</h1></center>
-      </div>
-      <div class="notice-info">
-        <h2 class="green">${t('welcome.sayhi')}</h2>
-        <p>${t('welcome.extra-intro')}</p>
-        <p>${this.extraStep1(v)}</p>
-        <p>${this.extraStep2(v)}</p>
-      </div>
-
-      <div class="notice-info">
-        <p>${t('welcome.notice')}</p>
-      </div>
-      <div>
-        <p>${this.lastHint(v)}</p>
-      </div>
-    `
-  },
-  installationHint: function(v){
-    return t('welcome.installation-hint').replace('$version', "V" + v.version);
-  },
-  extraStep1: function(v){
-    if(v.isChrome){
-      return t('welcome.extra-1-chrome');
-    } else {
-      return t('welcome.extra-1-firefox');
-    }
-  },
-  extraStep2: function(v){
-    if(v.isChrome) {
-      let html = t('welcome.extra-2-chrome');
-      html = html.replace('$extensionLink',
-        `<a href='' link='${v.chromeExtensionDetailPageUrl}' class='tab-link'>chrome-extensions</a>`
-      );
-      return html;
-    } else {
-      let html = t('welcome.extra-2-firefox');
-      html = html.replace('$allowFileUrlAccessLink',
-        `<a href="${MxWcLink.get('faq-allow-access-file-urls')}" target="_blank">Allow Access File URLs</a>`
-      );
-      return html;
-    }
-  },
-  lastHint: function(v) {
-    const linkHtml = `<a href=${MxWcLink.get('faq')} target='_blank'>FAQ</a>`;
-    return t('welcome.last-hint').replace('$faqLink', linkHtml);
-  }
-}
-
-MxWcTemplate.settingPage = {
-  render: function(v){
-    return `
-      <section class="setting-format">
-        <h3>${t('setting.title.save-format')}</h3>
-        <div class="options" id="setting-format">
-          <a data-value="html">HTML</a>
-          <a data-value="md">Markdown</a>
-        </div>
-      </section>
-      <section class="setting-clipping-handler">
-        <h3>${t('setting.title.clipping-handler')}</h3>
-        <div class="notice-info">
-          <p>
-             ${t('setting.notice.clipping-handler.intro')}
-             <br />
-            <a href="${v.nativeAppUrl}" target="_blank">${t('setting.notice.clipping-handler.link-label')}</a><br />
-          </p>
-        </div>
-        <div class="notice-warning">
-          <p>${t('setting.notice.clipping-handler.warning')}</p>
-        </div>
-        <div class="options" id="clipping-handler">
-          <a data-value="browser">${t('setting.clipping-handler-option.browser')}</a>
-          <a data-value="native-app">${t('setting.clipping-handler-option.native-app')}</a>
-        </div>
-      </section>
-      <section class="setting-clipping-content">
-        <h3>${t('setting.title.clipping-content')}</h3>
-        <p>
-          <input type="checkbox" id="save-clipping-information" /><label> ${t('setting.clip-information-input.label')}</label>
-          <br /><input type="checkbox" id="save-web-font" /><label> ${t('setting.save-web-font-input.label')}</label>
-          <br /><input type="checkbox" id="save-domain-as-tag" /><label> ${t('setting.save-domain-tag-input.label')}</label>
-        </p>
-      </section>
-      <section class="setting-path">
-        <h3>${t('setting.title.path')}</h3>
-        <p>
-               <input type="checkbox" id="save-title-as-fold-name" /><lable> ${t('setting.save-title-as-fold-name-input.label')}</label>
-          <br /><input type="checkbox" id="save-title-as-filename" /><lable> ${t('setting.save-title-as-filename-input.label')}</label>
-
-          <div class="notice-info"> ${t('setting.notice.asset-path')} </div>
-          <input type="text" id="asset-path" placeholder="${t('setting.placeholder.notblank')}"/>
-          <br />
-          <div class="notice-info"> ${t('setting.notice.default-category')}</div>
-          <input type="text" id="default-category" placeholder="${t('setting.placeholder.notblank')}"/>
-          <br />
-          <div class="notice-info"> ${t('setting.notice.default-clipping-folder-format')}</div>
-          <input type="text" id="default-clipping-folder-format" placeholder="${t('setting.placeholder.notblank')}"/>
-        </p>
-      </section>
-      <section class="setting-file-scheme-access">
-        <h3>${t('setting.title.file-url')}</h3>
-        <p>
-          <div class="notice-info">
-            ${t('setting.notice.file-url.intro')}<br />
-
-            <a href="${v.settingFileUrlLink}" target="_blank">${t('setting.notice.file-url.link-label')}</a><br />
-
-            ${t('setting.notice.file-url.help-msg')} <br />
-            ${t('setting.notice.file-url.ext-id')} => ${v.host}
-          </div>
-          <div class="notice-warning">
-            <strong>${t('setting.warning')}:</strong><br />
-            ${t('setting.notice.file-url-warning')}
-          </div>
-          <input type="checkbox" id="file-scheme-access-input"/><label> ${t('setting.file-url-input.label')}</label>
-        </p>
-      </section>
-      <section class="setting-hotkey">
-        <h3>${t('setting.title.hotkey')}</h3>
-        <p>
-          <input type="checkbox" id="enable-switch-hotkey" /><label> ${t('setting.enable-switch-hotkey-input.label')}</label>
-        </p>
-      </section>
-    `;
-  }
-}
-
-
-MxWcTemplate.historyPageSearchFields = {
-  render: function(v){
-    return `
-<input id="${v.inputId}" type="text" placeholder="${t('history.input.placeholder')}"/>
-<button id="${v.btnId}">${t('history.btn.search')}</button>
-    `
-  }
-}
-
-MxWcTemplate.historyPageClips = {
-  render: function(v){
-    const clips = v.clips;
-    let html = t('history.no_record');
-    if(clips.length > 0){
-      html = "<table>";
-      html += `
-        <thead>
-          <tr>
-            <td>${t('history.th.time')}</td>
-            <td>${t('history.th.category')}</td>
-            <td>${t('history.th.tag')}</td>
-            <td>${t('history.th.title')}</td>
-          </tr>
-        </thead><tbody>`;
-      clips.forEach(function(clip){
-        html += MxWcTemplate.historyPageClips.renderClip(clip);
-      });
-      html += "</tbody></table>";
-    }
-    return html;
-  },
-  renderClip: function(clip){
-    return `
-      <tr data-id="${clip.clipId}">
-        <td>${this.renderTime(clip.created_at)}</td>
-        <td>${clip.category}</td>
-        <td>${clip.tags.join(", ")}</td>
-        <td>${clip.title}</td>
-      </tr>`;
-  },
-  renderTime: function(tStr){
-    const t = T.currentTime().str;
-    return [t.month, t.day].join('/')
-  }
-}
-
-MxWcTemplate.historyPageClipDetail = {
-  render: function(v){
-    let pathRow = "";
-    switch(v.urlAction){
-      case 'openUrlDirectly':
-      case 'openUrlByDownloadItem':
-        pathRow = `
-          <tr>
-            <th>${t('history.th.path')}</th>
-            <td><a class="path-link" href="">${v.url}</a>
-            </td>
-          </tr>`;
-        break;
-      case 'openUrlByCopyAndPaste':
-        pathRow =`
-          <tr>
-            <th>${t('history.th.path')}</th>
-            <td>
-              <input type="text" class='path' readonly="true" value="${v.url}" />
-            </td>
-          </tr>`;
-        break;
-    }
-
-    return `
-      <table>
-        <tbody>
-          <tr>
-            <th>${t('history.th.title')}</th><td>${v.clip.title}</td>
-          </tr>
-          ${pathRow}
-        </tbody>
-      </table>
-      <table>
-        <tbody>
-          <tr>
-            <th>${t('history.th.time')}</th><td>${v.clip.created_at}</td>
-            <th>${t('history.th.category')}</th><td>${v.clip.category}</td>
-          </tr>
-          <tr>
-            <th>${t('history.th.tag')}</th><td>${v.clip.tags.join(",")}</td>
-            <th>${t('history.th.format')}</th><td>${v.clip.format}</td>
-          </tr>
-        </tbody>
-      </table>
-    `;
-  }
-}
-
 MxWcTemplate.UIHtml = {
   render: function(v){
     return `
@@ -340,36 +74,19 @@ MxWcTemplate.elemPage = {
 
     <title>${v.info.title}</title>
     ${v.styleHtml}
-    <style>
+    <style class="mx-wc-style">
       .mx-wc-main img {max-width: 100%;}
       .mx-wc-main{
         box-sizing: content-box;
-        background-color: ${v.outerElemBgCss};
+        background-color: ${v.outerElemBgCss} !important;
         margin: 0 auto;
         max-width: ${v.elemWidth}px;
         padding: 15px 15px 80px 15px;
       }
-      .mx-wc-main > .clipping-information{
-        text-align: left;
-        margin-top: 20px;
-        background-color: #eeeeee;
-        padding: 15px;
-        border-radius: 4px;
-        color: #333;
-        font-size: 14px;
-        line-height: 22px;
-      }
-      .mx-wc-main > .clipping-information a { color: blue; }
-      .mx-wc-main > .clipping-information label { display: inline; }
-      .mx-wc-main > .clipping-information label > code {
-        padding: 2px 8px;
-        background-color: rgba(200, 200, 200, 0.7);
-        font-size: 14px;
-      }
-
+${MxWcTemplate.clippingInformationStyle}
     </style>
   </head>
-  <body style="background-color: ${v.bodyBgCss}; min-height: 100%; height: auto;" id="${v.bodyId}" class="${v.bodyClass}">
+  <body style="background-color: ${v.bodyBgCss} !important; min-height: 100%; height: auto;" id="${v.bodyId}" class="${v.bodyClass}">
     <div class="mx-wc-main">
       ${v.elemHtml}
       ${MxWcTemplate.clippingInformation.render(v)}
@@ -378,6 +95,7 @@ MxWcTemplate.elemPage = {
 </html>`;
   }
 }
+
 
 MxWcTemplate.bodyPage = {
   render: function(v) {
@@ -394,29 +112,12 @@ MxWcTemplate.bodyPage = {
 
     <title>${v.info.title}</title>
     ${v.styleHtml}
-    <style>
+    <style class="mx-wc-style">
       .mx-wc-main img {max-width: 100%;}
       .mx-wc-main{
         margin: 0 auto;
       }
-      .mx-wc-main > .clipping-information{
-        text-align: left;
-        margin-top: 20px;
-        background-color: #eeeeee;
-        padding: 15px;
-        border-radius: 4px;
-        color: #333;
-        font-size: 14px;
-        line-height: 22px;
-      }
-      .mx-wc-main > .clipping-information a { color: blue; }
-      .mx-wc-main > .clipping-information label { display: inline; }
-      .mx-wc-main > .clipping-information label > code {
-        padding: 2px 8px;
-        background-color: rgba(200, 200, 200, 0.7);
-        font-size: 14px;
-      }
-
+${MxWcTemplate.clippingInformationStyle}
     </style>
   </head>
   <body>
@@ -428,6 +129,31 @@ MxWcTemplate.bodyPage = {
 </html>`;
   }
 }
+MxWcTemplate.clippingInformationStyle = `
+      .mx-wc-main > .clipping-information{
+        text-align: left;
+        margin-top: 20px;
+        background-color: #eeeeee !important;
+        padding: 15px;
+        border-radius: 4px;
+        color: #333;
+        font-size: 14px !important;
+        line-height: 22px !important;
+      }
+      .mx-wc-main > .clipping-information a {
+        color: blue !important;
+        text-decoration: underline !important;
+      }
+      .mx-wc-main > .clipping-information label {
+        display: inline;
+        text-transform: none;
+      }
+      .mx-wc-main > .clipping-information label > code {
+        padding: 2px 8px;
+        background-color: rgba(200, 200, 200, 0.7)!important;
+        font-size: 14px;
+      }
+`;
 
 MxWcTemplate.clippingInformation = {
   render: function(v) {

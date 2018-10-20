@@ -80,8 +80,23 @@
           state.lastClippingResult = lastClippingResult;
           menuIds.unshift('last-result');
         }
-        const html = MxWcTemplate.popupPageMenus.render({menuIds: menuIds});
-        T.queryElem('.menus').innerHTML = html;
+        const template = T.findElem('menu-tpl').innerHTML;
+        const icons = {
+          "last-result" : "fas fa-check-square active",
+          "clip"        : "fas fa-crop",
+          "history"     : "fas fa-bars",
+          "setting"     : "fas fa-cog",
+          "home"        : "fas fa-home",
+        }
+        let html = "";
+        menuIds.forEach(function(menuId){
+          html += T.renderTemplate(template, {
+            iconClass: icons[menuId],
+            menuId: menuId,
+            menuContent: t("popup.menu." + menuId)
+          });
+        });
+        T.setHtml('.menus', html);
         bindListener();
       })
 

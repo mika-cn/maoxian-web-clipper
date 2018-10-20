@@ -5,12 +5,14 @@
 (function(){
 
   function renderUi() {
-    const elem = T.queryElem(".main");
-    elem.innerHTML = MxWcTemplate.settingPage.render({
+    const template = T.findElem('setting-page-tpl').innerHTML;
+    const html = T.renderTemplate(template, {
       settingFileUrlLink: MxWcLink.get('faq-allow-access-file-urls'),
       nativeAppUrl: MxWcLink.get('native-app'),
       host: window.location.origin
     });
+    T.setHtml('.main', html);
+    i18nPage();
   }
 
   function initUI() {

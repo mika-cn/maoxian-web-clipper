@@ -12,6 +12,94 @@
     <div class="main">
     </div>
 
+    <template id="setting-page-tpl">
+      <section class="setting-format">
+        <h3 i18n="setting.title.save-format"></h3>
+        <div class="options" id="setting-format">
+          <a data-value="html">HTML</a>
+          <a data-value="md">Markdown</a>
+        </div>
+      </section>
+      <section class="setting-clipping-handler">
+        <h3 i18n="setting.title.clipping-handler"></h3>
+        <div class="notice-info">
+          <p>
+            <label i18n="setting.notice.clipping-handler.intro"></label>
+             <br />
+            <a href="${nativeAppUrl}" target="_blank" i18n="setting.notice.clipping-handler.link-label"></a>
+            <br />
+          </p>
+        </div>
+        <div class="notice-warning">
+          <p i18n="setting.notice.clipping-handler.warning"></p>
+        </div>
+        <div class="options" id="clipping-handler">
+          <a data-value="browser" i18n="setting.clipping-handler-option.browser"></a>
+          <a data-value="native-app" i18n="setting.clipping-handler-option.native-app"></a>
+        </div>
+      </section>
+      <section class="setting-clipping-content">
+        <h3 i18n="setting.title.clipping-content"></h3>
+        <p>
+          <input type="checkbox" id="save-clipping-information" />
+          <label for="save-clipping-information" i18n="setting.clip-information-input.label"></label>
+          <br />
+          <input type="checkbox" id="save-web-font" />
+          <label for="save-web-font" i18n="setting.save-web-font-input.label"></label>
+          <br />
+          <input type="checkbox" id="save-domain-as-tag" />
+          <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
+        </p>
+      </section>
+      <section class="setting-path">
+        <h3 i18n="setting.title.path"></h3>
+        <p>
+          <input type="checkbox" id="save-title-as-fold-name" />
+          <label for="save-title-as-fold-name" i18n="setting.save-title-as-fold-name-input.label"></label>
+          <br />
+          <input type="checkbox" id="save-title-as-filename" />
+          <label for="save-title-as-filename" i18n="setting.save-title-as-filename-input.label"></label>
+
+          <div class="notice-info" i18n="setting.notice.asset-path"></div>
+          <input type="text" id="asset-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
+          <br />
+          <div class="notice-info" i18n="setting.notice.default-category"></div>
+          <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
+          <br />
+          <div class="notice-info" i18n="setting.notice.default-clipping-folder-format"></div>
+          <input type="text" id="default-clipping-folder-format" i18n-attr="placeholder:setting.placeholder.notblank"/>
+        </p>
+      </section>
+      <section class="setting-file-scheme-access">
+        <h3 i18n="setting.title.file-url"></h3>
+        <p>
+          <div class="notice-info">
+            <label i18n="setting.notice.file-url.intro"></label>
+            <br />
+            <a href="${settingFileUrlLink}" target="_blank" i18n="setting.notice.file-url.link-label"></a>
+            <br />
+            <label i18n="setting.notice.file-url.help-msg"></label>
+            <br />
+            <label i18n="setting.notice.file-url.ext-id"></label>
+            <label>=&gt; ${host}</label>
+          </div>
+          <div class="notice-warning">
+            <strong i18n="setting.warning"></strong>:<br />
+            <label i18n="setting.notice.file-url-warning"></label>
+          </div>
+          <input type="checkbox" id="file-scheme-access-input"/>
+          <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
+        </p>
+      </section>
+      <section class="setting-hotkey">
+        <h3 i18n="setting.title.hotkey"></h3>
+        <p>
+          <input type="checkbox" id="enable-switch-hotkey" />
+          <label for="enable-switch-hotkey" i18n="setting.enable-switch-hotkey-input.label"></label>
+        </p>
+      </section>
+    </template>
+
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>
     <script type="text/javascript" src="../vendor/js/i18n.js"></script>
     <script type="text/javascript" src="../js/env.js"></script>
@@ -25,8 +113,6 @@
     <script type="text/javascript" src="../js/lib/mx-wc-storage.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-config.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-link.js"></script>
-
-    <script type="text/javascript" src="../js/template.js"></script>
     <script type="text/javascript" src="setting.js"></script>
   </body>
 </html>

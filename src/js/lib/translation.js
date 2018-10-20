@@ -15,3 +15,21 @@ this.t = (function(I18N_DICT, locale) {
     return i18n(key);
   });
 })(I18N_DICT, ExtApi);
+
+this.i18nPage = function(){
+  const iterate = function(attr, action) {
+    [].forEach.call(document.querySelectorAll('['+attr+']'), function(elem){
+      const value = elem.getAttribute(attr);
+      action(elem, value)
+    });
+  }
+  iterate('i18n', function(elem, value) {
+    if(elem.innerHTML === '' && value) {
+      elem.innerHTML = t(value);
+    }
+  });
+  iterate('i18n-attr', function(elem, value) {
+    const [attr, key] = value.split(':');
+    elem.setAttribute(attr, t(key));
+  });
+}

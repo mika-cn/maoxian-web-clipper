@@ -9,9 +9,11 @@
   <body>
     <div class="main">
       <h1> Reset History </h1>
-      <div class="hint">
-      </div>
+      <div class="hint"></div>
       <div class="selector">
+        <div class="notice-info" i18n="reset.hint"></div>
+        <input id="myInput" type="file" accept="application/json" webkitdirectory directory/>
+        <button id="reset-btn" i18n="btn.confirm"></button>
       </div>
     </div>
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>
@@ -22,7 +24,6 @@
     <script type="text/javascript" src="../js/lib/ext-api.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-storage.js"></script>
     <script type="text/javascript" src="../js/lib/translation.js"></script>
-    <script type="text/javascript" src="../js/template.js"></script>
     <script type="text/javascript" src="reset-history.js"></script>
   </body>
 </html>

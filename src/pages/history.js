@@ -50,11 +50,13 @@
     Log.debug('directly');
     const modal = T.queryElem('.modal');
     const modalContent = T.queryElem('.modal .content');
-    modalContent.innerHTML = MxWcTemplate.historyPageClipDetail.render({
+    const html = renderClipDetail({
       urlAction: 'openUrlDirectly',
       clip: clip,
       url: url
-    })
+    });
+    T.setHtml(modalContent, html);
+    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(){
@@ -69,12 +71,14 @@
     Log.debug('by download item');
     const modal = T.queryElem('.modal');
     const modalContent = T.queryElem('.modal .content');
-    modalContent.innerHTML = MxWcTemplate.historyPageClipDetail.render({
+    const html = renderClipDetail({
       urlAction: 'openUrlByDownloadItem',
       clip: clip,
       url: url,
       downloadItem: downloadItem
-    })
+    });
+    T.setHtml(modalContent, html);
+    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(){
@@ -88,37 +92,89 @@
   function renderClipDetailModel_openUrlByCopyAndPaste(clip, url){
     const modal = T.queryElem('.modal');
     const modalContent = T.queryElem('.modal .content');
-    modalContent.innerHTML = MxWcTemplate.historyPageClipDetail.render({
+    const html = renderClipDetail({
       urlAction: 'openUrlByCopyAndPaste',
       clip: clip,
       url: url
-    })
+    });
+    T.setHtml(modalContent, html);
+    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path');
     T.bind(elem, 'mouseover', function(e){ this.select() });
     elem.select();
   }
 
+  function renderClipDetail(v) {
+    const template = T.findElem('modal-content-tpl').innerHTML;
+    let clipPath = "";
+    switch(v.urlAction){
+      case 'openUrlDirectly':
+      case 'openUrlByDownloadItem':
+        clipPath = `<a class="path-link" href="">${v.url}</a>`;
+        break;
+      case 'openUrlByCopyAndPaste':
+        clipPath =`<input type="text" class='path' readonly="true" value="${v.url}" />`;
+        break;
+    }
+    return T.renderTemplate(template, {
+      title: v.clip.title,
+      clipPath: clipPath,
+      createdAt: v.clip.created_at,
+      category: v.clip.category,
+      tags: v.clip.tags.join(", "),
+      format: v.clip.format
+    });
+  }
+
+
   function renderClips(clips){
     state.currClips = clips;
-    const html = MxWcTemplate.historyPageClips.render({clips: clips});
-    T.queryElem('.history').innerHTML = html;
+
+    const list = T.queryElem('.list');
+    const hint = T.queryElem('.no-record');
+    list.style.display = 'none';
+    hint.style.display = 'none';
+    if(clips.length > 0) {
+      const trowTpl  = T.findElem('trow-tpl').innerHTML;
+      const items = [];
+      clips.forEach(function(clip){
+        items.push(T.renderTemplate(trowTpl, {
+          clipId: clip.clipId,
+          time: renderTime(clip),
+          category: clip.category,
+          tags: clip.tags.join(", "),
+          title: clip.title
+        }));
+      });
+      T.setHtml('.clippings > tbody', items.join(''));
+      list.style.display = 'block';
+    } else {
+      hint.style.display = 'block';
+    }
     bindClipListener();
   }
 
+  function renderTime(clip) {
+    try{
+      const d = new Date(clip.created_at)
+      const t = T.wrapDate(d).str;
+      return [t.month, t.day].join('/')
+    }catch(e) {
+      return '-/-'
+    }
+  }
+
   function bindClipListener(){
-    const tbody = T.queryElem(".history > table > tbody");
+    const tbody = T.queryElem(".list > table > tbody");
     if(tbody) {
       T.bindOnce(tbody, 'click', showClip, true);
     }
   }
 
   function initSearch(){
-    const v = { inputId: 'search', btnId: 'search-btn' };
-    const searchBox = T.queryElem('.search-box');
-    searchBox.innerHTML = MxWcTemplate.historyPageSearchFields.render(v)
-    const input = T.findElem(v.inputId);
-    const btn = T.findElem(v.btnId);
+    const input = T.findElem('search');
+    const btn = T.findElem('search-btn');
     input.value = getKeyword();
     T.bindOnce(input, 'keypress', searchInputListener);
     T.bindOnce(btn, 'click', searchAction);
@@ -183,7 +239,7 @@
       const a = document.createElement("a");
       a.href = MxWcLink.get(action.pageName);
       a.target = '_blank';
-      a.innerHTML = action.name;
+      a.innerText = action.name;
       elem.appendChild(a);
     })
   }
@@ -200,7 +256,6 @@
     T.bind(content, 'click', function(e){
       e.stopPropagation();
     })
-
   }
 
   function hideModal(){
@@ -212,6 +267,7 @@
     initSearch();
     initActions();
     initModal();
+    i18nPage();
     showHistory();
   }
 

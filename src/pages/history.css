@@ -42,21 +42,21 @@ table {
   font-size: 13px;
 }
 
-.history > table {
+.list > table {
   background-color: #f8f8f8;
   margin-bottom: 15px;
 }
 
-.history > table > thead {
+.list > table > thead {
   background-color: #e8e8e8;
 }
 
-.history > table > tbody > tr:hover {
+.list > table > tbody > tr:hover {
   background-color: #e5e5e5;
   cursor: pointer;
 }
 
-.history > table td {
+.list > table td {
   line-height: 25px;
   border: 1px solid #ccc;
   padding: 2px 5px 2px 5px;

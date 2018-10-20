@@ -12,6 +12,12 @@
     <div class="main">
       <div class="menus"></div>
     </div>
+    <template id="menu-tpl">
+      <a class="menu" data-id="${menuId}">
+        <i class="${iconClass}"></i>
+        ${menuContent}
+      </a>
+    </template>
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>
     <script type="text/javascript" src="../vendor/js/i18n.js"></script>
     <script type="text/javascript" src="../js/tool.js"></script>
@@ -23,7 +29,6 @@
     <script type="text/javascript" src="../js/lib/mx-wc-config.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-storage.js"></script>
     <script type="text/javascript" src="../js/lib/translation.js"></script>
-    <script type="text/javascript" src="../js/template.js"></script>
     <script type="text/javascript" src="popup.js"></script>
   </body>
 </html>

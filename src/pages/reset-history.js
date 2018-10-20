@@ -13,7 +13,8 @@
 
   function showHint(msg){
     const elem = T.queryElem(".hint");
-    elem.innerHTML += ("<br />" + msg);
+    const html = elem.innerHTML + ("<br />" + msg);
+    T.setHtml(elem, html);
   }
 
   function reset(){
@@ -62,13 +63,8 @@
     }
   }
 
-  function renderSelector(){
-    const elem = T.queryElem('.selector');
-    elem.innerHTML = MxWcTemplate.resetPageSelector.render({});
-  }
-
   function init(){
-    renderSelector();
+    i18nPage();
     bindListener();
     state.worker = new Worker('reset-history-worker.js');
     state.worker.onmessage = handlerWorkerMessage;

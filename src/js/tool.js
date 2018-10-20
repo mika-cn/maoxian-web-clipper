@@ -11,6 +11,12 @@ T.firstElem = function(className){ return T.queryElem(`.${className}`) }
 T.queryElem = function(selector){ return document.querySelector(selector) }
 T.queryElems = function(selector){ return document.querySelectorAll(selector) }
 
+// obj: element or selector
+T.setHtml = function(obj, html) {
+  const elem = (typeof obj === 'object' ? obj: T.queryElem(obj));
+  if(elem){ elem.innerHTML = html }
+}
+
 
 
 T.bind = function(elem, evt, fn, useCapture){
@@ -179,17 +185,20 @@ T.rjustNum = function(num, length){
 }
 
 T.currentTime = function(){
-  const now = new Date();
+  return T.wrapDate(new Date());
+}
+
+T.wrapDate = function(date) {
   const tObj = {
-    value  : now,
-    year   : now.getFullYear(),
-    month  : now.getMonth() + 1,
-    day    : now.getDate(),
-    hour   : now.getHours(),
-    minute : now.getMinutes(),
-    second : now.getSeconds(),
-    intSec : Math.floor(now/1000),
-    intMs  : now / 1000
+    value  : date,
+    year   : date.getFullYear(),
+    month  : date.getMonth() + 1,
+    day    : date.getDate(),
+    hour   : date.getHours(),
+    minute : date.getMinutes(),
+    second : date.getSeconds(),
+    intSec : Math.floor(date/1000),
+    intMs  : date / 1
   }
   tObj.str = {
     year: tObj.year.toString(),
@@ -443,4 +452,14 @@ T.extractVersion = function(version) {
 //rgbStr: rgb(255, 255, 255)
 T.extractRgbStr = function(rgbStr) {
   return rgbStr.match(/\d{1,3}/g).map((it) => parseInt(it));
+}
+
+/*
+ * replace ${key} use v.$key
+ */
+T.renderTemplate = function(template, v) {
+  const regExp = /\$\{([^\$\}]+)\}/mg;
+  return template.replace(regExp, function(match, key) {
+    return (v[key] || '')
+  });
 }

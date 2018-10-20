@@ -403,6 +403,9 @@ this.MxWcHtml = (function () {
       const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
       const outerElemBgCss = getBgCss(outerElem);
       const elemBgCss = getBgCss(elem);
+      Log.debug('elemBgCss:', elemBgCss);
+      Log.debug('outerElemBgCss:', outerElemBgCss);
+      Log.debug('bodyBgCss:', bodyBgCss);
       if(elemBgCss == outerElemBgCss){
         const [r,g,b] = T.extractRgbStr(outerElemBgCss);
         if(r == g && g == b && r - 70 >= 86){
