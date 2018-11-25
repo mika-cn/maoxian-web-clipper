@@ -59,6 +59,7 @@ this.UI = (function(){
     },
     remove: removeIframe,
     frameLoaded: function(){
+      this.element.focus();
       frameDocumentLoad();
       Log.debug(this.id, 'loaded');
     }
@@ -465,7 +466,7 @@ this.UI = (function(){
   function getOutermostWrapper(elem){
     if(['HTML', 'BODY'].indexOf(elem.tagName) > 0){ return elem }
     const pElem = elem.parentElement;
-    if(ElemTool.isBoxSizeEq(elem, pElem)){
+    if(ElemTool.isBoxSizeEq(elem, pElem) || ElemTool.isIndivisible(elem, pElem)){
       return getOutermostWrapper(pElem);
     } else {
       return elem;

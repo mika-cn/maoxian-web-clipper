@@ -10,6 +10,18 @@ ElemTool.isBoxSizeEq = (elemA, elemB) => {
   }
 }
 
+ElemTool.isIndivisible = (elem, pElem) => {
+  if(elem && pElem) {
+    return [
+      ['CODE' , 'PRE'],
+      ['THEAD', 'TABLE'],
+      ['TBODY', 'TABLE']
+    ].some((p) => elem.tagName === p[0] && pElem.tagName === p[1])
+  } else {
+    return false;
+  }
+}
+
 ElemTool.getHiddenElementXpaths = (win, elem, xpaths=[], prefix="") => {
   T.each(elem.children, (childElem, index) => {
     const xpath = [prefix, '*[', index + 1, ']'].join('');

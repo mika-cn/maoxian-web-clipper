@@ -26,6 +26,7 @@ this.Notify = (function(){
         line-height: 20px;
         font-size: 13px;
         padding: 10px 20px 10px 20px;
+        border: solid 1px #888;
         border-radius: 5px;
         margin-bottom: 15px;
       }
@@ -35,6 +36,7 @@ this.Notify = (function(){
         line-height: 20px;
         font-size: 13px;
         padding: 10px 20px 10px 20px;
+        border: solid 1px #888;
         border-radius: 5px;
         margin-bottom: 15px;
       }

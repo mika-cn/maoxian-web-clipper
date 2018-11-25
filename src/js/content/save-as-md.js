@@ -74,6 +74,7 @@ this.MxWcMarkdown = (function() {
     handleFrames(params, clonedElem).then((clonedElem) => {
       Log.debug("FrameHandlefihish");
       clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
+      clonedElem = PluginMisc.handle(win, clonedElem);
       clonedElem = PluginGist.handle(win, clonedElem);
       clonedElem = PluginMathJax.handle(win, clonedElem);
       clonedElem = PluginMathML2LaTeX.handle(win, clonedElem);
@@ -179,6 +180,10 @@ this.MxWcMarkdown = (function() {
       headingStyle: 'atx',
       codeBlockStyle: 'fenced'
     });
+    service.use([
+      turndownPluginGfm.tables,
+      turndownPluginGfm.strikethrough
+    ]);
     service.addRule('ignoreTag', {
       filter: ['style', 'script', 'noscript', 'noframes', 'canvas', 'template'],
       replacement: function(content, node, options){return ''}
