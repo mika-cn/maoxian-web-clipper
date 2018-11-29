@@ -29,6 +29,10 @@ this.FrameMsg = (function(window){
     state.listeners[type] = callback;
   }
 
+  function removeListener(type){
+    state.listeners[type] = null;
+  }
+
   function clearListener(){
     state.listeners = {};
   }
@@ -84,6 +88,7 @@ this.FrameMsg = (function(window){
     init: init,
     send: send,
     addListener: addListener,
+    removeListener: removeListener,
     clearListener: clearListener,
   }
 })(window);

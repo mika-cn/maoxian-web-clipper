@@ -1,6 +1,15 @@
 
 const ClippingHandler_Browser = (function(){
-  const state = {filenameDict: T.createDict()};
+  const state = {
+    isListening: false,
+    filenameDict: T.createDict(),
+    tabIdDict: T.createDict()
+  };
+
+  function getIdFromFilename(filename) {
+    const path = filename.split('mx-wc')[1];
+    return btoa(path);
+  }
 
   // msg: {:text, :mineType, :filename}
   function downloadText(msg){
@@ -8,6 +17,10 @@ const ClippingHandler_Browser = (function(){
     const opt = {type: msg.mimeType};
     const blob = new Blob(arr, opt);
     const url = URL.createObjectURL(blob);
+    if(isMainFile(msg.filename)){
+      const id = getIdFromFilename(msg.filename);
+      state.tabIdDict.add(id, msg.tabId);
+    }
     downloadUrl({url: url, filename: msg.filename});
   }
 
@@ -36,17 +49,25 @@ const ClippingHandler_Browser = (function(){
     });
   }
 
+  function isMainFile(filename) {
+    return (
+         filename.endsWith('.html') && !filename.endsWith('.frame.html')
+      || filename.endsWith('.md')
+      || filename.endsWith('.mxwc'));
+  }
+
   function downloadCompleted(downloadItemId){
     const filename = state.filenameDict.find(downloadItemId);
     // file that not download through maoxian web clipper
     if(T.excludeFold(filename, 'mx-wc')){ return false }
-    if(  filename.endsWith('.html') && !filename.endsWith('.frame.html')
-      || filename.endsWith('.md')
-      || filename.endsWith('.mxwc')){
+    if(isMainFile(filename)){
       if(filename.endsWith('.mxwc')){
         ExtApi.deleteDownloadItem(downloadItemId);
       }else{
-        state.completedAction(state.tabId, {
+        const id = getIdFromFilename(filename);
+        const tabId = state.tabIdDict.find(id);
+        state.tabIdDict.remove(id);
+        state.completedAction(tabId, {
           handler: 'browser',
           filename: filename,
           downloadItemId: downloadItemId
@@ -67,9 +88,7 @@ const ClippingHandler_Browser = (function(){
   }
 
   function updateDownloadFold(filename){
-    if(  filename.endsWith('.html') && !filename.endsWith('.frame.html')
-      || filename.endsWith('.md')
-      || filename.endsWith('.mxwc')){
+    if(isMainFile(filename)){
       // Update download Fold, Cause user might change download fold.
       // Update as soon as possible.
       const downloadFold = filename.split('mx-wc')[0];
@@ -116,13 +135,12 @@ const ClippingHandler_Browser = (function(){
     state.completedAction = handler;
   }
 
-  function init(tabId, clipId){
-    if(!state.tabId){
+  function init(){
+    if(!state.isListening){
       ExtApi.bindDownloadCreatedListener(downloadCreated);
       ExtApi.bindDownloadChangedListener(downloadChanged);
+      state.isListening = true;
     }
-    state.tabId = tabId;
-    state.clipId = clipId;
   }
 
 

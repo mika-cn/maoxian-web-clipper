@@ -1,11 +1,27 @@
 
 const ClippingHandler_NativeApp = (function(){
   const APP_NAME = 'maoxian_web_clipper_native';
-  const state = {};
+  const state = {tabIdDict: T.createDict()};
+
+  function getIdFromFilename(filename) {
+    const path = filename.split('mx-wc')[1];
+    return btoa(path);
+  }
 
   function handle(task) {
+    if(task.type === 'text' && isMainFile(task.filename)) {
+      const id = getIdFromFilename(task.filename);
+      state.tabIdDict.add(id, task.tabId);
+    }
     task.type = ['download', task.type].join('.');
     state.port.postMessage(task);
+  }
+
+  function isMainFile(filename) {
+    return (
+         filename.endsWith('.html') && !filename.endsWith('.frame.html')
+      || filename.endsWith('.md')
+      || filename.endsWith('.mxwc'));
   }
 
   function responseHandler(resp){
@@ -14,10 +30,12 @@ const ClippingHandler_NativeApp = (function(){
       case 'download.text':
       case 'download.url':
         const filename = T.sanitizePath(resp.filename);
-        if(  filename.endsWith('.html') && !filename.endsWith('.frame.html')
-          || filename.endsWith('.md')){
+        if(isMainFile(filename)){
+          const id = getIdFromFilename(filename);
+          const tabId = state.tabIdDict.find(id);
+          state.tabIdDict.remove(id);
           updateDownloadFold(filename);
-          state.completedAction(state.tabId, { handler: 'native-app', filename: filename});
+          state.completedAction(tabId, { handler: 'native-app', filename: filename});
         }
         break;
       case 'get.version':
@@ -80,9 +98,7 @@ const ClippingHandler_NativeApp = (function(){
   }
 
 
-  function init(tabId, clipId){
-    state.tabId = tabId;
-    state.clipId = clipId;
+  function init(){
     if(!state.port){
       state.port = chrome.runtime.connectNative(APP_NAME);
       state.port.onMessage.addListener(responseHandler);

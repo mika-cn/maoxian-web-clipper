@@ -44,8 +44,9 @@ function messageHandler(message, sender, senderResponse){
 
 function saveTask(tabId, task){
   getClippingHandler((handler) => {
+    task.tabId = tabId;
     handler.setCompletedAction(onCompleted);
-    handler.init(tabId, task.clipId);
+    handler.init();
     handler.handle(task);
   });
 }

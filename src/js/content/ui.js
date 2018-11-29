@@ -18,6 +18,7 @@ this.UI = (function(){
   }
 
   function removeIframe(){
+    this.ready = false;
     if(this.element){
       document.body.removeChild(this.element);
       this.element = null;
@@ -28,6 +29,7 @@ this.UI = (function(){
   // selection layer
   const selectionIframe = {
     id: 'mx-wc-iframe-selection',
+    ready: false,
     src: function(){
       const url =  ExtApi.getURL('/pages/ui-selection.html');
       return url + "?t=" + btoa(window.location.origin)
@@ -40,13 +42,15 @@ this.UI = (function(){
     },
     remove: removeIframe,
     frameLoaded: function(){
-      Log.debug(this.id, 'loaded');
+      this.ready = true;
+      dispatchFrameLoadedEvent(this.id);
     }
   }
 
   // status & form layer
   const controlIframe = {
     id: 'mx-wc-iframe-control',
+    ready: false,
     src: function(){
       const url =  ExtApi.getURL('/pages/ui-control.html');
       return url + "?t=" + btoa(window.location.origin)
@@ -60,10 +64,20 @@ this.UI = (function(){
     remove: removeIframe,
     frameLoaded: function(){
       this.element.focus();
-      frameDocumentLoad();
-      Log.debug(this.id, 'loaded');
+      this.ready = true;
+      dispatchFrameLoadedEvent(this.id);
     }
   }
+
+  function dispatchFrameLoadedEvent(frameId) {
+    Log.debug(frameId, 'loaded');
+    if(selectionIframe.ready && controlIframe.ready) {
+      Log.debug('all-iframe-loaded');
+      const ev = new CustomEvent('all-iframe-loaded');
+      document.dispatchEvent(ev);
+    }
+  }
+
 
   function initializeIframe(src) {
     let el = document.createElement("iframe");
@@ -80,6 +94,7 @@ this.UI = (function(){
     return el;
   }
 
+  // append UI layers
   function append(){
     remove();
     selectionIframe.append();
@@ -87,6 +102,7 @@ this.UI = (function(){
     Log.debug("UI appened");
   }
 
+  // remove UI layers
   function remove(){
     controlIframe.remove();
     selectionIframe.remove();
@@ -111,10 +127,10 @@ this.UI = (function(){
   function windowSizeChanged(){
     if(selectionIframe.element){
       selectionIframe.element = updateFrameSize(selectionIframe.element);
-      if(state.clippingState === 'selecting'){
+      if(state.clippingState === 'selecting' && state.currElem){
         drawSelectingStyle(state.currElem);
       }
-      if(state.clippingState === 'selected'){
+      if(state.clippingState === 'selected' && state.currElem){
         drawSelectedStyle(state.currElem);
       }
     }
@@ -134,7 +150,7 @@ this.UI = (function(){
     }
   }
 
-  function eventInCurrElem(msg){
+  function isEventInCurrElem(msg){
     if(state.currElem){
       const x = msg.x + window.scrollX;
       const y = msg.y + window.scrollY;
@@ -180,7 +196,7 @@ this.UI = (function(){
   }
 
 
-  // changeNameHere
+  // TODO changeNameHere
   function cancelForm(msg){
     disable();
     remove();
@@ -239,14 +255,10 @@ this.UI = (function(){
   }
 
   // ----------------------------
-  let frameDocumentLoad = function(){};
   function entryClick(e){
     if(state.clippingState === 'idle'){
       listenFrameMsg();
-      frameDocumentLoad = function(){
-        enable();
-        Log.debug("all initialized");
-      }
+      T.bindOnce(document, 'all-iframe-loaded', enable)
       append();
     }else{
       ignoreFrameMsg();
@@ -288,14 +300,14 @@ this.UI = (function(){
   }
 
   function enable(){
-    setStateSelecting();
     bindListener();
+    setStateSelecting();
   }
 
   function disable(){
-    setStateIdle();
     hideForm();
     unbindListener();
+    setStateIdle();
   }
 
   function clickSelectedArea(msg){
@@ -363,7 +375,7 @@ this.UI = (function(){
   };
 
   function clickHandler(msg){
-    if(eventInCurrElem(msg)){
+    if(isEventInCurrElem(msg)){
       if(state.clippingState === 'selecting'){
         selectedTarget(state.currElem);
         return;
@@ -494,12 +506,54 @@ this.UI = (function(){
     remove();
   }
 
+  function focusElem(elem, callback){
+    if(state.clippingState === 'idle') {
+      Log.debug("[focus] State Idle...");
+      entryClick({});
+    }
+    state.currElem = getOutermostWrapper(elem);
+    if(selectionIframe.ready && controlIframe.ready) {
+      Log.debug("[focus] Iframe Ready...");
+      selectedTarget(state.currElem);
+      if(callback){ callback()}
+    } else {
+      Log.debug("[focus] Iframe Loading...");
+      const allIframeLoad = function(e){
+        selectedTarget(state.currElem);
+        if(callback){ callback()}
+        T.unbind(document, 'all-iframe-loaded', allIframeLoad);
+      }
+      T.bind(document, 'all-iframe-loaded', allIframeLoad);
+    }
+  }
+
+  function confirmElem(elem){
+    focusElem(elem, function(){
+      pressEnter({});
+    });
+  }
+
+  /*
+   * options: {:category, :tagstr}
+   */
+  function clipElem(elem, options){
+    focusElem(elem, function(){
+      startClip({
+        title: (options.title || document.title),
+        category: (options.category || ""),
+        tagstr: (options.tagstr || "")
+      });
+    });
+  }
 
   return {
     remove: remove,
     entryClick: entryClick,
     windowSizeChanged: windowSizeChanged,
-    pageContentChanged: windowSizeChanged,
-    downloadCompleted: downloadCompleted
+    downloadCompleted: downloadCompleted,
+
+    focusElem: focusElem,
+    confirmElem: confirmElem,
+    clipElem: clipElem
   }
 })();
