@@ -5,7 +5,7 @@ const ClippingHandler_NativeApp = (function(){
 
   function getIdFromFilename(filename) {
     const path = filename.split('mx-wc')[1];
-    return btoa(path);
+    return md5(path);
   }
 
   function handle(task) {

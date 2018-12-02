@@ -8,7 +8,7 @@ const ClippingHandler_Browser = (function(){
 
   function getIdFromFilename(filename) {
     const path = filename.split('mx-wc')[1];
-    return btoa(path);
+    return md5(path);
   }
 
   // msg: {:text, :mineType, :filename}
