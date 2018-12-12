@@ -230,8 +230,13 @@
     }
   }
 
-  function initActions(){
-    const elem = T.queryElem(".actions");
+  function clearHistory(e){
+    MxWcStorage.set('clips', [])
+    renderClips([]);
+  }
+
+  function initLinks(){
+    const elem = T.queryElem(".links");
     const actions = [
       {name: t('history.a.reset_history'), pageName: "extPage.reset-history" }
     ]
@@ -243,6 +248,12 @@
       elem.appendChild(a);
     })
   }
+
+  function initActions(){
+    const btn = T.findElem('clear-history');
+    T.bindOnce(btn, 'click', clearHistory);
+  }
+
 
   function initModal(){
     const elem = T.queryElem('.modal .mask');
@@ -265,6 +276,7 @@
 
   function init(){
     initSearch();
+    initLinks();
     initActions();
     initModal();
     i18nPage();

@@ -115,6 +115,10 @@ T.maxValueKey = function(numValueObj){
 
 T.toJson = function(hash) { return JSON.stringify(hash);}
 
+T.isFileUrl = function(url){
+  return url.startsWith('file:');
+}
+
 T.isExtensionUrl = function(url){
   if(url.indexOf('://') > -1) {
     const protocol = url.split('://')[0];
@@ -122,6 +126,17 @@ T.isExtensionUrl = function(url){
   } else {
     return false
   }
+}
+
+// Browser built-in pages
+T.isBrowserUrl = function(url){
+  return ([
+    'about:',     /* Firefox */
+    'chrome://',  /* Chrome or Chromium */
+    'vivaldi://', /* vivaldi */
+  ]).some(function(it){
+    return url.startsWith(it);
+  });
 }
 
 

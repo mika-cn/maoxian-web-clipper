@@ -72,6 +72,7 @@ I18N_DICT['zh-CN'] = {
     //history page
     "history.input.placeholder": "可搜索标题、标签、目录",
     "history.btn.search": "搜索",
+    "history.btn.clear-history": "清除历史",
     "history.a.reset_history": "重置历史",
     "history.th.title": "标题",
     "history.th.path": "路径",

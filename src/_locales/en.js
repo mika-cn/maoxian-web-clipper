@@ -74,6 +74,7 @@ I18N_DICT['en'] = {
     //history page
     "history.input.placeholder": "title or tag or category",
     "history.btn.search": "Search",
+    "history.btn.clear-history": "Clear History",
     "history.a.reset_history": "Reset history",
     "history.th.title": "Title",
     "history.th.path": "Path",

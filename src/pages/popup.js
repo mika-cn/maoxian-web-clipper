@@ -51,7 +51,9 @@
       const pageIds = ['history', 'setting'];
       let menuIds = [];
 
-      if(tabUrl.startsWith('file:') || tabUrl.indexOf(MxWcLink.extensionRoot) > -1){
+      if(T.isFileUrl(tabUrl) ||
+         T.isExtensionUrl(tabUrl) ||
+         T.isBrowserUrl(tabUrl)){
         pageIds.forEach(function(pageId){
           const extPagePath = MxWcLink.getExtensionPagePath(pageId);
           if(tabUrl.indexOf(extPagePath) == -1){

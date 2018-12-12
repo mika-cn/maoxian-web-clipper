@@ -10,6 +10,9 @@ body {
   border: solid 1px #ccc;
 }
 
+.links {
+  float: right;
+}
 .actions {
   float: right;
 }
@@ -20,7 +23,7 @@ body {
 }
 
 .search-box{
-  margin-bottom: 40px;
+  margin-bottom: 10px;
 }
 
 #search {
@@ -32,6 +35,10 @@ body {
 }
 #search:focus {
   border: solid 2px pink;
+}
+
+.history {
+  margin-top: 30px;
 }
 
 table {
