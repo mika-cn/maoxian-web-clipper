@@ -274,6 +274,22 @@
     modal.style.display = 'none';
   }
 
+  function recallScroll(){
+    window.addEventListener('unload', function(e){
+      window.localStorage.setItem('scrollY', window.scrollY);
+    })
+    setTimeout(function(){
+      let scrollY = window.localStorage.getItem('scrollY')
+      if(scrollY){
+        scrollY = parseInt(scrollY);
+        console.log(scrollY);
+        if(scrollY > 150){
+          window.scrollTo(0, parseInt(scrollY));
+        }
+      }
+    }, 0);
+  }
+
   function init(){
     initSearch();
     initLinks();
@@ -281,6 +297,7 @@
     initModal();
     i18nPage();
     showHistory();
+    recallScroll();
   }
 
   init();
