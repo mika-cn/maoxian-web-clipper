@@ -10,18 +10,54 @@ MxWcTemplate.UIHtml = {
 <div class="${v.g} MX-wc-help">
   <div class="help-group">
     <table>
-      <tr><td class="intro">${t('hotkey.left.intro')}</td><td><kbd>←</kbd></td></tr>
-      <tr><td class="intro">${t('hotkey.right.intro')}</td><td><kbd>→</kbd></td></tr>
-      <tr><td class="intro">${t('hotkey.up.intro')}</td><td><kbd>↑</kbd></td></tr>
-      <tr><td class="intro">${t('hotkey.down.intro')}</td><td><kbd>↓</kbd></td></tr>
+      <tr>
+        <td class="intro">${t('hotkey.enter.intro')}</td>
+        <td class="normal">
+          <kbd data-key-code="13">Enter</kbd>
+        </td>
+      </tr>
+      <tr>
+        <td class="intro">${t('hotkey.esc.intro')}</td>
+        <td class="normal">
+          <kbd data-key-code="27">Esc</kbd>
+        </td>
+      </tr>
+      <tr>
+        <td class="intro">${t('hotkey.scroll.intro')}</td>
+        <td class="normal">
+          <kbd data-key-code="-1001">${t('hotkey.scroll.name')}</kbd>
+        </td>
+      </tr>
     </table>
   </div>
-    <div class="help-group">
-      <table>
-        <tr><td class="intro">${t('click.scroll.intro')}</td><td><kbd>${t('click')}</kbd></td></tr>
-        <tr><td class="intro">${t('hotkey.esc.intro')}</td><td><kbd>esc</kbd></td></tr>
-      </table>
-    </div>
+  <div class="help-group">
+    <table>
+      <tr>
+        <td class="intro">${t('hotkey.left.intro')}</td>
+        <td class="arrow">
+          <kbd data-key-code="37">←</kbd>
+        </td>
+      </tr>
+      <tr>
+        <td class="intro">${t('hotkey.right.intro')}</td>
+        <td class="arrow">
+          <kbd data-key-code="39">→</kbd>
+        </td>
+      </tr>
+      <tr>
+        <td class="intro">${t('hotkey.up.intro')}</td>
+        <td class="arrow">
+          <kbd data-key-code="38">↑</kbd>
+        </td>
+      </tr>
+      <tr>
+        <td class="intro">${t('hotkey.down.intro')}</td>
+        <td class="arrow">
+          <kbd data-key-code="40">↓</kbd>
+        </td>
+      </tr>
+    </table>
+  </div>
 </div>
 <div class="${v.g} MX-wc-form">
   <div class="${v.g} MX-input-group">

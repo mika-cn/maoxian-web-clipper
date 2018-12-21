@@ -22,6 +22,7 @@
       initSettingClippingContent(config)
       initFileSchemeAccess(config);
       initSettingHotkey(config);
+      initSettingOther(config);
       initClippingHandler(config);
     });
   }
@@ -74,6 +75,14 @@
     initCheckboxInput(config,
       'enable-switch-hotkey',
       'enableSwitchHotkey',
+    );
+  }
+
+  // section other
+  function initSettingOther(config){
+    initCheckboxInput(config,
+      'enable-mouse-mode',
+      'enableMouseMode',
     );
   }
 

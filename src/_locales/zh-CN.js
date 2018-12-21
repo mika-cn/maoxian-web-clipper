@@ -39,6 +39,7 @@ I18N_DICT['zh-CN'] = {
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.path": "存储路径",
     "setting.title.clipping-handler": "保存方式",
+    "setting.title.other": "其他设置",
 
     // notice
     "setting.notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
@@ -49,7 +50,7 @@ I18N_DICT['zh-CN'] = {
     "setting.notice.default-category": "<strong>默认目录</strong><br />使用 <strong>/</strong> 来分隔子目录<br />使用 <strong>$NONE</strong> 来表示空值（即无目录）",
     "setting.notice.default-clipping-folder-format": "<strong>默认裁剪文件夹格式</strong><br /><strong>$FORMAT-A</strong>: 2018-10-11-1539236251 <br /><strong>$FORMAT-B</strong>: 20181011102009 <br />",
     "setting.notice.asset-path": "<strong>资源路径（图片，字体……）</strong><br />使用 <strong>$CLIP-FOLD</strong> 来表示裁剪目录（由扩展生成的目录）<br />使用 <strong>$MX-WC</strong> 来表示扩展可访问的根目录（即 $downloads/mx-wc)",
-    "setting.notice.clipping-handler.intro": "<strong>浏览器下载</strong><br />使用浏览器来下载裁剪结果<br /><br /><strong>本地程序下载</strong><br />通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过插件互相冲突的问题）<br />选择本选项需先安装一个程序",
+    "setting.notice.clipping-handler.intro": "<strong>浏览器下载</strong><br />使用浏览器来下载裁剪结果<br /><br /><strong>本地程序下载</strong><br />通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过扩展互相冲突的问题）<br />选择本选项需先安装一个程序",
     "setting.notice.clipping-handler.warning": "<strong> 警告! </strong><br /> 如果你选择通过本地程序来下载裁剪结果，你必须先安装本地程序，否则扩展无法正常工作",
     "setting.notice.clipping-handler.link-label": "安装地址",
 
@@ -61,6 +62,7 @@ I18N_DICT['zh-CN'] = {
     "setting.save-title-as-fold-name-input.label": "使用标题作为文件夹的名字（默认为扩展自动生成）",
     "setting.save-title-as-filename-input.label": "使用标题作为文件名（默认为 index.html 或 index.md ）",
     "setting.enable-switch-hotkey-input.label": "启用快捷键 `c` (裁剪开关)",
+    "setting.enable-mouse-mode-input.label": "鼠标友好模式",
 
     // placeholder
     "setting.placeholder.notblank": "此项不能为空",
@@ -94,7 +96,7 @@ I18N_DICT['zh-CN'] = {
     // entry(btn & hint)
     "switch.title": "开关 (快捷键: c)",
     "hint.selecting": "移动光标, 点击选中",
-    "hint.selected": "按'Enter' 确认, 方向键调整",
+    "hint.selected": "按'Enter' 确认, 方向键调整当前选中区域",
     "hint.downloading": "下载中...",
 
     //help
@@ -103,8 +105,9 @@ I18N_DICT['zh-CN'] = {
     "hotkey.up.intro": "向前选中",
     "hotkey.down.intro": "向后选中",
     "hotkey.esc.intro": "返回自由模式",
-    "click.scroll.intro": "滚动到选中区域的顶部/底部",
-    "click": "点击",
+    "hotkey.enter.intro": "确认选中区域",
+    "hotkey.scroll.intro": "滚动到选中区域的顶部/底部",
+    "hotkey.scroll.name": "点击",
 
     // form
     "title": "标题",

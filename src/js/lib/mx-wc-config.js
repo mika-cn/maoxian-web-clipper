@@ -19,6 +19,7 @@ this.MxWcConfig = (function() {
 
       allowFileSchemeAccess: false,
       enableSwitchHotkey: false,
+      enableMouseMode: false,
 
       /* browser, native-app */
       clippingHandlerName: 'browser',

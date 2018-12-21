@@ -3,8 +3,6 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
 }
 
-
-
 #MX-wc-entry {
   border: 0px;
   border-radius: 0px;
@@ -20,7 +18,7 @@ body {
 #MX-wc-entry *::after {
   all: unset;  /* allowing inheritance within #mydiv */
 }
-/*.MX-wc-bar { border: 1px solid #ccc; }*/
+/*.MX-wc-bar {float: right;}*/
 #MX-wc-btn,.MX-wc-hint,#MX-wc-setting {
   color: #eee;
   font-size: 12px;
@@ -61,10 +59,14 @@ body {
 .MX-wc-bar.selected  #MX-wc-btn { background-color: green; }
 .MX-wc-bar.confirmed #MX-wc-btn { display: none}
 .MX-wc-bar.clipping  #MX-wc-btn { display: none}
+
 .MX-wc-bar.selected:hover + .MX-wc-help{
   display: block;
 }
 .MX-wc-bar.selected.new-user + .MX-wc-help{
+  display: block;
+}
+.MX-wc-bar.selected.mouse-friendly + .MX-wc-help{
   display: block;
 }
 
@@ -94,14 +96,35 @@ body {
 .MX-wc-help kbd {
   all: unset;
   display: inline-block;
-  font-size: 16px;
   min-width: 20px;
   min-height: 10px;
-  padding: 3px 5px;
+  padding: 5px 8px;
   line-height: 10px;
   text-align: center;
   vertical-align: middle;
   color: #fff;
+}
+
+.MX-wc-help.mouse-friendly kbd {
+  border: solid 1px #ccc;
+  border-radius: 4px;
+  user-select: none;
+  color: #333;
+  background-color: #ccc;
+}
+
+.MX-wc-help.mouse-friendly kbd:hover {
+  cursor: pointer;
+  color: #000;
+  background-color: #bbb;
+}
+
+.Mx-wc-help .normal kbd {
+  font-size: 13px;
+}
+
+.MX-wc-help .arrow kbd {
+  font-size: 16px;
 }
 
 

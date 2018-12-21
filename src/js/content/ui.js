@@ -282,6 +282,7 @@ this.UI = (function(){
     FrameMsg.addListener('pressUp'    , pressUp);
     FrameMsg.addListener('pressRight' , pressRight);
     FrameMsg.addListener('pressDown'  , pressDown);
+    FrameMsg.addListener('clickSelectedArea', clickSelectedArea);
     FrameMsg.addListener('startClip'  , startClip);
     FrameMsg.addListener('entryClick' , entryClick);
     FrameMsg.addListener('cancelForm' , cancelForm);

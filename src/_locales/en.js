@@ -40,6 +40,7 @@ I18N_DICT['en'] = {
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.path": "Path",
     "setting.title.clipping-handler": "Clipping Handler",
+    "setting.title.other": "Others",
 
     // notice
     "setting.notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
@@ -62,6 +63,7 @@ I18N_DICT['en'] = {
     "setting.save-title-as-fold-name-input.label": "Use title as fold name (default: Generate by extension)",
     "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html or index.md)",
     "setting.enable-switch-hotkey-input.label": "Enable hotkey `c` (clip switch)",
+    "setting.enable-mouse-mode-input.label": "Mouse frindly mode",
 
     // placeholder
     "setting.placeholder.notblank": "This value can not blank!",
@@ -107,8 +109,9 @@ I18N_DICT['en'] = {
     "hotkey.up.intro": "Select forward",
     "hotkey.down.intro": "Select backward",
     "hotkey.esc.intro": "Back to free mode",
-    "click.scroll.intro": "Scroll to selection's top/bottom",
-    "click": "click",
+    "hotkey.enter.intro": "Confirm selection",
+    "hotkey.scroll.intro": "Scroll to selection's top/bottom",
+    "hotkey.scroll.name": "Click",
 
     // form
     "title": "Title",

@@ -16,6 +16,7 @@
   const CLASS_SAVE_BTN   = 'MX-wc-save-button';
   const CLASS_CANCEL_BTN = 'MX-wc-cancel-button';
   const INPUT_TAG_NAMES = ['INPUT', 'TEXTAREA']
+  let config = {};
 
   function initUI(){
     const entryHtml = renderUI();
@@ -34,11 +35,24 @@
     const tagstrInput = T.findElem(ID_TAGSTR);
     T.bindOnce(btn, 'click', entryClick);
 
+    // "c" hotkey
+    if(config.enableSwitchHotkey) {
+      T.bindOnce(document, "keydown", toggleSwitch);
+    }
+
+    const bar = getStateBar();
+    if(config.enableMouseMode) {
+      bar.classList.add('mouse-friendly')
+      const helperPanel = T.firstElem('MX-wc-help');
+      helperPanel.classList.add('mouse-friendly');
+      T.bindOnce(helperPanel, 'click', helperPanelClicked);
+      //bind kbd listener
+    }
+
     // show help hint to new user.
     MxWcStorage.get('categories', [])
       .then((v) => {
         if(v.length == 0){
-          const bar = getStateBar();
           bar.classList.add('new-user');
         }
       })
@@ -49,14 +63,15 @@
     T.bindOnce(cancelBtn   , 'keypress' , formEnterKeyHandler);
     T.bindOnce(tagstrInput , 'keypress' , formEnterKeyHandler);
 
-    MxWcConfig.load()
-      .then((config) => {
-        if(config.enableSwitchHotkey) {
-          T.bindOnce(document, "keydown", toggleSwitch);
-        }
-      });
 
     window.focus();
+  }
+
+  function helperPanelClicked(e) {
+    if(e.target.tagName === 'KBD') {
+      const keyCode = parseInt(e.target.getAttribute('data-key-code'));
+      sendKeyPressMessage(keyCode);
+    }
   }
 
   function renderUI(){
@@ -72,7 +87,7 @@
       c: {
         hint   : CLASS_HINT,
         save   : CLASS_SAVE_BTN,
-        cancel : CLASS_CANCEL_BTN,
+        cancel : CLASS_CANCEL_BTN
       }
     });
   }
@@ -131,20 +146,26 @@
     const keyCodes = [27, 13, 37, 38, 39, 40];
     if(keyCodes.indexOf(e.keyCode) < 0) { return }
     if(!INPUT_TAG_NAMES.includes(e.target.tagName) && !e.target.classList.contains(CLASS_ENTRY)){
-      let type = null;
-      switch(e.keyCode){
+      sendKeyPressMessage(e.keyCode);
+    }else{
+      console.log(e.target.tagName);
+      console.log(e.target);
+    }
+  }
+
+  function sendKeyPressMessage(keyCode) {
+    let type = null;
+      switch(keyCode){
         case 27 : type = 'pressEsc'   ; break ;
         case 13 : type = 'pressEnter' ; break ;
         case 37 : type = 'pressLeft'  ; break ;
         case 38 : type = 'pressUp'    ; break ;
         case 39 : type = 'pressRight' ; break ;
         case 40 : type = 'pressDown'  ; break ;
+        /* custom keyCode :) */
+        case -1001 : type = 'clickSelectedArea' ; break;
       }
       sendFrameMsgToTop(type);
-    }else{
-      console.log(e.target.tagName);
-      console.log(e.target);
-    }
   }
 
   function toggleSwitch(e){
@@ -351,9 +372,12 @@
     Awesomplete: window.Awesomplete
   }
 
-  initUI();
-  initFrameMsg();
-  listenFrameMsg();
-  console.log('control layer ready..');
-
+  MxWcConfig.load()
+    .then((v) => {
+      config = v;
+      initUI();
+      initFrameMsg();
+      listenFrameMsg();
+      console.log('control layer ready..');
+    });
 })();
