@@ -63,7 +63,7 @@ table {
   cursor: pointer;
 }
 
-.list > table td {
+.list > table th,td {
   line-height: 25px;
   border: 1px solid #ccc;
   padding: 2px 5px 2px 5px;

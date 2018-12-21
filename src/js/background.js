@@ -37,9 +37,26 @@ function messageHandler(message, sender, senderResponse){
           });
         break;
 
+      case 'export.history':
+        exportHistory(message.body.content);
+        resolve();
+        break;
       default: break;
     }
   });
+}
+
+function exportHistory(content) {
+  const arr = [content];
+  const blob = new Blob(arr, {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const s = T.currentTime().str;
+  const t = [s.year, s.month, s.day, s.hour, s.minute, s.second].join('');
+  ExtApi.download({
+    saveAs: false,
+    filename: ['mx-wc-history', t, 'json'].join('.'),
+    url: url
+  })
 }
 
 function saveTask(tabId, task){

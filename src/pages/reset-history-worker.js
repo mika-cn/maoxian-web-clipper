@@ -17,7 +17,7 @@
     const msRegExp = /-(\d{9,})\//;
     for(let i=0; i < length; i++){
       const file = files[i];
-      if(file.type === "application/json"){
+      if(file.type === "application/json" && file.name === 'index.json'){
         const clip = readJson(file);
 
         // old index.json file compatible( not id attr => id => clipId )

@@ -77,6 +77,7 @@ I18N_DICT['en'] = {
     "history.input.placeholder": "title or tag or category",
     "history.btn.search": "Search",
     "history.btn.clear-history": "Clear History",
+    "history.btn.export-history": "Export History",
     "history.a.reset_history": "Reset history",
     "history.th.title": "Title",
     "history.th.path": "Path",
@@ -85,6 +86,7 @@ I18N_DICT['en'] = {
     "history.th.tag": "Tag",
     "history.th.format": "Format",
     "history.no_record": "No record.",
+    "history.export.no-record": "No record",
 
     //reset history page
     "init.downloadFold": 'Loading browser download path...',

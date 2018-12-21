@@ -75,6 +75,7 @@ I18N_DICT['zh-CN'] = {
     "history.input.placeholder": "可搜索标题、标签、目录",
     "history.btn.search": "搜索",
     "history.btn.clear-history": "清除历史",
+    "history.btn.export-history": "导出历史",
     "history.a.reset_history": "重置历史",
     "history.th.title": "标题",
     "history.th.path": "路径",
@@ -83,6 +84,7 @@ I18N_DICT['zh-CN'] = {
     "history.th.tag": "标签",
     "history.th.format": "格式",
     "history.no_record": "找不到记录",
+    "history.export.no-record": "没有记录",
 
     //reset history page
     "init.downloadFold": '加载浏览器下载目录...',

@@ -235,6 +235,17 @@
     renderClips([]);
   }
 
+  function exportHistory(e){
+    let content = T.toJson({error: t('history.export.no-record')});
+    if(state.currClips.length > 0){
+      content = T.toJson(state.currClips)
+    }
+    ExtApi.sendMessageToBackground({
+      type: 'export.history',
+      body: {content: content}
+    });
+  }
+
   function initLinks(){
     const elem = T.queryElem(".links");
     const actions = [
@@ -250,8 +261,10 @@
   }
 
   function initActions(){
-    const btn = T.findElem('clear-history');
-    T.bindOnce(btn, 'click', clearHistory);
+    const btnClearHistory = T.findElem('clear-history');
+    const btnExportHistory = T.findElem('export-history');
+    T.bindOnce(btnClearHistory, 'click', clearHistory);
+    T.bindOnce(btnExportHistory, 'click', exportHistory);
   }
 
 
