@@ -32,7 +32,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       let fold = null;
       let foldName = generateClippingFoldName(config, now)
       if (config.saveTitleAsFoldName) {
-        foldName = [clipId, T.sanitizeFilename(title)].join('-');
+        foldName = [foldName, T.sanitizeFilename(title)].join('-');
       }
       category = category.trim();
       if(category === ""){
