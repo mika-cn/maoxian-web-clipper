@@ -5,6 +5,7 @@ require 'fileutils'
 require 'base64'
 require_relative './log'
 require_relative './native_message'
+require_relative './clipping'
 
 class Application
   VERSION = '0.1.1'
@@ -38,6 +39,9 @@ class Application
       NativeMessage.write({type: msg['type'], version: VERSION})
     when 'get.downloadFold' then
       NativeMessage.write({type: msg['type'], downloadFold: root})
+    when 'clipping.op.delete' then
+      result = Clipping.delete(root, msg)
+      NativeMessage.write({type: msg['type']}.merge(result))
     end
   end
 

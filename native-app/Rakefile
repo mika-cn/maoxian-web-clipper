@@ -1,0 +1,7 @@
+require 'rake/testtask'
+Rake::TestTask.new do |t|
+  t.libs << 'test'
+  t.options = '-p'
+end
+desc 'Run tests'
+task :default => :test
