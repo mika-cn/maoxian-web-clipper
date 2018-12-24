@@ -94,6 +94,7 @@ I18N_DICT['zh-CN'] = {
     "clipping.op-error.path-overflow": "要删除的文件不在裁剪目录下，请检查你本地程序的配置文件(config.yaml) ",
     "clipping.op-error.path-not-exist": "找不到要删除的文件",
     "clipping.op-warning.asset-fold-overflow": "你当前配置的资源目录不在裁剪目录下，这会造成某些资源文件删除不干净的问题，请检查你本地程序的配置文件(config.yaml) ",
+    "history.notice.delete": "温馨提示： 只有安装了「本地程序」，本页面提供的删除功能才会删除你本地的文件。",
 
     //reset history page
     "init.downloadFold": '加载浏览器下载目录...',

@@ -229,9 +229,13 @@
             console.log(result);
             if(result.ok) {
               deleteHistoryOnly(result.clip_id, true);
+              Notify.add(t('history.notice.delete-history-success'));
             } else {
-              // FIXME show error message to user.
               console.error(result)
+              Notify.add(t(result.message), {
+                type: 'danger',
+                behavior: 'manualDismiss'
+              });
             }
           });
         });
@@ -344,6 +348,7 @@
     confirmIfNeed(t('history.confirm-msg.clear-history'), () => {
       MxWcStorage.set('clips', [])
       renderClips([]);
+      Notify.add(t('history.notice.clear-history-success'));
     })
   }
 

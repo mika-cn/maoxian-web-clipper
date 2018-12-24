@@ -13,32 +13,42 @@ this.Notify = (function(){
       .notify-container {
         display: block;
         position: fixed;
+        min-width: 200px;
         width: auto;
         height: auto;
         right: 10px;
         top: 88px;
-        /*border: solid 1px #ccc;*/
         z-index: 9999999;
       }
-      .notice-success {
-        background: #d4edda;
-        color: #155724;
-        line-height: 20px;
+      .notify {
+        line-height: 18px;
         font-size: 13px;
-        padding: 10px 20px 10px 20px;
-        border: solid 1px #888;
-        border-radius: 5px;
+        padding: 0px;
+        border: solid 1px #aaa;
+        border-radius: 3px;
         margin-bottom: 15px;
+        background-color: #333;
+        color: #efefef;
       }
-      .notice-danger {
+      .notify > .btn {
+        cursor: pointer;
+        display: inline-block;
+        line-height: 30px;
+        width: 20px;
+        height: 30px;
+      }
+      .notify > .content {
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .notice-success:hover > .btn{
+        background: #d4edda;
+      }
+      .notice-danger:hover > .btn{
         background: #f8d7da;
-        color: #721c24;
-        line-height: 20px;
-        font-size: 13px;
-        padding: 10px 20px 10px 20px;
-        border: solid 1px #888;
-        border-radius: 5px;
-        margin-bottom: 15px;
       }
     `;
   }
@@ -65,35 +75,61 @@ this.Notify = (function(){
    * options: {
    *   type: 'success'(default), 'danger'
    *   timeout: time to disappear, millisecond
+   *   behavior: autoDismiss (default), manualDismiss
    * }
    */
   function add(content, options = {}){
     const container = renderContainer();
     const elem = document.createElement('div')
     const type = options.type || 'success';
-    elem.innerHTML = content;
+    const behavior = options.behavior || 'autoDismiss';
+    elem.innerHTML = renderNotify(content, behavior, type);
     elem.classList.add('notify');
     elem.classList.add(['notice', type].join('-'));
     const id = ['notify', generateId()].join('.');
     elem.id = id;
     container.appendChild(elem);
-    removeItLater(id, options);
+    bindListener(container);
+    if(behavior === 'autoDismiss') {
+      removeItLater(id, options);
+    }
+  }
+
+  function bindListener(container) {
+    container.removeEventListener('click', containerClicked);
+    container.addEventListener('click', containerClicked);
+  }
+
+  function containerClicked(e) {
+    if(e.target.className === 'btn'){
+      const container = getContainer();
+      removeNotify(e.target.parentNode);
+    }
+  }
+
+  function renderNotify(content, behavior, type) {
+    return `<label class="btn" title="dismiss me">&nbsp;</label><label class="content">${content}</label>
+    `;
   }
 
   function removeItLater(id, options) {
     const remove = function(){
       const elem = document.getElementById(id);
-      if(elem) {
-        const container = getContainer();
-        container.removeChild(elem);
-        const notifies = container.querySelectorAll('.notify')
-        if(notifies.length == 0){
-          removeContainer();
-        }
-      }
+      removeNotify(elem);
     }
     const ms = (options.timeout || 1500);
     setTimeout(remove, ms);
+  }
+
+  function removeNotify(elem){
+    if(elem) {
+      const container = getContainer();
+      container.removeChild(elem);
+      const notifies = container.querySelectorAll('.notify')
+      if(notifies.length == 0){
+        removeContainer();
+      }
+    }
   }
 
   function generateId(){

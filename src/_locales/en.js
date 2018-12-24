@@ -96,6 +96,9 @@ I18N_DICT['en'] = {
     "clipping.op-error.path-overflow": "The file you want to delete is not inside of data folder, check your configure file (config.yaml) ",
     "clipping.op-error.path-not-exist": "Can't find clipping files",
     "clipping.op-warning.asset-fold-overflow": "The asset folder is outside of data folder, which means native-app won't delete asset files in asset folder. check your configure file (cinfig.yaml)",
+    "history.notice.delete-history-success": "Delete success!",
+    "history.notice.clear-history-success": "Clear success!",
+    "history.notice.delete": "ATTENTION: You can install our Native APP(enhance the abilities of MaoXian) to delete clipping files, otherwise, we delete history record only.",
 
     //reset history page
     "init.downloadFold": 'Loading browser download path...',

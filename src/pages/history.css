@@ -38,7 +38,7 @@ body {
 }
 
 .history {
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
 table {
@@ -123,4 +123,14 @@ table {
 }
 .modal > .mask > .content .path:focus{
   border: 0px;
+}
+
+.notice-warning {
+  background: #f5f5f5;
+  color: #666;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 5px;
+  margin-top: 15px;
 }
