@@ -197,14 +197,16 @@ function checkNativeAppVersion(){
                 if(!T.isVersionGteq(result.version, ENV.minNativeAppVersion)) {
                   const message = t('notification.native-app-version-too-small').replace('$requiredVersion', ENV.minNativeAppVersion).replace('$currentVersion', result.version);
                   Log.error(message);
-                  MxWcNotification.add('danger', message);
-                  ExtApi.createTab(link);
+                  MxWcNotification.add('danger', message, function(){
+                    ExtApi.createTab(link);
+                  })
                 }
               } else {
                 const message = t('notification.native-app-connect-failed').replace('$errorMessage', result.message);
                 Log.error(message);
-                MxWcNotification.add('danger', message);
-                ExtApi.createTab(link);
+                MxWcNotification.add('danger', message, function(){
+                  ExtApi.createTab(link);
+                })
               }
               MxWcStorage.set(currentKey, true);
             })

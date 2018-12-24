@@ -9,7 +9,7 @@ this.MxWcNotification = (function(){
   /*
    * type: success, warning, danger, info
    */
-  function add(type, content) {
+  function add(type, content, callback) {
     get((v) => {
       const now = T.currentTime();
       v.unshift({
@@ -18,7 +18,7 @@ this.MxWcNotification = (function(){
         content: content,
         createdAt: now.toString()
       });
-      set(v);
+      set(v).then(callback);
     })
   }
 
@@ -47,7 +47,7 @@ this.MxWcNotification = (function(){
   }
 
   function set(v) {
-    MxWcStorage.set('notifications', v);
+    return MxWcStorage.set('notifications', v);
   }
 
 
