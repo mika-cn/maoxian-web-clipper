@@ -87,6 +87,15 @@ I18N_DICT['en'] = {
     "history.th.format": "Format",
     "history.no_record": "No record.",
     "history.export.no-record": "No record",
+    "history.op.delete": "Delete",
+    "history.label.confirm-mode": "Confirm before danger operation",
+    "history.confirm-msg.clear-history": "Clear all history? (this operation won't delete clipping files)",
+    "history.confirm-msg.delete-history": "Delete this history? (this operation won't delete clipping files)",
+    "history.confirm-msg.delete-history-and-file": "Delete this history and it's files?",
+
+    "clipping.op-error.path-overflow": "The file you want to delete is not inside of data folder, check your configure file (config.yaml) ",
+    "clipping.op-error.path-not-exist": "Can't find clipping files",
+    "clipping.op-warning.asset-fold-overflow": "The asset folder is outside of data folder, which means native-app won't delete asset files in asset folder. check your configure file (cinfig.yaml)",
 
     //reset history page
     "init.downloadFold": 'Loading browser download path...',

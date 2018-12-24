@@ -148,6 +148,7 @@
         }));
       });
       T.setHtml('.clippings > tbody', items.join(''));
+      i18nPage();
       list.style.display = 'block';
     } else {
       hint.style.display = 'block';
@@ -168,7 +169,105 @@
   function bindClipListener(){
     const tbody = T.queryElem(".list > table > tbody");
     if(tbody) {
-      T.bindOnce(tbody, 'click', showClip, true);
+      T.bindOnce(tbody, 'click', tbodyClick, true);
+    }
+  }
+
+  function tbodyClick(e){
+    if(e.target.tagName === 'A') {
+      /* action clicked */
+      const [operation, id] = e.target.href.split(':');
+      switch(operation) {
+        case 'history.delete' : deleteHistory(id); break;
+        default: break;
+      }
+    } else {
+      showClip(e);
+    }
+  }
+
+  function deleteHistory(id) {
+    // FIXME can't use clippingHandlerName here
+    // maybe use isNativeAppAttached && version > 0.1.2
+    MxWcConfig.load().then((config) => {
+      if(config.clippingHandlerName == 'native-app') {
+        deleteHistoryAndFile(config, id);
+      } else {
+        deleteHistoryOnly(id);
+      }
+    })
+  }
+
+  function deleteHistoryAndFile(config, id) {
+    MxWcStorage.get('downloadFold').then((downloadFold) => {
+      if(downloadFold) {
+        confirmIfNeed(t('history.confirm-msg.delete-history-and-file'), () => {
+          const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
+          const path = [downloadFold, clip.path].join('');
+          const root = [downloadFold, 'mx-wc'].join('');
+          const clipFold = path.replace('/index.json', '');
+          let assetFold = '';
+          if(config.assetPath.indexOf('$CLIP-FOLD') > -1) {
+            assetFold = [clipFold, config.assetPath.replace('$CLIP-FOLD/', '')].join('/');
+          } else {
+            if(config.assetPath.indexOf('$MX-WC') > -1) {
+              assetFold = [root, config.assetPath.replace('$MX-WC/', '')].join('/');
+            } else {
+              const relativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
+              assetFold = [clipFold, relativePath].join('/')
+            }
+          }
+          const msg = {
+            clip_id: clip.clipId,
+            path: path,
+            asset_fold: assetFold
+          }
+          ExtApi.sendMessageToBackground({
+            type: 'clipping.delete',
+            body: msg
+          }).then((result) => {
+            console.log(result);
+            if(result.ok) {
+              deleteHistoryOnly(result.clip_id, true);
+            } else {
+              // FIXME show error message to user.
+              console.error(result)
+            }
+          });
+        });
+      } else {
+        console.error("Error: downloadFold not present");
+      }
+    });
+  }
+
+  function deleteHistoryOnly(id, noConfirm=false) {
+    MxWcStorage.get('clips', [])
+      .then((clips) => {
+        const clip = clips.find((clip) => {
+          return clip.clipId === id;
+        })
+        if(clip) {
+          const action = function(){
+            clips.splice(clips.indexOf(clip), 1);
+            state.currClips = clips;
+            MxWcStorage.set('clips', clips)
+            removeTrByClipId(id)
+          }
+          if(noConfirm) {
+            action();
+          } else {
+            confirmIfNeed(t('history.confirm-msg.delete-history'), action);
+          }
+        }
+      });
+  }
+
+  function removeTrByClipId(id) {
+    const q = `.list > table > tbody > tr[data-id="${id}"]`
+    const tr = T.queryElem(q)
+    if(tr) {
+      tr.parentNode.removeChild(tr);
     }
   }
 
@@ -230,9 +329,22 @@
     }
   }
 
+  function confirmIfNeed(message, action) {
+    const input = T.findElem('confirm-mode');
+    if(input.checked){
+      if(window.confirm(message)){
+        action();
+      }
+    } else {
+      action();
+    }
+  }
+
   function clearHistory(e){
-    MxWcStorage.set('clips', [])
-    renderClips([]);
+    confirmIfNeed(t('history.confirm-msg.clear-history'), () => {
+      MxWcStorage.set('clips', [])
+      renderClips([]);
+    })
   }
 
   function exportHistory(e){
@@ -248,14 +360,14 @@
 
   function initLinks(){
     const elem = T.queryElem(".links");
-    const actions = [
+    const links = [
       {name: t('history.a.reset_history'), pageName: "extPage.reset-history" }
     ]
-    actions.forEach((action) => {
+    links.forEach((link) => {
       const a = document.createElement("a");
-      a.href = MxWcLink.get(action.pageName);
+      a.href = MxWcLink.get(link.pageName);
       a.target = '_blank';
-      a.innerText = action.name;
+      a.innerText = link.name;
       elem.appendChild(a);
     })
   }
@@ -295,7 +407,6 @@
       let scrollY = window.localStorage.getItem('scrollY')
       if(scrollY){
         scrollY = parseInt(scrollY);
-        console.log(scrollY);
         if(scrollY > 150){
           window.scrollTo(0, parseInt(scrollY));
         }
@@ -303,10 +414,24 @@
     }, 0);
   }
 
+  function initConfirmModeInput(){
+    const input = T.findElem('confirm-mode');
+    const isEnable = window.localStorage.getItem('enableConfirmMode')
+    if(['true', 'false'].indexOf(isEnable) > -1) {
+      input.checked = (isEnable === 'true');
+    } else {
+      input.checked = true;
+    }
+    T.bind(input, 'click', function(e){
+      window.localStorage.setItem('enableConfirmMode', e.target.checked);
+    });
+  }
+
   function init(){
     initSearch();
     initLinks();
     initActions();
+    initConfirmModeInput();
     initModal();
     i18nPage();
     showHistory();

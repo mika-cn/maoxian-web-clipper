@@ -41,9 +41,17 @@ function messageHandler(message, sender, senderResponse){
         exportHistory(message.body.content);
         resolve();
         break;
+      case 'clipping.delete':
+        deleteClipping(message.body, resolve);
+        break;
       default: break;
     }
   });
+}
+
+function deleteClipping(msg, resolve) {
+  const handler = ClippingHandler_NativeApp;
+  handler.deleteClipping(msg, resolve)
 }
 
 function exportHistory(content) {

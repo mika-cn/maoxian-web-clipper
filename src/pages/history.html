@@ -22,16 +22,22 @@
       </div>
       <div class="clearfix"></div>
 
+      <br />
+      <div class="actions">
+        <input id="confirm-mode" type="checkbox" /><label for="confirm-mode" i18n="history.label.confirm-mode"></label>
+      </div>
+
       <div class="history">
         <div class="no-record" style="display: none" i18n="history.no_record"></div>
         <div class="list" style="display: none;">
           <table class="clippings">
             <thead>
               <tr>
-                <th i18n="history.th.time"></th>
-                <th i18n="history.th.category"></th>
-                <th i18n="history.th.tag"></th>
-                <th i18n="history.th.title"></th>
+                <th width="4%" i18n="history.th.time"></th>
+                <th width="10%" i18n="history.th.category"></th>
+                <th width="10%" i18n="history.th.tag"></th>
+                <th widtn="68%" i18n="history.th.title"></th>
+                <th width="8%"> - </th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -54,6 +60,9 @@
         <td>${category}</td>
         <td>${tags}</td>
         <td>${title}</td>
+        <td class="operation">
+          <a href="history.delete:${clipId}" i18n="history.op.delete"></a>
+        </td>
       </tr>
     </template>
 

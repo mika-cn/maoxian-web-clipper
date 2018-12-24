@@ -17,6 +17,8 @@ rm -f $dist/tmp/config.yaml.example
 rm -f $dist/tmp/pack.yaml
 rm -f $dist/tmp/pack.yaml.example
 rm -f $dist/tmp/tmp/*.log*
+rm -f $dist/tmp/Rakefile
+rm -r $dist/tmp/test
 
 echo "Create production file"
 mv $dist/tmp/config.yaml.production $dist/tmp/config.yaml

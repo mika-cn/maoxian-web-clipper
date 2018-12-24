@@ -8,7 +8,7 @@ require_relative './native_message'
 require_relative './clipping'
 
 class Application
-  VERSION = '0.1.1'
+  VERSION = '0.1.2'
 
   attr_accessor :config
 
@@ -42,6 +42,9 @@ class Application
     when 'clipping.op.delete' then
       result = Clipping.delete(root, msg)
       NativeMessage.write({type: msg['type']}.merge(result))
+    else
+      Log.error("unknow message: #{msg['type']}")
+      NativeMessage.write({type: msg['type'], ok: false, message: 'unknow-message' })
     end
   end
 

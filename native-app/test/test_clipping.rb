@@ -13,7 +13,7 @@ class ClippingTest < Minitest::Test
       'clip_id' => clip_id
     })
     assert_equal false, result[:ok]
-    assert_equal 'clipping.op-error.path-overflow', result[:error]
+    assert_equal 'clipping.op-error.path-overflow', result[:message]
   end
 
   def test_given_path_not_exist
@@ -26,7 +26,21 @@ class ClippingTest < Minitest::Test
       'clip_id' => clip_id
     })
     assert_equal false, result[:ok]
-    assert_equal 'clipping.op-error.path-not-exist', result[:error]
+    assert_equal 'clipping.op-error.path-not-exist', result[:message]
+  end
+
+  def test_given_asset_path_overflow
+    clip_id = '000'
+    clip_fold = 'test-asset-path'
+    create_clipping_with_global_asset_fold(clip_fold,clip_id)
+    path = "#{T.mx_wc_clippings}/#{clip_fold}/index.json"
+    result = Clipping.delete(T.mx_wc_root, {
+      "asset_fold" => "/tmp/mx-wc-not-exist-fold/assets",
+      'path' => path,
+      'clip_id' => clip_id
+    })
+    assert_equal true, result[:ok]
+    assert_equal 'clipping.op-warning.asset-fold-overflow', result[:message]
   end
 
 
@@ -42,6 +56,7 @@ class ClippingTest < Minitest::Test
       'clip_id' => clip_id
     })
     assert result[:ok]
+    assert_equal clip_id, result[:clip_id]
     assert !File.exist?(path.gsub('/index.json', ''))
   end
 
@@ -56,6 +71,7 @@ class ClippingTest < Minitest::Test
       'clip_id' => clip_id
     })
     assert result[:ok]
+    assert_equal clip_id, result[:clip_id]
     assert !File.exist?("#{T.mx_wc_global_assets}/#{clip_id}-style.css")
     assert !File.exist?("#{T.mx_wc_global_assets}/#{clip_id}-image.png")
   end

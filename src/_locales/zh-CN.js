@@ -85,6 +85,15 @@ I18N_DICT['zh-CN'] = {
     "history.th.format": "格式",
     "history.no_record": "找不到记录",
     "history.export.no-record": "没有记录",
+    "history.op.delete": "删除",
+    "history.label.confirm-mode": "危险操作需确认",
+    "history.confirm-msg.clear-history": "确认清除所有历史记录？（该操作不会删除对应的文件）",
+    "history.confirm-msg.delete-history": "确认删除这条历史记录? （该操作不会删除对应的文件）",
+    "history.confirm-msg.delete-history-and-file": "确认删除这条历史记录，以及对应的文件？",
+
+    "clipping.op-error.path-overflow": "要删除的文件不在裁剪目录下，请检查你本地程序的配置文件(config.yaml) ",
+    "clipping.op-error.path-not-exist": "找不到要删除的文件",
+    "clipping.op-warning.asset-fold-overflow": "你当前配置的资源目录不在裁剪目录下，这会造成某些资源文件删除不干净的问题，请检查你本地程序的配置文件(config.yaml) ",
 
     //reset history page
     "init.downloadFold": '加载浏览器下载目录...',

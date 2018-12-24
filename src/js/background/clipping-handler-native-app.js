@@ -43,6 +43,11 @@ const ClippingHandler_NativeApp = (function(){
           state.getVersionCallback({ ok: true, version: resp.version });
         }
         break;
+      case 'clipping.op.delete':
+        if(state.deleteClippingCallback){
+          state.deleteClippingCallback(resp);
+        }
+        break;
       case 'get.downloadFold':
         const downloadFold = T.sanitizePath(resp.downloadFold);
         updateDownloadFold(downloadFold);
@@ -97,6 +102,21 @@ const ClippingHandler_NativeApp = (function(){
     }
   }
 
+  function deleteClipping(msg, callback) {
+    init();
+    try{
+      state.deleteClippingCallback = callback;
+      state.disconnectCallback = function(message) {
+        callback({ok: false, message: message})
+      }
+      msg.type = 'clipping.op.delete';
+      state.port.postMessage(msg);
+    } catch(e) {
+      // avoid other exception
+      callback({ ok: false, message: e.message })
+    }
+  }
+
 
   function init(){
     if(!state.port){
@@ -112,6 +132,7 @@ const ClippingHandler_NativeApp = (function(){
     handle: handle,
     setCompletedAction: setCompletedAction,
     initDownloadFold: initDownloadFold,
-    getVersion: getVersion
+    getVersion: getVersion,
+    deleteClipping: deleteClipping,
   }
 })();
