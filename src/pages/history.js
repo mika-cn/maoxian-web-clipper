@@ -181,6 +181,8 @@
         case 'history.delete' : deleteHistory(id); break;
         default: break;
       }
+      e.stopPropagation();
+      e.preventDefault();
     } else {
       showClip(e);
     }
