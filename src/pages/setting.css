@@ -54,3 +54,10 @@ input[type=text]:focus{
   font-weight: bold;
   background-color: #E8E8E8;
 }
+
+code {
+  background-color: #efefef;
+  padding: 1px 4px;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+}

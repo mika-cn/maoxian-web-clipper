@@ -30,10 +30,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       const clipId = now.str.intSec;
       const ROOT = 'mx-wc';
       let fold = null;
-      let foldName = generateClippingFoldName(config, now)
-      if (config.saveTitleAsFoldName) {
-        foldName = [foldName, T.sanitizeFilename(title)].join('-');
-      }
+      let foldName = getClippingFolderName(config, title, now);
       category = category.trim();
       if(category === ""){
         if(config.defaultCategory === "$NONE"){
@@ -102,12 +99,28 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
     });
   }
 
-  function generateClippingFoldName(config, now) {
+  function getClippingFolderName(config, title, now) {
+    const defaultName = generateDefaultClippingFolderName(config, now)
+    let name = defaultName;
+    if (config.saveTitleAsFoldName) {
+      switch(config.titleClippingFolderFormat){
+        case '$FORMAT-B':
+          name = T.sanitizeFilename(title);
+          break;
+        default:
+          // $FORMAT-A or other
+          name = [defaultName, T.sanitizeFilename(title)].join('-');
+      }
+    }
+    return name;
+  }
+
+  function generateDefaultClippingFolderName(config, now) {
     const s = now.str;
-    let foldName = '';
+    let name = '';
     switch(config.defaultClippingFolderFormat) {
       case '$FORMAT-B':
-        foldName = [
+        name = [
           s.year,
           s.month,
           s.day,
@@ -116,16 +129,19 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
           s.second
         ].join('')
         break;
+      case '$FORMAT-C':
+        name = s.intSec;
+        break;
       default:
         // $FORMAT-A or other
-        foldName = [
+        name = [
           s.year,
           s.month,
           s.day,
           s.intSec
         ].join('-');
     }
-    return foldName;
+    return name;
   }
 
   // private

@@ -249,20 +249,32 @@ T.sanitizeFilename = function(name){
       // Stupid windows: Path Length Limitation
       name = name.slice(0, 200);
     }
-    /* line1 => /  ? <space> | < > \ : ,
-     * line2 => * "
-     * line3 => period at the end.
-     * line4 => ~
-     * line5 => #
-     * line6 => multiple dash to one dash
+    /* "/", "?", <space>, "|", "<", ">", "\", ":", ","
+     * "*", '"'
+     * "#"
+     * "."
+     * "。" chinese period
+     * "~"
+     * "!"
+     * "！" chinese exclamation mark
+     * "，" chinese comma
+     * "？" chinese question mark
+     * "-" multiple dash to one dash
+     * "-" delete dash at the end
      */
     return name
       .replace(/[\/\?\s\|<>\\:,\.]/g, '-')
-      .replace(/[\*"]/g, '')
-      .replace(/\.$/, '')
-      .replace(/~/g, '-')
+      .replace(/[\*"]/g, '-')
       .replace(/#/g, '-')
-      .replace(/-+/g, '-');
+      .replace(/\.$/, '-')
+      .replace(/。/g, '-')
+      .replace(/~/g, '-')
+      .replace(/!/g, '-')
+      .replace(/！/g, '-')
+      .replace(/，/g, '-')
+      .replace(/？/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/-$/, '');
   }
 }
 

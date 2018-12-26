@@ -26,7 +26,12 @@ this.MxWcConfig = (function() {
 
       /* $FORMAT-A => 2018-10-11-1539236251*/
       /* $FORMAT-B => 20181011102009 */
+      /* $FORMAT-C => 1539236251 */
       defaultClippingFolderFormat: '$FORMAT-A',
+
+      /* $FORMAT-A => $default-clipping-folder + $title */
+      /* $FORMAT-B => $title */
+      titleClippingFolderFormat: '$FORMAT-A',
     }
   }
 

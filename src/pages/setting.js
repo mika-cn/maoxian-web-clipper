@@ -52,6 +52,11 @@
       'default-clipping-folder-format',
       'defaultClippingFolderFormat'
     );
+
+    initTextInput(config,
+      'title-clipping-folder-format',
+      'titleClippingFolderFormat'
+    );
   }
 
   // section: clipping content

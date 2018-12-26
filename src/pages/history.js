@@ -231,7 +231,14 @@
             console.log(result);
             if(result.ok) {
               deleteHistoryOnly(result.clip_id, true);
-              Notify.add(t('history.notice.delete-history-success'));
+              if(result.message){
+                Notify.add(t(result.message), {
+                  type: 'success',
+                  behavior: 'manualDismiss'
+                });
+              } else {
+                Notify.add(t('history.notice.delete-history-success'));
+              }
             } else {
               console.error(result)
               Notify.add(t(result.message), {
