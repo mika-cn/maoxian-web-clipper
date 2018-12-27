@@ -2,6 +2,8 @@
 dist/extension/*.zip
 dist/native-app/*.zip
 dist/native-app/tmp
+dist/offline-pages/*.zip
+dist/offline-pages/tmp
 native-app/tmp/*.log
 native-app/tmp/*.log.*
 native-app/config.yaml

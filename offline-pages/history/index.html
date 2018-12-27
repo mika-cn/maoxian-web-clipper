@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>offline clipping history - MaoXian</title>
+    <link rel="stylesheet" type="text/css" href="assets/style.css" />`
+  </head>
+  <body>
+    <div class="main">
+      <div class="search-box">
+        <input id="search" type="text" placeholder="title or tag or category"/>
+        <button id="search-btn">Search</button>
+      </div>
+      <br />
+
+      <div class="history">
+        <div class="no-record" style="display: none" >No records</div>
+        <div class="list" style="display: none;">
+          <table class="clippings">
+            <thead>
+              <tr>
+                <th width="4%">date</th>
+                <th width="68">title</th>
+                <th width="10%">category</th>
+                <th width="18%">tags</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <template id="trow-tpl">
+      <tr data-id="${clipId}">
+        <td>${time}</td>
+        <td>
+          <a href="${url}" target="_blank">${title}</a>
+        </td>
+        <td>${category}</td>
+        <td>${tags}</td>
+      </tr>
+    </template>
+
+    <!-- scripts -->
+    <script type="text/javascript" src="clippings.js"></script>
+    <script type="text/javascript" src="assets/tool.js"></script>
+    <script type="text/javascript" src="assets/script.js"></script>
+  </body>
+</html>

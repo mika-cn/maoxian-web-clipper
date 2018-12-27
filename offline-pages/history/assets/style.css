@@ -1,0 +1,65 @@
+
+body {
+  margin: 0px;
+  padding: 0px;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover{
+  text-decoration: underline;
+}
+
+.main {
+  padding: 40px 10px 200px 10px;
+}
+
+.search-box{
+  margin-bottom: 10px;
+}
+
+#search {
+  width: 80%;
+  height: 30px;
+  border: solid 1px #aaa;
+  padding: 0px 8px 0px 8px;
+  border-radius: 3px;
+}
+#search:focus {
+  border: solid 2px pink;
+}
+
+.history {
+  margin-top: 10px;
+}
+
+table {
+  width: 100%;
+  padding: 5px;
+  border-radius: 3px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.list > table {
+  background-color: #f8f8f8;
+  margin-bottom: 15px;
+}
+
+.list > table > thead {
+  background-color: #e8e8e8;
+}
+
+.list > table > tbody > tr:hover {
+  background-color: #e5e5e5;
+}
+
+.list > table th,td {
+  line-height: 25px;
+  border: 1px solid #ccc;
+  padding: 2px 5px 2px 5px;
+}
+
