@@ -218,4 +218,3 @@ MxWcTemplate.clippingInformation = {
     }
   }
 }
-

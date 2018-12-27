@@ -44,6 +44,10 @@ function messageHandler(message, sender, senderResponse){
       case 'clipping.delete':
         deleteClipping(message.body, resolve);
         break;
+      case 'generate.clipping.js':
+        generateClippingJs();
+        resolve();
+        break;
       default: break;
     }
   });
@@ -51,7 +55,10 @@ function messageHandler(message, sender, senderResponse){
 
 function deleteClipping(msg, resolve) {
   const handler = ClippingHandler_NativeApp;
-  handler.deleteClipping(msg, resolve)
+  handler.deleteClipping(msg, (result) => {
+    if(result.ok){ generateClippingJsIfNeed() }
+    resolve(result);
+  })
 }
 
 function exportHistory(content) {
@@ -76,6 +83,38 @@ function saveTask(tabId, task){
   });
 }
 
+function generateClippingJsIfNeed(){
+  MxWcConfig.load().then((config) => {
+    if(config.autogenerateClippingJs){
+      generateClippingJs();
+    }
+  })
+}
+
+function generateClippingJs() {
+  getClippingHandler((handler, config) => {
+    let pathConfig = MxWcConfig.getDefault().clippingJsPath;
+    if(config.clippingJsPath.indexOf('$MX-WC/') === 0 && config.clippingJsPath.endsWith('js')){
+      pathConfig = config.clippingJsPath;
+    }
+    const filename = pathConfig.replace('$MX-WC', 'mx-wc');
+    MxWcStorage.get('clips', [])
+      .then((clippings) => {
+        const json = JSON.stringify(clippings);
+        const task = {
+          type: 'text',
+          text: `;var clippings = ${json};`,
+          mimeType: 'text/javascript',
+          filename: filename
+        }
+        handler.init();
+        handler.handle(task);
+        const time = T.currentTime().toString();
+        MxWcStorage.set('lastGenerateTime', time);
+      });
+  });
+}
+
 function getClippingHandler(callback) {
   MxWcConfig.load().then((config) => {
     let handler = null;
@@ -89,7 +128,7 @@ function getClippingHandler(callback) {
       default:
         handler = ClippingHandler_Browser;
     }
-    callback(handler);
+    callback(handler, config);
   })
 }
 
@@ -97,6 +136,7 @@ function onCompleted(tabId, clippingResult){
   ExtApi.sendMessageToContent({ type: 'download.completed'}, tabId);
   MxWcStorage.set('lastClippingResult', clippingResult);
   MxWcIcon.flicker(3);
+  generateClippingJsIfNeed();
 }
 
 function initDownloadFold(){

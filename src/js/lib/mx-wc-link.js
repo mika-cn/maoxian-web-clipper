@@ -10,13 +10,15 @@ this.MxWcLink = (function(ExtApi) {
       "home": "/index.html",
       "faq": "/faq.html",
       "faq-allow-access-file-urls": "/faq.html#allow-access-file-urls",
-      "native-app": "/native-app/index.html"
+      "native-app": "/native-app/index.html",
+      "offline-page": "/offline-page/index.html"
     },
     "zh-CN": {
       "home": "/index-zh-CN.html",
       "faq": "/faq-zh-CN.html",
       "faq-allow-access-file-urls": "/faq-zh-CN.html#allow-access-file-urls",
-      "native-app": "/native-app/index-zh-CN.html"
+      "native-app": "/native-app/index-zh-CN.html",
+      "offline-page": "/offline-page/index-zh-CN.html"
     }
   }
 

@@ -32,6 +32,10 @@ this.MxWcConfig = (function() {
       /* $FORMAT-A => $default-clipping-folder + $title */
       /* $FORMAT-B => $title */
       titleClippingFolderFormat: '$FORMAT-A',
+
+      /* Offline pages */
+      autogenerateClippingJs: false,
+      clippingJsPath: '$MX-WC/history/clippings.js',
     }
   }
 
@@ -91,6 +95,7 @@ this.MxWcConfig = (function() {
     load: load,
     update: update,
     reset: reset,
+    getDefault: getDefault
   }
 
 })();

@@ -98,6 +98,25 @@
           <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
         </p>
       </section>
+      <section class="offline-page">
+        <h3 i18n="setting.title.offline-page"></h3>
+        <div class="notice-info">
+          <label  i18n="setting.notice.offline-page"></label>
+          <br />
+          <a href="${offlinePageIntro}" target="_blank" i18n="setting.notice.offline-page.link-label"></a>
+        </div>
+        <div class="notice-info" i18n="setting.notice.clipping-js-path"></div>
+        <input type="text" id="clipping-js-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
+        <br />
+        <div class="notice-info" i18n="setting.notice.autogenerate-clipping-js"></div>
+        <p>
+          <input type="checkbox" id="autogenerate-clipping-js" />
+          <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label><br /><br />
+          <label i18n="setting.last-generate-time.label"></label>:
+          <label id="last-generate-time">${lastGenerateTime}</label>&nbsp;
+          <button id="generate-now" i18n="setting.button.generate-now"></button>
+        </p>
+      </section>
       <section class="setting-hotkey">
         <h3 i18n="setting.title.hotkey"></h3>
         <p>

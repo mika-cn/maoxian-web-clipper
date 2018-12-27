@@ -41,6 +41,10 @@ I18N_DICT['en'] = {
     "setting.title.path": "Path",
     "setting.title.clipping-handler": "Clipping Handler",
     "setting.title.other": "Others",
+    "setting.title.offline-page": "Offline Index Page",
+
+    // buttons
+    "setting.button.generate-now": "Generate Now",
 
     // notice
     "setting.notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
@@ -55,6 +59,10 @@ I18N_DICT['en'] = {
     "setting.notice.clipping-handler.intro": "<strong>Download through browser</strong><br />Use browser to download clipping result.<br /><br /><strong>Download through native App</strong><br />Use a native application to download clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to install a native application.",
     "setting.notice.clipping-handler.warning": "<strong> Warning! </strong><br /> If you choose native application as your clipping handler, you must install native application first.",
     "setting.notice.clipping-handler.link-label": "install native App",
+    "setting.notice.offline-page": "Offline index page is a static HTML page which can be used to browse your clippings without MaoXian Web Clipper or network. ",
+    "setting.notice.offline-page.link-label": "Learn more detail",
+    "setting.notice.autogenerate-clipping-js": "<strong>Autogenerate Javascript File</strong><br />Everytime when you clipping a web page, or delete a clipping history, MaoXian will generate a javascript file contains all your clippings and save to the path you configure. this script file will be accessed by offline web page that you downloaded.",
+    "setting.notice.clipping-js-path": "<strong>Clipping javascript Path</strong><br />Where to save clipping javascript file. <br />Use <strong>$MX-WC</strong> to represent extension root folder ($downloads/mx-wc)",
 
     // label
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
@@ -65,6 +73,10 @@ I18N_DICT['en'] = {
     "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html or index.md)",
     "setting.enable-switch-hotkey-input.label": "Enable hotkey `c` (clip switch)",
     "setting.enable-mouse-mode-input.label": "Mouse frindly mode",
+    "setting.autogenerate-clipping-js-input.label": "Autogenerate javascript file",
+    "setting.not-generated-yet.label": "Not generated yet",
+    "setting.generate-now-msg-sent.label": "Autogenerate command has been sent",
+    "setting.last-generate-time.label": "Last generated time",
 
     // placeholder
     "setting.placeholder.notblank": "This value can not blank!",

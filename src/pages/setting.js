@@ -6,13 +6,22 @@
 
   function renderUi() {
     const template = T.findElem('setting-page-tpl').innerHTML;
-    const html = T.renderTemplate(template, {
-      settingFileUrlLink: MxWcLink.get('faq-allow-access-file-urls'),
-      nativeAppUrl: MxWcLink.get('native-app'),
-      host: window.location.origin
+    let lastGenerateTime = t('setting.not-generated-yet.label');
+    MxWcStorage.get('lastGenerateTime').then((v) => {
+      if(v){
+        lastGenerateTime = v
+      }
+      const html = T.renderTemplate(template, {
+        settingFileUrlLink: MxWcLink.get('faq-allow-access-file-urls'),
+        nativeAppUrl: MxWcLink.get('native-app'),
+        offlinePageIntro: MxWcLink.get('offline-page'),
+        lastGenerateTime: lastGenerateTime,
+        host: window.location.origin
+      });
+      T.setHtml('.main', html);
+      i18nPage();
+      initButtonsListeners();
     });
-    T.setHtml('.main', html);
-    i18nPage();
   }
 
   function initUI() {
@@ -24,7 +33,20 @@
       initSettingHotkey(config);
       initSettingOther(config);
       initClippingHandler(config);
+      initOfflinePage(config);
     });
+  }
+
+  // section offline page
+  function initOfflinePage(config) {
+    initCheckboxInput(config,
+      'autogenerate-clipping-js',
+      'autogenerateClippingJs'
+    );
+    initTextInput(config,
+      'clipping-js-path',
+      'clippingJsPath'
+    );
   }
 
   // section path
@@ -153,6 +175,25 @@
         option.classList.add('active');
       }
     });
+  }
+
+  function initButtonsListeners(){
+    bindButtonListener('generate-now', generateNow);
+  }
+
+  function bindButtonListener(id, handler){
+    const btn = T.findElem(id);
+    T.bindOnce(btn, 'click', handler);
+  }
+
+  /* button click handlers */
+
+  function generateNow(e){
+    ExtApi.sendMessageToBackground({type: 'generate.clipping.js'});
+    const time = T.currentTime().toString();
+    const label = T.findElem('last-generate-time');
+    label.innerHTML = time;
+    Notify.add(t('setting.generate-now-msg-sent.label'));
   }
 
   function init(){

@@ -40,6 +40,10 @@ I18N_DICT['zh-CN'] = {
     "setting.title.path": "存储路径",
     "setting.title.clipping-handler": "保存方式",
     "setting.title.other": "其他设置",
+    "setting.title.offline-page": "离线的索引页",
+
+    // buttons
+    "setting.button.generate-now": "马上生成",
 
     // notice
     "setting.notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
@@ -54,6 +58,10 @@ I18N_DICT['zh-CN'] = {
     "setting.notice.clipping-handler.intro": "<strong>浏览器下载</strong><br />使用浏览器来下载裁剪结果<br /><br /><strong>本地程序下载</strong><br />通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过扩展互相冲突的问题）<br />选择本选项需先安装一个程序",
     "setting.notice.clipping-handler.warning": "<strong> 警告! </strong><br /> 如果你选择通过本地程序来下载裁剪结果，你必须先安装本地程序，否则扩展无法正常工作",
     "setting.notice.clipping-handler.link-label": "安装地址",
+    "setting.notice.offline-page": "「离线索引页面」是一个静态的  HTML 页面, 使用这个页面，你可以脱离 MaoXian 扩展，从而离线地浏览或搜索你裁剪下来的信息。",
+    "setting.notice.offline-page.link-label": "点我了解更多",
+    "setting.notice.autogenerate-clipping-js": "<strong>自动生成脚本文件</strong><br />勾选这个之后，每一次裁剪网页或通过历史页面删除裁剪文件，插件都会自动更新此脚本文件。此脚本文件包含了你当前所有裁剪历史，该文件会被用于上面提到的「离线索引页面」.",
+    "setting.notice.clipping-js-path": "<strong>脚本文件的存储路径</strong><br />一般放到「离线索引页面」同一个目录下 <br />使用 <strong>$MX-WC</strong> 表示扩展存储数据的根目录 (即$downloads/mx-wc)",
 
     // label
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
@@ -64,6 +72,10 @@ I18N_DICT['zh-CN'] = {
     "setting.save-title-as-filename-input.label": "使用标题作为文件名（默认为 index.html 或 index.md ）",
     "setting.enable-switch-hotkey-input.label": "启用快捷键 `c` (裁剪开关)",
     "setting.enable-mouse-mode-input.label": "鼠标友好模式",
+    "setting.autogenerate-clipping-js-input.label": "自动生成脚本文件",
+    "setting.not-generated-yet.label": "还没有生成过",
+    "setting.generate-now-msg-sent.label": "自动生成命令已经发送",
+    "setting.last-generate-time.label": "上次生成时间",
 
     // placeholder
     "setting.placeholder.notblank": "此项不能为空",

@@ -36,6 +36,7 @@ const ClippingHandler_Browser = (function(){
      * Referer and User-Agent are restricted by browser( as unsafe headers) :(
      */
     ExtApi.download({
+      conflictAction: 'overwrite',
       saveAs: false,
       filename: msg.filename,
       url: msg.url
