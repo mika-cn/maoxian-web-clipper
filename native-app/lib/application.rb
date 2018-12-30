@@ -8,7 +8,7 @@ require_relative './native_message'
 require_relative './clipping'
 
 class Application
-  VERSION = '0.1.2'
+  VERSION = '0.1.3'
 
   attr_accessor :config
 

@@ -36,7 +36,7 @@ module T
   end
 
   def self.mkdir(filename)
-    dir = filename[0, filename.rindex('/')]
+    dir = File.dirname(filename)
     unless File.exist?(dir)
       FileUtils.mkdir_p(dir)
     end
