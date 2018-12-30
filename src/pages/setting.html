@@ -10,17 +10,29 @@
   <body>
 
     <div class="main">
+      <div class="sidebar">
+        <a class="menu" href="#setting-save-format" i18n="setting.title.save-format"></a>
+        <a class="menu" href="#setting-clipping-handler" i18n="setting.title.clipping-handler"></a>
+        <a class="menu" href="#setting-clipping-content" i18n="setting.title.clipping-content"></a>
+        <a class="menu" href="#setting-path" i18n="setting.title.path"></a>
+        <a class="menu" href="#setting-file-scheme-access" i18n="setting.title.file-url"></a>
+        <a class="menu" href="#setting-offline-page" i18n="setting.title.offline-page"></a>
+        <a class="menu" href="#setting-hotkey" i18n="setting.title.hotkey"></a>
+        <a class="menu" href="#setting-other" i18n="setting.title.other"></a>
+      </div>
+      <div class="content">
+      </div>
     </div>
 
     <template id="setting-page-tpl">
-      <section class="setting-format">
+      <section id="setting-save-format">
         <h3 i18n="setting.title.save-format"></h3>
         <div class="options" id="setting-format">
           <a data-value="html">HTML</a>
           <a data-value="md">Markdown</a>
         </div>
       </section>
-      <section class="setting-clipping-handler">
+      <section id="setting-clipping-handler">
         <h3 i18n="setting.title.clipping-handler"></h3>
         <div class="notice-info">
           <p>
@@ -38,7 +50,7 @@
           <a data-value="native-app" i18n="setting.clipping-handler-option.native-app"></a>
         </div>
       </section>
-      <section class="setting-clipping-content">
+      <section id="setting-clipping-content">
         <h3 i18n="setting.title.clipping-content"></h3>
         <p>
           <input type="checkbox" id="save-clipping-information" />
@@ -51,7 +63,7 @@
           <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
         </p>
       </section>
-      <section class="setting-path">
+      <section id="setting-path">
         <h3 i18n="setting.title.path"></h3>
         <p>
           <input type="checkbox" id="save-title-as-fold-name" />
@@ -77,7 +89,7 @@
           <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
         </p>
       </section>
-      <section class="setting-file-scheme-access">
+      <section id="setting-file-scheme-access">
         <h3 i18n="setting.title.file-url"></h3>
         <p>
           <div class="notice-info">
@@ -98,7 +110,7 @@
           <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
         </p>
       </section>
-      <section class="offline-page">
+      <section id="setting-offline-page">
         <h3 i18n="setting.title.offline-page"></h3>
         <div class="notice-info">
           <label  i18n="setting.notice.offline-page"></label>
@@ -117,14 +129,14 @@
           <button id="generate-now" i18n="setting.button.generate-now"></button>
         </p>
       </section>
-      <section class="setting-hotkey">
+      <section id="setting-hotkey">
         <h3 i18n="setting.title.hotkey"></h3>
         <p>
           <input type="checkbox" id="enable-switch-hotkey" />
           <label for="enable-switch-hotkey" i18n="setting.enable-switch-hotkey-input.label"></label>
         </p>
       </section>
-      <section class="other">
+      <section id="setting-other">
         <h3 i18n="setting.title.other"></h3>
         <p>
           <input type="checkbox" id="enable-mouse-mode" />

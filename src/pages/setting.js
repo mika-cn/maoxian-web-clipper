@@ -18,7 +18,7 @@
         lastGenerateTime: lastGenerateTime,
         host: window.location.origin
       });
-      T.setHtml('.main', html);
+      T.setHtml('.content', html);
       i18nPage();
       initButtonsListeners();
     });
@@ -196,9 +196,23 @@
     Notify.add(t('setting.generate-now-msg-sent.label'));
   }
 
+  function initSidebar(){
+    const sidebar = T.queryElem('.sidebar');
+    T.bind(sidebar, 'click', function(e){
+      const elem = e.target;
+      if(elem.className.indexOf('menu') > -1) {
+        T.each(elem.parentNode.children, (menu) => {
+          menu.classList.remove('active');
+        });
+        elem.classList.add('active');
+      }
+    });
+  }
+
   function init(){
     renderUi();
     initUI();
+    initSidebar();
   }
 
   init();

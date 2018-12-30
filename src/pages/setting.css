@@ -1,4 +1,3 @@
-
 .main {
   width: 800px;
   min-height: 800px;
@@ -12,6 +11,33 @@ h3 {
   padding: 5px 10px 5px 10px;
   border-bottom: solid 1px #ccc;
 }
+
+.sidebar {
+  position: fixed;
+  display: block;
+  width: 200px;
+  height: auto;
+  margin-left: -251px;
+  padding: 10px 10px 10px 10px;
+  border: solid 1px #ccc;
+  background-color: white;
+  z-index: 2;
+}
+
+.sidebar > .menu{
+  display: block;
+  background-color: #eee;
+  height: 30px;
+  line-height: 30px;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.sidebar > .menu.active{
+  background: white;
+}
+
 
 /********** text input ***********/
 input[type=text] {
