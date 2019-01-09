@@ -16,6 +16,7 @@ function initEnvironment(){
         //"mac" "win" "android" "cros" "linux" "openbsd"
         ExtApi.os = platformInfo.os;
         ExtApi.isWindows = (platformInfo.os === 'win');
+        ExtApi.platformInfo = platformInfo;
       });
     //console.debug("init environment");
   }

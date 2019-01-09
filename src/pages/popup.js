@@ -8,7 +8,7 @@
       case 'clip': startClip(); break;
       case 'history': jumpToPage('extPage.history'); break;
       case 'setting': jumpToPage('extPage.setting'); break;
-      case 'home'   : jumpToPage('home'); break;
+      case 'home'   : jumpToPage('extPage.home'); break;
       case 'last-result':viewLastResult(); break;
       default: break;
     }

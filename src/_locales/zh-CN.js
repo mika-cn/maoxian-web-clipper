@@ -11,6 +11,13 @@ I18N_DICT['zh-CN'] = {
     "op.update-success": "更新成功!",
     "op.delete-success": "删除成功!",
 
+    //home page
+    "page.home": "扩展主页",
+    "page.setting": "设置",
+    "page.history": "历史",
+    "page.reset-history": "重置历史",
+    "page.support": "支持页",
+
     //popup page
     "popup.menu.clip": "裁剪",
     "popup.menu.history": "历史",

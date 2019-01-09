@@ -11,6 +11,13 @@ I18N_DICT['en'] = {
     "op.update-success": "Update Success!",
     "op.delete-success": "Delete Success!",
 
+    //home page
+    "page.home": "Extension Home Page",
+    "page.setting": "Setting",
+    "page.history": "History",
+    "page.reset-history": "Reset history",
+    "page.support": "Support",
+
     //popup
     "popup.menu.clip": "Clip",
     "popup.menu.history": "History",
