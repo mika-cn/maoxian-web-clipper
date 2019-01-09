@@ -85,8 +85,13 @@ I18N_DICT['zh-CN'] = {
     "setting.clipping-handler-option.native-app": "本地程序下载",
 
     //history page
-    "history.input.placeholder": "可搜索标题、标签、目录",
+    "history.placeholder.search": "可搜索标题、标签、目录",
+    "history.placeholder.created-at-from": "起始日期",
+    "history.placeholder.created-at-to": "结束日期",
+    "history.placeholder.category": "目录",
+    "history.placeholder.tag": "标签",
     "history.btn.search": "搜索",
+    "history.btn.reset": "重置",
     "history.btn.clear-history": "清除历史",
     "history.btn.export-history": "导出历史",
     "history.a.reset_history": "重置历史",
@@ -100,6 +105,7 @@ I18N_DICT['zh-CN'] = {
     "history.export.no-record": "没有记录",
     "history.op.delete": "删除",
     "history.label.confirm-mode": "危险操作需确认",
+    "history.label.advanced-search-mode": "高级搜索",
     "history.confirm-msg.clear-history": "确认清除所有历史记录？（该操作不会删除对应的文件）",
     "history.confirm-msg.delete-history": "确认删除这条历史记录? （该操作不会删除对应的文件）",
     "history.confirm-msg.delete-history-and-file": "确认删除这条历史记录，以及对应的文件？",

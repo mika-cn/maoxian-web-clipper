@@ -5,15 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clip History - MaoXian</title>
     <link rel="stylesheet" type="text/css" href="history.css" />
+    <link rel="stylesheet" type="text/css" href="../vendor/css/awesomplete.css" />
+    <link rel="stylesheet" type="text/css" href="../vendor/css/pikaday.css" />
   </head>
   <body>
     <div class="main">
       <div class="links"></div>
       <div class="clearfix"></div>
 
+      <div class="search-box advanced-search-mode">
+        <form>
+          <input id="created-at-from" type="text" i18n-attr="placeholder:history.placeholder.created-at-from"/>
+          <input id="created-at-to" type="text" i18n-attr="placeholder:history.placeholder.created-at-to"/>
+          <input id="category" type="text" i18n-attr="placeholder:history.placeholder.category"/>
+          <input id="tag" type="text" i18n-attr="placeholder:history.placeholder.tag"/>
+          <button type="reset" i18n="history.btn.reset"></button>
+        </form>
+      </div>
+
       <div class="search-box">
-        <input id="search" type="text" i18n-attr="placeholder:history.input.placeholder"/>
-        <button id="search-btn" i18n="history.btn.search"></button>
+        <form>
+          <input id="search" type="text" i18n-attr="placeholder:history.placeholder.search"/>
+          <button id="search-btn" i18n="history.btn.search"></button>
+        </form>
       </div>
 
       <div class="actions">
@@ -24,7 +38,10 @@
 
       <br />
       <div class="actions">
-        <input id="confirm-mode" type="checkbox" /><label for="confirm-mode" i18n="history.label.confirm-mode"></label>
+        <input id="advanced-search-mode" type="checkbox" />
+        <label for="advanced-search-mode" i18n="history.label.advanced-search-mode"></label>
+        <input id="confirm-mode" type="checkbox" />
+        <label for="confirm-mode" i18n="history.label.confirm-mode"></label>
       </div>
       <div class="clearfix"></div>
 
@@ -96,6 +113,9 @@
     <!-- scripts -->
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>
     <script type="text/javascript" src="../vendor/js/i18n.js"></script>
+    <script type="text/javascript" src="../vendor/js/awesomplete.js"></script>
+    <script type="text/javascript" src="../vendor/js/pikaday.js"></script>
+    <script type="text/javascript" src="../vendor/js/pikaday.ext.js"></script>
     <script type="text/javascript" src="../js/env.js"></script>
     <script type="text/javascript" src="../js/tool.js"></script>
     <script type="text/javascript" src="../_locales/en.js"></script>
@@ -107,6 +127,7 @@
     <script type="text/javascript" src="../js/lib/translation.js"></script>
     <script type="text/javascript" src="../js/lib/log.js"></script>
     <script type="text/javascript" src="../js/lib/notify.js"></script>
+    <script type="text/javascript" src="../js/lib/query.js"></script>
     <script type="text/javascript" src="history.js"></script>
   </body>
 </html>

@@ -87,8 +87,13 @@ I18N_DICT['en'] = {
 
 
     //history page
-    "history.input.placeholder": "title or tag or category",
+    "history.placeholder.search": "title or tag or category",
+    "history.placeholder.created-at-from": "from date",
+    "history.placeholder.created-at-to": "to date",
+    "history.placeholder.category": "category",
+    "history.placeholder.tag": "tag",
     "history.btn.search": "Search",
+    "history.btn.reset": "Reset",
     "history.btn.clear-history": "Clear History",
     "history.btn.export-history": "Export History",
     "history.a.reset_history": "Reset history",
@@ -102,6 +107,7 @@ I18N_DICT['en'] = {
     "history.export.no-record": "No record",
     "history.op.delete": "Delete",
     "history.label.confirm-mode": "Confirm before danger operation",
+    "history.label.advanced-search-mode": "Advanced search",
     "history.confirm-msg.clear-history": "Clear all history? (this operation won't delete clipping files)",
     "history.confirm-msg.delete-history": "Delete this history? (this operation won't delete clipping files)",
     "history.confirm-msg.delete-history-and-file": "Delete this history and it's files?",

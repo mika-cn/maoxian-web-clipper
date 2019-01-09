@@ -231,6 +231,16 @@ T.wrapDate = function(date) {
     const s = tObj.str;
     return `${s.year}-${s.month}-${s.day} ${s.hour}:${s.minute}:${s.second}`;
   }
+
+  tObj.beginingOfDay = function(){
+    const s = tObj.str;
+    return `${s.year}-${s.month}-${s.day} 00:00:00`;
+  }
+
+  tObj.endOfDay = function(){
+    const s = tObj.str;
+    return `${s.year}-${s.month}-${s.day} 23:59:59`;
+  }
   return tObj;
 }
 

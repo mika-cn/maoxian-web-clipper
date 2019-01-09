@@ -22,19 +22,30 @@ body {
   clear: both;
 }
 
+/********** text input ***********/
+input[type=text] {
+  display: inline-block;
+  font-size: 12px;
+  box-sizing: border-box;
+  height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0px 5px 0px 5px;
+}
+
+input[type=text]:focus{
+  border: 2px solid pink;
+}
+
 .search-box{
   margin-bottom: 10px;
+}
+.search-box.advanced-search-mode {
+  display: none;
 }
 
 #search {
   width: 80%;
-  height: 30px;
-  border: solid 1px #aaa;
-  padding: 0px 8px 0px 8px;
-  border-radius: 3px;
-}
-#search:focus {
-  border: solid 2px pink;
 }
 
 .history {

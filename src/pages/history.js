@@ -1,9 +1,7 @@
 "use strict";
 
 (function(){
-  const state = {
-    currClips: []
-  };
+  const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
   function showHistory(){
     searchAction();
@@ -59,7 +57,8 @@
     i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
-    T.bind(elem, 'click', function(){
+    T.bind(elem, 'click', function(e){
+      e.preventDefault();
       modal.style.display = 'none';
       ExtApi.createTab(url);
     })
@@ -81,7 +80,8 @@
     i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
-    T.bind(elem, 'click', function(){
+    T.bind(elem, 'click', function(e){
+      e.preventDefault();
       modal.style.display = 'none';
       ExtApi.openDownloadItem(downloadItem.id);
     })
@@ -158,8 +158,7 @@
 
   function renderTime(clip) {
     try{
-      const d = new Date(clip.created_at)
-      const t = T.wrapDate(d).str;
+      const t = T.wrapDate(clip.created_at_time).str;
       return [t.month, t.day].join('/')
     }catch(e) {
       return '-/-'
@@ -228,7 +227,6 @@
             type: 'clipping.delete',
             body: msg
           }).then((result) => {
-            console.log(result);
             if(result.ok) {
               deleteHistoryOnly(result.clip_id, true);
               if(result.message){
@@ -255,25 +253,22 @@
   }
 
   function deleteHistoryOnly(id, noConfirm=false) {
-    MxWcStorage.get('clips', [])
-      .then((clips) => {
-        const clip = clips.find((clip) => {
-          return clip.clipId === id;
-        })
-        if(clip) {
-          const action = function(){
-            clips.splice(clips.indexOf(clip), 1);
-            state.currClips = clips;
-            MxWcStorage.set('clips', clips)
-            removeTrByClipId(id)
-          }
-          if(noConfirm) {
-            action();
-          } else {
-            confirmIfNeed(t('history.confirm-msg.delete-history'), action);
-          }
-        }
-      });
+    const clip = state.currClips.find((clip) => {
+      return clip.clipId === id;
+    })
+    if(clip) {
+      const action = function(){
+        state.currClips.splice(state.currClips.indexOf(clip), 1);
+        state.allClips.splice(state.allClips.indexOf(clip), 1);
+        MxWcStorage.set('clips', state.allClips)
+        removeTrByClipId(id)
+      }
+      if(noConfirm) {
+        action();
+      } else {
+        confirmIfNeed(t('history.confirm-msg.delete-history'), action);
+      }
+    }
   }
 
   function removeTrByClipId(id) {
@@ -285,17 +280,63 @@
   }
 
   function initSearch(){
-    const input = T.findElem('search');
-    const btn = T.findElem('search-btn');
-    input.value = getKeyword();
-    T.bindOnce(input, 'keypress', searchInputListener);
-    T.bindOnce(btn, 'click', searchAction);
+    const search = T.findElem('search');
+    search.value = getKeyword();
+
+    //created_at
+    const i18n = Pikaday.getI18n(ExtApi.locale);
+    const pickerA = new Pikaday({
+      field: T.findElem('created-at-from'),
+      i18n: i18n,
+      toString(date, format) {
+        const t = T.wrapDate(date);
+        return t.beginingOfDay();
+      }
+    })
+    const pickerB = new Pikaday({
+      field: T.findElem('created-at-to'),
+      i18n: i18n,
+      toString(date, format) {
+        const t = T.wrapDate(date);
+        return t.endOfDay();
+      }
+    })
+
+    const categoryInput = T.findElem('category')
+    const aotoCompleteCategory = new Awesomplete(
+      categoryInput,
+      {
+        autoFirst: true,
+        minChars: 1,
+        list: state.categories
+      }
+    );
+
+
+    const tagInput = T.findElem('tag');
+    const aotoCompleteTag = new Awesomplete(
+      tagInput,
+      {
+        autoFirst: true,
+        minChars: 1,
+        list: state.tags
+      }
+    );
+
+    initSearchListeners();
   }
 
-  function searchInputListener(e){
-    if(e.keyCode === 13){
-      searchAction();
-    }
+  function initSearchListeners(){
+    T.queryElems('.search-box').forEach((searchBox) => {
+      T.bind(searchBox, 'keypress', function(e) {
+        if(e.target.tagName === 'INPUT' && e.keyCode === 13) {
+          // Press Enter in input
+          searchAction(e);
+        }
+      })
+    });
+    const btn = T.findElem('search-btn');
+    T.bindOnce(btn, 'click', searchAction);
   }
 
   function getKeyword(){
@@ -306,39 +347,50 @@
     window.localStorage.setItem('search.keyword', value);
   }
 
-  function searchAction(){
-    const input = T.findElem('search');
-    const keyword = input.value.trim();
+  function searchAction(e){
+    if(e) { e.preventDefault()}
+    const qRowA = {}
+    const [isRangerValid, from, to] = getDateRanger();
+    if(isRangerValid) {
+      qRowA.created_at_time = ['between', from, to]
+    }
+    const category = T.findElem('category').value.trim();
+    if(category !== "") {
+      qRowA.category = ['equal', category]
+    }
+    const tag = T.findElem('tag').value.trim();
+    if(tag !== "") {
+      qRowA.tags = ['memberInclude', tag];
+    }
+    let clips = Query.queryObj(state.allClips, qRowA);
+
+    let qRowB = {}
+    const keyword = T.findElem('search').value.trim();
     storeKeyword(keyword);
-    if(keyword == ""){
-      MxWcStorage.get('clips', []).then(renderClips);
-    }else{
-      MxWcStorage.get('clips', []).then((clips) => {
-        const regExp = new RegExp(keyword, 'i');
-        const r = []
-        T.each(clips, function(clip){
-          let keep = true;
-          if(keep && clip.title.match(regExp)){
-            keep = false;
-            r.push(clip)
-          }
-          if(keep && clip.category.match(regExp)){
-            keep = false;
-            r.push(clip)
-          }
-          if(keep){
-            const tag = clip.tags.some(function(tag){
-              if(tag.match(regExp)){
-                return true
-              }else{
-                return false
-              }
-            })
-            if(tag){ r.push(clip); }
-          }
-        });
-        renderClips(r);
-      });
+    if(keyword !== ""){
+      const regExp = new RegExp(keyword, 'i');
+      qRowB = {
+        __logic__: 'OR',
+        title: ['match', regExp],
+        category: ['match', regExp],
+        tags: ['memberMatch', regExp]
+      };
+    }
+    clips = Query.queryObj(clips, qRowB);
+    renderClips(clips);
+  }
+
+  function getDateRanger(){
+    let fromStr = T.findElem('created-at-from').value.trim();
+    let toStr = T.findElem('created-at-to').value.trim();
+    const ParseFail = [false, null, null];
+    const isValid = (tStr) => { return !isNaN(Date.parse(tStr)); }
+    if(isValid(fromStr)) {
+      const from = new Date(fromStr);
+      const to = (isValid(toStr) ? (new Date(toStr)) : (new Date()) );
+      return [true, from, to]
+    } else {
+      return [false, null, null];
     }
   }
 
@@ -427,29 +479,67 @@
       }
     }, 0);
   }
+  function initSwitches(){
+    initCheckbox({
+      domId: 'confirm-mode',
+      storageKey: 'enableConfirmMode',
+      defaultValue: true
+    });
 
-  function initConfirmModeInput(){
-    const input = T.findElem('confirm-mode');
-    const isEnable = window.localStorage.getItem('enableConfirmMode')
-    if(['true', 'false'].indexOf(isEnable) > -1) {
-      input.checked = (isEnable === 'true');
-    } else {
-      input.checked = true;
-    }
-    T.bind(input, 'click', function(e){
-      window.localStorage.setItem('enableConfirmMode', e.target.checked);
+    initCheckbox({
+      domId: 'advanced-search-mode',
+      storageKey: 'enableAdvancedSearchMode',
+      defaultValue: false,
+      action: function(checked) {
+        const box = T.queryElem('.advanced-search-mode');
+        box.style.display = (checked ? 'block' : 'none');
+      }
     });
   }
 
+  function initCheckbox(options) {
+    const {domId, storageKey, defaultValue, action} = options;
+    const input = T.findElem(domId);
+    const isEnable = window.localStorage.getItem(storageKey)
+    if(['true', 'false'].indexOf(isEnable) > -1) {
+      input.checked = (isEnable === 'true');
+    } else {
+      input.checked = defaultValue;
+    }
+    if(action){ action(input.checked) }
+    T.bind(input, 'click', function(e){
+      window.localStorage.setItem(storageKey, e.target.checked);
+      if(action){ action(e.target.checked) }
+    });
+  }
+
+  function initState(clips) {
+    clips.forEach(function(clip) {
+      if(state.categories.indexOf(clip.category) < 0) {
+        state.categories.push(clip.category);
+      }
+      clip.tags.forEach(function(tag) {
+        if(state.tags.indexOf(tag) < 0) {
+          state.tags.push(tag);
+        }
+      })
+      clip.created_at_time = new Date(clip.created_at);
+    });
+    state.allClips = clips;
+  }
+
   function init(){
-    initSearch();
-    initLinks();
-    initActions();
-    initConfirmModeInput();
-    initModal();
-    i18nPage();
-    showHistory();
-    recallScroll();
+    MxWcStorage.get('clips', []).then(function(clips) {
+      initState(clips);
+      initSearch();
+      initLinks();
+      initActions();
+      initSwitches();
+      initModal();
+      i18nPage();
+      showHistory();
+      //recallScroll();
+    });
   }
 
   init();
