@@ -11,12 +11,36 @@ I18N_DICT['en'] = {
     "op.update-success": "Update Success!",
     "op.delete-success": "Delete Success!",
 
-    //home page
+    // home page
+    "home.nav.extension-pages": "Extension Pages",
+    "home.nav.remote-pages": "Remote Pages",
+    "home.label.version": "Current Version",
+    // extension pages
     "page.home": "Extension Home Page",
     "page.setting": "Setting",
     "page.history": "History",
     "page.reset-history": "Reset history",
     "page.support": "Support",
+
+    "desc.setting": "Setting: save format, save path etc.",
+    "desc.history": "Where to see what you have clipped.",
+    "desc.reset-history": "Where you reset your clipping history when you install MaoXian in a new device.",
+    "desc.support": "This page contains technical information that might be useful when you’re trying to solve a problem or report a bug",
+
+    // remote pages
+    "page.remote.home": "Home",
+    "page.remote.faq": "FAQ",
+    "page.remote.native-app": "Native Application",
+    "page.remote.offline-page": "Offline Index Page",
+    "page.remote.project.index": "project source code",
+    "page.remote.project.issue": "Issue page",
+
+    "desc.remote.home": "MaoXian Web Clipper's home page (website home)",
+    "desc.remote.faq": "Frequently Asked Question",
+    "desc.remote.native-app": "A native application that can enhance the abilities of MaoXian",
+    "desc.remote.offline-page": "A static HTML page which can be used to browse your clippings without MaoXian or network",
+    "desc.remote.project.index": "This is the project page of Maoxian. yes, it's open source.",
+    "desc.remote.project.issue": "Where you give your suggestion or report a bug",
 
     //popup
     "popup.menu.clip": "Clip",

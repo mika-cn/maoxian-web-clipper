@@ -4,21 +4,26 @@
 this.MxWcLink = (function(ExtApi) {
   const extensionRoot = ExtApi.getURL('/');
   const extensionId = extensionRoot.split('//')[1].replace('/', '');
-  const remoteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
+  const websiteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
+  const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
   const remotePaths = {
     "en": {
       "home": "/index.html",
       "faq": "/faq.html",
       "faq-allow-access-file-urls": "/faq.html#allow-access-file-urls",
       "native-app": "/native-app/index.html",
-      "offline-page": "/offline-page/index.html"
+      "offline-page": "/offline-page/index.html",
+      "project.index": "/",
+      "project.issue": "/issues",
     },
     "zh-CN": {
       "home": "/index-zh-CN.html",
       "faq": "/faq-zh-CN.html",
       "faq-allow-access-file-urls": "/faq-zh-CN.html#allow-access-file-urls",
       "native-app": "/native-app/index-zh-CN.html",
-      "offline-page": "/offline-page/index-zh-CN.html"
+      "offline-page": "/offline-page/index-zh-CN.html",
+      "project.index": "/",
+      "project.issue": "/issues",
     }
   }
 
@@ -43,7 +48,11 @@ this.MxWcLink = (function(ExtApi) {
     if (!dict) { dict = remotePaths['en'] }
     const path = dict[pageName];
     if(path) {
-      return remoteRoot + path;
+      if(pageName.startsWith('project.')){
+        return projectRoot + path;
+      } else {
+        return websiteRoot + path;
+      }
     } else {
       throw new Error(`UnknowPage: ${pageName}(name)`);
     }

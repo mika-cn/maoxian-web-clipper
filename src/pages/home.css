@@ -8,7 +8,6 @@
   background-color: #fefefe;
 }
 
-
 .installation-hint {
   border-top: 1px dashed #4caf50;
   border-bottom: 1px dashed #4caf50;
@@ -20,3 +19,7 @@
   text-decoration: underline;
 }
 
+.link {
+  margin-bottom: 10px;
+  line-height: 20px;
+}

@@ -3,23 +3,35 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome - from MaoXian</title>
+    <title>Home Page - MaoXian</title>
     <link rel="stylesheet" type="text/css" href="_base.css" />
     <link rel="stylesheet" type="text/css" href="home.css" />
   </head>
   <body>
 
     <div class="main">
-      <h1 i18n="page.home"></h1>
-      <div class="nav">
-        <ul>
-          <li><a target="_blank" href="setting.html" i18n="page.setting"></a></li>
-          <li><a target="_blank" href="history.html" i18n="page.history"></a></li>
-          <li><a target="_blank" href="reset-history.html" i18n="page.reset-history"></a></li>
-          <li><a target="_blank" href="support.html" i18n="page.support"></a></li>
-        </ul>
+      <h1 class="green">MaoXian Web Clipper</h1>
+      <div>
+        <label i18n="home.label.version"></label>:
+        <label class="version"></label>
+      </div>
+      <div class="nav" id="extension-pages">
+        <h2 i18n="home.nav.extension-pages"></h2>
+        <div class="links"></div>
+      </div>
+      <div class="nav" id="remote-pages">
+        <h2 i18n="home.nav.remote-pages"></h2>
+        <div class="links"></div>
       </div>
     </div>
+
+    <template id="link-tpl">
+      <div class="link">
+        <a target="_blank" href="${href}" i18n="${linkI18n}"></a>
+        <br />
+        <label i18n="${descI18n}"></label>
+      </div>
+    </template>
 
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>
     <script type="text/javascript" src="../vendor/js/i18n.js"></script>
