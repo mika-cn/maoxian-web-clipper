@@ -3,7 +3,7 @@
 
 this.ENV = {
   logLevel: "debug",
-  version: '0.1.21',
+  version: '0.1.22',
   minNativeAppVersion: '0.1.2'
 };
 
