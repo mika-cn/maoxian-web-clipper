@@ -259,7 +259,10 @@
     if(clip) {
       const action = function(){
         state.currClips.splice(state.currClips.indexOf(clip), 1);
-        state.allClips.splice(state.allClips.indexOf(clip), 1);
+        if(state.allClips.indexOf(clip) > -1){
+          // state.currClips and state.allClips may be the same object.
+          state.allClips.splice(state.allClips.indexOf(clip), 1);
+        }
         MxWcStorage.set('clips', state.allClips)
         removeTrByClipId(id)
       }
