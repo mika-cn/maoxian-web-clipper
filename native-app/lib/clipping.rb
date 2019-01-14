@@ -49,10 +49,15 @@ module Clipping
     pdir = File.dirname(path)
     return if root == pdir
     return if path_overflow?(root, pdir)
-    if Dir.empty?(pdir)
-      FileUtils.remove_dir(pdir)
+    if is_dir_empty?(pdir)
+      Dir.rmdir(pdir)
       remove_empty_pdir(root, pdir)
     end
+  end
+
+  def self.is_dir_empty?(path)
+    # Dir.empty?(path) not support in ruby 2.3
+    Dir.entries(path).reject{|n| '.' == n || '..' == n}.size == 0
   end
 
   def self.sanitize(path)

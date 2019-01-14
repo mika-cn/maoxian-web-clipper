@@ -45,10 +45,13 @@
 
   function calcRelativePath(clippingPath){
     const root = 'mx-wc';
-    const path = window.location.href;
+    const path = window.location.pathname;
     const ridx = path.lastIndexOf('/');
-    const dir = path.substring(0, ridx);
-    const currDir = [root, dir.split(root)[1]].join('');
+    let dir = path.substring(0, ridx);
+    if(dir.indexOf(root) > -1) {
+      dir = dir.split(root)[1]
+    }
+    const currDir = [root, dir].join('');
     return T.calcPath(currDir, clippingPath);
   }
 

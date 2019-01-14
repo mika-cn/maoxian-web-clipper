@@ -18,7 +18,7 @@ var Query = (function(){
       const fn = combine(logic, matchers);
       return [].find.call(objs, fn);
     } else {
-      return objs;
+      return undefined;
     }
   }
 
