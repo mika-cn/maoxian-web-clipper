@@ -1,4 +1,5 @@
-require 'fileutils'
+require_relative 'fileutils_hacked'
+require_relative 'log'
 
 module Clipping
 
@@ -17,7 +18,10 @@ module Clipping
     else
       if File.exist?(path)
         clip_fold = File.dirname(path)
-        FileUtils.remove_dir(clip_fold)
+        isSucc, msg = try_perform { FileUtils.remove_dir(clip_fold) }
+        if !isSucc
+          return {ok: false, message: msg}
+        end
         remove_empty_pdir(root, clip_fold)
         if path_overflow?(clip_fold, asset_fold)
           # asset_fold is outside of clip_fold
@@ -27,7 +31,7 @@ module Clipping
             if File.exist?(asset_fold)
               pattern = [asset_fold, "#{clip_id}-*"].join("/")
               Dir.glob(pattern) do |f|
-                FileUtils.rm f
+                try_perform { FileUtils.rm f }
               end
             end
             return {ok: true, clip_id: clip_id}
@@ -44,6 +48,16 @@ module Clipping
   end
 
   private
+
+  def self.try_perform
+    begin
+      yield
+      return [true, '']
+    rescue => err
+      Log.warn err
+      return [false, err]
+    end
+  end
 
   def self.remove_empty_pdir(root, path)
     pdir = File.dirname(path)

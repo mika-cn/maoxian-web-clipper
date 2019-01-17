@@ -22,6 +22,7 @@ def run
       exit 1
     end
     Log.info("App Start")
+    Log.info("Version: #{Application::VERSION}")
     Log.debug("pid: #{Process.pid}")
     Log.debug("args: #{ARGV}")
 
