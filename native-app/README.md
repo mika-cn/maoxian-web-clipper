@@ -1,19 +1,19 @@
 
+# Native Application
+
+A ruby application to enhance MaoXian's abilities.
+
 ## dev
 create config.yaml from config.yaml.example
 create pack.yaml from pack.yaml.example
 
 ## Pack native application
-
-use `web-ext-native-app-packer` to pack native application.
-
-example
-```shell
-web-ext-native-app-packer maoxian-web-clipper/native-app maoxian-web-clipper/dist
-```
+run `./pack-native-app.sh` to pack native application.
 
 ## install
+
 ```
+cd dist/native-app
 unzip maoxian-web-clipper-native-linux-firefox.zip -d native-app-firefox
 cd native-app-firefox
 ./install.sh

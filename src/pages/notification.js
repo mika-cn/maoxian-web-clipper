@@ -13,7 +13,7 @@ function clickNotification(e) {
   const id = target.getAttribute('data-id');
   MxWcNotification.remove(id);
   target.parentNode.removeChild(target);
-  Notify.add(t('op.delete-success'));
+  Notify.success(t('op.delete-success'));
 }
 
 

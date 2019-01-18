@@ -17,6 +17,7 @@
         <a class="menu" href="#setting-path" i18n="setting.title.path"></a>
         <a class="menu" href="#setting-file-scheme-access" i18n="setting.title.file-url"></a>
         <a class="menu" href="#setting-offline-page" i18n="setting.title.offline-page"></a>
+        <a class="menu" href="#setting-refresh-history" i18n="setting.title.refresh-history"></a>
         <a class="menu" href="#setting-hotkey" i18n="setting.title.hotkey"></a>
         <a class="menu" href="#setting-other" i18n="setting.title.other"></a>
       </div>
@@ -125,8 +126,20 @@
           <input type="checkbox" id="autogenerate-clipping-js" />
           <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label><br /><br />
           <label i18n="setting.last-generate-time.label"></label>:
-          <label id="last-generate-time">${lastGenerateTime}</label>&nbsp;
-          <button id="generate-now" i18n="setting.button.generate-now"></button>
+          <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>&nbsp;
+          <button id="generate-clipping-js-now" i18n="setting.button.generate-now"></button>
+        </p>
+      </section>
+      <section id="setting-refresh-history">
+        <h3 i18n="setting.title.refresh-history"></h3>
+        <div class="notice-info" i18n="setting.notice.refresh-history"></div>
+        <div class="notice-warning" i18n="setting.notice.refresh-history-warning"></div>
+        <p>
+          <input type="checkbox" id="auto-refresh-history" />
+          <label for="auto-refresh-history" i18n="setting.auto-refresh-history-input.label"></label><br /><br />
+          <label i18n="setting.last-refresh-time.label"></label>:
+          <label id="last-refresh-history-time">${lastRefreshHistoryTime}</label>&nbsp;
+          <button id="refresh-history-now" i18n="setting.button.refresh-now"></button>
         </p>
       </section>
       <section id="setting-hotkey">

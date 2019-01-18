@@ -42,6 +42,7 @@
       return showHint(t('reset.processing'));
     }
     if(msg.type === "resetCompleted"){
+      ExtApi.sendMessageToBackground({type: 'history.refresh-if-need'});
       setTimeout(function(){ window.close() }, 3000);
       return showHint(t('reset.completed'));
     }

@@ -36,6 +36,8 @@ this.MxWcConfig = (function() {
       /* Offline pages */
       autogenerateClippingJs: false,
       clippingJsPath: '$MX-WC/history/clippings.js',
+
+      autoRefreshHistory: false,
     }
   }
 

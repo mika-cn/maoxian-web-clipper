@@ -48,6 +48,11 @@ const ClippingHandler_NativeApp = (function(){
           state.deleteClippingCallback(resp);
         }
         break;
+      case 'history.refresh':
+        if(state.refreshHistoryCallback){
+          state.refreshHistoryCallback(resp);
+        }
+        break;
       case 'get.downloadFold':
         const downloadFold = T.sanitizePath(resp.downloadFold);
         updateDownloadFold(downloadFold);
@@ -117,6 +122,21 @@ const ClippingHandler_NativeApp = (function(){
     }
   }
 
+  function refreshHistory(msg, callback) {
+    init();
+    try{
+      state.refreshHistoryCallback = callback;
+      state.disconnectCallback = function(message) {
+        callback({ok: false, message: message})
+      }
+      msg.type = 'history.refresh';
+      state.port.postMessage(msg);
+    } catch(e) {
+      // avoid other exception
+      callback({ ok: false, message: e.message })
+    }
+  }
+
 
   function init(){
     if(!state.port){
@@ -134,5 +154,6 @@ const ClippingHandler_NativeApp = (function(){
     initDownloadFold: initDownloadFold,
     getVersion: getVersion,
     deleteClipping: deleteClipping,
+    refreshHistory: refreshHistory,
   }
 })();

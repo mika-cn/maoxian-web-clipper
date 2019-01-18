@@ -64,6 +64,9 @@ I18N_DICT['zh-CN'] = {
     //setting page
     "setting.warning": "警告",
 
+    // errors
+    "setting.error.native-app-not-ready": "你必须先安装『本地程序』并且选择『本地程序』作为保存方式，该项才生效",
+
     // title
     "setting.title.save-format": "保存格式",
     "setting.title.hotkey": "快捷键设置",
@@ -73,9 +76,11 @@ I18N_DICT['zh-CN'] = {
     "setting.title.clipping-handler": "保存方式",
     "setting.title.other": "其他设置",
     "setting.title.offline-page": "离线的索引页",
+    "setting.title.refresh-history": "刷新裁剪历史",
 
     // buttons
     "setting.button.generate-now": "马上生成",
+    "setting.button.refresh-now": "马上刷新",
 
     // notice
     "setting.notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
@@ -94,6 +99,8 @@ I18N_DICT['zh-CN'] = {
     "setting.notice.offline-page.link-label": "点我了解更多",
     "setting.notice.autogenerate-clipping-js": "<strong>自动生成脚本文件</strong><br />勾选这个之后，每一次裁剪网页或通过历史页面删除裁剪文件，插件都会自动更新此脚本文件。此脚本文件包含了你当前所有裁剪历史，该文件会被用于上面提到的「离线索引页面」.",
     "setting.notice.clipping-js-path": "<strong>脚本文件的存储路径</strong><br />一般放到「离线索引页面」同一个目录下 <br />使用 <strong>$MX-WC</strong> 表示扩展存储数据的根目录 (即$downloads/mx-wc)",
+    "setting.notice.refresh-history": "<strong>刷新裁剪历史</strong><br /> 使用『本地程序』刷新裁剪历史，当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。",
+    "setting.notice.refresh-history-warning": "<strong>警告</strong>:<br /> 你必须先安装『本地程序』并且选择『本地程序』作为保存方式，该项才生效",
 
     // label
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
@@ -106,8 +113,13 @@ I18N_DICT['zh-CN'] = {
     "setting.enable-mouse-mode-input.label": "鼠标友好模式",
     "setting.autogenerate-clipping-js-input.label": "自动生成脚本文件",
     "setting.not-generated-yet.label": "还没有生成过",
-    "setting.generate-now-msg-sent.label": "自动生成命令已经发送",
+    "setting.generate-now-msg-sent.label": "生成命令已经发送",
+    "setting.generate-now-success.label": "生成成功",
     "setting.last-generate-time.label": "上次生成时间",
+    "setting.auto-refresh-history-input.label": "自动刷新裁剪历史(每次你打开浏览器都会进行刷新)",
+    "setting.refresh-now-msg-sent.label": "刷新命令已发送",
+    "setting.refresh-now-success.label": "刷新成功",
+    "setting.last-refresh-time.label": "上次刷新时间",
 
     // placeholder
     "setting.placeholder.notblank": "此项不能为空",
@@ -145,6 +157,8 @@ I18N_DICT['zh-CN'] = {
     "clipping.op-error.path-overflow": "要删除的文件不在裁剪目录下，请检查你本地程序的配置文件(config.yaml) ",
     "clipping.op-error.path-not-exist": "找不到要删除的文件",
     "clipping.op-warning.asset-fold-overflow": "你当前配置的资源目录不在裁剪目录下，这会造成某些资源文件删除不干净的问题，请检查你本地程序的配置文件(config.yaml) ",
+    "history.notice.delete-history-success": "删除成功!",
+    "history.notice.clear-history-success": "清除成功!",
     "history.notice.delete": "温馨提示： 只有安装了「本地程序」，本页面提供的删除功能才会删除你本地的文件。",
 
     //reset history page

@@ -7,15 +7,17 @@
   function renderUi() {
     const template = T.findElem('setting-page-tpl').innerHTML;
     let lastGenerateTime = t('setting.not-generated-yet.label');
-    MxWcStorage.get('lastGenerateTime').then((v) => {
-      if(v){
-        lastGenerateTime = v
-      }
+    Promise.all([
+      MxWcStorage.get('lastGenerateClippingJsTime'),
+      MxWcStorage.get('lastRefreshHistoryTime'),
+    ]).then((values) => {
+      const [lastGenerateClippingJsTime, lastRefreshHistoryTime] = values;
       const html = T.renderTemplate(template, {
         settingFileUrlLink: MxWcLink.get('faq-allow-access-file-urls'),
         nativeAppUrl: MxWcLink.get('native-app'),
         offlinePageIntro: MxWcLink.get('offline-page'),
-        lastGenerateTime: lastGenerateTime,
+        lastGenerateClippingJsTime: (lastGenerateClippingJsTime || ''),
+        lastRefreshHistoryTime: (lastRefreshHistoryTime || ''),
         host: window.location.origin
       });
       T.setHtml('.content', html);
@@ -34,7 +36,16 @@
       initSettingOther(config);
       initClippingHandler(config);
       initOfflinePage(config);
+      initRefreshHistory(config);
     });
+  }
+
+  // section refresh history
+  function initRefreshHistory(config) {
+    initCheckboxInput(config,
+      'auto-refresh-history',
+      'autoRefreshHistory'
+    );
   }
 
   // section offline page
@@ -150,7 +161,7 @@
     elem.value = config[configKey];
     T.bind(elem, 'blur', (e) => {
       if(MxWcConfig.update(configKey, e.target.value)){
-        Notify.add(t('op.update-success'));
+        Notify.success(t('op.update-success'));
       }
     });
   }
@@ -178,7 +189,8 @@
   }
 
   function initButtonsListeners(){
-    bindButtonListener('generate-now', generateNow);
+    bindButtonListener('generate-clipping-js-now', generateClippingJsNow);
+    bindButtonListener('refresh-history-now', refreshHistoryNow);
   }
 
   function bindButtonListener(id, handler){
@@ -188,13 +200,38 @@
 
   /* button click handlers */
 
-  function generateNow(e){
-    ExtApi.sendMessageToBackground({type: 'generate.clipping.js'});
-    const time = T.currentTime().toString();
-    const label = T.findElem('last-generate-time');
-    label.innerHTML = time;
-    Notify.add(t('setting.generate-now-msg-sent.label'));
+  function generateClippingJsNow(e) {
+    ExtApi.sendMessageToBackground({
+      type: 'generate.clipping.js'
+    }).then((result) => {
+      const label = T.findElem('last-generate-clipping-js-time');
+      label.innerHTML = result.time;
+      Notify.success(t('setting.generate-now-success.label'));
+    });
+    Notify.success(t('setting.generate-now-msg-sent.label'));
   }
+
+  function refreshHistoryNow(e) {
+    MxWcConfig.load().then((config) => {
+      if(config.clippingHandlerName === 'native-app') {
+        ExtApi.sendMessageToBackground({
+          type: 'history.refresh'
+        }).then((result) => {
+          if(result.ok) {
+            const label = T.findElem('last-refresh-history-time');
+            label.innerHTML = result.time;
+            Notify.success(t('setting.refresh-now-success.label'));
+          } else {
+            Notify.error(result.message)
+          }
+        });
+        Notify.success(t('setting.refresh-now-msg-sent.label'));
+      } else {
+        Notify.error(t('setting.error.native-app-not-ready'));
+      }
+    });
+  }
+
 
   function initSidebar(){
     const sidebar = T.queryElem('.sidebar');

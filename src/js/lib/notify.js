@@ -34,7 +34,7 @@ this.Notify = (function(){
         cursor: pointer;
         display: inline-block;
         line-height: 30px;
-        width: 20px;
+        width: 30px;
         height: 30px;
       }
       .notify > .content {
@@ -43,6 +43,13 @@ this.Notify = (function(){
         line-height: 30px;
         padding-left: 10px;
         padding-right: 10px;
+      }
+      .notify:hover {
+        border-top-left-radius: 15px;
+        border-bottom-left-radius: 15px;
+      }
+      .notify:hover > .btn {
+        border-radius: 15px;
       }
       .notice-success:hover > .btn{
         background: #d4edda;
@@ -69,6 +76,17 @@ this.Notify = (function(){
   function removeContainer(){
     let elem = getContainer();
     if(elem) { document.body.removeChild(elem); }
+  }
+
+  function success(content) {
+    add(content)
+  }
+
+  function danger(content) {
+    add(content, {
+      type: 'danger',
+      behavior: 'manualDismiss'
+    })
   }
 
   /*
@@ -136,5 +154,8 @@ this.Notify = (function(){
     return '' + Math.round(Math.random() * 100000000000);
   }
 
-  return {add: add}
+  return {
+    success: success,
+    error: danger
+  }
 })();

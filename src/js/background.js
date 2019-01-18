@@ -45,7 +45,13 @@ function messageHandler(message, sender, senderResponse){
         deleteClipping(message.body, resolve);
         break;
       case 'generate.clipping.js':
-        generateClippingJs();
+        generateClippingJs(resolve);
+        break;
+      case 'history.refresh':
+        refreshHistory(resolve);
+        break;
+      case 'history.refresh-if-need':
+        refreshHistoryIfNeed();
         resolve();
         break;
       default: break;
@@ -57,6 +63,23 @@ function deleteClipping(msg, resolve) {
   const handler = ClippingHandler_NativeApp;
   handler.deleteClipping(msg, (result) => {
     if(result.ok){ generateClippingJsIfNeed() }
+    resolve(result);
+  })
+}
+
+function refreshHistory(resolve) {
+  const handler = ClippingHandler_NativeApp;
+  handler.refreshHistory({
+    time: T.currentTime().toString()
+  }, (result) => {
+    if(result.ok){
+      resetStates('clips', result.clips);
+      resetStates('tags', result.tags);
+      resetStates('categories', result.categories);
+      const time = T.currentTime().toString();
+      MxWcStorage.set('lastRefreshHistoryTime', time);
+      generateClippingJsIfNeed()
+    }
     resolve(result);
   })
 }
@@ -91,7 +114,7 @@ function generateClippingJsIfNeed(){
   })
 }
 
-function generateClippingJs() {
+function generateClippingJs(callback) {
   getClippingHandler((handler, config) => {
     let pathConfig = MxWcConfig.getDefault().clippingJsPath;
     if(config.clippingJsPath.indexOf('$MX-WC/') === 0 && config.clippingJsPath.endsWith('js')){
@@ -110,7 +133,8 @@ function generateClippingJs() {
         handler.init();
         handler.handle(task);
         const time = T.currentTime().toString();
-        MxWcStorage.set('lastGenerateTime', time);
+        MxWcStorage.set('lastGenerateClippingJsTime', time);
+        if(callback) {callback({time: time})};
       });
   });
 }
@@ -256,6 +280,23 @@ function checkNativeAppVersion(){
   })
 }
 
+function refreshHistoryIfNeed(){
+  MxWcConfig.load().then((config) => {
+    if(config.autoRefreshHistory){
+      if(config.clippingHandlerName === 'native-app') {
+        refreshHistory((result) => {
+          if(!result.ok) {
+            Log.error("AutoRefreshHistory: ");
+            Log.error(result.message)
+          }
+        });
+      } else {
+        Log.debug("autoRefreshHistory enabled, but clipping handler is NOT native-app, do nothing");
+      }
+    }
+  });
+}
+
 // state
 let keyStoreService = null;
 function init(){
@@ -265,6 +306,7 @@ function init(){
   Log.debug("background init...");
   welcomeNewUser();
   checkNativeAppVersion();
+  refreshHistoryIfNeed();
 }
 
 init();

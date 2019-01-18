@@ -64,6 +64,9 @@ I18N_DICT['en'] = {
     //setting page
     "setting.warning": "Warning",
 
+    // errors
+    "setting.error.native-app-not-ready": "you must install native application and choose native application as your clipping handler first",
+
     // title
     "setting.title.save-format": "Save Format",
     "setting.title.hotkey": "Hotkey",
@@ -73,9 +76,11 @@ I18N_DICT['en'] = {
     "setting.title.clipping-handler": "Clipping Handler",
     "setting.title.other": "Others",
     "setting.title.offline-page": "Offline Index Page",
+    "setting.title.refresh-history": "Refresh History",
 
     // buttons
     "setting.button.generate-now": "Generate Now",
+    "setting.button.refresh-now": "Refresh Now",
 
     // notice
     "setting.notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
@@ -94,6 +99,9 @@ I18N_DICT['en'] = {
     "setting.notice.offline-page.link-label": "Learn more detail",
     "setting.notice.autogenerate-clipping-js": "<strong>Autogenerate Javascript File</strong><br />Everytime when you clipping a web page, or delete a clipping history, MaoXian will generate a javascript file contains all your clippings and save to the path you configure. this script file will be accessed by offline web page that you downloaded.",
     "setting.notice.clipping-js-path": "<strong>Clipping javascript Path</strong><br />Where to save clipping javascript file. <br />Use <strong>$MX-WC</strong> to represent extension root folder ($downloads/mx-wc)",
+    "setting.notice.refresh-history": "<strong>Refresh History</strong><br /> Using Native App to refresh clipping history. This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest.",
+    "setting.notice.refresh-history-warning": "<strong>Warning</strong>:<br /> you must install native application and choose native application as your clipping handler first",
+
 
     // label
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
@@ -107,7 +115,12 @@ I18N_DICT['en'] = {
     "setting.autogenerate-clipping-js-input.label": "Autogenerate javascript file",
     "setting.not-generated-yet.label": "Not generated yet",
     "setting.generate-now-msg-sent.label": "Autogenerate command has been sent",
+    "setting.generate-now-success.label": "Generate success",
     "setting.last-generate-time.label": "Last generated time",
+    "setting.auto-refresh-history-input.label": "Auto refresh history(when you open the browser)",
+    "setting.refresh-now-msg-sent.label": "Refresh command has been sent",
+    "setting.refresh-now-success.label": "Refresh success",
+    "setting.last-refresh-time.label": "Last refreshed time",
 
     // placeholder
     "setting.placeholder.notblank": "This value can not blank!",

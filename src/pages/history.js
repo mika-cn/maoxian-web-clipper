@@ -230,19 +230,13 @@
             if(result.ok) {
               deleteHistoryOnly(result.clip_id, true);
               if(result.message){
-                Notify.add(t(result.message), {
-                  type: 'success',
-                  behavior: 'manualDismiss'
-                });
+                Notify.error(t(result.message));
               } else {
-                Notify.add(t('history.notice.delete-history-success'));
+                Notify.success(t('history.notice.delete-history-success'));
               }
             } else {
               console.error(result)
-              Notify.add(t(result.message), {
-                type: 'danger',
-                behavior: 'manualDismiss'
-              });
+              Notify.error(t(result.message));
             }
           });
         });
@@ -412,7 +406,7 @@
     confirmIfNeed(t('history.confirm-msg.clear-history'), () => {
       MxWcStorage.set('clips', [])
       renderClips([]);
-      Notify.add(t('history.notice.clear-history-success'));
+      Notify.success(t('history.notice.clear-history-success'));
     })
   }
 

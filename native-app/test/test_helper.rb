@@ -37,13 +37,19 @@ module T
     end
   end
 
-  def self.create_file(filename)
-    mkdir(filename)
-    FileUtils.touch(filename)
+  def self.create_file(filename, content = nil)
+    dir = File.dirname(filename)
+    mkdir(dir)
+    if content
+      File.open(filename, 'w') do |f|
+        f.write content
+      end
+    else
+      FileUtils.touch(filename)
+    end
   end
 
-  def self.mkdir(filename)
-    dir = File.dirname(filename)
+  def self.mkdir(dir)
     unless File.exist?(dir)
       FileUtils.mkdir_p(dir)
     end

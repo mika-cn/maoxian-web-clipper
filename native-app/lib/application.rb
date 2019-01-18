@@ -6,9 +6,10 @@ require 'base64'
 require_relative './log'
 require_relative './native_message'
 require_relative './clipping'
+require_relative './history'
 
 class Application
-  VERSION = '0.1.4'
+  VERSION = '0.1.5'
 
   attr_accessor :config
 
@@ -42,6 +43,9 @@ class Application
     when 'clipping.op.delete' then
       result = Clipping.delete(root, msg)
       NativeMessage.write({type: msg['type']}.merge(result))
+    when 'history.refresh' then
+      result = History.refresh(root)
+      NativeMessage.write(msg.merge(result))
     else
       Log.error("unknow message: #{msg['type']}")
       NativeMessage.write({type: msg['type'], ok: false, message: 'unknow-message' })
