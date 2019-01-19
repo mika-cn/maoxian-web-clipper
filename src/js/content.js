@@ -36,28 +36,44 @@
   }
 
   function focusElem(e) {
-    queryElem(e, (elem) => {
+    const msg = parseMsgFromTpEvent(e);
+    queryElem(msg, (elem) => {
       UI.focusElem(elem)
     });
   }
 
   function confirmElem(e) {
-    queryElem(e, (elem) => {
+    const msg = parseMsgFromTpEvent(e);
+    queryElem(msg, (elem) => {
       UI.confirmElem(elem)
     });
   }
 
   function clipElem(e) {
-    queryElem(e, (elem) => {
-      UI.clipElem(elem, (e.detail.options || {}));
+    const msg = parseMsgFromTpEvent(e);
+    queryElem(msg, (elem) => {
+      UI.clipElem(elem, (msg.options || {}));
     });
   }
 
-  function queryElem(e, callback){
-    let elem = null;
-    if(e.detail.qType === 'css'){
-      elem =  T.queryElem(e.detail.q);
+  function parseMsgFromTpEvent(e) {
+    if(typeof e.detail === 'string') {
+      // Firefox(Gecko) restict(for secure reason) e.detail when it is a custom object.
+      // We use json string to walk around.
+      return JSON.parse(e.detail);
     } else {
+      // Ensure compatible with old version(mx-wc-tool.js)
+      // e.detail is a custom object.
+      return e.detail;
+    }
+  }
+
+  function queryElem(msg, callback){
+    let elem = null;
+    if(msg.qType === 'css'){
+      elem =  T.queryElem(msg.q);
+    } else {
+      const xpath = msg.q;
       const xpathResult = document.evaluate(
         xpath,
         document,
