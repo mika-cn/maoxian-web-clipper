@@ -2,7 +2,7 @@
 A simple extension to choose article area quickly for MaoXian Web Clipper.
 
 The following website is work well:
-- junjin.im
+- juejin.im
 - cnblogs.com
 - oschina.net
 - infoq.com
