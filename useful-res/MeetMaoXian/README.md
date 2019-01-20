@@ -1,7 +1,7 @@
 # Meet MaoXian
 A simple extension to choose article area quickly for MaoXian Web Clipper.
 
-The following website is work well
+The following website is work well:
 - junjin.im
 - cnblogs.com
 - oschina.net
