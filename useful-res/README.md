@@ -7,8 +7,9 @@ This folder contains useful resources shared by users. Most of them are provided
 
 You can put your script in this folder or just add a link to this file.
 
-## Scripts
-
 If your script is used to interact with MaoXian, Consider name your script with `mx-wc-` prefix (e.g. mx-wc-hide-form.user.js)
 
-[script list here]
+## Scripts
+
+* [mx-wc-hide-elem.user.js](#) Hide useless elements when MaoXian is active.
+* [mx-wc-focus-elem.user.js](#) Focus main element when MaoXian is active.

@@ -1,6 +1,6 @@
 ;
 /*!
- * $version: 0.0.3
+ * $version: 0.0.4
  *
  */
 
@@ -25,33 +25,39 @@ MxWc.Rule.parse = function(ruleStr) {
   }
 }
 
-MxWc.Rule.isMatch = function(rule, win) {
+MxWc.Rule.isMatch = function(rule) {
   if(rule){
-    let isHostMatch = false;
-    const index = rule.host.indexOf('*');
-    if( index > -1) {
-      if(rule.host.length === 1) {
-        isHostMatch = true;
-      } else {
-        switch(index){
-          case 0 :
-            isHostMatch = win.location.host.endsWith(rule.host.replace('*', ''));
-            break;
-          case rule.host.length - 1 :
-            isHostMatch = win.location.host.startsWith(rule.host.replace('*', ''));
-            break;
-          default:
-            console.error('Rule: host invalid:', rule.host);
-            isHostMatch = false;
-        }
-      }
-    } else {
-      isHostMatch = (rule.host === win.location.host);
-    }
-    return isHostMatch && win.location.pathname.indexOf(rule.path) > -1;
+    const isHostMatch = MxWc.Rule.matchHost(rule.host, window.location.host);
+    const isPathMatch = MxWc.Rule.matchPath(rule.path, window.location.pathname);
+    return isHostMatch && isPathMatch;
   } else {
     return false;
   }
+}
+
+MxWc.Rule.matchHost = function(ruleHost, currHost) {
+  const index = ruleHost.indexOf('*');
+  if( index > -1) {
+    if(ruleHost.length === 1) {
+      return true;
+    } else {
+      switch(index){
+        case 0 :
+          return currHost.endsWith(ruleHost.replace('*', ''));
+        case ruleHost.length - 1 :
+          return currHost.startsWith(ruleHost.replace('*', ''));
+        default:
+          console.error('Rule: host invalid:', ruleHost);
+          return false
+      }
+    }
+  } else {
+    return ruleHost === currHost;
+  }
+}
+
+MxWc.Rule.matchPath = function(rulePath, currPath) {
+  return currPath.indexOf(rulePath) > -1
 }
 
 MxWc.Rule.getTypeName = function(rule) {
@@ -93,14 +99,26 @@ MxWc.queryElemsByXpath = function(xpath) {
   return elems;
 }
 
-MxWc.matchRules = function(rules) {
+MxWc.matchRules = function(rules, matchFirstRule) {
   const r = [];
-  rules.forEach(function(rule) {
-    const it = MxWc.Rule.parse(rule);
-    if(MxWc.Rule.isMatch(it, window)){
-      r.push(it);
-    }
-  });
+  if(matchFirstRule) {
+    rules.some(function(rule) {
+      const it = MxWc.Rule.parse(rule);
+      if(MxWc.Rule.isMatch(it)){
+        r.push(it);
+        return true
+      } else {
+        return false
+      }
+    });
+  } else {
+    rules.forEach(function(rule) {
+      const it = MxWc.Rule.parse(rule);
+      if(MxWc.Rule.isMatch(it)){
+        r.push(it);
+      }
+    });
+  }
   return r;
 }
 
@@ -113,23 +131,41 @@ MxWc.dispatchEvent = function(name, detail){
 
 
 /*
- * ${type}
- *   auto    => invoke when maoxian is ready.
- *   trigger => invoke when maoxian is enable.
+ * ${action} action to perform
+ * ${option}
+ *   type:
+ *     auto    => invoke when MaoXian is ready.
+ *     trigger => invoke when MaoXian is enable.
+ *   isMatchFirstRule: {boolean}
  */
-MxWc.createCmd = function(type, action) {
+MxWc.createCmd = function(action, option) {
   return function Cmd(){
-    const state = {rules: []};
+    const state = {rules: [], performedTimes: 0};
     const Action = action;
+    const type = option.type;
+    const isMatchFirstRule = option.isMatchFirstRule;
+    const isPerformOnce = option.isPerformOnce;
 
-    // query match rules
+    // query matched rules (may cost a long time)
     function initRules(rules){
-      state.rules = MxWc.matchRules(rules);
+      return new Promise(function(resolve, _) {
+        state.rules = MxWc.matchRules(rules, isMatchFirstRule);
+        resolve(state.rules);
+      });
+    }
+
+    function matchedRules(){
+      return state.rules;
     }
 
     function perform(){
-      console.log(Action.name, "PERFORM");
-      Action.perform(state.rules);
+      if(isPerformOnce && state.performedTimes > 0){
+        // Do nothing
+      } else {
+        console.log(Action.name, "PERFORM");
+        Action.perform(state.rules);
+        state.performedTimes++;
+      }
     }
 
     function undo(){
@@ -153,8 +189,8 @@ MxWc.createCmd = function(type, action) {
     }
 
     function init(rules) {
-      initRules(rules);
       bindListener();
+      return initRules(rules);
     }
 
     return {init: init}
@@ -227,9 +263,21 @@ MxWc.Action.Confirm = function(){
 }
 
 MxWc.Cmd = {};
-MxWc.Cmd.Hide = MxWc.createCmd('trigger', MxWc.Action.Hide())
-MxWc.Cmd.Focus = MxWc.createCmd('trigger', MxWc.Action.Focus())
-MxWc.Cmd.Confirm = MxWc.createCmd('trigger', MxWc.Action.Confirm())
+MxWc.Cmd.Hide = MxWc.createCmd(MxWc.Action.Hide(), {
+  type: 'trigger',
+  isMatchFirstRule: false,
+  isPerformOnce: false
+});
+MxWc.Cmd.Focus = MxWc.createCmd(MxWc.Action.Focus(), {
+  type: 'trigger',
+  isMatchFirstRule: true,
+  isPerformOnce: true
+})
+MxWc.Cmd.Confirm = MxWc.createCmd(MxWc.Action.Confirm(), {
+  type: 'trigger',
+  isMatchFirstRule: true,
+  isPerformOnce: true
+})
 
 
 MxWc.newHideCmd = function() {
@@ -243,7 +291,7 @@ MxWc.newFocusCmd = function() {
 }
 
 MxWc.newConfirmCmd = function() {
-  const cmd =  new MxWc.Cmd.Confirm();
+  const cmd = new MxWc.Cmd.Confirm();
   return cmd;
 }
 
@@ -261,7 +309,11 @@ MxWc.newClipCmd = function(options) {
       }
     }
   }
-  const Cmd = MxWc.createCmd('auto', action);
+  const Cmd = MxWc.createCmd(action, {
+    type: 'auto',
+    isMatchFirstRule: true,
+    isPerformOnce: true
+  });
   const cmd = new Cmd();
   return cmd;
 };
