@@ -87,9 +87,8 @@
       callback(elem)
     } else {
       Log.warn("[MaoXian] Can't find elem according to q");
-      Log.warn("eventType:", e.type);
-      Log.warn("qType:", e.detail.qType);
-      Log.warn("q:", e.detail.q);
+      Log.warn("qType:", msg.qType);
+      Log.warn("q:", msg.q);
     }
   }
 

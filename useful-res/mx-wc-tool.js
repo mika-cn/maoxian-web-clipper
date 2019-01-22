@@ -1,6 +1,6 @@
 ;
 /*!
- * $version: 0.0.4
+ * $version: 0.0.5
  *
  */
 
@@ -15,13 +15,23 @@ var MxWc = (MxWc || {});
  * $q    => css selector Or Xpath
  */
 MxWc.Rule = {};
-MxWc.Rule.parse = function(ruleStr) {
+MxWc.Rule.parse = function(line) {
   const SEPARATOR = '||';
-  const r = ruleStr.trim().split(SEPARATOR);
-  if(r.length === 4){
-    return { type: r[0].trim(), host: r[1].trim(), path: r[2].trim(), q: r[3].trim()}
-  } else {
+  const ruleStr = line.trim();
+  if(ruleStr.startsWith('#')){
+    // is a comment
     return null;
+  } else {
+    const r = ruleStr.split(SEPARATOR);
+    switch(r.length) {
+      case 2:
+        return { type: 'C', host: r[0], path: '/', q: r[1] };
+      case 3:
+        return { type: 'C', host: r[0], path: r[1], q: r[2]};
+      case 4:
+        return { type: r[0], host: r[1], path: r[2], q: r[3]};
+      default: return null;
+    }
   }
 }
 
@@ -188,12 +198,28 @@ MxWc.createCmd = function(action, option) {
       }
     }
 
+    function unbindListener() {
+      switch(type) {
+        case 'trigger':
+          document.removeEventListener('mx-wc.selecting', perform);
+          document.removeEventListener('mx-wc.idle', undo);
+          break;
+        case 'auto':
+          document.removeEventListener('mx-wc.ready', perform);
+          break;
+        default: break;
+      }
+    }
+
     function init(rules) {
       bindListener();
       return initRules(rules);
     }
 
-    return {init: init}
+    return {
+      init: init,
+      cancel: unbindListener
+    }
   }
 };
 
