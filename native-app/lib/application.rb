@@ -9,7 +9,7 @@ require_relative './clipping'
 require_relative './history'
 
 class Application
-  VERSION = '0.1.5'
+  VERSION = '0.1.6'
 
   attr_accessor :config
 
@@ -74,10 +74,17 @@ class Application
       File.open(filename, 'wb') {|file| file.write content}
       NativeMessage.write({type: msg['type'], filename: filename})
       Log.debug("[Done] #{filename}")
+    rescue SocketError => e
+      Log.error("[SocketError] #{msg['url']} #{e.message}")
     rescue Errno::ECONNREFUSED => e
       Log.error("[Connect Refused] #{msg['url']} #{e.message}")
     rescue ::Net::OpenTimeout => e
       Log.error("[Net openTimeout] #{msg['url']} #{e.message}")
+    rescue OpenURI::HTTPError => e
+      Log.error("[OpenUri HTTPError] #{msg['url']} #{e.message}")
+    rescue => e
+      Log.fatal("[Uncatch Error: #{e.class}] #{msg['url']} #{e.message}")
+      Log.fatal(e.backtrace.join("\n"))
     end
   end
 

@@ -8,6 +8,7 @@ this.MxWcConfig = (function() {
     return {
       saveFormat: 'html',
       saveWebFont: false,
+      saveCssImage: false,
       saveClippingInformation: true,
       saveDomainAsTag: false,
 

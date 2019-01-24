@@ -106,6 +106,7 @@ I18N_DICT['zh-CN'] = {
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
     "setting.save-web-font-input.label": "保存Web字体(建议取消勾选)",
+    "setting.save-css-image-input.label": "存储 CSS 背景图(建议取消勾选)",
     "setting.save-domain-tag-input.label": "裁剪时，添加当前域名为标签",
     "setting.save-title-as-fold-name-input.label": "使用标题作为文件夹的名字（默认为扩展自动生成）",
     "setting.save-title-as-filename-input.label": "使用标题作为文件名（默认为 index.html 或 index.md ）",

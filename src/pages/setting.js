@@ -103,6 +103,10 @@
       'saveWebFont'
     );
     initCheckboxInput(config,
+      'save-css-image',
+      'saveCssImage'
+    );
+    initCheckboxInput(config,
       'save-domain-as-tag',
       'saveDomainAsTag'
     );
