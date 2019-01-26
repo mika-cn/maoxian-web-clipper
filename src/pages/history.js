@@ -118,7 +118,7 @@
         break;
     }
     return T.renderTemplate(template, {
-      title: v.clip.title,
+      title: T.escapeHtml(v.clip.title),
       clipPath: clipPath,
       createdAt: v.clip.created_at,
       category: v.clip.category,
@@ -144,7 +144,7 @@
           time: renderTime(clip),
           category: clip.category,
           tags: clip.tags.join(", "),
-          title: clip.title
+          title: T.escapeHtml(clip.title)
         }));
       });
       T.setHtml('.clippings > tbody', items.join(''));

@@ -5,20 +5,16 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
 }
 
-a {
-  text-decoration: none;
-}
-
-a:hover{
-  text-decoration: underline;
-}
+a { text-decoration: none; }
+a:hover{ text-decoration: underline; }
 
 .main {
-  padding: 40px 10px 200px 10px;
+  padding: 25px 0px 200px 0px;
 }
 
 .search-box{
-  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 #search {
@@ -36,30 +32,52 @@ a:hover{
   margin-top: 10px;
 }
 
-table {
-  width: 100%;
-  padding: 5px;
-  border-radius: 3px;
-  border-collapse: collapse;
-  font-size: 13px;
+.clippings {
+  padding: 30px 5px 30px 5px;
+  border: solid 1px #ccc;
+  background-color: rgb(226, 226, 226);
 }
 
-.list > table {
-  background-color: #f8f8f8;
-  margin-bottom: 15px;
+.clipping {
+  background-color: white;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 15px 8px 5px 8px;
+  box-shadow: 0 2px 3px rgba(0,0,0,.1);
 }
 
-.list > table > thead {
-  background-color: #e8e8e8;
+.clipping > .title > h4 {
+  margin-top: 0px;
+  margin-bottom: 10px;
 }
 
-.list > table > tbody > tr:hover {
-  background-color: #e5e5e5;
+.clipping > .info > label {
+  color: #888;
+  line-height: 24px;
+  font-size: 14px;
 }
 
-.list > table th,td {
-  line-height: 25px;
-  border: 1px solid #ccc;
-  padding: 2px 5px 2px 5px;
+.clipping > .info > .category {
+  border-bottom: dashed 1px #ccc;
+  /*border-left: solid 2px green;*/
+  padding: 2px 4px;
+  margin-right: 10px;
 }
 
+.clipping > .info > .tags {
+  margin-right: 10px;
+}
+
+.clipping > .info > .tags > code {
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: solid 1px #ccc;
+  margin-left: 2px;
+  margin-right: 2px;
+  font-size: 12px;
+}
+
+.clipping > .info > .time {
+  font-size: 11px;
+  color: #aaa;
+}

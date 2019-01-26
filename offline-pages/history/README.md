@@ -5,7 +5,7 @@
 
 This is a static page, which supports list and search clipping history like the MaoXian's history page does. use this page, you can browse your clippings offline.
 
-version: 0.0.2
+version: 0.0.3
 
 ## Usage
 
@@ -17,7 +17,7 @@ version: 0.0.2
 
 ### STEP 2: Open it with browser
 
-Use your favourite browser open that `index.html`
+Use your favourite browser open that `$downloads/mx-wc/history/index.html`
 
 ### STEP 3: Configure MaoXian extension
 
