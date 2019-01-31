@@ -16,7 +16,6 @@
   const CLASS_SAVE_BTN   = 'MX-wc-save-button';
   const CLASS_CANCEL_BTN = 'MX-wc-cancel-button';
   const INPUT_TAG_NAMES = ['INPUT', 'TEXTAREA']
-  let config = {};
 
   function initUI(){
     const entryHtml = renderUI();
@@ -35,19 +34,21 @@
     const tagstrInput = T.findElem(ID_TAGSTR);
     T.bindOnce(btn, 'click', entryClick);
 
-    // "c" hotkey
-    if(config.enableSwitchHotkey) {
-      T.bindOnce(document, "keydown", toggleSwitch);
-    }
-
     const bar = getStateBar();
-    if(config.enableMouseMode) {
-      bar.classList.add('mouse-friendly')
-      const helperPanel = T.firstElem('MX-wc-help');
-      helperPanel.classList.add('mouse-friendly');
-      T.bindOnce(helperPanel, 'click', helperPanelClicked);
-      //bind kbd listener
-    }
+    MxWcConfig.load().then((config) => {
+      // "c" hotkey
+      if(config.enableSwitchHotkey) {
+        T.bindOnce(document, "keydown", toggleSwitch);
+      }
+
+      if(config.enableMouseMode) {
+        bar.classList.add('mouse-friendly')
+        const helperPanel = T.firstElem('MX-wc-help');
+        helperPanel.classList.add('mouse-friendly');
+        //bind kbd listener
+        T.bindOnce(helperPanel, 'click', helperPanelClicked);
+      }
+    });
 
     // show help hint to new user.
     MxWcStorage.get('categories', [])
@@ -267,8 +268,8 @@
 
 
     titleInput.value = msg.title;
-    categoryInput.value='';
-    tagstrInput.value = '';
+    categoryInput.value= msg.category;
+    tagstrInput.value = msg.tagstr;
     MxWc.form.clearAutoComplete();
     MxWcStorage.get('categories', [])
       .then((v) => {
@@ -277,7 +278,9 @@
           minChars: 1,
           list: v
         })
-        categoryInput.focus();
+        if(msg.category === ''){
+          categoryInput.focus();
+        }
       })
     MxWcStorage.get('tags', [])
       .then((v) => {
@@ -298,6 +301,9 @@
             this.input.value = before + text + " ";
           }
         });
+        if(msg.category !== '') {
+          tagstrInput.focus();
+        }
       })
     return true;
   }
@@ -372,12 +378,8 @@
     Awesomplete: window.Awesomplete
   }
 
-  MxWcConfig.load()
-    .then((v) => {
-      config = v;
-      initUI();
-      initFrameMsg();
-      listenFrameMsg();
-      console.log('control layer ready..');
-    });
+  initUI();
+  initFrameMsg();
+  listenFrameMsg();
+  console.log('control layer ready..');
 })();

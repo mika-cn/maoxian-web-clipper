@@ -1,6 +1,7 @@
 ;
 /*!
- * $version: 0.0.5
+ * $version: 0.0.6
+ * $updated: 2019-01-30
  *
  */
 
@@ -135,7 +136,7 @@ MxWc.matchRules = function(rules, matchFirstRule) {
 MxWc.dispatchEvent = function(name, detail){
   const detailJson = JSON.stringify(detail)
   const ev = new CustomEvent(name, {detail: detailJson});
-  console.log('emitEvent', name, detail);
+  console.debug('emitEvent', name, detail);
   document.dispatchEvent(ev);
 }
 
@@ -273,68 +274,56 @@ MxWc.Action.Focus = function(){
   }
 }
 
-MxWc.Action.Confirm = function(){
+MxWc.getFormAction = function(name, eventName, options){
   return {
-    name: 'confirm',
-    perform: function(rules) {
-      const rule = rules[0];
-      if(rule) {
-        MxWc.dispatchEvent('mx-wc.confirm-elem', {
-          qType: MxWc.Rule.getTypeName(rule),
-          q: rule.q
-        });
-      }
-    }
-  }
-}
-
-MxWc.Cmd = {};
-MxWc.Cmd.Hide = MxWc.createCmd(MxWc.Action.Hide(), {
-  type: 'trigger',
-  isMatchFirstRule: false,
-  isPerformOnce: false
-});
-MxWc.Cmd.Focus = MxWc.createCmd(MxWc.Action.Focus(), {
-  type: 'trigger',
-  isMatchFirstRule: true,
-  isPerformOnce: true
-})
-MxWc.Cmd.Confirm = MxWc.createCmd(MxWc.Action.Confirm(), {
-  type: 'trigger',
-  isMatchFirstRule: true,
-  isPerformOnce: true
-})
-
-
-MxWc.newHideCmd = function() {
-  const cmd = new MxWc.Cmd.Hide();
-  return cmd;
-}
-
-MxWc.newFocusCmd = function() {
-  const cmd = new MxWc.Cmd.Focus();
-  return cmd;
-}
-
-MxWc.newConfirmCmd = function() {
-  const cmd = new MxWc.Cmd.Confirm();
-  return cmd;
-}
-
-MxWc.newClipCmd = function(options) {
-  const action = {
+    name: name,
     options: options,
     perform: function(rules) {
       const rule = rules[0];
       if(rule) {
-        MxWc.dispatchEvent('mx-wc.clip-elem', {
+        MxWc.dispatchEvent(eventName, {
           qType: MxWc.Rule.getTypeName(rule),
           q: rule.q,
-          options: this.options
+          options: (this.options || {})
         });
       }
     }
   }
+}
+
+MxWc.newHideCmd = function() {
+  const Cmd = MxWc.createCmd(MxWc.Action.Hide(), {
+    type: 'trigger',
+    isMatchFirstRule: false,
+    isPerformOnce: false
+  });
+  const cmd = new Cmd();
+  return cmd;
+}
+
+MxWc.newFocusCmd = function() {
+  const Cmd = MxWc.createCmd(MxWc.Action.Focus(), {
+    type: 'trigger',
+    isMatchFirstRule: true,
+    isPerformOnce: true
+  })
+  const cmd = new Cmd();
+  return cmd;
+}
+
+MxWc.newConfirmCmd = function(options) {
+  const action = MxWc.getFormAction('confirm', 'mx-wc.confirm-elem', options);
+  const Cmd = MxWc.createCmd(action, {
+    type: 'trigger',
+    isMatchFirstRule: true,
+    isPerformOnce: true
+  })
+  const cmd = new Cmd();
+  return cmd;
+}
+
+MxWc.newClipCmd = function(options) {
+  const action = MxWc.getFormAction('clip', 'mx-wc.clip-elem', options);
   const Cmd = MxWc.createCmd(action, {
     type: 'auto',
     isMatchFirstRule: true,
@@ -342,4 +331,13 @@ MxWc.newClipCmd = function(options) {
   });
   const cmd = new Cmd();
   return cmd;
+}
+
+MxWc.setFormInputs = function(inputs) {
+  const fn = function(e){
+    MxWc.dispatchEvent('mx-wc.set-form-inputs', {
+      options: inputs
+    });
+  };
+  document.addEventListener('mx-wc.selecting', fn);
 };

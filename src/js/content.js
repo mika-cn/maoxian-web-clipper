@@ -28,6 +28,7 @@
     T.bindOnce(document, 'mx-wc.focus-elem', focusElem);
     T.bindOnce(document, 'mx-wc.confirm-elem', confirmElem);
     T.bindOnce(document, 'mx-wc.clip-elem', clipElem);
+    T.bindOnce(document, 'mx-wc.set-form-inputs', setFormInputs);
     Log.debug('listenTpMessage');
   }
 
@@ -45,7 +46,7 @@
   function confirmElem(e) {
     const msg = parseMsgFromTpEvent(e);
     queryElem(msg, (elem) => {
-      UI.confirmElem(elem)
+      UI.confirmElem(elem, (msg.options || {}));
     });
   }
 
@@ -54,6 +55,11 @@
     queryElem(msg, (elem) => {
       UI.clipElem(elem, (msg.options || {}));
     });
+  }
+
+  function setFormInputs(e) {
+    const msg = parseMsgFromTpEvent(e);
+    UI.setFormInputs(msg.options || {});
   }
 
   function parseMsgFromTpEvent(e) {

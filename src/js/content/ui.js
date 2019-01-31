@@ -250,7 +250,8 @@ this.UI = (function(){
 
   function dispatchMxEvent(name, data) {
     const eventName = ['mx-wc', name].join('.');
-    const e = new CustomEvent(eventName, {detail: (data || {})});
+    const detailJson = JSON.stringify(data || {})
+    const e = new CustomEvent(eventName, {detail: detailJson});
     document.dispatchEvent(e);
   }
 
@@ -261,9 +262,11 @@ this.UI = (function(){
       T.bindOnce(document, 'all-iframe-loaded', enable)
       append();
     }else{
-      ignoreFrameMsg();
-      disable();
-      remove();
+      if(state.clippingState !== 'clipping') {
+        ignoreFrameMsg();
+        disable();
+        remove();
+      }
     }
   }
 
@@ -415,7 +418,7 @@ this.UI = (function(){
 
   function pressEnter(msg){
     if(state.clippingState === 'selected'){
-      sendFrameMsgToControl('showForm', {title: document.title});
+      sendFrameMsgToControl('showForm', getFormInputs(msg));
     }
   }
 
@@ -507,6 +510,9 @@ this.UI = (function(){
     remove();
   }
 
+  /*
+   * 3rd party interface
+   */
   function focusElem(elem, callback){
     if(state.clippingState === 'idle') {
       Log.debug("[focus] State Idle...");
@@ -528,24 +534,45 @@ this.UI = (function(){
     }
   }
 
-  function confirmElem(elem){
+  /*
+   * 3rd party interface
+   * options: {:title, :category, :tagstr}
+   */
+  function confirmElem(elem, options){
     focusElem(elem, function(){
-      pressEnter({});
+      pressEnter(options);
     });
   }
 
   /*
-   * options: {:category, :tagstr}
+   * 3rd party interface
+   * options: {:title, :category, :tagstr}
    */
   function clipElem(elem, options){
     focusElem(elem, function(){
-      startClip({
-        title: (options.title || document.title),
-        category: (options.category || ""),
-        tagstr: (options.tagstr || "")
-      });
+      startClip(getFormInputs(options));
     });
   }
+
+  /*
+   * 3rd party interface
+   * options: {:title, :category, :tagstr}
+   */
+  state.formInputs = {};
+  function setFormInputs(options) {
+    state.formInputs = options;
+  }
+
+  function getFormInputs(options) {
+    const inputs = {
+      title    : (options.title    || state.formInputs.title    || document.title),
+      category : (options.category || state.formInputs.category || ""),
+      tagstr   : (options.tagstr   || state.formInputs.tagstr   || "")
+    };
+    setFormInputs({});
+    return inputs;
+  }
+
 
   return {
     remove: remove,
@@ -553,8 +580,10 @@ this.UI = (function(){
     windowSizeChanged: windowSizeChanged,
     downloadCompleted: downloadCompleted,
 
+    // 3rd party interface
     focusElem: focusElem,
     confirmElem: confirmElem,
-    clipElem: clipElem
+    clipElem: clipElem,
+    setFormInputs: setFormInputs,
   }
 })();
