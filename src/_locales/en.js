@@ -132,7 +132,7 @@ I18N_DICT['en'] = {
 
 
     //history page
-    "history.placeholder.search": "title or tag or category",
+    "history.placeholder.search": "title or tag or category or original url",
     "history.placeholder.created-at-from": "from date",
     "history.placeholder.created-at-to": "to date",
     "history.placeholder.category": "category",
@@ -144,6 +144,7 @@ I18N_DICT['en'] = {
     "history.a.reset_history": "Reset history",
     "history.th.title": "Title",
     "history.th.path": "Path",
+    "history.th.original-url": "From",
     "history.th.time": "Time",
     "history.th.category": "Category",
     "history.th.tag": "Tag",

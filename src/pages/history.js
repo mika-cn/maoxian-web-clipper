@@ -120,6 +120,7 @@
     return T.renderTemplate(template, {
       title: T.escapeHtml(v.clip.title),
       clipPath: clipPath,
+      originalUrl: v.clip.link,
       createdAt: v.clip.created_at,
       category: v.clip.category,
       tags: v.clip.tags.join(", "),
@@ -334,6 +335,13 @@
     });
     const btn = T.findElem('search-btn');
     T.bindOnce(btn, 'click', searchAction);
+    const btns = T.queryElems('button[type=reset]');
+    T.each(btns, (it) => {
+      T.bind(it, 'click', function(e) {
+        e.target.parentNode.reset();
+        searchAction();
+      });
+    });
   }
 
   function getKeyword(){
@@ -370,7 +378,8 @@
         __logic__: 'OR',
         title: ['match', regExp],
         category: ['match', regExp],
-        tags: ['memberMatch', regExp]
+        tags: ['memberMatch', regExp],
+        link: ['equal', keyword]
       };
     }
     clips = Query.queryObj(clips, qRowB);

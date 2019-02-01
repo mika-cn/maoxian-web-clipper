@@ -130,7 +130,7 @@ I18N_DICT['zh-CN'] = {
     "setting.clipping-handler-option.native-app": "本地程序下载",
 
     //history page
-    "history.placeholder.search": "可搜索标题、标签、目录",
+    "history.placeholder.search": "可搜索标题、标签、目录、源网址",
     "history.placeholder.created-at-from": "起始日期",
     "history.placeholder.created-at-to": "结束日期",
     "history.placeholder.category": "目录",
@@ -142,6 +142,7 @@ I18N_DICT['zh-CN'] = {
     "history.a.reset_history": "重置历史",
     "history.th.title": "标题",
     "history.th.path": "路径",
+    "history.th.original-url": "裁自",
     "history.th.time": "时间",
     "history.th.category": "目录",
     "history.th.tag": "标签",

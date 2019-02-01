@@ -116,6 +116,7 @@ table {
   border: 1px solid #ccc;
   padding: 2px 5px 2px 5px;
   overflow: hidden;
+  word-break: break-word;
 }
 .modal > .mask > .content > table th{
   text-align: center;

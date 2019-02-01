@@ -27,6 +27,7 @@
         <form>
           <input id="search" type="text" i18n-attr="placeholder:history.placeholder.search"/>
           <button id="search-btn" i18n="history.btn.search"></button>
+          <button type="reset" i18n="history.btn.reset"></button>
         </form>
       </div>
 
@@ -105,6 +106,12 @@
           <tr>
             <th i18n="history.th.tag"></th><td>${tags}</td>
             <th i18n="history.th.format"></th><td>${format}</td>
+          </tr>
+          <tr>
+            <th i18n='history.th.original-url'></th>
+            <td colspan="3">
+              <a href="${originalUrl}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${originalUrl}</a>
+            </td>
           </tr>
         </tbody>
       </table>
