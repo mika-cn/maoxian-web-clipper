@@ -246,6 +246,16 @@ function welcomeNewUser(){
     })
 }
 
+// Native App Config may changed, update it
+function updateNativeAppConfig(){
+  getClippingHandler((handler) => {
+    if(handler.name === 'native-app') {
+      Log.debug('updateNativeAppConfig');
+      handler.initDownloadFold();
+    }
+  });
+}
+
 function checkNativeAppVersion(){
   getClippingHandler((handler) => {
     if(handler.name === 'native-app') {
@@ -305,6 +315,7 @@ function init(){
   ExtApi.addMessageListener(messageHandler);
   Log.debug("background init...");
   welcomeNewUser();
+  updateNativeAppConfig();
   checkNativeAppVersion();
   refreshHistoryIfNeed();
 }

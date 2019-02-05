@@ -1,2 +1,3 @@
+# ATTENTION: restart the browser to apply your changes.
 environment: 'production'
 data_dir: '/home/jack/clipping'

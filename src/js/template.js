@@ -135,7 +135,7 @@ ${MxWcTemplate.clippingInformationStyle}
 
 MxWcTemplate.bodyPage = {
   render: function(v) {
-    let elemHtml = v.elemHtml.replace(/<body>/i, '');
+    let elemHtml = v.elemHtml.replace(/<body[^>]*>/i, '');
     elemHtml = elemHtml.replace(/<\/body>/i, '');
     elemHtml = `<div id="${v.bodyId}" class="${v.bodyClass}">${elemHtml}</div>`;
   return `
