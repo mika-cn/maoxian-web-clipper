@@ -31,10 +31,23 @@ That's it, Not bored registration, Not charged.
 
 [scripts](tree/master/useful-res/README.md#scripts)
 
+## Third party library
+
+Thanks to these awesome libraries for making MaoXian's development become more easier.
+
+* [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
+* [JavaScript-MD5](https://github.com/blueimp/JavaScript-MD5)
+* [i18njs](http://i18njs.com/)
+* [turndown](https://github.com/domchristie/turndown)
+* [turndown-plugin-gfw](https://github.com/domchristie/turndown-plugin-gfm)
+* [strip-css-comments](https://github.com/sindresorhus/strip-css-comments)
+* [awesomplete](https://github.com/LeaVerou/awesomplete)
+* [font-awesome](https://github.com/FortAwesome/Font-Awesome)
+* [pikaday](https://github.com/Pikaday/Pikaday)
+
 ## Contribution
 You could help MaoXian Web Clipper development in many ways.
 
 * [Sending feedback and suggestion](https://github.com/mika-cn/maoxian-web-clipper/issues).
 * Spread and promote this extension to your friend. Popularity is a strong power to drive developers.
 * If you're software developer, pull requests are welcome.
-* Love it? consider [make a donation](https://mika-cn.github.io/maoxian-web-clipper/donate.html)。
