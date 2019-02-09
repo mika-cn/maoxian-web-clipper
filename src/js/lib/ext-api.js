@@ -97,17 +97,22 @@ ExtApi.sendMessageToContent = (message, tabId, frameId) => {
       browser.tabs.sendMessage(tabId, message, options)
         .then(resolve)
         .catch((err) => {
+          console.log(tabId, frameId);
           console.log(message);
           console.error(err);
           console.trace();
+          resolve(undefined);
         })
     }else{
       ExtApi.getCurrentTab().then((tab) => {
         browser.tabs.sendMessage(tab.id, message, options)
           .then(resolve)
           .catch((err) => {
+            console.log(tabId, frameId);
             console.log(message);
-            console.log(err)
+            console.error(err);
+            console.trace();
+            resolve(undefined);
           })
       })
     }

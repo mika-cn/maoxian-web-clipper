@@ -125,7 +125,7 @@ this.MxWcMarkdown = (function() {
               // Replace frame element use frame html.
               const frameElem = frameElems[idx];
               const newNode = win.document.createElement("div");
-              newNode.innerHTML = frameHtml;
+              newNode.innerHTML = (frameHtml || '');
               if(container === frameElem) {
                 container = newNode;
               } else {

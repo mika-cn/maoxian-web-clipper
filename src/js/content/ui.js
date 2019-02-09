@@ -13,14 +13,16 @@ this.UI = (function(){
     this.element.addEventListener('load', () => {
       this.frameLoaded();
     });
-    document.body.appendChild(this.element);
+    //document.body.appendChild(this.element);
+    document.body.parentElement.appendChild(this.element);
     Log.debug(this.id, 'append');
   }
 
   function removeIframe(){
     this.ready = false;
     if(this.element){
-      document.body.removeChild(this.element);
+      //document.body.removeChild(this.element);
+      document.body.parentElement.removeChild(this.element);
       this.element = null;
       Log.debug(this.id, 'removed');
     }

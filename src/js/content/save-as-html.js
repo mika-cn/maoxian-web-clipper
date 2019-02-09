@@ -154,22 +154,28 @@ this.MxWcHtml = (function () {
                     saveWebFont: saveWebFont
                   }
                 }).then((frameHtml) => {
-                  // render frameHtml and download frame
-                  const {styleHtml, elemHtml} = frameHtml;
-                  const html = MxWcTemplate.framePage.render({
-                    originalSrc: frame.url,
-                    title: win.document.title,
-                    styleHtml: styleHtml,
-                    html: elemHtml
-                  });
-                  TaskStore.save({
-                    clipId: clipId,
-                    type: 'text',
-                    mimeType: 'text/html',
-                    filename: T.joinPath([path.clipFold, assetName]),
-                    text: html
-                  })
-                })
+                  if(frameHtml) {
+                    // render frameHtml and download frame
+                    const {styleHtml, elemHtml} = frameHtml;
+                    const html = MxWcTemplate.framePage.render({
+                      originalSrc: frame.url,
+                      title: win.document.title,
+                      styleHtml: styleHtml,
+                      html: elemHtml
+                    });
+                    TaskStore.save({
+                      clipId: clipId,
+                      type: 'text',
+                      mimeType: 'text/html',
+                      filename: T.joinPath([path.clipFold, assetName]),
+                      text: html
+                    })
+                  } else {
+                    // Do nothing.
+                    // Frame page failed to load.
+                    // frameHtml is undefind, call by promise.catch
+                  }
+                });
               }
             });
             resolve(clonedElem);
