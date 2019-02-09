@@ -414,6 +414,12 @@ this.MxWcHtml = (function () {
       return r.cssText;
     });
 
+    // fix body's children style
+    const cssBodyExp = /[\{\}\s,;]{1}(body\s*>)/igm;
+    styleText = styleText.replace(cssBodyExp, function(match, p1){
+      return match.replace(p1, "body ");
+    });
+
     return styleText;
   }
 
@@ -470,11 +476,11 @@ this.MxWcHtml = (function () {
   }
 
   function getElemRenderParams(elem){
-    const bodyId = document.body.id;
-    const bodyClass = document.body.className;
     if (elem.tagName === 'BODY') {
-      return { bodyId: bodyId, bodyClass: bodyClass }
+      return {};
     } else {
+      const bodyId = document.body.id;
+      const bodyClass = document.body.className;
       let bodyBgCss = getBgCss(document.body);
       const elemWrappers = getWrappers(elem, []);
       const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem

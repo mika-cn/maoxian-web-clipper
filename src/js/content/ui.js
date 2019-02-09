@@ -141,6 +141,9 @@ this.UI = (function(){
   function mouseMove(msg) {
     try {
       const elem = getElementFromPoint(msg.x, msg.y);
+      if(['HTML'].indexOf(elem.tagName) > -1) {
+        return;
+      }
       if(state.currElem && state.currElem == elem){
         // event trigger in same element
         return;

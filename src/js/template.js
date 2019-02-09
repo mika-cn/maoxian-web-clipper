@@ -135,9 +135,8 @@ ${MxWcTemplate.clippingInformationStyle}
 
 MxWcTemplate.bodyPage = {
   render: function(v) {
-    let elemHtml = v.elemHtml.replace(/<body[^>]*>/i, '');
-    elemHtml = elemHtml.replace(/<\/body>/i, '');
-    elemHtml = `<div id="${v.bodyId}" class="${v.bodyClass}">${elemHtml}</div>`;
+    const infoHtml = MxWcTemplate.clippingInformation.render(v);
+    const bodyHtml = v.elemHtml.replace(/<\/body>/i, [infoHtml, "</body>"].join("\n"));
   return `
 <!DOCTYPE html>
 <html>
@@ -149,24 +148,15 @@ MxWcTemplate.bodyPage = {
     <title>${v.info.title}</title>
     ${v.styleHtml}
     <style class="mx-wc-style">
-      .mx-wc-main img {max-width: 100%;}
-      .mx-wc-main{
-        margin: 0 auto;
-      }
 ${MxWcTemplate.clippingInformationStyle}
     </style>
   </head>
-  <body>
-    <div class="mx-wc-main">
-      ${elemHtml}
-      ${MxWcTemplate.clippingInformation.render(v)}
-    </div>
-  </body>
+  ${bodyHtml}
 </html>`;
   }
 }
 MxWcTemplate.clippingInformationStyle = `
-      .mx-wc-main > .clipping-information{
+      .clipping-information{
         text-align: left;
         margin-top: 20px;
         background-color: #eeeeee !important;
@@ -176,15 +166,15 @@ MxWcTemplate.clippingInformationStyle = `
         font-size: 14px !important;
         line-height: 22px !important;
       }
-      .mx-wc-main > .clipping-information a {
+      .clipping-information a {
         color: blue !important;
         text-decoration: underline !important;
       }
-      .mx-wc-main > .clipping-information label {
+      .clipping-information label {
         display: inline;
         text-transform: none;
       }
-      .mx-wc-main > .clipping-information label > code {
+      .clipping-information label > code {
         padding: 2px 8px;
         background-color: rgba(200, 200, 200, 0.7)!important;
         font-size: 14px;
