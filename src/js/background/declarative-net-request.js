@@ -7,6 +7,25 @@ import ExtApi  from '../lib/ext-api.js';
 // @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/declarativeNetRequest/RuleCondition
 // @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/declarativeNetRequest/RuleAction
 
+// If we could utilize web page cache in background
+// So that these asset rquest can be cached use DNR
+//
+// Then use this module to cache assets.
+//
+//
+//  manifest.permissions
+//    "declarativeNetRequestWithHostAccess",
+//    "declarativeNetRequestFeedback",
+//
+//  "declarative_net_request": {
+//    "rule_resources": [{
+//      "enabled": false,
+//      "id": "ruleset_cache",
+//      "path": "json/cache-rules.json"
+//    }]
+//  },
+//
+
 const RULE_SET_ID   = 'ruleset_cache';
 const RULE_ID_CSS   = 11;
 const RULE_ID_IMAGE = 22;
