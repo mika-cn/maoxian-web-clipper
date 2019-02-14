@@ -435,6 +435,11 @@ function initSettingAdvanced(config) {
   );
 
   initRadioInput(config,
+    'request-credentials',
+    'requestCredentials',
+  );
+
+  initRadioInput(config,
     'request-referrer-policy',
     'requestReferrerPolicy',
   );

@@ -488,9 +488,21 @@ const hello = () =&gt; {
             <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
           </div>
 
+          <h4 i18n="title.request-credentials"></h4>
+          <div class="notice-info" i18n="notice.request-credentials"></div>
+          <div id="request-credentials">
+            <div>
+              <input type="radio" value="same-origin" id="request-credentials-a" name="request-credentials" />
+              <label for="request-credentials-a">same-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="omit" id="request-credentials-b" name="request-credentials" />
+              <label for="request-credentials-b">omit</label>
+            </div>
+          </div>
+
           <h4 i18n="title.request-referrer-policy"></h4>
           <div class="notice-info" i18n="notice.request-referrer-policy"></div>
-          <div class="notice-warning" i18n="notice.request-referrer-warning"></div>
           <div id="request-referrer-policy">
             <div>
               <input type="radio" value="no-referrer" id="request-referrer-policy-a" name="request-referrer-policy" />
@@ -519,10 +531,6 @@ const hello = () =&gt; {
             <div>
               <input type="radio" value="strict-origin-when-cross-origin" id="request-referrer-policy-g" name="request-referrer-policy" />
               <label for="request-referrer-policy-g">strict-origin-when-cross-origin</label>
-            </div>
-            <div>
-              <input type="radio" value="unsafe-url" id="request-referrer-policy-h" name="request-referrer-policy" />
-              <label for="request-referrer-policy-h">unsafe-url</label>
             </div>
           </div>
 

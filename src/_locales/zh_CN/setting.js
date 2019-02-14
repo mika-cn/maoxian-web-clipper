@@ -96,6 +96,7 @@
     "title.request-timeout": "超时设置",
     "title.request-max-tries": "最大尝试次数",
     "title.request-referrer-policy": "設置 Referrer 策略",
+    "title.request-credentials": "设置 Credentials",
     "title.request-cache": "缓存",
     "title.misc": "杂项",
     "title.offline-page": "离线索引页面",
@@ -313,7 +314,7 @@
     "notice.request-cache": '目前，只有 Chromium/Chrome 支持设置缓存。<br>当文件被浏览器缓存后，在裁剪时，就无需在下载一次，这在恶劣的环境里很有用',
     "notice.request-cache-warning": "<strong>警告:</strong><br /> 如果你是 Web 开发者，设置缓存可能会影响你的开发体验",
     "notice.request-referrer-policy": '当存放资源文件的服务器对 Referrer 请求头进行检查时，可能拒绝掉文件的下载请求<br>有些时候可以通过把 Referrer 策略设置成 <code>no-referrer</code>来绕过检查。<br>你可以在<a href="go.page:mdn.referrer-policy-header" target="_blank">这里</a>找到所有选项的说明',
-    "notice.request-referrer-warning": "<strong>警告:</strong><br>永远别选择 <code>unsafe-url</code> (它会泄露你的私人信息，如浏览历史给 CDN 服务器) 除非你真的明白风险和有明确的目的",
+    "notice.request-credentials": 'Credentials 是 cookie，TLS 客户端证书，或者包含用户名和密码的认证请求头<br>该设置控制浏览器在下载资源文件时（如图片）是否发送 Credentials。<br>请在<a href="go.page:mdn.request-credentials" target="_blank">此处</a>查看更多信息',
 
     // label
     "label.storage-folder": "存储目录",
