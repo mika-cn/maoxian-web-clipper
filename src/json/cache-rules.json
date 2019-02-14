@@ -3,6 +3,7 @@
     "id": 11,
     "priority": 1,
     "condition": {
+      "requestMethods": ["get"],
       "resourceTypes": ["stylesheet"],
       "excludeResponseHeaders": [
         {"header": "Cache-Control"}
@@ -21,6 +22,7 @@
     "id": 22,
     "priority": 1,
     "condition": {
+      "requestMethods": ["get"],
       "resourceTypes": ["image"],
       "excludeResponseHeaders": [
         {"header": "Cache-Control"}
@@ -39,6 +41,7 @@
     "id": 33,
     "priority": 1,
     "condition": {
+      "requestMethods": ["get"],
       "resourceTypes": ["font"],
       "excludeResponseHeaders": [
         {"header": "Cache-Control"}
