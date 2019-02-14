@@ -145,6 +145,7 @@ async function downloadText(params){
 async function downloadBlob(params){
   const {blob, filename, saveAs = false} = params;
   const url = await BlobUrl.create(blob);
+  Log.debug(blob.size, blob.type, url);
   return downloadUrl({url, filename, saveAs});
 }
 
