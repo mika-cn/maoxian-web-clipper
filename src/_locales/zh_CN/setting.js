@@ -310,8 +310,8 @@
     "notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
     "notice.global-plan-intro": '全局「计划」可以应用到所有的网页（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>）。',
     "notice.default-tag-status": '默认标签状态（tagStatus）的值决定了在默认情况下，毛线助手 Plan 里面定义的动作，哪些会被执行<br><ul><li>如果你想要描述一个标签是激活的，直接写下它的名字，如：<code>tagA</code></li><li>如果你要描述一个标签是不激活的，使用<code>!</code>加上标签的名字，如：<code>!tagB</code></li><li>你可以使用逗号<code>,</code>把多个标签状态连起来，如：<code>tagA, !tagB</code></li></ul>',
-    "notice.request-cache": '目前，只有 Firefox 支持缓存 HTTP 请求。',
-    "notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
+    "notice.request-cache": '目前，只有 Chromium/Chrome 支持设置缓存。<br>当文件被浏览器缓存后，在裁剪时，就无需在下载一次，这在恶劣的环境里很有用',
+    "notice.request-cache-warning": "<strong>警告:</strong><br /> 如果你是 Web 开发者，设置缓存可能会影响你的开发体验",
 
     // label
     "label.storage-folder": "存储目录",
@@ -324,6 +324,10 @@
     "label.file-url-input": "我设置好了 ‘允许插件访问本地文件路径’",
     "label.request-timeout-input": "请求的超时时长 (秒, 5 ~ 86400)",
     "label.request-max-tries-input": "请求的最大尝试次数，当该值大于 1 时，会在请求失败时进行重试，比如该值为 3，则会在失败时，最多重试 2 次。",
+    "label.request-cache-css-input": "缓存网页样式 （CSS）",
+    "label.request-cache-image-input": "缓存图片",
+    "label.request-cache-web-font-input": "缓存字体",
+
     "label.clip-information-input": "追加裁剪信息 （原网址、时间、目录和标签）到内容尾部",
     "label.html-custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",

@@ -473,6 +473,22 @@ const hello = () =&gt; {
           <input type="number" id="request-max-tries" min="1" max="99" value="3" required/>
           <label for="request-max-tries" i18n="label.request-max-tries-input"></label>
 
+          <h4 i18n="title.request-cache"></h4>
+          <div class="notice-info" i18n="notice.request-cache"></div>
+          <div class="notice-warning" i18n="notice.request-cache-warning"></div>
+          <br />
+          <div id="cache-switchers">
+            <input type="checkbox" id="request-cache-css" />
+            <label for="request-cache-css" i18n="label.request-cache-css-input"></label>
+            <br />
+            <input type="checkbox" id="request-cache-image" />
+            <label for="request-cache-image" i18n="label.request-cache-image-input"></label>
+            <br />
+            <input type="checkbox" id="request-cache-web-font" />
+            <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
+          </div>
+
+
         </div>
         <div>
           <h3 i18n="title.misc"></h3>

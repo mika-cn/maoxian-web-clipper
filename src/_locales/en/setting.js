@@ -314,8 +314,8 @@
     "notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
     "notice.global-plan-intro": 'The Global Plan will be applied to every web pages (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>).',
     "notice.default-tag-status": 'The default tag Status decide which actions will be performed by default.<br><ul><li>If you want to active a tag, just write down it\'s tag name, such as <code>tagA</code></li><li>If you want to deactive a tag, just write <code>!</code> and tag name together, such as <code>!tagB</code></li><li>You can concat multiple tag status with commas<code>,</code>, such as <code>tagA, !tagB</code></li></ul>',
-    "notice.request-cache": 'Currently, only Firefox supports request cache.',
-    "notice.request-cache-applying": "<strong>Warning:</strong><br />The settings of cache will only be applied after you restart the browser.",
+    "notice.request-cache": 'Currently, only Chromium/Chrome supports setting request cache.<br>Cached files will not be downloaded again when clipping the web page, this is useful especially in slow network environment.',
+    "notice.request-cache-warning": "<strong>Warning:</strong><br />If you're a web developer, cache web requests may affect your develop experience",
 
 
     // label
@@ -329,6 +329,10 @@
     "label.file-url-input": "I enabled 'allow file scheme access' ",
     "label.request-timeout-input": "Timeout for performing a request (secs, 5 ~ 84600)",
     "label.request-max-tries-input": "Maximum tries to perform a request, If this value is bigger than one, that means we'll resend the reqeust if it fails",
+    "label.request-cache-css-input": "Cache stylesheets (CSS)",
+    "label.request-cache-image-input": "Cache images",
+    "label.request-cache-web-font-input": "Cache web fonts",
+
     "label.clip-information-input": "Append clipping information (original url, time, category and tags) to clippted content",
     "label.html-custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",

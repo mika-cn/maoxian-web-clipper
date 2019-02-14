@@ -435,6 +435,21 @@ function initSettingAdvanced(config) {
   );
 
   initCheckboxInput(config,
+    'request-cache-css',
+    'requestCacheCss'
+  );
+
+  initCheckboxInput(config,
+    'request-cache-image',
+    'requestCacheImage'
+  );
+
+  initCheckboxInput(config,
+    'request-cache-web-font',
+    'requestCacheWebFont'
+  );
+
+  initCheckboxInput(config,
     'communicate-with-third-party',
     'communicateWithThirdParty'
   );

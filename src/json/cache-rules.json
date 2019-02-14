@@ -13,7 +13,7 @@
       "responseHeaders": [{
         "operation": "set",
         "header": "Cache-Control",
-        "value": "max-age=3600"
+        "value": "public, max-age=1800"
       }]
     }
   },
@@ -31,7 +31,7 @@
       "responseHeaders": [{
         "operation": "set",
         "header": "Cache-Control",
-        "value": "max-age=3600"
+        "value": "public, max-age=1800"
       }]
     }
   },
@@ -49,7 +49,7 @@
       "responseHeaders": [{
         "operation": "set",
         "header": "Cache-Control",
-        "value": "max-age=3600"
+        "value": "public, max-age=1800"
       }]
     }
   }
