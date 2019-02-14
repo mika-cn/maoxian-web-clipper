@@ -434,6 +434,11 @@ function initSettingAdvanced(config) {
     'requestMaxTries'
   );
 
+  initRadioInput(config,
+    'request-referrer-policy',
+    'requestReferrerPolicy',
+  );
+
   initCheckboxInput(config,
     'request-cache-css',
     'requestCacheCss'

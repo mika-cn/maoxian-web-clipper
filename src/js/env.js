@@ -1,5 +1,5 @@
 
-
+const mdnRoot = "http://mdn.pc"
 const websiteRoot = "http://mx.pc";
 const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
 const mxAssistantRoot = [websiteRoot, 'tmp/assistant'].join('/');
@@ -9,6 +9,7 @@ const env = {
   logLevel: "debug",
   version: '0.7.10',
   minNativeAppVersion: '0.2.8',
+  mdnRoot: mdnRoot,
   websiteRoot: websiteRoot,
   projectRoot: projectRoot,
   mxAssistantRoot: mxAssistantRoot,

@@ -488,6 +488,44 @@ const hello = () =&gt; {
             <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
           </div>
 
+          <h4 i18n="title.request-referrer-policy"></h4>
+          <div class="notice-info" i18n="notice.request-referrer-policy"></div>
+          <div class="notice-warning" i18n="notice.request-referrer-warning"></div>
+          <div id="request-referrer-policy">
+            <div>
+              <input type="radio" value="no-referrer" id="request-referrer-policy-a" name="request-referrer-policy" />
+              <label for="request-referrer-policy-a">no-referrer</label>
+            </div>
+            <div>
+              <input type="radio" value="no-referrer-when-downgrade" id="request-referrer-policy-b" name="request-referrer-policy" />
+              <label for="request-referrer-policy-b">no-referrer-when-downgrade</label>
+            </div>
+            <div>
+              <input type="radio" value="origin" id="request-referrer-policy-c" name="request-referrer-policy" />
+              <label for="request-referrer-policy-c">origin</label>
+            </div>
+            <div>
+              <input type="radio" value="origin-when-cross-origin" id="request-referrer-policy-d" name="request-referrer-policy" />
+              <label for="request-referrer-policy-d">origin-when-cross-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="same-origin" id="request-referrer-policy-e" name="request-referrer-policy" />
+              <label for="request-referrer-policy-e">same-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="strict-origin" id="request-referrer-policy-f" name="request-referrer-policy" />
+              <label for="request-referrer-policy-f">strict-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="strict-origin-when-cross-origin" id="request-referrer-policy-g" name="request-referrer-policy" />
+              <label for="request-referrer-policy-g">strict-origin-when-cross-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="unsafe-url" id="request-referrer-policy-h" name="request-referrer-policy" />
+              <label for="request-referrer-policy-h">unsafe-url</label>
+            </div>
+          </div>
+
 
         </div>
         <div>

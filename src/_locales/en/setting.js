@@ -216,7 +216,6 @@
     "option.capture.filter": "Filter",
     "option.capture.filter-list": "Filter list",
 
-
     // capture targets
     "capture.target.icon": "Site Icons",
     "capture.target.image": "Images",
@@ -316,6 +315,8 @@
     "notice.default-tag-status": 'The default tag Status decide which actions will be performed by default.<br><ul><li>If you want to active a tag, just write down it\'s tag name, such as <code>tagA</code></li><li>If you want to deactive a tag, just write <code>!</code> and tag name together, such as <code>!tagB</code></li><li>You can concat multiple tag status with commas<code>,</code>, such as <code>tagA, !tagB</code></li></ul>',
     "notice.request-cache": 'Currently, only Chromium/Chrome supports setting request cache.<br>Cached files will not be downloaded again when clipping the web page, this is useful especially in slow network environment.',
     "notice.request-cache-warning": "<strong>Warning:</strong><br />If you're a web developer, cache web requests may affect your develop experience",
+    "notice.request-referrer-policy": 'This is useful if the target server is checking the <code>referrer</code> header<br>Somethimes setting it to <code>no-referrer</code> pass the checking.<br>You can find the meaning of these options in <a href="go.page:mdn.referrer-policy-header" target="_blank">here</a>',
+    "notice.request-referrer-warning": "<strong>Warning:</strong><br>Never select <code>unsafe-url</code> (it will leak your browser activity to CDN servers) unless you know what you are doing",
 
 
     // label
