@@ -91,6 +91,14 @@ function getDefault(){
     requestMaxTries: 3,
 
     // @see http://mdn.pc/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+    // no-referrer
+    // no-referrer-when-downgrade
+    // origin
+    // origin-when-cross-origin
+    // same-origin
+    // strict-origin
+    // strict-origin-when-cross-origin
+    // unsafe-url
     requestReferrerPolicy: 'strict-origin-when-cross-origin',
     // same-origin, omit
     requestCredentials: 'same-origin',

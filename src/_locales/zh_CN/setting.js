@@ -95,7 +95,7 @@
     "title.request": "HTTP 请求",
     "title.request-timeout": "超时设置",
     "title.request-max-tries": "最大尝试次数",
-    "title.request-referrer-policy": "設置 Referrer",
+    "title.request-referrer-policy": "設置 Referrer 策略",
     "title.request-cache": "缓存",
     "title.misc": "杂项",
     "title.offline-page": "离线索引页面",
@@ -312,6 +312,8 @@
     "notice.default-tag-status": '默认标签状态（tagStatus）的值决定了在默认情况下，毛线助手 Plan 里面定义的动作，哪些会被执行<br><ul><li>如果你想要描述一个标签是激活的，直接写下它的名字，如：<code>tagA</code></li><li>如果你要描述一个标签是不激活的，使用<code>!</code>加上标签的名字，如：<code>!tagB</code></li><li>你可以使用逗号<code>,</code>把多个标签状态连起来，如：<code>tagA, !tagB</code></li></ul>',
     "notice.request-cache": '目前，只有 Chromium/Chrome 支持设置缓存。<br>当文件被浏览器缓存后，在裁剪时，就无需在下载一次，这在恶劣的环境里很有用',
     "notice.request-cache-warning": "<strong>警告:</strong><br /> 如果你是 Web 开发者，设置缓存可能会影响你的开发体验",
+    "notice.request-referrer-policy": '当存放资源文件的服务器对 Referrer 请求头进行检查时，可能拒绝掉文件的下载请求<br>有些时候可以通过把 Referrer 策略设置成 <code>no-referrer</code>来绕过检查。<br>你可以在<a href="go.page:mdn.referrer-policy-header" target="_blank">这里</a>找到所有选项的说明',
+    "notice.request-referrer-warning": "<strong>警告:</strong><br>永远别选择 <code>unsafe-url</code> (它会泄露你的私人信息，如浏览历史给 CDN 服务器) 除非你真的明白风险和有明确的目的",
 
     // label
     "label.storage-folder": "存储目录",

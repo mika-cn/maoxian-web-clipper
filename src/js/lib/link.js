@@ -6,7 +6,7 @@ import ExtMsg from './ext-msg.js';
 
 const extensionRoot = ExtApi.getURL('/');
 const extensionId = extensionRoot.split('//')[1].replace('/', '');
-const {websiteRoot, projectRoot, mxAssistantRoot} = ENV;
+const {websiteRoot, projectRoot, mxAssistantRoot, mdnRoot} = ENV;
 
 // Paths that is not packed with extension (project, website etc.)
 const externalPaths = {
@@ -27,6 +27,7 @@ const externalPaths = {
     "project.index": "/",
     "project.issue": "/issues",
     "assistant.subscription.default.index": "/plans/default/index.json",
+    "mdn.referrer-policy-header": "/en-US/docs/Web/HTTP/Headers/Referrer-Policy",
   },
   "zh-CN": {
     "home": "/index-zh-CN.html",
@@ -45,6 +46,7 @@ const externalPaths = {
     "project.index": "/",
     "project.issue": "/issues",
     "assistant.subscription.default.index": "/plans/default/index.json",
+    "mdn.referrer-policy-header": "/zh-CN/docs/Web/HTTP/Headers/Referrer-Policy",
   }
 }
 
@@ -80,6 +82,8 @@ function getExternalPageLink(pageName){
       return projectRoot + path;
     } else if (pageName.startsWith('assistant.')) {
       return mxAssistantRoot + path;
+    } else if (pageName.startsWith('mdn.')) {
+      return mdnRoot + path;
     } else {
       return websiteRoot + path;
     }
