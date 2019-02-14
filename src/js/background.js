@@ -610,6 +610,7 @@ async function migrateConfig(config) {
 // ========================================
 
 async function updateCacheRulesIfNeed() {
+  if ("can't use page web request cache in background") { return }
   const currSwitchStatus = await getCurrentSwitchStatusOfCacheRules();
   if (currSwitchStatus == 'EMPTY') {
     updateCacheRules(currSwitchStatus);
@@ -620,6 +621,7 @@ async function updateCacheRulesIfNeed() {
 
 
 async function updateCacheRules(switchStatus) {
+  if ("can't use page web request cache in background") { return }
   let currSwitchStatus;
   if (switchStatus !== undefined) {
     currSwitchStatus = switchStatus;
