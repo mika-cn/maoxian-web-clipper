@@ -28,6 +28,7 @@ const externalPaths = {
     "project.issue": "/issues",
     "assistant.subscription.default.index": "/plans/default/index.json",
     "mdn.referrer-policy-header": "/en-US/docs/Web/HTTP/Headers/Referrer-Policy",
+    "mdn.request-credentials": "/en-US/docs/web/api/fetch_api/using_fetch#including_credentials"
   },
   "zh-CN": {
     "home": "/index-zh-CN.html",
@@ -47,6 +48,7 @@ const externalPaths = {
     "project.issue": "/issues",
     "assistant.subscription.default.index": "/plans/default/index.json",
     "mdn.referrer-policy-header": "/zh-CN/docs/Web/HTTP/Headers/Referrer-Policy",
+    "mdn.request-credentials": "/zh-CN/docs/web/api/fetch_api/using_fetch#including_credentials"
   }
 }
 

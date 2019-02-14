@@ -97,6 +97,7 @@
     "title.request-timeout": "Timeout",
     "title.request-max-tries": "Maximum tries",
     "title.request-referrer-policy": "Referrer Policy",
+    "title.request-credentials": "Credentials",
     "title.request-cache": "Cache",
     "title.misc": "Misc",
     "title.offline-page": "Offline Index Page",
@@ -316,7 +317,7 @@
     "notice.request-cache": 'Currently, only Chromium/Chrome supports setting request cache.<br>Cached files will not be downloaded again when clipping the web page, this is useful especially in slow network environment.',
     "notice.request-cache-warning": "<strong>Warning:</strong><br />If you're a web developer, cache web requests may affect your develop experience",
     "notice.request-referrer-policy": 'This is useful if the target server is checking the <code>referrer</code> header<br>Somethimes setting it to <code>no-referrer</code> pass the checking.<br>You can find the meaning of these options in <a href="go.page:mdn.referrer-policy-header" target="_blank">here</a>',
-    "notice.request-referrer-warning": "<strong>Warning:</strong><br>Never select <code>unsafe-url</code> (it will leak your browser activity to CDN servers) unless you know what you are doing",
+    "notice.request-credentials": 'Credentials are cookies, TLS client certificates, or authentication headers containing a username and password. <br>This setting controll whether or not the browser sends credentials when downloading relative asset files during clipping.<br>See <a href="go.page:mdn.request-credentials" target="_blank">here</a> for more information',
 
 
     // label
