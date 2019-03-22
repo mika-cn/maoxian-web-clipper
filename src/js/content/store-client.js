@@ -39,30 +39,46 @@ const StoreClient = {
     const filename = T.joinPath([assetFold, assetInfo.assetName]);
     if(fetchAssetFirst) {
       fetch(assetInfo.link).then((resp) => {
-        resp.blob().then((blob) => {
-          if(MxWcLink.isFirefox()) {
-            // Firefox can pass blob through background.
-            // But can not access ObjectUrl that create in content script.
-            TaskStore.save({
-              type: 'blob',
-              clipId: clipId,
-              blob: blob,
-              filename: filename,
-              headers: headers
-            });
-          } else {
-            // chrome can't pass blob throuth background
-            // But can access ObjectUrl that create in content script.
-            TaskStore.save({
-              type: 'url',
-              clipId: clipId,
-              url: URL.createObjectURL(blob),
-              filename: filename,
-              headers: headers
-            });
-          }
-        })
-      })
+        if(resp.ok) {
+          resp.blob().then((blob) => {
+            if(MxWcLink.isFirefox()) {
+              // Firefox can pass blob through background.
+              // But can not access ObjectUrl that create in content script.
+              TaskStore.save({
+                type: 'blob',
+                clipId: clipId,
+                blob: blob,
+                filename: filename,
+                headers: headers
+              });
+            } else {
+              // chrome/chromium can't pass blob throuth background
+              // But can access ObjectUrl that create in content script.
+              TaskStore.save({
+                type: 'url',
+                clipId: clipId,
+                url: URL.createObjectURL(blob),
+                filename: filename,
+                headers: headers
+              });
+            }
+          })
+        } else {
+          // An HTTP status of 404 does not constitute a network error.
+          console.warn('mx-wc', assetInfo.link);
+          console.warn('mx-wc', resp.status);
+          console.warn('mx-wc', resp.statusText);
+          console.warn('mx-wc', resp.headers);
+        }
+      }, (e) => {
+        // rejects with a TypeError when a network error is encountered, although this usually means a permissions issue or similar
+        console.warn('mx-wc', assetInfo.link);
+        console.error('mx-wc', e);
+      }).catch((e) => {
+        // TypeError Since Firefox 43, fetch() will throw a TypeError if the URL has credentials
+        console.warn('mx-wc', assetInfo.link);
+        console.error('mx-wc', e);
+      });
 
     } else {
       TaskStore.save({

@@ -139,9 +139,13 @@ T.isBrowserUrl = function(url){
   });
 }
 
-
 T.prefixUrl = function(part, base){
-  return (new URL(part, base)).href;
+  try {
+    return (new URL(part, base)).href;
+  } catch(e) {
+    console.warn("mx-wc", e);
+    return part;
+  }
 }
 
 T.isUrlSameLevel = function(a, b){

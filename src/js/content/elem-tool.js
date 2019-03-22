@@ -122,24 +122,30 @@ ElemTool.getAssetName = function(params) {
  * link: (protocols: http/https/data)
  */
 ElemTool.getLinkExtension = (link, mimeTypeDict) => {
-  let url = new URL(link);
-  if(url.protocol === 'data:') {
-    //data:url
-    const mimeType = url.pathname.split(';')[0];
-    return ElemTool.mimeTypeToExtension(mimeType);
-  } else {
-    // http OR https
-    let ext = T.getUrlExtension(url.href)
-    if(ext) {
-      return ext;
+  try{
+    let url = new URL(link);
+    if(url.protocol === 'data:') {
+      //data:url
+      const mimeType = url.pathname.split(';')[0];
+      return ElemTool.mimeTypeToExtension(mimeType);
     } else {
-      const mimeType = mimeTypeDict[link];
-      if(mimeType) {
-        return ElemTool.mimeTypeToExtension(mimeType);
+      // http OR https
+      let ext = T.getUrlExtension(url.href)
+      if(ext) {
+        return ext;
       } else {
-        return '';
+        const mimeType = mimeTypeDict[link];
+        if(mimeType) {
+          return ElemTool.mimeTypeToExtension(mimeType);
+        } else {
+          return '';
+        }
       }
     }
+  } catch(e) {
+    // invalid link
+    console.warn('mx-wc', e);
+    return '';
   }
 }
 
@@ -180,15 +186,20 @@ ElemTool.rewriteAnchorLink = (elem, siteLink) => {
   const siteUrl = new URL(siteLink);
   T.each(T.getTagsByName(elem, 'a'), function(tag){
     if(T.isHttpProtocol(tag.href)){
-      const url = new URL(tag.href);
-      const isAnchorLink = (
-        siteUrl.origin == url.origin
-        && siteUrl.pathname == url.pathname
-        && siteUrl.search == url.search
-        && url.hash != ''
-      );
-      if(isAnchorLink){
-        tag.href = url.hash;
+      try {
+        const url = new URL(tag.href);
+        const isAnchorLink = (
+          siteUrl.origin == url.origin
+          && siteUrl.pathname == url.pathname
+          && siteUrl.search == url.search
+          && url.hash != ''
+        );
+        if(isAnchorLink){
+          tag.href = url.hash;
+        }
+      } catch(e) {
+        // invalid link
+        console.warn("mx-wc", e);
       }
     }
   });

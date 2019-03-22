@@ -280,26 +280,39 @@ this.MxWcHtml = (function () {
       KeyStore.add(it.link).then((canAdd) => {
         if(canAdd) {
           fetch(it.link).then(function(resp){
-            return resp.text();
-          }).then(function(txt){
-            const cssText = parseCss({
-              clipId: clipId,
-              path: path,
-              styleText: txt,
-              refUrl: it.link,
-              mimeTypeDict: mimeTypeDict,
-              fetchAssetFirst: fetchAssetFirst,
-              saveWebFont: saveWebFont,
-              saveCssImage: saveCssImage
-            });
-            TaskStore.save({
-              clipId: clipId,
-              type: 'text',
-              mimeType: 'text/css',
-              filename: T.joinPath([path.assetFold, it.assetName]),
-              text: cssText
-            });
-          }).catch((err) => {console.error(err)});
+            if(resp.ok) {
+              resp.text().then((txt) => {
+                const cssText = parseCss({
+                  clipId: clipId,
+                  path: path,
+                  styleText: txt,
+                  refUrl: it.link,
+                  mimeTypeDict: mimeTypeDict,
+                  fetchAssetFirst: fetchAssetFirst,
+                  saveWebFont: saveWebFont,
+                  saveCssImage: saveCssImage
+                });
+                TaskStore.save({
+                  clipId: clipId,
+                  type: 'text',
+                  mimeType: 'text/css',
+                  filename: T.joinPath([path.assetFold, it.assetName]),
+                  text: cssText
+                });
+              });
+            } else {
+              console.warn('mx-wc', it.link);
+              console.warn('mx-wc', resp.status);
+              console.warn('mx-wc', resp.statusText);
+              console.warn('mx-wc', resp.headers);
+            }
+          }, (e) => {
+            console.warn('mx-wc', it.link);
+            console.error('mx-wc', e);
+          }).catch((e) => {
+            console.warn('mx-wc', it.link);
+            console.error('mx-wc', e)}
+          );
         }
       });
     });
