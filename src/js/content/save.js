@@ -79,11 +79,6 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         filename   : filename
       }
 
-      // We should fetch Asset in content script if clipping handler is browser
-      // background script can't send http header correctly (referer or agent)
-      config.fetchAssetFirst = (config.clippingHandlerName === 'browser');
-
-
       let parser = null;
       switch(config.saveFormat){
         case 'html' : parser = MxWcHtml; break;

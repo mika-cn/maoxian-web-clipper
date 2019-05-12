@@ -24,7 +24,6 @@ this.MxWcHtml = (function () {
         elem: elem,
         refUrl: window.location.href,
         mimeTypeDict: mimeTypeDict,
-        fetchAssetFirst: config.fetchAssetFirst,
         saveWebFont: config.saveWebFont,
         saveCssImage: config.saveCssImage
       }, function(htmls) {
@@ -59,7 +58,6 @@ this.MxWcHtml = (function () {
       refUrl,
       mimeTypeDict,
       parentFrameId = topFrameId,
-      fetchAssetFirst,
       saveWebFont,
       saveCssImage
     } = params;
@@ -78,7 +76,6 @@ this.MxWcHtml = (function () {
         styleText: styleText,
         refUrl: refUrl,
         mimeTypeDict: mimeTypeDict,
-        fetchAssetFirst: fetchAssetFirst,
         saveWebFont: saveWebFont,
         saveCssImage: saveCssImage
       });
@@ -90,13 +87,12 @@ this.MxWcHtml = (function () {
       path: path,
       assetInfos: result.cssAssetInfos,
       mimeTypeDict: mimeTypeDict,
-      fetchAssetFirst: fetchAssetFirst,
       saveWebFont: saveWebFont,
       saveCssImage: saveCssImage
     });
 
     // download assets
-    StoreClient.addImages(clipId, path.assetFold, result.imgAssetInfos, fetchAssetFirst);
+    StoreClient.addImages(clipId, path.assetFold, result.imgAssetInfos);
 
 
     const styleHtml = getExternalStyleHtml(path, result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
@@ -116,7 +112,7 @@ this.MxWcHtml = (function () {
   function handleFrames(params, clonedElem) {
     const topFrameId = 0;
     const {clipId, win, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId, fetchAssetFirst, saveWebFont} = params;
+      parentFrameId = topFrameId, saveWebFont} = params;
     return new Promise(function(resolve, _){
       // collect current layer frames
 
@@ -150,7 +146,6 @@ this.MxWcHtml = (function () {
                     frames: frames,
                     path: path,
                     mimeTypeDict: mimeTypeDict,
-                    fetchAssetFirst: fetchAssetFirst,
                     saveWebFont: saveWebFont
                   }
                 }).then((frameHtml) => {
@@ -275,7 +270,7 @@ this.MxWcHtml = (function () {
   }
 
   function downloadCssFiles(params){
-    const {clipId, path, assetInfos, mimeTypeDict, fetchAssetFirst, saveWebFont, saveCssImage} = params;
+    const {clipId, path, assetInfos, mimeTypeDict, saveWebFont, saveCssImage} = params;
     T.each(assetInfos, function(it){
       KeyStore.add(it.link).then((canAdd) => {
         if(canAdd) {
@@ -287,7 +282,6 @@ this.MxWcHtml = (function () {
                 styleText: txt,
                 refUrl: it.link,
                 mimeTypeDict: mimeTypeDict,
-                fetchAssetFirst: fetchAssetFirst,
                 saveWebFont: saveWebFont,
                 saveCssImage: saveCssImage
               });
@@ -308,7 +302,7 @@ this.MxWcHtml = (function () {
 
 
   function parseCss(params){
-    const {clipId, path, refUrl, mimeTypeDict, fetchAssetFirst, saveWebFont, saveCssImage} = params;
+    const {clipId, path, refUrl, mimeTypeDict, saveWebFont, saveCssImage} = params;
     let styleText = params.styleText;
     // FIXME danger here (order matter)
     const rule1 = {regExp: /url\("[^\)]+"\)/gm, template: 'url("$PATH")', separator: '"'};
@@ -338,7 +332,7 @@ this.MxWcHtml = (function () {
         mimeTypeDict: mimeTypeDict,
         saveAsset: saveWebFont
       });
-      StoreClient.addFonts(clipId, path.assetFold, r.assetInfos, fetchAssetFirst);
+      StoreClient.addFonts(clipId, path.assetFold, r.assetInfos);
       return r.cssText;
     });
 
@@ -354,7 +348,7 @@ this.MxWcHtml = (function () {
         mimeTypeDict: mimeTypeDict,
         saveAsset: saveCssImage
       });
-      StoreClient.addImages(clipId, path.assetFold, r.assetInfos, fetchAssetFirst);
+      StoreClient.addImages(clipId, path.assetFold, r.assetInfos);
       return r.cssText;
     });
 
@@ -370,7 +364,7 @@ this.MxWcHtml = (function () {
         mimeTypeDict: mimeTypeDict,
         saveAsset: saveCssImage
       });
-      StoreClient.addImages(clipId, path.assetFold, r.assetInfos, fetchAssetFirst);
+      StoreClient.addImages(clipId, path.assetFold, r.assetInfos);
       return r.cssText;
     });
 
@@ -386,7 +380,7 @@ this.MxWcHtml = (function () {
         mimeTypeDict: mimeTypeDict,
         saveAsset: saveCssImage
       });
-      StoreClient.addImages(clipId, path.assetFold, r.assetInfos, fetchAssetFirst);
+      StoreClient.addImages(clipId, path.assetFold, r.assetInfos);
       return r.cssText;
     });
 
@@ -408,7 +402,6 @@ this.MxWcHtml = (function () {
         path: path,
         assetInfos: r.assetInfos,
         mimeTypeDict: mimeTypeDict,
-        fetchAssetFirst: fetchAssetFirst,
         saveWebFont: saveWebFont,
         saveCssImage: saveCssImage
       });

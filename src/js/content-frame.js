@@ -22,7 +22,7 @@
   }
 
   function getParams(message) {
-    const {clipId, frames, path, mimeTypeDict, fetchAssetFirst, saveWebFont} = message.body;
+    const {clipId, frames, path, mimeTypeDict, saveWebFont} = message.body;
     return {
       clipId: clipId,
       win: window,
@@ -32,7 +32,6 @@
       refUrl: window.location.href,
       mimeTypeDict: mimeTypeDict,
       parentFrameId: message.frameId,
-      fetchAssetFirst: fetchAssetFirst,
       saveWebFont: saveWebFont
     }
   }
