@@ -7,16 +7,26 @@ this.WebRequest = (function(){
 
     function listener(details){
       if(details.type === 'xmlhttprequest'){
-        handleXhr(details.responseHeaders);
+        handleXhr(details);
       }else{
         state.mimeTypeStore.add(details.url, details.responseHeaders);
       }
     }
 
-    function handleXhr(headers){
-      const mimeType = getMimeType(headers)
-      if(['text/html', 'text/plain'].indexOf(mimeType) > -1){
-        ExtApi.sendMessageToContent({type: "page_content.changed"});
+    function handleXhr(details){
+      // depends on statusLine's format. (could be dangerous)
+      const strs = details.statusLine.split(" ");
+      const httpVersion = strs.shift(),
+            statusCode = strs.shift(),
+            statusText = strs.join(" ");
+      if(statusCode === '200') {
+        const headers = details.responseHeaders;
+        const mimeType = getMimeType(headers)
+        if(['text/html', 'text/plain'].indexOf(mimeType) > -1){
+          ExtApi.sendMessageToContent({type: "page_content.changed"});
+        }
+      } else {
+        // 302 etc.
       }
     }
 

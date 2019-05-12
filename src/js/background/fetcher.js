@@ -27,7 +27,7 @@ this.Fetcher = (function(){
           }
         },
 
-        (err) => {
+        (e) => {
           // rejects with a TypeError when a network error is encountered, although this usually means a permissions issue or similar
           console.warn('mx-wc', url);
           console.error('mx-wc', e);

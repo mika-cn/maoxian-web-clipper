@@ -135,6 +135,7 @@ const ClippingHandler_Browser = (function(){
   }
 
   function fetchAndDownload(msg) {
+    Log.debug('fetch', msg.url);
     Fetcher.get('blob', msg.url, msg.headers)
       .then((blob) => {
         downloadBlob({
