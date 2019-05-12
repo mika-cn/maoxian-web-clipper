@@ -126,10 +126,22 @@ const ClippingHandler_Browser = (function(){
 
   function handle(task) {
     switch(task.type){
+      // html, markdown, styles
       case 'text': downloadText(task); break;
       case 'blob': downloadBlob(task); break;
-      case 'url' : downloadUrl(task); break;
+      // images and fonts
+      case 'url' : fetchAndDownload(task); break;
     }
+  }
+
+  function fetchAndDownload(msg) {
+    Fetcher.get('blob', msg.url, msg.headers)
+      .then((blob) => {
+        downloadBlob({
+          blob: blob,
+          filename: msg.filename
+        })
+      })
   }
 
   function setCompletedAction(handler) {

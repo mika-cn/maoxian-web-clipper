@@ -279,40 +279,28 @@ this.MxWcHtml = (function () {
     T.each(assetInfos, function(it){
       KeyStore.add(it.link).then((canAdd) => {
         if(canAdd) {
-          fetch(it.link).then(function(resp){
-            if(resp.ok) {
-              resp.text().then((txt) => {
-                const cssText = parseCss({
-                  clipId: clipId,
-                  path: path,
-                  styleText: txt,
-                  refUrl: it.link,
-                  mimeTypeDict: mimeTypeDict,
-                  fetchAssetFirst: fetchAssetFirst,
-                  saveWebFont: saveWebFont,
-                  saveCssImage: saveCssImage
-                });
-                TaskStore.save({
-                  clipId: clipId,
-                  type: 'text',
-                  mimeType: 'text/css',
-                  filename: T.joinPath([path.assetFold, it.assetName]),
-                  text: cssText
-                });
+          StoreClient.fetchText(it.link)
+            .then((txt) => {
+              const cssText = parseCss({
+                clipId: clipId,
+                path: path,
+                styleText: txt,
+                refUrl: it.link,
+                mimeTypeDict: mimeTypeDict,
+                fetchAssetFirst: fetchAssetFirst,
+                saveWebFont: saveWebFont,
+                saveCssImage: saveCssImage
               });
-            } else {
-              console.warn('mx-wc', it.link);
-              console.warn('mx-wc', resp.status);
-              console.warn('mx-wc', resp.statusText);
-              console.warn('mx-wc', resp.headers);
-            }
-          }, (e) => {
-            console.warn('mx-wc', it.link);
-            console.error('mx-wc', e);
-          }).catch((e) => {
-            console.warn('mx-wc', it.link);
-            console.error('mx-wc', e)}
-          );
+              TaskStore.save({
+                clipId: clipId,
+                type: 'text',
+                mimeType: 'text/css',
+                filename: T.joinPath([path.assetFold, it.assetName]),
+                text: cssText
+              });
+            });
+        } else {
+          // processed.
         }
       });
     });

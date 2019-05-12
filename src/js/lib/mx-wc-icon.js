@@ -22,9 +22,12 @@ MxWcIcon.change = (iconStyle) => {
   })[iconStyle]
   let url = browser.extension.getURL(icon_path);
   ExtApi.getCurrentTab().then((tab) => {
-    MxWcIcon.getImageData(url, function(imgData){
-      browser.browserAction.setIcon({imageData: imgData, tabId: tab.id});
-    });
+    if(tab) {
+      // tab might not focus
+      MxWcIcon.getImageData(url, function(imgData){
+        browser.browserAction.setIcon({imageData: imgData, tabId: tab.id});
+      });
+    }
   })
 }
 

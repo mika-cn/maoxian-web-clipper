@@ -20,6 +20,9 @@ function messageHandler(message, sender, senderResponse){
       case 'keyStore.add':
         keyStoreService.add(message.body.key, resolve);
         break;
+      case 'fetch.text':
+        Fetcher.get('text', message.body.url, message.body.headers).then(resolve);
+        break;
       case 'save.task':
         saveTask(sender.tab.id, message.body);
         resolve();
