@@ -10,6 +10,7 @@
             break;
           case 'download.completed':
             UI.downloadCompleted();
+            tellTpClipCompleted(msg.detail);
             break;
           case 'page_content.changed':
             pageContentChanged();
@@ -33,7 +34,19 @@
   }
 
   function tellTpWeAreReady(){
-    document.dispatchEvent(new CustomEvent('mx-wc.ready'))
+    setTimeout(function(){
+      document.dispatchEvent(new CustomEvent('mx-wc.ready'))
+    }, 0);
+  }
+
+  function tellTpClipCompleted(detail) {
+    const msg = {
+      handler: detail.handler,
+      filename: detail.filename,
+      completedAt: T.currentTime().toString()
+    };
+    const json = JSON.stringify(msg);
+    document.dispatchEvent(new CustomEvent('mx-wc.completed', {detail: json}));
   }
 
   function focusElem(e) {

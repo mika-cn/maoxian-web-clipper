@@ -160,7 +160,10 @@ function getClippingHandler(callback) {
 }
 
 function onCompleted(tabId, clippingResult){
-  ExtApi.sendMessageToContent({ type: 'download.completed'}, tabId);
+  ExtApi.sendMessageToContent({
+    type: 'download.completed',
+    detail: clippingResult
+  }, tabId);
   MxWcStorage.set('lastClippingResult', clippingResult);
   MxWcIcon.flicker(3);
   generateClippingJsIfNeed();

@@ -1,11 +1,11 @@
 ;
 /*!
- * $version: 0.0.6
- * $updated: 2019-01-30
+ * $version: 0.0.7
+ * $updated: 2019-05-28
  *
  */
 
-var MxWc = (MxWc || {});
+var MxWc = (MxWc || {ready: false});
 
 
 /*
@@ -161,6 +161,10 @@ MxWc.createCmd = function(action, option) {
     function initRules(rules){
       return new Promise(function(resolve, _) {
         state.rules = MxWc.matchRules(rules, isMatchFirstRule);
+        if(type === 'auto' && MxWc.ready) {
+          // MxWc is ready perform now.
+          perform();
+        }
         resolve(state.rules);
       });
     }
@@ -340,4 +344,19 @@ MxWc.setFormInputs = function(inputs) {
     });
   };
   document.addEventListener('mx-wc.selecting', fn);
-};
+}
+
+MxWc.onClipCompleted = function(callback) {
+  document.addEventListener('mx-wc.completed', function(e) {
+    const detail = JSON.parse(e.detail);
+    callback(detail);
+  });
+}
+
+MxWc.init = function(){
+  document.addEventListener('mx-wc.ready', function(e) {
+    MxWc.ready = true;
+  });
+}
+
+MxWc.init();
