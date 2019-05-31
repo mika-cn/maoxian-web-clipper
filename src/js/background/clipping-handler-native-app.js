@@ -1,7 +1,17 @@
 
 const ClippingHandler_NativeApp = (function(){
   const APP_NAME = 'maoxian_web_clipper_native';
-  const state = {tabIdDict: T.createDict()};
+  const state = {clipIdDict: T.createDict()};
+
+  function saveClipping(clipping) {
+    return new Promise((resolve, reject) => {
+      state.completedAction = resolve;
+      init();
+      T.each(clipping.tasks, (task) => {
+        handle(task);
+      });
+    });
+  }
 
   function getIdFromFilename(filename) {
     const path = filename.split('mx-wc')[1];
@@ -11,7 +21,7 @@ const ClippingHandler_NativeApp = (function(){
   function handle(task) {
     if(task.type === 'text' && isMainFile(task.filename)) {
       const id = getIdFromFilename(task.filename);
-      state.tabIdDict.add(id, task.tabId);
+      state.clipIdDict.add(id, task.clipId);
     }
     task.type = ['download', task.type].join('.');
     state.port.postMessage(task);
@@ -32,10 +42,14 @@ const ClippingHandler_NativeApp = (function(){
         const filename = T.sanitizePath(resp.filename);
         if(isMainFile(filename)){
           const id = getIdFromFilename(filename);
-          const tabId = state.tabIdDict.find(id);
-          state.tabIdDict.remove(id);
+          const clipId = state.clipIdDict.find(id);
+          state.clipIdDict.remove(id);
           updateDownloadFold(filename);
-          state.completedAction(tabId, { handler: 'native-app', filename: filename});
+          state.completedAction({
+            clipId: clipId,
+            handler: 'native-app',
+            filename: filename
+          });
         }
         break;
       case 'get.version':
@@ -77,10 +91,6 @@ const ClippingHandler_NativeApp = (function(){
       }
     }
     state.port = null;
-  }
-
-  function setCompletedAction(handler) {
-    state.completedAction = handler;
   }
 
   function updateDownloadFold(filename) {
@@ -148,10 +158,9 @@ const ClippingHandler_NativeApp = (function(){
 
   return {
     name: 'native-app',
-    init: init,
-    handle: handle,
-    setCompletedAction: setCompletedAction,
+    saveClipping: saveClipping,
     initDownloadFold: initDownloadFold,
+
     getVersion: getVersion,
     deleteClipping: deleteClipping,
     refreshHistory: refreshHistory,

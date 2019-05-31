@@ -2,9 +2,19 @@
 const ClippingHandler_Browser = (function(){
   const state = {
     isListening: false,
-    filenameDict: T.createDict(),
-    tabIdDict: T.createDict()
+    filenameDict: T.createDict(), // downloadItemId => filename
+    clipIdDict: T.createDict()    // filenameId => clipId
   };
+
+  function saveClipping(clipping) {
+    return new Promise((resolve, reject) => {
+      state.completedAction = resolve;
+      init();
+      T.each(clipping.tasks, (task) => {
+        handle(task);
+      });
+    });
+  }
 
   function getIdFromFilename(filename) {
     const path = filename.split('mx-wc')[1];
@@ -19,7 +29,7 @@ const ClippingHandler_Browser = (function(){
     const url = URL.createObjectURL(blob);
     if(isMainFile(msg.filename)){
       const id = getIdFromFilename(msg.filename);
-      state.tabIdDict.add(id, msg.tabId);
+      state.clipIdDict.add(id, msg.clipId);
     }
     downloadUrl({url: url, filename: msg.filename});
   }
@@ -66,9 +76,10 @@ const ClippingHandler_Browser = (function(){
         ExtApi.deleteDownloadItem(downloadItemId);
       }else{
         const id = getIdFromFilename(filename);
-        const tabId = state.tabIdDict.find(id);
-        state.tabIdDict.remove(id);
-        state.completedAction(tabId, {
+        const clipId = state.clipIdDict.find(id);
+        state.clipIdDict.remove(id);
+        state.completedAction({
+          clipId: clipId,
           handler: 'browser',
           filename: filename,
           downloadItemId: downloadItemId
@@ -145,10 +156,6 @@ const ClippingHandler_Browser = (function(){
       })
   }
 
-  function setCompletedAction(handler) {
-    state.completedAction = handler;
-  }
-
   function init(){
     if(!state.isListening){
       ExtApi.bindDownloadCreatedListener(downloadCreated);
@@ -160,9 +167,7 @@ const ClippingHandler_Browser = (function(){
 
   return {
     name: 'browser',
-    init: init,
-    handle: handle,
-    setCompletedAction: setCompletedAction,
+    saveClipping: saveClipping,
     initDownloadFold: initDownloadFold
   }
 

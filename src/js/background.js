@@ -23,10 +23,6 @@ function messageHandler(message, sender, senderResponse){
       case 'fetch.text':
         Fetcher.get('text', message.body.url, message.body.headers).then(resolve);
         break;
-      case 'save.task':
-        saveTask(sender.tab.id, message.body);
-        resolve();
-        break;
       case 'get.allFrames':
         ExtApi.getAllFrames(sender.tab.id)
           .then(resolve);
@@ -42,6 +38,10 @@ function messageHandler(message, sender, senderResponse){
 
       case 'export.history':
         exportHistory(message.body.content);
+        resolve();
+        break;
+      case 'clipping.save':
+        saveClipping(sender.tab.id, message.body);
         resolve();
         break;
       case 'clipping.delete':
@@ -100,14 +100,21 @@ function exportHistory(content) {
   })
 }
 
-function saveTask(tabId, task){
+/*
+ * handler.saveClipping(tabId, clipping)
+ * saveTasks
+ */
+
+function saveClipping(tabId, clipping) {
   getClippingHandler((handler) => {
-    task.tabId = tabId;
-    handler.setCompletedAction(onCompleted);
-    handler.init();
-    handler.handle(task);
+    handler.saveClipping(clipping)
+      .then((clippingResult) => {
+        //console.log(tabId, clippingResult, clipping);
+        onCompleted(tabId, clippingResult);
+      });
   });
 }
+
 
 function generateClippingJsIfNeed(){
   MxWcConfig.load().then((config) => {

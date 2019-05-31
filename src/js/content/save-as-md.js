@@ -32,7 +32,7 @@ this.MxWcMarkdown = (function() {
     }
     const filename = T.joinPath([path.clipFold, info.filename]);
     const markdownTask = {
-      taskType: 'markdownFileTask',
+      taskType: 'mainFileTask',
       type: 'text',
       filename: filename,
       mimeType: 'text/markdown',
@@ -71,9 +71,6 @@ this.MxWcMarkdown = (function() {
       attrName: 'src',
       mimeTypeDict: mimeTypeDict
     });
-
-    // FIXME remove me
-    //StoreClient.addImages(clipId, path.assetFold, imgAssetInfos);
 
     let [newClonedElem, frameTasks] = await handleFrames(params, clonedElem);
     clonedElem = newClonedElem;

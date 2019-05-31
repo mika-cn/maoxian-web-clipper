@@ -109,9 +109,19 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
           tasks.unshift(getTitleFileTask(path, info));
         }
         tasks.unshift(getIndexFileTask(path, info));
-        const uniqTasks = rmReduplicateTask(tasks);
-        const clipping = {info: info, tasks: uniqTasks};
-        console.log(clipping);
+
+        const clipping = {
+          info: info,
+          tasks: rmReduplicateTask(tasks)
+        };
+
+        Log.debug(clipping);
+
+        // save clipping
+        ExtApi.sendMessageToBackground({
+          type: 'clipping.save',
+          body: clipping
+        });
       })
       // FIXME : move to clipping handler
       //saveClipHistory(path.clipFold, info);
