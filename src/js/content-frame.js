@@ -14,7 +14,7 @@
             MxWcHtml.getElemHtml(getParams(message), resolve);
             break;
           case 'frame.toMd':
-            MxWcMarkdown.getElemHtml(getParams(message), resolve)
+            MxWcMarkdown.getElemHtml(getParams(message)).then(resolve)
             break;
         }
       }

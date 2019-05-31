@@ -85,7 +85,7 @@ ElemTool.isElemVisible = (win, elem) => {
 // }
 // return [{:tag, :link, :assetName}]
 ElemTool.getAssetInfos = (params ) => {
-  const { clipId, assetTags, attrName, mimeTypeDict, extension} = params;
+  const { clipId, type = 'assetFile', assetTags, attrName, mimeTypeDict, extension} = params;
   let assetInfos = [];
   T.each(assetTags, function(tag){
     const link = tag[attrName];
@@ -99,7 +99,8 @@ ElemTool.getAssetInfos = (params ) => {
       assetInfos.push({
         tag: tag,
         link: link,
-        assetName: assetName
+        assetName: assetName,
+        type: type
       });
     }
   })

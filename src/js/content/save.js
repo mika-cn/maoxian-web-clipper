@@ -84,14 +84,52 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         case 'html' : parser = MxWcHtml; break;
         case 'md'   : parser = MxWcMarkdown; break;
       }
-
-      addIndexFile(path, info);
-      addTitleFile(config, path, info);
+/*
+ * Task:
+ * saving task of resource (html, css, font, img, md...)
+ *
+ * structure:
+ * {
+ *   taskType : 'htmlFileTask', 'imageFileTask' etc.
+ *   taskId   : task id (reconsider this)
+ *   type     : resource content type, 'url' or 'text'
+ *   filename : filename to save
+ *   url      : resource's url (if type is 'url')
+ *   mimeType : resource's mimeType (if type is 'text')
+ *   text     : resource's content (if type is 'text')
+ *   headers  : http headers (Referer, UserAgent etc. if type is 'url')
+ *   clipId   : clipping id
+ *   createdMs: created time (millisecond)
+ * }
+ */
 
       const params = { path: path, elem: elem, info: info, config: config }
-      parser.parse(params)
-      saveClipHistory(path.clipFold, info);
+      parser.parse(params).then((tasks) => {
+        if(!(config.saveTitleAsFoldName || config.saveTitleAsFilename)) {
+          tasks.unshift(getTitleFileTask(path, info));
+        }
+        tasks.unshift(getIndexFileTask(path, info));
+        const uniqTasks = rmReduplicateTask(tasks);
+        const clipping = {info: info, tasks: uniqTasks};
+        console.log(clipping);
+      })
+      // FIXME : move to clipping handler
+      //saveClipHistory(path.clipFold, info);
     });
+  }
+
+  function rmReduplicateTask(tasks) {
+    const result = [];
+    const names = [];
+    T.each(tasks, (task) => {
+      if(names.indexOf(task.filename) === -1) {
+        result.push(task);
+        names.push(task.filename);
+      } else {
+        Log.debug('reduplicate task:', task);
+      }
+    });
+    return result;
   }
 
   function getClippingFolderName(config, title, now) {
@@ -140,29 +178,31 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
   }
 
   // private
-  function addTitleFile(config, path, info){
-    if(!(config.saveTitleAsFoldName || config.saveTitleAsFilename)) {
-      TaskStore.save({
-        clipId: info.clipId,
-        type: 'text',
-        mimeType: 'text/plain',
-        filename: [path.clipFold,
-          `a-title__${T.sanitizeFilename(info.title)}`
-        ].join('/'),
-        text: '-'
-      })
+  function getTitleFileTask(path, info){
+    return {
+      taskType: 'titleFileTask',
+      type: 'text',
+      filename: [path.clipFold,
+        `a-title__${T.sanitizeFilename(info.title)}`
+      ].join('/'),
+      mimeType: 'text/plain',
+      text: '-',
+      clipId: info.clipId,
+      createdMs: T.currentTime().str.intMs
     }
   }
 
   // private
-  function addIndexFile(path, info){
-    TaskStore.save({
-      clipId: info.clipId,
+  function getIndexFileTask(path, info){
+    return {
+      taskType: 'InfoFileTask',
       type: 'text',
-      mimeType: 'application/json',
       filename: [path.clipFold, 'index.json'].join('/'),
-      text: T.toJson(info)
-    })
+      mimeType: 'application/json',
+      text: T.toJson(info),
+      clipId: info.clipId,
+      createdMs: T.currentTime().str.intMs
+    }
   }
 
   //private
@@ -175,6 +215,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
     });
   }
 
+  // FIXME : remove me to clipping handler
   //private
   function saveClipHistory(clipFold, info){
     const path = [clipFold, 'index.json'].join('/');

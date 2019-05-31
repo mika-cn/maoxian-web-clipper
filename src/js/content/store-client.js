@@ -53,8 +53,24 @@ const StoreClient = {
       });
     });
   },
+  assetInfos2Tasks: function(clipId, assetFold, assetInfos) {
+    return T.map(assetInfos, (assetInfo) => {
+      return StoreClient.assetInfo2Task(clipId, assetFold, assetInfo);
+    });
+  },
+  assetInfo2Task: function(clipId, assetFold, assetInfo) {
+    const filename = T.joinPath([assetFold, assetInfo.assetName]);
+    return {
+      taskType: [assetInfo.type, 'Task'].join(''),
+      type: 'url',
+      filename: filename,
+      url: assetInfo.link,
+      headers: StoreClient.getHeaders(),
+      clipId: clipId,
+      createdMs: T.currentTime().str.intMs
+    }
+  },
   addAsset: function(clipId, assetFold, assetInfo) {
-    const headers = { "Referer": window.location.href, "User-Agent": window.navigator.userAgent };
     const filename = T.joinPath([assetFold, assetInfo.assetName]);
     TaskStore.save({
       type: 'url',
