@@ -11,10 +11,10 @@
       if (message.to === window.location.href) {
         switch (message.type) {
           case 'frame.toHtml':
-            MxWcHtml.getElemHtml(getParams(message), resolve);
+            MxWcHtml.getElemHtml(getParams(message)).then(resolve);
             break;
           case 'frame.toMd':
-            MxWcMarkdown.getElemHtml(getParams(message)).then(resolve)
+            MxWcMarkdown.getElemHtml(getParams(message)).then(resolve);
             break;
         }
       }

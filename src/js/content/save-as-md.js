@@ -31,7 +31,7 @@ this.MxWcMarkdown = (function() {
       markdown += generateMdClippingInfo(info);
     }
     const filename = T.joinPath([path.clipFold, info.filename]);
-    const markdownTask = {
+    const mainFileTask = {
       taskType: 'mainFileTask',
       type: 'text',
       filename: filename,
@@ -40,8 +40,7 @@ this.MxWcMarkdown = (function() {
       clipId: info.clipId,
       createdMs: T.currentTime().str.intMs
     }
-    console.log(markdown);
-    tasks.push(markdownTask);
+    tasks.push(mainFileTask);
     return tasks;
   }
 
@@ -94,55 +93,65 @@ this.MxWcMarkdown = (function() {
     // collect current layer frames
     const frameElems = [];
     const promises = [];
-    T.each(frames, (frame) => {
+    for(let i = 0; i < frames.length; i++) {
+      const frame = frames[i];
       console.log(parentFrameId, frame.parentFrameId);
       if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
         const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url)
         if(frameElem){
-          frameElems.push(frameElem);
-          promises.push(
-            ExtApi.sendMessageToBackground({
-              type: 'frame.toMd',
-              to: frame.url,
-              frameId: frame.frameId,
-              body: {
-                clipId: clipId,
-                frames: frames,
-                path: path,
-                mimeTypeDict: mimeTypeDict
-              }
-           })
-          );
+          const canAdd = await KeyStore.add(frame.url);
+          if(canAdd) {
+            frameElems.push(frameElem);
+            promises.push(
+              ExtApi.sendMessageToBackground({
+                type: 'frame.toMd',
+                to: frame.url,
+                frameId: frame.frameId,
+                body: {
+                  clipId: clipId,
+                  frames: frames,
+                  path: path,
+                  mimeTypeDict: mimeTypeDict
+                }
+             })
+            );
+          }
         }
       }
-    });
+    };
 
     Log.debug("iframe length: ", promises.length);
-    if(promises.length > 0){
+    if(promises.length == 0){
+      return [clonedElem, []];
+    } else {
       const results = await Promise.all(promises)
       let container = clonedElem;
-      let allTasks = [];
+      const taskCollection = [];
       T.each(results, (result, idx) => {
-        // Replace frame element use frame html.
-        // FIXME
-        // If a frame got images, this replacement will trigger some image requests immediately. those request will end with 404 errors, cause we haven't save those image yet.
-        console.log(result);
-        const {html, tasks} = result;
-        allTasks = allTasks.concat(tasks);
-        const frameElem = frameElems[idx];
-        const newNode = win.document.createElement("div");
-        newNode.innerHTML = (html || '');
-        if(container === frameElem) {
-          container = newNode;
+        if(result) {
+          // Replace frame element use frame html.
+          // FIXME
+          // If a frame have images, this replacement will trigger some image requests immediately. those request will end with 404 errors, cause we haven't save those image yet.
+          console.log(result);
+          const {html, tasks} = result;
+          taskCollection.push(...tasks);
+          const frameElem = frameElems[idx];
+          const newNode = win.document.createElement("div");
+          newNode.innerHTML = (html || '');
+          if(container === frameElem) {
+            container = newNode;
+          } else {
+            const pNode = frameElem.parentNode;
+            pNode.insertBefore(newNode, frameElem);
+            pNode.removeChild(frameElem);
+          }
         } else {
-          const pNode = frameElem.parentNode;
-          pNode.insertBefore(newNode, frameElem);
-          pNode.removeChild(frameElem);
+          // Do nothing.
+          // Frame page failed to load.
+          // result is undefind, return by promise.catch
         }
       });
-      return [container, allTasks];
-    } else {
-      return [clonedElem, []];
+      return [container, taskCollection];
     }
   }
 
