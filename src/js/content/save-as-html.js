@@ -318,6 +318,11 @@ this.MxWcHtml = (function () {
                   })
                   resolve(tasks);
                 });
+              }, (errMsg) => {
+                // rejected
+                Log.error('fetch.text request css failed', errMsg);
+                // it's fine.
+                resolve([]);
               });
           } else {
             // processed.

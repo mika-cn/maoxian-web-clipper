@@ -29,6 +29,13 @@
     elem.style.display = 'none';
   });
 
+  FrameMsg.addListener('destroy', function(msg){
+    sendFrameMsgToTop('frame.selection.removeMe');
+  });
+
+  function sendFrameMsgToTop(type, msg){
+    FrameMsg.send({ to: 'top', type: type, msg: (msg || {}) });
+  }
 
   initFrameMsg();
   console.log('selection layer ready..');

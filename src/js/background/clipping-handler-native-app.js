@@ -1,28 +1,23 @@
 
 const ClippingHandler_NativeApp = (function(){
   const APP_NAME = 'maoxian_web_clipper_native';
-  const state = {clipIdDict: T.createDict()};
+  const state = {};
 
-  function saveClipping(clipping) {
-    return new Promise((resolve, reject) => {
-      state.completedAction = resolve;
-      init();
-      T.each(clipping.tasks, (task) => {
-        handle(task);
-      });
+  function saveClipping(clipping, feedback) {
+    init();
+    // compatible with native-app (version < 0.1.7)
+    SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenMainTaskFinished'});
+    T.each(clipping.tasks, (task) => {
+      handle(task);
     });
   }
 
-  function getIdFromFilename(filename) {
-    const path = filename.split('mx-wc')[1];
-    return md5(path);
+  function getTaskFilename(fullFilename) {
+    const path = fullFilename.split('mx-wc')[1];
+    return ['mx-wc', path].join('');
   }
 
   function handle(task) {
-    if(task.type === 'text' && isMainFile(task.filename)) {
-      const id = getIdFromFilename(task.filename);
-      state.clipIdDict.add(id, task.clipId);
-    }
     task.type = ['download', task.type].join('.');
     state.port.postMessage(task);
   }
@@ -40,16 +35,16 @@ const ClippingHandler_NativeApp = (function(){
       case 'download.text':
       case 'download.url':
         const filename = T.sanitizePath(resp.filename);
-        if(isMainFile(filename)){
-          const id = getIdFromFilename(filename);
-          const clipId = state.clipIdDict.find(id);
-          state.clipIdDict.remove(id);
-          updateDownloadFold(filename);
-          state.completedAction({
-            clipId: clipId,
-            handler: 'native-app',
-            filename: filename
+        const taskFilename = getTaskFilename(filename);
+        if(resp.failed) {
+          SavingTool.taskFailed(taskFilename, resp.errmsg);
+        } else {
+          SavingTool.taskCompleted(taskFilename, {
+            fullFilename: filename
           });
+          if(isMainFile(filename)){
+            updateDownloadFold(filename);
+          }
         }
         break;
       case 'get.version':

@@ -1,5 +1,6 @@
 "use strict";
 
+
 this.Fetcher = (function(){
 
   /*
@@ -20,26 +21,31 @@ this.Fetcher = (function(){
             resp[respType]().then(resolve)
           } else {
             // An HTTP status of 404 does not constitute a network error.
-            console.warn('mx-wc', url);
-            console.warn('mx-wc', resp.status);
-            console.warn('mx-wc', resp.statusText);
+            const msg = [url, resp.status, resp.statusText].join(', ');
+            console.warn('mx-wc', msg);
             console.warn('mx-wc', resp.headers);
+            reject(msg);
           }
         },
 
         (e) => {
           // rejects with a TypeError when a network error is encountered, although this usually means a permissions issue or similar
-          console.warn('mx-wc', url);
+          const msg = [url, e.message].join(', ');
+          console.warn('mx-wc', msg);
           console.error('mx-wc', e);
+          reject(msg);
         }
       ).catch((e) => {
         // TypeError Since Firefox 43, fetch() will throw a TypeError if the URL has credentials
+        const msg = [url, e.message].join(', ');
         console.warn('mx-wc', url);
         console.error('mx-wc', e);
+        reject(msg);
       });
     });
   }
 
+  // see js/background/web-request.js UnescapeHeader for mare details.
   function escapeHeaders(headers) {
     const forbidden = ['Referer', 'Origin'];
     const result = {};

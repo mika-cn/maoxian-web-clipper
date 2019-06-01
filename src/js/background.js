@@ -21,7 +21,7 @@ function messageHandler(message, sender, senderResponse){
         keyStoreService.add(message.body.key, resolve);
         break;
       case 'fetch.text':
-        Fetcher.get('text', message.body.url, message.body.headers).then(resolve);
+        Fetcher.get('text', message.body.url, message.body.headers).then(resolve, reject);
         break;
       case 'get.allFrames':
         ExtApi.getAllFrames(sender.tab.id)
@@ -107,12 +107,62 @@ function exportHistory(content) {
 
 function saveClipping(tabId, clipping) {
   getClippingHandler((handler) => {
-    handler.saveClipping(clipping)
-      .then((clippingResult) => {
-        //console.log(tabId, clippingResult, clipping);
-        onCompleted(tabId, clippingResult);
-      });
+
+    const feedback = function(msg) {
+      switch(msg.type) {
+        case 'started':
+          clippingSaveStarted(tabId, msg);
+          break;
+        case 'progress':
+          clippingSaveProgress(tabId, msg);
+          break;
+        case 'completed':
+          const result = msg.clippingResult;
+          // compatible with old message
+          result.handler = handler.name;
+          clippingSaveCompleted(tabId, result);
+          break;
+        default: break;
+      }
+    }
+
+    handler.saveClipping(clipping, feedback);
   });
+}
+
+function clippingSaveStarted(tabId, msg) {
+  Log.debug('started');
+  ExtApi.sendMessageToContent({
+    type: 'clipping.save.started',
+    detail: {
+      clipId: msg.clipId
+    }
+  }, tabId);
+}
+
+function clippingSaveProgress(tabId, msg) {
+  const progress = [msg.finished, msg.total].join('/');
+  Log.debug('progress', progress);
+  ExtApi.sendMessageToContent({
+    type: 'clipping.save.progress',
+    detail: {
+      clipId: msg.clipId,
+      finished: msg.finished,
+      total: msg.total
+    }
+  }, tabId);
+}
+
+function clippingSaveCompleted(tabId, clippingResult){
+  Log.debug('completed');
+  Log.debug(clippingResult);
+  ExtApi.sendMessageToContent({
+    type: 'clipping.save.completed',
+    detail: clippingResult
+  }, tabId);
+  MxWcStorage.set('lastClippingResult', clippingResult);
+  MxWcIcon.flicker(3);
+  generateClippingJsIfNeed();
 }
 
 
@@ -164,16 +214,6 @@ function getClippingHandler(callback) {
     }
     callback(handler, config);
   })
-}
-
-function onCompleted(tabId, clippingResult){
-  ExtApi.sendMessageToContent({
-    type: 'download.completed',
-    detail: clippingResult
-  }, tabId);
-  MxWcStorage.set('lastClippingResult', clippingResult);
-  MxWcIcon.flicker(3);
-  generateClippingJsIfNeed();
 }
 
 function initDownloadFold(){

@@ -176,7 +176,11 @@ I18N_DICT['zh-CN'] = {
     "switch.title": "开关 (快捷键: c)",
     "hint.selecting": "移动光标, 点击选中",
     "hint.selected": "按'Enter' 确认, 方向键调整当前选中区域",
-    "hint.downloading": "下载中...",
+    "hint.clipping": "裁剪中...",
+
+    "hint.saving.started": "开始保存...",
+    "hint.saving.progress": "保存中...($finished/$total)",
+    "hint.saving.completed": "保存完成",
 
     //help
     "hotkey.left.intro": "扩大选中区域",

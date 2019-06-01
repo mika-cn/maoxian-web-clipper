@@ -1,24 +1,20 @@
-
 const ClippingHandler_Browser = (function(){
   const state = {
     isListening: false,
-    filenameDict: T.createDict(), // downloadItemId => filename
-    clipIdDict: T.createDict()    // filenameId => clipId
+    filenameDict: T.createDict() // downloadItemId => filename
   };
 
-  function saveClipping(clipping) {
-    return new Promise((resolve, reject) => {
-      state.completedAction = resolve;
-      init();
-      T.each(clipping.tasks, (task) => {
-        handle(task);
-      });
+  function saveClipping(clipping, feedback) {
+    init();
+    SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenAllTaskFinished'});
+    T.each(clipping.tasks, (task) => {
+      handle(task);
     });
   }
 
-  function getIdFromFilename(filename) {
-    const path = filename.split('mx-wc')[1];
-    return md5(path);
+  function getTaskFilename(fullFilename) {
+    const path = fullFilename.split('mx-wc')[1];
+    return ['mx-wc', path].join('');
   }
 
   // msg: {:text, :mineType, :filename}
@@ -27,10 +23,6 @@ const ClippingHandler_Browser = (function(){
     const opt = {type: msg.mimeType};
     const blob = new Blob(arr, opt);
     const url = URL.createObjectURL(blob);
-    if(isMainFile(msg.filename)){
-      const id = getIdFromFilename(msg.filename);
-      state.clipIdDict.add(id, msg.clipId);
-    }
     downloadUrl({url: url, filename: msg.filename});
   }
 
@@ -69,27 +61,23 @@ const ClippingHandler_Browser = (function(){
 
   function downloadCompleted(downloadItemId){
     const filename = state.filenameDict.find(downloadItemId);
+    state.filenameDict.remove(downloadItemId);
     // file that not download through maoxian web clipper
     if(T.excludeFold(filename, 'mx-wc')){ return false }
-    if(isMainFile(filename)){
-      if(filename.endsWith('.mxwc')){
-        ExtApi.deleteDownloadItem(downloadItemId);
-      }else{
-        const id = getIdFromFilename(filename);
-        const clipId = state.clipIdDict.find(id);
-        state.clipIdDict.remove(id);
-        state.completedAction({
-          clipId: clipId,
-          handler: 'browser',
-          filename: filename,
-          downloadItemId: downloadItemId
-        });
+    if(filename.endsWith('.mxwc')) {
+      // touch file
+      ExtApi.deleteDownloadItem(downloadItemId);
+    } else {
+      const taskFilename = getTaskFilename(filename);
+      SavingTool.taskCompleted(taskFilename, {
+        fullFilename: filename,
+        downloadItemId: downloadItemId
+      });
+      if(!isMainFile(filename)) {
+        // erase assets download history
+        browser.downloads.erase({id: downloadItemId, limit: 1});
       }
-    }else{
-      // erase assets download history
-      browser.downloads.erase({id: downloadItemId, limit: 1});
     }
-    state.filenameDict.remove(downloadItemId);
   }
 
   function filenameCreated(downloadItemId, filename){
@@ -121,7 +109,19 @@ const ClippingHandler_Browser = (function(){
       // chrome have firename on downloadChanged
       filenameCreated(e.id, T.sanitizePath(e.filename.current));
     }
+
+    if(e.state && e.state.current === 'in_progress') {
+      // The browser is currently receiving download data from the server.
+    }
+
+    if(e.state && e.state.current === 'interrupted') {
+      // An error broke the connection with the server.
+      // Never reach here :)
+      // see fetchAndDownload function.
+    }
+
     if(e.state && e.state.current === 'complete'){
+      // The download completed successfully.
       downloadCompleted(e.id);
     }
   }
@@ -145,15 +145,20 @@ const ClippingHandler_Browser = (function(){
     }
   }
 
-  function fetchAndDownload(msg) {
-    Log.debug('fetch', msg.url);
-    Fetcher.get('blob', msg.url, msg.headers)
-      .then((blob) => {
-        downloadBlob({
-          blob: blob,
-          filename: msg.filename
-        })
-      })
+  function fetchAndDownload(task) {
+    Log.debug('fetch', task.url);
+    Fetcher.get('blob', task.url, task.headers)
+      .then(
+        (blob) => {
+          downloadBlob({
+            blob: blob,
+            filename: task.filename
+          })
+        },
+        (errMsg) => {
+          SavingTool.taskFailed(task.filename, errMsg);
+        }
+      );
   }
 
   function init(){

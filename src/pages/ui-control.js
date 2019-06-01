@@ -111,8 +111,12 @@
     FrameMsg.addListener('setStateSelected', setStateSelected);
     FrameMsg.addListener('setStateConfirmed', setStateConfirmed);
     FrameMsg.addListener('setStateClipping', setStateClipping);
+    FrameMsg.addListener('setSavingStateStarted', setSavingStateStarted);
+    FrameMsg.addListener('setSavingStateProgress', setSavingStateProgress);
+    FrameMsg.addListener('setSavingStateCompleted', setSavingStateCompleted);
     FrameMsg.addListener('showForm', showForm);
     FrameMsg.addListener('hideForm', hideForm);
+    FrameMsg.addListener('destroy', destroy);
   }
 
   /************** event listener ****************/
@@ -195,6 +199,7 @@
     bar.classList.remove('selecting');
     bar.classList.remove('confirmed');
     bar.classList.remove('clipping');
+    bar.classList.remove('saving');
     bar.classList.add('idle');
     hideHint();
   }
@@ -228,7 +233,27 @@
     const bar = getStateBar();
     bar.classList.remove('confirmed');
     bar.classList.add('clipping');
-    showHint(t('hint.downloading'));
+    showHint(t('hint.clipping'));
+  }
+
+  /************** change saving state ****************/
+
+
+  function setSavingStateStarted(msg) {
+    const bar = getStateBar();
+    bar.classList.remove('clipping');
+    bar.classList.add('saving');
+    showHint(t('hint.saving.started'));
+  }
+
+  function setSavingStateProgress(msg) {
+    let hint = t('hint.saving.progress')
+    hint = hint.replace('$finished', msg.finished).replace('$total', msg.total);
+    showHint(hint);
+  }
+
+  function setSavingStateCompleted(msg) {
+    showHint(t('hint.saving.completed'));
   }
 
   function showHint(text){
@@ -332,6 +357,10 @@
   function hideForm(msg){
     T.firstElem(CLASS_FORM).style.display = 'none';
     console.log('hideForm');
+  }
+
+  function destroy(msg) {
+    sendFrameMsgToTop('frame.control.removeMe');
   }
 
   /************** Find Element ****************/

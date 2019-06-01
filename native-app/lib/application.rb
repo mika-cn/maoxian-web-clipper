@@ -9,7 +9,7 @@ require_relative './clipping'
 require_relative './history'
 
 class Application
-  VERSION = '0.1.6'
+  VERSION = '0.1.7'
 
   attr_accessor :config
 
@@ -58,7 +58,7 @@ class Application
     File.open(filename, 'w+') do |f|
       f.write(msg['text'])
     end
-    NativeMessage.write({type: msg['type'], filename: filename})
+    NativeMessage.write({type: msg['type'], filename: filename, failed: false})
     Log.debug("[Done] #{filename}")
   end
 
@@ -72,19 +72,29 @@ class Application
         content = open(msg['url'], msg['headers']).read
       end
       File.open(filename, 'wb') {|file| file.write content}
-      NativeMessage.write({type: msg['type'], filename: filename})
+      NativeMessage.write({type: msg['type'], filename: filename, failed: false})
       Log.debug("[Done] #{filename}")
     rescue SocketError => e
-      Log.error("[SocketError] #{msg['url']} #{e.message}")
+      errmsg = "[SocketError] #{msg['url']} #{e.message}"
+      Log.error(errmsg)
+      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
     rescue Errno::ECONNREFUSED => e
-      Log.error("[Connect Refused] #{msg['url']} #{e.message}")
+      errmsg = "[Connect Refused] #{msg['url']} #{e.message}"
+      Log.error(errmsg)
+      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
     rescue ::Net::OpenTimeout => e
-      Log.error("[Net openTimeout] #{msg['url']} #{e.message}")
+      errmsg = "[Net openTimeout] #{msg['url']} #{e.message}"
+      Log.error(errmsg)
+      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
     rescue OpenURI::HTTPError => e
-      Log.error("[OpenUri HTTPError] #{msg['url']} #{e.message}")
+      errmsg = "[OpenUri HTTPError] #{msg['url']} #{e.message}"
+      Log.error(errmsg)
+      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
     rescue => e
-      Log.fatal("[Uncatch Error: #{e.class}] #{msg['url']} #{e.message}")
+      errmsg = "[Uncatch Error: #{e.class}] #{msg['url']} #{e.message}"
+      Log.fatal(errmsg)
       Log.fatal(e.backtrace.join("\n"))
+      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
     end
   end
 

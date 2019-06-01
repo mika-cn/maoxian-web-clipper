@@ -18,14 +18,14 @@ const StoreClient = {
     }
   },
   fetchText: function(url) {
-    return new Promise(function(resolve, _){
+    return new Promise(function(resolve, reject){
       ExtApi.sendMessageToBackground({
         type: 'fetch.text',
         body: {
           url: url,
           headers: StoreClient.getHeaders()
         }
-      }).then(resolve)
+      }).then(resolve, reject)
     })
   },
   assetInfos2Tasks: function(clipId, assetFold, assetInfos) {

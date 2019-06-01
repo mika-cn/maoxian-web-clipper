@@ -8,8 +8,14 @@
             window.focus();
             UI.entryClick({});
             break;
-          case 'download.completed':
-            UI.downloadCompleted();
+          case 'clipping.save.started':
+            UI.clippingSaveStarted(msg.detail);
+            break;
+          case 'clipping.save.progress':
+            UI.clippingSaveProgress(msg.detail);
+            break;
+          case 'clipping.save.completed':
+            UI.clippingSaveCompleted(msg.detail);
             tellTpClipCompleted(msg.detail);
             break;
           case 'page_content.changed':

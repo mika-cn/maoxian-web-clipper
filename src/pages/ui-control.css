@@ -59,6 +59,7 @@ body {
 .MX-wc-bar.selected  #MX-wc-btn { background-color: green; }
 .MX-wc-bar.confirmed #MX-wc-btn { display: none}
 .MX-wc-bar.clipping  #MX-wc-btn { display: none}
+.MX-wc-bar.saving  #MX-wc-btn { display: none}
 
 .MX-wc-bar.selected:hover + .MX-wc-help{
   display: block;

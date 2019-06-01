@@ -180,7 +180,11 @@ I18N_DICT['en'] = {
     "switch.title": "Switch (hotkey: c)",
     "hint.selecting": "Move cursor, click to select.",
     "hint.selected": "Press 'Enter' to Confirm, Use arrow key to adjust",
-    "hint.downloading": "Downloading...",
+    "hint.clipping": "Clipping...",
+
+    "hint.saving.started": "Start Save clipping...",
+    "hint.saving.progress": "Progress...($finished/$total)",
+    "hint.saving.completed": "Completed",
 
     //help
     "hotkey.left.intro": "Expand selection",

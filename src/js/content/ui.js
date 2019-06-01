@@ -104,6 +104,18 @@ this.UI = (function(){
     Log.debug("UI appened");
   }
 
+  // remove UI layer friendly
+  function removeFriendly(){
+    if(controlIframe.ready) {
+      sendFrameMsgToControl('destroy');
+    }
+    if(selectionIframe.ready) {
+      sendFrameMsgToSelection('destroy');
+    }
+    state.currElem = null;
+    Log.debug("UI remove friendly");
+  }
+
   // remove UI layers
   function remove(){
     controlIframe.remove();
@@ -295,6 +307,8 @@ this.UI = (function(){
     FrameMsg.addListener('startClip'  , startClip);
     FrameMsg.addListener('entryClick' , entryClick);
     FrameMsg.addListener('cancelForm' , cancelForm);
+    FrameMsg.addListener('frame.control.removeMe', function(msg) { controlIframe.remove(); });
+    FrameMsg.addListener('frame.selection.removeMe', function(msg) { selectionIframe.remove(); });
     console.log('listenFrameMsg');
   }
 
@@ -521,9 +535,23 @@ this.UI = (function(){
     setStateSelected();
   }
 
-  function downloadCompleted(){
-    disable();
-    remove();
+  // msg: {:clipId}
+  function clippingSaveStarted(msg) {
+    sendFrameMsgToControl('setSavingStateStarted', msg);
+  }
+
+  // msg: {:clipId, :finished, :total}
+  function clippingSaveProgress(msg) {
+    sendFrameMsgToControl('setSavingStateProgress', msg);
+  }
+
+  // msg: clippingResult
+  function clippingSaveCompleted(msg) {
+    sendFrameMsgToControl('setSavingStateCompleted', msg);
+    setTimeout(function(){
+      disable();
+      removeFriendly();
+    }, 500);
   }
 
   /*
@@ -594,7 +622,10 @@ this.UI = (function(){
     remove: remove,
     entryClick: entryClick,
     windowSizeChanged: windowSizeChanged,
-    downloadCompleted: downloadCompleted,
+
+    clippingSaveStarted: clippingSaveStarted,
+    clippingSaveProgress: clippingSaveProgress,
+    clippingSaveCompleted: clippingSaveCompleted,
 
     // 3rd party interface
     focusElem: focusElem,
