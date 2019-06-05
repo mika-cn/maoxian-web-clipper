@@ -90,8 +90,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
  *
  * structure:
  * {
- *   taskType : 'htmlFileTask', 'imageFileTask' etc.
- *   taskId   : task id (reconsider this)
+ *   taskType : 'mainFileTask', 'imageFileTask' etc.
  *   type     : resource content type, 'url' or 'text'
  *   filename : filename to save
  *   url      : resource's url (if type is 'url')
@@ -123,8 +122,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
           body: clipping
         });
       })
-      // FIXME : move to clipping handler
-      //saveClipHistory(path.clipFold, info);
+      saveClipHistory(path.clipFold, info);
     });
   }
 
@@ -225,7 +223,6 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
     });
   }
 
-  // FIXME : remove me to clipping handler
   //private
   function saveClipHistory(clipFold, info){
     const path = [clipFold, 'index.json'].join('/');

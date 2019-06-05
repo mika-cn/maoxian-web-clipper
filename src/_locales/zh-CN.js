@@ -172,6 +172,14 @@ I18N_DICT['zh-CN'] = {
     "reset.category_success": "目录重置成功, 共载入 $n 条记录",
     "reset.tag_success": "标签重置成功, 共载入 $n 条记录",
 
+    // last clipping result page (lcr)
+    "lcr.label.file": "文件：",
+    "lcr.label.err-msg": "错误信息：",
+    "lcr.notice.not-clipping-result": "无内容可查看",
+    "lcr.notice.openable-url": "你可点击下方链接查看该裁剪结果.",
+    "lcr.notice.can-not-open-file-url": "你无法直接打开该链接. 因为扩展不被允许打开该类型的链接, 查看 <strong>设置页 > 本地网址</strong> 获取关于此的更多信息",
+    "lcr.message.failed-task-num": "本次裁剪过程中，有 $num 个资源保存失败.",
+
     // entry(btn & hint)
     "switch.title": "开关 (快捷键: c)",
     "hint.selecting": "移动光标, 点击选中",

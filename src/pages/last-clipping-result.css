@@ -1,0 +1,27 @@
+.main {
+  width: 800px;
+  min-height: 800px;
+  margin: 0 auto;
+  padding: 50px 20px 200px 20px;
+  /*
+  border: 1px solid #ccc;*/
+  background-color: #fefefe;
+}
+
+.main a {
+  color: #5a84b3;
+  text-decoration: underline;
+}
+
+#failed-task > .detail {
+  margin-top: 20px;
+}
+
+#failed-task > .detail > .task {
+  margin-top: 15px;
+}
+
+#clipping-url {
+  margin-top: 40px;
+}
+

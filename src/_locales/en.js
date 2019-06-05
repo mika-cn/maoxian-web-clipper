@@ -174,6 +174,14 @@ I18N_DICT['en'] = {
     "reset.category_success": "category history reset success, $n records loaded",
     "reset.tag_success": "tag history reset success, $n records loaded",
 
+    // last clipping result page (lcr)
+    "lcr.label.file": "File: ",
+    "lcr.label.err-msg": "ErrorMessage: ",
+    "lcr.notice.not-clipping-result": "Last clipping result is empty",
+    "lcr.notice.openable-url": "You can click url below to see this clipping.",
+    "lcr.notice.can-not-open-file-url": "You can not open this url directly. Becase extension is not allowed to open it, see <strong>Setting Page > File Url</strong> for more detail",
+    "lcr.message.failed-task-num": "There are $num failures occured in this clipping.",
+
 
 
     // entry(btn & hint)

@@ -18,19 +18,30 @@
 
   // can't do user action in promise, lead to (xxx may only be called from a user input handler)
   function viewLastResult(){
-    if(state.isAllowFileScheme) {
+    const {filename, downloadItemId, failedTaskNum} = state.lastClippingResult;
+    if(failedTaskNum > 0) {
+      jumpToPage('extPage.last-clipping-result');
+      return;
+    }
+    if(downloadItemId) {
+      // clipping saved by browser download.
       MxWcStorage.set('lastClippingResult', null);
-      const url = 'file://' + state.lastClippingResult.filename;
-      ExtApi.createTab(url)
+      ExtApi.openDownloadItem(downloadItemId);
       state.lastClippingResult = null;
     } else {
-      if(state.lastClippingResult.handler === 'browser') {
-        MxWcStorage.set('lastClippingResult', null);
-        ExtApi.openDownloadItem(state.lastClippingResult.downloadItemId);
+      let url = '';
+      if(filename.startsWith('http') || filename.startsWith('file')) {
+        // http://...,https://... or file://...
+        url = filename;
+      } else {
+        url = 'file://' + filename;
+      }
+      if(url.startsWith('http') || state.isAllowFileScheme) {
+        ExtApi.createTab(url);
         state.lastClippingResult = null;
       } else {
-        // TODO show hint to user.
-        console.error("Please allow extention to access file url, first");
+        // We can't open file url without allowed.
+        jumpToPage('extPage.last-clipping-result');
       }
     }
     closeWindow();

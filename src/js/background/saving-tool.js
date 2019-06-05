@@ -49,16 +49,16 @@ const SavingTool = (function() {
     feedbackFn({type: 'progress', clipId: clipping.info.clipId, finished: finished, total: total});
     if(mode == 'completeWhenMainTaskFinished') {
       if(currTask.taskType === 'mainFileTask') {
-        allTaskFinished(clipping, feedbackFn);
+        complete(clipping, feedbackFn);
       }
     } else {
       if(finished === total) {
-        allTaskFinished(clipping, feedbackFn);
+        complete(clipping, feedbackFn);
       }
     }
   };
 
-  function allTaskFinished(clipping, feedbackFn) {
+  function complete(clipping, feedbackFn) {
     const clippingResult = generateClippingResult(clipping);
     feedbackFn({
       type: 'completed',
@@ -96,9 +96,9 @@ const SavingTool = (function() {
       filename: mainTask.fullFilename,
       downloadItemId: mainTask.downloadItemId,
       taskNum: clipping.tasks.length,
-      failedTasksNum: failedTasks.length,
+      failedTaskNum: failedTasks.length,
       pendingTaskNum: pendingTasks.length,
-      completedTasksNum: completedTasks.length,
+      completedTaskNum: completedTasks.length,
     }
     if(failedTasks.length > 0) {
       result.failedTasks = failedTasks;

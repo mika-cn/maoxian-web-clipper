@@ -8,6 +8,7 @@ body {
 }
 
 .green { color: #4caf50; }
+.red { color: red; }
 
 /********** notice ***********/
 .notice-success {
