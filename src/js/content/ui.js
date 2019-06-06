@@ -286,6 +286,7 @@ this.UI = (function(){
     FrameMsg.addListener('click'      , clickHandler);
     FrameMsg.addListener('pressEsc'   , pressEsc);
     FrameMsg.addListener('pressEnter' , pressEnter);
+    FrameMsg.addListener('pressDelete' , pressDelete);
     FrameMsg.addListener('pressLeft'  , pressLeft);
     FrameMsg.addListener('pressUp'    , pressUp);
     FrameMsg.addListener('pressRight' , pressRight);
@@ -424,6 +425,16 @@ this.UI = (function(){
   function pressEnter(msg){
     if(state.clippingState === 'selected'){
       sendFrameMsgToControl('showForm', getFormInputs(msg));
+    }
+  }
+
+  function pressDelete(msg) {
+    if(state.clippingState === 'selected'){
+      const elem = state.currElem;
+      elem.parentNode.removeChild(elem);
+      disable();
+      enable();
+      return;
     }
   }
 

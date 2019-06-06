@@ -189,6 +189,7 @@ I18N_DICT['en'] = {
     "hotkey.down.intro": "Select backward",
     "hotkey.esc.intro": "Back to free mode",
     "hotkey.enter.intro": "Confirm selection",
+    "hotkey.delete.intro": "Remove selected element",
     "hotkey.scroll.intro": "Scroll to selection's top/bottom",
     "hotkey.scroll.name": "Click",
 

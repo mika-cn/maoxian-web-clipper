@@ -17,6 +17,12 @@ MxWcTemplate.UIHtml = {
         </td>
       </tr>
       <tr>
+        <td class="intro">${t('hotkey.delete.intro')}</td>
+        <td class="normal">
+          <kbd data-key-code="46">Delete</kbd>
+        </td>
+      </tr>
+      <tr>
         <td class="intro">${t('hotkey.esc.intro')}</td>
         <td class="normal">
           <kbd data-key-code="27">Esc</kbd>
