@@ -144,7 +144,7 @@
   }
 
   function keyDownHandler(e) {
-    const keyCodes = [27, 13, 37, 38, 39, 40];
+    const keyCodes = [27, 13, 37, 46, 38, 39, 40];
     if(keyCodes.indexOf(e.keyCode) < 0) { return }
     if(!INPUT_TAG_NAMES.includes(e.target.tagName) && !e.target.classList.contains(CLASS_ENTRY)){
       sendKeyPressMessage(e.keyCode);
@@ -159,6 +159,7 @@
       switch(keyCode){
         case 27 : type = 'pressEsc'   ; break ;
         case 13 : type = 'pressEnter' ; break ;
+        case 46 : type = 'pressDelete'; break ;
         case 37 : type = 'pressLeft'  ; break ;
         case 38 : type = 'pressUp'    ; break ;
         case 39 : type = 'pressRight' ; break ;

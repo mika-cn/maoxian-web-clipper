@@ -185,6 +185,7 @@ I18N_DICT['zh-CN'] = {
     "hotkey.down.intro": "向后选中",
     "hotkey.esc.intro": "返回自由模式",
     "hotkey.enter.intro": "确认选中区域",
+    "hotkey.delete.intro": "移除选中元素",
     "hotkey.scroll.intro": "滚动到选中区域的顶部/底部",
     "hotkey.scroll.name": "点击",
 
