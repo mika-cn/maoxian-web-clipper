@@ -29,7 +29,7 @@ That's it, Not bored registration, Not charged.
 
 ## Useful Resources
 
-[scripts](tree/master/useful-res/README.md#scripts)
+[Readme](tree/master/useful-res/)
 
 ## Third party library
 
