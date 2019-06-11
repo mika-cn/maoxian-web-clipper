@@ -35,6 +35,7 @@
 
   function tellTpWeAreReady(){
     setTimeout(function(){
+      Log.debug("tellTpWeAreReady");
       document.dispatchEvent(new CustomEvent('mx-wc.ready'))
     }, 0);
   }

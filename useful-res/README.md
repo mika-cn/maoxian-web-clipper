@@ -1,15 +1,34 @@
 
-# Useful resources
+# 辅助资源
 
-## Intro
+## 简介
 
-This folder contains useful resources shared by users. Most of them are provided to get better experience with MaoXian or remove useless information. Please feel free to share your script.
+MaoXian 扩展只会裁剪网页当前显示的内容。这意味着你需要在裁剪之前，就确保你要裁剪的区域的状态是正确的。我这样描述，你很难明白，下面，我举例说明，你就清楚了：
 
-You can put your script in this folder or just add a link to this file.
+1. 网页上内容区经常有一些我们不想裁剪的东西，比如：表单（按钮什么的），广告，公众号等，我们想要在裁剪之前把他们都去掉。
 
-If your script is used to interact with MaoXian, Consider name your script with `mx-wc-` prefix (e.g. mx-wc-hide-form.user.js)
+2. 有的网站会对网页优化成默认显示图片的缩略图，用户点击才加载原图，对于这样的网页，如果你匆匆地就裁剪，可能裁剪下来的就是缩略图，而非原图。
 
-## Scripts
+3. 有的网站会对网页优化成只有用户滚动网页，才加载最新内容。如果你浏览了一半文章，就进行裁剪，那么你裁剪的内容就是不完整的。
 
-* [mx-wc-hide-elem.user.js](#) Hide useless elements when MaoXian is active.
-* [mx-wc-focus-elem.user.js](#) Focus main element when MaoXian is active.
+如上，为了能更好的裁剪结果，我们需要操作网页，使其达到一个 **Ready** 的状态。我们需要的这些操作可能很简单，只是点击一下鼠标，滚动一下网页。也可能很复杂，比如在裁剪前去掉不要的东西。假如我们把这个过程成为「准备」，那么整个裁剪流程是这样的：
+
+```
+准备 => 选择裁剪区 => 裁剪 => 存储
+```
+
+第一个步骤是 MaoXian 扩展没有的。而本页面收集的资源，就是用来处理「准备」这一步的。
+
+## 资源
+
+### 毛线助手
+
+**毛线助手** 是一个可以与 MaoXian 进行交互的用户脚本（即 UserScript）。该脚本会适配各个网站，主要提供两个功能：剔除无关内容和选中主内容区。安装完该脚本，只要是该脚本适配了的网站，你点击「裁剪按钮」之后，所有无关内容都会被剔除，并且脚本会帮助你选中主内容区。
+
+[进入安装页面](assistant/README.md)
+
+## 开发者寄语
+
+我希望能把「准备」这一步做好，只有这样我们才能用好这个扩展。这需要很多人的投入，并非仅仅依赖开发者就能搞定的。如今，【毛线助手】已初成型，也适配了一些网站。很显然，这个助手只有在适配了大量网站的时候，才会显得有用。这需要各位的参与，包含但不限于：报告适配不完全的网站；提出适配请求。
+
+参与进来吧，让我们把这个软件做得更成熟 :)
