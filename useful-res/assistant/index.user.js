@@ -31,7 +31,7 @@
   // write your own custom plan
   const customPlans = [
     {
-      pattern: "http://*.mika/maoxian-web-clipper/*.html",
+      pattern: "http://*.mika/maoxian-web-clipper/",
       pick: [".main"],
       hide: ["ul"]
     },
