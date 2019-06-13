@@ -8,7 +8,7 @@ const ClippingHandler_NativeApp = (function(){
     // compatible with native-app (version < 0.1.7)
     SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenMainTaskFinished'});
     T.each(clipping.tasks, (task) => {
-      handle(task);
+      saveTask(task);
     });
   }
 
@@ -17,7 +17,14 @@ const ClippingHandler_NativeApp = (function(){
     return ['mx-wc', path].join('');
   }
 
-  function handle(task) {
+  function saveTextFile(task) {
+    init();
+    task.type = 'text';
+    saveTask(task);
+  }
+
+
+  function saveTask(task) {
     task.type = ['download', task.type].join('.');
     state.port.postMessage(task);
   }
@@ -154,6 +161,7 @@ const ClippingHandler_NativeApp = (function(){
   return {
     name: 'native-app',
     saveClipping: saveClipping,
+    saveTextFile: saveTextFile,
     initDownloadFold: initDownloadFold,
 
     getVersion: getVersion,

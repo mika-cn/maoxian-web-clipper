@@ -185,13 +185,11 @@ function generateClippingJs(callback) {
       .then((clippings) => {
         const json = JSON.stringify(clippings);
         const task = {
-          type: 'text',
           text: `;var clippings = ${json};`,
           mimeType: 'text/javascript',
           filename: filename
         }
-        handler.init();
-        handler.handle(task);
+        handler.saveTextFile(task);
         const time = T.currentTime().toString();
         MxWcStorage.set('lastGenerateClippingJsTime', time);
         if(callback) {callback({time: time})};

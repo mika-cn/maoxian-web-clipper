@@ -8,7 +8,7 @@ const ClippingHandler_Browser = (function(){
     init();
     SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenAllTaskFinished'});
     T.each(clipping.tasks, (task) => {
-      handle(task);
+      saveTask(task);
     });
   }
 
@@ -135,7 +135,13 @@ const ClippingHandler_Browser = (function(){
     });
   }
 
-  function handle(task) {
+  function saveTextFile(task) {
+    init();
+    task.type = 'text';
+    saveTask(task);
+  }
+
+  function saveTask(task) {
     switch(task.type){
       // html, markdown, styles
       case 'text': downloadText(task); break;
@@ -173,6 +179,7 @@ const ClippingHandler_Browser = (function(){
   return {
     name: 'browser',
     saveClipping: saveClipping,
+    saveTextFile: saveTextFile,
     initDownloadFold: initDownloadFold
   }
 

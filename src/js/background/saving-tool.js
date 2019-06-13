@@ -21,9 +21,16 @@ const SavingTool = (function() {
 
   function taskFailed(taskFilename, errMsg) {
     const clipId = clipIdDict.find(taskFilename);
+    if(!clipId) {
+      // If clipping handler invoke this function
+      // without invoke startSaving function first,
+      // It's OK, We do nothing.
+      return;
+    }
     const clipping = clippingDict.find(clipId);
     clipIdDict.remove(taskFilename);
-    // if mode is 'completeWhenMainTaskFinished', then clipping could be undefined
+    // if mode is 'completeWhenMainTaskFinished',
+    // then clipping could be undefined
     if(clipping) {
       const currTask = setTaskAttrs(clipping, taskFilename, { state: 'failed', errMsg: errMsg });
       clippingDict.add(clipId, clipping);
@@ -33,6 +40,7 @@ const SavingTool = (function() {
 
   function taskCompleted(taskFilename, appendAttrs) {
     const clipId = clipIdDict.find(taskFilename);
+    if(!clipId) { return; }
     const clipping = clippingDict.find(clipId);
     clipIdDict.remove(taskFilename);
     if(clipping){
