@@ -132,7 +132,6 @@ this.MxWcMarkdown = (function() {
           // Replace frame element use frame html.
           // FIXME
           // If a frame have images, this replacement will trigger some image requests immediately. those request will end with 404 errors, cause we haven't save those image yet.
-          console.log(result);
           const {html, tasks} = result;
           taskCollection.push(...tasks);
           const frameElem = frameElems[idx];

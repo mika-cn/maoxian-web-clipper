@@ -29,7 +29,8 @@ That's it, Not bored registration, Not charged.
 
 ## Useful Resources
 
-[Readme](tree/master/useful-res/)
+[index](useful-res/)
+[MaoXian assistant](useful-res/assistant/)
 
 ## Third party library
 
