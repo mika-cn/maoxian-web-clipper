@@ -198,13 +198,17 @@ this.MxWcHtml = (function () {
 
   function rewriteFrameSrc(container, frame) {
     const assetName = T.calcAssetName(frame.url, 'frame.html');
-    if(container.tagName === 'IFRAME' && container.src == frame.url) {
+    if(['IFRAME', 'FRAME'].indexOf(container.tagName) > -1 && container.src == frame.url) {
       container.src = assetName;
     } else {
-      const frameElems = container.querySelectorAll(`iframe[src="${frame.url}"]`);
-      T.each(frameElems, (frameElem) => {
-        frameElem.src = assetName;
+      const iframeElems = container.querySelectorAll(`iframe[src="${frame.url}"]`);
+      T.each(iframeElems, (it) => {
+        it.src = assetName;
       });
+      const frameElems = container.querySelectorAll(`frame[src="${frame.url}"]`);
+      T.each(frameElems, (it) => {
+        it.src = assetName;
+      })
     }
     return assetName;
   }

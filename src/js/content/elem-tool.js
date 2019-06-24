@@ -188,9 +188,11 @@ ElemTool.rewriteAnchorLink = (elem, siteLink) => {
 }
 
 ElemTool.getFrameBySrc = function(container, src) {
-  if(container.tagName === 'IFRAME' && container.src === src) {
+  if(['IFRAME', 'FRAME'].indexOf(container.tagName) > -1 && container.src === src) {
     return container;
   } else {
-    return container.querySelector(`iframe[src="${src}"]`);
+    const frame = container.querySelector(`iframe[src="${src}"]`);
+    if(frame) { return frame; }
+    return container.querySelector(`frame[src="${src}"]`);
   }
 }

@@ -95,7 +95,7 @@ this.MxWcMarkdown = (function() {
     const promises = [];
     for(let i = 0; i < frames.length; i++) {
       const frame = frames[i];
-      console.log(parentFrameId, frame.parentFrameId);
+      Log.debug(parentFrameId, frame.parentFrameId, frame.url);
       if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
         const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url)
         if(frameElem){

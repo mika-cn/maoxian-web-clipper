@@ -9,7 +9,7 @@
  *   }
  */
 
-//=META version 0.2.0
+//=META version 0.2.1
 
 var MxWc = (function(undefined){
   "use strict";
@@ -91,16 +91,16 @@ var MxWc = (function(undefined){
   //=========================================
 
   const Action = {};
-  Action.hideElem = function(selectorStrs, contentNode) {
+  Action.hideElem = function(selectorStrs, contextNode) {
     return {
       name: 'hideElem',
       isPerformOnce: false,
       selectorStrs: selectorStrs,
-      contentNode: contentNode,
+      contextNode: contextNode,
       perform: function(detail={}) {
         const This = this;
         this.selectorStrs.forEach(function(it) {
-          queryElemsBySelector(it, (This.contentNode || document))
+          queryElemsBySelector(it, (This.contextNode || document))
             .forEach(function(elem) {
               const style = window.getComputedStyle(elem);
               elem.setAttribute("mx-original-display", style.display);
@@ -111,16 +111,16 @@ var MxWc = (function(undefined){
     }
   }
 
-  Action.showElem = function(selectorStrs, contentNode) {
+  Action.showElem = function(selectorStrs, contextNode) {
     return {
       name: 'showElem',
       isPerformOnce: false,
       selectorStrs: selectorStrs,
-      contentNode: contentNode,
+      contextNode: contextNode,
       perform: function(detail={}) {
         const This = this;
         this.selectorStrs.forEach(function(it) {
-          queryElemsBySelector(it, (This.contentNode || document))
+          queryElemsBySelector(it, (This.contextNode || document))
             .forEach(function(elem) {
               const attrName = "mx-original-display";
               const originalDisplay = elem.getAttribute(attrName);
@@ -219,12 +219,12 @@ var MxWc = (function(undefined){
   // query element relative
   //=========================================
 
-  function queryFirstElem(selectorStrs, contentNode) {
+  function queryFirstElem(selectorStrs, contextNode) {
     let elem = undefined;
     let selector = undefined;
     for(let i = 0; i < selectorStrs.length; i++) {
       const selectorStr = selectorStrs[i];
-      const elems = queryElemsBySelector(selectorStr, contentNode);
+      const elems = queryElemsBySelector(selectorStr, contextNode);
       const first = elems[0];
       if(first) {
         elem = first;
@@ -235,31 +235,31 @@ var MxWc = (function(undefined){
     return [elem, selector];
   }
 
-  function queryElemsBySelector(selectorStr, contentNode) {
+  function queryElemsBySelector(selectorStr, contextNode) {
     const selector = Selector.parse(selectorStr);
     if(selector) {
       if(selector.type === 'C') {
-        return queryElemsByCss(selector.q, contentNode);
+        return queryElemsByCss(selector.q, contextNode);
       } else {
-        return queryElemsByXpath(selector.q, contentNode);
+        return queryElemsByXpath(selector.q, contextNode);
       }
     } else {
       return [];
     }
   }
 
-  function queryElemsByCss(cssSelector, contentNode = document) {
+  function queryElemsByCss(cssSelector, contextNode = document) {
     const elems = [];
-    [].forEach.call(contentNode.querySelectorAll(cssSelector), function(elem) {
+    [].forEach.call(contextNode.querySelectorAll(cssSelector), function(elem) {
       elems.push(elem)
     });
     return elems;
   }
 
-  function queryElemsByXpath(xpath, contentNode = document) {
+  function queryElemsByXpath(xpath, contextNode = document) {
     const xpathResult = document.evaluate(
       xpath,
-      contentNode,
+      contextNode,
       null,
       XPathResult.ORDERED_NODE_ITERATOR_TYPE,
       null
