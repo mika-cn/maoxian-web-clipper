@@ -136,7 +136,7 @@ this.MxWcMarkdown = (function() {
           taskCollection.push(...tasks);
           const frameElem = frameElems[idx];
           const newNode = win.document.createElement("div");
-          newNode.innerHTML = (html || '');
+          T.setHtml(newNode, (html || ''));
           if(container === frameElem) {
             container = newNode;
           } else {

@@ -1,98 +1,6 @@
 
 const MxWcTemplate = {}
 
-MxWcTemplate.UIHtml = {
-  render: function(v){
-    return `
-<div class="${v.g} MX-wc-bar idle">
-  <label class="${v.g} ${v.c.hint}">-</label><label class="${v.g}" id="${v.id.btn}" ></label>
-</div>
-<div class="${v.g} MX-wc-help">
-  <div class="help-group">
-    <table>
-      <tr>
-        <td class="intro">${t('hotkey.enter.intro')}</td>
-        <td class="normal">
-          <kbd data-key-code="13">Enter</kbd>
-        </td>
-      </tr>
-      <tr>
-        <td class="intro">${t('hotkey.delete.intro')}</td>
-        <td class="normal">
-          <kbd data-key-code="46">Delete</kbd>
-        </td>
-      </tr>
-      <tr>
-        <td class="intro">${t('hotkey.esc.intro')}</td>
-        <td class="normal">
-          <kbd data-key-code="27">Esc</kbd>
-        </td>
-      </tr>
-      <tr>
-        <td class="intro">${t('hotkey.scroll.intro')}</td>
-        <td class="normal">
-          <kbd data-key-code="-1001">${t('hotkey.scroll.name')}</kbd>
-        </td>
-      </tr>
-    </table>
-  </div>
-  <div class="help-group">
-    <table>
-      <tr>
-        <td class="intro">${t('hotkey.left.intro')}</td>
-        <td class="arrow">
-          <kbd data-key-code="37">←</kbd>
-        </td>
-      </tr>
-      <tr>
-        <td class="intro">${t('hotkey.right.intro')}</td>
-        <td class="arrow">
-          <kbd data-key-code="39">→</kbd>
-        </td>
-      </tr>
-      <tr>
-        <td class="intro">${t('hotkey.up.intro')}</td>
-        <td class="arrow">
-          <kbd data-key-code="38">↑</kbd>
-        </td>
-      </tr>
-      <tr>
-        <td class="intro">${t('hotkey.down.intro')}</td>
-        <td class="arrow">
-          <kbd data-key-code="40">↓</kbd>
-        </td>
-      </tr>
-    </table>
-  </div>
-</div>
-<div class="${v.g} MX-wc-form">
-  <div class="${v.g} MX-input-group">
-    <label class="${v.g}">${t('setting.title.save-format')}</label>
-    <div class="MX-options-group" id="${v.id.format}">
-      <a data-value="html">HTML</a>
-      <a data-value="md">Markdown</a>
-    </div>
-  </div>
-  <div class="${v.g} MX-input-group">
-    <label class="${v.g}">${t('title')}</label>
-    <input class="${v.g}" type="text" id="${v.id.title}"/>
-  </div>
-  <div class="${v.g} MX-input-group">
-    <label class="${v.g}">${t('category')}</label>
-    <input class="${v.g}" type="text" id="${v.id.category}" placeholder="${t('hint.category')}"/>
-  </div>
-  <div class="${v.g} MX-input-group">
-    <label class="${v.g}">${t('tags')}</label>
-    <input class="${v.g}" type="text" placeholder="${t('hint.tags')}" id="${v.id.tagstr}" />
-  </div>
-  <div class="${v.g} MX-wc-actions">
-    <a tabindex="0" class="${v.g} MX-wc-action ${v.c.save}">${t('save')}</a>
-    <a tabindex="0" class="${v.g} MX-wc-action ${v.c.cancel}">${t('cancel')}</a>
-  </div>
-</div>`;
-  }
-}
-
 MxWcTemplate.framePage = {
   render: function(v){
     return `
@@ -130,7 +38,12 @@ MxWcTemplate.elemPage = {
         background-color: ${v.outerElemBgCss} !important;
         margin: 0 auto;
         max-width: ${v.elemWidth}px;
-        padding: 15px 15px 80px 15px;
+      }
+      @media (min-width: 768px) {
+        .mx-wc-main { padding: 15px 15px 80px 15px }
+      }
+      @media (max-width: 767px) {
+        .mx-wc-main { padding: 15px 3px 80px 3px }
       }
 ${MxWcTemplate.clippingInformationStyle}
     </style>

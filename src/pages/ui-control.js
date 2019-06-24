@@ -3,28 +3,25 @@
 (function(){
   const ID = 'mx-wc-iframe-control';
 
-  const ID_BTN           = 'MX-wc-btn';
-  const ID_ENTRY         = 'MX-wc-entry';
-  const CLASS_STATE_BAR  = 'MX-wc-bar';
-  const CLASS_ENTRY      = 'MX-wc-entry';
-  const CLASS_HINT       = 'MX-wc-hint';
+  const ID_SWITCH_BTN    = 'switch-btn';
+  const CLASS_STATE_BAR  = 'state-bar';
+  const CLASS_HINT       = 'hint';
 
-  const ID_TITLE         = "MX-wc-title";
-  const ID_FORMAT        = 'MX-wc-format';
-  const ID_CATEGORY      = "MX-wc-category";
-  const ID_TAGSTR        = "MX-wc-tagstr";
-  const CLASS_FORM       = "MX-wc-form";
-  const CLASS_SAVE_BTN   = 'MX-wc-save-button';
-  const CLASS_CANCEL_BTN = 'MX-wc-cancel-button';
-  const INPUT_TAG_NAMES = ['INPUT', 'TEXTAREA']
+  const ID_FORMAT        = 'format';
+  const ID_TITLE         = "title";
+  const ID_CATEGORY      = "category";
+  const ID_TAGSTR        = "tagstr";
+  const CLASS_FORM       = "save-form";
+  const CLASS_SAVE_BTN   = 'save-button';
+  const CLASS_CANCEL_BTN = 'cancel-button';
+  const INPUT_TAG_NAMES = ['INPUT', 'TEXTAREA'];
+  const CLASS_FORM_INPUTS = ['save-form', 'input-group', 'actions'];
 
   function initUI(){
-    const entryHtml = renderUI();
-    const entry = document.createElement('div');
-    entry.id = ID_ENTRY;
-    entry.className = CLASS_ENTRY;
-    entry.innerHTML = entryHtml;
-    document.body.appendChild(entry);
+    const gbox = T.queryElem('.gbox');
+    const uiHtml = T.findElem('ui-tpl').innerHTML;
+    T.setHtml(gbox, uiHtml);
+    i18nPage();
     setTimeout(initUIListener, 0);
   }
 
@@ -42,19 +39,23 @@
         T.bindOnce(document, "keydown", toggleSwitch);
       }
 
-      if(config.enableMouseMode) {
+      if(config.enableMouseMode && bar) {
         bar.classList.add('mouse-friendly')
-        const helperPanel = T.firstElem('MX-wc-help');
+        const helperPanel = T.firstElem('help');
         helperPanel.classList.add('mouse-friendly');
         //bind kbd listener
-        T.bindOnce(helperPanel, 'click', helperPanelClicked);
+        T.bindOnce(helperPanel, 'click', keyboardClicked);
       }
+
+      // mobile ui
+      const opBtnPanel = T.queryElem('.op-btn-panel');
+      T.bindOnce(opBtnPanel, 'click', keyboardClicked);
     });
 
     // show help hint to new user.
     MxWcStorage.get('categories', [])
       .then((v) => {
-        if(v.length == 0){
+        if(v.length == 0 && bar){
           bar.classList.add('new-user');
         }
       })
@@ -69,30 +70,40 @@
     window.focus();
   }
 
-  function helperPanelClicked(e) {
+  function keyboardClicked(e) {
     if(e.target.tagName === 'KBD') {
       const keyCode = parseInt(e.target.getAttribute('data-key-code'));
-      sendKeyPressMessage(keyCode);
+      if(keyCode > -2000) {
+        // webpage relative event
+        sendKeyPressMessage(keyCode);
+      } else {
+        // other key
+        switch(keyCode) {
+          case -2001: toggleOpBtnGroup(); break;
+          case -2002: showHelpModal();break;
+        }
+      }
     }
   }
 
-  function renderUI(){
-    return MxWcTemplate.UIHtml.render({
-      g: CLASS_ENTRY,
-      id: {
-        btn      : ID_BTN,
-        format   : ID_FORMAT,
-        category : ID_CATEGORY,
-        tagstr   : ID_TAGSTR,
-        title    : ID_TITLE,
-      },
-      /* class */
-      c: {
-        hint   : CLASS_HINT,
-        save   : CLASS_SAVE_BTN,
-        cancel : CLASS_CANCEL_BTN
-      }
-    });
+  // mobile op buttons
+  function toggleOpBtnGroup() {
+    const klass = 'show';
+    const [groupB, groupC] =T.queryElems(".op-btn-group.group-b,.op-btn-group.group-c");
+    groupB.classList.toggle(klass)
+    groupC.classList.toggle(klass)
+  }
+
+  function showHelpModal() {
+    const modal = T.queryElem('.help-modal');
+    modal.style.display = 'block';
+    T.bindOnce(modal, 'click', helpModalClicked);
+  }
+
+  function helpModalClicked(e) {
+    const modal = T.queryElem('.help-modal');
+    modal.style.display = 'none';
+    stopEvent(e);
   }
 
   function initFrameMsg(){
@@ -152,11 +163,10 @@
   function keyDownHandler(e) {
     const keyCodes = [27, 13, 37, 46, 38, 39, 40];
     if(keyCodes.indexOf(e.keyCode) < 0) { return }
-    if(!INPUT_TAG_NAMES.includes(e.target.tagName) && !e.target.classList.contains(CLASS_ENTRY)){
+    if(!INPUT_TAG_NAMES.includes(e.target.tagName) && !CLASS_FORM_INPUTS.includes(e.target.parentNode.className)){
       sendKeyPressMessage(e.keyCode);
     }else{
-      console.log(e.target.tagName);
-      console.log(e.target);
+      Log.debug(e.target.tagName);
     }
   }
 
@@ -194,81 +204,82 @@
   /************** change state ****************/
 
   function setStateIdle(msg){
-    const bar = getStateBar();
+    const gbox = getGbox();
     const btn = getEntryBtn();
     btn.title = t('switch.title');
-    bar.classList.remove('selected');
-    bar.classList.remove('selecting');
-    bar.classList.remove('confirmed');
-    bar.classList.remove('clipping');
-    bar.classList.remove('saving');
-    bar.classList.add('idle');
-    hideHint();
+    gbox.classList.remove('selected');
+    gbox.classList.remove('selecting');
+    gbox.classList.remove('confirmed');
+    gbox.classList.remove('clipping');
+    gbox.classList.remove('saving');
+    gbox.classList.add('idle');
+    setHint('-');
   }
   function setStateSelecting(msg){
-    const bar = getStateBar();
+    const gbox = getGbox();
     const btn = getEntryBtn();
     btn.innerText = "ON";
     btn.title = t('switch.title');
-    bar.classList.remove('idle');
-    bar.classList.add('selecting');
-    showHint(t('hint.selecting'));
+    gbox.classList.remove('idle');
+    gbox.classList.add('selecting');
+    setHint(t('hint.selecting'));
   }
   function setStateSelected(msg){
-    const bar = getStateBar();
+    const gbox = getGbox();
     const btn = getEntryBtn();
     btn.innerText = "ON";
     btn.title = t('switch.title');
-    bar.classList.remove('selecting');
-    bar.classList.add('selected');
-    showHint(t('hint.selected'));
+    gbox.classList.remove('selecting');
+    gbox.classList.add('selected');
+    setHint(t('hint.selected'));
   }
   function setStateConfirmed(msg){
-    hideHint();
-    const bar = getStateBar();
-    bar.classList.remove('selecting');
-    bar.classList.remove('selected');
-    bar.classList.add('confirmed');
+    const gbox = getGbox();
+    gbox.classList.remove('selecting');
+    gbox.classList.remove('selected');
+    gbox.classList.add('confirmed');
+    setHint('-');
   }
   function setStateClipping(msg){
-    hideHint();
-    const bar = getStateBar();
-    bar.classList.remove('confirmed');
-    bar.classList.add('clipping');
-    showHint(t('hint.clipping'));
+    const gbox = getGbox();
+    gbox.classList.remove('confirmed');
+    gbox.classList.add('clipping');
+    setHint(t('hint.clipping'));
   }
 
   /************** change saving state ****************/
 
 
   function setSavingStateStarted(msg) {
-    const bar = getStateBar();
-    bar.classList.remove('clipping');
-    bar.classList.add('saving');
-    showHint(t('hint.saving.started'));
+    const gbox = getGbox();
+    gbox.classList.remove('clipping');
+    gbox.classList.add('saving');
+    setHint(t('hint.saving.started'));
   }
 
   function setSavingStateProgress(msg) {
     let hint = t('hint.saving.progress')
     hint = hint.replace('$finished', msg.finished).replace('$total', msg.total);
-    showHint(hint);
+    setHint(hint);
   }
 
   function setSavingStateCompleted(msg) {
-    showHint(t('hint.saving.completed'));
+    setHint(t('hint.saving.completed'));
   }
 
-  function showHint(text){
-    const elem = T.firstElem(CLASS_HINT);
-    elem.innerHTML = text;
-    elem.style.display = 'inline-block';
+  function setHint(text){
+    const elems = T.queryElems(`.${CLASS_HINT}`)
+    T.each(elems, function(elem) {
+      T.setHtml(elem, text);
+    });
   }
 
-  function hideHint(){
-    const elem = T.firstElem(CLASS_HINT);
-    elem.innerHTML = '-';
-    elem.classList.remove('clickable');
-    elem.style.display = 'none';
+  function getContextNode() {
+    let elem = T.firstElem('desktop');
+    if(T.isElemVisible(window, elem)) {
+      return elem;
+    }
+    return T.firstElem('mobile');
   }
 
   /************** Form relative ****************/
@@ -307,6 +318,7 @@
   }
 
   async function showForm(msg){
+    Log.debug('showForm');
     const form = T.firstElem(CLASS_FORM);
     if(form.style.display == 'block'){ return false}
     setStateConfirmed();
@@ -381,8 +393,8 @@
   }
 
   function hideForm(msg){
+    Log.debug('hideForm');
     T.firstElem(CLASS_FORM).style.display = 'none';
-    console.log('hideForm');
   }
 
   function destroy(msg) {
@@ -390,14 +402,16 @@
   }
 
   /************** Find Element ****************/
+  function getGbox() {
+    return T.queryElem(".gbox");
+  }
   function getStateBar(){
-    return T.firstElem(CLASS_STATE_BAR);
+    const node = getContextNode();
+    return T.firstElem(CLASS_STATE_BAR, node);
   }
   function getEntryBtn(){
-    return T.findElem(ID_BTN);
-  }
-  function getEntryUI(){
-    return T.findElem(ID_ENTRY);
+    return T.findElem(ID_SWITCH_BTN);
+
   }
 
 
@@ -437,5 +451,5 @@
   initUI();
   initFrameMsg();
   listenFrameMsg();
-  console.log('control layer ready..');
+  Log.info('control layer ready..');
 })();

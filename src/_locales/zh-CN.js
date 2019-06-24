@@ -182,8 +182,8 @@ I18N_DICT['zh-CN'] = {
 
     // entry(btn & hint)
     "switch.title": "开关 (快捷键: c)",
-    "hint.selecting": "移动光标, 点击选中",
-    "hint.selected": "按'Enter' 确认, 方向键调整当前选中区域",
+    "hint.selecting": "请点击要操作的区域",
+    "hint.selected": "按 'Enter' 确认, 方向键调整当前选中区域",
     "hint.clipping": "裁剪中...",
 
     "hint.saving.started": "开始保存...",
@@ -191,17 +191,21 @@ I18N_DICT['zh-CN'] = {
     "hint.saving.completed": "保存完成",
 
     //help
+    "hotkey.help-message": "下方为帮助信息，点击屏幕任何地方隐藏该信息。",
     "hotkey.left.intro": "扩大选中区域",
     "hotkey.right.intro": "缩小选中区域",
     "hotkey.up.intro": "向前选中",
     "hotkey.down.intro": "向后选中",
-    "hotkey.esc.intro": "返回自由模式",
+    "hotkey.esc.intro": "返回上一步",
     "hotkey.enter.intro": "确认选中区域",
     "hotkey.delete.intro": "移除选中元素",
-    "hotkey.scroll.intro": "滚动到选中区域的顶部/底部",
-    "hotkey.scroll.name": "点击",
+    "hotkey.scroll.intro": "点击选中区域使滚动到顶部/底部",
+    "hotkey.adjust.intro": "切换出方向按键",
+    "hotkey.back.intro": "返回上一组按钮",
+    "hotkey.help.intro": "显示此帮助信息",
 
     // form
+    "format": "存储格式",
     "title": "标题",
     "category": "目录",
     "tags": "标签",

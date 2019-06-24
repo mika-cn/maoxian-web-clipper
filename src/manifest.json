@@ -129,5 +129,10 @@
         "size": 48
       }
     ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "maoxian-web-clipper@own.your.data"
+    }
   }
 }

@@ -186,7 +186,7 @@ I18N_DICT['en'] = {
 
     // entry(btn & hint)
     "switch.title": "Switch (hotkey: c)",
-    "hint.selecting": "Move cursor, click to select.",
+    "hint.selecting": "Click to select.",
     "hint.selected": "Press 'Enter' to Confirm, Use arrow key to adjust",
     "hint.clipping": "Clipping...",
 
@@ -195,17 +195,21 @@ I18N_DICT['en'] = {
     "hint.saving.completed": "Completed",
 
     //help
+    "hotkey.help-message": "Help message, click screen to hide it.",
     "hotkey.left.intro": "Expand selection",
     "hotkey.right.intro": "Shrink selection",
     "hotkey.up.intro": "Select forward",
     "hotkey.down.intro": "Select backward",
-    "hotkey.esc.intro": "Back to free mode",
+    "hotkey.esc.intro": "Back to previous step",
     "hotkey.enter.intro": "Confirm selection",
     "hotkey.delete.intro": "Remove selected element",
-    "hotkey.scroll.intro": "Scroll to selection's top/bottom",
-    "hotkey.scroll.name": "Click",
+    "hotkey.scroll.intro": "Click selection to scroll to top/bottom",
+    "hotkey.adjust.intro": "Show arrow button",
+    "hotkey.back.intro": "Back to previous buttons",
+    "hotkey.help.intro": "Show this help messages",
 
     // form
+    "format": "Save Format",
     "title": "Title",
     "category": "Category",
     "tags": "Tags",

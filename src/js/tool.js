@@ -6,10 +6,33 @@ T.createId = function() {
   return '' + Math.round(Math.random() * 100000000000);
 }
 
-T.findElem = function(id){ return document.getElementById(id) }
-T.firstElem = function(className){ return T.queryElem(`.${className}`) }
-T.queryElem = function(selector){ return document.querySelector(selector) }
-T.queryElems = function(selector){ return document.querySelectorAll(selector) }
+T.findElem = function(id, contextNode = document){ return contextNode.getElementById(id) }
+T.firstElem = function(className, contextNode = document){ return T.queryElem(`.${className}`, contextNode) }
+T.queryElem = function(selector, contextNode = document){ return contextNode.querySelector(selector) }
+T.queryElems = function(selector, contextNode = document){ return contextNode.querySelectorAll(selector) }
+
+
+T.isElemVisible = function(win, elem) {
+  if(['IMG', 'PEATURE'].indexOf(elem.tagName) > -1) {
+    return true
+  }
+
+  const style = win.getComputedStyle(elem);
+  if(style.display === 'none') {
+    return false;
+  }
+  if(style.visibility === 'hidden'){
+    return false
+  }
+
+  /*
+  const box = elem.getBoundingClientRect();
+  if(box.width === 0 && box.height === 0){
+    return false
+  }
+  */
+  return true
+}
 
 // obj: element or selector
 T.setHtml = function(obj, html) {

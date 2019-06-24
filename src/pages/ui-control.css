@@ -1,137 +1,11 @@
 
 body {
+  margin: 0px;
   font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
 }
 
-#MX-wc-entry {
-  border: 0px;
-  border-radius: 0px;
-  position: fixed;
-  top: 80px;
-  right: 10px;
-  z-index: 99999;
-  color: #eee;
-}
-#MX-wc-entry::before,
-#MX-wc-entry::after,
-#MX-wc-entry *::before,
-#MX-wc-entry *::after {
-  all: unset;  /* allowing inheritance within #mydiv */
-}
-/*.MX-wc-bar {float: right;}*/
-#MX-wc-btn,.MX-wc-hint,#MX-wc-setting {
-  color: #eee;
-  font-size: 12px;
-  height: 30px;
-  line-height: 30px;
-  display: inline-block;
-}
-.MX-wc-hint {
-  background-color: #333333;
-  padding: 0px 10px 0px 10px;
-  display: none;
-}
-
-.MX-wc-bar:hover #MX-wc-setting{
-  display: inline-block;
-}
-#MX-wc-setting {
-  background-color: #aaa;
-  width: 30px;
-  text-align: center;
-  display: none;
-}
-
-.MX-wc-hint.clickable:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-#MX-wc-btn {
-  background-color: #888;
-  width: 30px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.MX-wc-bar.idle{ display: none }
-.MX-wc-bar.selecting #MX-wc-btn { background-color: red;}
-.MX-wc-bar.selected  #MX-wc-btn { background-color: green; }
-.MX-wc-bar.confirmed #MX-wc-btn { display: none}
-.MX-wc-bar.clipping  #MX-wc-btn { display: none}
-.MX-wc-bar.saving  #MX-wc-btn { display: none}
-
-.MX-wc-bar.selected:hover + .MX-wc-help{
-  display: block;
-}
-.MX-wc-bar.selected.new-user + .MX-wc-help{
-  display: block;
-}
-.MX-wc-bar.selected.mouse-friendly + .MX-wc-help{
-  display: block;
-}
-
-/* help */
-.MX-wc-help{
-  display: none;
-  width: 100%;
-  margin-top: 25px;
-}
-
-.MX-wc-help .help-group{
-  padding: 10px 15px 30px 15px;
-  border-radius: 3px;
-  background-color: rgba(51, 51, 51, 0.9);
-  margin-bottom: 15px;
-}
-
-.MX-wc-help table {
-  width: 100%;
-}
-.MX-wc-help tr { }
-.MX-wc-help td {
-  color: #eee;
-  padding: 5px;
-  font-size: 13px;
-}
-.MX-wc-help kbd {
-  all: unset;
-  display: inline-block;
-  min-width: 20px;
-  min-height: 10px;
-  padding: 5px 8px;
-  line-height: 10px;
-  text-align: center;
-  vertical-align: middle;
-  color: #fff;
-}
-
-.MX-wc-help.mouse-friendly kbd {
-  border: solid 1px #ccc;
-  border-radius: 4px;
-  user-select: none;
-  color: #333;
-  background-color: #ccc;
-}
-
-.MX-wc-help.mouse-friendly kbd:hover {
-  cursor: pointer;
-  color: #000;
-  background-color: #bbb;
-}
-
-.Mx-wc-help .normal kbd {
-  font-size: 13px;
-}
-
-.MX-wc-help .arrow kbd {
-  font-size: 16px;
-}
-
-
 /* form style */
-
-.MX-wc-form {
+.save-form {
   width: 320px;
   border: 1px solid #ccc;
   padding: 40px 15px 80px 15px;
@@ -143,7 +17,7 @@ body {
   color: #888;
 }
 
-.MX-options-group > a{
+.options-group > a{
   text-decoration: none;
   display: inline-block;
   margin-right: 10px;
@@ -156,31 +30,31 @@ body {
   cursor: pointer;
 }
 
-.MX-options-group > a:hover {
+.options-group > a:hover {
   color: #333;
   background-color: #F5F5F5;
 }
 
-.MX-options-group > a.active {
+.options-group > a.active {
   color: #333;
   border: 2px dashed green;
   font-weight: bold;
   background-color: #E8E8E8;
 }
 
-.MX-input-group{
+.input-group{
   margin-bottom: 15px;
   width: 100%;
 }
 
-.MX-input-group label, .Mx-input-group input{
+.input-group label, .input-group input{
   display: block;
 }
-.MX-input-group label {
+.input-group label {
   font-size: 14px;
   margin-bottom: 5px;
 }
-.MX-input-group input{
+.input-group input{
   display: block;
   font-size: 12px;
   box-sizing: border-box;
@@ -191,19 +65,19 @@ body {
   padding: 0px 5px 0px 5px;
 }
 
-.MX-input-hint {
+.input-hint {
   font-size: 12px;
 }
 
-.MX-input-group input:focus{
+.input-group input:focus{
   border: 2px solid pink;
 }
 
-.MX-wc-actions{
+.actions{
   margin-top: 40px;
 }
 
-.MX-wc-action {
+.action {
   display: block;
   text-decoration: none;
   height: 35px;
@@ -214,51 +88,273 @@ body {
   color: #eee;
   border-radius: 3px;
 }
-.MX-wc-action:hover {
+.action:hover {
   text-decoration: none;
   color: #eee;
 }
-.MX-wc-action:focus{
+.action:focus{
   text-decoration: none;
   color: #eee;
   border: 2px solid pink;
 }
 
-.MX-wc-save-button{
+.save-button{
   background-color: green;
 }
 
-.MX-wc-cancel-button{
+.cancel-button{
   background-color: #aaaaaa;
 }
 
-.MX-tooltip-left {
-  /*transform: translateX(-101%) translateY(-36px);*/
-  min-width: 80px;
-  mx-width: 100%;
-  width: auto;
-  background-color: #373739;
-  color: #fff;
-  font-size: 13px;
-  cursor: default;
-  text-shadow: none;
-  padding: 10px 15px;
-  border: 1px solid #6d6e71;
-  border-top-color: #373739;
-  box-shadow: 1px 1px 2px rgba(0,0,0,.15);
-  position: absolute;
-  visibility: hidden;
-  opacity: 0;
+/* state bar */
+.state-bar {display: block;}
+.gbox.idle .state-bar { display: none }
+.gbox.confirmed .state-bar { display: none }
+
+/* help layer */
+.help {
+  display: none;
+  width: 100%;
+  margin-top: 25px;
 }
 
-#MX-wc-category:focus + .MX-tooltip-left{
-  visibility: visible;
-  opacity: 1;
+.help-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: none;
 }
-#MX-wc-tagstr:focus + .MX-tooltip-left{
-  visibility: visible;
-  opacity: 1;
+.help-modal > .modal-content {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 20px 5px 30px 5px;
+  background-color: rgba(200,200,200, 0.9);
+  overflow-y: auto;
 }
+
+.help-group{
+  padding: 10px 15px 30px 15px;
+  border-radius: 3px;
+  background-color: rgba(51, 51, 51, 0.9);
+  margin-bottom: 15px;
+  color: #eee;
+}
+
+.help-group label {
+  font-size: 13px;
+}
+
+.help-group table {
+  width: 100%;
+}
+.help-group tr { }
+.help-group td {
+  padding: 5px;
+  font-size: 13px;
+}
+.help-group kbd {
+  display: inline-block;
+  min-width: 20px;
+  min-height: 10px;
+  padding: 5px 8px;
+  line-height: 10px;
+  text-align: center;
+  vertical-align: middle;
+  color: #fff;
+}
+.help-group .normal kbd {
+  font-size: 13px;
+}
+
+.help-group .arrow kbd {
+  font-size: 16px;
+}
+
+
+/* Desktop screen style */
+
+@media (min-width: 768px) {
+  .desktop {display: block;}
+  .mobile {display: none;}
+
+  .desktop {
+    position: fixed;
+    top: 80px;
+    right: 10px;
+    color: #eee;
+  }
+
+  #switch-btn,.hint {
+    color: #eee;
+    font-size: 12px;
+    height: 30px;
+    line-height: 30px;
+    display: inline-block;
+  }
+  .hint {
+    background-color: #333333;
+    padding: 0px 10px 0px 10px;
+    display: none;
+  }
+
+  #switch-btn {
+    background-color: #888;
+    width: 30px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .gbox.selected .state-bar:hover + .help{
+    display: block;
+  }
+  .gbox.selected .state-bar.new-user + .help{
+    display: block;
+  }
+  .gbox.selected .state-bar.mouse-friendly + .help{
+    display: block;
+  }
+
+  .gbox.selecting #switch-btn { background-color: red;}
+  .gbox.selected  #switch-btn { background-color: green; }
+  .gbox.confirmed #switch-btn { display: none}
+  .gbox.clipping  #switch-btn { display: none}
+  .gbox.saving    #switch-btn { display: none}
+
+  /* hint state */
+  .gbox.idle      .hint {display: none}
+  .gbox.selecting .hint {display: inline-block}
+  .gbox.selected  .hint {display: inline-block}
+  .gbox.confirmed .hint {display: none}
+  .gbox.clipping  .hint {display: inline-block}
+  .gbox.saving    .hint {display: inline-block}
+
+
+
+
+  .help.mouse-friendly kbd {
+    border: solid 1px #ccc;
+    border-radius: 4px;
+    user-select: none;
+    color: #333;
+    background-color: #ccc;
+  }
+
+  .help.mouse-friendly kbd:hover {
+    cursor: pointer;
+    color: #000;
+    background-color: #bbb;
+  }
+
+
+  .form-panel {
+    width: 100%;
+    margin-top: 25px;
+  }
+  .form-panel > .save-form {
+    position: fixed;
+    top: 80px;
+    right: 10px;
+  }
+
+}
+
+/* Mobile screen style */
+
+@media (max-width: 767px) {
+  .desktop {display: none;}
+  .mobile {display: block;}
+  .mobile {
+    width: 100%;
+  }
+
+  .hint{
+    background-color: rgba(51, 51, 51, 0.7);
+    color: #eee;
+    padding: 10px;
+    text-align: center;
+    display: none;
+    font-size: 14px;
+    display: none;
+  }
+
+  /* hint state */
+  .gbox.idle      .hint {display: none}
+  .gbox.selecting .hint {display: block}
+  .gbox.selected  .hint {display: block}
+  .gbox.confirmed .hint {display: none}
+  .gbox.clipping  .hint {display: block}
+  .gbox.saving    .hint {display: block}
+
+
+  /* btn group */
+  .gbox.selecting .state-bar + .op-btn-panel {display: block;}
+  .gbox.selected .state-bar + .op-btn-panel {display: block;}
+  .gbox.selecting .op-btn-group.group-a {display: block;}
+  .gbox.selecting .op-btn-group.group-b {display: none;}
+  .gbox.selected .op-btn-group.group-a {display: none;}
+
+  .op-btn-panel {
+    position: fixed;
+    top: 20%;
+    right: 5px;
+    display: none;
+  }
+
+  .op-btn-group {
+    display: none;
+  }
+
+  .op-btn-group.show {
+    display: block;
+  }
+
+
+  .op-btn {
+    margin-bottom: 10px;
+  }
+
+  .op-btn > kbd{
+    display: inline-block;
+    min-width: 40px;
+    min-height: 10px;
+    padding: 10px 8px;
+    line-height: 10px;
+    text-align: center;
+    font-size: 11px;
+
+    border-radius: 6px;
+    user-select: none;
+    color: #fff;
+    background-color: #666;
+    box-shadow: 1px 2px 8px gray;
+  }
+
+  .op-btn > kbd:hover {
+    cursor: pointer;
+  }
+  .op-btn.arraw > kbd {
+    font-size: 16px;
+  }
+  .form-panel {
+    width: 100%;
+    margin-top: 25px;
+  }
+  .form-panel > .save-form {
+    width: 95%;
+    margin: 0 auto;
+    padding: 15px 10px;
+  }
+
+  .input-group {
+    margin-bottom: 8px;
+  }
+}
+
+
 
 
 /* overwrite awesomplete style */

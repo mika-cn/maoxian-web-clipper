@@ -25,7 +25,7 @@ ElemTool.isIndivisible = (elem, pElem) => {
 ElemTool.getHiddenElementXpaths = (win, elem, xpaths=[], prefix="") => {
   T.each(elem.children, (childElem, index) => {
     const xpath = [prefix, '*[', index + 1, ']'].join('');
-    if(ElemTool.isElemVisible(win, childElem)) {
+    if(T.isElemVisible(win, childElem)) {
       xpaths = ElemTool.getHiddenElementXpaths(
         win, childElem, xpaths, xpath + '/');
     } else {
@@ -59,26 +59,6 @@ ElemTool.removeChildByXpath = (win, elem, xpaths) => {
   return elem;
 }
 
-ElemTool.isElemVisible = (win, elem) => {
-  if(['IMG', 'PEATURE'].indexOf(elem.tagName) > -1) {
-    return true
-  }
-
-  /*
-  if(elem.offsetWidth === 0 && elem.offsetHeight === 0){
-    return false
-  }
-  */
-
-  const style = win.getComputedStyle(elem);
-  if(style.display === 'none') {
-    return false;
-  }
-  if(style.visibility === 'hidden'){
-    return false
-  }
-  return true
-}
 
 // params: {
 //   extension, => optional

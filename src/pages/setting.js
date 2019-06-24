@@ -209,7 +209,7 @@
       type: 'generate.clipping.js'
     }).then((result) => {
       const label = T.findElem('last-generate-clipping-js-time');
-      label.innerHTML = result.time;
+      T.setHtml(label, result.time);
       Notify.success(t('setting.generate-now-success.label'));
     });
     Notify.success(t('setting.generate-now-msg-sent.label'));
@@ -223,7 +223,7 @@
         }).then((result) => {
           if(result.ok) {
             const label = T.findElem('last-refresh-history-time');
-            label.innerHTML = result.time;
+            T.setHtml(label, result.time);
             Notify.success(t('setting.refresh-now-success.label'));
           } else {
             Notify.error(result.message)

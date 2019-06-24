@@ -8,11 +8,223 @@
     <link rel="stylesheet" href="./ui-control.css" />
   </head>
   <body>
+    <main>
+      <div class="gbox"></div>
+    </main>
+
+    <template id="ui-tpl">
+      <div class="desktop">
+        <div class="state-bar idle"><label class="hint">-</label><label id="switch-btn" ></label>
+        </div>
+        <div class="help">
+          <div class="help-group">
+            <table>
+              <tr>
+                <td class="intro" i18n="hotkey.enter.intro"></td>
+                <td class="normal">
+                  <kbd data-key-code="13">Enter</kbd>
+                </td>
+              </tr>
+              <tr>
+                <td class="intro" i18n="hotkey.delete.intro"></td>
+                <td class="normal">
+                  <kbd data-key-code="46">Delete</kbd>
+                </td>
+              </tr>
+              <tr>
+                <td class="intro" i18n="hotkey.esc.intro"></td>
+                <td class="normal">
+                  <kbd data-key-code="27">Esc</kbd>
+                </td>
+              </tr>
+              <tr>
+                <td class="intro" i18n="hotkey.scroll.intro"></td>
+                <td class="normal">
+                  <kbd data-key-code="-1001">Scroll</kbd>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="help-group">
+            <table>
+              <tr>
+                <td class="intro" i18n="hotkey.left.intro"></td>
+                <td class="arrow">
+                  <kbd data-key-code="37">←</kbd>
+                </td>
+              </tr>
+              <tr>
+                <td class="intro" i18n="hotkey.right.intro"></td>
+                <td class="arrow">
+                  <kbd data-key-code="39">→</kbd>
+                </td>
+              </tr>
+              <tr>
+                <td class="intro" i18n="hotkey.up.intro"></td>
+                <td class="arrow">
+                  <kbd data-key-code="38">↑</kbd>
+                </td>
+              </tr>
+              <tr>
+                <td class="intro" i18n="hotkey.down.intro"></td>
+                <td class="arrow">
+                  <kbd data-key-code="40">↓</kbd>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="mobile">
+        <div class="state-bar">
+          <div class="hint">-</div>
+        </div>
+        <div class="op-btn-panel">
+          <div class="op-btn-group group-a">
+            <div class="op-btn">
+              <kbd data-key-code="-2002">?</kbd>
+            </div>
+            <div class="op-btn">
+              <kbd data-key-code="27">Esc</kbd>
+            </div>
+          </div>
+          <div class="op-btn-group group-b show">
+            <div class="op-btn">
+              <kbd data-key-code="-2002">?</kbd>
+            </div>
+            <div class="op-btn">
+              <kbd data-key-code="27">Esc</kbd>
+            </div>
+            <div class="op-btn">
+              <kbd data-key-code="46">Delete</kbd>
+            </div>
+            <div class="op-btn">
+              <kbd data-key-code="-2001">Adjust</kbd>
+            </div>
+            <div class="op-btn">
+              <kbd data-key-code="13">Enter</kbd>
+            </div>
+          </div>
+
+          <div class="op-btn-group group-c">
+            <div class="op-btn">
+              <kbd data-key-code="-2001">Back</kbd>
+            </div>
+            <div class="op-btn arraw">
+              <kbd data-key-code="38">↑</kbd>
+            </div>
+            <div class="op-btn arraw">
+              <kbd data-key-code="40">↓</kbd>
+            </div>
+            <div class="op-btn arraw">
+              <kbd data-key-code="37">←</kbd>
+            </div>
+            <div class="op-btn arraw">
+              <kbd data-key-code="39">→</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panel">
+        <div class="save-form">
+          <div class="input-group">
+             <label i18n="format"></label>
+             <div class="options-group" id="format">
+               <a data-value="html">HTML</a>
+               <a data-value="md">Markdown</a>
+             </div>
+          </div>
+          <div class="input-group">
+            <label i18n="title"></label>
+            <input type="text" id="title"/>
+          </div>
+          <div class="input-group">
+            <label i18n="category"></label>
+            <input type="text" id="category" i18n-attr="placeholder:hint.category"/>
+          </div>
+          <div class="input-group">
+            <label i18n="tags"></label>
+            <input type="text" id="tagstr" i18n-attr="placeholder:hint.tags"/>
+          </div>
+          <div class="actions">
+            <a tabindex="0" class="action save-button" i18n="save"></a>
+            <a tabindex="0" class="action cancel-button" i18n="cancel"></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- help modal -->
+      <div class="help-modal">
+        <div class="modal-content">
+          <div class="help-group">
+            <label i18n="hotkey.help-message"></label>
+          </div>
+          <div class="help-group">
+            <table>
+              <tr>
+                <td class="normal"><kbd>Enter</kbd></td>
+                <td class="intro" i18n="hotkey.enter.intro"></td>
+              </tr>
+              <tr>
+                <td class="normal"><kbd>Delete</kbd></td>
+                <td class="intro" i18n="hotkey.delete.intro"></td>
+              </tr>
+              <tr>
+                <td class="normal"><kbd>Adjust</kbd></td>
+                <td class="intro" i18n="hotkey.adjust.intro"></td>
+              </tr>
+              <tr>
+                <td class="normal"><kbd>Esc</kbd></td>
+                <td class="intro" i18n="hotkey.esc.intro"></td>
+              </tr>
+              <tr>
+                <td class="normal"><kbd>Scroll</kbd> </td>
+                <td class="intro" i18n="hotkey.scroll.intro"></td>
+              </tr>
+              <tr>
+                <td class="normal"><kbd>?</kbd></td>
+                <td class="intro" i18n="hotkey.help.intro"></td>
+              </tr>
+            </table>
+          </div>
+          <div class="help-group">
+            <table>
+              <tr>
+                <td class="normal"><kbd>Back</kbd></td>
+                <td class="intro" i18n="hotkey.back.intro"></td>
+              </tr>
+              <tr>
+                <td class="arrow"><kbd>←</kbd></td>
+                <td class="intro" i18n="hotkey.left.intro"></td>
+              </tr>
+              <tr>
+                <td class="arrow"><kbd>→</kbd></td>
+                <td class="intro" i18n="hotkey.right.intro"></td>
+              </tr>
+              <tr>
+                <td class="arrow"><kbd>↑</kbd></td>
+                <td class="intro" i18n="hotkey.up.intro"></td>
+              </tr>
+              <tr>
+                <td class="arrow"><kbd>↓</kbd></td>
+                <td class="intro" i18n="hotkey.down.intro"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </template>
+
+
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>
     <script type="text/javascript" src="../vendor/js/i18n.js"></script>
     <script type="text/javascript" src="../vendor/js/awesomplete.js"></script>
     <script type="text/javascript" src="../js/env.js"></script>
     <script type="text/javascript" src="../js/tool.js"></script>
+    <script type="text/javascript" src="../js/lib/log.js"></script>
     <script type="text/javascript" src="../_locales/en.js"></script>
     <script type="text/javascript" src="../_locales/zh-CN.js"></script>
     <script type="text/javascript" src="../js/lib/ext-api.js"></script>
