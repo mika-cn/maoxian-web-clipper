@@ -37,12 +37,11 @@ this.Notify = (function(){
         width: 30px;
         height: 30px;
       }
-      .notify > .content {
+      .notify > .notify-content {
         display: inline-block;
         height: 30px;
         line-height: 30px;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding: 0px 10px !important;
       }
       .notify:hover {
         border-top-left-radius: 15px;
@@ -126,7 +125,7 @@ this.Notify = (function(){
   }
 
   function renderNotify(content, behavior, type) {
-    return `<label class="btn" title="dismiss me">&nbsp;</label><label class="content">${content}</label>
+    return `<label class="btn" title="dismiss me">&nbsp;</label><label class="notify-content">${content}</label>
     `;
   }
 

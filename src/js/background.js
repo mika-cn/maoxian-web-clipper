@@ -101,7 +101,6 @@ function exportHistory(content) {
 }
 
 /*
- * handler.saveClipping(tabId, clipping)
  * saveTasks
  */
 

@@ -1,41 +1,73 @@
 .main {
-  width: 800px;
+  width: 100%;
   min-height: 800px;
-  margin: 0 auto;
-  border: 1px solid #ccc;
-  padding: 50px 20px 400px 20px;
-  background-color: #fefefe;
+  margin: 0px;
+  padding: 0px;
+  background-color: #fff;
+}
+
+/* Desktop screen style */
+@media (min-width: 768px) {
+
+  .content {
+    width: 75%;
+    margin-left: 23%;
+    background-color: #fefefe;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    width: 20%;
+    max-width: 255px;
+    height: 100%;
+    padding-top: 20px;
+    background-color: #e0e0e0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 2;
+  }
+
+  .sidebar > .menu {
+    display: block;
+    background-color: #e0e0e0;
+    height: 30px;
+    line-height: 30px;
+    padding: 5px 15px;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .sidebar > .menu:hover {
+    background: #eee;
+  }
+
+  .sidebar > .menu.active {
+    background: white;
+    border-left: solid 3px green;
+  }
+
+}
+
+/* Palm screen style */
+@media (max-width: 767px) {
+  .sidebar {display: none}
+  .content {
+    width: 100;
+  }
+}
+
+.content {
+  display: block;
+  padding: 30px 10px 180px 10px;
 }
 
 h3 {
   padding: 5px 10px 5px 10px;
   border-bottom: solid 1px #ccc;
-}
-
-.sidebar {
-  position: fixed;
-  display: block;
-  width: 200px;
-  height: auto;
-  margin-left: -251px;
-  padding: 10px 10px 10px 10px;
-  border: solid 1px #ccc;
-  background-color: white;
-  z-index: 2;
-}
-
-.sidebar > .menu{
-  display: block;
-  background-color: #eee;
-  height: 30px;
-  line-height: 30px;
-  padding: 5px 10px;
-  text-decoration: none;
-  color: #333;
-}
-
-.sidebar > .menu.active{
-  background: white;
 }
 
 
