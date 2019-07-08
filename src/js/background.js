@@ -207,6 +207,9 @@ function getClippingHandler(callback) {
       case 'native-app':
         handler = ClippingHandler_NativeApp;
         break;
+      case 'WizNotePlus':
+        handler = ClippingHandler_WizNotePlus;
+        break;
       default:
         handler = ClippingHandler_Browser;
     }

@@ -128,6 +128,7 @@ I18N_DICT['zh-CN'] = {
     // options
     "setting.clipping-handler-option.browser": "浏览器下载",
     "setting.clipping-handler-option.native-app": "本地程序下载",
+    "setting.clipping-handler-option.WizNotePlus" :"为知笔记保存",
 
     //history page
     "history.placeholder.search": "可搜索标题、标签、目录、源网址",

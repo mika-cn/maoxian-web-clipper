@@ -129,6 +129,7 @@ I18N_DICT['en'] = {
     // setting options
     "setting.clipping-handler-option.browser": "Download through browser",
     "setting.clipping-handler-option.native-app": "Download through native App",
+    "setting.clipping-handler-option.WizNotePlus" :"Save through WizNotePlus",
 
 
     //history page
