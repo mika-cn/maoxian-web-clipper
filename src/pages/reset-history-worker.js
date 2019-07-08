@@ -35,8 +35,8 @@
         }
 
         // handle category
-        const path = clip.path.replace('mx-wc/', '');
-        const parts = path.split('/');
+        const storePath = toStorePath(clip.path);
+        const parts = storePath.split('/');
         // FIXME Not safe: path relative.
         clip.category = parts.slice(0, parts.length - 2).join('/');
 
@@ -49,6 +49,13 @@
     }
     items = items.sort(function(a, b){ return b.t - a.t });
     return parseClips(items);
+  }
+
+  function toStorePath(path) {
+    const sep = 'mx-wc/';
+    const arr = path.split(sep)
+    arr.shift();
+    return arr.join(sep)
   }
 
   function parseClips(items){

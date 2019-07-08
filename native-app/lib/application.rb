@@ -9,7 +9,7 @@ require_relative './clipping'
 require_relative './history'
 
 class Application
-  VERSION = '0.1.7'
+  VERSION = '0.1.8'
 
   attr_accessor :config
 

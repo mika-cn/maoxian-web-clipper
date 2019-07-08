@@ -59,7 +59,7 @@ module History
     MX_DIR = 'mx-wc'
 
     def initialize(h, path)
-      store_path = path.split("#{MX_DIR}/")[1]
+      store_path = to_store_path(path)
       h[:path] = File.join(MX_DIR, store_path)
       super(h)
       fix_format
@@ -98,6 +98,14 @@ module History
           end
         end
       end
+    end
+
+    def to_store_path(path)
+      # avoid this case: mx-wc/box/mx-wc/awesome-title/index.json
+      sep = "#{MX_DIR}/"
+      arr = path.split(sep)
+      arr.shift
+      arr.join(sep)
     end
 
   end

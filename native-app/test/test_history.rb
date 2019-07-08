@@ -84,5 +84,23 @@ class HistoryTest < Minitest::Test
     T.remove_dir data_dir
   end
 
+  def test_history_refresh_with_mx_wc_category
+    data_dir = File.join(T.file_root, 'test_history_refresh')
+
+    T.create_file(
+      File.join(data_dir, 'mx-wc/box/mx-wc/cool-title/index.json'),
+      JSON.generate({ id: '001',
+        format: 'md',
+        filename: 'awesome.html',
+        category: 'foo/bar',
+        tags: ['awesome'],
+      })
+    )
+
+    r = History.refresh(data_dir)
+    assert_equal "box/mx-wc", r[:categories][0]
+    T.remove_dir data_dir
+  end
+
 
 end
