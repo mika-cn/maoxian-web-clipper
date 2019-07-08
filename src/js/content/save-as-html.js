@@ -18,7 +18,6 @@ this.MxWcHtml = (function () {
     // 获取选中元素的html
     const {elemHtml, styleHtml, tasks} = await getElemHtml({
       clipId: info.clipId,
-      win: window,
       frames: frames,
       path: path,
       elem: elem,
@@ -56,7 +55,6 @@ this.MxWcHtml = (function () {
     const topFrameId = 0;
     const {
       clipId,
-      win,
       frames,
       path,
       elem,
@@ -67,11 +65,11 @@ this.MxWcHtml = (function () {
       saveCssImage
     } = params;
     Log.debug('getElemHtml', refUrl);
-    const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
+    const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
     Log.debug(xpaths);
     let clonedElem = elem.cloneNode(true);
     let taskCollection = [];
-    clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
+    clonedElem = ElemTool.removeChildByXpath(window, clonedElem, xpaths);
     clonedElem = T.completeElemLink(clonedElem, refUrl);
     const result = parseAssetInfo(clipId, clonedElem, mimeTypeDict);
 
@@ -125,8 +123,8 @@ this.MxWcHtml = (function () {
 
   async function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {clipId, win, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId, saveWebFont} = params;
+    const {clipId, frames, path, mimeTypeDict,
+      parentFrameId = topFrameId, saveWebFont, saveCssImage} = params;
 
     // collect current layer frames
     const promises = [];
@@ -150,7 +148,8 @@ this.MxWcHtml = (function () {
                   frames: frames,
                   path: path,
                   mimeTypeDict: mimeTypeDict,
-                  saveWebFont: saveWebFont
+                  saveWebFont: saveWebFont,
+                  saveCssImage: saveCssImage
                 }
               })
             );
@@ -170,7 +169,7 @@ this.MxWcHtml = (function () {
           const {elemHtml, styleHtml, tasks} = result;
           const html = MxWcTemplate.framePage.render({
             originalSrc: frame.url,
-            title: win.document.title,
+            title: window.document.title,
             styleHtml: styleHtml,
             html: elemHtml
           });

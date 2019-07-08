@@ -4,7 +4,7 @@ const FuzzyMatcher = require("./fuzzy-matcher")
 const match = function(url, pattern) {
   const r = FuzzyMatcher.matchUrl(url, pattern)
   if(r) {
-    //console.log('.')
+    console.log('.')
   } else {
     console.log("ShouldMatch: ", url, pattern)
   }
@@ -14,7 +14,7 @@ const notMatch = function(url, pattern) {
   if(r) {
     console.log("ShouldNotMatch: ", url, pattern)
   } else {
-    //console.log('.')
+    console.log(".")
   }
 }
 

@@ -2,6 +2,8 @@
 
 # Usage:
 #  ./build $env
+#
+# env: production, development(default)
 
 require 'yaml'
 require 'json'
@@ -16,24 +18,24 @@ end
 module WebsitePlansRender
   def self.perform(yaml_str)
     yaml = YAML.load(yaml_str)
-    js = renderJs(yaml[:plans])
-    return [yaml[:version], js, yaml[:plans].count]
+    js = renderJs(yaml["plans"])
+    return [yaml["version"], js, yaml["plans"].count]
   end
 
   def self.renderJs(plans)
     js = <<-JS
-var websitePlans = (websitePlans || []).concat(
+window.websitePlans = (window.websitePlans || []).concat(
 #{JSON.pretty_generate(plans)}
-)
+);
 JS
   end
 end
 
 module Build
-  def self.perform(output_dir, deploy_url)
+  def self.perform(output_dir, deploy_url, env)
     name_a = render_library('fuzzy-matcher.js', output_dir)
     name_b = render_library('mx-wc-tool.js', output_dir)
-    name_c = render_website_plans(output_dir)
+    name_c = render_website_plans(output_dir, env)
     to_url = ->(name) {
       [deploy_url, name].join('/') + '?t=' + Time.now.to_i.to_s
     }
@@ -72,8 +74,9 @@ module Build
     return filename
   end
 
-  def self.render_website_plans(output_dir)
-    yaml = File.open("website.yaml", "r").read
+  def self.render_website_plans(output_dir, env)
+    name = (env == 'production' ? 'website.yaml' : 'website-dev.yaml')
+    yaml = File.open(name, "r").read
     version, js, count= WebsitePlansRender.perform(yaml)
     filename = "website-plans-v#{version}.js"
     path = File.join(output_dir, filename)
@@ -92,7 +95,7 @@ if FileUtils.pwd != script_dir
 end
 
 
-env = (ARGV[0] || 'developer')
+env = (ARGV[0] || 'development')
 if env == 'production'
   output_dir = 'public/dist'
   deploy_url = 'https://mika-cn.github.io/maoxian-web-clipper/assistant'
@@ -100,4 +103,4 @@ else
   output_dir = 'public/dev'
   deploy_url = 'http://dev.mika/maoxian-web-clipper/tmp/assistant'
 end
-Build.perform(output_dir, deploy_url)
+Build.perform(output_dir, deploy_url, env)

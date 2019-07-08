@@ -26,34 +26,60 @@
         resolve();
       });
     });
+
+    MxWcEvent.listenInternal('selecting', initMutationObserver);
+    MxWcEvent.listenInternal('clipping', stopMutationObserver);
+    MxWcEvent.listenInternal('idle', stopMutationObserver);
   }
+
+  let observer = undefined;
+  function initMutationObserver(e) {
+    if(MutationObserver && !observer) {
+      observer = new MutationObserver(function(mutationRecords) {
+        pageContentChanged();
+      })
+      observer.observe(document.body, {
+        attributes: true,
+        childList: true,
+        subtree: true
+      });
+      Log.debug("init mutation observer");
+    }
+  }
+
+  function stopMutationObserver() {
+    if(MutationObserver && observer) {
+      observer.disconnect();
+      observer = undefined;
+      Log.debug("stop mutation observer");
+    }
+  }
+
 
   /*
    * ThirdParty: userScript or other Extension.
    */
   function listenTpMessage(){
-    T.bindOnce(document, 'mx-wc.focus-elem', focusElem);
-    T.bindOnce(document, 'mx-wc.confirm-elem', confirmElem);
-    T.bindOnce(document, 'mx-wc.clip-elem', clipElem);
-    T.bindOnce(document, 'mx-wc.set-form-inputs', setFormInputs);
+    MxWcEvent.listenPublic('focus-elem', focusElem);
+    MxWcEvent.listenPublic('confirm-elem', confirmElem);
+    MxWcEvent.listenPublic('clip-elem', clipElem);
+    MxWcEvent.listenPublic('set-form-inputs', setFormInputs);
     Log.debug('listenTpMessage');
   }
 
   function tellTpWeAreReady(){
     setTimeout(function(){
       Log.debug("tellTpWeAreReady");
-      document.dispatchEvent(new CustomEvent('mx-wc.ready'))
+      MxWcEvent.dispatchPublic('ready');
     }, 0);
   }
 
   function tellTpClipCompleted(detail) {
-    const msg = {
+    MxWcEvent.dispatchPublic('completed', {
       handler: detail.handler,
       filename: detail.filename,
       completedAt: T.currentTime().toString()
-    };
-    const json = JSON.stringify(msg);
-    document.dispatchEvent(new CustomEvent('mx-wc.completed', {detail: json}));
+    });
   }
 
   function focusElem(e) {
@@ -129,11 +155,15 @@
   }
 
 
+  let delayPageChanged = undefined;
   function pageContentChanged(){
-    setTimeout(function(){
-      Log.debug('page content changed');
-      UI.windowSizeChanged();
-    }, 200);
+    if(!delayPageChanged) {
+      delayPageChanged = T.createDelayCall(function(){
+        Log.debug('page content changed');
+        UI.windowSizeChanged();
+      }, 200);
+    }
+    delayPageChanged.run();
   }
 
 

@@ -365,6 +365,26 @@ T.calcPath = function(currDir, destDir) {
   return r;
 }
 
+// Avoid invoking a function many times in a short period.
+T.createDelayCall = function(fn, delay){
+  var dc = {};
+  dc.action = fn;
+  dc.clearTimeout = function(){
+    if(dc.timeoutId){
+      clearTimeout(dc.timeoutId);
+    }
+  };
+  dc.run = function(){
+    dc.clearTimeout();
+    dc.timeoutId = setTimeout(function(){
+      dc.action();
+      dc.clearTimeout();
+    }, delay);
+  };
+  return dc;
+};
+
+
 T.createDict = function(){
   return {
     dict: {},

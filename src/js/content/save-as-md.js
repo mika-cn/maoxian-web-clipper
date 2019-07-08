@@ -17,7 +17,6 @@ this.MxWcMarkdown = (function() {
     ]);
     const {html, tasks} = await getElemHtml({
       clipId: info.clipId,
-      win: window,
       frames: frames,
       path: path,
       elem: elem,
@@ -48,7 +47,6 @@ this.MxWcMarkdown = (function() {
     const topFrameId = 0;
     const {
       clipId,
-      win,
       frames,
       path,
       elem,
@@ -57,9 +55,9 @@ this.MxWcMarkdown = (function() {
       parentFrameId = topFrameId
     } = params;
     Log.debug("getElemHtml", refUrl);
-    const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
+    const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
     let clonedElem = elem.cloneNode(true);
-    clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
+    clonedElem = ElemTool.removeChildByXpath(window, clonedElem, xpaths);
     clonedElem = T.completeElemLink(clonedElem, refUrl);
 
     const imgTags = T.getTagsByName(clonedElem, 'img')
@@ -76,10 +74,10 @@ this.MxWcMarkdown = (function() {
 
     Log.debug("FrameHandlefihish");
     clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
-    clonedElem = PluginMisc.handle(win, clonedElem);
-    clonedElem = PluginGist.handle(win, clonedElem);
-    clonedElem = PluginMathJax.handle(win, clonedElem);
-    clonedElem = PluginMathML2LaTeX.handle(win, clonedElem);
+    clonedElem = PluginMisc.handle(window, clonedElem);
+    clonedElem = PluginGist.handle(window, clonedElem);
+    clonedElem = PluginMathJax.handle(window, clonedElem);
+    clonedElem = PluginMathML2LaTeX.handle(window, clonedElem);
     let html = clonedElem.outerHTML;
     html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos);
     const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, imgAssetInfos);
@@ -88,7 +86,7 @@ this.MxWcMarkdown = (function() {
 
   async function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {clipId, win, frames, path, mimeTypeDict,
+    const {clipId, frames, path, mimeTypeDict,
       parentFrameId = topFrameId} = params;
     // collect current layer frames
     const frameElems = [];
@@ -135,7 +133,7 @@ this.MxWcMarkdown = (function() {
           const {html, tasks} = result;
           taskCollection.push(...tasks);
           const frameElem = frameElems[idx];
-          const newNode = win.document.createElement("div");
+          const newNode = document.createElement("div");
           T.setHtml(newNode, (html || ''));
           if(container === frameElem) {
             container = newNode;

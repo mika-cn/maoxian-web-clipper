@@ -26,8 +26,8 @@
     if(downloadItemId) {
       // clipping saved by browser download.
       MxWcStorage.set('lastClippingResult', null);
-      ExtApi.openDownloadItem(downloadItemId);
       state.lastClippingResult = null;
+      ExtApi.openDownloadItem(downloadItemId);
     } else {
       let url = '';
       if(filename.startsWith('http') || filename.startsWith('file')) {
@@ -37,8 +37,9 @@
         url = 'file://' + filename;
       }
       if(url.startsWith('http') || state.isAllowFileScheme) {
-        ExtApi.createTab(url);
+        MxWcStorage.set('lastClippingResult', null);
         state.lastClippingResult = null;
+        ExtApi.createTab(url);
       } else {
         // We can't open file url without allowed.
         jumpToPage('extPage.last-clipping-result');

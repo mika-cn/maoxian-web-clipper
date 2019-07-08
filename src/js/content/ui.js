@@ -266,10 +266,9 @@ this.UI = (function(){
   }
 
   function dispatchMxEvent(name, data) {
-    const eventName = ['mx-wc', name].join('.');
-    const detailJson = JSON.stringify(data || {})
-    const e = new CustomEvent(eventName, {detail: detailJson});
-    document.dispatchEvent(e);
+    MxWcEvent.dispatchInternal(name, data);
+    MxWcEvent.dispatchPublic(name, data);
+    MxWcEvent.broadcast2Iframe(name, data);
   }
 
   // ----------------------------
