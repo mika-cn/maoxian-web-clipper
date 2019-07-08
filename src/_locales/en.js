@@ -95,6 +95,7 @@ I18N_DICT['en'] = {
     "setting.title.handler": "Handler",
     "setting.title.handler-browser": "Browser",
     "setting.title.handler-native-app": "Native App",
+    "setting.title.handler-WizNotePlus" :"WizNotePlus",
 
     "setting.title.save-format": "Save Format",
     "setting.title.control": "Control",
@@ -121,6 +122,10 @@ I18N_DICT['en'] = {
     "handler.native-app.feature.c": "Refresh history (This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest)",
     "handler.native-app.warning": "<strong> Warning! </strong><br /> If you enable this handler, you must <a href='go.page:native-app' target='_blank'>install native application</a> first.",
 
+    "handler.WizNotePlus.name": "WizNotePlus",
+    "handler.WizNotePlus.intro": "WizNotePlus is a cross-platform cloud based note-taking client.",
+    "handler.WizNotePlus.feature.a": "Save clipping file to WizNotePlus database.",
+    "handler.WizNotePlus.warning": "<strong> Warning! </strong><br /> If you enable this handler, you must <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>install WizNotePlus application</a> first.",
 
     "setting.option.default-clipping-folder-format.a": "Format A (e.g. 2018-10-11-1539236251)",
     "setting.option.default-clipping-folder-format.b": "Format B (e.g. 20181011102009)",

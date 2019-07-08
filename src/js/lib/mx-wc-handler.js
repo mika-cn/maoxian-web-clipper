@@ -14,6 +14,9 @@
       case 'NativeApp':
         return ClippingHandler_NativeApp;
         break;
+      case 'WizNotePlus':
+        return ClippingHandler_WizNotePlus;
+        break;
       default:
         // console.debug("Name illegal: ", name);
         // throw new Error("Name illegal: " + name);

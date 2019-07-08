@@ -96,6 +96,7 @@ I18N_DICT['zh-CN'] = {
     "setting.title.handler": "处理程序",
     "setting.title.handler-browser": "浏览器",
     "setting.title.handler-native-app": "本地程序",
+    "setting.title.handler-WizNotePlus" :"为知笔记",
 
     "setting.title.save-format": "保存格式",
     "setting.title.control": "操作设置",
@@ -121,6 +122,11 @@ I18N_DICT['zh-CN'] = {
     "handler.native-app.feature.b": "删除裁剪信息 （让我们可以删除裁剪历史的同时，删除其对应的文件）",
     "handler.native-app.feature.c": "刷新裁剪历史 （当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。）",
     "handler.native-app.warning": "<strong> 警告! </strong><br /> 如果你启用「本地程序」, 你必须先 <a href='go.page:native-app' target='_blank'>安装它</a>，否则该处理程序无法正常工作",
+
+    "handler.WizNotePlus.name": "为知笔记",
+    "handler.WizNotePlus.intro": "为知笔记一个款跨平台云笔记客户端",
+    "handler.WizNotePlus.feature.a": "将网页剪裁保存到为知笔记数据库",
+    "handler.WizNotePlus.warning": "<strong> 警告！ </strong><br /> 如果你启用为知笔记，你必须先 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装它</a>，并且剪裁时为知笔记必须处于启动状态，否则处理程序无法正常工作",
 
     "setting.notice.clipping-handler.intro": "<br /><br />",
 

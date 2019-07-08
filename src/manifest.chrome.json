@@ -44,6 +44,7 @@
       "js/background/saving-tool.js",
       "js/background/clipping-handler-browser.js",
       "js/background/clipping-handler-native-app.js",
+      "js/background/clipping-handler-wiznoteplus.js",
       "js/background.js"
     ]
   },
