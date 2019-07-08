@@ -24,19 +24,64 @@ const ClippingHandler_WizNotePlus = (function(){
     }
 
     async function saveToWizNotePlus(clipping, feedback) {
-      const info = clipping.info;
-      // Process document location
-      let sLocation = info.category;
-      sLocation = sLocation.startsWith('/') ? sLocation : '/' + sLocation;
-      sLocation = sLocation.endsWith('/') ? sLocation : sLocation + '/';
-      sLocation = sLocation == '/default/' ? '' : sLocation; /* Empty location means default location in WizNotePlus. */
-      // Process document tags
-      let aTags = info.tags;
-      // Save to WizNote
-      await state.objApp.DatabaseManager.CreateDocument(
-        [state.tempPath, info.clipId, "index.html"].join('/'),
-        info.title, sLocation, aTags, info.link
-      );
+        const info = clipping.info;
+        // Embed markdown into index.html
+        if (info.filename.endsWith('.md')) {
+            info.title = info.title + ".md";
+            const markdownText = getMarkdownText(clipping);
+            const html = embedMarkdownIntoHtml(markdownText, info.title, info.link);
+            await state.objCom.SaveTextToFile(
+                [state.tempPath, info.clipId, "index.html"].join('/'), html, 'utf-8');
+        }
+        // Process document location
+        let sLocation = info.category;
+        sLocation = sLocation.startsWith('/') ? sLocation : '/' + sLocation;
+        sLocation = sLocation.endsWith('/') ? sLocation : sLocation + '/';
+        sLocation = sLocation == '/default/' ? '' : sLocation; /* Empty location means default location in WizNotePlus. */
+        // Process document tags
+        let aTags = info.tags;
+        // Save to WizNote
+        await state.objApp.DatabaseManager.CreateDocument(
+            [state.tempPath, info.clipId, "index.html"].join('/'),
+            info.title, sLocation, aTags, info.link
+        );
+    }
+
+    function getMarkdownText(clipping) {
+        // Get markdown text
+        let markdownText = "";
+        for (const task of clipping.tasks) {
+            if (task.taskType == "mainFileTask" 
+                && task.mimeType == "text/markdown") {
+                    markdownText = task.text;
+                }
+        }
+        // Process markdown text
+        markdownText = markdownText
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\n/g, "<br>")
+            .replace(/ /g, "&nbsp;");
+        return markdownText;
+    }
+
+    function embedMarkdownIntoHtml(markdownText, title, link) {
+        return `
+<!DOCTYPE html>
+<html>
+    <!-- OriginalSrc: ${link} -->
+    <head>
+        <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>${title}</title>
+    </head>
+    <body>
+        ${markdownText}
+    </body>
+</html>`;
     }
 
     /**
