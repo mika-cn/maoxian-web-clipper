@@ -127,6 +127,7 @@
   function init(){
     renderMenus();
     MxWcIcon.change("default");
+    ExtApi.sendMessageToBackground({type: 'popup.initialized'});
   }
 
   document.addEventListener("DOMContentLoaded", init);

@@ -160,6 +160,7 @@ const ClippingHandler_NativeApp = (function(){
 
   return {
     name: 'native-app',
+    init: init,
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
     initDownloadFold: initDownloadFold,

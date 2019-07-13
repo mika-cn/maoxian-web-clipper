@@ -178,6 +178,7 @@ const ClippingHandler_Browser = (function(){
 
   return {
     name: 'browser',
+    init: init,
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
     initDownloadFold: initDownloadFold

@@ -66,6 +66,7 @@ I18N_DICT['en'] = {
 
     // errors
     "setting.error.native-app-not-ready": "you must install native application and choose native application as your clipping handler first",
+    "setting.error.clipping-handler-init-error": "Initialization Error: Clipping handler is not opened or set correctly.",
 
     // title
     "setting.title.save-format": "Save Format",
