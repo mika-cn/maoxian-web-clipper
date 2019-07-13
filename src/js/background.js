@@ -57,9 +57,28 @@ function messageHandler(message, sender, senderResponse){
         refreshHistoryIfNeed();
         resolve();
         break;
+      case 'popup.initialized':
+        initClippingHandler();
+        break;
       default: break;
     }
   });
+}
+
+function initClippingHandler() {
+    getClippingHandler(async handler => {
+      // Initialize handler
+      try {
+        await handler.init();
+      } catch (err) {
+        browser.notifications.create("", {
+          type: "basic",
+          iconUrl: browser.runtime.getURL("icons/mx-wc-48-highlight.png"),
+          title: "MaoXian Web Clipper",
+          message: t("setting.error.clipping-handler-init-error")
+        });
+      }
+    });
 }
 
 function deleteClipping(msg, resolve) {

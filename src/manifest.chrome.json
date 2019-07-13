@@ -6,7 +6,8 @@
   "version": "0.1.33",
   "default_locale": "en",
   "web_accessible_resources": [
-    "pages/*"
+    "pages/*",
+    "icons/*"
   ],
   "permissions": [
     "<all_urls>",
@@ -17,7 +18,8 @@
     "tabs",
     "downloads",
     "downloads.open",
-    "nativeMessaging"
+    "nativeMessaging",
+    "notifications"
   ],
   "background": {
     "scripts": [

@@ -66,6 +66,7 @@ I18N_DICT['zh-CN'] = {
 
     // errors
     "setting.error.native-app-not-ready": "你必须先安装『本地程序』并且选择『本地程序』作为保存方式，该项才生效",
+    "setting.error.clipping-handler-init-error": "初始化失败：本地剪裁程序初始化失败，可能是未打开或者设置错误。",
 
     // title
     "setting.title.save-format": "保存格式",
