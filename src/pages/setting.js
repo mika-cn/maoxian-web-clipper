@@ -554,7 +554,8 @@
     T.bind(sidebarFolder, 'click', function(e) {
       if(e.target.classList.contains('active')) {
         e.target.classList.remove('active');
-        T.setHtml(e.target, 'M');
+        // 9776 ☰
+        T.setHtml(e.target, '&#9776;');
       } else {
         e.target.classList.add('active');
         T.setHtml(e.target, ">>");

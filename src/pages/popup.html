@@ -4,8 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>popup</title>
-    <link rel="stylesheet" type="text/css" href="../vendor/css/fontawesome.css" />
-    <link rel="stylesheet" type="text/css" href="../vendor/css/fontawesome-solid.css" />
     <link rel="stylesheet" type="text/css" href="popup.css" />
   </head>
   <body>
@@ -14,7 +12,7 @@
     </div>
     <template id="menu-tpl">
       <a class="menu" data-id="${menuId}">
-        <i class="${iconClass}"></i>
+        <i class="icon${iconAppendClass}">${icon}</i>
         ${menuContent}
       </a>
     </template>

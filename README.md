@@ -44,7 +44,6 @@ Thanks to these awesome libraries for making MaoXian's development become more e
 * [turndown-plugin-gfw](https://github.com/domchristie/turndown-plugin-gfm)
 * [strip-css-comments](https://github.com/sindresorhus/strip-css-comments)
 * [awesomplete](https://github.com/LeaVerou/awesomplete)
-* [font-awesome](https://github.com/FortAwesome/Font-Awesome)
 * [pikaday](https://github.com/Pikaday/Pikaday)
 
 ## Contribution

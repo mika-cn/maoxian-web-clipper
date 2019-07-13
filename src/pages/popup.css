@@ -27,11 +27,13 @@ body {
   cursor: pointer;
 }
 
-.menu i {
-  font-size: 15px;
-  margin-right: 10px;
+.menu > .icon {
+  font-style: normal;
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 5px;
 }
 
-.menu i.active{
+.menu > .icon.active{
   color: #0a84ff;
 }

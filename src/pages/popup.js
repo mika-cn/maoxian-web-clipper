@@ -95,19 +95,29 @@
           menuIds.unshift('last-result');
         }
         const template = T.findElem('menu-tpl').innerHTML;
+
         const icons = {
-          "last-result" : "fas fa-check-square active",
-          "clip"        : "fas fa-crop",
-          "history"     : "fas fa-bars",
-          "setting"     : "fas fa-cog",
-          "home"        : "fas fa-home",
+          "last-result" : '&#9215;',
+          "clip"        : '&#9984;',
+          "history"     : '&#9780;',
+          "setting"     : '&#9965;',
+          "home"        : '&#9961;',
         }
+        // 9215 ⏿
+        // 9984 ✀
+        // 9780 ☴
+        // 9776 ☰
+        // 9965 ⛭
+        // 9961 ⛩
+
         let html = "";
         menuIds.forEach(function(menuId){
+          const appendClass = (menuId == 'last-result' ? ' active' : '');
           html += T.renderTemplate(template, {
-            iconClass: icons[menuId],
+            icon: icons[menuId],
+            iconAppendClass: appendClass,
             menuId: menuId,
-            menuContent: t("popup.menu." + menuId)
+            menuContent: t("popup.menu." + menuId),
           });
         });
         T.setHtml('.menus', html);
