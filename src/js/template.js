@@ -67,6 +67,13 @@ MxWcTemplate.UIHtml = {
 </div>
 <div class="${v.g} MX-wc-form">
   <div class="${v.g} MX-input-group">
+    <label class="${v.g}">${t('setting.title.save-format')}</label>
+    <div class="MX-options-group" id="${v.id.format}">
+      <a data-value="html">HTML</a>
+      <a data-value="md">Markdown</a>
+    </div>
+  </div>
+  <div class="${v.g} MX-input-group">
     <label class="${v.g}">${t('title')}</label>
     <input class="${v.g}" type="text" id="${v.id.title}"/>
   </div>

@@ -3,9 +3,9 @@
 
 this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
-  // inputs => {:title, :category, :tagstr, :elem}
+  // inputs => {:format, :title, :category, :tagstr, :elem}
   function save(inputs) {
-    let {title, category, tagstr, elem} = inputs;
+    let {format, title, category, tagstr, elem} = inputs;
     MxWcConfig.load().then((config) => {
       if(title.trim() === ""){
         title = 'default';
@@ -23,7 +23,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       if (config.saveTitleAsFilename) {
         name = T.sanitizeFilename(title);
       }
-      const filename = name + '.' + config.saveFormat;
+      const filename = name + '.' + format;
 
       // deal Fold
       const now = T.currentTime();
@@ -70,7 +70,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
       const info = {
         clipId     : clipId,
-        format     : config.saveFormat,
+        format     : format,
         title      : title,
         link       : window.location.href,
         category   : category,
@@ -80,7 +80,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       }
 
       let parser = null;
-      switch(config.saveFormat){
+      switch(format){
         case 'html' : parser = MxWcHtml; break;
         case 'md'   : parser = MxWcMarkdown; break;
       }
