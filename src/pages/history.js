@@ -21,6 +21,8 @@
         const allowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
         let filename = clip.filename ? clip.filename : `index.${clip.format}`;
         const clipPath = clip.path.replace('index.json', filename);
+
+        //FIXME support http:// https:// url
         let url = clipPath;
         if(downloadFold){
           url = "file://" + [downloadFold, url].join('');
@@ -189,15 +191,18 @@
   }
 
   function deleteHistory(id) {
-    // FIXME can't use clippingHandlerName here
-    // maybe use isNativeAppAttached && version > 0.1.2
-    MxWcConfig.load().then((config) => {
-      if(config.clippingHandlerName == 'native-app') {
-        deleteHistoryAndFile(config, id);
+    MxWcHandler.isReady('NativeApp')
+    .then((r) => {
+      if(r.ok) {
+        if(T.isVersionGteq(r.handlerInfo.version, '0.1.2')) {
+          deleteHistoryAndFile(r.config, id);
+        } {
+          console.debug("Native App not support this message, version: ", r.handlerInfo.version);
+        }
       } else {
         deleteHistoryOnly(id);
       }
-    })
+    });
   }
 
   function deleteHistoryAndFile(config, id) {
@@ -207,22 +212,23 @@
           const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
           const path = [downloadFold, clip.path].join('');
           const root = [downloadFold, 'mx-wc'].join('');
-          const clipFold = path.replace('/index.json', '');
-          let assetFold = '';
+          const saveFolder = path.replace('/index.json', '');
+          let assetFolder = '';
           if(config.assetPath.indexOf('$CLIP-FOLD') > -1) {
-            assetFold = [clipFold, config.assetPath.replace('$CLIP-FOLD/', '')].join('/');
+            assetFolder = [saveFolder, config.assetPath.replace('$CLIP-FOLD/', '')].join('/');
           } else {
             if(config.assetPath.indexOf('$MX-WC') > -1) {
-              assetFold = [root, config.assetPath.replace('$MX-WC/', '')].join('/');
+              assetFolder = [root, config.assetPath.replace('$MX-WC/', '')].join('/');
             } else {
               const relativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
-              assetFold = [clipFold, relativePath].join('/')
+              assetFolder = [saveFolder, relativePath].join('/')
             }
           }
           const msg = {
             clip_id: clip.clipId,
             path: path,
-            asset_fold: assetFold
+            asset_fold: assetFolder, // deprecated
+            asset_folder: assetFolder
           }
           ExtApi.sendMessageToBackground({
             type: 'clipping.delete',
@@ -433,7 +439,7 @@
   function initLinks(){
     const elem = T.queryElem(".links");
     const links = [
-      {name: t('history.a.reset_history'), pageName: "extPage.reset-history" }
+      {name: t('history.a.reset-history'), pageName: "extPage.reset-history" }
     ]
     links.forEach((link) => {
       const a = document.createElement("a");

@@ -175,9 +175,17 @@ const ClippingHandler_Browser = (function(){
     }
   }
 
+  function getInfo(callback) {
+    callback({
+      ready: true,
+      supportFormats: ['html', 'md']
+    });
+  }
+
 
   return {
     name: 'browser',
+    getInfo: getInfo,
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
     initDownloadFold: initDownloadFold

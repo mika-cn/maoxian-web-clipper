@@ -35,7 +35,7 @@ this.MxWcHtml = (function () {
     v.elemHtml = elemHtml;
     v.config = config;
     const html = MxWcTemplate[page].render(v);
-    const filename = T.joinPath([path.clipFold, info.filename])
+    const filename = T.joinPath([path.saveFolder, info.filename])
 
     const mainFileTask = {
       taskType: 'mainFileTask',
@@ -103,7 +103,7 @@ this.MxWcHtml = (function () {
     taskCollection.push(...tasks);
 
     // image tasks
-    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, result.imgAssetInfos);
+    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, result.imgAssetInfos);
     taskCollection.push(...imgTasks);
 
 
@@ -178,7 +178,7 @@ this.MxWcHtml = (function () {
           taskCollection.push({
             taskType: 'frameFileTask',
             type: 'text',
-            filename: T.joinPath([path.clipFold, assetName]),
+            filename: T.joinPath([path.saveFolder, assetName]),
             mimeType: 'text/html',
             text: html,
             clipId: clipId,
@@ -313,7 +313,7 @@ this.MxWcHtml = (function () {
                   tasks.push({
                     taskType: 'styleFileTask',
                     type: 'text',
-                    filename: T.joinPath([path.assetFold, it.assetName]),
+                    filename: T.joinPath([path.assetFolder, it.assetName]),
                     mimeType: 'text/css',
                     text: cssText,
                     clipId: clipId,
@@ -374,7 +374,7 @@ this.MxWcHtml = (function () {
         assetInfoType: 'fontFile',
         saveAsset: saveWebFont
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });
@@ -392,7 +392,7 @@ this.MxWcHtml = (function () {
         assetInfoType: 'imageFile',
         saveAsset: saveCssImage
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });
@@ -410,7 +410,7 @@ this.MxWcHtml = (function () {
         assetInfoType: 'imageFile',
         saveAsset: saveCssImage
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });
@@ -428,7 +428,7 @@ this.MxWcHtml = (function () {
         assetInfoType: 'imageFile',
         saveAsset: saveCssImage
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });

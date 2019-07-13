@@ -4,14 +4,19 @@ I18N_DICT['en'] = {
   "values": {
     "name": "MaoXian web clipper",
 
-    //base
+
+    //=====================================
+    // global
+    //=====================================
     "none": "none",
     "btn.confirm": "Confirm",
 
     "op.update-success": "Update Success!",
     "op.delete-success": "Delete Success!",
 
+    //=====================================
     // home page
+    //=====================================
     "home.nav.extension-pages": "Extension Pages",
     "home.nav.remote-pages": "Remote Pages",
     "home.label.version": "Current Version",
@@ -42,14 +47,18 @@ I18N_DICT['en'] = {
     "desc.remote.project.index": "This is the project page of Maoxian. yes, it's open source.",
     "desc.remote.project.issue": "Where you give your suggestion or report a bug",
 
-    //popup
+    //=====================================
+    // popup page
+    //=====================================
     "popup.menu.clip": "Clip",
     "popup.menu.history": "History",
     "popup.menu.setting": "Setting",
     "popup.menu.home": "Home",
     "popup.menu.last-result": "Show result",
 
-    //welcome page
+    //=====================================
+    // welcome page
+    //=====================================
     "welcome.installation-hint": "MaoXian Web Clipper $version has been installed",
     "welcome.sayhi": "Welcome!",
     "welcome.extra-intro": "Before you start, please take these two extra steps to ensure better experience with MaoXian.",
@@ -61,22 +70,79 @@ I18N_DICT['en'] = {
     "welcome.last-hint": 'If you have any question, please visit our $faqLink page</p>',
 
 
-    //setting page
+    //=====================================
+    // setting page
+    //=====================================
     "setting.warning": "Warning",
+    "setting.version": "Current version: ",
 
     // errors
-    "setting.error.native-app-not-ready": "you must install native application and choose native application as your clipping handler first",
+    "error.handler.not-enabled": "Handler is not enabled",
+    "error.handler.not-ready": "Handler is not ready",
 
     // title
+    "setting.title.intro": "Intro",
+    "setting.title.feature": "Features",
+    "setting.title.status": "Status",
+    "setting.title.detail": "Detail",
+
+    "setting.title.general": "General",
+    "setting.title.storage": "Storage",
+    "setting.title.handler": "Handler",
+    "setting.title.handler-browser": "Browser",
+    "setting.title.handler-native-app": "Native App",
+
     "setting.title.save-format": "Save Format",
-    "setting.title.hotkey": "Hotkey",
+    "setting.title.control": "Control",
     "setting.title.file-url": "File URL",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.path": "Path",
-    "setting.title.clipping-handler": "Clipping Handler",
-    "setting.title.other": "Others",
     "setting.title.offline-page": "Offline Index Page",
     "setting.title.refresh-history": "Refresh History",
+    "setting.title.default-clipping-folder-format": "Default Clipping Folder Format",
+    "setting.title.title-style-clipping-folder-format": "Title Style Clipping Folder Format",
+    "setting.title.asset-path": "Asset Path",
+    "setting.title.default-category": "Default Category",
+
+    // handler
+    "handler.browser.name": "Browser",
+    "handler.browser.intro": "Browser is the built-in handler.",
+    "handler.browser.feature.a": "Save clipping files",
+    "handler.browser.feature.b": "Synchronize offline index page",
+
+    "handler.native-app.name": "Native App",
+    "handler.native-app.intro": "This is a little application. We develope it to enhance MaoXian’s abilities.",
+    "handler.native-app.feature.a": "Save clipping file (to avoid conflic with download manage extention)",
+    "handler.native-app.feature.b": "Delete clipping file (when you delete a clipping record in clipping history page, it delete files that relative to that record)",
+    "handler.native-app.feature.c": "Refresh history (This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest)",
+    "handler.native-app.warning": "<strong> Warning! </strong><br /> If you enable this handler, you must <a href='go.page:native-app' target='_blank'>install native application</a> first.",
+
+    "option.format.html.name": "HTML",
+    "option.format.md.name": "Markdown",
+
+    "setting.option.default-clipping-folder-format.a": "Format A (e.g. 2018-10-11-1539236251)",
+    "setting.option.default-clipping-folder-format.b": "Format B (e.g. 20181011102009)",
+    "setting.option.default-clipping-folder-format.c": "Format C (e.g. 1539236251)",
+
+    "setting.option.title-style-clipping-folder-format.a": "Format A",
+    "setting.option.title-style-clipping-folder-format.b": "Format B",
+
+
+
+    "setting.notice.info.storage.browser": "Use browser to download clipping result.<br />",
+    "setting.notice.info.storage.native-app": "Use a native application to save clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to <a href='go.page:native-app' target='_blank'>install a native application</a>.",
+
+    "setting.notice.info.offline-page.browser": "$BLANK",
+    "setting.notice.info.offline-page.native-app": "$BLANK",
+    "setting.notice.info.refresh-history.native-app": "$BLANK",
+
+    "setting.notice.warning.storage.browser": "$BLANK",
+    "setting.notice.warning.storage.native-app": "$BLANK",
+    "setting.notice.warning.offline-page.browser": "$BLANK",
+    "setting.notice.warning.offline-page.native-app": "$BLANK",
+    "setting.notice.warning.refresh-history.native-app": "$BLANK",
+
+    "setting.notice.danger.native-app-not-ready": "Native App is not ready yet (message: $MESSAGE). <br />It seems like you haven't installed it correctly. (<a href='go.page:native-app' target='_blank'>How to install it</a>)",
 
     // buttons
     "setting.button.generate-now": "Generate Now",
@@ -89,21 +155,18 @@ I18N_DICT['en'] = {
     "setting.notice.file-url.ext-id": "Extension identify",
     "setting.notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after your allow browser to access file URLs.",
     "setting.notice.default-category": "<strong>Default Category</strong><br />Use <strong>/</strong> to separate sub category<br />Use <strong>$NONE</strong> to represent empty value",
-    "setting.notice.default-clipping-folder-format": "<strong>Default Clipping Folder Format</strong><br /><strong>$FORMAT-A</strong> =&gt; 2018-10-11-1539236251 <br /><strong>$FORMAT-B</strong> =&gt; 20181011102009 <br /><strong>$FORMAT-C</strong> =&gt; 1539236251 <br />",
-    "setting.notice.title-clipping-folder-format": "<strong>Title Clipping Folder Format</strong><br /><strong>$FORMAT-A</strong> =&gt; <code>default-clipping-folder</code> + <code>-</code> + <code>title</code><br />First part (<i>default-clipping-folder</i>) depends on <strong>Default Clipping Folder Format</strong> you configure.<br />Last part (<i>title</i>) is the title you input when clipping.<br />e.g. 2018-10-11-1539236251-a-awesome-title<br /><strong>$FORMAT-B</strong> =&gt; <code>title</code><br />e.g. a-awesome-title<br /><strong>Warning</strong>: $FORMAT-B may cause clipping overwrite, if your clippings have same title. ",
+    "setting.notice.title-clipping-folder-format": "<strong>Format A</strong> =&gt; <code>default-clipping-folder</code> + <code>-</code> + <code>title</code><br />First part (<i>default-clipping-folder</i>) depends on <strong>Default Clipping Folder Format</strong> you configure.<br />Last part (<i>title</i>) is the title you input when clipping.<br />e.g. 2018-10-11-1539236251-a-awesome-title<br /><br /><strong>Format B</strong> =&gt; <code>title</code><br />e.g. a-awesome-title<br /><strong>Warning</strong>: <em>Format B</em> may cause clipping overwrite, if your clippings have same title. ",
     "setting.notice.asset-path": "<strong>Asset Path (image,font...)</strong><br />Use <strong>$CLIP-FOLD</strong> to represent cliping folder that generate from extension<br />Use <strong>$MX-WC</strong> to represent extension root folder ($downloads/mx-wc)",
-    "setting.notice.clipping-handler.intro": "<strong>Download through browser</strong><br />Use browser to download clipping result.<br /><br /><strong>Download through native App</strong><br />Use a native application to download clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to install a native application.",
-    "setting.notice.clipping-handler.warning": "<strong> Warning! </strong><br /> If you choose native application as your clipping handler, you must install native application first.",
     "setting.notice.clipping-handler.link-label": "install native App",
     "setting.notice.offline-page": "Offline index page is a static HTML page which can be used to browse your clippings without MaoXian Web Clipper or network. ",
     "setting.notice.offline-page.link-label": "Learn more detail",
     "setting.notice.autogenerate-clipping-js": "<strong>Autogenerate Javascript File</strong><br />Everytime when you clipping a web page, or delete a clipping history, MaoXian will generate a javascript file contains all your clippings and save to the path you configure. this script file will be accessed by offline web page that you downloaded.",
     "setting.notice.clipping-js-path": "<strong>Clipping javascript Path</strong><br />Where to save clipping javascript file. <br />Use <strong>$MX-WC</strong> to represent extension root folder ($downloads/mx-wc)",
-    "setting.notice.refresh-history": "<strong>Refresh History</strong><br /> Using Native App to refresh clipping history. This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest.",
-    "setting.notice.refresh-history-warning": "<strong>Warning</strong>:<br /> you must install native application and choose native application as your clipping handler first",
+    "setting.notice.refresh-history": "This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest.",
 
 
     // label
+    "setting.enable-handler.label": "Enable this handler",
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags)",
     "setting.save-web-font-input.label": "Save web fonts(suggest uncheck it)",
@@ -111,11 +174,11 @@ I18N_DICT['en'] = {
     "setting.save-domain-tag-input.label": "Save current domain as tag",
     "setting.save-title-as-fold-name-input.label": "Use title as clipping folder name (default: Generate by extension)",
     "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html or index.md)",
-    "setting.enable-switch-hotkey-input.label": "Enable hotkey `c` (clip switch)",
-    "setting.enable-mouse-mode-input.label": "Mouse frindly mode",
+    "setting.hotkey-switch-enabled-input.label": "Enable hotkey `c` (clip switch)",
+    "setting.mouse-mode-enabled-input.label": "Mouse friendly mode",
     "setting.autogenerate-clipping-js-input.label": "Autogenerate javascript file",
     "setting.not-generated-yet.label": "Not generated yet",
-    "setting.generate-now-msg-sent.label": "Autogenerate command has been sent",
+    "setting.generate-now-msg-sent.label": "Generate command has been sent",
     "setting.generate-now-success.label": "Generate success",
     "setting.last-generate-time.label": "Last generated time",
     "setting.auto-refresh-history-input.label": "Auto refresh history(when you open the browser)",
@@ -126,12 +189,10 @@ I18N_DICT['en'] = {
     // placeholder
     "setting.placeholder.notblank": "This value can not blank!",
 
-    // setting options
-    "setting.clipping-handler-option.browser": "Download through browser",
-    "setting.clipping-handler-option.native-app": "Download through native App",
 
-
-    //history page
+    //=====================================
+    // history page
+    //=====================================
     "history.placeholder.search": "title or tag or category or original url",
     "history.placeholder.created-at-from": "from date",
     "history.placeholder.created-at-to": "to date",
@@ -141,7 +202,7 @@ I18N_DICT['en'] = {
     "history.btn.reset": "Reset",
     "history.btn.clear-history": "Clear History",
     "history.btn.export-history": "Export History",
-    "history.a.reset_history": "Reset history",
+    "history.a.reset-history": "Reset history",
     "history.th.title": "Title",
     "history.th.path": "Path",
     "history.th.original-url": "From",
@@ -149,7 +210,7 @@ I18N_DICT['en'] = {
     "history.th.category": "Category",
     "history.th.tag": "Tag",
     "history.th.format": "Format",
-    "history.no_record": "No record.",
+    "history.no-record": "No record.",
     "history.export.no-record": "No record",
     "history.op.delete": "Delete",
     "history.label.confirm-mode": "Confirm before danger operation",
@@ -165,16 +226,21 @@ I18N_DICT['en'] = {
     "history.notice.clear-history-success": "Clear success!",
     "history.notice.delete": "ATTENTION: You can install our Native APP(enhance the abilities of MaoXian) to delete clipping files, otherwise, we delete history record only.",
 
-    //reset history page
-    "init.downloadFold": 'Loading browser download path...',
-    "reset.hint": 'Choose clip directory("$downloads/mx-wc"), Extension will reset whole history.',
+    //=====================================
+    // reset history page
+    //=====================================
+    "reset.page-name": "Reset History",
+    "init.download-folder": 'Loading browser download path...',
+    "reset.hint": 'Choose clip directory("$downloads/mx-wc"), Extension will reset whole history. <br /> If you want to reset history automatically. Try "refresh history", see <em>Setting > Refresh History</em> for more detail',
     "reset.processing": "processing...",
     "reset.completed": "completed, Page closing...",
-    "reset.clip_history_success": "clip history reset success, $n records loaded",
-    "reset.category_success": "category history reset success, $n records loaded",
-    "reset.tag_success": "tag history reset success, $n records loaded",
+    "reset.clip-history-success": "clip history reset success, $n records loaded",
+    "reset.category-success": "category history reset success, $n records loaded",
+    "reset.tag-success": "tag history reset success, $n records loaded",
 
+    //=====================================
     // last clipping result page (lcr)
+    //=====================================
     "lcr.label.file": "File: ",
     "lcr.label.err-msg": "ErrorMessage: ",
     "lcr.notice.not-clipping-result": "Last clipping result is empty",
@@ -184,7 +250,9 @@ I18N_DICT['en'] = {
 
 
 
+    //=====================================
     // entry(btn & hint)
+    //=====================================
     "switch.title": "Switch (hotkey: c)",
     "hint.selecting": "Click to select.",
     "hint.selected": "Press 'Enter' to Confirm, Use arrow key to adjust",
@@ -218,12 +286,16 @@ I18N_DICT['en'] = {
     "save": "Save",
     "cancel": "Cancel",
 
-    //output
-    "original_url": "Original url",
+    //=====================================
+    // output
+    //=====================================
+    "original-url": "Original url",
     "access": "Access",
-    "created_at": "Created at",
+    "created-at": "Created at",
 
-    //notifications
+    //=====================================
+    // notifications page
+    //=====================================
     "notification.title": "Message Center",
     "notification.hint": "Click message to delete it",
     "notification.native-app-version-too-small": "Native Application version must >= $requiredVersion, But current installed version is $currentVersion, please update your native application",

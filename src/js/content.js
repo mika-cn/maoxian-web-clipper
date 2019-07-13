@@ -184,7 +184,7 @@
   function initialize(){
     MxWcConfig.load()
       .then((config) => {
-        if(config.enableSwitchHotkey) {
+        if(config.hotkeySwitchEnabled) {
           T.bindOnce(document, "keydown", toggleSwitch);
         }
         T.bind(window, 'resize', function(e){
@@ -206,6 +206,7 @@
           listenPopState();
           listenTpMessage();
           tellTpWeAreReady();
+          MxWcLink.listen(document.body);
         }, 0)
       }
     }

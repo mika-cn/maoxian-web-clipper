@@ -35,11 +35,11 @@
     const bar = getStateBar();
     MxWcConfig.load().then((config) => {
       // "c" hotkey
-      if(config.enableSwitchHotkey) {
+      if(config.hotkeySwitchEnabled) {
         T.bindOnce(document, "keydown", toggleSwitch);
       }
 
-      if(config.enableMouseMode && bar) {
+      if(config.mouseModeEnabled && bar) {
         bar.classList.add('mouse-friendly')
         const helperPanel = T.firstElem('help');
         helperPanel.classList.add('mouse-friendly');

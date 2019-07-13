@@ -3,6 +3,7 @@ require_relative 'log'
 
 module Clipping
 
+  # TODO rename asset_fold to asset_folder
   # msg: {:asset_fold, :clip_id, :path}
   def self.delete(root, msg)
     path       = msg.fetch('path')

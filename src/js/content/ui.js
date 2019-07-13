@@ -312,10 +312,21 @@ this.UI = (function(){
   }
 
   function startClip(msg){
-    eraseHigtlightStyle();
-    msg.elem = state.currElem;
-    setStateClipping();
-    MxWcSave.save(msg);
+    MxWcHandler.isReady('config.clippingHandler')
+    .then(function(result) {
+      const {ok, config, message} = result;
+      if(ok) {
+        eraseHigtlightStyle();
+        msg.elem = state.currElem;
+        setStateClipping();
+        MxWcSave.save(msg, config);
+      } else {
+        Notify.error(message);
+        ignoreFrameMsg();
+        disable();
+        remove();
+      }
+    });
   }
 
   function ignoreFrameMsg(){

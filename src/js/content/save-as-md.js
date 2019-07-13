@@ -29,7 +29,7 @@ this.MxWcMarkdown = (function() {
     if(config.saveClippingInformation){
       markdown += generateMdClippingInfo(info);
     }
-    const filename = T.joinPath([path.clipFold, info.filename]);
+    const filename = T.joinPath([path.saveFolder, info.filename]);
     const mainFileTask = {
       taskType: 'mainFileTask',
       type: 'text',
@@ -80,7 +80,7 @@ this.MxWcMarkdown = (function() {
     clonedElem = PluginMathML2LaTeX.handle(window, clonedElem);
     let html = clonedElem.outerHTML;
     html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos);
-    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, imgAssetInfos);
+    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, imgAssetInfos);
     return {html: html, tasks: imgTasks.concat(frameTasks)};
   }
 
@@ -167,8 +167,8 @@ this.MxWcMarkdown = (function() {
     Log.debug('generateMdClippingInfo');
     let md = ""
     md += "\n\n---------------------------------------------------\n"
-    md += `\n\n${t('original_url')}: [${t('access')}](${info.link})`;
-    md += `\n\n${t('created_at')}: ${info.created_at}`;
+    md += `\n\n${t('original-url')}: [${t('access')}](${info.link})`;
+    md += `\n\n${t('created-at')}: ${info.created_at}`;
     let categoryStr = t('none');
     let tagStr = t('none');
     if(info.category){

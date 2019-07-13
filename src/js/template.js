@@ -124,8 +124,8 @@ MxWcTemplate.clippingInformation = {
         <hr />
         <!-- clipping information -->
         <div class="clipping-information">
-          <label>${t('original_url')}: <a href="${v.info.link}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${t('access')}</a></label><br />
-          <label>${t('created_at')}: ${v.info.created_at}</label><br />
+          <label>${t('original-url')}: <a href="${v.info.link}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${t('access')}</a></label><br />
+          <label>${t('created-at')}: ${v.info.created_at}</label><br />
           <label>${t('category')}: ${categoryHtml}</label><br />
           <label>${t('tags')}: ${tagHtml}</label>
         </div>`;

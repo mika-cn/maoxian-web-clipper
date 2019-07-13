@@ -158,12 +158,24 @@ const ClippingHandler_NativeApp = (function(){
     }
   }
 
+  function getInfo(callback) {
+    getVersion(function(r) {
+      callback({
+        ready: r.ok,
+        message: r.message,
+        version: r.version,
+        supportFormats: ['html', 'md']
+      })
+    });
+  }
+
   return {
     name: 'native-app',
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
     initDownloadFold: initDownloadFold,
 
+    getInfo: getInfo,
     getVersion: getVersion,
     deleteClipping: deleteClipping,
     refreshHistory: refreshHistory,

@@ -21,7 +21,7 @@
     const folder = T.findElem("myInput");
     const selector = T.queryElem(".selector");
     selector.style.display = "none";
-    showHint(t('init.downloadFold'));
+    showHint(t('init.download-folder'));
     ExtApi.sendMessageToBackground({type: 'init.downloadFold'});
     state.worker.postMessage(folder.files);
   }
@@ -51,13 +51,13 @@
       let hint = "";
       switch(msg.type){
         case "reset.clips":
-          hint = t('reset.clip_history_success').replace('$n', msg.body.length);
+          hint = t('reset.clip-history-success').replace('$n', msg.body.length);
           break;
         case "reset.categories":
-          hint = t('reset.category_success').replace('$n', msg.body.length);
+          hint = t('reset.category-success').replace('$n', msg.body.length);
           break;
         case "reset.tags":
-          hint = t('reset.tag_success').replace('$n', msg.body.length);
+          hint = t('reset.tag-success').replace('$n', msg.body.length);
           break;
       }
       showHint(hint);

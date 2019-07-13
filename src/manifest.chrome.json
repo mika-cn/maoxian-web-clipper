@@ -35,7 +35,9 @@
       "js/lib/mx-wc-config.js",
       "js/lib/mx-wc-storage.js",
       "js/lib/mx-wc-link.js",
+      "js/lib/mx-wc-handler.js",
       "js/lib/mx-wc-notification.js",
+      "js/background/migration.js",
       "js/background/fetcher.js",
       "js/background/web-request.js",
       "js/background/saving-tool.js",
@@ -67,6 +69,7 @@
         "js/lib/mx-wc-storage.js",
         "js/lib/mx-wc-config.js",
         "js/lib/mx-wc-event.js",
+        "js/lib/mx-wc-handler.js",
         "js/lib/plugin-misc.js",
         "js/lib/plugin-gist.js",
         "js/lib/plugin-mathjax.js",
@@ -87,6 +90,9 @@
     },
     {
       "js": [
+        "js/lib/notify.js",
+        "js/content/input-parser-default.js",
+        "js/content/input-parser.js",
         "js/content/ui.js",
         "js/content.js"
       ],

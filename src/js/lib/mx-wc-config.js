@@ -6,24 +6,56 @@ this.MxWcConfig = (function() {
 
   function getDefault(){
     return {
-      saveFormat: 'html',
+      /* old config names
+      clippingHandlerName: 'native-app',
+      enableSwitchHotkey: true,
+      enableMouseMode: true,
+      titleClippingFolderFormat: '$FORMAT-A',
+      */
+
+      // ======== handler names ==========
+      // We use javascript naming convention
+      // as handler name for convinience.
+      // So "browser" should changed to "Browser",
+      // "native-app" should changed to "NativeApp".
+      //
+
+      /* Is handler enabled? */
+      handlerBrowserEnabled: true,
+      handlerNativeAppEnabled: false,
+
+      //=====================================
+      // General
+      //=====================================
+
+      // content relative
       saveWebFont: false,
       saveCssImage: false,
       saveClippingInformation: true,
       saveDomainAsTag: false,
 
+      // control
+      hotkeySwitchEnabled: false,
+      mouseModeEnabled: false,
+
+      allowFileSchemeAccess: false,
+
+      //=====================================
+      // Storage
+      //=====================================
+
+      // "clippingHandlerName" is the old key
+      // and it's not be used anymore.
+      clippingHandler: 'Browser',
+
+      saveFormat: 'html',
+
+      // ======== Local path ==========
       /* $MX-WC/ */
       assetPath: '$CLIP-FOLD/assets',
       saveTitleAsFoldName: false,
       saveTitleAsFilename: false,
       defaultCategory: 'default',
-
-      allowFileSchemeAccess: false,
-      enableSwitchHotkey: false,
-      enableMouseMode: false,
-
-      /* browser, native-app */
-      clippingHandlerName: 'browser',
 
       /* $FORMAT-A => 2018-10-11-1539236251*/
       /* $FORMAT-B => 20181011102009 */
@@ -32,12 +64,22 @@ this.MxWcConfig = (function() {
 
       /* $FORMAT-A => $default-clipping-folder + $title */
       /* $FORMAT-B => $title */
-      titleClippingFolderFormat: '$FORMAT-A',
+      titleStyleClippingFolderFormat: '$FORMAT-A',
 
-      /* Offline pages */
+
+
+
+      //=====================================
+      // Offine pages
+      //=====================================
+      offlinePageHandler: 'Browser',
       autogenerateClippingJs: false,
       clippingJsPath: '$MX-WC/history/clippings.js',
 
+      //=====================================
+      // Auto refresh history
+      //=====================================
+      refreshHistoryHandler: 'NativeApp',
       autoRefreshHistory: false,
     }
   }
@@ -86,11 +128,11 @@ this.MxWcConfig = (function() {
   }
 
   function reset() {
-    return new Promise(function(resolv, _) {
+    return new Promise(function(resolve, _) {
       const deafultConfig = getDefault();
       state.config = defaultConfig;
       MxWcStorage.set('config', state.config);
-      resolv(state.config);
+      resolve(state.config);
     });
   }
 

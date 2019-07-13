@@ -28,13 +28,13 @@ const StoreClient = {
       }).then(resolve, reject)
     })
   },
-  assetInfos2Tasks: function(clipId, assetFold, assetInfos) {
+  assetInfos2Tasks: function(clipId, assetFolder, assetInfos) {
     return T.map(assetInfos, (assetInfo) => {
-      return StoreClient.assetInfo2Task(clipId, assetFold, assetInfo);
+      return StoreClient.assetInfo2Task(clipId, assetFolder, assetInfo);
     });
   },
-  assetInfo2Task: function(clipId, assetFold, assetInfo) {
-    const filename = T.joinPath([assetFold, assetInfo.assetName]);
+  assetInfo2Task: function(clipId, assetFolder, assetInfo) {
+    const filename = T.joinPath([assetFolder, assetInfo.assetName]);
     return {
       taskType: [assetInfo.type, 'Task'].join(''),
       type: 'url',

@@ -94,6 +94,7 @@ this.FrameMsg = (function(window){
       if(frame){
         return frame2TargetInfo(frame);
       } else {
+        console.trace();
         throw new Error(`Can not find frame with id: ${to}`);
       }
     } else {
