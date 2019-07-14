@@ -3,6 +3,19 @@
 (function(){
   const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
+  function listenMessage() {
+    ExtApi.addMessageListener(function(msg) {
+      return new Promise((resolve, reject) => {
+        switch(msg.type) {
+          case 'history.reseted':
+            resetHistory();
+            resolve();
+          default: break;
+        }
+      });
+    });
+  }
+
   function showHistory(){
     searchAction();
   }
@@ -420,9 +433,21 @@
     }
   }
 
+  function resetHistory() {
+    T.queryElems('form').forEach((it) => {
+      it.reset();
+    });
+    MxWcStorage.get('clips', []).then((clips) => {
+      initState(clips);
+      searchAction();
+    });
+  }
+
+
   function clearHistory(e){
     confirmIfNeed(t('history.confirm-msg.clear-history'), () => {
       MxWcStorage.set('clips', [])
+      initState([]);
       renderClips([]);
       Notify.success(t('history.notice.clear-history-success'));
     })
@@ -544,6 +569,7 @@
   }
 
   function init(){
+    listenMessage();
     MxWcStorage.get('clips', []).then(function(clips) {
       initState(clips);
       initSearch();

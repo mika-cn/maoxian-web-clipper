@@ -63,6 +63,15 @@ ExtApi.getCurrentTab = () => {
   })
 }
 
+ExtApi.getAllTabs = () => {
+  return new Promise(function(resolve, _){
+    browser.tabs.query({
+      currentWindow: true
+    }).then((tabs) => { resolve(tabs) })
+    .catch((err) => {console.error(err);});
+  })
+}
+
 /*****************************
  * web navigator
  *****************************/
@@ -87,8 +96,43 @@ ExtApi.addMessageListener = (listener) => {
   browser.runtime.onMessage.addListener(listener);
 }
 
-// To content page
+
 ExtApi.sendMessageToContent = (message, tabId, frameId) => {
+  return ExtApi.sendMessageToTab(message, tabId, frameId);
+}
+
+ExtApi.broadcastMessageToContent = (message) => {
+  ExtApi.getAllTabs().then((tabs) => {
+    tabs.forEach((tab) => {
+      if(!T.isExtensionUrl(tab.url)) {
+        ExtApi.sendMessageToTab(message, tab.id)
+      }
+    })
+  });
+}
+
+// To extension page
+ExtApi.sendMessageToExtPage = (message, url) => {
+  return new Promise((resolve, _) => {
+    ExtApi.getAllTabs().then((tabs) => {
+      tabs.forEach((tab) => {
+        if(T.isExtensionUrl(tab.url)) {
+          const tabUrl = tab.url.split('#')[0];
+          if(tabUrl === url) {
+            ExtApi.sendMessageToTab(message, tab.id).then(resolve);
+          }
+        }
+      })
+    });
+  });
+}
+
+// To background page
+ExtApi.sendMessageToBackground = (message) => {
+  return browser.runtime.sendMessage(message)
+}
+
+ExtApi.sendMessageToTab = (message, tabId, frameId) => {
   const defaultFrameId = 0;
   const options = {frameId: defaultFrameId};
   if(frameId) { options.frameId = frameId }
@@ -117,16 +161,6 @@ ExtApi.sendMessageToContent = (message, tabId, frameId) => {
       })
     }
   })
-}
-
-// To extension page except background page.
-ExtApi.sendMessageToExtPage = (message) => {
-  return browser.runtime.sendMessage(message)
-}
-
-// To background page
-ExtApi.sendMessageToBackground = (message) => {
-  return browser.runtime.sendMessage(message)
 }
 
 /*****************************

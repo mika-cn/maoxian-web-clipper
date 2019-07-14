@@ -42,8 +42,10 @@
       return showHint(t('reset.processing'));
     }
     if(msg.type === "resetCompleted"){
-      ExtApi.sendMessageToBackground({type: 'history.refresh-if-need'});
-      setTimeout(function(){ window.close() }, 3000);
+      ExtApi.sendMessageToBackground({type: 'generate.clipping.js.if-need'});
+      const pageUrl = MxWcLink.get('extPage.history');
+      ExtApi.sendMessageToExtPage({type: 'history.reseted'}, pageUrl)
+      //setTimeout(function(){ window.close() }, 3000);
       return showHint(t('reset.completed'));
     }
     if(msg.type.startsWith('reset.')){

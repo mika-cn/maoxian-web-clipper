@@ -50,12 +50,12 @@ function messageHandler(message, sender, senderResponse){
       case 'generate.clipping.js':
         generateClippingJs(resolve);
         break;
+      case 'generate.clipping.js.if-need':
+        generateClippingJsIfNeed();
+        resolve();
+        break;
       case 'history.refresh':
         refreshHistory(resolve);
-        break;
-      case 'history.refresh-if-need':
-        refreshHistoryIfNeed();
-        resolve();
         break;
       case 'handler.get-info':
         getHandlerInfo(message.body, resolve);
@@ -64,6 +64,7 @@ function messageHandler(message, sender, senderResponse){
     }
   });
 }
+
 
 function getHandlerInfo(msg, resolve) {
   const handler = MxWcHandler.get(msg.name);
@@ -144,7 +145,7 @@ function clippingSaveStarted(tabId, msg) {
   Log.debug('started');
   ExtApi.sendMessageToContent({
     type: 'clipping.save.started',
-    detail: {
+    body: {
       clipId: msg.clipId
     }
   }, tabId);
@@ -155,7 +156,7 @@ function clippingSaveProgress(tabId, msg) {
   Log.debug('progress', progress);
   ExtApi.sendMessageToContent({
     type: 'clipping.save.progress',
-    detail: {
+    body: {
       clipId: msg.clipId,
       finished: msg.finished,
       total: msg.total
@@ -172,7 +173,7 @@ function clippingSaveCompleted(tabId, result, handler){
   updateClippingHistory(result);
   ExtApi.sendMessageToContent({
     type: 'clipping.save.completed',
-    detail: result
+    body: result
   }, tabId);
   MxWcStorage.set('lastClippingResult', result);
   MxWcIcon.flicker(3);

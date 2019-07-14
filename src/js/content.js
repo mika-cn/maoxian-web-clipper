@@ -9,17 +9,20 @@
             UI.entryClick({});
             break;
           case 'clipping.save.started':
-            UI.clippingSaveStarted(msg.detail);
+            UI.clippingSaveStarted(msg.body);
             break;
           case 'clipping.save.progress':
-            UI.clippingSaveProgress(msg.detail);
+            UI.clippingSaveProgress(msg.body);
             break;
           case 'clipping.save.completed':
-            UI.clippingSaveCompleted(msg.detail);
-            tellTpClipCompleted(msg.detail);
+            UI.clippingSaveCompleted(msg.body);
+            tellTpClipCompleted(msg.body);
             break;
           case 'page_content.changed':
             pageContentChanged();
+            break;
+          case 'config.changed':
+            configChanged(msg.body);
             break;
           default: break;
         }
@@ -78,6 +81,7 @@
     MxWcEvent.dispatchPublic('completed', {
       handler: detail.handler,
       filename: detail.filename,
+      url: detail.url,
       completedAt: T.currentTime().toString()
     });
   }
@@ -166,6 +170,17 @@
     delayPageChanged.run();
   }
 
+  function configChanged(detail) {
+    const {key, value} = detail;
+    switch(key) {
+      case 'hotkeySwitchEnabled':
+        if(value == true) {
+          T.bindOnce(document, "keydown", toggleSwitch);
+        } else {
+          T.unbind(document, "keydown", toggleSwitch);
+        }
+    }
+  }
 
   /*
    * Hotkey `c` listener

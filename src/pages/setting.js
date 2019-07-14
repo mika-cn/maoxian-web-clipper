@@ -4,6 +4,16 @@
 // http://kb.mozillazine.org/Firefox_:_Issues_:_Links_to_Local_Pages_Don%27t_Work
 (function(){
 
+  function updateConfig(key, value) {
+    MxWcConfig.update(key, value);
+    const keys = ['hotkeySwitchEnabled'];
+    if(keys.indexOf(key) > -1) {
+      ExtApi.broadcastMessageToContent({
+        type: 'config.changed',
+        body: { key: key, value: value }
+      });
+    }
+  }
 
   // ======================================
   // init form inputs
@@ -161,7 +171,7 @@
 
   function checkBoxChanged(e) {
     const configKey = getConfigKey(e.target);
-    MxWcConfig.update(configKey, e.target.checked);
+    updateConfig(configKey, e.target.checked);
   }
 
   function initRadioInput(config, elemId, configKey){
@@ -174,7 +184,7 @@
   function radioInputChanged(e) {
     const container = T.findParentById(e.target, e.target.name);
     const configKey = getConfigKey(container);
-    MxWcConfig.update(configKey, e.target.value);
+    updateConfig(configKey, e.target.value);
   }
 
   function checkRadioInput(container, value) {
@@ -195,7 +205,7 @@
 
   function textInputBlured(e) {
     const configKey = getConfigKey(e.target);
-    if(MxWcConfig.update(configKey, e.target.value)){
+    if(updateConfig(configKey, e.target.value)){
       Notify.success(t('op.update-success'));
     }
   }
@@ -212,7 +222,7 @@
       const elem = e.target.parentElement;
       const configKey = getConfigKey(elem);
       const value = e.target.getAttribute('data-value');
-      MxWcConfig.update(configKey, value)
+      updateConfig(configKey, value)
       updateOptionsState(elem, value)
     }
   }
@@ -238,7 +248,7 @@
       const configKey = getConfigKey(elem);
       // We've got two config update here.
       // To avoid race condition, execute this update next tick.
-      setTimeout(() => MxWcConfig.update(configKey, firstValue), 0)
+      setTimeout(() => updateConfig(configKey, firstValue), 0)
       updateOptionsState(elem, firstValue);
     }
   }
@@ -583,4 +593,5 @@
   }
 
   init();
+
 })();
