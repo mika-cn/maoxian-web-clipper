@@ -18,7 +18,7 @@
 
   // can't do user action in promise, lead to (xxx may only be called from a user input handler)
   function viewLastResult(){
-    const {filename, downloadItemId, failedTaskNum} = state.lastClippingResult;
+    const {url, downloadItemId, failedTaskNum} = state.lastClippingResult;
     if(failedTaskNum > 0) {
       jumpToPage('extPage.last-clipping-result');
       return;
@@ -29,13 +29,6 @@
       state.lastClippingResult = null;
       ExtApi.openDownloadItem(downloadItemId);
     } else {
-      let url = '';
-      if(filename.startsWith('http') || filename.startsWith('file')) {
-        // http://...,https://... or file://...
-        url = filename;
-      } else {
-        url = 'file://' + filename;
-      }
       if(url.startsWith('http') || state.isAllowFileScheme) {
         MxWcStorage.set('lastClippingResult', null);
         state.lastClippingResult = null;

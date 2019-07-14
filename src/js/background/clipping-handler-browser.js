@@ -12,6 +12,11 @@ const ClippingHandler_Browser = (function(){
     });
   }
 
+  function handleClippingResult(it) {
+    it.url = 'file://' + it.filename;
+    return it;
+  }
+
   function getTaskFilename(fullFilename) {
     const path = fullFilename.split('mx-wc')[1];
     return ['mx-wc', path].join('');
@@ -188,6 +193,7 @@ const ClippingHandler_Browser = (function(){
     getInfo: getInfo,
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
+    handleClippingResult: handleClippingResult,
     initDownloadFold: initDownloadFold
   }
 

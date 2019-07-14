@@ -33,14 +33,7 @@
   }
 
   function renderClippingUrl() {
-    const {filename, failedTaskNum, failedTasks} = state.lastClippingResult;
-    let url = '';
-    if(filename.startsWith('http') || filename.startsWith('file')) {
-      // http://...,https://... or file://...
-      url = filename;
-    } else {
-      url = 'file://' + filename;
-    }
+    const {url, failedTaskNum, failedTasks} = state.lastClippingResult;
     const template = T.findElem('tpl-clipping-url').innerHTML;
     let notice = t('lcr.notice.openable-url');
     if(url.startsWith('file') && !(state.isAllowFileScheme)) {

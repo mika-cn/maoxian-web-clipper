@@ -19,13 +19,16 @@
       ]).then((values) => {
         const [downloadFold, config, allowFileSchemeAccess] = values;
         const allowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
-        let filename = clip.filename ? clip.filename : `index.${clip.format}`;
-        const clipPath = clip.path.replace('index.json', filename);
+        let {url} = clip;
+        if(!url) {
+          Log.debug("NotUrl", clip);
+          let filename = clip.filename ? clip.filename : `index.${clip.format}`;
+          const clipPath = clip.path.replace('index.json', filename);
 
-        //FIXME support http:// https:// url
-        let url = clipPath;
-        if(downloadFold){
-          url = "file://" + [downloadFold, url].join('');
+          url = clipPath;
+          if(downloadFold){
+            url = "file://" + [downloadFold, url].join('');
+          }
         }
         if(downloadFold && allowFileScheme){
           renderClipDetailModel_openUrlDirectly(clip, url);

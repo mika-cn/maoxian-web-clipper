@@ -9,7 +9,7 @@ function messageHandler(message, sender, senderResponse){
       case 'init.downloadFold': initDownloadFold()                      ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
-      case 'save.clip'        : saveClip(message.body)                  ; resolve() ; break ;
+      case 'save.clippingHistory' : saveClippingHistory(message.body)   ; resolve() ; break ;
 
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
@@ -130,10 +130,7 @@ function saveClipping(tabId, clipping) {
           clippingSaveProgress(tabId, msg);
           break;
         case 'completed':
-          const result = msg.clippingResult;
-          // compatible with old message
-          result.handler = handler.name;
-          clippingSaveCompleted(tabId, result);
+          clippingSaveCompleted(tabId, msg.clippingResult, handler);
           break;
         default: break;
       }
@@ -166,14 +163,18 @@ function clippingSaveProgress(tabId, msg) {
   }, tabId);
 }
 
-function clippingSaveCompleted(tabId, clippingResult){
+function clippingSaveCompleted(tabId, result, handler){
   Log.debug('completed');
-  Log.debug(clippingResult);
+  // compatible with old message
+  result.handler = handler.name;
+  result = handler.handleClippingResult(result);
+  Log.debug(result);
+  updateClippingHistory(result);
   ExtApi.sendMessageToContent({
     type: 'clipping.save.completed',
-    detail: clippingResult
+    detail: result
   }, tabId);
-  MxWcStorage.set('lastClippingResult', clippingResult);
+  MxWcStorage.set('lastClippingResult', result);
   MxWcIcon.flicker(3);
   generateClippingJsIfNeed();
 }
@@ -218,9 +219,7 @@ function generateClippingJs(callback) {
 
 function getClippingHandler(callback) {
   MxWcConfig.load().then((config) => {
-    let handler = null;
-    handler = MxWcHandler.get(config.clippingHandler);
-    callback(handler, config);
+    callback(MxWcHandler.get(config.clippingHandler), config);
   })
 }
 
@@ -238,11 +237,25 @@ function resetStates(key, states){
   MxWcStorage.set(key, states);
 }
 
-function saveClip(msg){
-  const clip = msg.clip;
+function updateClippingHistory(clippingResult) {
   MxWcStorage.get('clips', [])
     .then((v) => {
-      v.unshift(clip);
+      const idx = v.findIndex((it) => {
+        return it.clipId == clippingResult.clipId;
+      });
+      if(idx > -1) {
+        Log.debug("UpdateClippingHistory", clippingResult.url);
+        v[idx]['url'] = clippingResult.url;
+        MxWcStorage.set('clips', v);
+      }
+    });
+}
+
+function saveClippingHistory(msg){
+  const it = msg.clippingHistory;
+  MxWcStorage.get('clips', [])
+    .then((v) => {
+      v.unshift(it);
       MxWcStorage.set('clips', v);
     })
 }

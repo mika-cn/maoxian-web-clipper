@@ -74,7 +74,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
         body: clipping
       });
     })
-    saveClipHistory(path.saveFolder, info);
+    saveClippingHistory(path.saveFolder, info);
   }
 
   function rmReduplicateTask(tasks) {
@@ -131,12 +131,12 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
   }
 
   //private
-  function saveClipHistory(saveFolder, info){
+  function saveClippingHistory(saveFolder, info){
     const path = [saveFolder, 'index.json'].join('/');
-    const clip = Object.assign({path: path}, info);
+    const clippingHistory = Object.assign({path: path}, info);
     ExtApi.sendMessageToBackground({
-      type: 'save.clip',
-      body: {clip: clip}
+      type: 'save.clippingHistory',
+      body: {clippingHistory: clippingHistory}
     })
   }
 
