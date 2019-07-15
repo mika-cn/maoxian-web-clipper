@@ -22,7 +22,7 @@
     const selector = T.queryElem(".selector");
     selector.style.display = "none";
     showHint(t('init.download-folder'));
-    ExtApi.sendMessageToBackground({type: 'init.downloadFold'});
+    ExtMsg.sendToBackground({type: 'init.downloadFold'});
     state.worker.postMessage(folder.files);
   }
 
@@ -42,14 +42,14 @@
       return showHint(t('reset.processing'));
     }
     if(msg.type === "resetCompleted"){
-      ExtApi.sendMessageToBackground({type: 'generate.clipping.js.if-need'});
+      ExtMsg.sendToBackground({type: 'generate.clipping.js.if-need'});
       const pageUrl = MxWcLink.get('extPage.history');
-      ExtApi.sendMessageToExtPage({type: 'history.reseted'}, pageUrl)
-      //setTimeout(function(){ window.close() }, 3000);
+      ExtMsg.sendToPage({target: 'history', type: 'history.reseted'}, pageUrl)
+      setTimeout(function(){ window.close() }, 3000);
       return showHint(t('reset.completed'));
     }
     if(msg.type.startsWith('reset.')){
-      ExtApi.sendMessageToBackground(msg);
+      ExtMsg.sendToBackground(msg);
       let hint = "";
       switch(msg.type){
         case "reset.clips":
@@ -69,6 +69,7 @@
   function init(){
     i18nPage();
     bindListener();
+    ExtMsg.initPage('reset-history');
     state.worker = new Worker('reset-history-worker.js');
     state.worker.onmessage = handlerWorkerMessage;
   }

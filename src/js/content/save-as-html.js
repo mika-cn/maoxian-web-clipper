@@ -10,8 +10,8 @@ this.MxWcHtml = (function () {
     const {path, elem, info, config} = params;
 
     const [mimeTypeDict, frames] = await Promise.all([
-      ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
-      ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
+      ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
+      ExtMsg.sendToBackground({type: 'get.allFrames'}),
       KeyStore.init()
     ])
 
@@ -139,10 +139,10 @@ this.MxWcHtml = (function () {
             //FIXME
             currLayerFrames.push(frame);
             promises.push(
-              ExtApi.sendMessageToBackground({
+              ExtMsg.sendToBackground({
                 type: 'frame.toHtml',
-                to: frame.url,
                 frameId: frame.frameId,
+                frameUrl: frame.url,
                 body: {
                   clipId: clipId,
                   frames: frames,

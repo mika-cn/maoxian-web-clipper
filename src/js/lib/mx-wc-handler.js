@@ -87,7 +87,7 @@
           });
         } else {
           // content script or extention page
-          ExtApi.sendMessageToBackground({
+          ExtMsg.sendToBackground({
             type: 'handler.get-info',
             body: {name: name}
           }).then(response);

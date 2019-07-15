@@ -1,10 +1,10 @@
 // store-client.js
 const KeyStore = {
   init: function() {
-    return ExtApi.sendMessageToBackground({type: 'keyStore.init'});
+    return ExtMsg.sendToBackground({type: 'keyStore.init'});
   },
   add: function(key) {
-    return ExtApi.sendMessageToBackground({type: 'keyStore.add', body: {key: key}});
+    return ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: key}});
   }
 }
 
@@ -19,7 +19,7 @@ const StoreClient = {
   },
   fetchText: function(url) {
     return new Promise(function(resolve, reject){
-      ExtApi.sendMessageToBackground({
+      ExtMsg.sendToBackground({
         type: 'fetch.text',
         body: {
           url: url,

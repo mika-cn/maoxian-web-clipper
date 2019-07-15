@@ -1,8 +1,7 @@
 
 
 
-function messageHandler(message, sender, senderResponse){
-  // Deprecated: senderResponse
+function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
       case 'get.mimeTypeDict' : WebRequest.getMimeTypeDict(resolve)     ; break     ;
@@ -29,8 +28,8 @@ function messageHandler(message, sender, senderResponse){
         break;
       case 'frame.toHtml':
       case 'frame.toMd':
-        // send back
-        ExtApi.sendMessageToContent(message, sender.tab.id, message.frameId)
+        // Redirect message to content frame.
+        ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId)
           .then((data) => {
             resolve(data);
           });
@@ -143,7 +142,7 @@ function saveClipping(tabId, clipping) {
 
 function clippingSaveStarted(tabId, msg) {
   Log.debug('started');
-  ExtApi.sendMessageToContent({
+  ExtMsg.sendToContent({
     type: 'clipping.save.started',
     body: {
       clipId: msg.clipId
@@ -154,7 +153,7 @@ function clippingSaveStarted(tabId, msg) {
 function clippingSaveProgress(tabId, msg) {
   const progress = [msg.finished, msg.total].join('/');
   Log.debug('progress', progress);
-  ExtApi.sendMessageToContent({
+  ExtMsg.sendToContent({
     type: 'clipping.save.progress',
     body: {
       clipId: msg.clipId,
@@ -171,7 +170,7 @@ function clippingSaveCompleted(tabId, result, handler){
   result = handler.handleClippingResult(result);
   Log.debug(result);
   updateClippingHistory(result);
-  ExtApi.sendMessageToContent({
+  ExtMsg.sendToContent({
     type: 'clipping.save.completed',
     body: result
   }, tabId);
@@ -386,7 +385,8 @@ function init(){
   MxWcMigration.perform();
   WebRequest.listen();
   keyStoreService = createKeyStoreService();
-  ExtApi.addMessageListener(messageHandler);
+  ExtMsg.initPage('background');
+  ExtMsg.listen(messageHandler);
   Log.debug("background init...");
   welcomeNewUser();
   updateNativeAppConfig();

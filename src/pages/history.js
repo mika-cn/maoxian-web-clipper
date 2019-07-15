@@ -4,7 +4,8 @@
   const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
   function listenMessage() {
-    ExtApi.addMessageListener(function(msg) {
+    ExtMsg.initPage('history');
+    ExtMsg.listen(function(msg) {
       return new Promise((resolve, reject) => {
         switch(msg.type) {
           case 'history.reseted':
@@ -34,7 +35,6 @@
         const allowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
         let {url} = clip;
         if(!url) {
-          Log.debug("NotUrl", clip);
           let filename = clip.filename ? clip.filename : `index.${clip.format}`;
           const clipPath = clip.path.replace('index.json', filename);
 
@@ -246,7 +246,7 @@
             asset_fold: assetFolder, // deprecated
             asset_folder: assetFolder
           }
-          ExtApi.sendMessageToBackground({
+          ExtMsg.sendToBackground({
             type: 'clipping.delete',
             body: msg
           }).then((result) => {
@@ -458,7 +458,7 @@
     if(state.currClips.length > 0){
       content = T.toJson(state.currClips)
     }
-    ExtApi.sendMessageToBackground({
+    ExtMsg.sendToBackground({
       type: 'export.history',
       body: {content: content}
     });

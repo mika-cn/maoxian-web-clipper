@@ -8,7 +8,7 @@
    */
   function backgroundMessageHandler(message) {
     return new Promise(function(resolve, reject) {
-      if (message.to === window.location.href) {
+      if (message.frameUrl === window.location.href) {
         switch (message.type) {
           case 'frame.toHtml':
             MxWcHtml.getElemHtml(getParams(message)).then(resolve);
@@ -37,7 +37,8 @@
   }
 
   function listenBackgroundMessage() {
-    ExtApi.addMessageListener(backgroundMessageHandler);
+    ExtMsg.initPage('content-frame');
+    ExtMsg.listen(backgroundMessageHandler);
   }
 
   function listenFrameMessage() {

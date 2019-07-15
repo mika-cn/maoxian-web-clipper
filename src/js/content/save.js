@@ -69,7 +69,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       Log.debug(clipping);
 
       // save clipping
-      ExtApi.sendMessageToBackground({
+      ExtMsg.sendToBackground({
         type: 'clipping.save',
         body: clipping
       });
@@ -124,7 +124,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
   function saveInputHistory(k, v){
     const body = {}
     body[k] = v;
-    ExtApi.sendMessageToBackground({
+    ExtMsg.sendToBackground({
       type: `save.${k}`,
       body: body
     });
@@ -134,7 +134,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
   function saveClippingHistory(saveFolder, info){
     const path = [saveFolder, 'index.json'].join('/');
     const clippingHistory = Object.assign({path: path}, info);
-    ExtApi.sendMessageToBackground({
+    ExtMsg.sendToBackground({
       type: 'save.clippingHistory',
       body: {clippingHistory: clippingHistory}
     })

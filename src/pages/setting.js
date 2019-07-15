@@ -8,7 +8,7 @@
     MxWcConfig.update(key, value);
     const keys = ['hotkeySwitchEnabled'];
     if(keys.indexOf(key) > -1) {
-      ExtApi.broadcastMessageToContent({
+      ExtMsg.broadcastToContent({
         type: 'config.changed',
         body: { key: key, value: value }
       });
@@ -394,7 +394,7 @@
   /* button click handlers */
 
   function generateClippingJsNow(e) {
-    ExtApi.sendMessageToBackground({
+    ExtMsg.sendToBackground({
       type: 'generate.clipping.js'
     }).then((result) => {
       if(result.ok) {
@@ -409,7 +409,7 @@
   }
 
   function refreshHistoryNow(e) {
-    ExtApi.sendMessageToBackground({
+    ExtMsg.sendToBackground({
       type: 'history.refresh'
     }).then((result) => {
       if(result.ok) {
@@ -492,7 +492,7 @@
     MxWcConfig.load().then((config) => {
       initSettingHandlerNativeApp(config);
     });
-    ExtApi.sendMessageToBackground({
+    ExtMsg.sendToBackground({
       type: 'handler.get-info',
       body: {name: 'NativeApp'}
     }).then((info) => {
@@ -588,6 +588,7 @@
   function init(){
     i18nPage();
     initSidebar();
+    ExtMsg.initPage('setting');
     MxWcLink.listen(document.body);
     activeMenu();
   }

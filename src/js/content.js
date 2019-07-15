@@ -1,7 +1,8 @@
 (function(){
 
   function listenMessage(){
-    ExtApi.addMessageListener(function(msg){
+    ExtMsg.initPage('content');
+    ExtMsg.listen(function(msg){
       return new Promise(function(resolve, reject){
         switch(msg.type){
           case 'icon.click':

@@ -11,8 +11,8 @@ this.MxWcMarkdown = (function() {
     Log.debug("markdown parser");
     const {path, elem, info, config} = params;
     const [mimeTypeDict, frames] = await Promise.all([
-      ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
-      ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
+      ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
+      ExtMsg.sendToBackground({type: 'get.allFrames'}),
       KeyStore.init()
     ]);
     const {html, tasks} = await getElemHtml({
@@ -101,10 +101,10 @@ this.MxWcMarkdown = (function() {
           if(canAdd) {
             frameElems.push(frameElem);
             promises.push(
-              ExtApi.sendMessageToBackground({
+              ExtMsg.sendToBackground({
                 type: 'frame.toMd',
-                to: frame.url,
                 frameId: frame.frameId,
+                frameUrl: frame.url,
                 body: {
                   clipId: clipId,
                   frames: frames,

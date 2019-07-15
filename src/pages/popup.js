@@ -42,7 +42,7 @@
   }
 
   function startClip(){
-    ExtApi.sendMessageToContent({type: 'icon.click'}).then(closeWindow);
+    ExtMsg.sendToContent({type: 'icon.click'}).then(closeWindow);
   }
 
   function jumpToPage(page){
@@ -130,6 +130,7 @@
 
   function init(){
     renderMenus();
+    ExtMsg.initPage('popup');
     MxWcIcon.change("default");
   }
 

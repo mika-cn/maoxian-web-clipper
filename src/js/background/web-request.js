@@ -23,7 +23,7 @@ this.WebRequest = (function(){
         const headers = details.responseHeaders;
         const mimeType = getMimeType(headers)
         if(['text/html', 'text/plain'].indexOf(mimeType) > -1){
-          ExtApi.sendMessageToContent({type: "page_content.changed"});
+          ExtMsg.sendToContent({type: "page_content.changed"});
         }
       } else {
         // 302 etc.
