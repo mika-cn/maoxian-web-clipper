@@ -22,7 +22,7 @@ this.Notify = (function(){
       }
       .notify {
         line-height: 18px;
-        font-size: 13px;
+        font-size: 13px !important;
         padding: 0px;
         border: solid 1px #aaa;
         border-radius: 3px;
@@ -36,7 +36,10 @@ this.Notify = (function(){
         line-height: 30px;
         width: 30px;
         height: 30px;
+        text-align: center;
         padding: 0px !important;
+        font-size: 16px;
+        color: #333;
       }
       .notify > .notify-content {
         display: inline-block;
@@ -47,18 +50,14 @@ this.Notify = (function(){
       .notify > .notify-content > a{
         color: #ffff00 !important;
       }
-      .notify:hover {
-        border-top-left-radius: 15px;
-        border-bottom-left-radius: 15px;
-      }
-      .notify:hover > .notify-btn {
-        border-radius: 15px;
+      .notify:hover > .notify-btn{
+        color: #efefef;
       }
       .notice-success:hover > .notify-btn{
-        background: #d4edda;
+        color: #d4edda;
       }
       .notice-danger:hover > .notify-btn{
-        background: #f8d7da;
+        color: #f8d7da;
       }
     `;
   }
@@ -129,7 +128,7 @@ this.Notify = (function(){
   }
 
   function renderNotify(content, behavior, type) {
-    return `<label class="notify-btn" title="dismiss me">&nbsp;</label><label class="notify-content">${content}</label>
+    return `<label class="notify-btn" title="dismiss me">&#4030;</label><label class="notify-content">${content}</label>
     `;
   }
 

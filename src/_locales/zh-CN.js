@@ -13,6 +13,11 @@ I18N_DICT['zh-CN'] = {
     "op.update-success": "更新成功!",
     "op.delete-success": "删除成功!",
 
+    // options
+    "option.save-format.html.name": "HTML",
+    "option.save-format.md.name": "Markdown",
+
+
     //=====================================
     // home page
     //=====================================
@@ -119,9 +124,6 @@ I18N_DICT['zh-CN'] = {
 
     "setting.notice.clipping-handler.intro": "<br /><br />",
 
-    "option.format.html.name": "HTML",
-    "option.format.md.name": "Markdown",
-
     "setting.option.default-clipping-folder-format.a": "格式A （例: 2018-10-11-1539236251）",
     "setting.option.default-clipping-folder-format.b": "格式B （例: 20181011102009）",
     "setting.option.default-clipping-folder-format.c": "格式C （例: 1539236251）",
@@ -176,6 +178,7 @@ I18N_DICT['zh-CN'] = {
     "setting.save-title-as-filename-input.label": "使用标题作为文件名（默认为 index.html 或 index.md ）",
     "setting.hotkey-switch-enabled-input.label": "启用快捷键 `c` (裁剪开关)",
     "setting.mouse-mode-enabled-input.label": "鼠标友好模式",
+    "setting.input-field-save-format-enabled.label": "启用表单上的格式选择",
     "setting.autogenerate-clipping-js-input.label": "自动生成脚本文件",
     "setting.not-generated-yet.label": "还没有生成过",
     "setting.generate-now-msg-sent.label": "生成命令已经发送",
@@ -274,7 +277,7 @@ I18N_DICT['zh-CN'] = {
     "hotkey.help.intro": "显示此帮助信息",
 
     // form
-    "format": "存储格式",
+    "save-format": "格式",
     "title": "标题",
     "category": "目录",
     "tags": "标签",

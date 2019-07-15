@@ -59,7 +59,6 @@ function lastHint() {
 
 function init(){
   render();
-  i18nPage();
   initListener();
 }
 

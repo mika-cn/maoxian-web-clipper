@@ -14,6 +14,10 @@ I18N_DICT['en'] = {
     "op.update-success": "Update Success!",
     "op.delete-success": "Delete Success!",
 
+    // options
+    "option.save-format.html.name": "HTML",
+    "option.save-format.md.name": "Markdown",
+
     //=====================================
     // home page
     //=====================================
@@ -77,7 +81,7 @@ I18N_DICT['en'] = {
     "setting.version": "Current version: ",
 
     // errors
-    "error.handler.not-enabled": "Handler is not enabled",
+    "error.handler.not-enabled": "Handler is disabled",
     "error.handler.not-ready": "Handler is not ready",
 
     // title
@@ -117,8 +121,6 @@ I18N_DICT['en'] = {
     "handler.native-app.feature.c": "Refresh history (This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest)",
     "handler.native-app.warning": "<strong> Warning! </strong><br /> If you enable this handler, you must <a href='go.page:native-app' target='_blank'>install native application</a> first.",
 
-    "option.format.html.name": "HTML",
-    "option.format.md.name": "Markdown",
 
     "setting.option.default-clipping-folder-format.a": "Format A (e.g. 2018-10-11-1539236251)",
     "setting.option.default-clipping-folder-format.b": "Format B (e.g. 20181011102009)",
@@ -169,19 +171,20 @@ I18N_DICT['en'] = {
     "setting.enable-handler.label": "Enable this handler",
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags)",
-    "setting.save-web-font-input.label": "Save web fonts(suggest uncheck it)",
-    "setting.save-css-image-input.label": "Save CSS background images(suggest uncheck it)",
+    "setting.save-web-font-input.label": "Save web fonts (suggest uncheck it)",
+    "setting.save-css-image-input.label": "Save CSS background images (suggest uncheck it)",
     "setting.save-domain-tag-input.label": "Save current domain as tag",
     "setting.save-title-as-fold-name-input.label": "Use title as clipping folder name (default: Generate by extension)",
     "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html or index.md)",
     "setting.hotkey-switch-enabled-input.label": "Enable hotkey `c` (clip switch)",
     "setting.mouse-mode-enabled-input.label": "Mouse friendly mode",
+    "setting.input-field-save-format-enabled.label": "Enable selecting save format in form",
     "setting.autogenerate-clipping-js-input.label": "Autogenerate javascript file",
     "setting.not-generated-yet.label": "Not generated yet",
     "setting.generate-now-msg-sent.label": "Generate command has been sent",
     "setting.generate-now-success.label": "Generate success",
     "setting.last-generate-time.label": "Last generated time",
-    "setting.auto-refresh-history-input.label": "Auto refresh history(when you open the browser)",
+    "setting.auto-refresh-history-input.label": "Auto refresh history (when you open the browser)",
     "setting.refresh-now-msg-sent.label": "Refresh command has been sent",
     "setting.refresh-now-success.label": "Refresh success",
     "setting.last-refresh-time.label": "Last refreshed time",
@@ -277,7 +280,7 @@ I18N_DICT['en'] = {
     "hotkey.help.intro": "Show this help messages",
 
     // form
-    "format": "Save Format",
+    "save-format": "Format",
     "title": "Title",
     "category": "Category",
     "tags": "Tags",

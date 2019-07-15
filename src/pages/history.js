@@ -72,7 +72,6 @@
       url: url
     });
     T.setHtml(modalContent, html);
-    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(e){
@@ -95,7 +94,6 @@
       downloadItem: downloadItem
     });
     T.setHtml(modalContent, html);
-    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(e){
@@ -116,7 +114,6 @@
       url: url
     });
     T.setHtml(modalContent, html);
-    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path');
     T.bind(elem, 'mouseover', function(e){ this.select() });
@@ -167,7 +164,6 @@
         }));
       });
       T.setHtml('.clippings > tbody', items.join(''));
-      i18nPage();
       list.style.display = 'block';
     } else {
       hint.style.display = 'block';

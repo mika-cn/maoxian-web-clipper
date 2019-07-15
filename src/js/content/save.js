@@ -7,6 +7,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
   function save(inputs, config) {
     let {format, title, category, tagstr, elem} = inputs;
 
+
     const inputParams = {
       format: format,
       title: title.trim(),

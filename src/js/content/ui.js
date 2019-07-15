@@ -448,7 +448,21 @@ this.UI = (function(){
 
   function pressEnter(msg){
     if(state.clippingState === 'selected'){
-      sendFrameMsgToControl('showForm', getFormInputs(msg));
+      MxWcHandler.isReady('config.clippingHandler')
+      .then((result) => {
+        const {ok, message, handlerInfo, config} = result;
+        if(ok) {
+          const params = Object.assign({
+            handlerInfo: handlerInfo, config: config
+          }, getFormInputs(msg));
+          sendFrameMsgToControl('showForm', params);
+        } else {
+          Notify.error(message);
+          ignoreFrameMsg();
+          disable();
+          remove();
+        }
+      });
     }
   }
 

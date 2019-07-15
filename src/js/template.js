@@ -1,6 +1,19 @@
 
 const MxWcTemplate = {}
 
+MxWcTemplate.options = {
+  render: function(v) {
+    const tpl = '<a data-value="${value}" i18n="${i18nKey}"></a>';
+    return v.options.map((it) => {
+      const i18nKey = ['option', v.type, it, 'name'].join('.');
+      return T.renderTemplate(tpl, {
+        value: it,
+        i18nKey: i18nKey
+      });
+    }).join("\n");
+  }
+}
+
 MxWcTemplate.framePage = {
   render: function(v){
     return `

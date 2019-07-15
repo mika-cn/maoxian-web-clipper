@@ -7,7 +7,7 @@
   const CLASS_STATE_BAR  = 'state-bar';
   const CLASS_HINT       = 'hint';
 
-  const ID_FORMAT        = 'format';
+  const ID_FORMAT        = 'save-format';
   const ID_TITLE         = "title";
   const ID_CATEGORY      = "category";
   const ID_TAGSTR        = "tagstr";
@@ -21,7 +21,6 @@
     const gbox = T.queryElem('.gbox');
     const uiHtml = T.findElem('ui-tpl').innerHTML;
     T.setHtml(gbox, uiHtml);
-    i18nPage();
     setTimeout(initUIListener, 0);
   }
 
@@ -296,15 +295,30 @@
     }
   }
 
-  async function initSaveFormatOption(formatOption) {
-    const config = await MxWcConfig.load();
+  async function initSaveFormatOption(config, handlerInfo) {
+    T.findElem(ID_FORMAT).value = config.saveFormat;
+    const inputGroup = T.queryElem('.input-group.save-format');
+    if(!config.inputFieldSaveFormatEnabled) {
+      inputGroup.classList.remove('active');
+      return;
+    }
+    inputGroup.classList.add('active');
+    const html = MxWcTemplate.options.render({
+      type: 'save-format',
+      options: handlerInfo.supportFormats
+    });
+
+    const formatOption = T.findElem('save-format-options');
+    T.setHtml(formatOption, html);
+
     T.bind(formatOption, 'click', (e) => {
       if(e.target.tagName === 'A'){
         const value = e.target.getAttribute('data-value');
+        T.findElem(ID_FORMAT).value = value;
         updateOptionsState(formatOption, value)
       }
     });
-    updateOptionsState(formatOption, config["saveFormat"]);
+    updateOptionsState(formatOption, config.saveFormat);
 
     function updateOptionsState(elem, value) {
       T.each(elem.children, (option) => {
@@ -317,21 +331,22 @@
     }
   }
 
-  async function showForm(msg){
+  async function showForm(params){
     Log.debug('showForm');
+    const {title, category, tagstr,
+      handlerInfo, config} = params;
     const form = T.firstElem(CLASS_FORM);
     if(form.style.display == 'block'){ return false}
     setStateConfirmed();
     form.style.display = 'block';
-    const formatBlock = T.findElem(ID_FORMAT);
     const titleInput = T.findElem(ID_TITLE);
     const categoryInput = T.findElem(ID_CATEGORY);
     const tagstrInput = T.findElem(ID_TAGSTR);
 
-    await initSaveFormatOption(formatBlock);
-    titleInput.value = msg.title;
-    categoryInput.value= msg.category;
-    tagstrInput.value = msg.tagstr;
+    await initSaveFormatOption(config, handlerInfo);
+    titleInput.value = title;
+    categoryInput.value= category;
+    tagstrInput.value = tagstr;
     MxWc.form.clearAutoComplete();
     MxWcStorage.get('categories', [])
       .then((v) => {
@@ -340,7 +355,7 @@
           minChars: 1,
           list: v
         })
-        if(msg.category === ''){
+        if(category === ''){
           categoryInput.focus();
         }
       })
@@ -363,7 +378,7 @@
             this.input.value = before + text + " ";
           }
         });
-        if(msg.category !== '') {
+        if(category !== '') {
           tagstrInput.focus();
         }
       })
@@ -374,13 +389,13 @@
     hideForm();
     unbindListener();
 
-    const formatBlock = T.findElem(ID_FORMAT);
+    const formatInput = T.findElem(ID_FORMAT);
     const titleInput = T.findElem(ID_TITLE);
     const categoryInput = T.findElem(ID_CATEGORY);
     const tagstrInput = T.findElem(ID_TAGSTR);
 
     sendFrameMsgToTop('startClip', {
-      format: formatBlock.querySelector(".active").getAttribute('data-value'),
+      format: formatInput.value,
       title: titleInput.value,
       category: categoryInput.value,
       tagstr: tagstrInput.value,

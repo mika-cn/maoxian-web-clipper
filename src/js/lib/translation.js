@@ -40,6 +40,19 @@
     });
   }
 
+  function listen() {
+    document.addEventListener('___.mx-wc.page.changed', function(e) {
+      const detail = JSON.parse(e.detail);
+      if(detail.selector !== '') {
+        const contextNode = document.querySelector(detail.selector);
+        i18nPage(contextNode);
+      } else {
+        i18nPage();
+      }
+    });
+  }
+
+  listen();
   win.t = t;
   win.i18nPage = i18nPage;
 

@@ -50,6 +50,9 @@
         <br />
         <input type="checkbox" id="mouse-mode-enabled" />
         <label for="mouse-mode-enabled" i18n="setting.mouse-mode-enabled-input.label"></label>
+        <br />
+        <input type="checkbox" id="input-field-save-format-enabled" />
+        <label for="input-field-save-format-enabled" i18n="setting.input-field-save-format-enabled.label"></label>
         </p>
         <h3 i18n="setting.title.file-url"></h3>
         <p>
@@ -142,9 +145,6 @@
           </p>
         </div>
       </section>
-    </template>
-    <template id="option-tpl">
-      <a data-value="${value}">${name}</a>
     </template>
 
     <template id="section-setting-offline-page-tpl">
@@ -278,6 +278,7 @@
     <script type="text/javascript" src="../vendor/js/i18n.js"></script>
     <script type="text/javascript" src="../js/env.js"></script>
     <script type="text/javascript" src="../js/tool.js"></script>
+    <script type="text/javascript" src="../js/template.js"></script>
     <script type="text/javascript" src="../_locales/en.js"></script>
     <script type="text/javascript" src="../_locales/zh-CN.js"></script>
     <script type="text/javascript" src="../js/lib/log.js"></script>

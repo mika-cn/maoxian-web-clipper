@@ -5,7 +5,7 @@
 (function(){
 
   function updateConfig(key, value) {
-    MxWcConfig.update(key, value);
+    const isUpdated = MxWcConfig.update(key, value);
     const keys = ['hotkeySwitchEnabled'];
     if(keys.indexOf(key) > -1) {
       ExtMsg.broadcastToContent({
@@ -13,6 +13,7 @@
         body: { key: key, value: value }
       });
     }
+    return isUpdated;
   }
 
   // ======================================
@@ -47,6 +48,11 @@
     initCheckboxInput(config,
       'mouse-mode-enabled',
       'mouseModeEnabled',
+    );
+
+    initCheckboxInput(config,
+      'input-field-save-format-enabled',
+      'inputFieldSaveFormatEnabled',
     );
 
     // File url access
@@ -278,7 +284,6 @@
         if(['Browser', 'NativeApp'].indexOf(value) > -1) {
           renderLocalPathOptions(section);
         }
-        i18nPage();
       }
     });
   }
@@ -342,27 +347,15 @@
   function renderSaveFormat(section, formats) {
     const div = T.queryElem('.save-format', section);
     div.classList.add('active');
-    const html = renderOptions(formats, 'format');
+    const html = MxWcTemplate.options.render({
+      type: 'save-format',
+      options: formats
+    });
     const elem = T.queryElem('#save-format', section);
     T.setHtml(elem, html);
     MxWcConfig.load().then((config) => {
-      console.log("RenderSaveFormat", config.saveFormat);
       initSettingSaveFormat(config)
     });
-  }
-
-
-  function renderOptions(options, type) {
-    const optionTpl = T.findElem('option-tpl').innerHTML;
-    const arr = [];
-    options.forEach((it) => {
-      const r = T.renderTemplate(optionTpl, {
-        value: it,
-        name: t('option', type, it, 'name')
-      });
-      arr.push(r);
-    });
-    return arr.join("\n");
   }
 
 
@@ -461,7 +454,6 @@
       host: window.location.origin
     });
     T.setHtml(container, html);
-    i18nPage(container);
     MxWcConfig.load().then((config) => {
       initSettingGeneral(config);
     });
@@ -470,7 +462,6 @@
   function renderSectionStorage(id, container, template) {
     const html = template;
     T.setHtml(container, html);
-    i18nPage(container);
     MxWcConfig.load().then((config) => {
       initSettingStorage(config);
     });
@@ -479,7 +470,6 @@
   function renderSectionHandlerBrowser(id, container, template) {
     const html = template;
     T.setHtml(container, html);
-    i18nPage(container);
     MxWcConfig.load().then((config) => {
       initSettingHandlerBrowser(config);
     });
@@ -488,7 +478,6 @@
   function renderSectionHandlerNativeApp(id, container, template) {
     const html = template;
     T.setHtml(container, html);
-    i18nPage(container);
     MxWcConfig.load().then((config) => {
       initSettingHandlerNativeApp(config);
     });
@@ -519,7 +508,6 @@
         lastGenerateClippingJsTime: (time || ''),
       });
       T.setHtml(container, html);
-      i18nPage();
       MxWcConfig.load().then((config) => {
         initOfflinePage(config)
       });
@@ -534,7 +522,6 @@
         lastRefreshHistoryTime: (time || ''),
       });
       T.setHtml(container, html);
-      i18nPage();
       MxWcConfig.load().then((config) => {
         initRefreshHistory(config)
       });

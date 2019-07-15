@@ -42,6 +42,9 @@
             config.hotkeySwitchEnabled = config.enableSwitchHotkey;
             config.mouseModeEnabled = config.enableMouseMode;
             config.titleStyleClippingFolderFormat = config.titleClippingFolderFormat;
+            if(config.clippingHandlerName == 'native-app') {
+              config.handlerNativeAppEnabled = true;
+            }
             MxWcStorage.set('config', config);
             console.debug("0.1.34 migrate");
           } else {

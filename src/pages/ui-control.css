@@ -17,6 +17,9 @@ body {
   color: #888;
 }
 
+.save-format { display: none; }
+.save-format.active {display: block; }
+
 .options-group > a{
   text-decoration: none;
   display: inline-block;

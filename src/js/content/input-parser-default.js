@@ -10,16 +10,13 @@
 
     if(title === ""){ title = 'default' }
 
-    // FIXME
-    const saveFormat = (format || config.saveFormat);
-
     const appendTags = []
     if (config.saveDomainAsTag) {
       appendTags.push(host);
     }
 
     // main filename
-    const mainFileArr = ['index', saveFormat];
+    const mainFileArr = ['index', format];
     if (config.saveTitleAsFilename) {
       mainFileArr[0] = T.sanitizeFilename(title);
     }
@@ -39,7 +36,7 @@
 
     const info = {
       clipId     : clipId,
-      format     : saveFormat,
+      format     : format,
       title      : title,
       link       : link,
       category   : category,

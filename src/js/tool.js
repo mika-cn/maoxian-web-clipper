@@ -72,8 +72,25 @@
 
   // obj: element or selector
   T.setHtml = function(obj, html) {
-    const elem = (typeof obj === 'object' ? obj: T.queryElem(obj));
-    if(elem){ elem.innerHTML = html }
+    let elem = null;
+    let selector = "";
+    if(typeof obj === 'object') {
+      elem = obj;
+      if(elem.id) {
+        selector = "#" + elem.id;
+      } else if(elem.className) {
+        selector = "." + elem.className.split(' ').join('.');
+      }
+    } else {
+      selector = obj;
+      elem = T.queryElem(obj);
+    }
+    if(elem){
+      elem.innerHTML = html;
+      const detailJson = JSON.stringify({selector: selector});
+      const e = new CustomEvent('___.mx-wc.page.changed', {detail: detailJson});
+      document.dispatchEvent(e);
+    }
   }
 
 

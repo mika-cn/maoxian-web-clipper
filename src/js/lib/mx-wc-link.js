@@ -97,7 +97,13 @@ this.MxWcLink = (function(ExtApi) {
             ExtApi.createTab(link);
           }catch(e) {
             // browser.tabs is not avariable in content script ?
-            window.location.href = link;
+            ExtMsg.sendToBackground({
+              type: 'create-tab',
+              body: {link: link}
+            }).catch((err) => {
+              console.warn(err);
+              window.location.href = link;
+            });
           }
         } else {
           window.location.href = link;
@@ -116,4 +122,4 @@ this.MxWcLink = (function(ExtApi) {
     isFirefox: isFirefox,
     listen: listen
   }
-})(ExtApi);
+})(ExtApi, ExtMsg);

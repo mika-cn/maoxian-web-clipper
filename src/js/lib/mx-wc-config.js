@@ -37,6 +37,7 @@ this.MxWcConfig = (function() {
       // control
       hotkeySwitchEnabled: false,
       mouseModeEnabled: false,
+      inputFieldSaveFormatEnabled: false,
 
       allowFileSchemeAccess: false,
 

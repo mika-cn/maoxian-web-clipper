@@ -59,6 +59,8 @@ function messageHandler(message, sender){
       case 'handler.get-info':
         getHandlerInfo(message.body, resolve);
         break;
+      case 'create-tab':
+        ExtApi.createTab(message.body.link).then(resolve);
       default: break;
     }
   });
