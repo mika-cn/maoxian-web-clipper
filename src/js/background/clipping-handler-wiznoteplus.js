@@ -87,16 +87,19 @@ const ClippingHandler_WizNotePlus = (function(){
     /**
      * Initialize the whole clipping handler.
      */
-    async function init(){
+    async function init() {
+        // Connect to WizNotePlus
         if(!state.isConnected){
-          if (!(state.isConnected = !!(await createWebChannel()))) {
-            const err = new Error("Failed to connect WizNotePlus!")
-            alert(err);
-            Log.error(err)
-            throw err;
-          }
+            if (!(state.isConnected = !!(await createWebChannel()))) {
+                const err = new Error("Failed to connect WizNotePlus!")
+                Log.error(err)
+                throw err;
+            }
         }
-      }
+        // Sync categories and tags to Browser local storage.
+        syncCategories();
+        syncTags();
+    }
 
     /**
      * Build web channel to WizNotePlus.
@@ -133,6 +136,34 @@ const ClippingHandler_WizNotePlus = (function(){
             }
         })
 
+    }
+
+    async function syncCategories() {
+        // Get old and new categories
+        const objDb = state.objApp.Database;
+        let aLocations = await objDb.GetAllLocations();
+        let aCategories = await MxWcStorage.get('categories', []);
+        // Remove unavailable categories
+        aCategories = aCategories.filter(value => aLocations.includes(value));
+        // Unite two unique array
+        aLocations = aLocations.filter(value => !aCategories.includes(value));
+        aCategories = [...aCategories, ...aLocations];
+        // Save to Browser local storage
+        MxWcStorage.set('categories', aCategories);
+    }
+
+    async function syncTags() {
+        // Get old and new categories
+        const objDb = state.objApp.Database;
+        let aTags = await objDb.GetAllTags();
+        let aStoredTags = await MxWcStorage.get('tags', []);
+        // Remove unavailable tags
+        aStoredTags = aStoredTags.filter(value => aTags.includes(value));
+        // Unite two tags array
+        aTags = aTags.filter(value => !aStoredTags.includes(value));
+        aStoredTags = [...aStoredTags, ...aTags];
+        // Save to local storage
+        MxWcStorage.set('tags', aStoredTags);
     }
 
     /**
@@ -242,6 +273,7 @@ const ClippingHandler_WizNotePlus = (function(){
   
     return {
       name: 'WizNotePlus',
+      init: init,
       saveClipping: saveClipping
     }
   
