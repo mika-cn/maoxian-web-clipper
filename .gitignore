@@ -14,3 +14,5 @@ native-app/test/mx-wc/clippings
 native-app/test/mx-wc/global-assets
 useful-res/assistant/public/dev/*.js
 useful-res/assistant/public/dist/*.js
+
+.vscode

@@ -10,6 +10,7 @@
   const CLASS_HINT       = 'MX-wc-hint';
 
   const ID_TITLE         = "MX-wc-title";
+  const ID_FORMAT        = 'MX-wc-format';
   const ID_CATEGORY      = "MX-wc-category";
   const ID_TAGSTR        = "MX-wc-tagstr";
   const CLASS_FORM       = "MX-wc-form";
@@ -80,6 +81,7 @@
       g: CLASS_ENTRY,
       id: {
         btn      : ID_BTN,
+        format   : ID_FORMAT,
         category : ID_CATEGORY,
         tagstr   : ID_TAGSTR,
         title    : ID_TITLE,
@@ -283,16 +285,38 @@
     }
   }
 
-  function showForm(msg){
+  async function initSaveFormatOption(formatOption) {
+    const config = await MxWcConfig.load();
+    T.bind(formatOption, 'click', (e) => {
+      if(e.target.tagName === 'A'){
+        const value = e.target.getAttribute('data-value');
+        updateOptionsState(formatOption, value)
+      }
+    });
+    updateOptionsState(formatOption, config["saveFormat"]);
+
+    function updateOptionsState(elem, value) {
+      T.each(elem.children, (option) => {
+        option.classList.remove('active');
+        const optionValue = option.getAttribute('data-value');
+        if(optionValue === value){
+          option.classList.add('active');
+        }
+      });
+    }
+  }
+
+  async function showForm(msg){
     const form = T.firstElem(CLASS_FORM);
     if(form.style.display == 'block'){ return false}
     setStateConfirmed();
     form.style.display = 'block';
+    const formatBlock = T.findElem(ID_FORMAT);
     const titleInput = T.findElem(ID_TITLE);
     const categoryInput = T.findElem(ID_CATEGORY);
     const tagstrInput = T.findElem(ID_TAGSTR);
 
-
+    await initSaveFormatOption(formatBlock);
     titleInput.value = msg.title;
     categoryInput.value= msg.category;
     tagstrInput.value = msg.tagstr;
@@ -338,11 +362,13 @@
     hideForm();
     unbindListener();
 
+    const formatBlock = T.findElem(ID_FORMAT);
     const titleInput = T.findElem(ID_TITLE);
     const categoryInput = T.findElem(ID_CATEGORY);
     const tagstrInput = T.findElem(ID_TAGSTR);
 
     sendFrameMsgToTop('startClip', {
+      format: formatBlock.querySelector(".active").getAttribute('data-value'),
       title: titleInput.value,
       category: categoryInput.value,
       tagstr: tagstrInput.value,
