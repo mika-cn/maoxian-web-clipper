@@ -1,5 +1,5 @@
 .main {
-  width: 800px;
+  max-width: 800px;
   min-height: 800px;
   margin: 0 auto;
   border: 1px solid #ccc;

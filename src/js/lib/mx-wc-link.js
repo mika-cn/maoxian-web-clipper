@@ -91,8 +91,8 @@ this.MxWcLink = (function(ExtApi) {
       if(e.target.tagName == 'A' && e.target.href.startsWith('go.page:')) {
         const exp = e.target.href.split(':')[1];
         const link = get(exp)
+        e.preventDefault();
         if(e.target.target === '_blank') {
-          e.preventDefault();
           try {
             ExtApi.createTab(link);
           }catch(e) {

@@ -18,7 +18,6 @@ function render(){
     installationHint: installationHint(),
     extraStep1: extraStep1(),
     extraStep2: extraStep2(),
-    lastHint: lastHint()
   });
   T.setHtml('.main', html);
 }
@@ -44,22 +43,14 @@ function extraStep2(){
     );
     return html;
   } else {
-    let html = t('welcome.extra-2-firefox');
-    html = html.replace('$allowFileUrlAccessLink',
-      `<a href="${MxWcLink.get('faq-allow-access-file-urls')}" target="_blank">Allow Access File URLs</a>`
-    );
-    return html;
+    return t('welcome.extra-2-firefox');
   }
-}
-
-function lastHint() {
-  const linkHtml = `<a href=${MxWcLink.get('faq')} target='_blank'>FAQ</a>`;
-  return t('welcome.last-hint').replace('$faqLink', linkHtml);
 }
 
 function init(){
   render();
   initListener();
+  MxWcLink.listen(document.body);
 }
 
 init();
