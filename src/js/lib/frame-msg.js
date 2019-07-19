@@ -106,9 +106,22 @@ this.FrameMsg = (function(window){
   }
 
   function frame2TargetInfo(frame) {
+    let targetOrigin = null;
+    try {
+      targetOrigin = (new URL(frame.src)).origin;
+    } catch (e) {
+      // invalid Url, something like: javascript: vaid(0);
+      console.warn("FrameMsg frame src invalid: ", frame.src);
+      console.warn(e);
+      console.trace();
+    } finally {
+      if(!targetOrigin || targetOrigin == 'null') {
+        targetOrigin = '*';
+      }
+    }
     return {
       targetWindow: frame.contentWindow,
-      targetOrigin: (new URL(frame.src)).origin
+      targetOrigin: targetOrigin
     }
   }
 

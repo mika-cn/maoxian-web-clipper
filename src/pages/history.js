@@ -34,10 +34,9 @@
         const [downloadFold, config, allowFileSchemeAccess] = values;
         const allowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
         let {url} = clip;
+        let filename = clip.filename ? clip.filename : `index.${clip.format}`;
+        const clipPath = clip.path.replace('index.json', filename);
         if(!url) {
-          let filename = clip.filename ? clip.filename : `index.${clip.format}`;
-          const clipPath = clip.path.replace('index.json', filename);
-
           url = clipPath;
           if(downloadFold){
             url = "file://" + [downloadFold, url].join('');
