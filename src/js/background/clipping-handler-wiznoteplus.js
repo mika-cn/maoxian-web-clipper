@@ -45,6 +45,10 @@ const ClippingHandler_WizNotePlus = (function(){
             [state.tempPath, info.clipId, "index.html"].join('/'),
             info.title, sLocation, aTags, info.link
         );
+        // Give feedback: get document GUID and then generate wiz:// link
+        // mode == completeWhenAllTaskFinished will calculate numbers of 
+        // completed task, then determine the prograss of saving.
+        //TODO: Create clipId - docGUID dict
     }
 
     function getMarkdownText(clipping) {
@@ -83,18 +87,34 @@ const ClippingHandler_WizNotePlus = (function(){
     </body>
 </html>`;
     }
+    
+    /**
+     * Return the state and information of clipping-handler
+     */
+    async function getInfo(callback) {
+        try {
+            await init();
+            //TODO: send database username
+            callback({
+                ready: true,
+                supportFormats: ['html', 'md']
+            });
+        } catch (err) {
+            callback({
+                ready: false,
+                message: err.message,
+                supportFormats: ['html', 'md']
+            })
+        }
+    }
 
     /**
      * Initialize the whole clipping handler.
      */
     async function init() {
         // Connect to WizNotePlus
-        if(!state.isConnected){
-            if (!(state.isConnected = !!(await createWebChannel()))) {
-                const err = new Error("Failed to connect WizNotePlus!")
-                Log.error(err)
-                throw err;
-            }
+        if (!state.isConnected){
+            state.isConnected = !!(await createWebChannel());
         }
         // Sync categories and tags to Browser local storage.
         syncCategories();
@@ -107,32 +127,33 @@ const ClippingHandler_WizNotePlus = (function(){
     async function createWebChannel() {
         return new Promise( (resolve, reject) => {
             const baseUrl = "ws://localhost:8848";
-            Log.info("Connecting to WebSocket server at " + baseUrl + ".");
+            Log.info("Connecting to WebSocket server of WizNotePlus at " + baseUrl + ".");
           
             let socket = new WebSocket(baseUrl);
           
             socket.onclose = function() {
-              Log.error("web channel closed");
-              state.isConnected = false;
+                Log.error("web channel closed");
+                state.isConnected = false;
             };
           
             socket.onerror = function(error) {
-              Log.error("web channel error: " + error);
-              state.isConnected = false;
-              reject(error);
+                Log.error("web channel error: " + error);
+                state.isConnected = false;
+                error.message = "Web channel error, failed to connect to WizNotPlus."
+                reject(error);
             };
           
             socket.onopen = function() {
-              Log.debug("WebSocket connected, setting up QWebChannel.");
-              new QWebChannel(socket, async function(channel) {
-                Log.debug("Web channel opened");
-                state.isConnected = true;
-                state.objApp = channel.objects["WizExplorerApp"];
-                state.objCom = state.objApp.CommonUI;
-                state.tempPath = [await state.objCom.GetSpecialFolder('TemporaryFolder'), 'webclipping'].join('/');
-                window["WizExplorerApp"] = channel.objects["WizExplorerApp"]; // Only used for APIs test.
-                resolve(true);
-              });
+                Log.debug("WebSocket connected, setting up QWebChannel.");
+                new QWebChannel(socket, async function(channel) {
+                    Log.debug("Web channel opened");
+                    state.isConnected = true;
+                    state.objApp = channel.objects["WizExplorerApp"];
+                    state.objCom = state.objApp.CommonUI;
+                    state.tempPath = [await state.objCom.GetSpecialFolder('TemporaryFolder'), 'webclipping'].join('/');
+                    window["WizExplorerApp"] = channel.objects["WizExplorerApp"]; // Only used for APIs test.
+                    resolve(true);
+                });
             }
         })
 
@@ -164,6 +185,15 @@ const ClippingHandler_WizNotePlus = (function(){
         aStoredTags = [...aStoredTags, ...aTags];
         // Save to local storage
         MxWcStorage.set('tags', aStoredTags);
+    }
+
+    /**
+     * 
+     */
+    function handleClippingResult(it) {
+        //TODO: Create clipId - docGUID dict
+        it.url = 'file://' + it.filename;
+        return it;
     }
 
     /**
@@ -221,6 +251,7 @@ const ClippingHandler_WizNotePlus = (function(){
      */
     function downloadCompleted(task, isDownloaded, clipping) {
         if (isDownloaded) {
+            //FIXME: add extra attrs to MainFile.
             SavingTool.taskCompleted(getTaskFilename(task.filename));
         } else {
             SavingTool.taskFailed(getTaskFilename(task.filename), "Failed to download.");
@@ -273,12 +304,51 @@ const ClippingHandler_WizNotePlus = (function(){
   
     return {
       name: 'WizNotePlus',
-      init: init,
-      saveClipping: saveClipping
+      getInfo: getInfo,
+      saveClipping: saveClipping,
+      handleClippingResult: handleClippingResult
     }
   
   
 })();  
+
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2016 KlarÃ¤lvdalens Datakonsult AB, a KDAB Group company, 
+** info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
+** Contact: https://www.qt.io/licensing/
+**
+** The following code is part of the QtWebChannel module of the Qt Toolkit.
+** 
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
 
 var QWebChannelMessageTypes = {
     signal: 1,

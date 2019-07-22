@@ -8,6 +8,9 @@
       case 'Browser':
       case 'NativeApp':
         return InputParser_Default.parse(params);
+      case 'WizNotePlus':
+        //FIXME: Get parser from WizNotePlus handler
+        return InputParser_Default.parse(params);
     }
     throw new Error('Should not reach here');
   }

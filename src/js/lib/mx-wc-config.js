@@ -23,6 +23,7 @@ this.MxWcConfig = (function() {
       /* Is handler enabled? */
       handlerBrowserEnabled: true,
       handlerNativeAppEnabled: false,
+      handlerWizNotePlusEnabled: false,
 
       //=====================================
       // General

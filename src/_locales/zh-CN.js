@@ -96,7 +96,7 @@ I18N_DICT['zh-CN'] = {
     "setting.title.handler": "处理程序",
     "setting.title.handler-browser": "浏览器",
     "setting.title.handler-native-app": "本地程序",
-    "setting.title.handler-WizNotePlus" :"为知笔记",
+    "setting.title.handler-wiz-note-plus" :"为知笔记",
 
     "setting.title.save-format": "保存格式",
     "setting.title.control": "操作设置",
@@ -123,10 +123,10 @@ I18N_DICT['zh-CN'] = {
     "handler.native-app.feature.c": "刷新裁剪历史 （当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。）",
     "handler.native-app.warning": "<strong> 警告! </strong><br /> 如果你启用「本地程序」, 你必须先 <a href='go.page:native-app' target='_blank'>安装它</a>，否则该处理程序无法正常工作",
 
-    "handler.WizNotePlus.name": "为知笔记",
-    "handler.WizNotePlus.intro": "为知笔记一个款跨平台云笔记客户端",
-    "handler.WizNotePlus.feature.a": "将网页剪裁保存到为知笔记数据库",
-    "handler.WizNotePlus.warning": "<strong> 警告！ </strong><br /> 如果你启用为知笔记，你必须先 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装它</a>，并且剪裁时为知笔记必须处于启动状态，否则处理程序无法正常工作",
+    "handler.wiz-note-plus.name": "为知笔记",
+    "handler.wiz-note-plus.intro": "为知笔记一个款跨平台云笔记客户端",
+    "handler.wiz-note-plus.feature.a": "将网页剪裁保存到为知笔记数据库",
+    "handler.wiz-note-plus.warning": "<strong> 警告！ </strong><br /> 如果你启用为知笔记，你必须先 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装它</a>，并且剪裁时为知笔记必须处于启动状态，否则处理程序无法正常工作",
 
     "setting.notice.clipping-handler.intro": "<br /><br />",
 
@@ -140,6 +140,7 @@ I18N_DICT['zh-CN'] = {
 
     "setting.notice.info.storage.browser": "使用浏览器来下载裁剪结果",
     "setting.notice.info.storage.native-app": "通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过扩展互相冲突的问题）<br /><a href='go.page:native-app' target='_blank'>选择本选项需先安装「本地程序」</a>",
+    "setting.notice.info.storage.wiz-note-plus": "使用为知笔记保存剪裁结果<br />",
 
     "setting.notice.info.offline-page.browser": "$BLANK",
     "setting.notice.info.offline-page.native-app": "$BLANK",
@@ -147,11 +148,15 @@ I18N_DICT['zh-CN'] = {
 
     "setting.notice.warning.storage.browser": "$BLANK",
     "setting.notice.warning.storage.native-app": "$BLANK",
+    "setting.notice.warning.storage.wiz-note-plus": "$BLANK",
     "setting.notice.warning.offline-page.browser": "$BLANK",
     "setting.notice.warning.offline-page.native-app": "$BLANK",
     "setting.notice.warning.refresh-history.native-app": "$BLANK",
 
     "setting.notice.danger.native-app-not-ready": "「本地程序」当前不可用 (日志: $MESSAGE). <br /> 很可能「本地程序」没有安装成功. (<a href='go.page:native-app' target='_blank'>查看安装页面</a>)",
+
+    "setting.notice.danger.wiz-note-plus-ready": "成功连接为知笔记。",
+    "setting.notice.danger.wiz-note-plus-not-ready": "为知笔记当前不可用，错误日志：$MESSAGE <br /> 很可能「为知笔记」没有启动。如果你尚未安装，请查看 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装页面<a/>",
 
     // buttons
     "setting.button.generate-now": "马上生成",
