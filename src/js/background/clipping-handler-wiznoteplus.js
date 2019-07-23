@@ -3,7 +3,14 @@
 
 const ClippingHandler_WizNotePlus = (function(){
     const state = {
-      isConnected: false,
+        /** Used to identify webchannel state. */
+        isConnected: false,
+        /** The entry object of WizNotePlus APIs. */
+        objApp: null,
+        /** Useful tools of WizNotePlus APIs. */
+        objCom: null,
+        /** Temporary path used by WizNotePlus. */
+        tempPath: null,
     };
     
     /**
@@ -12,7 +19,6 @@ const ClippingHandler_WizNotePlus = (function(){
      * @param {*} feedback 
      */
     async function saveClipping(clipping, feedback) {
-        //TODO: deal with the failure of initialization. Use try catch
         await init();
         SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenAllTaskFinished'});
         // Save all tasks.
@@ -25,13 +31,13 @@ const ClippingHandler_WizNotePlus = (function(){
 
     async function saveToWizNotePlus(clipping, feedback) {
         const info = clipping.info;
+        const indexFileName = [state.tempPath, info.clipId, "index.html"].join('/');
         // Embed markdown into index.html
         if (info.filename.endsWith('.md')) {
             info.title = info.title + ".md";
-            const markdownText = getMarkdownText(clipping);
+            const markdownText = getMarkdownText(clipping.tasks);
             const html = embedMarkdownIntoHtml(markdownText, info.title, info.link);
-            await state.objCom.SaveTextToFile(
-                [state.tempPath, info.clipId, "index.html"].join('/'), html, 'utf-8');
+            await state.objCom.SaveTextToFile(indexFileName, html, 'utf-8');
         }
         // Process document location
         let sLocation = info.category;
@@ -42,19 +48,17 @@ const ClippingHandler_WizNotePlus = (function(){
         let aTags = info.tags;
         // Save to WizNote
         await state.objApp.DatabaseManager.CreateDocument(
-            [state.tempPath, info.clipId, "index.html"].join('/'),
-            info.title, sLocation, aTags, info.link
-        );
+            indexFileName, info.title, sLocation, aTags, info.link);
         // Give feedback: get document GUID and then generate wiz:// link
         // mode == completeWhenAllTaskFinished will calculate numbers of 
         // completed task, then determine the prograss of saving.
         //TODO: Create clipId - docGUID dict
     }
 
-    function getMarkdownText(clipping) {
+    function getMarkdownText(tasks) {
         // Get markdown text
         let markdownText = "";
-        for (const task of clipping.tasks) {
+        for (const task of tasks) {
             if (task.taskType == "mainFileTask" 
                 && task.mimeType == "text/markdown") {
                     markdownText = task.text;
@@ -202,8 +206,10 @@ const ClippingHandler_WizNotePlus = (function(){
      * @param {Object} clipping
      */
     async function handle(task, clipping) {
-        if (task.filename.split('/').includes('index_files'))
-            task.isAssets = true;
+        if (task.taskType == "InfoFileTask") {
+            downloadCompleted(task, true);
+            return;
+        }
         switch(task.type){
             case 'text': await downloadTextToFile(task, clipping); break;
             case 'url' : await downloadUrlToFile(task, clipping); break;
@@ -216,12 +222,8 @@ const ClippingHandler_WizNotePlus = (function(){
      */
     async function downloadTextToFile(task, clipping) {
       const objCom = state.objCom;
-      const docPath = [
-        state.tempPath, 
-        task.isAssets ? task.clipId + '/index_files' : task.clipId
-      ].join('/');
-      const isDownloaded = await objCom.SaveTextToFile(
-        [docPath, task.filename.split('/').pop()].join('/'), task.text, 'utf-8');
+      const filename = [state.tempPath, task.filename].join('/');
+      const isDownloaded = await objCom.SaveTextToFile(filename, task.text, 'utf-8');
       downloadCompleted(task, isDownloaded, clipping);
       return isDownloaded;
     }
@@ -232,13 +234,9 @@ const ClippingHandler_WizNotePlus = (function(){
      */
     async function downloadUrlToFile(task, clipping){
       const objCom = state.objCom;
-      const docPath = [
-        state.tempPath, 
-        task.isAssets ? task.clipId + '/index_files' : task.clipId
-      ].join('/');
+      const filename = [state.tempPath, task.filename].join('/');
       const isImage = ['gif', 'png', 'jpg', 'ico'].includes(task.filename.split('.').pop());
-      const isDownloaded = await objCom.URLDownloadToFile(
-        task.url, [docPath, task.filename.split('/').pop()].join('/'), isImage);
+      const isDownloaded = await objCom.URLDownloadToFile(task.url, filename, isImage);
       downloadCompleted(task, isDownloaded, clipping);
       return isDownloaded;
     }
@@ -252,9 +250,9 @@ const ClippingHandler_WizNotePlus = (function(){
     function downloadCompleted(task, isDownloaded, clipping) {
         if (isDownloaded) {
             //FIXME: add extra attrs to MainFile.
-            SavingTool.taskCompleted(getTaskFilename(task.filename));
+            SavingTool.taskCompleted(task.filename);
         } else {
-            SavingTool.taskFailed(getTaskFilename(task.filename), "Failed to download.");
+            SavingTool.taskFailed(task.filename, "Failed to download.");
         }
     }
 
@@ -267,39 +265,6 @@ const ClippingHandler_WizNotePlus = (function(){
       if (!(await objCom.CreateDirectory(docPath)))
         Log.error("Faild to create directory at " + docPath);
       return docPath;
-    }
-    
-    /**
-     * Used to identify the entry file.
-     * @param {*} filename 
-     */
-    function isMainFile(filename) {
-      return (
-           filename.endsWith('.html') && !filename.endsWith('.frame.html')
-        || filename.endsWith('.md')
-        || filename.endsWith('.mxwc'));
-    }
-
-    /**
-     * Used to identify the index.json file.
-     * @param {string} filename 
-     */
-    function isMetaFile(filename) {
-      return filename.endsWith('index.json');
-    }
-
-    function isTitleFile(filename) {
-      return filename.split('/').pop().startsWith('a-title__');
-    }
-
-    function getIdFromFilename(filename) {
-      const path = filename.split('mx-wc')[1];
-      return md5(path);
-    }
-
-    function getTaskFilename(fullFilename) {
-      const path = fullFilename.split('mx-wc')[1];
-      return ['mx-wc', path].join('');
     }
   
     return {
