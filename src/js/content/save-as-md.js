@@ -21,7 +21,8 @@ this.MxWcMarkdown = (function() {
       path: path,
       elem: elem,
       refUrl: window.location.href,
-      mimeTypeDict: mimeTypeDict
+      mimeTypeDict: mimeTypeDict,
+      config: config,
     })
     let markdown = generateMarkDown(html, info);
     markdown = PluginMathJax.unEscapeMathJax(markdown);
@@ -52,7 +53,8 @@ this.MxWcMarkdown = (function() {
       elem,
       refUrl,
       mimeTypeDict,
-      parentFrameId = topFrameId
+      parentFrameId = topFrameId,
+      config: config,
     } = params;
     Log.debug("getElemHtml", refUrl);
     const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
@@ -87,7 +89,7 @@ this.MxWcMarkdown = (function() {
   async function handleFrames(params, clonedElem) {
     const topFrameId = 0;
     const {clipId, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId} = params;
+      parentFrameId = topFrameId, config} = params;
     // collect current layer frames
     const frameElems = [];
     const promises = [];
@@ -109,7 +111,8 @@ this.MxWcMarkdown = (function() {
                   clipId: clipId,
                   frames: frames,
                   path: path,
-                  mimeTypeDict: mimeTypeDict
+                  mimeTypeDict: mimeTypeDict,
+                  config: config,
                 }
              })
             );
