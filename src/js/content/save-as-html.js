@@ -23,8 +23,7 @@ this.MxWcHtml = (function () {
       elem: elem,
       refUrl: window.location.href,
       mimeTypeDict: mimeTypeDict,
-      saveWebFont: config.saveWebFont,
-      saveCssImage: config.saveCssImage
+      config: config,
     });
 
     // 将elemHtml 渲染进模板里，渲染成完整网页。
@@ -61,8 +60,7 @@ this.MxWcHtml = (function () {
       refUrl,
       mimeTypeDict,
       parentFrameId = topFrameId,
-      saveWebFont,
-      saveCssImage
+      config,
     } = params;
     Log.debug('getElemHtml', refUrl);
     const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
@@ -84,8 +82,7 @@ this.MxWcHtml = (function () {
         styleText: styleText,
         refUrl: refUrl,
         mimeTypeDict: mimeTypeDict,
-        saveWebFont: saveWebFont,
-        saveCssImage: saveCssImage
+        config: config,
       });
       taskCollection.push(...tasks);
       result.internalStyles.push(cssText);
@@ -97,8 +94,7 @@ this.MxWcHtml = (function () {
       path: path,
       assetInfos: result.cssAssetInfos,
       mimeTypeDict: mimeTypeDict,
-      saveWebFont: saveWebFont,
-      saveCssImage: saveCssImage
+      config: config
     });
     taskCollection.push(...tasks);
 
@@ -124,7 +120,7 @@ this.MxWcHtml = (function () {
   async function handleFrames(params, clonedElem) {
     const topFrameId = 0;
     const {clipId, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId, saveWebFont, saveCssImage} = params;
+      parentFrameId = topFrameId, config} = params;
 
     // collect current layer frames
     const promises = [];
@@ -136,7 +132,6 @@ this.MxWcHtml = (function () {
         if(frameElem){
           const canAdd = await KeyStore.add(frame.url);
           if(canAdd) {
-            //FIXME
             currLayerFrames.push(frame);
             promises.push(
               ExtMsg.sendToBackground({
@@ -148,8 +143,7 @@ this.MxWcHtml = (function () {
                   frames: frames,
                   path: path,
                   mimeTypeDict: mimeTypeDict,
-                  saveWebFont: saveWebFont,
-                  saveCssImage: saveCssImage
+                  config: config,
                 }
               })
             );
@@ -291,7 +285,7 @@ this.MxWcHtml = (function () {
   }
 
   async function downloadCssFiles(params){
-    const {clipId, path, assetInfos, mimeTypeDict, saveWebFont, saveCssImage} = params;
+    const {clipId, path, assetInfos, mimeTypeDict, config} = params;
     let taskCollection = [];
     let promises = [];
     T.each(assetInfos, function(it){
@@ -306,8 +300,7 @@ this.MxWcHtml = (function () {
                   styleText: txt,
                   refUrl: it.link,
                   mimeTypeDict: mimeTypeDict,
-                  saveWebFont: saveWebFont,
-                  saveCssImage: saveCssImage
+                  config: config,
                 }).then((value) => {
                   const {cssText, tasks} = value;
                   tasks.push({
@@ -342,7 +335,7 @@ this.MxWcHtml = (function () {
 
 
   async function parseCss(params){
-    const {clipId, path, refUrl, mimeTypeDict, saveWebFont, saveCssImage} = params;
+    const {clipId, path, refUrl, mimeTypeDict, config} = params;
     let styleText = params.styleText;
     const taskCollection = [];
     // FIXME danger here (order matter)
@@ -372,7 +365,7 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'fontFile',
-        saveAsset: saveWebFont
+        saveAsset: config.saveWebFont
       });
       const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
@@ -390,7 +383,7 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'imageFile',
-        saveAsset: saveCssImage
+        saveAsset: config.saveCssImage
       });
       const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
@@ -408,7 +401,7 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'imageFile',
-        saveAsset: saveCssImage
+        saveAsset: config.saveCssImage
       });
       const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
@@ -426,7 +419,7 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'imageFile',
-        saveAsset: saveCssImage
+        saveAsset: config.saveCssImage
       });
       const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
@@ -458,8 +451,7 @@ this.MxWcHtml = (function () {
         path: path,
         assetInfos: assetInfos,
         mimeTypeDict: mimeTypeDict,
-        saveWebFont: saveWebFont,
-        saveCssImage: saveCssImage
+        config: config,
       });
       taskCollection.push(...tasks);
     }
