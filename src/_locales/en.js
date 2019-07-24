@@ -95,6 +95,7 @@ I18N_DICT['en'] = {
     "setting.title.handler": "Handler",
     "setting.title.handler-browser": "Browser",
     "setting.title.handler-native-app": "Native App",
+    "setting.title.handler-wiz-note-plus" :"WizNotePlus",
 
     "setting.title.save-format": "Save Format",
     "setting.title.control": "Control",
@@ -121,6 +122,10 @@ I18N_DICT['en'] = {
     "handler.native-app.feature.c": "Refresh history (This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest)",
     "handler.native-app.warning": "<strong> Warning! </strong><br /> If you enable this handler, you must <a href='go.page:native-app' target='_blank'>install native application</a> first.",
 
+    "handler.wiz-note-plus.name": "WizNotePlus",
+    "handler.wiz-note-plus.intro": "WizNotePlus is a cross-platform cloud based note-taking client.",
+    "handler.wiz-note-plus.feature.a": "Save clipping file to WizNotePlus database.",
+    "handler.wiz-note-plus.warning": "<strong> Warning! </strong><br /> If you enable this handler, you must <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>install WizNotePlus application</a> first.",
 
     "setting.option.default-clipping-folder-format.a": "Format A (e.g. 2018-10-11-1539236251)",
     "setting.option.default-clipping-folder-format.b": "Format B (e.g. 20181011102009)",
@@ -133,6 +138,7 @@ I18N_DICT['en'] = {
 
     "setting.notice.info.storage.browser": "Use browser to download clipping result.<br />",
     "setting.notice.info.storage.native-app": "Use a native application to save clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to <a href='go.page:native-app' target='_blank'>install a native application</a>.",
+    "setting.notice.info.storage.wiz-note-plus": "Use WizNotePlus to save clipping result.<br />",
 
     "setting.notice.info.offline-page.browser": "$BLANK",
     "setting.notice.info.offline-page.native-app": "$BLANK",
@@ -140,11 +146,15 @@ I18N_DICT['en'] = {
 
     "setting.notice.warning.storage.browser": "$BLANK",
     "setting.notice.warning.storage.native-app": "$BLANK",
+    "setting.notice.warning.storage.wiz-note-plus": "$BLANK",
     "setting.notice.warning.offline-page.browser": "$BLANK",
     "setting.notice.warning.offline-page.native-app": "$BLANK",
     "setting.notice.warning.refresh-history.native-app": "$BLANK",
 
     "setting.notice.danger.native-app-not-ready": "Native App is not ready yet (message: $MESSAGE). <br />It seems like you haven't installed it correctly. (<a href='go.page:native-app' target='_blank'>How to install it</a>)",
+    
+    "setting.notice.danger.wiz-note-plus-ready": "Connected to WizNotePlus successfully.",
+    "setting.notice.danger.wiz-note-plus-not-ready": "WizNotePlus is not ready yet, error message: $MESSAGE. <br />It seems like you haven't open it. If you haven't install it, please visit: (<a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>How to install it</a>)",
 
     // buttons
     "setting.button.generate-now": "Generate Now",

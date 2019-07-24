@@ -8,6 +8,8 @@
       case 'Browser':
       case 'NativeApp':
         return InputParser_Default.parse(params);
+      case 'WizNotePlus':
+        return InputParser_WizNotePlus.parse(params);
     }
     throw new Error('Should not reach here');
   }

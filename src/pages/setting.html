@@ -20,6 +20,7 @@
           <hr />
           <a class="menu" href="#setting-handler-browser" i18n="setting.title.handler-browser"></a>
           <a class="menu" href="#setting-handler-native-app" i18n="setting.title.handler-native-app"></a>
+          <a class="menu" href="#setting-handler-wiz-note-plus" i18n="setting.title.handler-wiz-note-plus"></a>
         </div>
       </div>
       <div class="content">
@@ -84,6 +85,7 @@
           <div class="options" id="storage-handler">
             <a data-value="Browser" i18n="handler.browser.name"></a>
             <a data-value="NativeApp" i18n="handler.native-app.name"></a>
+            <a data-value="WizNotePlus" i18n="handler.wiz-note-plus.name"></a>
           </div>
           <div class="danger-box"></div>
           <div class="info-box"></div>
@@ -264,6 +266,34 @@
         <div class="switch">
           <input type="checkbox" id="handler-native-app-enabled" />
           <label for="handler-native-app-enabled" i18n="setting.enable-handler.label"></label>
+        </div>
+      </section>
+    </template>
+
+    <template id="section-setting-handler-wiz-note-plus-tpl">
+      <section id="setting-handler-wiz-note-plus">
+        <h2 class="center" i18n="setting.title.handler-wiz-note-plus"></h2>
+        <div class="intro">
+          <h3 i18n="setting.title.intro"></h3>
+          <p i18n="handler.wiz-note-plus.intro"></p>
+        </div>
+        <div class="status">
+          <h3 i18n="setting.title.status"></h3>
+          <div class="info-box"></div>
+          <div class="danger-box"></div>
+        </div>
+        <div class="features">
+          <h3 i18n="setting.title.feature"></h3>
+          <ul>
+            <li i18n="handler.wiz-note-plus.feature.a"></li>
+          </ul>
+        </div>
+        <div class="notice-warning">
+          <p><label i18n="handler.wiz-note-plus.warning"></label></p>
+        </div>
+        <div class="switch">
+          <input type="checkbox" id="handler-wiz-note-plus-enabled" />
+          <label for="handler-wiz-note-plus-enabled" i18n="setting.enable-handler.label"></label>
         </div>
       </section>
     </template>

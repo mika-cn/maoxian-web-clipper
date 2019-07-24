@@ -87,6 +87,14 @@
     );
   }
 
+  // section: handler-WizNotePlus
+  function initSettingHandlerWizNotePlus(config) {
+    initCheckboxInput(config,
+      "handler-wiz-note-plus-enabled",
+      "handlerWizNotePlusEnabled",
+    );
+  }
+
   function initSettingSaveFormat(config){
     initOptionsInput(config,
       'save-format',
@@ -433,6 +441,9 @@
       case 'setting-handler-native-app':
         render = renderSectionHandlerNativeApp;
         break;
+      case 'setting-handler-wiz-note-plus':
+        render = renderSectionHandlerWizNotePlus;
+        break;
       case 'setting-offline-page':
         render = renderSectionOfflinePage;
         break;
@@ -486,7 +497,7 @@
       body: {name: 'NativeApp'}
     }).then((info) => {
       console.log(info);
-    const section = T.findElem(id);
+      const section = T.findElem(id);
       if(info.ready) {
         const elem = T.queryElem('.version-value', section);
         elem.innerText = info.version
@@ -499,6 +510,30 @@
         renderNoticeBox(section, 'danger', msg);
       }
     });
+  }
+
+  async function renderSectionHandlerWizNotePlus(id, container, template) {
+    // Render html template
+    const html = template;
+    T.setHtml(container, html);
+    MxWcConfig.load().then((config) => {
+      initSettingHandlerWizNotePlus(config);
+    });
+    // Check the state of WizNotePlus
+    const info = await ExtMsg.sendToBackground({
+      type: 'handler.get-info',
+      body: {name: 'WizNotePlus'}
+    });
+    // Notify the user
+    const section = T.findElem(id);
+    if(info.ready) {
+      const msg = t("setting.notice.danger.wiz-note-plus-ready");
+      renderNoticeBox(section, 'info', msg);
+    } else {
+      let msg = t('setting.notice.danger.wiz-note-plus-not-ready');
+      msg = msg.replace('$MESSAGE', info.message);
+      renderNoticeBox(section, 'danger', msg);
+    }
   }
 
   function renderSectionOfflinePage(id, container, template) {

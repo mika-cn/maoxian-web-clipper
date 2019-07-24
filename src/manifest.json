@@ -24,6 +24,7 @@
       "vendor/js/browser-polyfill.js",
       "vendor/js/md5.min.js",
       "vendor/js/i18n.js",
+      "vendor/js/qwebchannel.js",
       "_locales/en.js",
       "_locales/zh-CN.js",
       "js/env.js",
@@ -44,6 +45,7 @@
       "js/background/saving-tool.js",
       "js/background/clipping-handler-browser.js",
       "js/background/clipping-handler-native-app.js",
+      "js/background/clipping-handler-wiznoteplus.js",
       "js/background.js"
     ]
   },
@@ -94,6 +96,7 @@
       "js": [
         "js/lib/notify.js",
         "js/content/input-parser-default.js",
+        "js/content/input-parser-wiznoteplus.js",
         "js/content/input-parser.js",
         "js/content/ui.js",
         "js/content.js"
