@@ -30,6 +30,15 @@
     return String.fromCharCode(...ints);
   }
 
+  T.splitByFirstSeparator = function(str, sep) {
+    const idx = str.indexOf(sep);
+    return [
+      str.substring(0, idx),
+      str.substring(idx + sep.length)
+    ];
+  }
+
+
   T.createId = function() {
     return '' + Math.round(Math.random() * 100000000000);
   }
@@ -368,12 +377,22 @@
     }
   }
 
-  T.includeFold = function(path, fold){
-    return T.sanitizePath(path).indexOf("/" + fold + "/") > -1
+  T.toFileUrl = function(filePath) {
+    return ['file', filePath].join('://');
   }
 
-  T.excludeFold = function(path, fold){
-    return !T.includeFold(path, fold);
+  T.includeFolder = function(path, folder){
+    return T.sanitizePath(path).indexOf("/" + folder + "/") > -1
+  }
+
+  T.excludeFolder = function(path, folder){
+    return !T.includeFolder(path, folder);
+  }
+
+  T.replacePathFilename = function(path, newFilename) {
+    const p = T.sanitizePath(path);
+    const idx = p.lastIndexOf('/');
+    return [p.substring(0, idx), newFilename].join('/');
   }
 
   // sanitize windows path separator \
@@ -399,19 +418,19 @@
     const partA = currDir.split('/');
     const partB = destDir.split('/');
     while(true){
-      let foldA = partA[0];
-      let foldB = partB[0];
-      if(foldA === null || foldB === null){
+      let folderA = partA[0];
+      let folderB = partB[0];
+      if(folderA === null || folderB === null){
         break;
       }
-      if(foldA !== foldB){
+      if(folderA !== folderB){
         break;
       }
       partA.shift();
       partB.shift();
     }
     let r = "";
-    T.each(partA, (fold) => {
+    T.each(partA, (folder) => {
       r += '../'
     });
     r += partB.join('/');
@@ -443,6 +462,7 @@
       dict: {},
       add: function(k, v){ this.dict[k] = v; },
       remove: function(k){ delete this.dict[k] },
+      hasKey: function(k) { return this.dict.hasOwnProperty(k) },
       find: function(k){ return this.dict[k] },
     }
   }

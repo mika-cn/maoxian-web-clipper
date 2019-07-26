@@ -24,7 +24,7 @@ echo "Create production file"
 mv $dist/tmp/config.yaml.production $dist/tmp/config.yaml
 mv $dist/tmp/pack.yaml.production $dist/tmp/pack.yaml
 
-echo "Native app fold ready"
+echo "Native app folder ready"
 
 web-ext-native-app-packer $dist/tmp $dist
 

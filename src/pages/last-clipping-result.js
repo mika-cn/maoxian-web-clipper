@@ -36,7 +36,7 @@
     const {url, failedTaskNum, failedTasks} = state.lastClippingResult;
     const template = T.findElem('tpl-clipping-url').innerHTML;
     let notice = t('lcr.notice.openable-url');
-    if(url.startsWith('file') && !(state.isAllowFileScheme)) {
+    if(url.startsWith('file') && !(state.allowFileUrlAccess)) {
       notice = t('lcr.notice.can-not-open-file-url');
     }
     let html = T.renderTemplate(template, {notice: notice, url: url});
@@ -50,7 +50,7 @@
       MxWcStorage.get('lastClippingResult')
     ]).then((values) => {
       const [config, allowFileSchemeAccess, lastClippingResult] = values;
-      state.isAllowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+      state.allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
       state.config = config;
 
       if(lastClippingResult){

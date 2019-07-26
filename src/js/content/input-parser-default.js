@@ -61,12 +61,12 @@
   function dealAssetFolderAndPath(config, saveFolder) {
     let assetFolder = null;
     let assetRelativePath = null;
-    if(config.assetPath.indexOf('$CLIP-FOLD') > -1){
-      assetRelativePath = config.assetPath.replace('$CLIP-FOLD/', '');
+    if(config.assetPath.indexOf('$CLIPPING-PATH') > -1){
+      assetRelativePath = config.assetPath.replace('$CLIPPING-PATH/', '');
       assetFolder = T.joinPath([saveFolder, assetRelativePath]);
     } else {
-      if(config.assetPath.indexOf('$MX-WC') > -1){
-        assetFolder = T.joinPath([ROOT, config.assetPath.replace('$MX-WC/', '')]);
+      if(config.assetPath.indexOf('$STORAGE-PATH') > -1){
+        assetFolder = T.joinPath([config.rootFolder, config.assetPath.replace('$STORAGE-PATH/', '')]);
         assetRelativePath = T.calcPath(saveFolder, assetFolder)
       } else {
         assetRelativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
@@ -77,21 +77,20 @@
   }
 
   function dealCategoryAndSaveFolder(config, category, clippingFolder) {
-    const ROOT = 'mx-wc';
     let folder = null;
     if(category === ""){
       if(config.defaultCategory === "$NONE"){
-        folder = T.joinPath([ROOT, clippingFolder])
+        folder = T.joinPath([config.rootFolder, clippingFolder])
       } else {
         category = (config.defaultCategory === '' ? 'default' : config.defaultCategory);
-        folder = T.joinPath([ROOT, category, clippingFolder]);
+        folder = T.joinPath([config.rootFolder, category, clippingFolder]);
       }
     } else {
       if(category === '$NONE'){
         category = '';
-        folder = T.joinPath([ROOT, clippingFolder])
+        folder = T.joinPath([config.rootFolder, clippingFolder])
       } else {
-        folder = T.joinPath([ROOT, category, clippingFolder]);
+        folder = T.joinPath([config.rootFolder, category, clippingFolder]);
       }
     }
     return [category, folder]
@@ -100,7 +99,7 @@
   function getClippingFolder(config, title, now) {
     const defaultName = generateDefaultClippingFolderName(config, now)
     let name = defaultName;
-    if (config.saveTitleAsFoldName) {
+    if (config.titleStyleClippingFolderEnabled) {
       switch(config.titleClippingFolderFormat){
         case '$FORMAT-B':
           name = T.sanitizeFilename(title);
@@ -137,7 +136,7 @@
   }
 
   function needSaveTitleFile(config) {
-    return !(config.saveTitleAsFoldName || config.saveTitleAsFilename)
+    return !(config.titleStyleClippingFolderEnabled || config.saveTitleAsFilename)
   }
 
 

@@ -3,6 +3,24 @@
   "use strict";
 
   /*
+   * only run in background.
+   */
+  function initialize() {
+    MxWcConfig.load().then((config) => {
+      updateNativeAppConfiguration(config);
+    });
+  }
+
+  // Native App Config may changed, update it
+  function updateNativeAppConfiguration(config){
+    const handler = get(config.clippingHandler)
+    if(handler.name === 'NativeApp') {
+      Log.debug('updateNativeAppConfig');
+      handler.initDownloadFolder();
+    }
+  }
+
+  /*
    * Only avariable in background.
    *
    */
@@ -114,7 +132,8 @@
 
   const publicApi = {
     get: get,
-    isReady: isReady
+    isReady: isReady,
+    initialize: initialize,
   }
   global.MxWcHandler = publicApi;
 })(this, ExtApi, T);

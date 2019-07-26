@@ -27,22 +27,22 @@
     const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
     if(clip){
       Promise.all([
-        MxWcStorage.get('downloadFold'),
+        MxWcStorage.get('downloadFolder'),
         MxWcConfig.load(),
         ExtApi.isAllowedFileSchemeAccess()
       ]).then((values) => {
-        const [downloadFold, config, allowFileSchemeAccess] = values;
-        const allowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+        const [downloadFolder, config, allowFileSchemeAccess] = values;
+        const allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
         let {url} = clip;
         let filename = clip.filename ? clip.filename : `index.${clip.format}`;
-        const clipPath = clip.path.replace('index.json', filename);
+        const clipPath = T.replacePathFilename(clip.path, filename);
         if(!url) {
           url = clipPath;
-          if(downloadFold){
-            url = "file://" + [downloadFold, url].join('');
+          if(downloadFolder){
+            url = T.toFileUrl([downloadFolder, clipPath].join(''));
           }
         }
-        if(downloadFold && allowFileScheme){
+        if(downloadFolder && allowFileUrlAccess){
           renderClipDetailModel_openUrlDirectly(clip, url);
         }else{
           ExtApi.findDownloadItemByPath(clipPath)
@@ -172,7 +172,7 @@
 
   function renderTime(clip) {
     try{
-      const t = T.wrapDate(clip.created_at_time).str;
+      const t = T.wrapDate(clip.created_at_date).str;
       return [t.month, t.day].join('/')
     }catch(e) {
       return '-/-'
@@ -205,7 +205,7 @@
     MxWcHandler.isReady('NativeApp')
     .then((r) => {
       if(r.ok) {
-        if(T.isVersionGteq(r.handlerInfo.version, '0.1.2')) {
+        if(T.isVersionGteq(r.handlerInfo.version, '0.1.9')) {
           deleteHistoryAndFile(r.config, id);
         } {
           console.debug("Native App not support this message, version: ", r.handlerInfo.version);
@@ -217,19 +217,19 @@
   }
 
   function deleteHistoryAndFile(config, id) {
-    MxWcStorage.get('downloadFold').then((downloadFold) => {
-      if(downloadFold) {
+    MxWcStorage.get('downloadFolder').then((downloadFolder) => {
+      if(downloadFolder) {
         confirmIfNeed(t('history.confirm-msg.delete-history-and-file'), () => {
           const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
-          const path = [downloadFold, clip.path].join('');
-          const root = [downloadFold, 'mx-wc'].join('');
+          const path = [downloadFolder, clip.path].join('');
+          const root = [downloadFolder, config.rootFolder].join('');
           const saveFolder = path.replace('/index.json', '');
           let assetFolder = '';
-          if(config.assetPath.indexOf('$CLIP-FOLD') > -1) {
-            assetFolder = [saveFolder, config.assetPath.replace('$CLIP-FOLD/', '')].join('/');
+          if(config.assetPath.indexOf('$CLIPPING-PATH') > -1) {
+            assetFolder = [saveFolder, config.assetPath.replace('$CLIPPING-PATH/', '')].join('/');
           } else {
-            if(config.assetPath.indexOf('$MX-WC') > -1) {
-              assetFolder = [root, config.assetPath.replace('$MX-WC/', '')].join('/');
+            if(config.assetPath.indexOf('$STORAGE-PATH') > -1) {
+              assetFolder = [root, config.assetPath.replace('$STORAGE-PATH/', '')].join('/');
             } else {
               const relativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
               assetFolder = [saveFolder, relativePath].join('/')
@@ -238,7 +238,6 @@
           const msg = {
             clip_id: clip.clipId,
             path: path,
-            asset_fold: assetFolder, // deprecated
             asset_folder: assetFolder
           }
           ExtMsg.sendToBackground({
@@ -259,7 +258,7 @@
           });
         });
       } else {
-        console.error("Error: downloadFold not present");
+        console.error("Error: downloadFolder not present");
       }
     });
   }
@@ -411,8 +410,8 @@
     const ParseFail = [false, null, null];
     const isValid = (tStr) => { return !isNaN(Date.parse(tStr)); }
     if(isValid(fromStr)) {
-      const from = new Date(fromStr);
-      const to = (isValid(toStr) ? (new Date(toStr)) : (new Date()) );
+      const from = Date.parse(fromStr);
+      const to = (isValid(toStr) ? Date.parse(toStr) : Date.now() );
       return [true, from, to]
     } else {
       return [false, null, null];
@@ -502,20 +501,6 @@
     modal.style.display = 'none';
   }
 
-  function recallScroll(){
-    window.addEventListener('unload', function(e){
-      window.localStorage.setItem('scrollY', window.scrollY);
-    })
-    setTimeout(function(){
-      let scrollY = window.localStorage.getItem('scrollY')
-      if(scrollY){
-        scrollY = parseInt(scrollY);
-        if(scrollY > 150){
-          window.scrollTo(0, parseInt(scrollY));
-        }
-      }
-    }, 0);
-  }
   function initSwitches(){
     initCheckbox({
       domId: 'confirm-mode',
@@ -560,7 +545,8 @@
           state.tags.push(tag);
         }
       })
-      clip.created_at_time = new Date(clip.created_at);
+      clip.created_at_date = new Date(clip.created_at);
+      clip.created_at_time = clip.created_at_date.getTime();
     });
     state.allClips = clips;
   }
@@ -576,7 +562,6 @@
       initModal();
       i18nPage();
       showHistory();
-      //recallScroll();
     });
   }
 

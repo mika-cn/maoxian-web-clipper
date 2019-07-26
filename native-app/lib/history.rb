@@ -2,12 +2,12 @@
 module History
   require 'json'
 
-  def self.refresh(data_dir)
+  def self.refresh(data_dir, root_folder)
     data_dir = sanitize(data_dir)
-    mx_wc_dir = File.join(data_dir, 'mx-wc')
+    storage_dir = File.join(data_dir, root_folder)
     items = []
-    Dir.glob("#{mx_wc_dir}/**/index.json") do |path|
-      clip = parse_clipping_info_file(path)
+    Dir.glob("#{storage_dir}/**/index.json") do |path|
+      clip = parse_clipping_info_file(path, root_folder)
       if !clip.nil?
         items << {t: clip.clipId.to_i, clip: clip}
       end
@@ -44,11 +44,11 @@ module History
     path.gsub("\\", '/')
   end
 
-  def self.parse_clipping_info_file(path)
+  def self.parse_clipping_info_file(path, root_folder)
     json = File.open(path) {|f| f.read}
     begin
       info = JSON.parse(json)
-      return ClippingInfo.new(info, path)
+      return ClippingInfo.new(info, path, root_folder)
     rescue JSON::ParserError => e
       return nil
     end
@@ -56,11 +56,10 @@ module History
 
   require 'ostruct'
   class ClippingInfo < OpenStruct
-    MX_DIR = 'mx-wc'
 
-    def initialize(h, path)
-      store_path = to_store_path(path)
-      h[:path] = File.join(MX_DIR, store_path)
+    def initialize(h, path, root_folder)
+      store_path = to_store_path(path, root_folder)
+      h[:path] = File.join(root_folder, store_path)
       super(h)
       fix_format
       fix_filename
@@ -100,9 +99,9 @@ module History
       end
     end
 
-    def to_store_path(path)
-      # avoid this case: mx-wc/box/mx-wc/awesome-title/index.json
-      sep = "#{MX_DIR}/"
+    def to_store_path(path, root_folder)
+      # avoid this case: root_folder/box/root_folder/awesome-title/index.json
+      sep = "#{root_folder}/"
       arr = path.split(sep)
       arr.shift
       arr.join(sep)

@@ -377,7 +377,7 @@ this.UI = (function(){
   function toggleScrollY(elem){
     const box = elem.getBoundingClientRect();
     const visibleHeight = window.innerHeight;
-    if(box.top + box.height > visibleHeight){
+    if(Math.round(box.top + box.height) > visibleHeight){
       scrollToElem(elem, 'bottom');
     }else{
       scrollToElem(elem, 'top');

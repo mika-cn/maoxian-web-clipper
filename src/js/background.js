@@ -5,7 +5,7 @@ function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
       case 'get.mimeTypeDict' : WebRequest.getMimeTypeDict(resolve)     ; break     ;
-      case 'init.downloadFold': initDownloadFold()                      ; resolve() ; break ;
+      case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
       case 'save.clippingHistory' : saveClippingHistory(message.body)   ; resolve() ; break ;
@@ -82,9 +82,10 @@ function deleteClipping(msg, resolve) {
 
 function refreshHistory(resolve) {
   MxWcHandler.isReady('config.refreshHistoryHandler', 'background').then((r) => {
-    const {ok, message, handler} = r;
+    const {ok, message, handler, config} = r;
     if(ok) {
       handler.refreshHistory({
+        root_folder: config.rootFolder,
         time: T.currentTime().toString()
       }, (result) => {
         if(result.ok){
@@ -195,10 +196,10 @@ function generateClippingJs(callback) {
     const {ok, message, handler, config} = result;
     if(ok) {
       let pathConfig = MxWcConfig.getDefault().clippingJsPath;
-      if(config.clippingJsPath.indexOf('$MX-WC/') === 0 && config.clippingJsPath.endsWith('js')){
+      if(config.clippingJsPath.indexOf('$STORAGE-PATH/') === 0 && config.clippingJsPath.endsWith('js')){
         pathConfig = config.clippingJsPath;
       }
-      const filename = pathConfig.replace('$MX-WC', 'mx-wc');
+      const filename = pathConfig.replace('$STORAGE-PATH', config.rootFolder);
       MxWcStorage.get('clips', []).then((clippings) => {
         const json = JSON.stringify(clippings);
         const task = {
@@ -225,11 +226,11 @@ function getClippingHandler(callback) {
   })
 }
 
-function initDownloadFold(){
-  MxWcStorage.get('downloadFold').then((root) => {
+function initDownloadFolder(){
+  MxWcStorage.get('downloadFolder').then((root) => {
     if(!root){
-      getClippingHandler((handler) => {
-        handler.initDownloadFold();
+      getClippingHandler((handler, config) => {
+        handler.initDownloadFolder(config);
       });
     }
   });
@@ -322,49 +323,6 @@ function welcomeNewUser(){
     })
 }
 
-// Native App Config may changed, update it
-function updateNativeAppConfig(){
-  getClippingHandler((handler) => {
-    if(handler.name === 'native-app') {
-      Log.debug('updateNativeAppConfig');
-      handler.initDownloadFold();
-    }
-  });
-}
-
-function checkNativeAppVersion(){
-  getClippingHandler((handler) => {
-    if(handler.name === 'native-app') {
-      const currentKey = 'check-native-app-version-' + ENV.version;
-      MxWcStorage.get(currentKey, false)
-        .then((isChecked) => {
-          if(isChecked) {
-            Log.debug(currentKey, 'checked');
-          } else {
-            handler.getVersion((result) => {
-              const link =  MxWcLink.get('extPage.notification');
-              if(result.ok) {
-                if(!T.isVersionGteq(result.version, ENV.minNativeAppVersion)) {
-                  const message = t('notification.native-app-version-too-small').replace('$requiredVersion', ENV.minNativeAppVersion).replace('$currentVersion', result.version);
-                  Log.error(message);
-                  MxWcNotification.add('danger', message, function(){
-                    ExtApi.createTab(link);
-                  })
-                }
-              } else {
-                const message = t('notification.native-app-connect-failed').replace('$errorMessage', result.message);
-                Log.error(message);
-                MxWcNotification.add('danger', message, function(){
-                  ExtApi.createTab(link);
-                })
-              }
-              MxWcStorage.set(currentKey, true);
-            })
-          }
-        });
-    }
-  })
-}
 
 function refreshHistoryIfNeed(){
   MxWcConfig.load().then((config) => {
@@ -384,16 +342,15 @@ function refreshHistoryIfNeed(){
 // state
 let keyStoreService = null;
 function init(){
+  Log.debug("background init...");
   MxWcMigration.perform();
-  WebRequest.listen();
-  keyStoreService = createKeyStoreService();
+  MxWcHandler.initialize();
   ExtMsg.initPage('background');
   ExtMsg.listen(messageHandler);
-  Log.debug("background init...");
-  welcomeNewUser();
-  updateNativeAppConfig();
-  checkNativeAppVersion();
+  WebRequest.listen();
+  keyStoreService = createKeyStoreService();
   refreshHistoryIfNeed();
+  welcomeNewUser();
   Log.debug("background init finish...");
 }
 

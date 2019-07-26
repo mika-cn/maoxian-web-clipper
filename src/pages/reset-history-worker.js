@@ -4,14 +4,14 @@
 (function(workerScope){
   workerScope.onmessage = function(e){
     postMessage({type: 'resetProcessing' , body: null});
-    const r = parseFiles(e.data);
+    const r = parseFiles(e.data.files, e.data.rootFolder);
     postMessage({type: 'reset.clips'      , body: r.clips});
     postMessage({type: 'reset.tags'       , body: r.tags});
     postMessage({type: 'reset.categories' , body: r.categories});
     postMessage({type: 'resetCompleted'   , body: null});
   }
 
-  function parseFiles(files){
+  function parseFiles(files, rootFolder){
     let items = []
     const length = files.length;
     const msRegExp = /-(\d{9,})\//;
@@ -35,7 +35,7 @@
         }
 
         // handle category
-        const storePath = toStorePath(clip.path);
+        const storePath = toStorePath(clip.path, rootFolder);
         const parts = storePath.split('/');
         // FIXME Not safe: path relative.
         clip.category = parts.slice(0, parts.length - 2).join('/');
@@ -51,8 +51,8 @@
     return parseClips(items);
   }
 
-  function toStorePath(path) {
-    const sep = 'mx-wc/';
+  function toStorePath(path, rootFolder) {
+    const sep = `${rootFolder}/`;
     const arr = path.split(sep)
     arr.shift();
     return arr.join(sep)

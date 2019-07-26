@@ -43,7 +43,7 @@ this.ExtMsg = (function(ExtApi, T) {
     browser.runtime.onMessage.addListener((msg, sender, senderResponse) => {
       // Deprecated: senderResponse
       if(msg.target == state.page) {
-        console.debug("[ExtMsg]"," Im: ", state.page, " From: ", msg.from, " Target:", msg.target, msg);
+        //console.debug("[ExtMsg]"," Im: ", state.page, " From: ", msg.from, " Target:", msg.target, msg);
         return listener(msg, sender);
       } else {
         console.debug("[OtherPageMsg]"," Im: ", state.page, " From: ", msg.from, " To:", msg.target, msg);
