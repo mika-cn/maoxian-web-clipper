@@ -9,7 +9,7 @@
  *   }
  */
 
-//=META version 0.2.2
+//=META version 0.2.3
 
 var MxWc = (function(undefined){
   "use strict";
@@ -442,7 +442,7 @@ var MxWc = (function(undefined){
       const r = selector.split(SEPARATOR);
       switch(r.length) {
         case 1: return {type: 'C', q: r[0]};
-        case 2: return {type: q[0], q: r[1]};
+        case 2: return {type: r[0], q: r[1]};
         default:
           console.error("Invalid Selector: " + selector);
           return undefined;
