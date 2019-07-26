@@ -371,7 +371,7 @@
 
   function searchAction(e){
     if(e) { e.preventDefault()}
-    const qRowA = {}
+    const qRowA = {__logic__: 'AND'};
     const [isRangerValid, from, to] = getDateRanger();
     if(isRangerValid) {
       qRowA.created_at_time = ['between', from, to]
@@ -384,9 +384,8 @@
     if(tag !== "") {
       qRowA.tags = ['memberInclude', tag];
     }
-    let clips = Query.queryObj(state.allClips, qRowA);
 
-    let qRowB = {}
+    let qRowB = {};
     const keyword = T.findElem('search').value.trim();
     storeKeyword(keyword);
     if(keyword !== ""){
@@ -399,7 +398,10 @@
         link: ['equal', keyword]
       };
     }
-    clips = Query.queryObj(clips, qRowB);
+    const filterA = Query.q2Filter(qRowA);
+    const filterB = Query.q2Filter(qRowB);
+    const clips = Query.queryObjByFilter(state.allClips,
+      Query.combineFilter('AND', filterA, filterB));
     renderClips(clips);
   }
 
