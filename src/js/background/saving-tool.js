@@ -25,6 +25,7 @@ const SavingTool = (function() {
       // If clipping handler invoke this function
       // without invoke startSaving function first,
       // It's OK, We do nothing.
+      console.warn("<mx-wc>", "Couldn't find clipping with task filename: ", taskFilename);
       return;
     }
     const clipping = clippingDict.find(clipId);
@@ -40,7 +41,10 @@ const SavingTool = (function() {
 
   function taskCompleted(taskFilename, appendAttrs) {
     const clipId = clipIdDict.find(taskFilename);
-    if(!clipId) { return; }
+    if(!clipId) {
+      console.warn("<mx-wc>", "Couldn't find clipping with task filename: ", taskFilename);
+      return;
+    }
     const clipping = clippingDict.find(clipId);
     clipIdDict.remove(taskFilename);
     if(clipping){

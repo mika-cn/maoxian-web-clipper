@@ -45,7 +45,7 @@ this.Fetcher = (function(){
     });
   }
 
-  // see js/background/web-request.js UnescapeHeader for mare details.
+  // see js/background/web-request.js UnescapeHeader for more details.
   function escapeHeaders(headers) {
     const forbidden = ['Referer', 'Origin'];
     const result = {};

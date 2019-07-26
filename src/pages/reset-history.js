@@ -4,6 +4,13 @@
 (function(){
   const state = {};
 
+  function initUI() {
+    MxWcConfig.load().then((config) => {
+      const value = t('reset.current-storage-path-value').replace(/\$ROOT-FOLDER/g, config.rootFolder);
+      T.setHtml('#current-storage-path-value', value);
+    });
+  }
+
   function bindListener(){
     const folder = T.findElem("myInput");
     const btn = T.findElem("reset-btn");
@@ -18,12 +25,18 @@
   }
 
   function reset(){
-    const folder = T.findElem("myInput");
-    const selector = T.queryElem(".selector");
-    selector.style.display = "none";
-    showHint(t('init.downloadFold'));
-    ExtApi.sendMessageToBackground({type: 'init.downloadFold'});
-    state.worker.postMessage(folder.files);
+    MxWcConfig.load().then((config) => {
+      const folder = T.findElem("myInput");
+      const selector = T.queryElem(".selector");
+      selector.style.display = "none";
+      showHint(t('init.download-folder'));
+      ExtMsg.sendToBackground({type: 'init.downloadFolder'});
+      // behavior of chrome is so strange. file.webkitRelativePath
+      state.worker.postMessage({
+        files: folder.files,
+        rootFolder: config.rootFolder,
+      });
+    });
   }
 
   function hideResetBtn(){
@@ -42,22 +55,24 @@
       return showHint(t('reset.processing'));
     }
     if(msg.type === "resetCompleted"){
-      ExtApi.sendMessageToBackground({type: 'history.refresh-if-need'});
+      ExtMsg.sendToBackground({type: 'generate.clipping.js.if-need'});
+      const pageUrl = MxWcLink.get('extPage.history');
+      ExtMsg.sendToPage({target: 'history', type: 'history.reseted'}, pageUrl)
       setTimeout(function(){ window.close() }, 3000);
       return showHint(t('reset.completed'));
     }
     if(msg.type.startsWith('reset.')){
-      ExtApi.sendMessageToBackground(msg);
+      ExtMsg.sendToBackground(msg);
       let hint = "";
       switch(msg.type){
         case "reset.clips":
-          hint = t('reset.clip_history_success').replace('$n', msg.body.length);
+          hint = t('reset.clip-history-success').replace('$n', msg.body.length);
           break;
         case "reset.categories":
-          hint = t('reset.category_success').replace('$n', msg.body.length);
+          hint = t('reset.category-success').replace('$n', msg.body.length);
           break;
         case "reset.tags":
-          hint = t('reset.tag_success').replace('$n', msg.body.length);
+          hint = t('reset.tag-success').replace('$n', msg.body.length);
           break;
       }
       showHint(hint);
@@ -65,8 +80,11 @@
   }
 
   function init(){
+    initUI();
     i18nPage();
     bindListener();
+    ExtMsg.initPage('reset-history');
+    MxWcLink.listen(document.body);
     state.worker = new Worker('reset-history-worker.js');
     state.worker.onmessage = handlerWorkerMessage;
   }

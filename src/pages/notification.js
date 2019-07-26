@@ -31,7 +31,6 @@ function renderNotifications(){
     T.setHtml('.notifications', items.join(''));
     bindEventListener();
   })
-  i18nPage();
 }
 
 

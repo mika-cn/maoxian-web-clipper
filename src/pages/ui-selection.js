@@ -38,7 +38,7 @@
   }
 
   initFrameMsg();
-  console.log('selection layer ready..');
+  Log.info('selection layer ready..');
 
 })();
 

@@ -10,22 +10,20 @@ this.MxWcHtml = (function () {
     const {path, elem, info, config} = params;
 
     const [mimeTypeDict, frames] = await Promise.all([
-      ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
-      ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
+      ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
+      ExtMsg.sendToBackground({type: 'get.allFrames'}),
       KeyStore.init()
     ])
 
     // 获取选中元素的html
     const {elemHtml, styleHtml, tasks} = await getElemHtml({
       clipId: info.clipId,
-      win: window,
       frames: frames,
       path: path,
       elem: elem,
       refUrl: window.location.href,
       mimeTypeDict: mimeTypeDict,
-      saveWebFont: config.saveWebFont,
-      saveCssImage: config.saveCssImage
+      config: config,
     });
 
     // 将elemHtml 渲染进模板里，渲染成完整网页。
@@ -36,7 +34,7 @@ this.MxWcHtml = (function () {
     v.elemHtml = elemHtml;
     v.config = config;
     const html = MxWcTemplate[page].render(v);
-    const filename = T.joinPath([path.clipFold, info.filename])
+    const filename = T.joinPath([path.saveFolder, info.filename])
 
     const mainFileTask = {
       taskType: 'mainFileTask',
@@ -56,22 +54,20 @@ this.MxWcHtml = (function () {
     const topFrameId = 0;
     const {
       clipId,
-      win,
       frames,
       path,
       elem,
       refUrl,
       mimeTypeDict,
       parentFrameId = topFrameId,
-      saveWebFont,
-      saveCssImage
+      config,
     } = params;
     Log.debug('getElemHtml', refUrl);
-    const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
+    const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
     Log.debug(xpaths);
     let clonedElem = elem.cloneNode(true);
     let taskCollection = [];
-    clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
+    clonedElem = ElemTool.removeChildByXpath(window, clonedElem, xpaths);
     clonedElem = T.completeElemLink(clonedElem, refUrl);
     const result = parseAssetInfo(clipId, clonedElem, mimeTypeDict);
 
@@ -86,8 +82,7 @@ this.MxWcHtml = (function () {
         styleText: styleText,
         refUrl: refUrl,
         mimeTypeDict: mimeTypeDict,
-        saveWebFont: saveWebFont,
-        saveCssImage: saveCssImage
+        config: config,
       });
       taskCollection.push(...tasks);
       result.internalStyles.push(cssText);
@@ -99,13 +94,12 @@ this.MxWcHtml = (function () {
       path: path,
       assetInfos: result.cssAssetInfos,
       mimeTypeDict: mimeTypeDict,
-      saveWebFont: saveWebFont,
-      saveCssImage: saveCssImage
+      config: config
     });
     taskCollection.push(...tasks);
 
     // image tasks
-    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, result.imgAssetInfos);
+    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, result.imgAssetInfos);
     taskCollection.push(...imgTasks);
 
 
@@ -125,8 +119,8 @@ this.MxWcHtml = (function () {
 
   async function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {clipId, win, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId, saveWebFont} = params;
+    const {clipId, frames, path, mimeTypeDict,
+      parentFrameId = topFrameId, config} = params;
 
     // collect current layer frames
     const promises = [];
@@ -138,19 +132,18 @@ this.MxWcHtml = (function () {
         if(frameElem){
           const canAdd = await KeyStore.add(frame.url);
           if(canAdd) {
-            //FIXME
             currLayerFrames.push(frame);
             promises.push(
-              ExtApi.sendMessageToBackground({
+              ExtMsg.sendToBackground({
                 type: 'frame.toHtml',
-                to: frame.url,
                 frameId: frame.frameId,
+                frameUrl: frame.url,
                 body: {
                   clipId: clipId,
                   frames: frames,
                   path: path,
                   mimeTypeDict: mimeTypeDict,
-                  saveWebFont: saveWebFont
+                  config: config,
                 }
               })
             );
@@ -170,7 +163,7 @@ this.MxWcHtml = (function () {
           const {elemHtml, styleHtml, tasks} = result;
           const html = MxWcTemplate.framePage.render({
             originalSrc: frame.url,
-            title: win.document.title,
+            title: window.document.title,
             styleHtml: styleHtml,
             html: elemHtml
           });
@@ -179,7 +172,7 @@ this.MxWcHtml = (function () {
           taskCollection.push({
             taskType: 'frameFileTask',
             type: 'text',
-            filename: T.joinPath([path.clipFold, assetName]),
+            filename: T.joinPath([path.saveFolder, assetName]),
             mimeType: 'text/html',
             text: html,
             clipId: clipId,
@@ -198,13 +191,17 @@ this.MxWcHtml = (function () {
 
   function rewriteFrameSrc(container, frame) {
     const assetName = T.calcAssetName(frame.url, 'frame.html');
-    if(container.tagName === 'IFRAME' && container.src == frame.url) {
+    if(['IFRAME', 'FRAME'].indexOf(container.tagName) > -1 && container.src == frame.url) {
       container.src = assetName;
     } else {
-      const frameElems = container.querySelectorAll(`iframe[src="${frame.url}"]`);
-      T.each(frameElems, (frameElem) => {
-        frameElem.src = assetName;
+      const iframeElems = container.querySelectorAll(`iframe[src="${frame.url}"]`);
+      T.each(iframeElems, (it) => {
+        it.src = assetName;
       });
+      const frameElems = container.querySelectorAll(`frame[src="${frame.url}"]`);
+      T.each(frameElems, (it) => {
+        it.src = assetName;
+      })
     }
     return assetName;
   }
@@ -288,7 +285,7 @@ this.MxWcHtml = (function () {
   }
 
   async function downloadCssFiles(params){
-    const {clipId, path, assetInfos, mimeTypeDict, saveWebFont, saveCssImage} = params;
+    const {clipId, path, assetInfos, mimeTypeDict, config} = params;
     let taskCollection = [];
     let promises = [];
     T.each(assetInfos, function(it){
@@ -303,14 +300,13 @@ this.MxWcHtml = (function () {
                   styleText: txt,
                   refUrl: it.link,
                   mimeTypeDict: mimeTypeDict,
-                  saveWebFont: saveWebFont,
-                  saveCssImage: saveCssImage
+                  config: config,
                 }).then((value) => {
                   const {cssText, tasks} = value;
                   tasks.push({
                     taskType: 'styleFileTask',
                     type: 'text',
-                    filename: T.joinPath([path.assetFold, it.assetName]),
+                    filename: T.joinPath([path.assetFolder, it.assetName]),
                     mimeType: 'text/css',
                     text: cssText,
                     clipId: clipId,
@@ -339,7 +335,7 @@ this.MxWcHtml = (function () {
 
 
   async function parseCss(params){
-    const {clipId, path, refUrl, mimeTypeDict, saveWebFont, saveCssImage} = params;
+    const {clipId, path, refUrl, mimeTypeDict, config} = params;
     let styleText = params.styleText;
     const taskCollection = [];
     // FIXME danger here (order matter)
@@ -369,9 +365,9 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'fontFile',
-        saveAsset: saveWebFont
+        saveAsset: config.saveWebFont
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });
@@ -387,9 +383,9 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'imageFile',
-        saveAsset: saveCssImage
+        saveAsset: config.saveCssImage
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });
@@ -405,9 +401,9 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'imageFile',
-        saveAsset: saveCssImage
+        saveAsset: config.saveCssImage
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });
@@ -423,9 +419,9 @@ this.MxWcHtml = (function () {
         path: path,
         mimeTypeDict: mimeTypeDict,
         assetInfoType: 'imageFile',
-        saveAsset: saveCssImage
+        saveAsset: config.saveCssImage
       });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, r.assetInfos);
+      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
       taskCollection.push(...tasks);
       return r.cssText;
     });
@@ -455,8 +451,7 @@ this.MxWcHtml = (function () {
         path: path,
         assetInfos: assetInfos,
         mimeTypeDict: mimeTypeDict,
-        saveWebFont: saveWebFont,
-        saveCssImage: saveCssImage
+        config: config,
       });
       taskCollection.push(...tasks);
     }

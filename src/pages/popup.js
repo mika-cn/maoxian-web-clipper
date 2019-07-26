@@ -18,7 +18,7 @@
 
   // can't do user action in promise, lead to (xxx may only be called from a user input handler)
   function viewLastResult(){
-    const {filename, downloadItemId, failedTaskNum} = state.lastClippingResult;
+    const {url, downloadItemId, failedTaskNum} = state.lastClippingResult;
     if(failedTaskNum > 0) {
       jumpToPage('extPage.last-clipping-result');
       return;
@@ -26,19 +26,13 @@
     if(downloadItemId) {
       // clipping saved by browser download.
       MxWcStorage.set('lastClippingResult', null);
-      ExtApi.openDownloadItem(downloadItemId);
       state.lastClippingResult = null;
+      ExtApi.openDownloadItem(downloadItemId);
     } else {
-      let url = '';
-      if(filename.startsWith('http') || filename.startsWith('file')) {
-        // http://...,https://... or file://...
-        url = filename;
-      } else {
-        url = 'file://' + filename;
-      }
-      if(url.startsWith('http') || state.isAllowFileScheme) {
-        ExtApi.createTab(url);
+      if(url.startsWith('http') || state.allowFileUrlAccess) {
+        MxWcStorage.set('lastClippingResult', null);
         state.lastClippingResult = null;
+        ExtApi.createTab(url);
       } else {
         // We can't open file url without allowed.
         jumpToPage('extPage.last-clipping-result');
@@ -48,7 +42,7 @@
   }
 
   function startClip(){
-    ExtApi.sendMessageToContent({type: 'icon.click'}).then(closeWindow);
+    ExtMsg.sendToContent({type: 'icon.click'}).then(closeWindow);
   }
 
   function jumpToPage(page){
@@ -86,7 +80,7 @@
         MxWcStorage.get('lastClippingResult')
       ]).then((values) => {
         const [config, allowFileSchemeAccess, lastClippingResult] = values;
-        state.isAllowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+        state.allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
         state.config = config;
 
         if(lastClippingResult){
@@ -94,19 +88,30 @@
           menuIds.unshift('last-result');
         }
         const template = T.findElem('menu-tpl').innerHTML;
+
         const icons = {
-          "last-result" : "fas fa-check-square active",
-          "clip"        : "fas fa-crop",
-          "history"     : "fas fa-bars",
-          "setting"     : "fas fa-cog",
-          "home"        : "fas fa-home",
+          "last-result" : '&#9745;',
+          "clip"        : '&#9984;',
+          "history"     : '&#9780;',
+          "setting"     : '&#9965;',
+          "home"        : '&#9961;',
         }
+        // 9745 ☑
+        // 9215 ⏿
+        // 9984 ✀
+        // 9780 ☴
+        // 9776 ☰
+        // 9965 ⛭
+        // 9961 ⛩
+
         let html = "";
         menuIds.forEach(function(menuId){
+          const appendClass = (menuId == 'last-result' ? ' active' : '');
           html += T.renderTemplate(template, {
-            iconClass: icons[menuId],
+            icon: icons[menuId],
+            iconAppendClass: appendClass,
             menuId: menuId,
-            menuContent: t("popup.menu." + menuId)
+            menuContent: t("popup.menu." + menuId),
           });
         });
         T.setHtml('.menus', html);
@@ -126,6 +131,7 @@
 
   function init(){
     renderMenus();
+    ExtMsg.initPage('popup');
     MxWcIcon.change("default");
   }
 

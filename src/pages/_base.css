@@ -7,8 +7,17 @@ body {
   font-size: 14px;
 }
 
+.center {text-align: center}
+
 .green { color: #4caf50; }
 .red { color: red; }
+
+code {
+  background-color: #efefef;
+  padding: 1px 4px;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+}
 
 /********** notice ***********/
 .notice-success {
@@ -52,8 +61,8 @@ body {
 }
 
 .notice-light {
-  background: #fefefe;
-  color: #818182;
+  background: #fff;
+  color: #444;
   line-height: 20px;
   font-size: 13px;
   padding: 10px 20px 10px 20px;

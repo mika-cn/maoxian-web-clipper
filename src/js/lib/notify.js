@@ -22,7 +22,7 @@ this.Notify = (function(){
       }
       .notify {
         line-height: 18px;
-        font-size: 13px;
+        font-size: 13px !important;
         padding: 0px;
         border: solid 1px #aaa;
         border-radius: 3px;
@@ -30,32 +30,34 @@ this.Notify = (function(){
         background-color: #333;
         color: #efefef;
       }
-      .notify > .btn {
+      .notify > .notify-btn {
         cursor: pointer;
         display: inline-block;
         line-height: 30px;
         width: 30px;
         height: 30px;
+        text-align: center;
+        padding: 0px !important;
+        font-size: 16px;
+        color: #333;
       }
-      .notify > .content {
+      .notify > .notify-content {
         display: inline-block;
         height: 30px;
         line-height: 30px;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding: 0px 10px !important;
       }
-      .notify:hover {
-        border-top-left-radius: 15px;
-        border-bottom-left-radius: 15px;
+      .notify > .notify-content > a{
+        color: #ffff00 !important;
       }
-      .notify:hover > .btn {
-        border-radius: 15px;
+      .notify:hover > .notify-btn{
+        color: #efefef;
       }
-      .notice-success:hover > .btn{
-        background: #d4edda;
+      .notice-success:hover > .notify-btn{
+        color: #d4edda;
       }
-      .notice-danger:hover > .btn{
-        background: #f8d7da;
+      .notice-danger:hover > .notify-btn{
+        color: #f8d7da;
       }
     `;
   }
@@ -119,14 +121,14 @@ this.Notify = (function(){
   }
 
   function containerClicked(e) {
-    if(e.target.className === 'btn'){
+    if(e.target.className === 'notify-btn'){
       const container = getContainer();
       removeNotify(e.target.parentNode);
     }
   }
 
   function renderNotify(content, behavior, type) {
-    return `<label class="btn" title="dismiss me">&nbsp;</label><label class="content">${content}</label>
+    return `<label class="notify-btn" title="dismiss me">&#4030;</label><label class="notify-content">${content}</label>
     `;
   }
 
@@ -155,6 +157,7 @@ this.Notify = (function(){
   }
 
   return {
+    getContainer: getContainer,
     success: success,
     error: danger
   }

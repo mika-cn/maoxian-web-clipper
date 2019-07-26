@@ -1,0 +1,42 @@
+---
+# this file is userd in development environment
+version: '20190701'
+plans:
+- name: dev.mika
+  pattern: http://*.mika/maoxian-web-clipper/tmp/test-page/test-hq-img.html
+  pick: body
+  chAttr:
+  - pick: div.t0
+    type: self.add
+    value: actived
+  - pick: div.t1 img
+    type: self.attr
+    attr: src
+    tAttr: hq-src
+  - pick: div.t2 img
+    type: self.replace
+    attr: src
+    subStr: thumb
+    newStr: hq
+  - pick: div.t3 img
+    type: parent.attr
+    attr: src
+    tAttr: href
+- name: dev.mika
+  pattern: http://*.mika/maoxian-web-clipper/tmp/test-page/iframe*
+  chAttr:
+  - pick: img
+    type: self.attr
+    attr: src
+    tAttr: hq-src
+- name: dev.mika
+  pattern: http://*.mika/maoxian-web-clipper/index*.html
+  pick: ".main"
+  hide: ul
+- name: dev.mika
+  pattern: http://*.mika/blog/**/*/*/*/*/*.html
+  pick:
+  - ".page-content"
+  hide:
+  - header
+

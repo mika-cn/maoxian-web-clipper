@@ -11,6 +11,7 @@ That's it, Not bored registration, Not charged.
 
 
 ## Features
+
 * Local Storage - All file will save in local hard disk, you can control your data totally (e.g. Use dropbox to sync files)
 * Free Selection - You can select which area you want to clip.
 * Adjust Focus - After you focus a area, you can adjust your selection use hotkeys.
@@ -29,8 +30,8 @@ That's it, Not bored registration, Not charged.
 
 ## Useful Resources
 
-[index](useful-res/)
-[MaoXian assistant](useful-res/assistant/)
+* [index](useful-res/)
+* [MaoXian assistant](useful-res/assistant/) (Recommended)
 
 ## Third party library
 
@@ -43,7 +44,6 @@ Thanks to these awesome libraries for making MaoXian's development become more e
 * [turndown-plugin-gfw](https://github.com/domchristie/turndown-plugin-gfm)
 * [strip-css-comments](https://github.com/sindresorhus/strip-css-comments)
 * [awesomplete](https://github.com/LeaVerou/awesomplete)
-* [font-awesome](https://github.com/FortAwesome/Font-Awesome)
 * [pikaday](https://github.com/Pikaday/Pikaday)
 
 ## Contribution

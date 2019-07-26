@@ -28,20 +28,27 @@ this.MxWcLink = (function(ExtApi) {
   }
 
   /*
-   * @param {String} pageName
+   * @param {String} exp
    *   extension => extPage.$name
    *   remote    => $name
+   * @example:
+   *   get('extPage.setting#hello');
    */
-  function get(pageName) {
+  function get(exp) {
+    const pageName = exp.split(/[?#]/)[0]
+    let pageLink;
     if (pageName.startsWith('extPage.')) {
-      return getExtensionPageLink(pageName);
+      pageLink = getExtensionPageLink(pageName);
     } else {
-      return getRemoteLink(pageName);
+      pageLink = getRemoteLink(pageName);
     }
+    return exp.replace(pageName, pageLink);
   }
 
   /*
-   * @private
+   * @param {String} pageName
+   *   projectPage => project.$name
+   *   website => $name
    */
   function getRemoteLink(pageName){
     let dict = remotePaths[ExtApi.locale];
@@ -79,6 +86,32 @@ this.MxWcLink = (function(ExtApi) {
     return !!extensionRoot.match(/^moz-extension/);
   }
 
+  function listen(contextNode) {
+    contextNode.addEventListener('click', function(e) {
+      if(e.target.tagName == 'A' && e.target.href.startsWith('go.page:')) {
+        const exp = e.target.href.split(':')[1];
+        const link = get(exp)
+        e.preventDefault();
+        if(e.target.target === '_blank') {
+          try {
+            ExtApi.createTab(link);
+          }catch(e) {
+            // browser.tabs is not avariable in content script ?
+            ExtMsg.sendToBackground({
+              type: 'create-tab',
+              body: {link: link}
+            }).catch((err) => {
+              console.warn(err);
+              window.location.href = link;
+            });
+          }
+        } else {
+          window.location.href = link;
+        }
+      }
+    });
+  }
+
 
   return {
     get: get,
@@ -86,6 +119,7 @@ this.MxWcLink = (function(ExtApi) {
     extensionId: extensionId,
     getExtensionPagePath: getExtensionPagePath,
     isChrome: isChrome,
-    isFirefox: isFirefox
+    isFirefox: isFirefox,
+    listen: listen
   }
-})(ExtApi);
+})(ExtApi, ExtMsg);

@@ -5,8 +5,8 @@ class ClippingTest < Minitest::Test
 
   def test_given_path_overflow
     result = Clipping.delete(T.mx_wc_root, {
-      'asset_fold' => "#{T.mx_wc_clippings}/test/assets",
-      'path' => "/tmp/mx-wc-not-exist-fold/index.json",
+      'asset_folder' => "#{T.mx_wc_clippings}/test/assets",
+      'path' => "/tmp/mx-wc-not-exist-folder/index.json",
       'clip_id' => '0000'
     })
     assert_equal false, result[:ok]
@@ -15,7 +15,7 @@ class ClippingTest < Minitest::Test
 
   def test_given_path_not_exist
     result = Clipping.delete(T.mx_wc_root, {
-      'asset_fold' => "#{T.mx_wc_clippings}/test/assets",
+      'asset_folder' => "#{T.mx_wc_clippings}/test/assets",
       'path' => "#{T.mx_wc_clippings}/not-exist-folder/index.json",
       'clip_id' => '0000'
     })
@@ -26,19 +26,19 @@ class ClippingTest < Minitest::Test
   def test_given_asset_path_overflow
     clipping = create_clipping_with_global_asset_folder('test', '0000')
     result = Clipping.delete(T.mx_wc_root, {
-      "asset_fold" => "/tmp/mx-wc-not-exist-fold/assets",
+      'asset_folder' => "/tmp/mx-wc-not-exist-folder/assets",
       'path' => clipping[:index_path],
       'clip_id' => '0000'
     })
     assert_equal true, result[:ok]
-    assert_equal 'clipping.op-warning.asset-fold-overflow', result[:message]
+    assert_equal 'clipping.op-warning.asset-folder-overflow', result[:message]
   end
 
 
   def test_delete_default_asset
     clipping = create_clipping_with_default_asset_folder('test', '0000')
     result = Clipping.delete(T.mx_wc_root, {
-      'asset_fold' => clipping[:asset_path],
+      'asset_folder' => clipping[:asset_path],
       'path' => clipping[:index_path],
       'clip_id' => '0000'
     })
@@ -50,7 +50,7 @@ class ClippingTest < Minitest::Test
   def test_delete_global_asset
     clipping = create_clipping_with_global_asset_folder('global-asset', '0000')
     result = Clipping.delete(T.mx_wc_root, {
-      "asset_fold" => clipping[:asset_path],
+      'asset_folder' => clipping[:asset_path],
       'path' => clipping[:index_path],
       'clip_id' => '0000'
     })
@@ -63,7 +63,7 @@ class ClippingTest < Minitest::Test
   def test_delete_parent_dir_when_it_is_empty
     clipping = create_clipping_with_default_asset_folder('test', '0000')
     result = Clipping.delete(T.mx_wc_root, {
-      "asset_fold" => clipping[:asset_path],
+      'asset_folder' => clipping[:asset_path],
       'path' => clipping[:index_path],
       'clip_id' => '0000'
     })
@@ -78,7 +78,7 @@ class ClippingTest < Minitest::Test
     clipping1 = create_clipping_with_default_asset_folder('test1', '0001')
     clipping2 = create_clipping_with_default_asset_folder('test2', '0002')
     result = Clipping.delete(T.mx_wc_root, {
-      "asset_fold" => clipping1[:asset_path],
+      'asset_folder' => clipping1[:asset_path],
       'path' => clipping1[:index_path],
       'clip_id' => '0001'
     })

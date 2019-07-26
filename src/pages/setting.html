@@ -11,49 +11,27 @@
 
     <div class="main">
       <div class="sidebar">
-        <a class="menu" href="#setting-save-format" i18n="setting.title.save-format"></a>
-        <a class="menu" href="#setting-clipping-handler" i18n="setting.title.clipping-handler"></a>
-        <a class="menu" href="#setting-clipping-content" i18n="setting.title.clipping-content"></a>
-        <a class="menu" href="#setting-path" i18n="setting.title.path"></a>
-        <a class="menu" href="#setting-file-scheme-access" i18n="setting.title.file-url"></a>
-        <a class="menu" href="#setting-offline-page" i18n="setting.title.offline-page"></a>
-        <a class="menu" href="#setting-refresh-history" i18n="setting.title.refresh-history"></a>
-        <a class="menu" href="#setting-hotkey" i18n="setting.title.hotkey"></a>
-        <a class="menu" href="#setting-other" i18n="setting.title.other"></a>
+        <div class="sidebar-folder">&#9776;</div>
+        <div class="sidebar-content">
+          <a class="menu" href="#setting-general" i18n="setting.title.general"></a>
+          <a class="menu" href="#setting-storage" i18n="setting.title.storage"></a>
+          <a class="menu" href="#setting-offline-page" i18n="setting.title.offline-page"></a>
+          <a class="menu" href="#setting-refresh-history" i18n="setting.title.refresh-history"></a>
+          <hr />
+          <a class="menu" href="#setting-handler-browser" i18n="setting.title.handler-browser"></a>
+          <a class="menu" href="#setting-handler-native-app" i18n="setting.title.handler-native-app"></a>
+          <a class="menu" href="#setting-handler-wiz-note-plus" i18n="setting.title.handler-wiz-note-plus"></a>
+        </div>
       </div>
       <div class="content">
       </div>
     </div>
 
-    <template id="setting-page-tpl">
-      <section id="setting-save-format">
-        <h3 i18n="setting.title.save-format"></h3>
-        <div class="options" id="setting-format">
-          <a data-value="html">HTML</a>
-          <a data-value="md">Markdown</a>
-        </div>
-      </section>
-      <section id="setting-clipping-handler">
-        <h3 i18n="setting.title.clipping-handler"></h3>
-        <div class="notice-info">
-          <p>
-            <label i18n="setting.notice.clipping-handler.intro"></label>
-             <br />
-            <a href="${nativeAppUrl}" target="_blank" i18n="setting.notice.clipping-handler.link-label"></a>
-            <br />
-          </p>
-        </div>
-        <div class="notice-warning">
-          <p i18n="setting.notice.clipping-handler.warning"></p>
-        </div>
-        <div class="options" id="clipping-handler">
-          <a data-value="browser" i18n="setting.clipping-handler-option.browser"></a>
-          <a data-value="native-app" i18n="setting.clipping-handler-option.native-app"></a>
-        </div>
-      </section>
-      <section id="setting-clipping-content">
-        <h3 i18n="setting.title.clipping-content"></h3>
-        <p>
+    <template id="section-setting-general-tpl">
+      <section id="setting-general">
+        <h2 class="center" i18n="setting.title.general"></h2>
+        <div>
+          <h3 i18n="setting.title.clipping-content"></h3>
           <input type="checkbox" id="save-clipping-information" />
           <label for="save-clipping-information" i18n="setting.clip-information-input.label"></label>
           <br />
@@ -65,41 +43,24 @@
           <br />
           <input type="checkbox" id="save-domain-as-tag" />
           <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
-        </p>
-      </section>
-      <section id="setting-path">
-        <h3 i18n="setting.title.path"></h3>
-        <p>
-          <input type="checkbox" id="save-title-as-fold-name" />
-          <label for="save-title-as-fold-name" i18n="setting.save-title-as-fold-name-input.label"></label>
+        </div>
+        <div>
+          <h3 i18n="setting.title.control"></h3>
+          <input type="checkbox" id="hotkey-switch-enabled" />
+          <label for="hotkey-switch-enabled" i18n="setting.hotkey-switch-enabled-input.label"></label>
           <br />
-
-          <input type="checkbox" id="save-title-as-filename" />
-          <label for="save-title-as-filename" i18n="setting.save-title-as-filename-input.label"></label>
+          <input type="checkbox" id="mouse-mode-enabled" />
+          <label for="mouse-mode-enabled" i18n="setting.mouse-mode-enabled-input.label"></label>
           <br />
-
-          <div class="notice-info" i18n="setting.notice.default-clipping-folder-format"></div>
-          <input type="text" id="default-clipping-folder-format" i18n-attr="placeholder:setting.placeholder.notblank"/>
-          <br />
-
-          <div class="notice-info" i18n="setting.notice.title-clipping-folder-format"></div>
-          <input type="text" id="title-clipping-folder-format" i18n-attr="placeholder:setting.placeholder.notblank" />
-          <br />
-
-          <div class="notice-info" i18n="setting.notice.asset-path"></div>
-          <input type="text" id="asset-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
-          <br />
-          <div class="notice-info" i18n="setting.notice.default-category"></div>
-          <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
-        </p>
-      </section>
-      <section id="setting-file-scheme-access">
-        <h3 i18n="setting.title.file-url"></h3>
-        <p>
+          <input type="checkbox" id="input-field-save-format-enabled" />
+          <label for="input-field-save-format-enabled" i18n="setting.input-field-save-format-enabled.label"></label>
+        </div>
+        <div>
+          <h3 i18n="setting.title.file-url"></h3>
           <div class="notice-info">
             <label i18n="setting.notice.file-url.intro"></label>
             <br />
-            <a href="${settingFileUrlLink}" target="_blank" i18n="setting.notice.file-url.link-label"></a>
+            <a href="go.page:faq-allow-access-file-urls" i18n="setting.notice.file-url.link-label" target="_blank"></a>
             <br />
             <label i18n="setting.notice.file-url.help-msg"></label>
             <br />
@@ -112,68 +73,274 @@
           </div>
           <input type="checkbox" id="file-scheme-access-input"/>
           <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
-        </p>
-      </section>
-      <section id="setting-offline-page">
-        <h3 i18n="setting.title.offline-page"></h3>
-        <div class="notice-info">
-          <label  i18n="setting.notice.offline-page"></label>
-          <br />
-          <a href="${offlinePageIntro}" target="_blank" i18n="setting.notice.offline-page.link-label"></a>
         </div>
-        <div class="notice-info" i18n="setting.notice.clipping-js-path"></div>
-        <input type="text" id="clipping-js-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
-        <br />
-        <div class="notice-info" i18n="setting.notice.autogenerate-clipping-js"></div>
-        <p>
-          <input type="checkbox" id="autogenerate-clipping-js" />
-          <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label><br /><br />
-          <label i18n="setting.last-generate-time.label"></label>:
-          <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>&nbsp;
-          <button id="generate-clipping-js-now" i18n="setting.button.generate-now"></button>
-        </p>
       </section>
+    </template>
+
+    <template id="section-setting-storage-tpl">
+      <section id="setting-storage">
+        <h2 class="center" i18n="setting.title.storage"></h2>
+        <div class="control">
+          <h3 i18n="setting.title.handler"></h3>
+          <div class="options" id="storage-handler">
+            <a data-value="Browser" i18n="handler.browser.name"></a>
+            <a data-value="NativeApp" i18n="handler.native-app.name"></a>
+            <a data-value="WizNotePlus" i18n="handler.wiz-note-plus.name"></a>
+          </div>
+          <div class="danger-box"></div>
+          <div class="info-box"></div>
+          <div class="warning-box"></div>
+        </div>
+        <div class="save-format">
+          <h3 i18n="setting.title.save-format"></h3>
+          <div class="options" id="save-format"></div>
+        </div>
+        <div class="local-path">
+          <h3 i18n="setting.title.path"></h3>
+          <div class="notice-light">
+            <span i18n="setting.path-intro.format"></span>
+            <code i18n="setting.path.download"></code> /
+            <code i18n="setting.folder.root"></code> /
+            <code i18n="setting.folder.category"></code> /
+            <code i18n="setting.folder.clipping"></code> /
+            <code i18n="setting.path.filename"></code>
+            <br />
+            <ul>
+              <li i18n="setting.path.download.intro"></li>
+              <li i18n="setting.folder.root.intro"></li>
+              <li i18n="setting.folder.category.intro"></li>
+              <li i18n="setting.folder.clipping.intro"></li>
+              <li i18n="setting.path.filename.intro"></li>
+            </ul>
+          </div>
+          <div>
+            <div>
+              <h4 i18n="setting.title.root-folder"></h4>
+              <div class="notice-warning" i18n="setting.notice.root-folder"></div>
+              <input type="text" id="root-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+            </div>
+            <h4 i18n="setting.title.default-category"></h4>
+            <div class="notice-info" i18n="setting.notice.default-category"></div>
+            <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
+
+            <h4 i18n="setting.title.default-clipping-folder-format"></h4>
+            <div id="default-clipping-folder-format">
+              <div>
+                <input type="radio" value="$FORMAT-A" id="default-clipping-folder-format-a" name="default-clipping-folder-format" />
+                <label for="default-clipping-folder-format-a" i18n="setting.option.default-clipping-folder-format.a"></label>
+              </div>
+              <div>
+                <input type="radio" value="$FORMAT-B" id="default-clipping-folder-format-b" name="default-clipping-folder-format" />
+                <label for="default-clipping-folder-format-b" i18n="setting.option.default-clipping-folder-format.b"></label>
+              </div>
+              <div>
+                <input type="radio" value="$FORMAT-C" id="default-clipping-folder-format-c" name="default-clipping-folder-format" />
+                <label for="default-clipping-folder-format-c" i18n="setting.option.default-clipping-folder-format.c"></label>
+              </div>
+            </div>
+
+            <h4 i18n="setting.title.title-style-clipping-folder"></h4>
+            <input type="checkbox" id="title-style-clipping-folder-enabled" />
+            <label for="title-style-clipping-folder-enabled" i18n="setting.title-style-clipping-folder-enabled-input.label"></label>
+            <div class="notice-info" i18n="setting.notice.title-clipping-folder-format"></div>
+            <div id="title-style-clipping-folder-format">
+              <span>
+                <input type="radio" value="$FORMAT-A" id="title-style-clipping-folder-format-a" name="title-style-clipping-folder-format" />
+                <label for="title-style-clipping-folder-format-a" i18n="setting.option.title-style-clipping-folder-format.a"></label>
+              </span>
+              <span>
+                <input type="radio" value="$FORMAT-B" id="title-style-clipping-folder-format-b" name="title-style-clipping-folder-format" />
+                <label for="title-style-clipping-folder-format-b" i18n="setting.option.title-style-clipping-folder-format.b"></label>
+              </span>
+            </div>
+
+            <h4 i18n="setting.title.clipping-file"></h4>
+            <div>
+              <input type="checkbox" id="save-title-as-filename" />
+              <label for="save-title-as-filename" i18n="setting.save-title-as-filename-input.label"></label>
+            </div>
+            <h4 i18n="setting.title.asset-path"></h4>
+            <div>
+              <div class="notice-info" i18n="setting.notice.asset-path"></div>
+              <input type="text" id="asset-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <template id="section-setting-offline-page-tpl">
+      <section id="setting-offline-page">
+        <h2 class="center" i18n="setting.title.offline-page"></h2>
+        <div class="intro">
+          <h3 i18n="setting.title.intro"></h3>
+          <div class="notice-info">
+            <label  i18n="setting.notice.offline-page"></label>
+            <br />
+            <a href="go.page:offline-page" target="_blank" i18n="setting.notice.offline-page.link-label"></a>
+          </div>
+        </div>
+        <div class="handler">
+          <h3 i18n="setting.title.handler"></h3>
+          <div class="options" id="offline-page-handler">
+            <a data-value="Browser" i18n="handler.browser.name"></a>
+            <a data-value="NativeApp" i18n="handler.native-app.name"></a>
+          </div>
+          <div class="danger-box"></div>
+          <div class="info-box"></div>
+          <div class="warning-box"></div>
+        </div>
+        <div class="detail">
+          <h3 i18n="setting.title.detail"></h3>
+          <div class="notice-info" i18n="setting.notice.clipping-js-path"></div>
+          <input type="text" id="clipping-js-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
+          <br />
+          <div class="notice-info" i18n="setting.notice.autogenerate-clipping-js"></div>
+          <div>
+            <input type="checkbox" id="autogenerate-clipping-js" />
+            <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label><br /><br />
+            <label i18n="setting.last-generate-time.label"></label>:
+            <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>&nbsp;
+            <button id="generate-clipping-js-now" i18n="setting.button.generate-now"></button>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <template id="section-setting-refresh-history-tpl">
       <section id="setting-refresh-history">
-        <h3 i18n="setting.title.refresh-history"></h3>
-        <div class="notice-info" i18n="setting.notice.refresh-history"></div>
-        <div class="notice-warning" i18n="setting.notice.refresh-history-warning"></div>
-        <p>
-          <input type="checkbox" id="auto-refresh-history" />
-          <label for="auto-refresh-history" i18n="setting.auto-refresh-history-input.label"></label><br /><br />
-          <label i18n="setting.last-refresh-time.label"></label>:
-          <label id="last-refresh-history-time">${lastRefreshHistoryTime}</label>&nbsp;
-          <button id="refresh-history-now" i18n="setting.button.refresh-now"></button>
-        </p>
+        <h2 class="center" i18n="setting.title.refresh-history"></h2>
+        <div class="intro">
+          <h3 i18n="setting.title.intro"></h3>
+          <div class="notice-info" i18n="setting.notice.refresh-history"></div>
+        </div>
+        <div class="handler">
+          <h3 i18n="setting.title.handler"></h3>
+          <div class="options" id="refresh-history-handler">
+            <a data-value="NativeApp" i18n="handler.native-app.name"></a>
+          </div>
+          <div class="danger-box"></div>
+          <div class="info-box"></div>
+          <div class="warning-box"></div>
+        </div>
+        <div class="detail">
+          <h3 i18n="setting.title.detail"></h3>
+          <div>
+            <input type="checkbox" id="auto-refresh-history" />
+            <label for="auto-refresh-history" i18n="setting.auto-refresh-history-input.label"></label><br /><br />
+            <label i18n="setting.last-refresh-time.label"></label>:
+            <label id="last-refresh-history-time">${lastRefreshHistoryTime}</label>&nbsp;
+            <button id="refresh-history-now" i18n="setting.button.refresh-now"></button>
+          </div>
+        </div>
       </section>
-      <section id="setting-hotkey">
-        <h3 i18n="setting.title.hotkey"></h3>
-        <p>
-          <input type="checkbox" id="enable-switch-hotkey" />
-          <label for="enable-switch-hotkey" i18n="setting.enable-switch-hotkey-input.label"></label>
-        </p>
+    </template>
+
+    <template id="section-setting-handler-browser-tpl">
+      <section id="setting-handler-browser">
+        <h2 class="center" i18n="setting.title.handler-browser"></h2>
+        <div class="intro">
+          <h3 i18n="setting.title.intro"></h3>
+          <p i18n="handler.browser.intro"></p>
+        </div>
+        <div class="features">
+          <h3 i18n="setting.title.feature"></h3>
+          <ul>
+            <li i18n="handler.browser.feature.a"></li>
+            <li i18n="handler.browser.feature.b"></li>
+          </ul>
+        </div>
+        <div class="switch">
+          <input type="checkbox" id="handler-browser-enabled" disabled/>
+          <label for="handler-browser-enabled" i18n="setting.enable-handler.label"></label>
+        </div>
       </section>
-      <section id="setting-other">
-        <h3 i18n="setting.title.other"></h3>
-        <p>
-          <input type="checkbox" id="enable-mouse-mode" />
-          <label for="enable-mouse-mode" i18n="setting.enable-mouse-mode-input.label"></label>
-        </p>
+    </template>
+
+    <template id="section-setting-handler-native-app-tpl">
+      <section id="setting-handler-native-app">
+        <h2 class="center" i18n="setting.title.handler-native-app"></h2>
+        <div class="intro">
+          <h3 i18n="setting.title.intro"></h3>
+          <p i18n="handler.native-app.intro"></p>
+        </div>
+        <div class="status">
+          <h3 i18n="setting.title.status"></h3>
+          <div class="version">
+            <span i18n="setting.version"></span>
+            <span class="version-value"></span>
+          </div>
+          <div class="danger-box"></div>
+        </div>
+        <div class="features">
+          <h3 i18n="setting.title.feature"></h3>
+          <ul>
+            <li i18n="handler.native-app.feature.a"></li>
+            <li i18n="handler.native-app.feature.b"></li>
+            <li i18n="handler.native-app.feature.c"></li>
+          </ul>
+        </div>
+        <div class="notice-warning">
+          <p><label i18n="handler.native-app.warning"></label></p>
+        </div>
+        <div class="switch">
+          <input type="checkbox" id="handler-native-app-enabled" />
+          <label for="handler-native-app-enabled" i18n="setting.enable-handler.label"></label>
+        </div>
       </section>
+    </template>
+
+    <template id="section-setting-handler-wiz-note-plus-tpl">
+      <section id="setting-handler-wiz-note-plus">
+        <h2 class="center" i18n="setting.title.handler-wiz-note-plus"></h2>
+        <div class="intro">
+          <h3 i18n="setting.title.intro"></h3>
+          <p i18n="handler.wiz-note-plus.intro"></p>
+        </div>
+        <div class="status">
+          <h3 i18n="setting.title.status"></h3>
+          <div class="info-box"></div>
+          <div class="danger-box"></div>
+        </div>
+        <div class="features">
+          <h3 i18n="setting.title.feature"></h3>
+          <ul>
+            <li i18n="handler.wiz-note-plus.feature.a"></li>
+          </ul>
+        </div>
+        <div class="notice-warning">
+          <p><label i18n="handler.wiz-note-plus.warning"></label></p>
+        </div>
+        <div class="switch">
+          <input type="checkbox" id="handler-wiz-note-plus-enabled" />
+          <label for="handler-wiz-note-plus-enabled" i18n="setting.enable-handler.label"></label>
+        </div>
+      </section>
+    </template>
+
+    <template id="notice-tpl">
+      <div class="notice-${type}">
+        <p><label>${message}</label></p>
+      </div>
     </template>
 
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>
     <script type="text/javascript" src="../vendor/js/i18n.js"></script>
     <script type="text/javascript" src="../js/env.js"></script>
     <script type="text/javascript" src="../js/tool.js"></script>
+    <script type="text/javascript" src="../js/template.js"></script>
     <script type="text/javascript" src="../_locales/en.js"></script>
     <script type="text/javascript" src="../_locales/zh-CN.js"></script>
     <script type="text/javascript" src="../js/lib/log.js"></script>
     <script type="text/javascript" src="../js/lib/ext-api.js"></script>
+    <script type="text/javascript" src="../js/lib/ext-msg.js"></script>
     <script type="text/javascript" src="../js/lib/translation.js"></script>
     <script type="text/javascript" src="../js/lib/notify.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-storage.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-config.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-link.js"></script>
+    <script type="text/javascript" src="../js/lib/mx-wc-handler.js"></script>
     <script type="text/javascript" src="setting.js"></script>
   </body>
 </html>

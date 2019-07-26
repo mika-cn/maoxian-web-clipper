@@ -3,6 +3,20 @@
 (function(){
   const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
+  function listenMessage() {
+    ExtMsg.initPage('history');
+    ExtMsg.listen(function(msg) {
+      return new Promise((resolve, reject) => {
+        switch(msg.type) {
+          case 'history.reseted':
+            resetHistory();
+            resolve();
+          default: break;
+        }
+      });
+    });
+  }
+
   function showHistory(){
     searchAction();
   }
@@ -13,19 +27,22 @@
     const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
     if(clip){
       Promise.all([
-        MxWcStorage.get('downloadFold'),
+        MxWcStorage.get('downloadFolder'),
         MxWcConfig.load(),
         ExtApi.isAllowedFileSchemeAccess()
       ]).then((values) => {
-        const [downloadFold, config, allowFileSchemeAccess] = values;
-        const allowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+        const [downloadFolder, config, allowFileSchemeAccess] = values;
+        const allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+        let {url} = clip;
         let filename = clip.filename ? clip.filename : `index.${clip.format}`;
-        const clipPath = clip.path.replace('index.json', filename);
-        let url = clipPath;
-        if(downloadFold){
-          url = "file://" + [downloadFold, url].join('');
+        const clipPath = T.replacePathFilename(clip.path, filename);
+        if(!url) {
+          url = clipPath;
+          if(downloadFolder){
+            url = T.toFileUrl([downloadFolder, clipPath].join(''));
+          }
         }
-        if(downloadFold && allowFileScheme){
+        if(downloadFolder && allowFileUrlAccess){
           renderClipDetailModel_openUrlDirectly(clip, url);
         }else{
           ExtApi.findDownloadItemByPath(clipPath)
@@ -54,7 +71,6 @@
       url: url
     });
     T.setHtml(modalContent, html);
-    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(e){
@@ -77,7 +93,6 @@
       downloadItem: downloadItem
     });
     T.setHtml(modalContent, html);
-    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path-link');
     T.bind(elem, 'click', function(e){
@@ -98,7 +113,6 @@
       url: url
     });
     T.setHtml(modalContent, html);
-    i18nPage();
     modal.style.display = 'block';
     const elem = T.queryElem('.modal .content .path');
     T.bind(elem, 'mouseover', function(e){ this.select() });
@@ -149,7 +163,6 @@
         }));
       });
       T.setHtml('.clippings > tbody', items.join(''));
-      i18nPage();
       list.style.display = 'block';
     } else {
       hint.style.display = 'block';
@@ -159,7 +172,7 @@
 
   function renderTime(clip) {
     try{
-      const t = T.wrapDate(clip.created_at_time).str;
+      const t = T.wrapDate(clip.created_at_date).str;
       return [t.month, t.day].join('/')
     }catch(e) {
       return '-/-'
@@ -189,42 +202,45 @@
   }
 
   function deleteHistory(id) {
-    // FIXME can't use clippingHandlerName here
-    // maybe use isNativeAppAttached && version > 0.1.2
-    MxWcConfig.load().then((config) => {
-      if(config.clippingHandlerName == 'native-app') {
-        deleteHistoryAndFile(config, id);
+    MxWcHandler.isReady('NativeApp')
+    .then((r) => {
+      if(r.ok) {
+        if(T.isVersionGteq(r.handlerInfo.version, '0.1.9')) {
+          deleteHistoryAndFile(r.config, id);
+        } {
+          console.debug("Native App not support this message, version: ", r.handlerInfo.version);
+        }
       } else {
         deleteHistoryOnly(id);
       }
-    })
+    });
   }
 
   function deleteHistoryAndFile(config, id) {
-    MxWcStorage.get('downloadFold').then((downloadFold) => {
-      if(downloadFold) {
+    MxWcStorage.get('downloadFolder').then((downloadFolder) => {
+      if(downloadFolder) {
         confirmIfNeed(t('history.confirm-msg.delete-history-and-file'), () => {
           const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
-          const path = [downloadFold, clip.path].join('');
-          const root = [downloadFold, 'mx-wc'].join('');
-          const clipFold = path.replace('/index.json', '');
-          let assetFold = '';
-          if(config.assetPath.indexOf('$CLIP-FOLD') > -1) {
-            assetFold = [clipFold, config.assetPath.replace('$CLIP-FOLD/', '')].join('/');
+          const path = [downloadFolder, clip.path].join('');
+          const root = [downloadFolder, config.rootFolder].join('');
+          const saveFolder = path.replace('/index.json', '');
+          let assetFolder = '';
+          if(config.assetPath.indexOf('$CLIPPING-PATH') > -1) {
+            assetFolder = [saveFolder, config.assetPath.replace('$CLIPPING-PATH/', '')].join('/');
           } else {
-            if(config.assetPath.indexOf('$MX-WC') > -1) {
-              assetFold = [root, config.assetPath.replace('$MX-WC/', '')].join('/');
+            if(config.assetPath.indexOf('$STORAGE-PATH') > -1) {
+              assetFolder = [root, config.assetPath.replace('$STORAGE-PATH/', '')].join('/');
             } else {
               const relativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
-              assetFold = [clipFold, relativePath].join('/')
+              assetFolder = [saveFolder, relativePath].join('/')
             }
           }
           const msg = {
             clip_id: clip.clipId,
             path: path,
-            asset_fold: assetFold
+            asset_folder: assetFolder
           }
-          ExtApi.sendMessageToBackground({
+          ExtMsg.sendToBackground({
             type: 'clipping.delete',
             body: msg
           }).then((result) => {
@@ -242,7 +258,7 @@
           });
         });
       } else {
-        console.error("Error: downloadFold not present");
+        console.error("Error: downloadFolder not present");
       }
     });
   }
@@ -354,7 +370,7 @@
 
   function searchAction(e){
     if(e) { e.preventDefault()}
-    const qRowA = {}
+    const qRowA = {__logic__: 'AND'};
     const [isRangerValid, from, to] = getDateRanger();
     if(isRangerValid) {
       qRowA.created_at_time = ['between', from, to]
@@ -367,9 +383,8 @@
     if(tag !== "") {
       qRowA.tags = ['memberInclude', tag];
     }
-    let clips = Query.queryObj(state.allClips, qRowA);
 
-    let qRowB = {}
+    let qRowB = {};
     const keyword = T.findElem('search').value.trim();
     storeKeyword(keyword);
     if(keyword !== ""){
@@ -382,7 +397,10 @@
         link: ['equal', keyword]
       };
     }
-    clips = Query.queryObj(clips, qRowB);
+    const filterA = Query.q2Filter(qRowA);
+    const filterB = Query.q2Filter(qRowB);
+    const clips = Query.queryObjByFilter(state.allClips,
+      Query.combineFilter('AND', filterA, filterB));
     renderClips(clips);
   }
 
@@ -392,8 +410,8 @@
     const ParseFail = [false, null, null];
     const isValid = (tStr) => { return !isNaN(Date.parse(tStr)); }
     if(isValid(fromStr)) {
-      const from = new Date(fromStr);
-      const to = (isValid(toStr) ? (new Date(toStr)) : (new Date()) );
+      const from = Date.parse(fromStr);
+      const to = (isValid(toStr) ? Date.parse(toStr) : Date.now() );
       return [true, from, to]
     } else {
       return [false, null, null];
@@ -411,9 +429,21 @@
     }
   }
 
+  function resetHistory() {
+    T.queryElems('form').forEach((it) => {
+      it.reset();
+    });
+    MxWcStorage.get('clips', []).then((clips) => {
+      initState(clips);
+      searchAction();
+    });
+  }
+
+
   function clearHistory(e){
     confirmIfNeed(t('history.confirm-msg.clear-history'), () => {
       MxWcStorage.set('clips', [])
+      initState([]);
       renderClips([]);
       Notify.success(t('history.notice.clear-history-success'));
     })
@@ -424,7 +454,7 @@
     if(state.currClips.length > 0){
       content = T.toJson(state.currClips)
     }
-    ExtApi.sendMessageToBackground({
+    ExtMsg.sendToBackground({
       type: 'export.history',
       body: {content: content}
     });
@@ -433,7 +463,7 @@
   function initLinks(){
     const elem = T.queryElem(".links");
     const links = [
-      {name: t('history.a.reset_history'), pageName: "extPage.reset-history" }
+      {name: t('history.a.reset-history'), pageName: "extPage.reset-history" }
     ]
     links.forEach((link) => {
       const a = document.createElement("a");
@@ -471,20 +501,6 @@
     modal.style.display = 'none';
   }
 
-  function recallScroll(){
-    window.addEventListener('unload', function(e){
-      window.localStorage.setItem('scrollY', window.scrollY);
-    })
-    setTimeout(function(){
-      let scrollY = window.localStorage.getItem('scrollY')
-      if(scrollY){
-        scrollY = parseInt(scrollY);
-        if(scrollY > 150){
-          window.scrollTo(0, parseInt(scrollY));
-        }
-      }
-    }, 0);
-  }
   function initSwitches(){
     initCheckbox({
       domId: 'confirm-mode',
@@ -529,12 +545,14 @@
           state.tags.push(tag);
         }
       })
-      clip.created_at_time = new Date(clip.created_at);
+      clip.created_at_date = new Date(clip.created_at);
+      clip.created_at_time = clip.created_at_date.getTime();
     });
     state.allClips = clips;
   }
 
   function init(){
+    listenMessage();
     MxWcStorage.get('clips', []).then(function(clips) {
       initState(clips);
       initSearch();
@@ -544,7 +562,6 @@
       initModal();
       i18nPage();
       showHistory();
-      //recallScroll();
     });
   }
 

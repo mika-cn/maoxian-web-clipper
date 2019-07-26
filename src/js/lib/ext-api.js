@@ -63,6 +63,15 @@ ExtApi.getCurrentTab = () => {
   })
 }
 
+ExtApi.getAllTabs = () => {
+  return new Promise(function(resolve, _){
+    browser.tabs.query({
+      currentWindow: true
+    }).then((tabs) => { resolve(tabs) })
+    .catch((err) => {console.error(err);});
+  })
+}
+
 /*****************************
  * web navigator
  *****************************/
@@ -77,56 +86,6 @@ ExtApi.getAllFrames = (tabId) => {
       resolve(frames);
     });
   });
-}
-
-/*****************************
- * message
- *****************************/
-
-ExtApi.addMessageListener = (listener) => {
-  browser.runtime.onMessage.addListener(listener);
-}
-
-// To content page
-ExtApi.sendMessageToContent = (message, tabId, frameId) => {
-  const defaultFrameId = 0;
-  const options = {frameId: defaultFrameId};
-  if(frameId) { options.frameId = frameId }
-  return new Promise(function(resolve, _){
-    if(tabId){
-      browser.tabs.sendMessage(tabId, message, options)
-        .then(resolve)
-        .catch((err) => {
-          console.log(tabId, frameId);
-          console.log(message);
-          console.error(err);
-          console.trace();
-          resolve(undefined);
-        })
-    }else{
-      ExtApi.getCurrentTab().then((tab) => {
-        browser.tabs.sendMessage(tab.id, message, options)
-          .then(resolve)
-          .catch((err) => {
-            console.log(tabId, frameId);
-            console.log(message);
-            console.error(err);
-            console.trace();
-            resolve(undefined);
-          })
-      })
-    }
-  })
-}
-
-// To extension page except background page.
-ExtApi.sendMessageToExtPage = (message) => {
-  return browser.runtime.sendMessage(message)
-}
-
-// To background page
-ExtApi.sendMessageToBackground = (message) => {
-  return browser.runtime.sendMessage(message)
 }
 
 /*****************************
@@ -153,6 +112,8 @@ ExtApi.findDownloadItem = (downloadItemId) => {
       .then( function(downloadItems){
         if(downloadItems.length > 0){
           resolve(downloadItems[0])
+        } else {
+          resolve(undefined);
         }
       });
   })

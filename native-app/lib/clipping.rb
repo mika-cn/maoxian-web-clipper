@@ -3,33 +3,33 @@ require_relative 'log'
 
 module Clipping
 
-  # msg: {:asset_fold, :clip_id, :path}
+  # msg: {:asset_folder, :clip_id, :path}
   def self.delete(root, msg)
     path       = msg.fetch('path')
     clip_id    = msg.fetch('clip_id')
-    asset_fold = msg.fetch('asset_fold')
+    asset_folder = msg.fetch('asset_folder')
 
     root = sanitize(root)
     path = sanitize(path)
-    asset_fold = sanitize(asset_fold)
+    asset_folder = sanitize(asset_folder)
 
     if path_overflow?(root, path)
       return { ok: false, message: 'clipping.op-error.path-overflow' }
     else
       if File.exist?(path)
-        clip_fold = File.dirname(path)
-        isSucc, msg = try_perform { FileUtils.remove_dir(clip_fold) }
+        clipping_folder = File.dirname(path)
+        isSucc, msg = try_perform { FileUtils.remove_dir(clipping_folder) }
         if !isSucc
           return {ok: false, message: msg}
         end
-        remove_empty_pdir(root, clip_fold)
-        if path_overflow?(clip_fold, asset_fold)
-          # asset_fold is outside of clip_fold
-          if path_overflow?(root, asset_fold)
-            return {ok: true, message: 'clipping.op-warning.asset-fold-overflow' }
+        remove_empty_pdir(root, clipping_folder)
+        if path_overflow?(clipping_folder, asset_folder)
+          # asset_folder is outside of clipping_folder
+          if path_overflow?(root, asset_folder)
+            return {ok: true, message: 'clipping.op-warning.asset-folder-overflow' }
           else
-            if File.exist?(asset_fold)
-              pattern = [asset_fold, "#{clip_id}-*"].join("/")
+            if File.exist?(asset_folder)
+              pattern = [asset_folder, "#{clip_id}-*"].join("/")
               Dir.glob(pattern) do |f|
                 try_perform { FileUtils.rm f }
               end
@@ -37,7 +37,7 @@ module Clipping
             return {ok: true, clip_id: clip_id}
           end
         else
-          # asset_fold is inside of clip_fold
+          # asset_folder is inside of clipping_folder
           return {ok: true, clip_id: clip_id}
         end
       else

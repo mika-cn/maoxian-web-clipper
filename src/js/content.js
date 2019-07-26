@@ -1,7 +1,8 @@
 (function(){
 
   function listenMessage(){
-    ExtApi.addMessageListener(function(msg){
+    ExtMsg.initPage('content');
+    ExtMsg.listen(function(msg){
       return new Promise(function(resolve, reject){
         switch(msg.type){
           case 'icon.click':
@@ -9,51 +10,81 @@
             UI.entryClick({});
             break;
           case 'clipping.save.started':
-            UI.clippingSaveStarted(msg.detail);
+            UI.clippingSaveStarted(msg.body);
             break;
           case 'clipping.save.progress':
-            UI.clippingSaveProgress(msg.detail);
+            UI.clippingSaveProgress(msg.body);
             break;
           case 'clipping.save.completed':
-            UI.clippingSaveCompleted(msg.detail);
-            tellTpClipCompleted(msg.detail);
+            UI.clippingSaveCompleted(msg.body);
+            tellTpClipCompleted(msg.body);
             break;
           case 'page_content.changed':
             pageContentChanged();
+            break;
+          case 'config.changed':
+            configChanged(msg.body);
             break;
           default: break;
         }
         resolve();
       });
     });
+
+    MxWcEvent.listenInternal('selecting', initMutationObserver);
+    MxWcEvent.listenInternal('clipping', stopMutationObserver);
+    MxWcEvent.listenInternal('idle', stopMutationObserver);
   }
+
+  let observer = undefined;
+  function initMutationObserver(e) {
+    if(MutationObserver && !observer) {
+      observer = new MutationObserver(function(mutationRecords) {
+        pageContentChanged();
+      })
+      observer.observe(document.body, {
+        attributes: true,
+        childList: true,
+        subtree: true
+      });
+      Log.debug("init mutation observer");
+    }
+  }
+
+  function stopMutationObserver() {
+    if(MutationObserver && observer) {
+      observer.disconnect();
+      observer = undefined;
+      Log.debug("stop mutation observer");
+    }
+  }
+
 
   /*
    * ThirdParty: userScript or other Extension.
    */
   function listenTpMessage(){
-    T.bindOnce(document, 'mx-wc.focus-elem', focusElem);
-    T.bindOnce(document, 'mx-wc.confirm-elem', confirmElem);
-    T.bindOnce(document, 'mx-wc.clip-elem', clipElem);
-    T.bindOnce(document, 'mx-wc.set-form-inputs', setFormInputs);
+    MxWcEvent.listenPublic('focus-elem', focusElem);
+    MxWcEvent.listenPublic('confirm-elem', confirmElem);
+    MxWcEvent.listenPublic('clip-elem', clipElem);
+    MxWcEvent.listenPublic('set-form-inputs', setFormInputs);
     Log.debug('listenTpMessage');
   }
 
   function tellTpWeAreReady(){
     setTimeout(function(){
       Log.debug("tellTpWeAreReady");
-      document.dispatchEvent(new CustomEvent('mx-wc.ready'))
+      MxWcEvent.dispatchPublic('ready');
     }, 0);
   }
 
   function tellTpClipCompleted(detail) {
-    const msg = {
+    MxWcEvent.dispatchPublic('completed', {
       handler: detail.handler,
       filename: detail.filename,
+      url: detail.url,
       completedAt: T.currentTime().toString()
-    };
-    const json = JSON.stringify(msg);
-    document.dispatchEvent(new CustomEvent('mx-wc.completed', {detail: json}));
+    });
   }
 
   function focusElem(e) {
@@ -129,13 +160,28 @@
   }
 
 
+  let delayPageChanged = undefined;
   function pageContentChanged(){
-    setTimeout(function(){
-      Log.debug('page content changed');
-      UI.windowSizeChanged();
-    }, 200);
+    if(!delayPageChanged) {
+      delayPageChanged = T.createDelayCall(function(){
+        Log.debug('page content changed');
+        UI.windowSizeChanged();
+      }, 200);
+    }
+    delayPageChanged.run();
   }
 
+  function configChanged(detail) {
+    const {key, value} = detail;
+    switch(key) {
+      case 'hotkeySwitchEnabled':
+        if(value == true) {
+          T.bindOnce(document, "keydown", toggleSwitch);
+        } else {
+          T.unbind(document, "keydown", toggleSwitch);
+        }
+    }
+  }
 
   /*
    * Hotkey `c` listener
@@ -154,7 +200,7 @@
   function initialize(){
     MxWcConfig.load()
       .then((config) => {
-        if(config.enableSwitchHotkey) {
+        if(config.hotkeySwitchEnabled) {
           T.bindOnce(document, "keydown", toggleSwitch);
         }
         T.bind(window, 'resize', function(e){
@@ -176,6 +222,7 @@
           listenPopState();
           listenTpMessage();
           tellTpWeAreReady();
+          MxWcLink.listen(document.body);
         }, 0)
       }
     }

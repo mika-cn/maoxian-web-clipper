@@ -1,5 +1,6 @@
 .ignore/
 dist/extension/*.zip
+dist/extension/*.xpi
 dist/native-app/*.zip
 dist/native-app/tmp
 dist/offline-pages/*.zip

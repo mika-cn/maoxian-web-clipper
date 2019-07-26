@@ -266,10 +266,9 @@ this.UI = (function(){
   }
 
   function dispatchMxEvent(name, data) {
-    const eventName = ['mx-wc', name].join('.');
-    const detailJson = JSON.stringify(data || {})
-    const e = new CustomEvent(eventName, {detail: detailJson});
-    document.dispatchEvent(e);
+    MxWcEvent.dispatchInternal(name, data);
+    MxWcEvent.dispatchPublic(name, data);
+    MxWcEvent.broadcast2Iframe(name, data);
   }
 
   // ----------------------------
@@ -313,10 +312,21 @@ this.UI = (function(){
   }
 
   function startClip(msg){
-    eraseHigtlightStyle();
-    msg.elem = state.currElem;
-    setStateClipping();
-    MxWcSave.save(msg);
+    MxWcHandler.isReady('config.clippingHandler')
+    .then(function(result) {
+      const {ok, config, message} = result;
+      if(ok) {
+        eraseHigtlightStyle();
+        msg.elem = state.currElem;
+        setStateClipping();
+        MxWcSave.save(msg, config);
+      } else {
+        Notify.error(message);
+        ignoreFrameMsg();
+        disable();
+        remove();
+      }
+    });
   }
 
   function ignoreFrameMsg(){
@@ -367,7 +377,7 @@ this.UI = (function(){
   function toggleScrollY(elem){
     const box = elem.getBoundingClientRect();
     const visibleHeight = window.innerHeight;
-    if(box.top + box.height > visibleHeight){
+    if(Math.round(box.top + box.height) > visibleHeight){
       scrollToElem(elem, 'bottom');
     }else{
       scrollToElem(elem, 'top');
@@ -438,7 +448,21 @@ this.UI = (function(){
 
   function pressEnter(msg){
     if(state.clippingState === 'selected'){
-      sendFrameMsgToControl('showForm', getFormInputs(msg));
+      MxWcHandler.isReady('config.clippingHandler')
+      .then((result) => {
+        const {ok, message, handlerInfo, config} = result;
+        if(ok) {
+          const params = Object.assign({
+            handlerInfo: handlerInfo, config: config
+          }, getFormInputs(msg));
+          sendFrameMsgToControl('showForm', params);
+        } else {
+          Notify.error(message);
+          ignoreFrameMsg();
+          disable();
+          remove();
+        }
+      });
     }
   }
 

@@ -22,12 +22,13 @@ ElemTool.isIndivisible = (elem, pElem) => {
   }
 }
 
-ElemTool.getHiddenElementXpaths = (win, elem, xpaths=[], prefix="") => {
+ElemTool.getHiddenElementXpaths = (win, elem, prefix="") => {
+  let xpaths = [];
   T.each(elem.children, (childElem, index) => {
     const xpath = [prefix, '*[', index + 1, ']'].join('');
-    if(ElemTool.isElemVisible(win, childElem)) {
-      xpaths = ElemTool.getHiddenElementXpaths(
-        win, childElem, xpaths, xpath + '/');
+    if(T.isElemVisible(win, childElem)) {
+      xpaths = xpaths.concat(ElemTool.getHiddenElementXpaths(
+        win, childElem, xpath + '/'));
     } else {
       xpaths.push(xpath);
     }
@@ -59,26 +60,6 @@ ElemTool.removeChildByXpath = (win, elem, xpaths) => {
   return elem;
 }
 
-ElemTool.isElemVisible = (win, elem) => {
-  if(['IMG', 'PEATURE'].indexOf(elem.tagName) > -1) {
-    return true
-  }
-
-  /*
-  if(elem.offsetWidth === 0 && elem.offsetHeight === 0){
-    return false
-  }
-  */
-
-  const style = win.getComputedStyle(elem);
-  if(style.display === 'none') {
-    return false;
-  }
-  if(style.visibility === 'hidden'){
-    return false
-  }
-  return true
-}
 
 // params: {
 //   extension, => optional
@@ -208,9 +189,11 @@ ElemTool.rewriteAnchorLink = (elem, siteLink) => {
 }
 
 ElemTool.getFrameBySrc = function(container, src) {
-  if(container.tagName === 'IFRAME' && container.src === src) {
+  if(['IFRAME', 'FRAME'].indexOf(container.tagName) > -1 && container.src === src) {
     return container;
   } else {
-    return container.querySelector(`iframe[src="${src}"]`);
+    const frame = container.querySelector(`iframe[src="${src}"]`);
+    if(frame) { return frame; }
+    return container.querySelector(`frame[src="${src}"]`);
   }
 }

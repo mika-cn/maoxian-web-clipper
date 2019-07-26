@@ -1,7 +1,7 @@
 
 const ClippingHandler_NativeApp = (function(){
   const APP_NAME = 'maoxian_web_clipper_native';
-  const state = {};
+  const state = {port: null};
 
   function saveClipping(clipping, feedback) {
     init();
@@ -12,9 +12,9 @@ const ClippingHandler_NativeApp = (function(){
     });
   }
 
-  function getTaskFilename(fullFilename) {
-    const path = fullFilename.split('mx-wc')[1];
-    return ['mx-wc', path].join('');
+  function handleClippingResult(it) {
+    it.url = T.toFileUrl(it.filename);
+    return it;
   }
 
   function saveTextFile(task) {
@@ -42,15 +42,15 @@ const ClippingHandler_NativeApp = (function(){
       case 'download.text':
       case 'download.url':
         const filename = T.sanitizePath(resp.filename);
-        const taskFilename = getTaskFilename(filename);
         if(resp.failed) {
-          SavingTool.taskFailed(taskFilename, resp.errmsg);
+          SavingTool.taskFailed(resp.taskFilename, resp.errmsg);
         } else {
-          SavingTool.taskCompleted(taskFilename, {
+          SavingTool.taskCompleted(resp.taskFilename, {
             fullFilename: filename
           });
           if(isMainFile(filename)){
-            updateDownloadFold(filename);
+            const downloadFolder = filename.replace(resp.taskFilename, '');
+            updateDownloadFolder(downloadFolder);
           }
         }
         break;
@@ -69,9 +69,9 @@ const ClippingHandler_NativeApp = (function(){
           state.refreshHistoryCallback(resp);
         }
         break;
-      case 'get.downloadFold':
-        const downloadFold = T.sanitizePath(resp.downloadFold);
-        updateDownloadFold(downloadFold);
+      case 'get.downloadFolder':
+        const downloadFolder = T.sanitizePath(resp.downloadFolder);
+        updateDownloadFolder(downloadFolder);
         break;
       default: break;
     }
@@ -95,14 +95,13 @@ const ClippingHandler_NativeApp = (function(){
     state.port = null;
   }
 
-  function updateDownloadFold(filename) {
-    const downloadFold = filename.split('mx-wc')[0];
-    MxWcStorage.set('downloadFold', downloadFold);
+  function updateDownloadFolder(downloadFolder) {
+    MxWcStorage.set('downloadFolder', downloadFolder);
   }
 
-  function initDownloadFold(){
+  function initDownloadFolder(config){
     init();
-    state.port.postMessage({type: 'get.downloadFold'})
+    state.port.postMessage({type: 'get.downloadFolder'})
   }
 
   function getVersion(callback) {
@@ -152,18 +151,46 @@ const ClippingHandler_NativeApp = (function(){
 
   function init(){
     if(!state.port){
-      state.port = chrome.runtime.connectNative(APP_NAME);
+      state.port = browser.runtime.connectNative(APP_NAME);
       state.port.onMessage.addListener(responseHandler);
       state.port.onDisconnect.addListener(disconnectHandler);
     }
   }
 
+  function getInfo(callback) {
+    getVersion(function(r) {
+      let ready = false, message = '';
+      if(r.ok) {
+        if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
+          message = t('handler.native-app.error.version')
+            .replace('$requiredVersion', ENV.minNativeAppVersion)
+            .replace('$currentVersion', r.version);
+        } else {
+          ready = true;
+        }
+      } else {
+        message = [
+          r.message,
+          t('handler.native-app.error.install'),
+        ].join('<br />');
+      }
+      callback({
+        ready: ready,
+        message: message,
+        version: r.version,
+        supportFormats: ['html', 'md']
+      })
+    });
+  }
+
   return {
-    name: 'native-app',
+    name: 'NativeApp',
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
-    initDownloadFold: initDownloadFold,
+    handleClippingResult: handleClippingResult,
+    initDownloadFolder: initDownloadFolder,
 
+    getInfo: getInfo,
     getVersion: getVersion,
     deleteClipping: deleteClipping,
     refreshHistory: refreshHistory,

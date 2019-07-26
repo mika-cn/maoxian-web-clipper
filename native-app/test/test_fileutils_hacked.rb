@@ -5,12 +5,12 @@ class FileUtilsHackedTest < Minitest::Test
   def test_raise_correct_error
     unless fu_windows?
       T.create_files([
-        [fold, 'file'].join('/')
+        [folder, 'file'].join('/')
       ])
       # rm 'x'
-      File.chmod(0644, fold)
+      File.chmod(0644, folder)
       assert_raises Errno::EACCES do
-        FileUtils.remove_dir fold
+        FileUtils.remove_dir folder
       end
     end
   end
@@ -18,8 +18,8 @@ class FileUtilsHackedTest < Minitest::Test
   def teardown
     unless fu_windows?
       # recover 'x'
-      File.chmod(0744, fold)
-      FileUtils.remove_dir fold
+      File.chmod(0744, folder)
+      FileUtils.remove_dir folder
     end
   end
 
@@ -29,7 +29,7 @@ class FileUtilsHackedTest < Minitest::Test
     /mswin|mingw|bccwin|emx/ =~ RUBY_PLATFORM
   end
 
-  def fold
-    @fold ||= File.join(T.file_root, 'test_file_utils')
+  def folder
+    @folder ||= File.join(T.file_root, 'test_file_utils')
   end
 end

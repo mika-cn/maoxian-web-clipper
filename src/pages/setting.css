@@ -1,10 +1,136 @@
 .main {
-  width: 800px;
+  width: 100%;
   min-height: 800px;
-  margin: 0 auto;
-  border: 1px solid #ccc;
-  padding: 50px 20px 400px 20px;
-  background-color: #fefefe;
+  margin: 0px;
+  padding: 0px;
+  background-color: #fff;
+}
+
+ul > li {
+  line-height: 25px;
+}
+
+/*=========== content ===========*/
+
+.content {
+  display: block;
+  padding: 10px 10px 180px 10px;
+  font-size: 14px;
+  line-height: 23px;
+}
+
+/* Desktop screen style */
+@media (min-width: 768px) {
+  .content {
+    width: 75%;
+    margin-left: 23%;
+    background-color: #fefefe;
+  }
+}
+
+/* Palm screen style */
+@media (max-width: 767px) {
+  .content {}
+}
+
+
+/*=========== sidebar ===========*/
+  .sidebar {
+    position: fixed;
+    display: block;
+    z-index: 2;
+  }
+
+  .sidebar-content {
+    padding-top: 20px;
+    background-color: #e0e0e0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .sidebar-content > .menu {
+    display: block;
+    background-color: #e0e0e0;
+    height: 30px;
+    line-height: 30px;
+    padding: 5px 15px;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .sidebar-content > .menu:hover {
+    background: #eee;
+  }
+
+  .sidebar-content > .menu.active {
+    background: white;
+    border-left: solid 3px green;
+  }
+
+
+  @media (min-width: 768px) {
+    .sidebar-folder {
+      display: none;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 20%;
+      max-width: 255px;
+      height: 100%;
+    }
+    .sidebar-content {
+      height: 100%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .sidebar-folder {
+      position: fixed;
+      display: block;
+      top: 20px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      font-size: 20px;
+      border-radius: 5px;
+      background-color: #464646;
+      color: #ccc;
+      cursor: pointer;
+      z-index: 3;
+    }
+
+    .sidebar-folder.active {
+      background-color: green;
+      background-color: #e0e0e0;
+      color: green;
+      font-weight: bold;
+    }
+
+    .sidebar-content { display: none; }
+    .sidebar-folder.active + .sidebar-content {
+      padding-top: 40px;
+      padding-bottom: 40px;
+      position: fixed;
+      display: block;
+      border: solid 1px #ccc;
+      width: 80%;
+      max-width: 255px;
+      top: 20px;
+      right: 10px;
+    }
+  }
+
+/*=========== sidebar end ===========*/
+
+
+h2 {
+  padding-top: 30px;
 }
 
 h3 {
@@ -12,32 +138,36 @@ h3 {
   border-bottom: solid 1px #ccc;
 }
 
-.sidebar {
-  position: fixed;
+section {
   display: block;
-  width: 200px;
-  height: auto;
-  margin-left: -251px;
-  padding: 10px 10px 10px 10px;
-  border: solid 1px #ccc;
-  background-color: white;
-  z-index: 2;
 }
 
-.sidebar > .menu{
+#setting-handler-native-app .version {
+  display: none
+}
+#setting-handler-native-app .version.active {
   display: block;
-  background-color: #eee;
-  height: 30px;
-  line-height: 30px;
-  padding: 5px 10px;
-  text-decoration: none;
-  color: #333;
 }
 
-.sidebar > .menu.active{
-  background: white;
+#setting-storage > .save-format, .local-path {
+  display: none;
 }
 
+#setting-storage > .save-format.active, .local-path.active {
+  display: block;
+}
+#setting-offline-page > .detail {
+  display: none;
+}
+#setting-offline-page > .detail.active {
+  display: block;
+}
+#setting-refresh-history > .detail {
+  display: none;
+}
+#setting-refresh-history > .detail.active {
+  display: block;
+}
 
 /********** text input ***********/
 input[type=text] {
@@ -56,6 +186,9 @@ input[type=text]:focus{
 }
 
 /********** options(radio input) ***********/
+.options {
+  margin-bottom: 20px;
+}
 .options > a{
   text-decoration: none;
   display: inline-block;
@@ -81,9 +214,3 @@ input[type=text]:focus{
   background-color: #E8E8E8;
 }
 
-code {
-  background-color: #efefef;
-  padding: 1px 4px;
-  border: solid 1px #ccc;
-  border-radius: 3px;
-}

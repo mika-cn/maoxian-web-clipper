@@ -11,18 +11,18 @@ this.MxWcMarkdown = (function() {
     Log.debug("markdown parser");
     const {path, elem, info, config} = params;
     const [mimeTypeDict, frames] = await Promise.all([
-      ExtApi.sendMessageToBackground({type: 'get.mimeTypeDict'}),
-      ExtApi.sendMessageToBackground({type: 'get.allFrames'}),
+      ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
+      ExtMsg.sendToBackground({type: 'get.allFrames'}),
       KeyStore.init()
     ]);
     const {html, tasks} = await getElemHtml({
       clipId: info.clipId,
-      win: window,
       frames: frames,
       path: path,
       elem: elem,
       refUrl: window.location.href,
-      mimeTypeDict: mimeTypeDict
+      mimeTypeDict: mimeTypeDict,
+      config: config,
     })
     let markdown = generateMarkDown(html, info);
     markdown = PluginMathJax.unEscapeMathJax(markdown);
@@ -30,7 +30,7 @@ this.MxWcMarkdown = (function() {
     if(config.saveClippingInformation){
       markdown += generateMdClippingInfo(info);
     }
-    const filename = T.joinPath([path.clipFold, info.filename]);
+    const filename = T.joinPath([path.saveFolder, info.filename]);
     const mainFileTask = {
       taskType: 'mainFileTask',
       type: 'text',
@@ -48,18 +48,18 @@ this.MxWcMarkdown = (function() {
     const topFrameId = 0;
     const {
       clipId,
-      win,
       frames,
       path,
       elem,
       refUrl,
       mimeTypeDict,
-      parentFrameId = topFrameId
+      parentFrameId = topFrameId,
+      config: config,
     } = params;
     Log.debug("getElemHtml", refUrl);
-    const xpaths = ElemTool.getHiddenElementXpaths(win, elem);
+    const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
     let clonedElem = elem.cloneNode(true);
-    clonedElem = ElemTool.removeChildByXpath(win, clonedElem, xpaths);
+    clonedElem = ElemTool.removeChildByXpath(window, clonedElem, xpaths);
     clonedElem = T.completeElemLink(clonedElem, refUrl);
 
     const imgTags = T.getTagsByName(clonedElem, 'img')
@@ -76,26 +76,26 @@ this.MxWcMarkdown = (function() {
 
     Log.debug("FrameHandlefihish");
     clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
-    clonedElem = PluginMisc.handle(win, clonedElem);
-    clonedElem = PluginGist.handle(win, clonedElem);
-    clonedElem = PluginMathJax.handle(win, clonedElem);
-    clonedElem = PluginMathML2LaTeX.handle(win, clonedElem);
+    clonedElem = PluginMisc.handle(window, clonedElem);
+    clonedElem = PluginGist.handle(window, clonedElem);
+    clonedElem = PluginMathJax.handle(window, clonedElem);
+    clonedElem = PluginMathML2LaTeX.handle(window, clonedElem);
     let html = clonedElem.outerHTML;
     html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos);
-    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFold, imgAssetInfos);
+    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, imgAssetInfos);
     return {html: html, tasks: imgTasks.concat(frameTasks)};
   }
 
   async function handleFrames(params, clonedElem) {
     const topFrameId = 0;
-    const {clipId, win, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId} = params;
+    const {clipId, frames, path, mimeTypeDict,
+      parentFrameId = topFrameId, config} = params;
     // collect current layer frames
     const frameElems = [];
     const promises = [];
     for(let i = 0; i < frames.length; i++) {
       const frame = frames[i];
-      console.log(parentFrameId, frame.parentFrameId);
+      Log.debug(parentFrameId, frame.parentFrameId, frame.url);
       if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
         const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url)
         if(frameElem){
@@ -103,15 +103,16 @@ this.MxWcMarkdown = (function() {
           if(canAdd) {
             frameElems.push(frameElem);
             promises.push(
-              ExtApi.sendMessageToBackground({
+              ExtMsg.sendToBackground({
                 type: 'frame.toMd',
-                to: frame.url,
                 frameId: frame.frameId,
+                frameUrl: frame.url,
                 body: {
                   clipId: clipId,
                   frames: frames,
                   path: path,
-                  mimeTypeDict: mimeTypeDict
+                  mimeTypeDict: mimeTypeDict,
+                  config: config,
                 }
              })
             );
@@ -135,8 +136,8 @@ this.MxWcMarkdown = (function() {
           const {html, tasks} = result;
           taskCollection.push(...tasks);
           const frameElem = frameElems[idx];
-          const newNode = win.document.createElement("div");
-          newNode.innerHTML = (html || '');
+          const newNode = document.createElement("div");
+          T.setHtml(newNode, (html || ''));
           if(container === frameElem) {
             container = newNode;
           } else {
@@ -169,8 +170,8 @@ this.MxWcMarkdown = (function() {
     Log.debug('generateMdClippingInfo');
     let md = ""
     md += "\n\n---------------------------------------------------\n"
-    md += `\n\n${t('original_url')}: [${t('access')}](${info.link})`;
-    md += `\n\n${t('created_at')}: ${info.created_at}`;
+    md += `\n\n${t('original-url')}: [${t('access')}](${info.link})`;
+    md += `\n\n${t('created-at')}: ${info.created_at}`;
     let categoryStr = t('none');
     let tagStr = t('none');
     if(info.category){

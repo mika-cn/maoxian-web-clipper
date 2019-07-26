@@ -1,10 +1,10 @@
 // store-client.js
 const KeyStore = {
   init: function() {
-    return ExtApi.sendMessageToBackground({type: 'keyStore.init'});
+    return ExtMsg.sendToBackground({type: 'keyStore.init'});
   },
   add: function(key) {
-    return ExtApi.sendMessageToBackground({type: 'keyStore.add', body: {key: key}});
+    return ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: key}});
   }
 }
 
@@ -19,7 +19,7 @@ const StoreClient = {
   },
   fetchText: function(url) {
     return new Promise(function(resolve, reject){
-      ExtApi.sendMessageToBackground({
+      ExtMsg.sendToBackground({
         type: 'fetch.text',
         body: {
           url: url,
@@ -28,13 +28,13 @@ const StoreClient = {
       }).then(resolve, reject)
     })
   },
-  assetInfos2Tasks: function(clipId, assetFold, assetInfos) {
+  assetInfos2Tasks: function(clipId, assetFolder, assetInfos) {
     return T.map(assetInfos, (assetInfo) => {
-      return StoreClient.assetInfo2Task(clipId, assetFold, assetInfo);
+      return StoreClient.assetInfo2Task(clipId, assetFolder, assetInfo);
     });
   },
-  assetInfo2Task: function(clipId, assetFold, assetInfo) {
-    const filename = T.joinPath([assetFold, assetInfo.assetName]);
+  assetInfo2Task: function(clipId, assetFolder, assetInfo) {
+    const filename = T.joinPath([assetFolder, assetInfo.assetName]);
     return {
       taskType: [assetInfo.type, 'Task'].join(''),
       type: 'url',

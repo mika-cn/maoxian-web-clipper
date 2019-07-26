@@ -6,9 +6,9 @@
    *   fold, mimeTypeDict
    * }
    */
-  function messageHandler(message) {
+  function backgroundMessageHandler(message) {
     return new Promise(function(resolve, reject) {
-      if (message.to === window.location.href) {
+      if (message.frameUrl === window.location.href) {
         switch (message.type) {
           case 'frame.toHtml':
             MxWcHtml.getElemHtml(getParams(message)).then(resolve);
@@ -22,18 +22,30 @@
   }
 
   function getParams(message) {
-    const {clipId, frames, path, mimeTypeDict, saveWebFont} = message.body;
+    const {clipId, frames, path, mimeTypeDict, config} = message.body;
     return {
       clipId: clipId,
-      win: window,
       frames: frames,
       path: path,
       elem: document.body,
       refUrl: window.location.href,
       mimeTypeDict: mimeTypeDict,
       parentFrameId: message.frameId,
-      saveWebFont: saveWebFont
+      config: config,
     }
+  }
+
+  function listenBackgroundMessage() {
+    ExtMsg.initPage('content-frame');
+    ExtMsg.listen(backgroundMessageHandler);
+  }
+
+  function listenFrameMessage() {
+    FrameMsg.init({
+      id: window.location.href,
+      origin: window.location.origin
+    });
+    MxWcEvent.handleBroadcast();
   }
 
   function init() {
@@ -41,7 +53,8 @@
       // Main window
     }else{
       // Iframe
-      ExtApi.addMessageListener(messageHandler);
+      listenBackgroundMessage();
+      listenFrameMessage();
     }
   }
 

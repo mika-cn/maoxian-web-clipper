@@ -1,15 +1,14 @@
 
 
 
-function messageHandler(message, sender, senderResponse){
-  // Deprecated: senderResponse
+function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
       case 'get.mimeTypeDict' : WebRequest.getMimeTypeDict(resolve)     ; break     ;
-      case 'init.downloadFold': initDownloadFold()                      ; resolve() ; break ;
+      case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
-      case 'save.clip'        : saveClip(message.body)                  ; resolve() ; break ;
+      case 'save.clippingHistory' : saveClippingHistory(message.body)   ; resolve() ; break ;
 
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
@@ -29,8 +28,8 @@ function messageHandler(message, sender, senderResponse){
         break;
       case 'frame.toHtml':
       case 'frame.toMd':
-        // send back
-        ExtApi.sendMessageToContent(message, sender.tab.id, message.frameId)
+        // Redirect message to content frame.
+        ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId)
           .then((data) => {
             resolve(data);
           });
@@ -50,16 +49,27 @@ function messageHandler(message, sender, senderResponse){
       case 'generate.clipping.js':
         generateClippingJs(resolve);
         break;
+      case 'generate.clipping.js.if-need':
+        generateClippingJsIfNeed();
+        resolve();
+        break;
       case 'history.refresh':
         refreshHistory(resolve);
         break;
-      case 'history.refresh-if-need':
-        refreshHistoryIfNeed();
-        resolve();
+      case 'handler.get-info':
+        getHandlerInfo(message.body, resolve);
         break;
+      case 'create-tab':
+        ExtApi.createTab(message.body.link).then(resolve);
       default: break;
     }
   });
+}
+
+
+function getHandlerInfo(msg, resolve) {
+  const handler = MxWcHandler.get(msg.name);
+  handler.getInfo(resolve);
 }
 
 function deleteClipping(msg, resolve) {
@@ -71,20 +81,27 @@ function deleteClipping(msg, resolve) {
 }
 
 function refreshHistory(resolve) {
-  const handler = ClippingHandler_NativeApp;
-  handler.refreshHistory({
-    time: T.currentTime().toString()
-  }, (result) => {
-    if(result.ok){
-      resetStates('clips', result.clips);
-      resetStates('tags', result.tags);
-      resetStates('categories', result.categories);
-      const time = T.currentTime().toString();
-      MxWcStorage.set('lastRefreshHistoryTime', time);
-      generateClippingJsIfNeed()
+  MxWcHandler.isReady('config.refreshHistoryHandler', 'background').then((r) => {
+    const {ok, message, handler, config} = r;
+    if(ok) {
+      handler.refreshHistory({
+        root_folder: config.rootFolder,
+        time: T.currentTime().toString()
+      }, (result) => {
+        if(result.ok){
+          resetStates('clips', result.clips);
+          resetStates('tags', result.tags);
+          resetStates('categories', result.categories);
+          const time = T.currentTime().toString();
+          MxWcStorage.set('lastRefreshHistoryTime', time);
+          generateClippingJsIfNeed()
+        }
+        resolve(result);
+      })
+    } else {
+      resolve({ ok: false, message: message});
     }
-    resolve(result);
-  })
+  });
 }
 
 function exportHistory(content) {
@@ -101,7 +118,6 @@ function exportHistory(content) {
 }
 
 /*
- * handler.saveClipping(tabId, clipping)
  * saveTasks
  */
 
@@ -117,10 +133,7 @@ function saveClipping(tabId, clipping) {
           clippingSaveProgress(tabId, msg);
           break;
         case 'completed':
-          const result = msg.clippingResult;
-          // compatible with old message
-          result.handler = handler.name;
-          clippingSaveCompleted(tabId, result);
+          clippingSaveCompleted(tabId, msg.clippingResult, handler);
           break;
         default: break;
       }
@@ -132,9 +145,9 @@ function saveClipping(tabId, clipping) {
 
 function clippingSaveStarted(tabId, msg) {
   Log.debug('started');
-  ExtApi.sendMessageToContent({
+  ExtMsg.sendToContent({
     type: 'clipping.save.started',
-    detail: {
+    body: {
       clipId: msg.clipId
     }
   }, tabId);
@@ -143,9 +156,9 @@ function clippingSaveStarted(tabId, msg) {
 function clippingSaveProgress(tabId, msg) {
   const progress = [msg.finished, msg.total].join('/');
   Log.debug('progress', progress);
-  ExtApi.sendMessageToContent({
+  ExtMsg.sendToContent({
     type: 'clipping.save.progress',
-    detail: {
+    body: {
       clipId: msg.clipId,
       finished: msg.finished,
       total: msg.total
@@ -153,14 +166,18 @@ function clippingSaveProgress(tabId, msg) {
   }, tabId);
 }
 
-function clippingSaveCompleted(tabId, clippingResult){
+function clippingSaveCompleted(tabId, result, handler){
   Log.debug('completed');
-  Log.debug(clippingResult);
-  ExtApi.sendMessageToContent({
+  // compatible with old message
+  result.handler = handler.name;
+  result = handler.handleClippingResult(result);
+  Log.debug(result);
+  updateClippingHistory(result);
+  ExtMsg.sendToContent({
     type: 'clipping.save.completed',
-    detail: clippingResult
+    body: result
   }, tabId);
-  MxWcStorage.set('lastClippingResult', clippingResult);
+  MxWcStorage.set('lastClippingResult', result);
   MxWcIcon.flicker(3);
   generateClippingJsIfNeed();
 }
@@ -175,14 +192,15 @@ function generateClippingJsIfNeed(){
 }
 
 function generateClippingJs(callback) {
-  getClippingHandler((handler, config) => {
-    let pathConfig = MxWcConfig.getDefault().clippingJsPath;
-    if(config.clippingJsPath.indexOf('$MX-WC/') === 0 && config.clippingJsPath.endsWith('js')){
-      pathConfig = config.clippingJsPath;
-    }
-    const filename = pathConfig.replace('$MX-WC', 'mx-wc');
-    MxWcStorage.get('clips', [])
-      .then((clippings) => {
+  MxWcHandler.isReady('config.offlinePageHandler', 'background').then((result) => {
+    const {ok, message, handler, config} = result;
+    if(ok) {
+      let pathConfig = MxWcConfig.getDefault().clippingJsPath;
+      if(config.clippingJsPath.indexOf('$STORAGE-PATH/') === 0 && config.clippingJsPath.endsWith('js')){
+        pathConfig = config.clippingJsPath;
+      }
+      const filename = pathConfig.replace('$STORAGE-PATH', config.rootFolder);
+      MxWcStorage.get('clips', []).then((clippings) => {
         const json = JSON.stringify(clippings);
         const task = {
           text: `;var clippings = ${json};`,
@@ -192,33 +210,27 @@ function generateClippingJs(callback) {
         handler.saveTextFile(task);
         const time = T.currentTime().toString();
         MxWcStorage.set('lastGenerateClippingJsTime', time);
-        if(callback) {callback({time: time})};
+        if(callback) {callback({ok: true, time: time})};
       });
+    } else {
+      if(callback) {
+        callback({ok: false, message: message });
+      }
+    }
   });
 }
 
 function getClippingHandler(callback) {
   MxWcConfig.load().then((config) => {
-    let handler = null;
-    switch(config.clippingHandlerName){
-      case 'browser':
-        handler = ClippingHandler_Browser;
-        break;
-      case 'native-app':
-        handler = ClippingHandler_NativeApp;
-        break;
-      default:
-        handler = ClippingHandler_Browser;
-    }
-    callback(handler, config);
+    callback(MxWcHandler.get(config.clippingHandler), config);
   })
 }
 
-function initDownloadFold(){
-  MxWcStorage.get('downloadFold').then((root) => {
+function initDownloadFolder(){
+  MxWcStorage.get('downloadFolder').then((root) => {
     if(!root){
-      getClippingHandler((handler) => {
-        handler.initDownloadFold();
+      getClippingHandler((handler, config) => {
+        handler.initDownloadFolder(config);
       });
     }
   });
@@ -228,11 +240,25 @@ function resetStates(key, states){
   MxWcStorage.set(key, states);
 }
 
-function saveClip(msg){
-  const clip = msg.clip;
+function updateClippingHistory(clippingResult) {
   MxWcStorage.get('clips', [])
     .then((v) => {
-      v.unshift(clip);
+      const idx = v.findIndex((it) => {
+        return it.clipId == clippingResult.clipId;
+      });
+      if(idx > -1) {
+        Log.debug("UpdateClippingHistory", clippingResult.url);
+        v[idx]['url'] = clippingResult.url;
+        MxWcStorage.set('clips', v);
+      }
+    });
+}
+
+function saveClippingHistory(msg){
+  const it = msg.clippingHistory;
+  MxWcStorage.get('clips', [])
+    .then((v) => {
+      v.unshift(it);
       MxWcStorage.set('clips', v);
     })
 }
@@ -297,63 +323,18 @@ function welcomeNewUser(){
     })
 }
 
-// Native App Config may changed, update it
-function updateNativeAppConfig(){
-  getClippingHandler((handler) => {
-    if(handler.name === 'native-app') {
-      Log.debug('updateNativeAppConfig');
-      handler.initDownloadFold();
-    }
-  });
-}
-
-function checkNativeAppVersion(){
-  getClippingHandler((handler) => {
-    if(handler.name === 'native-app') {
-      const currentKey = 'check-native-app-version-' + ENV.version;
-      MxWcStorage.get(currentKey, false)
-        .then((isChecked) => {
-          if(isChecked) {
-            Log.debug(currentKey, 'checked');
-          } else {
-            handler.getVersion((result) => {
-              const link =  MxWcLink.get('extPage.notification');
-              if(result.ok) {
-                if(!T.isVersionGteq(result.version, ENV.minNativeAppVersion)) {
-                  const message = t('notification.native-app-version-too-small').replace('$requiredVersion', ENV.minNativeAppVersion).replace('$currentVersion', result.version);
-                  Log.error(message);
-                  MxWcNotification.add('danger', message, function(){
-                    ExtApi.createTab(link);
-                  })
-                }
-              } else {
-                const message = t('notification.native-app-connect-failed').replace('$errorMessage', result.message);
-                Log.error(message);
-                MxWcNotification.add('danger', message, function(){
-                  ExtApi.createTab(link);
-                })
-              }
-              MxWcStorage.set(currentKey, true);
-            })
-          }
-        });
-    }
-  })
-}
 
 function refreshHistoryIfNeed(){
   MxWcConfig.load().then((config) => {
     if(config.autoRefreshHistory){
-      if(config.clippingHandlerName === 'native-app') {
-        refreshHistory((result) => {
-          if(!result.ok) {
-            Log.error("AutoRefreshHistory: ");
-            Log.error(result.message)
-          }
-        });
-      } else {
-        Log.debug("autoRefreshHistory enabled, but clipping handler is NOT native-app, do nothing");
-      }
+      refreshHistory((result) => {
+        if(!result.ok) {
+          Log.error("AutoRefreshHistory: ");
+          Log.error(result.message)
+        } else {
+          Log.debug("History refreshed");
+        }
+      });
     }
   });
 }
@@ -361,14 +342,16 @@ function refreshHistoryIfNeed(){
 // state
 let keyStoreService = null;
 function init(){
+  Log.debug("background init...");
+  MxWcMigration.perform();
+  MxWcHandler.initialize();
+  ExtMsg.initPage('background');
+  ExtMsg.listen(messageHandler);
   WebRequest.listen();
   keyStoreService = createKeyStoreService();
-  ExtApi.addMessageListener(messageHandler);
-  Log.debug("background init...");
-  welcomeNewUser();
-  updateNativeAppConfig();
-  checkNativeAppVersion();
   refreshHistoryIfNeed();
+  welcomeNewUser();
+  Log.debug("background init finish...");
 }
 
 init();

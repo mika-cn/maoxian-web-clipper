@@ -10,7 +10,6 @@ turndown              => https://github.com/domchristie/turndown
 turndown-plugin-gfw   => https://github.com/domchristie/turndown-plugin-gfm
 strip-css-comments    => https://github.com/sindresorhus/strip-css-comments
 awesomplete           => https://github.com/LeaVerou/awesomplete
-font-awesome          => https://github.com/FortAwesome/Font-Awesome
 pikaday               => https://github.com/Pikaday/Pikaday
 ```
 
@@ -24,6 +23,5 @@ turndown              => MIT
 turndown-plugin-gfw   => MIT
 strip-css-comments    => MIT
 awesomplete           => MIT
-font-awesome          => Font Awesome Free License https://github.com/FortAwesome/Font-Awesome/blob/master/LICENSE.txt
 pikaday               => BSD & MIT
 ```

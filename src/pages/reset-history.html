@@ -8,10 +8,14 @@
   </head>
   <body>
     <div class="main">
-      <h1> Reset History </h1>
+      <h1 i18n="reset.page-name"> Reset History </h1>
       <div class="hint"></div>
       <div class="selector">
-        <div class="notice-info" i18n="reset.hint"></div>
+        <div class="notice-info">
+          <span i18n="reset.hint"></span><br />
+          <span i18n="reset.current-storage-path"></span>
+          <span id="current-storage-path-value"></span>
+        </div>
         <input id="myInput" type="file" accept="application/json" webkitdirectory directory/>
         <button id="reset-btn" i18n="btn.confirm"></button>
       </div>
@@ -22,7 +26,10 @@
     <script type="text/javascript" src="../_locales/en.js"></script>
     <script type="text/javascript" src="../_locales/zh-CN.js"></script>
     <script type="text/javascript" src="../js/lib/ext-api.js"></script>
+    <script type="text/javascript" src="../js/lib/ext-msg.js"></script>
     <script type="text/javascript" src="../js/lib/mx-wc-storage.js"></script>
+    <script type="text/javascript" src="../js/lib/mx-wc-config.js"></script>
+    <script type="text/javascript" src="../js/lib/mx-wc-link.js"></script>
     <script type="text/javascript" src="../js/lib/translation.js"></script>
     <script type="text/javascript" src="reset-history.js"></script>
   </body>

@@ -1,6 +1,6 @@
 ;"use strict";
 
-(function(){
+(function(Config){
 
   const state = {
     currClips: []
@@ -44,14 +44,14 @@
   }
 
   function calcRelativePath(clippingPath){
-    const root = 'mx-wc';
     const path = window.location.pathname;
     const ridx = path.lastIndexOf('/');
     let dir = path.substring(0, ridx);
-    if(dir.indexOf(root) > -1) {
-      dir = dir.split(root)[1]
+    let idx = dir.indexOf(Config.rootFolder)
+    if( idx > -1) {
+      dir = dir.substring(idx + Config.rootFolder.length);
     }
-    const currDir = [root, dir].join('');
+    const currDir = [Config.rootFolder, dir].join('');
     return T.calcPath(currDir, clippingPath);
   }
 
@@ -118,4 +118,4 @@
   }
 
   init();
-})();
+})(Config);

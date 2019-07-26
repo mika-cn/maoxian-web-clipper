@@ -1,9 +1,15 @@
 /*!
  * Communication between iframe and top window
  *
+ * Normal message
+ *
  * topWindow --> iframe
  * iframe    --> topWindow
  * iframe    --> topWindow --> otherIframe
+ *
+ * Broadcast message
+ *
+ * topWindow --> Iframe
  */
 
 "use strict";
@@ -14,14 +20,16 @@ this.FrameMsg = (function(window){
     origin: null,
     allowOrigins: [],
     listeners: {},
+    ready: false,
   };
 
   // options: {id:, :origin, allowOrigins}
   function init(options){
-    const {id, origin, allowOrigins} = options;
+    const {id, origin, allowOrigins = []} = options;
     state.id = id;
     state.origin = origin;
     state.allowOrigins = allowOrigins;
+    state.ready = true;
     window.addEventListener('message', receiveMessage, false);
   }
 
@@ -37,6 +45,20 @@ this.FrameMsg = (function(window){
     state.listeners = {};
   }
 
+  // Broadcast to children only.
+  // params: {:type, :msg}
+  function broadcast(params) {
+    const message = params;
+    message.broadcast = true;
+    const frames = document.querySelectorAll('iframe');
+    frames.forEach(function(frame) {
+      if(!isExtensionFrame(frame)) {
+        const {targetWindow, targetOrigin} = frame2TargetInfo(frame);
+        targetWindow.postMessage(message, targetOrigin);
+      }
+    });
+  }
+
   // params: {:to, :type, :msg}
   function send(params){
     const message = params;
@@ -46,33 +68,15 @@ this.FrameMsg = (function(window){
     targetWindow.postMessage(message, targetOrigin);
   }
 
-  function getTargetInfo(to){
-    if (state.id === 'top') {
-      const frame = document.getElementById(to);
-      if(frame){
-        const frameUrl = new URL(frame.src);
-        return {
-          targetWindow: frame.contentWindow,
-          targetOrigin: frameUrl.origin
-        }
-      } else {
-        throw new Error(`Can not find frame with id: ${to}`);
-      }
-    } else {
-      return {
-        targetWindow: window.parent,
-        targetOrigin: state.allowOrigins[0]
-      }
-    }
-  }
-
   function receiveMessage(e) {
-    if(state.allowOrigins.indexOf(e.origin) < 0){ return; }
-    const {to, type, msg} = e.data;
-    if (state.id === to) {
+    if(state.allowOrigins.length > 0 && state.allowOrigins.indexOf(e.origin) < 0){
+      return;
+    }
+    const {to, type, msg, broadcast = false} = e.data;
+    if (broadcast || state.id === to) {
       const handler = state.listeners[type];
       if(handler){
-        handler(msg);
+        handler(msg, type);
       }
     } else {
       if (state.id === 'top') {
@@ -84,9 +88,63 @@ this.FrameMsg = (function(window){
     }
   }
 
+  function getTargetInfo(to){
+    if (state.id === 'top') {
+      const frame = document.getElementById(to);
+      if(frame){
+        return frame2TargetInfo(frame);
+      } else {
+        console.trace();
+        throw new Error(`Can not find frame with id: ${to}`);
+      }
+    } else {
+      return {
+        targetWindow: window.parent,
+        targetOrigin: state.allowOrigins[0]
+      }
+    }
+  }
+
+  function frame2TargetInfo(frame) {
+    let targetOrigin = null;
+    try {
+      targetOrigin = (new URL(frame.src)).origin;
+    } catch (e) {
+      // invalid Url, something like: javascript: vaid(0);
+      console.warn("FrameMsg frame src invalid: ", frame.src);
+      console.warn(e);
+      console.trace();
+    } finally {
+      if(!targetOrigin || targetOrigin == 'null') {
+        targetOrigin = '*';
+      }
+    }
+    return {
+      targetWindow: frame.contentWindow,
+      targetOrigin: targetOrigin
+    }
+  }
+
+  function isExtensionFrame(frame){
+    const url = frame.src;
+    if(url.indexOf('://') > -1) {
+      const protocol = url.split('://')[0];
+      return !!protocol.match(/-extension$/);
+    } else {
+      return false
+    }
+  }
+
+  function isReady() {
+    return state.ready;
+  }
+
+
   return {
     init: init,
+    isReady: isReady,
     send: send,
+    broadcast: broadcast,
     addListener: addListener,
     removeListener: removeListener,
     clearListener: clearListener,
