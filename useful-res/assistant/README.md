@@ -10,7 +10,7 @@
 
 ## 安装
 
-* 早期的扩展不支持该功能，请确保 MaoXian 版本为 **V0.1.27 以上**
+* 早期的扩展不支持该功能，请确保 MaoXian 版本为 **V0.1.34 以上**
 * 安装 userScript 浏览器扩展，常见的有 Greasemonkey、 Tampermonkey， 选一个适用你浏览器的安装即可。
 
 * [安装本助手](https://mika-cn.github.io/maoxian-web-clipper/assistant/index.user.js)
