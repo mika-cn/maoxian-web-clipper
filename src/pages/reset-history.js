@@ -4,6 +4,13 @@
 (function(){
   const state = {};
 
+  function initUI() {
+    MxWcConfig.load().then((config) => {
+      const value = t('reset.current-storage-path-value').replace(/\$ROOT-FOLDER/g, config.rootFolder);
+      T.setHtml('#current-storage-path-value', value);
+    });
+  }
+
   function bindListener(){
     const folder = T.findElem("myInput");
     const btn = T.findElem("reset-btn");
@@ -18,12 +25,18 @@
   }
 
   function reset(){
-    const folder = T.findElem("myInput");
-    const selector = T.queryElem(".selector");
-    selector.style.display = "none";
-    showHint(t('init.download-folder'));
-    ExtMsg.sendToBackground({type: 'init.downloadFold'});
-    state.worker.postMessage(folder.files);
+    MxWcConfig.load().then((config) => {
+      const folder = T.findElem("myInput");
+      const selector = T.queryElem(".selector");
+      selector.style.display = "none";
+      showHint(t('init.download-folder'));
+      ExtMsg.sendToBackground({type: 'init.downloadFolder'});
+      // behavior of chrome is so strange. file.webkitRelativePath
+      state.worker.postMessage({
+        files: folder.files,
+        rootFolder: config.rootFolder,
+      });
+    });
   }
 
   function hideResetBtn(){
@@ -67,9 +80,11 @@
   }
 
   function init(){
+    initUI();
     i18nPage();
     bindListener();
     ExtMsg.initPage('reset-history');
+    MxWcLink.listen(document.body);
     state.worker = new Worker('reset-history-worker.js');
     state.worker.onmessage = handlerWorkerMessage;
   }

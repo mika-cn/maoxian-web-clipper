@@ -30,33 +30,33 @@
     <template id="section-setting-general-tpl">
       <section id="setting-general">
         <h2 class="center" i18n="setting.title.general"></h2>
-        <h3 i18n="setting.title.clipping-content"></h3>
-        <p>
-        <input type="checkbox" id="save-clipping-information" />
-        <label for="save-clipping-information" i18n="setting.clip-information-input.label"></label>
-        <br />
-        <input type="checkbox" id="save-web-font" />
-        <label for="save-web-font" i18n="setting.save-web-font-input.label"></label>
-        <br />
-        <input type="checkbox" id="save-css-image" />
-        <label for="save-css-image" i18n="setting.save-css-image-input.label"></label>
-        <br />
-        <input type="checkbox" id="save-domain-as-tag" />
-        <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
-        </p>
-        <h3 i18n="setting.title.control"></h3>
-        <p>
-        <input type="checkbox" id="hotkey-switch-enabled" />
-        <label for="hotkey-switch-enabled" i18n="setting.hotkey-switch-enabled-input.label"></label>
-        <br />
-        <input type="checkbox" id="mouse-mode-enabled" />
-        <label for="mouse-mode-enabled" i18n="setting.mouse-mode-enabled-input.label"></label>
-        <br />
-        <input type="checkbox" id="input-field-save-format-enabled" />
-        <label for="input-field-save-format-enabled" i18n="setting.input-field-save-format-enabled.label"></label>
-        </p>
-        <h3 i18n="setting.title.file-url"></h3>
-        <p>
+        <div>
+          <h3 i18n="setting.title.clipping-content"></h3>
+          <input type="checkbox" id="save-clipping-information" />
+          <label for="save-clipping-information" i18n="setting.clip-information-input.label"></label>
+          <br />
+          <input type="checkbox" id="save-web-font" />
+          <label for="save-web-font" i18n="setting.save-web-font-input.label"></label>
+          <br />
+          <input type="checkbox" id="save-css-image" />
+          <label for="save-css-image" i18n="setting.save-css-image-input.label"></label>
+          <br />
+          <input type="checkbox" id="save-domain-as-tag" />
+          <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
+        </div>
+        <div>
+          <h3 i18n="setting.title.control"></h3>
+          <input type="checkbox" id="hotkey-switch-enabled" />
+          <label for="hotkey-switch-enabled" i18n="setting.hotkey-switch-enabled-input.label"></label>
+          <br />
+          <input type="checkbox" id="mouse-mode-enabled" />
+          <label for="mouse-mode-enabled" i18n="setting.mouse-mode-enabled-input.label"></label>
+          <br />
+          <input type="checkbox" id="input-field-save-format-enabled" />
+          <label for="input-field-save-format-enabled" i18n="setting.input-field-save-format-enabled.label"></label>
+        </div>
+        <div>
+          <h3 i18n="setting.title.file-url"></h3>
           <div class="notice-info">
             <label i18n="setting.notice.file-url.intro"></label>
             <br />
@@ -73,7 +73,7 @@
           </div>
           <input type="checkbox" id="file-scheme-access-input"/>
           <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
-        </p>
+        </div>
       </section>
     </template>
 
@@ -97,16 +97,33 @@
         </div>
         <div class="local-path">
           <h3 i18n="setting.title.path"></h3>
-          <p>
-            <input type="checkbox" id="save-title-as-fold-name" />
-            <label for="save-title-as-fold-name" i18n="setting.save-title-as-fold-name-input.label"></label>
+          <div class="notice-light">
+            <span i18n="setting.path-intro.format"></span>
+            <code i18n="setting.path.download"></code> /
+            <code i18n="setting.folder.root"></code> /
+            <code i18n="setting.folder.category"></code> /
+            <code i18n="setting.folder.clipping"></code> /
+            <code i18n="setting.path.filename"></code>
             <br />
+            <ul>
+              <li i18n="setting.path.download.intro"></li>
+              <li i18n="setting.folder.root.intro"></li>
+              <li i18n="setting.folder.category.intro"></li>
+              <li i18n="setting.folder.clipping.intro"></li>
+              <li i18n="setting.path.filename.intro"></li>
+            </ul>
+          </div>
+          <div>
+            <div>
+              <h4 i18n="setting.title.root-folder"></h4>
+              <div class="notice-warning" i18n="setting.notice.root-folder"></div>
+              <input type="text" id="root-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+            </div>
+            <h4 i18n="setting.title.default-category"></h4>
+            <div class="notice-info" i18n="setting.notice.default-category"></div>
+            <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
 
-            <input type="checkbox" id="save-title-as-filename" />
-            <label for="save-title-as-filename" i18n="setting.save-title-as-filename-input.label"></label>
-            <br />
-
-            <h3 i18n="setting.title.default-clipping-folder-format"></h3>
+            <h4 i18n="setting.title.default-clipping-folder-format"></h4>
             <div id="default-clipping-folder-format">
               <div>
                 <input type="radio" value="$FORMAT-A" id="default-clipping-folder-format-a" name="default-clipping-folder-format" />
@@ -121,30 +138,34 @@
                 <label for="default-clipping-folder-format-c" i18n="setting.option.default-clipping-folder-format.c"></label>
               </div>
             </div>
-            <br />
 
-            <h3 i18n="setting.title.title-style-clipping-folder-format"></h3>
+            <h4 i18n="setting.title.title-style-clipping-folder"></h4>
+            <input type="checkbox" id="title-style-clipping-folder-enabled" />
+            <label for="title-style-clipping-folder-enabled" i18n="setting.title-style-clipping-folder-enabled-input.label"></label>
             <div class="notice-info" i18n="setting.notice.title-clipping-folder-format"></div>
             <div id="title-style-clipping-folder-format">
-              <div>
+              <span>
                 <input type="radio" value="$FORMAT-A" id="title-style-clipping-folder-format-a" name="title-style-clipping-folder-format" />
                 <label for="title-style-clipping-folder-format-a" i18n="setting.option.title-style-clipping-folder-format.a"></label>
-              </div>
-              <div>
+              </span>
+              <span>
                 <input type="radio" value="$FORMAT-B" id="title-style-clipping-folder-format-b" name="title-style-clipping-folder-format" />
                 <label for="title-style-clipping-folder-format-b" i18n="setting.option.title-style-clipping-folder-format.b"></label>
-              </div>
+              </span>
             </div>
-            <br />
 
-            <h3 i18n="setting.title.asset-path"></h3>
-            <div class="notice-info" i18n="setting.notice.asset-path"></div>
-            <input type="text" id="asset-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
-            <br />
-            <h3 i18n="setting.title.default-category"></h3>
-            <div class="notice-info" i18n="setting.notice.default-category"></div>
-            <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
-          </p>
+            <h4 i18n="setting.title.clipping-file"></h4>
+            <div>
+              <input type="checkbox" id="save-title-as-filename" />
+              <label for="save-title-as-filename" i18n="setting.save-title-as-filename-input.label"></label>
+            </div>
+            <h4 i18n="setting.title.asset-path"></h4>
+            <div>
+              <div class="notice-info" i18n="setting.notice.asset-path"></div>
+              <input type="text" id="asset-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
+            </div>
+
+          </div>
         </div>
       </section>
     </template>
@@ -176,13 +197,13 @@
           <input type="text" id="clipping-js-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
           <br />
           <div class="notice-info" i18n="setting.notice.autogenerate-clipping-js"></div>
-          <p>
+          <div>
             <input type="checkbox" id="autogenerate-clipping-js" />
             <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label><br /><br />
             <label i18n="setting.last-generate-time.label"></label>:
             <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>&nbsp;
             <button id="generate-clipping-js-now" i18n="setting.button.generate-now"></button>
-          </p>
+          </div>
         </div>
       </section>
     </template>
@@ -205,13 +226,13 @@
         </div>
         <div class="detail">
           <h3 i18n="setting.title.detail"></h3>
-          <p>
+          <div>
             <input type="checkbox" id="auto-refresh-history" />
             <label for="auto-refresh-history" i18n="setting.auto-refresh-history-input.label"></label><br /><br />
             <label i18n="setting.last-refresh-time.label"></label>:
             <label id="last-refresh-history-time">${lastRefreshHistoryTime}</label>&nbsp;
             <button id="refresh-history-now" i18n="setting.button.refresh-now"></button>
-          </p>
+          </div>
         </div>
       </section>
     </template>

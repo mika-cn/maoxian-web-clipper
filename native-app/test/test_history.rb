@@ -8,33 +8,33 @@ class HistoryTest < Minitest::Test
     @root_dir = '/home/foo/Downloads'
   end
 
-  def test_clipping_info_old_version
+  def test_clippings_info_old_version
     info = {}
-    info_path = 'mx-wc/article/js/2019-01-01-1122334455/index.json'
+    info_path = 'clippings/article/js/2019-01-01-1122334455/index.json'
     path = File.join(@root_dir, info_path)
-    r = History::ClippingInfo.new(info, path)
+    r = History::ClippingInfo.new(info, path, 'clippings')
     assert_equal '1122334455', r.clipId
     assert_equal 'html', r.format
     assert_equal 'index.html', r.filename
     assert_equal 'article/js', r.category
     assert_equal info_path, r.path
 
-    info_path = 'mx-wc/article/js/2019-01-01/index.json'
+    info_path = 'clippings/article/js/2019-01-01/index.json'
     path = File.join(@root_dir, info_path)
-    r = History::ClippingInfo.new(info, path)
+    r = History::ClippingInfo.new(info, path, 'clippings')
     assert r.clipId =~ /^00/
   end
 
-  def test_clipping_info_curr_version
+  def test_clippings_info_curr_version
     info = {
       id: '001',
       format: 'md',
       filename: 'awesome.html',
       category: 'foo/bar'
     }
-    info_path = 'mx-wc/article/js/2019-01-01-1122334455/index.json'
+    info_path = 'clippings/article/js/2019-01-01-1122334455/index.json'
     path = File.join(@root_dir, info_path)
-    r = History::ClippingInfo.new(info, path)
+    r = History::ClippingInfo.new(info, path, 'clippings')
     assert_equal '001', r.clipId
     assert_equal 'md', r.format
     assert_equal 'awesome.html', r.filename
@@ -44,7 +44,7 @@ class HistoryTest < Minitest::Test
   def test_history_refresh_empth_data_dir
     data_dir = File.join(T.file_root, 'test_history_refresh')
     T.mkdir(data_dir)
-    r = History.refresh(data_dir)
+    r = History.refresh(data_dir, 'clippings')
     assert_equal true, r[:ok]
     assert_equal 0, r[:clips].size
     T.remove_dir data_dir
@@ -54,7 +54,7 @@ class HistoryTest < Minitest::Test
     data_dir = File.join(T.file_root, 'test_history_refresh')
 
     T.create_file(
-      File.join(data_dir, 'mx-wc/article/js/cool-title/index.json'),
+      File.join(data_dir, 'clippings/article/js/cool-title/index.json'),
       JSON.generate({ id: '001',
         format: 'md',
         filename: 'awesome.html',
@@ -64,7 +64,7 @@ class HistoryTest < Minitest::Test
     )
 
     T.create_file(
-      File.join(data_dir, 'mx-wc/article/js/cool/title/index.json'),
+      File.join(data_dir, 'clippings/article/js/cool/title/index.json'),
       JSON.generate({ id: '002',
         format: 'md',
         filename: 'awesome.html',
@@ -73,7 +73,7 @@ class HistoryTest < Minitest::Test
       })
     )
 
-    r = History.refresh(data_dir)
+    r = History.refresh(data_dir, 'clippings')
     assert_equal true, r[:ok]
     assert_equal 2, r[:clips].size
     assert_equal 2, r[:categories].size
@@ -88,7 +88,7 @@ class HistoryTest < Minitest::Test
     data_dir = File.join(T.file_root, 'test_history_refresh')
 
     T.create_file(
-      File.join(data_dir, 'mx-wc/box/mx-wc/cool-title/index.json'),
+      File.join(data_dir, 'clippings/box/clippings/cool-title/index.json'),
       JSON.generate({ id: '001',
         format: 'md',
         filename: 'awesome.html',
@@ -97,8 +97,13 @@ class HistoryTest < Minitest::Test
       })
     )
 
-    r = History.refresh(data_dir)
-    assert_equal "box/mx-wc", r[:categories][0]
+    r = History.refresh(data_dir, 'clippings')
+    assert_equal "box/clippings", r[:categories][0]
+    T.remove_dir data_dir
+  end
+
+  def teardown
+    data_dir = File.join(T.file_root, 'test_history_refresh')
     T.remove_dir data_dir
   end
 

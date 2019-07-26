@@ -9,7 +9,7 @@ require_relative './clipping'
 require_relative './history'
 
 class Application
-  VERSION = '0.1.8'
+  VERSION = '0.1.9'
 
   attr_accessor :config
 
@@ -38,13 +38,13 @@ class Application
     when 'download.url' then download_url(msg)
     when 'get.version' then
       NativeMessage.write({type: msg['type'], version: VERSION})
-    when 'get.downloadFold' then
-      NativeMessage.write({type: msg['type'], downloadFold: root})
+    when 'get.downloadFolder' then
+      NativeMessage.write({type: msg['type'], downloadFolder: root})
     when 'clipping.op.delete' then
       result = Clipping.delete(root, msg)
       NativeMessage.write({type: msg['type']}.merge(result))
     when 'history.refresh' then
-      result = History.refresh(root)
+      result = History.refresh(root, msg['root_folder'])
       NativeMessage.write(msg.merge(result))
     else
       Log.error("unknow message: #{msg['type']}")
@@ -58,7 +58,7 @@ class Application
     File.open(filename, 'w+') do |f|
       f.write(msg['text'])
     end
-    NativeMessage.write({type: msg['type'], filename: filename, failed: false})
+    respond_download_success(msg, filename)
     Log.debug("[Done] #{filename}")
   end
 
@@ -72,30 +72,49 @@ class Application
         content = open(msg['url'], msg['headers']).read
       end
       File.open(filename, 'wb') {|file| file.write content}
-      NativeMessage.write({type: msg['type'], filename: filename, failed: false})
+      respond_download_success(msg, filename)
       Log.debug("[Done] #{filename}")
     rescue SocketError => e
       errmsg = "[SocketError] #{msg['url']} #{e.message}"
       Log.error(errmsg)
-      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
+      respond_download_failure(msg, filename, errmsg)
     rescue Errno::ECONNREFUSED => e
       errmsg = "[Connect Refused] #{msg['url']} #{e.message}"
       Log.error(errmsg)
-      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
+      respond_download_failure(msg, filename, errmsg)
     rescue ::Net::OpenTimeout => e
       errmsg = "[Net openTimeout] #{msg['url']} #{e.message}"
       Log.error(errmsg)
-      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
+      respond_download_failure(msg, filename, errmsg)
     rescue OpenURI::HTTPError => e
       errmsg = "[OpenUri HTTPError] #{msg['url']} #{e.message}"
       Log.error(errmsg)
-      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
+      respond_download_failure(msg, filename, errmsg)
     rescue => e
       errmsg = "[Uncatch Error: #{e.class}] #{msg['url']} #{e.message}"
       Log.fatal(errmsg)
       Log.fatal(e.backtrace.join("\n"))
-      NativeMessage.write({type: msg['type'], filename: filename, failed: true, errmsg: errmsg})
+      respond_download_failure(msg, filename, errmsg)
     end
+  end
+
+  def respond_download_success(msg, filename)
+    NativeMessage.write({
+      type: msg['type'],
+      filename: filename,
+      taskFilename: msg['filename'],
+      failed: false
+    })
+  end
+
+  def respond_download_failure(msg, filename, errmsg)
+    NativeMessage.write({
+      type: msg['type'],
+      filename: filename,
+      taskFilename: msg['filename'],
+      failed: true,
+      errmsg: errmsg
+    })
   end
 
   def mkdir(filename)

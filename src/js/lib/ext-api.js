@@ -112,6 +112,8 @@ ExtApi.findDownloadItem = (downloadItemId) => {
       .then( function(downloadItems){
         if(downloadItems.length > 0){
           resolve(downloadItems[0])
+        } else {
+          resolve(undefined);
         }
       });
   })

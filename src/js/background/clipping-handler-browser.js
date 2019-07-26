@@ -1,7 +1,7 @@
 const ClippingHandler_Browser = (function(){
   const state = {
     isListening: false,
-    filenameDict: T.createDict() // downloadItemId => filename
+    taskFilenameDict: T.createDict(), // downloadItemId => taskFilename
   };
 
   function saveClipping(clipping, feedback) {
@@ -13,13 +13,8 @@ const ClippingHandler_Browser = (function(){
   }
 
   function handleClippingResult(it) {
-    it.url = 'file://' + it.filename;
+    it.url = T.toFileUrl(it.filename);
     return it;
-  }
-
-  function getTaskFilename(fullFilename) {
-    const path = fullFilename.split('mx-wc')[1];
-    return ['mx-wc', path].join('');
   }
 
   // msg: {:text, :mineType, :filename}
@@ -49,11 +44,15 @@ const ClippingHandler_Browser = (function(){
       url: msg.url
     }).then((downloadItemId) => {
       // download started successfully
-      // console.log("started: ", downloadItemId, filename);
+      state.taskFilenameDict.add(downloadItemId, msg.filename);
     }, (rejectMsg) => {
       Log.error(rejectMsg);
+      SavingTool.taskFailed(msg.filename, errMsg);
+      revokeObjectUrl(msg.url);
     } ).catch((err) => {
       Log.error(err);
+      SavingTool.taskFailed(msg.filename, err.message);
+      revokeObjectUrl(msg.url);
     });
   }
 
@@ -65,53 +64,69 @@ const ClippingHandler_Browser = (function(){
   }
 
   function downloadCompleted(downloadItemId){
-    const filename = state.filenameDict.find(downloadItemId);
-    state.filenameDict.remove(downloadItemId);
     // file that not download through maoxian web clipper
-    if(T.excludeFold(filename, 'mx-wc')){ return false }
-    if(filename.endsWith('.mxwc')) {
-      // touch file
-      ExtApi.deleteDownloadItem(downloadItemId);
-    } else {
-      const taskFilename = getTaskFilename(filename);
-      SavingTool.taskCompleted(taskFilename, {
-        fullFilename: filename,
-        downloadItemId: downloadItemId
-      });
-      if(!isMainFile(filename)) {
-        // erase assets download history
-        browser.downloads.erase({id: downloadItemId, limit: 1});
+    if(!isDownloadByUs(downloadItemId)) { return false }
+    ExtApi.findDownloadItem(downloadItemId)
+    .then((downloadItem) => {
+      if(downloadItem) {
+        const {filename, url} = downloadItem;
+        revokeObjectUrl(url);
+        if(filename.endsWith('.mxwc')) {
+          // touch file
+          ExtApi.deleteDownloadItem(downloadItemId);
+        } else {
+          const taskFilename = state.taskFilenameDict.find(downloadItemId);
+          SavingTool.taskCompleted(taskFilename, {
+            fullFilename: filename,
+            downloadItemId: downloadItemId
+          });
+          if(!isMainFile(filename)) {
+            // erase assets download history
+            browser.downloads.erase({id: downloadItemId, limit: 1});
+          }
+        }
+      } else {
+        Log.error('<mx-wc>', "Couldn't find DownloadItem using downloadItemId: ", downloadItemId);
       }
-    }
+    });
   }
+
 
   function filenameCreated(downloadItemId, filename){
     // file that not download through maoxian web clipper
-    if(T.excludeFold(filename, 'mx-wc')){ return false }
-    state.filenameDict.add(downloadItemId, filename);
-    updateDownloadFold(filename);
+    if(!isDownloadByUs(downloadItemId)) { return false }
+    updateDownloadFolder(downloadItemId, filename);
   }
 
-  function updateDownloadFold(filename){
+  function isDownloadByUs(downloadItemId) {
+    return state.taskFilenameDict.hasKey(downloadItemId);
+  }
+
+  function updateDownloadFolder(downloadItemId, filename){
     if(isMainFile(filename)){
       // Update download Fold, Cause user might change download fold.
       // Update as soon as possible.
-      const downloadFold = filename.split('mx-wc')[0];
-      MxWcStorage.set('downloadFold', downloadFold);
+      const taskFilename = state.taskFilenameDict.find(downloadItemId);
+      const downloadFolder = filename.replace(taskFilename, '');
+      MxWcStorage.set('downloadFolder', downloadFolder);
     }
   }
 
   function downloadCreated(e){
     if(e.filename){
-      // firefox have filename on downloadCreated
-      filenameCreated(e.id, T.sanitizePath(e.filename))
+      // firefox has filename on downloadCreated but not in downloadChanged
+      // download created event is emit before resolve of ExtApi.download
+      // We deal this event next tick (after ExtApi.download function resolved).
+      setTimeout(() => {
+        filenameCreated(e.id, T.sanitizePath(e.filename))
+      }, 0);
     }
   }
 
   //https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/downloads/onChanged#downloadDelta
   function downloadChanged(e){
     if(e.filename && e.filename.current){
-      // chrome have firename on downloadChanged
+      // chrome have firename on downloadChanged but not in downloadCreated
       filenameCreated(e.id, T.sanitizePath(e.filename.current));
     }
 
@@ -131,12 +146,12 @@ const ClippingHandler_Browser = (function(){
     }
   }
 
-  function initDownloadFold(){
+  function initDownloadFolder(config){
     init();
     downloadText({
       mimeType: 'text/plain',
       text: "useless file, delete me :)",
-      filename: 'mx-wc/touch.mxwc'
+      filename: [config.rootFolder, 'touch.mxwc'].join('/')
     });
   }
 
@@ -172,6 +187,12 @@ const ClippingHandler_Browser = (function(){
       );
   }
 
+  function revokeObjectUrl(url) {
+    if(url.match(/^blob:/i)) {
+      URL.revokeObjectURL(url);
+    }
+  }
+
   function init(){
     if(!state.isListening){
       ExtApi.bindDownloadCreatedListener(downloadCreated);
@@ -189,12 +210,12 @@ const ClippingHandler_Browser = (function(){
 
 
   return {
-    name: 'browser',
+    name: 'Browser',
     getInfo: getInfo,
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
     handleClippingResult: handleClippingResult,
-    initDownloadFold: initDownloadFold
+    initDownloadFolder: initDownloadFolder
   }
 
 

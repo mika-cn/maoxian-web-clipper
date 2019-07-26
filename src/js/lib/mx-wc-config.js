@@ -6,19 +6,6 @@ this.MxWcConfig = (function() {
 
   function getDefault(){
     return {
-      /* old config names
-      clippingHandlerName: 'native-app',
-      enableSwitchHotkey: true,
-      enableMouseMode: true,
-      titleClippingFolderFormat: '$FORMAT-A',
-      */
-
-      // ======== handler names ==========
-      // We use javascript naming convention
-      // as handler name for convinience.
-      // So "browser" should changed to "Browser",
-      // "native-app" should changed to "NativeApp".
-      //
 
       /* Is handler enabled? */
       handlerBrowserEnabled: true,
@@ -53,9 +40,10 @@ this.MxWcConfig = (function() {
       saveFormat: 'html',
 
       // ======== Local path ==========
-      /* $MX-WC/ */
-      assetPath: '$CLIP-FOLD/assets',
-      saveTitleAsFoldName: false,
+      rootFolder: 'mx-wc',
+      /* $STORAGE-PATH */
+      /* $CLIPPING-PATH */
+      assetPath: '$CLIPPING-PATH/assets',
       saveTitleAsFilename: false,
       defaultCategory: 'default',
 
@@ -64,6 +52,7 @@ this.MxWcConfig = (function() {
       /* $FORMAT-C => 1539236251 */
       defaultClippingFolderFormat: '$FORMAT-A',
 
+      titleStyleClippingFolderEnabled: false,
       /* $FORMAT-A => $default-clipping-folder + $title */
       /* $FORMAT-B => $title */
       titleStyleClippingFolderFormat: '$FORMAT-A',
@@ -76,7 +65,7 @@ this.MxWcConfig = (function() {
       //=====================================
       offlinePageHandler: 'Browser',
       autogenerateClippingJs: false,
-      clippingJsPath: '$MX-WC/history/clippings.js',
+      clippingJsPath: '$STORAGE-PATH/history/clippings.js',
 
       //=====================================
       // Auto refresh history

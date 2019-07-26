@@ -29,7 +29,7 @@
       state.lastClippingResult = null;
       ExtApi.openDownloadItem(downloadItemId);
     } else {
-      if(url.startsWith('http') || state.isAllowFileScheme) {
+      if(url.startsWith('http') || state.allowFileUrlAccess) {
         MxWcStorage.set('lastClippingResult', null);
         state.lastClippingResult = null;
         ExtApi.createTab(url);
@@ -80,7 +80,7 @@
         MxWcStorage.get('lastClippingResult')
       ]).then((values) => {
         const [config, allowFileSchemeAccess, lastClippingResult] = values;
-        state.isAllowFileScheme = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+        state.allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
         state.config = config;
 
         if(lastClippingResult){
@@ -90,12 +90,13 @@
         const template = T.findElem('menu-tpl').innerHTML;
 
         const icons = {
-          "last-result" : '&#9215;',
+          "last-result" : '&#9745;',
           "clip"        : '&#9984;',
           "history"     : '&#9780;',
           "setting"     : '&#9965;',
           "home"        : '&#9961;',
         }
+        // 9745 ☑
         // 9215 ⏿
         // 9984 ✀
         // 9780 ☴

@@ -110,6 +110,11 @@
     );
 
     initTextInput(config,
+      'root-folder',
+      'rootFolder'
+    );
+
+    initTextInput(config,
       'asset-path',
       'assetPath'
     );
@@ -118,14 +123,15 @@
       'save-title-as-filename',
       'saveTitleAsFilename'
     );
-    initCheckboxInput(config,
-      'save-title-as-fold-name',
-      'saveTitleAsFoldName'
-    );
 
     initRadioInput(config,
       'default-clipping-folder-format',
       'defaultClippingFolderFormat'
+    );
+
+    initCheckboxInput(config,
+      'title-style-clipping-folder-enabled',
+      'titleStyleClippingFolderEnabled'
     );
 
     initRadioInput(config,
@@ -496,13 +502,12 @@
       type: 'handler.get-info',
       body: {name: 'NativeApp'}
     }).then((info) => {
-      console.log(info);
+
       const section = T.findElem(id);
       if(info.ready) {
         const elem = T.queryElem('.version-value', section);
         elem.innerText = info.version
-        T.queryElem('.version', section)
-          .classList.add('active');
+        T.queryElem('.version', section).classList.add('active');
       } else {
         // render errors
         let msg = t('setting.notice.danger.native-app-not-ready');
