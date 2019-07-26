@@ -76,6 +76,7 @@ const ClippingHandler_Browser = (function(){
           ExtApi.deleteDownloadItem(downloadItemId);
         } else {
           const taskFilename = state.taskFilenameDict.find(downloadItemId);
+          state.taskFilenameDict.remove(downloadItemId);
           SavingTool.taskCompleted(taskFilename, {
             fullFilename: filename,
             downloadItemId: downloadItemId

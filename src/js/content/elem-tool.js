@@ -22,12 +22,13 @@ ElemTool.isIndivisible = (elem, pElem) => {
   }
 }
 
-ElemTool.getHiddenElementXpaths = (win, elem, xpaths=[], prefix="") => {
+ElemTool.getHiddenElementXpaths = (win, elem, prefix="") => {
+  let xpaths = [];
   T.each(elem.children, (childElem, index) => {
     const xpath = [prefix, '*[', index + 1, ']'].join('');
     if(T.isElemVisible(win, childElem)) {
-      xpaths = ElemTool.getHiddenElementXpaths(
-        win, childElem, xpaths, xpath + '/');
+      xpaths = xpaths.concat(ElemTool.getHiddenElementXpaths(
+        win, childElem, xpath + '/'));
     } else {
       xpaths.push(xpath);
     }

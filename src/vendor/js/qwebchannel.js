@@ -5,7 +5,7 @@
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWebChannel module of the Qt Toolkit.
-** 
+**
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -356,7 +356,7 @@ function QObject(name, data, webChannel)
                         } else {
                             resolve(result);
                         }
-                        
+
                     }
                 });
             });

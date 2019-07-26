@@ -58,7 +58,7 @@
 
 
   T.isElemVisible = function(win, elem) {
-    if(['IMG', 'PEATURE'].indexOf(elem.tagName) > -1) {
+    if(['IMG', 'PICTURE'].indexOf(elem.tagName) > -1) {
       return true
     }
 

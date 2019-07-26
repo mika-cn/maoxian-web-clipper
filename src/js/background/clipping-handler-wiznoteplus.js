@@ -12,11 +12,11 @@ const ClippingHandler_WizNotePlus = (function(){
         /** Temporary path used by WizNotePlus. */
         tempPath: null,
     };
-    
+
     /**
      * Saving a new clip.
      * @param {*} clipping The tasks of clipping.
-     * @param {*} feedback 
+     * @param {*} feedback
      */
     async function saveClipping(clipping, feedback) {
         await init();
@@ -50,7 +50,7 @@ const ClippingHandler_WizNotePlus = (function(){
         await state.objApp.DatabaseManager.CreateDocument(
             indexFileName, info.title, sLocation, aTags, info.link);
         // Give feedback: get document GUID and then generate wiz:// link
-        // mode == completeWhenAllTaskFinished will calculate numbers of 
+        // mode == completeWhenAllTaskFinished will calculate numbers of
         // completed task, then determine the prograss of saving.
         //TODO: Create clipId - docGUID dict
     }
@@ -59,7 +59,7 @@ const ClippingHandler_WizNotePlus = (function(){
         // Get markdown text
         let markdownText = "";
         for (const task of tasks) {
-            if (task.taskType == "mainFileTask" 
+            if (task.taskType == "mainFileTask"
                 && task.mimeType == "text/markdown") {
                     markdownText = task.text;
                 }
@@ -91,7 +91,7 @@ const ClippingHandler_WizNotePlus = (function(){
     </body>
 </html>`;
     }
-    
+
     /**
      * Return the state and information of clipping-handler
      */
@@ -132,21 +132,21 @@ const ClippingHandler_WizNotePlus = (function(){
         return new Promise( (resolve, reject) => {
             const baseUrl = "ws://localhost:8848";
             Log.info("Connecting to WebSocket server of WizNotePlus at " + baseUrl + ".");
-          
+
             let socket = new WebSocket(baseUrl);
-          
+
             socket.onclose = function() {
                 Log.error("web channel closed");
                 state.isConnected = false;
             };
-          
+
             socket.onerror = function(error) {
                 Log.error("web channel error: " + error);
                 state.isConnected = false;
                 error.message = "Web channel error, failed to connect to WizNotPlus."
                 reject(error);
             };
-          
+
             socket.onopen = function() {
                 Log.debug("WebSocket connected, setting up QWebChannel.");
                 new QWebChannel(socket, async function(channel) {
@@ -192,7 +192,7 @@ const ClippingHandler_WizNotePlus = (function(){
     }
 
     /**
-     * 
+     *
      */
     function handleClippingResult(it) {
         //TODO: Create clipId - docGUID dict
@@ -223,10 +223,10 @@ const ClippingHandler_WizNotePlus = (function(){
       downloadCompleted(task, isDownloaded, clipping);
       return isDownloaded;
     }
-    
+
     /**
      * Download asset to file.
-     * @param {*} task 
+     * @param {*} task
      */
     async function downloadUrlToFile(task, clipping){
       const objCom = state.objCom;
@@ -236,7 +236,7 @@ const ClippingHandler_WizNotePlus = (function(){
       downloadCompleted(task, isDownloaded, clipping);
       return isDownloaded;
     }
-    
+
     /**
      * Notify download state.
      * @param {Object} task
@@ -262,13 +262,13 @@ const ClippingHandler_WizNotePlus = (function(){
         Log.error("Faild to create directory at " + docPath);
       return docPath;
     }
-  
+
     return {
       name: 'WizNotePlus',
       getInfo: getInfo,
       saveClipping: saveClipping,
       handleClippingResult: handleClippingResult
     }
-  
-  
-})();  
+
+
+})();

@@ -32,9 +32,9 @@
         // Keep all paths relative to $WIZNOTE_TEMP/webclipping
         const path =  {
             /** the path to place index.html and assetFolder */
-            saveFolder: clipId, 
+            saveFolder: clipId,
             /** the path to place asset files */
-            assetFolder: clipId + "/index_files", 
+            assetFolder: clipId + "/index_files",
             /** the path is relative to index.html */
             assetRelativePath: "index_files"
         };

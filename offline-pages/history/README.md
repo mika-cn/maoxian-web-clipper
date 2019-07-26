@@ -25,4 +25,4 @@ After step 2, you'll find two sample clipping history which is store in `clippin
 
 ### Warning
 
-If your storage path is not `$downloads/mx-wc`, you should change the `ROOT_FOLDER` constant variable in `history/script.js`.
+If your storage path is not `$downloads/mx-wc`, you should change the `rootFolder` item in `history/config.js`.
