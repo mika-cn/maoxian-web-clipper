@@ -1,7 +1,5 @@
-
-"use strict";
-
-this.MxWcConfig = (function() {
+(function(global) {
+  "use strict";
   const state = {};
 
   function getDefault(){
@@ -127,11 +125,19 @@ this.MxWcConfig = (function() {
     });
   }
 
-  return {
+  const publicApi = {
     load: load,
     update: update,
     reset: reset,
     getDefault: getDefault
   }
 
-})();
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = publicApi;
+  } else {
+    // browser or other
+    global.MxWcConfig = publicApi;
+  }
+
+})(this);
