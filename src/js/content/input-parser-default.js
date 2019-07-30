@@ -100,7 +100,7 @@
     const defaultName = generateDefaultClippingFolderName(config, now)
     let name = defaultName;
     if (config.titleStyleClippingFolderEnabled) {
-      switch(config.titleClippingFolderFormat){
+      switch(config.titleStyleClippingFolderFormat){
         case '$FORMAT-B':
           name = T.sanitizeFilename(title);
           break;
