@@ -5,7 +5,7 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
 
   // inputs => {:format, :title, :category, :tagstr, :elem}
   function save(inputs, config) {
-    let {format, title, category, tagstr, elem} = inputs;
+    let {format = config.saveFormat, title, category, tagstr, elem} = inputs;
 
 
     const inputParams = {
