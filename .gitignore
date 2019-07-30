@@ -1,4 +1,7 @@
+
+.vscode
 .ignore/
+node_modules/
 dist/extension/*.zip
 dist/extension/*.xpi
 dist/native-app/*.zip
@@ -16,4 +19,3 @@ native-app/test/mx-wc/global-assets
 useful-res/assistant/public/dev/*.js
 useful-res/assistant/public/dist/*.js
 
-.vscode

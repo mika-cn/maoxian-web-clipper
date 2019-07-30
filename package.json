@@ -1,0 +1,14 @@
+{
+  "name": "whatever",
+  "version": "0.0.0",
+  "description": "no description",
+  "main": "",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Mika",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^6.2.0"
+  }
+}
