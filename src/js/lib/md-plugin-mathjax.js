@@ -1,7 +1,16 @@
-
-"use strict"
-
-this.PluginMathJax = (function(){
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcMdPluginMathjax', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcMdPluginMathjax = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
   function handle(win, elem) {
     const mathJaxScripts = elem.querySelectorAll('script[id^=MathJax-Element-]');
@@ -50,5 +59,8 @@ this.PluginMathJax = (function(){
     return markdown.replace(/`MathJaxTeX /mg, '$ ').replace(/ MathJaxTeX`/mg, ' $');
   }
 
-  return {handle: handle, unEscapeMathJax: unEscapeMathJax}
-})();
+  return {
+    handle: handle,
+    unEscapeMathJax: unEscapeMathJax
+  };
+});

@@ -1,7 +1,16 @@
-
-"use strict";
-
-this.PluginMisc = (function(){
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcMdPluginMisc', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcMdPluginMisc = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
   function handle(win, elem) {
     fixCodeBrTag(elem);
@@ -23,5 +32,5 @@ this.PluginMisc = (function(){
     })
   }
 
-  return {handle: handle}
-})();
+  return {handle: handle};
+});

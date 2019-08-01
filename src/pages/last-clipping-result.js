@@ -1,10 +1,21 @@
-"use strict";
-(function(){
+;(function(root, factory) {
+  factory(
+    root.MxWcI18N,
+    root.MxWcTool,
+    root.MxWcExtApi,
+    root.MxWcStorage,
+    root.MxWcConfig,
+  );
+
+})(this, function(I18N, T, ExtApi,
+    MxWcStorage, MxWcConfig, undefined) {
+  "use strict";
+
   const state = {};
 
   function renderNotClippingResult() {
     const template = T.findElem('tpl-not-clipping-result').innerHTML;
-    const html = T.renderTemplate(template, {content: t('lcr.notice.not-clipping-result')});
+    const html = T.renderTemplate(template, {content: I18N.t('lcr.notice.not-clipping-result')});
     T.setHtml('.main', html);
   }
 
@@ -22,10 +33,10 @@
     const {failedTaskNum, failedTasks} = state.lastClippingResult;
     if(failedTaskNum > 0) {
       const template = T.findElem('tpl-failed-task').innerHTML;
-      const message = t('lcr.message.failed-task-num').replace('$num', failedTaskNum);
+      const message = I18N.t('lcr.message.failed-task-num').replace('$num', failedTaskNum);
       let detail = "";
       failedTasks.forEach((task) => {
-        detail += ["<div class='task'>" + t('lcr.label.file') + task.filename, t('lcr.label.err-msg') + "<span class='red'>" + task.errMsg + '</span>'].join("</div>");
+        detail += ["<div class='task'>" + I18N.t('lcr.label.file') + task.filename, I18N.t('lcr.label.err-msg') + "<span class='red'>" + task.errMsg + '</span>'].join("</div>");
       });
       const html = T.renderTemplate(template, {message: message, detail: detail});
       T.setHtml('#failed-task', html);
@@ -35,9 +46,9 @@
   function renderClippingUrl() {
     const {url, failedTaskNum, failedTasks} = state.lastClippingResult;
     const template = T.findElem('tpl-clipping-url').innerHTML;
-    let notice = t('lcr.notice.openable-url');
+    let notice = I18N.t('lcr.notice.openable-url');
     if(url.startsWith('file') && !(state.allowFileUrlAccess)) {
-      notice = t('lcr.notice.can-not-open-file-url');
+      notice = I18N.t('lcr.notice.can-not-open-file-url');
     }
     let html = T.renderTemplate(template, {notice: notice, url: url});
     T.setHtml('#clipping-url', html);
@@ -65,4 +76,4 @@
 
   render();
 
-})();
+});

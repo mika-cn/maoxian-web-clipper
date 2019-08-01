@@ -1,7 +1,18 @@
 
-"use strict;"
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcNotify', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcNotify = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-this.Notify = (function(){
   const KLASS = 'notify-container';
 
   function getContainer(){
@@ -161,4 +172,4 @@ this.Notify = (function(){
     success: success,
     error: danger
   }
-})();
+});

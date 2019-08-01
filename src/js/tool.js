@@ -1,5 +1,15 @@
-
-(function(global, undefined) {
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcTool', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcTool = factory();
+  }
+})(this, function(undefined) {
   "use strict";
   // Tool
   const T = {};
@@ -621,16 +631,5 @@
     });
   }
 
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define(function () {
-      return T;
-    });
-  } else if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = T;
-  } else {
-    // browser or other
-    global.T = T;
-  }
-})(this);
+  return T;
+});

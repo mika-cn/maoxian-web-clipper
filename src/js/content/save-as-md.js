@@ -1,8 +1,50 @@
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcMarkdown', [
+      'MxWcTool',
+      'MxWcElemTool',
+      'MxWcStoreClient',
+      'MxWcLog',
+      'MxWcExtMsg',
+      'MxWcMdPluginGist',
+      'MxWcMdPluginMisc',
+      'MxWcMdPluginMathjax',
+      'MxWcMdPluginMathml2Latex',
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../tool.js'),
+      require('./elem-tool.js'),
+      require('./store-client.js'),
+      require('../lib/log.js'),
+      require('../lib/ext-msg.js'),
+      require('../lib/md-plugin-gist.js'),
+      require('../lib/md-plugin-misc.js'),
+      require('../lib/md-plugin-mathjax.js'),
+      require('../lib/md-plugin-mathml2latex.js')
+   );
+  } else {
+    // browser or other
+    root.MxWcMarkdown = factory(
+      root.MxWcTool,
+      root.MxWcElemTool,
+      root.MxWcStoreClient,
+      root.MxWcLog,
+      root.MxWcExtMsg,
+      root.MxWcMdPluginGist,
+      root.MxWcMdPluginMisc,
+      root.MxWcMdPluginMathjax,
+      root.MxWcMdPluginMathml2Latex
+    );
+  }
+})(this, function(T, ElemTool, StoreClient, Log, ExtMsg, MdPluginGist,
+    MdPluginMisc, MdPluginMathJax, MdPluginMathML2LaTex,
+    undefined) {
+  "use strict";
 
-// require turndownservice
-"use strict";
-
-this.MxWcMarkdown = (function() {
+  // require turndownservice
 
   /*
    * @param {Object} params
@@ -13,7 +55,7 @@ this.MxWcMarkdown = (function() {
     const [mimeTypeDict, frames] = await Promise.all([
       ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
       ExtMsg.sendToBackground({type: 'get.allFrames'}),
-      KeyStore.init()
+      ExtMsg.sendToBackground({type: 'keyStore.init'})
     ]);
     const {html, tasks} = await getElemHtml({
       clipId: info.clipId,
@@ -25,8 +67,8 @@ this.MxWcMarkdown = (function() {
       config: config,
     })
     let markdown = generateMarkDown(html, info);
-    markdown = PluginMathJax.unEscapeMathJax(markdown);
-    markdown = PluginMathML2LaTeX.unEscapeLaTex(markdown);
+    markdown = MdPluginMathJax.unEscapeMathJax(markdown);
+    markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
     if(config.saveClippingInformation){
       markdown += generateMdClippingInfo(info);
     }
@@ -76,10 +118,10 @@ this.MxWcMarkdown = (function() {
 
     Log.debug("FrameHandlefihish");
     clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
-    clonedElem = PluginMisc.handle(window, clonedElem);
-    clonedElem = PluginGist.handle(window, clonedElem);
-    clonedElem = PluginMathJax.handle(window, clonedElem);
-    clonedElem = PluginMathML2LaTeX.handle(window, clonedElem);
+    clonedElem = MdPluginMisc.handle(window, clonedElem);
+    clonedElem = MdPluginGist.handle(window, clonedElem);
+    clonedElem = MdPluginMathJax.handle(window, clonedElem);
+    clonedElem = MdPluginMathML2LaTeX.handle(window, clonedElem);
     let html = clonedElem.outerHTML;
     html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos);
     const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, imgAssetInfos);
@@ -99,7 +141,7 @@ this.MxWcMarkdown = (function() {
       if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
         const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url)
         if(frameElem){
-          const canAdd = await KeyStore.add(frame.url);
+          const canAdd = await ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: frame.url}});
           if(canAdd) {
             frameElems.push(frameElem);
             promises.push(
@@ -208,5 +250,4 @@ this.MxWcMarkdown = (function() {
     parse: parse,
     getElemHtml: getElemHtml
   }
-
-})();
+});

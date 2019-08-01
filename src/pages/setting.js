@@ -1,8 +1,23 @@
 
-"use strict";
+;(function(root, factory) {
+  factory(
+    root.MxWcLog,
+    root.MxWcTool,
+    root.MxWcI18N,
+    root.MxWcExtMsg,
+    root.MxWcStorage,
+    root.MxWcConfig,
+    root.MxWcLink,
+    root.MxWcTemplate,
+    root.MxWcNotify,
+    root.MxWcHandler
+  );
+
+})(this, function(Log, T, I18N, ExtMsg, MxWcStorage,
+    MxWcConfig, MxWcLink, MxWcTemplate, Notify, MxWcHandler, undefined) {
+  "use strict";
 
 // http://kb.mozillazine.org/Firefox_:_Issues_:_Links_to_Local_Pages_Don%27t_Work
-(function(){
 
   function updateConfig(key, value) {
     const isUpdated = MxWcConfig.update(key, value);
@@ -226,7 +241,7 @@
   function textInputBlured(e) {
     const configKey = getConfigKey(e.target);
     if(updateConfig(configKey, e.target.value)){
-      Notify.success(t('op.update-success'));
+      Notify.success(I18N.t('op.update-success'));
     }
   }
 
@@ -374,7 +389,7 @@
 
 
   function getNoticeMsg(type, names) {
-    return t('setting', 'notice', type, ...names);
+    return I18N.t('setting', 'notice', type, ...names);
   }
 
   function renderNoticeBox(section, type, msg) {
@@ -407,12 +422,12 @@
       if(result.ok) {
         const label = T.findElem('last-generate-clipping-js-time');
         T.setHtml(label, result.time);
-        Notify.success(t('setting.generate-now-success.label'));
+        Notify.success(I18N.t('setting.generate-now-success.label'));
       } else {
         Notify.error(t(result.message))
       }
     });
-    Notify.success(t('setting.generate-now-msg-sent.label'));
+    Notify.success(I18N.t('setting.generate-now-msg-sent.label'));
   }
 
   function refreshHistoryNow(e) {
@@ -422,12 +437,12 @@
       if(result.ok) {
         const label = T.findElem('last-refresh-history-time');
         T.setHtml(label, result.time);
-        Notify.success(t('setting.refresh-now-success.label'));
+        Notify.success(I18N.t('setting.refresh-now-success.label'));
       } else {
         Notify.error(t(result.message))
       }
     });
-    Notify.success(t('setting.refresh-now-msg-sent.label'));
+    Notify.success(I18N.t('setting.refresh-now-msg-sent.label'));
   }
 
   function renderSection(id) {
@@ -510,7 +525,7 @@
         T.queryElem('.version', section).classList.add('active');
       } else {
         // render errors
-        let msg = t('setting.notice.danger.native-app-not-ready');
+        let msg = I18N.t('setting.notice.danger.native-app-not-ready');
         msg = msg.replace('$MESSAGE', info.message);
         renderNoticeBox(section, 'danger', msg);
       }
@@ -532,10 +547,10 @@
     // Notify the user
     const section = T.findElem(id);
     if(info.ready) {
-      const msg = t("setting.notice.danger.wiz-note-plus-ready");
+      const msg = I18N.t("setting.notice.danger.wiz-note-plus-ready");
       renderNoticeBox(section, 'info', msg);
     } else {
-      let msg = t('setting.notice.danger.wiz-note-plus-not-ready');
+      let msg = I18N.t('setting.notice.danger.wiz-note-plus-not-ready');
       msg = msg.replace('$MESSAGE', info.message);
       renderNoticeBox(section, 'danger', msg);
     }
@@ -613,7 +628,7 @@
   }
 
   function init(){
-    i18nPage();
+    I18N.i18nPage();
     initSidebar();
     ExtMsg.initPage('setting');
     MxWcLink.listen(document.body);
@@ -622,4 +637,4 @@
 
   init();
 
-})();
+});

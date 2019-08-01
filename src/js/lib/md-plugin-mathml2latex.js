@@ -1,7 +1,16 @@
-
-"use strict";
-
-this.PluginMathML2LaTeX = (function(){
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcMdPluginMathml2Latex', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcMdPluginMathml2Latex = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
   function handle(win, elem) {
     if(elem.tagName === 'MATH') {
@@ -35,4 +44,4 @@ this.PluginMathML2LaTeX = (function(){
   }
 
   return { handle, handle, unEscapeLaTex: unEscapeLaTex}
-})();
+});

@@ -1,6 +1,18 @@
-var I18N_DICT = I18N_DICT || {};
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcLocaleEn', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcLocaleEn = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-I18N_DICT['en'] = {
+  return  {
   "values": {
     "name": "MaoXian web clipper",
 
@@ -334,5 +346,5 @@ I18N_DICT['en'] = {
     "notification.title": "Message Center",
     "notification.hint": "Click message to delete it",
 
-  }
-};
+  }};
+});

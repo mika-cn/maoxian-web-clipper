@@ -1,7 +1,23 @@
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcClippingHandler_WizNotePlus', [
+      'MxWcSavingTool'
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('./saving-tool.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcClippingHandler_WizNotePlus = factory(
+      root.MxWcSavingTool
+    );
+  }
+})(this, function(SavingTool, undefined) {
+    "use strict";
 
-"use strict";
-
-const ClippingHandler_WizNotePlus = (function(){
     const state = {
         /** Used to identify webchannel state. */
         isConnected: false,
@@ -269,6 +285,4 @@ const ClippingHandler_WizNotePlus = (function(){
       saveClipping: saveClipping,
       handleClippingResult: handleClippingResult
     }
-
-
-})();
+});

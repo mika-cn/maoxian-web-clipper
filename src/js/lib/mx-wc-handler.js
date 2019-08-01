@@ -1,46 +1,32 @@
 
-(function(global, ExtApi, T) {
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcHandler', [
+      'MxWcTool',
+      'MxWcExtMsg',
+      'MxWcConfig',
+      'MxWcI18N',
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../tool.js'),
+      require('./ext-api.js'),
+      require('./mx-wc-config.js'),
+      require('./translation.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcHandler = factory(
+      root.MxWcTool,
+      root.MxWcExtMsg,
+      root.MxWcConfig,
+      root.MxWcI18N
+    );
+  }
+})(this, function(T, ExtMsg, MxWcConfig, I18N, undefined) {
   "use strict";
-
-  /*
-   * only run in background.
-   */
-  function initialize() {
-    MxWcConfig.load().then((config) => {
-      updateNativeAppConfiguration(config);
-    });
-  }
-
-  // Native App Config may changed, update it
-  function updateNativeAppConfiguration(config){
-    const handler = get(config.clippingHandler)
-    if(handler.name === 'NativeApp') {
-      Log.debug('updateNativeAppConfig');
-      handler.initDownloadFolder();
-    }
-  }
-
-  /*
-   * Only avariable in background.
-   *
-   */
-  function get(name) {
-    switch(name){
-      case 'Browser':
-        return ClippingHandler_Browser;
-        break;
-      case 'NativeApp':
-        return ClippingHandler_NativeApp;
-        break;
-      case 'WizNotePlus':
-        return ClippingHandler_WizNotePlus;
-        break;
-      default:
-        // console.debug("Name illegal: ", name);
-        // throw new Error("Name illegal: " + name);
-        return ClippingHandler_Browser;
-    }
-  }
 
   /*
    * @param {string} exp: expression
@@ -120,20 +106,17 @@
 
   function getHandlerLink(name) {
     const link =  `go.page:extPage.setting?t=${Date.now()}#setting-handler-${T.deCapitalize(name)}`;
-    return [`<a href='${link}' target='_blank'>`, t(`handler.${T.deCapitalize(name)}.name`), "</a>"].join('');
+    return [`<a href='${link}' target='_blank'>`, I18N.t(`handler.${T.deCapitalize(name)}.name`), "</a>"].join('');
   }
 
   function errResp(msg, name) {
-    const message = [ t(msg),
+    const message = [ I18N.t(msg),
       " [ "+ getHandlerLink(name) +" ]"
     ].join("")
     return { ok: false, message: message }
   }
 
-  const publicApi = {
-    get: get,
+  return {
     isReady: isReady,
-    initialize: initialize,
   }
-  global.MxWcHandler = publicApi;
-})(this, ExtApi, T);
+});

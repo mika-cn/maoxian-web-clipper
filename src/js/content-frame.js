@@ -1,4 +1,14 @@
-(function() {
+;(function(root, factory) {
+  factory(
+    root.MxWcLog,
+    root.MxWcExtMsg,
+    root.MxWcFrameMsg,
+    root.MxWcEvent,
+    root.MxWcHtml,
+    root.MxWcMarkdown
+  );
+})(this, function(Log, ExtMsg, FrameMsg, MxWcEvent,
+    MxWcHtml, MxWcMarkdown, undefined) {
   "use strict";
 
   /*
@@ -61,4 +71,4 @@
   init();
 
 
-})();
+});

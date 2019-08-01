@@ -1,20 +1,32 @@
-/*!
- * Communication between iframe and top window
- *
- * Normal message
- *
- * topWindow --> iframe
- * iframe    --> topWindow
- * iframe    --> topWindow --> otherIframe
- *
- * Broadcast message
- *
- * topWindow --> Iframe
- */
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcFrameMsg', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcFrameMsg = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-"use strict";
+  /*!
+   * Communication between iframe and top window
+   *
+   * Normal message
+   *
+   * topWindow --> iframe
+   * iframe    --> topWindow
+   * iframe    --> topWindow --> otherIframe
+   *
+   * Broadcast message
+   *
+   * topWindow --> Iframe
+   */
 
-this.FrameMsg = (function(window){
+
   const state = {
     id: null,
     origin: null,
@@ -139,7 +151,6 @@ this.FrameMsg = (function(window){
     return state.ready;
   }
 
-
   return {
     init: init,
     isReady: isReady,
@@ -149,4 +160,4 @@ this.FrameMsg = (function(window){
     removeListener: removeListener,
     clearListener: clearListener,
   }
-})(window);
+});

@@ -1,12 +1,21 @@
 
-"use strict";
+;(function(root, factory) {
+  factory(
+    root.MxWcI18N,
+    root.MxWcTool,
+    root.MxWcExtMsg,
+    root.MxWcConfig,
+    root.MxWcLink
+  );
 
-(function(){
+})(this, function(I18N, T, ExtMsg, MxWcConfig, MxWcLink, undefined) {
+  "use strict";
+
   const state = {};
 
   function initUI() {
     MxWcConfig.load().then((config) => {
-      const value = t('reset.current-storage-path-value').replace(/\$ROOT-FOLDER/g, config.rootFolder);
+      const value = I18N.t('reset.current-storage-path-value').replace(/\$ROOT-FOLDER/g, config.rootFolder);
       T.setHtml('#current-storage-path-value', value);
     });
   }
@@ -29,7 +38,7 @@
       const folder = T.findElem("myInput");
       const selector = T.queryElem(".selector");
       selector.style.display = "none";
-      showHint(t('init.download-folder'));
+      showHint(I18N.t('init.download-folder'));
       ExtMsg.sendToBackground({type: 'init.downloadFolder'});
       // behavior of chrome is so strange. file.webkitRelativePath
       state.worker.postMessage({
@@ -52,27 +61,27 @@
   function handlerWorkerMessage(e){
     const msg = e.data;
     if(msg.type === "resetProcessing"){
-      return showHint(t('reset.processing'));
+      return showHint(I18N.t('reset.processing'));
     }
     if(msg.type === "resetCompleted"){
       ExtMsg.sendToBackground({type: 'generate.clipping.js.if-need'});
       const pageUrl = MxWcLink.get('extPage.history');
       ExtMsg.sendToPage({target: 'history', type: 'history.reseted'}, pageUrl)
       setTimeout(function(){ window.close() }, 3000);
-      return showHint(t('reset.completed'));
+      return showHint(I18N.t('reset.completed'));
     }
     if(msg.type.startsWith('reset.')){
       ExtMsg.sendToBackground(msg);
       let hint = "";
       switch(msg.type){
         case "reset.clips":
-          hint = t('reset.clip-history-success').replace('$n', msg.body.length);
+          hint = I18N.t('reset.clip-history-success').replace('$n', msg.body.length);
           break;
         case "reset.categories":
-          hint = t('reset.category-success').replace('$n', msg.body.length);
+          hint = I18N.t('reset.category-success').replace('$n', msg.body.length);
           break;
         case "reset.tags":
-          hint = t('reset.tag-success').replace('$n', msg.body.length);
+          hint = I18N.t('reset.tag-success').replace('$n', msg.body.length);
           break;
       }
       showHint(hint);
@@ -81,7 +90,7 @@
 
   function init(){
     initUI();
-    i18nPage();
+    I18N.i18nPage();
     bindListener();
     ExtMsg.initPage('reset-history');
     MxWcLink.listen(document.body);
@@ -90,4 +99,4 @@
   }
 
   init();
-})();
+});

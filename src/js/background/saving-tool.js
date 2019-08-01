@@ -1,6 +1,16 @@
-
-//
-const SavingTool = (function() {
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcSavingTool', ['MxWcTool'], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(require('../tool.js'));
+  } else {
+    // browser or other
+    root.MxWcSavingTool = factory(root.MxWcTool);
+  }
+})(this, function(T, undefined) {
+  "use strict";
 
   const clipIdDict = T.createDict(); // taskFilename => clipId
   const clippingDict = T.createDict(); // clipId => clipping
@@ -83,8 +93,8 @@ const SavingTool = (function() {
   function generateClippingResult(clipping) {
     let mainTask = undefined;
     const completedTasks = [],
-      failedTasks = [],
-      pendingTasks = [];
+    failedTasks = [],
+    pendingTasks = [];
 
     clipping.tasks.forEach((task) => {
       switch(task.state) {
@@ -153,5 +163,5 @@ const SavingTool = (function() {
     taskFailed: taskFailed,
     taskCompleted: taskCompleted
   }
-})();
 
+});

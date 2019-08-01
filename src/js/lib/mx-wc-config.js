@@ -1,5 +1,18 @@
-(function(global) {
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcConfig', ['MxWcStorage'], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(require('./mx-wc-storage.js'));
+  } else {
+    // browser or other
+    root.MxWcConfig = factory(root.MxWcStorage);
+  }
+})(this, function(MxWcStorage, undefined) {
+
   "use strict";
+
   const state = {};
 
   function getDefault(){
@@ -125,19 +138,10 @@
     });
   }
 
-  const publicApi = {
+  return {
     load: load,
     update: update,
     reset: reset,
     getDefault: getDefault
   }
-
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = publicApi;
-  } else {
-    // browser or other
-    global.MxWcConfig = publicApi;
-  }
-
-})(this);
+});
