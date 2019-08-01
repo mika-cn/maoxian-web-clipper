@@ -1,5 +1,33 @@
 
-const ClippingHandler_NativeApp = (function(){
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcClippingHandler_NativeApp', [
+      'MxWcTool',
+      'MxWcLog',
+      'MxWcI18N',
+      'MxWcSavingTool'
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../tool.js'),
+      require('../lib/log.js'),
+      require('../lib/translation.js'),
+      require('./saving-tool.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcClippingHandler_NativeApp = factory(
+      root.MxWcTool,
+      root.MxWcLog,
+      root.MxWcI18N,
+      root.MxWcSavingTool,
+    );
+  }
+})(this, function(T, Log, I18N, SavingTool, undefined) {
+  "use strict";
+
   const APP_NAME = 'maoxian_web_clipper_native';
   const state = {port: null};
 
@@ -162,7 +190,7 @@ const ClippingHandler_NativeApp = (function(){
       let ready = false, message = '';
       if(r.ok) {
         if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
-          message = t('handler.native-app.error.version')
+          message = I18N.t('handler.native-app.error.version')
             .replace('$requiredVersion', ENV.minNativeAppVersion)
             .replace('$currentVersion', r.version);
         } else {
@@ -171,7 +199,7 @@ const ClippingHandler_NativeApp = (function(){
       } else {
         message = [
           r.message,
-          t('handler.native-app.error.install'),
+          I18N.t('handler.native-app.error.install'),
         ].join('<br />');
       }
       callback({
@@ -195,4 +223,4 @@ const ClippingHandler_NativeApp = (function(){
     deleteClipping: deleteClipping,
     refreshHistory: refreshHistory,
   }
-})();
+});

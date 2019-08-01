@@ -1,6 +1,16 @@
-"use strict"
-
-this.MxWcStorage = (function(){
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcStorage', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcStorage = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
   function set(k, v){
     const d = {}
@@ -27,5 +37,5 @@ this.MxWcStorage = (function(){
     });
   }
 
-  return { type: 'local', set: set, get: get }
-})();
+  return { type: 'local', set: set, get: get };
+});

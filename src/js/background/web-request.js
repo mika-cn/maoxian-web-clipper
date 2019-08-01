@@ -1,6 +1,25 @@
-"use strict";
-
-this.WebRequest = (function(){
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcWebRequest', [
+      'MxWcTool',
+      'MxWcExtMsg',
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../tool.js'),
+      require('../lib/ext-msg.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcWebRequest = factory(
+      root.MxWcTool,
+      root.MxWcExtMsg
+    );
+  }
+})(this, function(T, ExtMsg, undefined) {
+  "use strict";
 
   const StoreMimeType = (function() {
     let state = {};
@@ -159,4 +178,4 @@ this.WebRequest = (function(){
     listen: listen,
     getMimeTypeDict: getMimeTypeDict
   }
-})();
+});

@@ -1,5 +1,17 @@
-"use strict";
-(function(){
+;(function(root, factory) {
+  factory(
+    root.MxWcTool,
+    root.MxWcIcon,
+    root.MxWcI18N,
+    root.MxWcExtApi,
+    root.MxWcExtMsg,
+    root.MxWcStorage,
+    root.MxWcConfig
+  );
+
+})(this, function(T, MxWcIcon, I18N, ExtApi, ExtMsg,
+    MxWcStorage, MxWcConfig, undefined) {
+  "use strict";
   const state = {};
 
   function menuClick(e){
@@ -111,7 +123,7 @@
             icon: icons[menuId],
             iconAppendClass: appendClass,
             menuId: menuId,
-            menuContent: t("popup.menu." + menuId),
+            menuContent: I18N.t("popup.menu." + menuId),
           });
         });
         T.setHtml('.menus', html);
@@ -137,4 +149,4 @@
 
   document.addEventListener("DOMContentLoaded", init);
 
-})();
+});

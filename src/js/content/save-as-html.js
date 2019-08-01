@@ -1,7 +1,41 @@
 
 "use strict";
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcHtml', [
+      'MxWcTool',
+      'MxWcElemTool',
+      'MxWcStoreClient',
+      'MxWcLog',
+      'MxWcExtMsg',
+      'MxWcTemplate',
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../tool.js'),
+      require('./elem-tool.js'),
+      require('./store-client.js'),
+      require('../lib/log.js'),
+      require('../lib/ext-msg.js'),
+      require('../lib/mx-wc-template.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcHtml = factory(
+      root.MxWcTool,
+      root.MxWcElemTool,
+      root.MxWcStoreClient,
+      root.MxWcLog,
+      root.MxWcExtMsg,
+      root.MxWcTemplate
+    );
+  }
+})(this, function(T, ElemTool, StoreClient, Log, ExtMsg,
+    MxWcTemplate, undefined) {
+  "use strict";
 
-this.MxWcHtml = (function () {
   /*
    * @param {Object} params
    */
@@ -12,7 +46,7 @@ this.MxWcHtml = (function () {
     const [mimeTypeDict, frames] = await Promise.all([
       ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
       ExtMsg.sendToBackground({type: 'get.allFrames'}),
-      KeyStore.init()
+      ExtMsg.sendToBackground({type: 'keyStore.init'})
     ])
 
     // 获取选中元素的html
@@ -130,7 +164,7 @@ this.MxWcHtml = (function () {
       if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
         const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url);
         if(frameElem){
-          const canAdd = await KeyStore.add(frame.url);
+          const canAdd = await ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: frame.url}});
           if(canAdd) {
             currLayerFrames.push(frame);
             promises.push(
@@ -290,10 +324,17 @@ this.MxWcHtml = (function () {
     let promises = [];
     T.each(assetInfos, function(it){
       const promise = new Promise((resolve, reject) => {
-        KeyStore.add(it.link).then((canAdd) => {
+        ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: frame.url}}).then((canAdd) => {
           if(canAdd) {
-            StoreClient.fetchText(it.link)
-              .then((txt) => {
+            //FIXME
+            ExtMsg.sendToBackground({type: 'fetch.text', body: {
+              url: it.link,
+              header: {
+                "Referer": window.location.href,
+                "Origin": window.location.origin,
+                "User-Agent": window.navigator.userAgent
+              }
+            }}).then((txt) => {
                 parseCss({
                   clipId: clipId,
                   path: path,
@@ -711,4 +752,4 @@ this.MxWcHtml = (function () {
     parse: parse,
     getElemHtml: getElemHtml
   }
-})();
+});

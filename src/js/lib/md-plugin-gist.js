@@ -1,6 +1,18 @@
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcMdPluginGist', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcMdPluginGist = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-this.PluginGist = (function(){
-  const gistClassPrefix = 'blob-wrapper data type-'
+  const gistClassPrefix = 'blob-wrapper data type-';
 
   function handle(win, elem) {
     if((new RegExp('^' + gistClassPrefix)).test(elem.className)){
@@ -53,4 +65,4 @@ this.PluginGist = (function(){
   }
 
   return { handle: handle }
-})()
+});

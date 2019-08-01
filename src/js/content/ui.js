@@ -1,7 +1,18 @@
+;(function (root, factory) {
+  root.MxWcUI = factory(
+    root.MxWcLog,
+    root.MxWcTool,
+    root.MxWcElemTool,
+    root.MxWcExtApi,
+    root.MxWcFrameMsg,
+    root.MxWcEvent,
+    root.MxWcHandler,
+    root.MxWcSave
+  );
+})(this, function(Log, T, ElemTool, ExtApi, FrameMsg,
+    MxWcEvent, MxWcHandler, MxWcSave, undefined) {
+  "use strict";
 
-"use strict";
-
-this.UI = (function(){
   const state = { clippingState: 'idle' };
 
   // ifarme common functions
@@ -657,4 +668,4 @@ this.UI = (function(){
     clipElem: clipElem,
     setFormInputs: setFormInputs,
   }
-})();
+});

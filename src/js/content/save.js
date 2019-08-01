@@ -1,7 +1,39 @@
 
-"use strict";
-
-this.MxWcSave = (function (MxWcConfig, ExtApi) {
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcSave', [
+      'MxWcTool',
+      'MxWcLog',
+      'MxWcExtMsg',
+      'MxWcInputParser',
+      'MxWcHtml',
+      'MxWcMarkdown',
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../tool.js'),
+      require('../lib/log.js'),
+      require('../lib/ext-msg.js'),
+      require('./input-parser.js'),
+      require('./save-as-html.js'),
+      require('./save-as-md.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcSave = factory(
+      root.MxWcTool,
+      root.MxWcLog,
+      root.MxWcExtMsg,
+      root.MxWcInputParser,
+      root.MxWcHtml,
+      root.MxWcMarkdown
+    );
+  }
+})(this, function(T, Log, ExtMsg, InputParser,
+    MxWcHtml, MxWcMarkdown, undefined) {
+  "use strict";
 
   // inputs => {:format, :title, :category, :tagstr, :elem}
   function save(inputs, config) {
@@ -35,23 +67,23 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
       case 'html' : parser = MxWcHtml; break;
       case 'md'   : parser = MxWcMarkdown; break;
     }
-/*
-* Task:
-* saving task of resource (html, css, font, img, md...)
-*
-* structure:
-* {
-*   taskType : 'mainFileTask', 'imageFileTask' etc.
-*   type     : resource content type, 'url' or 'text'
-*   filename : filename to save
-*   url      : resource's url (if type is 'url')
-*   mimeType : resource's mimeType (if type is 'text')
-*   text     : resource's content (if type is 'text')
-*   headers  : http headers (Referer, UserAgent etc. if type is 'url')
-*   clipId   : clipping id
-*   createdMs: created time (millisecond)
-* }
-*/
+  /*
+  * Task:
+  * saving task of resource (html, css, font, img, md...)
+  *
+  * structure:
+  * {
+  *   taskType : 'mainFileTask', 'imageFileTask' etc.
+  *   type     : resource content type, 'url' or 'text'
+  *   filename : filename to save
+  *   url      : resource's url (if type is 'url')
+  *   mimeType : resource's mimeType (if type is 'text')
+  *   text     : resource's content (if type is 'text')
+  *   headers  : http headers (Referer, UserAgent etc. if type is 'url')
+  *   clipId   : clipping id
+  *   createdMs: created time (millisecond)
+  * }
+  */
 
     const params = { path: path, elem: elem, info: info, config: config }
     parser.parse(params).then((tasks) => {
@@ -145,5 +177,4 @@ this.MxWcSave = (function (MxWcConfig, ExtApi) {
   return {
     save: save
   }
-
-})(MxWcConfig, ExtApi);
+});

@@ -1,7 +1,26 @@
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcLink', [
+      'MxWcExtApi',
+      'MxWcExtMsg',
+    ], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('./ext-api.js'),
+      require('./ext-msg.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcLink = factory(
+      root.MxWcExtApi,
+      root.MxWcExtMsg
+    );
+  }
+})(this, function(ExtApi, ExtMsg, undefined) {
+  "use strict";
 
-"use strict";
-
-this.MxWcLink = (function(ExtApi) {
   const extensionRoot = ExtApi.getURL('/');
   const extensionId = extensionRoot.split('//')[1].replace('/', '');
   const websiteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
@@ -35,7 +54,7 @@ this.MxWcLink = (function(ExtApi) {
    *   get('extPage.setting#hello');
    */
   function get(exp) {
-    const pageName = exp.split(/[?#]/)[0]
+    const pageName = exp.split(/[?#]/)[0];
     let pageLink;
     if (pageName.startsWith('extPage.')) {
       pageLink = getExtensionPageLink(pageName);
@@ -90,7 +109,7 @@ this.MxWcLink = (function(ExtApi) {
     contextNode.addEventListener('click', function(e) {
       if(e.target.tagName == 'A' && e.target.href.startsWith('go.page:')) {
         const exp = e.target.href.split(':')[1];
-        const link = get(exp)
+        const link = get(exp);
         e.preventDefault();
         if(e.target.target === '_blank') {
           try {
@@ -122,4 +141,4 @@ this.MxWcLink = (function(ExtApi) {
     isFirefox: isFirefox,
     listen: listen
   }
-})(ExtApi, ExtMsg);
+});
