@@ -13,12 +13,12 @@
   } else if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
-      require('../tool.js'),
+      require('../lib/tool.js'),
       require('../lib/log.js'),
       require('../lib/ext-msg.js'),
       require('./input-parser.js'),
       require('./save-as-html.js'),
-      require('./save-as-md.js')
+      require('./save-as-markdown.js')
     );
   } else {
     // browser or other

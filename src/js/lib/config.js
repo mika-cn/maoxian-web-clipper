@@ -4,7 +4,7 @@
     define('MxWcConfig', ['MxWcStorage'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CJS
-    module.exports = factory(require('./mx-wc-storage.js'));
+    module.exports = factory(require('./storage.js'));
   } else {
     // browser or other
     root.MxWcConfig = factory(root.MxWcStorage);

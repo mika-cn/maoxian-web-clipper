@@ -1,5 +1,4 @@
 const H = require('./helper.js');
-const T = H.depJs('tool.js');
 const Parser = H.depJs('content/input-parser-default.js');
 
 const assert = require('assert');

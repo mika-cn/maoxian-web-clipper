@@ -8,7 +8,7 @@
   } else if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
-      require('../tool.js'),
+      require('../lib/tool.js'),
       require('../lib/ext-msg.js')
     );
   } else {

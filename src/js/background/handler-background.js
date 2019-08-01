@@ -1,7 +1,7 @@
 ;(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD
-    define('MxWcHandlerBg', [
+    define('MxWcHandlerBackground', [
       'MxWcConfig',
       'MxWcHandler',
       'MxWcClippingHandler_Browser',
@@ -11,15 +11,15 @@
   } else if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
-      require('../lib/mx-wc-config.js'),
-      require('../lib/mx-wc-handler.js'),
+      require('../lib/config.js'),
+      require('../lib/handler.js'),
       require('./clipping-handler-browser.js'),
       require('./clipping-handler-native-app.js'),
       require('./clipping-handler-wiznoteplus.js')
     );
   } else {
     // browser or other
-    root.MxWcHandlerBg = factory(
+    root.MxWcHandlerBackground = factory(
       root.MxWcConfig,
       root.MxWcHandler,
       root.MxWcClippingHandler_Browser,

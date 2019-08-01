@@ -9,7 +9,7 @@
     // CJS
     module.exports = factory(
       require('./translation.js'),
-      require('../tool.js')
+      require('./tool.js')
     );
   } else {
     // browser or other

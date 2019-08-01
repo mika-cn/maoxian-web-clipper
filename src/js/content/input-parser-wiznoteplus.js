@@ -4,12 +4,12 @@
     define('MxWcInputParser_WizNotePlus', ['MxWcTool'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CJS
-    module.exports = factory(require('../tool.js'));
+    module.exports = factory(require('../lib/tool.js'));
   } else {
     // browser or other
     root.MxWcInputParser_WizNotePlus = factory(root.MxWcTool);
   }
-})(this, function(undefined) {
+})(this, function(T, undefined) {
   "use strict";
 
   //==========================================
