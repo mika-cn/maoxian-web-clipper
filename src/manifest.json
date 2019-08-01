@@ -53,7 +53,7 @@
         "js/lib/md-plugin-mathml2latex.js",
         "js/content/elem-tool.js",
         "js/content/store-client.js",
-        "js/content/save-as-md.js",
+        "js/content/save-as-markdown.js",
         "js/content/save-as-html.js",
         "js/content-frame.js"
       ],

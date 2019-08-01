@@ -18,7 +18,7 @@
       require('../lib/ext-msg.js'),
       require('./input-parser.js'),
       require('./save-as-html.js'),
-      require('./save-as-md.js')
+      require('./save-as-markdown.js')
     );
   } else {
     // browser or other
