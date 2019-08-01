@@ -13,7 +13,7 @@
     module.exports = factory(
       require('./tool.js'),
       require('./ext-api.js'),
-      require('./mx-wc-config.js'),
+      require('./config.js'),
       require('./translation.js')
     );
   } else {

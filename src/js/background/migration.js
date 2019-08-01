@@ -13,8 +13,8 @@
     module.exports = factory(
       require('../env.js'),
       require('../lib/tool.js'),
-      require('../lib/mx-wc-storage.js'),
-      require('../lib/mx-wc-config.js')
+      require('../lib/storage.js'),
+      require('../lib/config.js')
     );
   } else {
     // browser or other

@@ -19,7 +19,7 @@
       require('./store-client.js'),
       require('../lib/log.js'),
       require('../lib/ext-msg.js'),
-      require('../lib/mx-wc-template.js')
+      require('../lib/template.js')
     );
   } else {
     // browser or other

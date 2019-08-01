@@ -13,7 +13,7 @@
       'MxWcFetcher',
       'MxWcMigration',
       'MxWcWebRequest',
-      'MxWcHandlerBg',
+      'MxWcHandlerBackground',
     ], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CJS
@@ -23,12 +23,12 @@
       require('./lib/tool.js'),
       require('./lib/ext-api.js'),
       require('./lib/ext-msg.js'),
-      require('./lib/mx-wc-storage.js'),
-      require('./lib/mx-wc-config.js'),
+      require('./lib/storage.js'),
+      require('./lib/config.js'),
       require('./background/fetcher.js'),
       require('./background/migration.js'),
       require('./background/web-request.js'),
-      require('./background/mx-wc-handler-bg.js')
+      require('./background/handler-background.js')
     );
   } else {
     // browser or other
@@ -43,12 +43,12 @@
       root.MxWcFetcher,
       root.MxWcMigration,
       root.MxWcWebRequest,
-      root.MxWcHandlerBg
+      root.MxWcHandlerBackground
     );
   }
 })(this, function( ENV, Log, T, ExtApi, ExtMsg,
     MxWcStorage, MxWcConfig, MxWcFetcher, MxWcMigration,
-    WebRequest, MxWcHandlerBg, undefined) {
+    WebRequest, MxWcHandlerBackground, undefined) {
 
   "use strict";
 
@@ -121,7 +121,7 @@
 
   function getHandlerInfo(msg, resolve) {
     console.log(msg);
-    const handler = MxWcHandlerBg.get(msg.name);
+    const handler = MxWcHandlerBackground.get(msg.name);
     handler.getInfo(resolve);
   }
 
@@ -134,7 +134,7 @@
   }
 
   function refreshHistory(resolve) {
-    MxWcHandlerBg.isReady('config.refreshHistoryHandler').then((r) => {
+    MxWcHandlerBackground.isReady('config.refreshHistoryHandler').then((r) => {
       const {ok, message, handler, config} = r;
       if(ok) {
         handler.refreshHistory({
@@ -245,7 +245,7 @@
   }
 
   function generateClippingJs(callback) {
-    MxWcHandlerBg.isReady('config.offlinePageHandler').then((result) => {
+    MxWcHandlerBackground.isReady('config.offlinePageHandler').then((result) => {
       const {ok, message, handler, config} = result;
       if(ok) {
         let pathConfig = MxWcConfig.getDefault().clippingJsPath;
@@ -275,7 +275,7 @@
 
   function getClippingHandler(callback) {
     MxWcConfig.load().then((config) => {
-      callback(MxWcHandlerBg.get(config.clippingHandler), config);
+      callback(MxWcHandlerBackground.get(config.clippingHandler), config);
     })
   }
 
@@ -397,7 +397,7 @@
   function init(){
     Log.debug("background init...");
     MxWcMigration.perform();
-    MxWcHandlerBg.initialize();
+    MxWcHandlerBackground.initialize();
     ExtMsg.initPage('background');
     ExtMsg.listen(messageHandler);
     WebRequest.listen();
