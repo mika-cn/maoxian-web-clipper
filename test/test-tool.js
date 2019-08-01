@@ -1,6 +1,6 @@
 
 const H = require('./helper.js');
-const T = H.depJs('tool.js');
+const T = H.depJs('lib/tool.js');
 const assert = require('assert');
 
 describe('Tool', () => {

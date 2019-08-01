@@ -15,7 +15,7 @@
   } else if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
-      require('../tool.js'),
+      require('../lib/tool.js'),
       require('./elem-tool.js'),
       require('./store-client.js'),
       require('../lib/log.js'),

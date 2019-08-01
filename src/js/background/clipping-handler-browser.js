@@ -12,7 +12,7 @@
   } else if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
-      require('../tool.js'),
+      require('../lib/tool.js'),
       require('../lib/ext-api.js'),
       require('../lib/log.js'),
       require('../lib/mx-wc-storage.js'),

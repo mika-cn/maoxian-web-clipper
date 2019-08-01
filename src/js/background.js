@@ -20,7 +20,7 @@
     factory(
       require('./env.js'),
       require('./lib/log.js'),
-      require('./tool.js'),
+      require('./lib/tool.js'),
       require('./lib/ext-api.js'),
       require('./lib/ext-msg.js'),
       require('./lib/mx-wc-storage.js'),

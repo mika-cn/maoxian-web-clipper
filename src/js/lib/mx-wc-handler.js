@@ -11,7 +11,7 @@
   } else if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
-      require('../tool.js'),
+      require('./tool.js'),
       require('./ext-api.js'),
       require('./mx-wc-config.js'),
       require('./translation.js')

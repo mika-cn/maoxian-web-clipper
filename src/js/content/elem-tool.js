@@ -4,7 +4,7 @@
     define('MxWcElemTool', ['MxWcTool'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CJS
-    module.exports = factory(require('../tool.js'));
+    module.exports = factory(require('../lib/tool.js'));
   } else {
     // browser or other
     root.MxWcElemTool = factory(root.MxWcTool);
