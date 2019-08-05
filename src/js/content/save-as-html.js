@@ -487,7 +487,7 @@ this.MxWcHtml = (function () {
               link: fullUrl,
               assetName: assetName
             });
-            if(T.isUrlSameLevel(refUrl, window.location.href)){
+            if(refUrl === window.location.href) {
               return rule.template.replace('$PATH', [path.assetRelativePath, assetName].join('/'));
             }else{
               return rule.template.replace('$PATH', assetName);
