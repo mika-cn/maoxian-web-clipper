@@ -25,7 +25,9 @@
 
 
   /**
+   *
    * @param {Object} opts
+   *   - {String} saveFormat
    *   - {String} baseUrl
    *   - {String} clipId
    *   - {Object} storageInfo
@@ -33,7 +35,7 @@
    *
    */
   function capture(node, opts) {
-    const {baseUrl, clipId, storageInfo, mimeTypeDict = {}} = opts;
+    const {saveFormat, baseUrl, clipId, storageInfo, mimeTypeDict = {}} = opts;
     const tasks = [];
 
     node.removeAttribute('crossorigin');
@@ -48,13 +50,16 @@
       node.setAttribute('src', assetPath);
       tasks.push(task);
     } else {
-      // Do we need to change src attribute?
       node.setAttribute('data-mx-warn', message);
+      node.setAttribute('data-mx-original-src', (src || ''));
+      node.setAttribute('src', 'invalid-url.png');
     }
 
     // handle srcset
-    const srcsetTasks = CaptureTool.captureImageSrcset(node, opts);
-    tasks.push(...srcsetTasks);
+    if (saveFormat === 'html') {
+      const srcsetTasks = CaptureTool.captureImageSrcset(node, opts);
+      tasks.push(...srcsetTasks);
+    }
 
     return tasks;
   }

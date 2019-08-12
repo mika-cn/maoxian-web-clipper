@@ -30,13 +30,16 @@
 
   /*!
    * Capture Element Iframe
-   *
-   * @param {Node} node - IframeNode
+   */
+
+
+  /**
+   * @param {Node} node
    * @param {Object} opts
+   *   - {String} saveFormat
    *   - {Integer} parentFrameId
    *   - {String} baseUrl
    *   - {String} clipId
-   *   - {String} saveFormat
    *   - {Object} storageInfo
    *   - {Array} frames
    *   - {Object} mimeTypeDict

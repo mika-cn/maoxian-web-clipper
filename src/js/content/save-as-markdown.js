@@ -123,20 +123,14 @@
     selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
     const aNodes       = DOMTool.queryNodesByTagName(selectedNode, 'a');
-    const pictureNodes = DOMTool.queryNodesByTagName(selectedNode, 'picture');
     const imgNodes     = DOMTool.queryNodesByTagName(selectedNode, 'img');
     const iframeNodes  = DOMTool.queryNodesByTagName(selectedNode, 'iframe');
 
     const captureInfos = [
       {
-        nodes: pictureNodes,
-        capturer: CapturerPicture,
-        opts: {baseUrl, storageInfo, clipId, mimeTypeDict}
-      },
-      {
         nodes: imgNodes,
         capturer: CapturerImg,
-        opts: {baseUrl, storageInfo, clipId, mimeTypeDict}
+        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict}
       },
       {
         nodes: aNodes,
@@ -146,7 +140,7 @@
       {
         nodes:iframeNodes,
         capturer: CapturerIframe,
-        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, saveFormat, frames}
+        opts: {saveFormat, baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       }
     ];
 

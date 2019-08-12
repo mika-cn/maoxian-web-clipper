@@ -151,7 +151,7 @@
       {
         nodes: imgNodes,
         capturer: CapturerImg,
-        opts: {baseUrl, storageInfo, clipId, mimeTypeDict}
+        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict}
       },
       {
         nodes: aNodes,
@@ -161,7 +161,7 @@
       {
         nodes:iframeNodes,
         capturer: CapturerIframe,
-        opts: {baseUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, saveFormat, frames}
+        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       }
     ];
 

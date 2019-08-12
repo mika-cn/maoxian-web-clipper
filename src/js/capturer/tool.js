@@ -44,7 +44,6 @@
           tasks.push(task);
           item[0] = assetPath;
         } else {
-          //FIXME
           item[0] = 'invalid-url.png';
         }
         return item.join(' ');

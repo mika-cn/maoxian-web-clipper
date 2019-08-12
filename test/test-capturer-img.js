@@ -17,6 +17,7 @@ function getParams() {
   return {
     src: 'a.jpg',
     srcset: 'a.png 200w, b.png  400w',
+    saveFormat: 'html',
     baseUrl: 'https://a.org/index.html',
     storageInfo: {
       assetFolder: 'category-a/clippings/assets',
@@ -29,22 +30,27 @@ function getParams() {
 describe('Capture Img', () => {
 
   it('capture empty src', () => {
-    const {baseUrl, storageInfo, clipId} = getParams();
+    const params = getParams();
     const node = getNode('');
-    let tasks = Capturer.capture(node, {baseUrl, clipId, storageInfo});
+    let tasks = Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
     H.assertTrue(node.getAttribute('data-mx-warn').length > 0);
+    H.assertTrue(node.hasAttribute('data-mx-original-src'));
 
     node.removeAttribute('src');
-    tasks = Capturer.capture(node, {baseUrl, clipId, storageInfo});
+    node.removeAttribute('data-mx-warn');
+    node.removeAttribute('data-mx-original-src');
+    tasks = Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
-    H.assertTrue(node.getAttribute('data-mx-warn').length > 0);
+    H.assertTrue(node.hasAttribute('data-mx-warn'));
+    H.assertTrue(node.hasAttribute('data-mx-original-src'));
   });
 
   it('capture img src', () => {
-    const {src, baseUrl, storageInfo, clipId} = getParams();
+    const params = getParams();
+    const {src, storageInfo} = params;
     const node = getNode(src);
-    const tasks = Capturer.capture(node, {baseUrl, clipId, storageInfo});
+    const tasks = Capturer.capture(node, params);
     H.assertEqual(tasks.length, 1);
     H.assertMatch(node.getAttribute('src'), /^assets\/001-[^\/]+\.jpg/);
     H.assertTrue(tasks[0].filename.startsWith(storageInfo.assetFolder));
@@ -53,13 +59,22 @@ describe('Capture Img', () => {
   });
 
   it('capture img srcset', () => {
-    const {src, srcset, baseUrl, storageInfo, clipId} = getParams();
+    const params = getParams();
+    const {src, srcset} = params;
     const node = getNode(src, srcset);
-    const tasks = Capturer.capture(node, {baseUrl, clipId, storageInfo});
+    const tasks = Capturer.capture(node, params);
     H.assertEqual(tasks.length, 3);
     const srcsetItems = node.getAttribute('srcset').split(',');
     H.assertMatch(srcsetItems[0], /^assets\/[^\/]+.png 200w$/);
     H.assertMatch(srcsetItems[1], /^assets\/[^\/]+.png 400w$/);
   });
+
+  it('capture img srcset [markdown]', () => {
+    const params = getParams();
+    const {src, srcset} = params;
+    const node = getNode(src, srcset);
+    const tasks = Capturer.capture(node, Object.assign({}, params, {saveFormat: 'md'}));
+    H.assertEqual(tasks.length, 1);
+  })
 
 });
