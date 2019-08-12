@@ -1,8 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcInputParser_WizNotePlus', ['MxWcTool'], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(require('../lib/tool.js'));
   } else {
@@ -41,7 +38,7 @@
       const clipId = now.str.intSec;
 
       // Keep all paths relative to $WIZNOTE_TEMP/webclipping
-      const path =  {
+      const storageInfo =  {
           /** the path to place index.html and assetFolder */
           saveFolder: clipId,
           /** the path to place asset files */
@@ -65,7 +62,7 @@
 
       const result = {
           info: info,
-          path: path,
+          storageInfo: storageInfo,
           input: inputHistory,
           needSaveIndexFile: false,
           needSaveTitleFile: false

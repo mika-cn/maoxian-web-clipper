@@ -1,15 +1,12 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcTool', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
-    module.exports = factory();
+    module.exports = factory(require('blueimp-md5'));
   } else {
     // browser or other
-    root.MxWcTool = factory();
+    root.MxWcTool = factory(root.md5);
   }
-})(this, function(undefined) {
+})(this, function(md5, undefined) {
   "use strict";
   // Tool
   const T = {};
@@ -76,6 +73,7 @@
     if(style.display === 'none') {
       return false;
     }
+
     if(style.visibility === 'hidden'){
       return false
     }
@@ -210,8 +208,49 @@
 
   T.toJson = function(hash) { return JSON.stringify(hash);}
 
+  //========== Url ===================
+
+  /*
+   * file://
+   * chrome-extension://
+   * moz-extension://
+   * chrome://communicator/skin/
+   * ...
+   * javascript:
+   * data:
+   * about:
+   * mailto:
+   * tel:
+   * ...
+   */
+  T.newUrl = function(part, base) {
+    if ([undefined, null, ''].indexOf(part) > -1) {
+      return {isvalid: false, message: 'Empty URL'};
+    }
+    try {
+      const url = new URL(part, base);
+      return {isValid: true, url: url};
+    } catch(e) {
+      return {isValid: false, message: e.message};
+    }
+  }
+
+  T.completeUrl = function(part, base) {
+    const {isValid, url, message} = T.newUrl(part, base);
+    if (isValid) {
+      return {isValid: true, url: url.href};
+    } else {
+      return {isValid: false, message: message}
+    }
+  }
+
+
   T.isFileUrl = function(url){
-    return url.startsWith('file:');
+    if (url.match(/^file:/i)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   T.isExtensionUrl = function(url){
@@ -220,6 +259,22 @@
       return !!protocol.match(/-extension$/);
     } else {
       return false
+    }
+  }
+
+  T.isDataUrl = function(url){
+    if (url.match(/^data:/i)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  T.isHttpUrl = function(url){
+    if (url.match(/^https:/i) || url.match(/^http:/i)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -234,15 +289,52 @@
     });
   }
 
-  T.prefixUrl = function(part, base){
-    try {
-      return (new URL(part, base)).href;
-    } catch(e) {
-      console.warn("mx-wc", e);
-      return part;
+
+  // pageUrl should be a valid url
+  T.url2Anchor = function(url, pageUrl) {
+    const page = T.newUrl(pageUrl);
+    if (!page.isValid) { return (url || '') }
+
+    const curr = T.newUrl(url);
+    if (!curr.isValid) { return (url || '') }
+
+    if (T.isHttpUrl(url)) {
+      const isSamePage = function(urlA, urlB) {
+        if(urlA.origin != urlB.origin) return false;
+        if(urlA.pathname != urlB.pathname) return false;
+        const searchA = new URLSearchParams(urlA.search);
+        const searchB = new URLSearchParams(urlB.search);
+        searchA.sort();
+        searchB.sort();
+        return searchA.toString() === searchB.toString();
+      }
+
+      if (isSamePage(curr.url, page.url)) {
+        if (curr.url.hash != '') {
+          return curr.url.hash
+        } else if (url.match(/#$/)){
+          // empty fragment '#'
+          // is used to link to the top of current page.
+          return '#';
+        } else {
+          return url;
+        }
+      } else {
+        return url;
+      }
+      if (curr.url.hash != '' && isSamePage(curr.url, page.url)) {
+        return curr.url.hash;
+      } else {
+        return url;
+      }
+    } else {
+      // not http url, do nothing
+      return url;
     }
   }
 
+
+  //TODO DELETEME
   T.isUrlSameLevel = function(a, b){
     return a.slice(0, a.lastIndexOf('/')) === b.slice(0, b.lastIndexOf('/'));
   }
@@ -269,11 +361,25 @@
     return new URL(decodeURI(url)).pathname.split('/').pop();
   }
 
+
   T.getFileExtension = function(filename){
     if(filename.indexOf('.') > -1){
       return filename.split('.').pop();
     }else{
       return '';
+    }
+  }
+
+  // return [name, extension]
+  T.splitFilename = function(filename) {
+    const idx = filename.lastIndexOf('.');
+    if (idx > -1) {
+      return [
+        filename.substring(0, idx),
+        filename.substring(idx + 1)
+      ]
+    } else {
+      return [filename, null];
     }
   }
 
@@ -469,7 +575,7 @@
     return path.replace(/\\/g, '/')
   }
 
-  T.joinPath = function(paths){
+  T.joinPath = function(...paths){
     const arr = [];
     T.each(paths, function(path){
       path = T.sanitizePath(path);
@@ -588,32 +694,6 @@
     return {enqueue: enqueue}
   }
 
-  T.isDataProtocol = function(link){
-    return (link.match(/^data:/i) ? true : false)
-  }
-
-  T.isHttpProtocol = function(link){
-    if(!link){ return false }
-    if(link.match(/^[^\/:]+:\/\//)){
-      if(link.match(/^http/i)){
-        return true
-      }else{
-        /*
-         * file://
-         * chrome-extension://
-         * moz-extension://
-         */
-        return false
-      }
-    }else{
-      if(  link.match(/^javascript:/i)
-        || link.match(/^void\(0\)/i)
-        || link.match(/^data:/i)
-        || link.match(/^about:/i)
-      ){ return false }
-      return true
-    }
-  }
 
   T.escapeHtml = function(string) {
     return String(string).replace(/[&<>"'`=\/]/g, function (s) {
@@ -629,30 +709,6 @@
       })[s];
     });
 
-  }
-
-  T.completeElemLink = function(elem, fullUrl){
-    const anchorTags = T.getTagsByName(elem, 'a');
-    const imageTags  = T.getTagsByName(elem, 'img');
-    const iframeTags = T.getTagsByName(elem, 'iframe');
-    const groups = [
-      [anchorTags , 'href'],
-      [imageTags  , 'src'],
-      [iframeTags , 'src']
-    ];
-    T.each(groups, function(it){
-      const [tags, attr] = it;
-      T.each(tags, function(tag){
-        if(attr === 'src' && tag.hasAttribute('srcset')){
-          // FIXME
-          tag.removeAttribute('srcset');
-        }
-        if(T.isHttpProtocol(tag[attr])){
-          tag.setAttribute(attr, T.prefixUrl(tag[attr], fullUrl));
-        }
-      });
-    })
-    return elem;
   }
 
 

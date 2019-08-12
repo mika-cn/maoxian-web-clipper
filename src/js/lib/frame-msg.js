@@ -1,8 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcFrameMsg', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory();
   } else {
@@ -38,6 +35,7 @@
   // options: {id:, :origin, allowOrigins}
   function init(options){
     const {id, origin, allowOrigins = []} = options;
+    console.log("FRAMEMSG INIT", id, origin, allowOrigins);
     state.id = id;
     state.origin = origin;
     state.allowOrigins = allowOrigins;
@@ -60,6 +58,7 @@
   // Broadcast to children only.
   // params: {:type, :msg}
   function broadcast(params) {
+    try{
     const message = params;
     message.broadcast = true;
     const frames = document.querySelectorAll('iframe');
@@ -69,15 +68,25 @@
         targetWindow.postMessage(message, targetOrigin);
       }
     });
+    }catch(e) {
+      console.log(e);
+      console.trace();
+    }
   }
 
   // params: {:to, :type, :msg}
   function send(params){
+    try{
     const message = params;
     const {to} = params;
     const {targetWindow, targetOrigin} = getTargetInfo(to);
     //console.log(to, message);
     targetWindow.postMessage(message, targetOrigin);
+    } catch(e) {
+      console.log(e)
+      console.trace();
+    }
+
   }
 
   function receiveMessage(e) {

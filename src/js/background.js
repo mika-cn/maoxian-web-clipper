@@ -1,21 +1,6 @@
 
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define([
-      'MxWcEnv',
-      'MxWcLog',
-      'MxWcTool',
-      'MxWcExtApi',
-      'MxWcExtMsg',
-      'MxWcStorage',
-      'MxWcConfig',
-      'MxWcFetcher',
-      'MxWcMigration',
-      'MxWcWebRequest',
-      'MxWcHandlerBackground',
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     factory(
       require('./env.js'),

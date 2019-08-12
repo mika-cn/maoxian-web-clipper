@@ -18,10 +18,22 @@
    */
   function backgroundMessageHandler(message) {
     return new Promise(function(resolve, reject) {
+      // FIXME
+      //
+      // what if the frame src atribute is not exist
+      // it's content set by srcdoc attribute
+      // Actually, this message is sent to this frame
+      // by background.js
+      //
+      // Maybe it's save to remove this "if".
+      //
       if (message.frameUrl === window.location.href) {
         switch (message.type) {
           case 'frame.toHtml':
-            MxWcHtml.getElemHtml(getParams(message)).then(resolve);
+            MxWcHtml.getElemHtml(getParams(message)).then((result) => {
+              result.title = window.document.title;
+              resolve(result);
+            });
             break;
           case 'frame.toMd':
             MxWcMarkdown.getElemHtml(getParams(message)).then(resolve);
@@ -32,13 +44,14 @@
   }
 
   function getParams(message) {
-    const {clipId, frames, path, mimeTypeDict, config} = message.body;
+    const {clipId, frames, storageInfo, mimeTypeDict, config} = message.body;
     return {
       clipId: clipId,
       frames: frames,
-      path: path,
-      elem: document.body,
-      refUrl: window.location.href,
+      storageInfo: storageInfo,
+      elem: window.document.body,
+      docUrl: window.location.href,
+      baseUrl: window.document.baseURI,
       mimeTypeDict: mimeTypeDict,
       parentFrameId: message.frameId,
       config: config,
@@ -58,6 +71,7 @@
     MxWcEvent.handleBroadcast();
   }
 
+  // This script only run in web page and it's external iframes (NOT includes inline iframe)
   function init() {
     if(window === window.top){
       // Main window

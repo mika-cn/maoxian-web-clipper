@@ -1,11 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcLink', [
-      'MxWcExtApi',
-      'MxWcExtMsg',
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
       require('./ext-api.js'),
@@ -106,7 +100,7 @@
   }
 
   function listen(contextNode) {
-    contextNode.addEventListener('click', function(e) {
+    (contextNode || window.document).addEventListener('click', function(e) {
       if(e.target.tagName == 'A' && e.target.href.startsWith('go.page:')) {
         const exp = e.target.href.split(':')[1];
         const link = get(exp);

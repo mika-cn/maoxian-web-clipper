@@ -1,8 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcConfig', ['MxWcStorage'], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(require('./storage.js'));
   } else {
@@ -34,7 +31,7 @@
       saveDomainAsTag: false,
 
       // control
-      hotkeySwitchEnabled: false,
+      hotkeySwitchEnabled: true,
       mouseModeEnabled: false,
       inputFieldSaveFormatEnabled: false,
 

@@ -1,46 +1,52 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcMarkdown', [
-      'MxWcTool',
-      'MxWcElemTool',
-      'MxWcStoreClient',
-      'MxWcLog',
-      'MxWcExtMsg',
-      'MxWcMdPluginGist',
-      'MxWcMdPluginMisc',
-      'MxWcMdPluginMathjax',
-      'MxWcMdPluginMathml2Latex',
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
+      require('../lib/translation.js'),
       require('../lib/tool.js'),
+      require('../lib/dom-tool.js'),
       require('./elem-tool.js'),
-      require('./store-client.js'),
       require('../lib/log.js'),
       require('../lib/ext-msg.js'),
+      require('../lib/task.js'),
       require('../lib/md-plugin-gist.js'),
       require('../lib/md-plugin-misc.js'),
       require('../lib/md-plugin-mathjax.js'),
-      require('../lib/md-plugin-mathml2latex.js')
+      require('../lib/md-plugin-mathml2latex.js'),
+      require('../capturer/a.js'),
+      require('../capturer/img.js'),
+      require('../capturer/style.js'),
+      require('../capturer/iframe.js'),
    );
   } else {
     // browser or other
     root.MxWcMarkdown = factory(
+      root.MxWcI18N,
       root.MxWcTool,
+      root.MxWcDOMTool,
       root.MxWcElemTool,
-      root.MxWcStoreClient,
       root.MxWcLog,
       root.MxWcExtMsg,
+      root.MxWcTask,
       root.MxWcMdPluginGist,
       root.MxWcMdPluginMisc,
       root.MxWcMdPluginMathjax,
-      root.MxWcMdPluginMathml2Latex
+      root.MxWcMdPluginMathML2LaTeX,
+      root.MxWcCapturerA,
+      root.MxWcCapturerPicture,
+      root.MxWcCapturerImg,
+      root.MxWcCapturerIframe,
     );
   }
-})(this, function(T, ElemTool, StoreClient, Log, ExtMsg, MdPluginGist,
-    MdPluginMisc, MdPluginMathJax, MdPluginMathML2LaTex,
+})(this, function(I18N, T, DOMTool, ElemTool, Log, ExtMsg, Task,
+    MdPluginGist,
+    MdPluginMisc,
+    MdPluginMathJax,
+    MdPluginMathML2LaTeX,
+    CapturerA,
+    CapturerPicture,
+    CapturerImg,
+    CapturerIframe,
     undefined) {
   "use strict";
 
@@ -51,159 +57,127 @@
    */
   async function parse(params){
     Log.debug("markdown parser");
-    const {path, elem, info, config} = params;
+    const {storageInfo, elem, info, config} = params;
     const [mimeTypeDict, frames] = await Promise.all([
       ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
       ExtMsg.sendToBackground({type: 'get.allFrames'}),
       ExtMsg.sendToBackground({type: 'keyStore.init'})
     ]);
-    const {html, tasks} = await getElemHtml({
+
+    //FIXME
+    const headers = {
+      "Referer"    : window.location.href,
+      "Origin"     : window.location.origin,
+      "User-Agent" : window.navigator.userAgent
+    }
+
+
+    const {elemHtml, tasks} = await getElemHtml({
       clipId: info.clipId,
       frames: frames,
-      path: path,
+      storageInfo: storageInfo,
       elem: elem,
-      refUrl: window.location.href,
+      docUrl: window.location.href,
+      baseUrl: window.document.baseURI,
       mimeTypeDict: mimeTypeDict,
       config: config,
     })
-    let markdown = generateMarkDown(html, info);
+    let markdown = generateMarkDown(elemHtml, info);
     markdown = MdPluginMathJax.unEscapeMathJax(markdown);
     markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
     if(config.saveClippingInformation){
       markdown += generateMdClippingInfo(info);
     }
-    const filename = T.joinPath([path.saveFolder, info.filename]);
-    const mainFileTask = {
-      taskType: 'mainFileTask',
-      type: 'text',
-      filename: filename,
-      mimeType: 'text/markdown',
-      text: markdown,
-      clipId: info.clipId,
-      createdMs: T.currentTime().str.intMs
-    }
+    const filename = T.joinPath(storageInfo.saveFolder, info.filename);
+    const mainFileTask = Task.createMarkdownTask(filename, markdown, info.clipId);
     tasks.push(mainFileTask);
-    return tasks;
+    return Task.appendHeaders(tasks, headers);
   }
 
   async function getElemHtml(params){
-    const topFrameId = 0;
+    const topFrameId = 0, saveFormat = 'md';
     const {
       clipId,
       frames,
-      path,
+      storageInfo,
       elem,
-      refUrl,
+      baseUrl,
+      docUrl,
       mimeTypeDict,
       parentFrameId = topFrameId,
       config: config,
     } = params;
-    Log.debug("getElemHtml", refUrl);
-    const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
-    let clonedElem = elem.cloneNode(true);
-    clonedElem = ElemTool.removeChildByXpath(window, clonedElem, xpaths);
-    clonedElem = T.completeElemLink(clonedElem, refUrl);
+    Log.debug("getElemHtml", docUrl);
 
-    const imgTags = T.getTagsByName(clonedElem, 'img')
-    const imgAssetInfos = ElemTool.getAssetInfos({
-      type: 'imageFile',
-      clipId: clipId,
-      assetTags: imgTags,
-      attrName: 'src',
-      mimeTypeDict: mimeTypeDict
-    });
 
-    let [newClonedElem, frameTasks] = await handleFrames(params, clonedElem);
-    clonedElem = newClonedElem;
+    const KLASS = 'mx-wc-selected-elem';
+    elem.classList.add(KLASS);
+    DOMTool.markHiddenNode(window, elem);
+    const docHtml = document.documentElement.outerHTML;
+    elem.classList.remove(KLASS);
+    DOMTool.clearHiddenMark(elem);
 
-    Log.debug("FrameHandlefihish");
-    clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
-    clonedElem = MdPluginMisc.handle(window, clonedElem);
-    clonedElem = MdPluginGist.handle(window, clonedElem);
-    clonedElem = MdPluginMathJax.handle(window, clonedElem);
-    clonedElem = MdPluginMathML2LaTeX.handle(window, clonedElem);
-    let html = clonedElem.outerHTML;
-    html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos);
-    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, imgAssetInfos);
-    return {html: html, tasks: imgTasks.concat(frameTasks)};
-  }
 
-  async function handleFrames(params, clonedElem) {
-    const topFrameId = 0;
-    const {clipId, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId, config} = params;
-    // collect current layer frames
-    const frameElems = [];
-    const promises = [];
-    for(let i = 0; i < frames.length; i++) {
-      const frame = frames[i];
-      Log.debug(parentFrameId, frame.parentFrameId, frame.url);
-      if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
-        const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url)
-        if(frameElem){
-          const canAdd = await ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: frame.url}});
-          if(canAdd) {
-            frameElems.push(frameElem);
-            promises.push(
-              ExtMsg.sendToBackground({
-                type: 'frame.toMd',
-                frameId: frame.frameId,
-                frameUrl: frame.url,
-                body: {
-                  clipId: clipId,
-                  frames: frames,
-                  path: path,
-                  mimeTypeDict: mimeTypeDict,
-                  config: config,
-                }
-             })
-            );
-          }
-        }
+    const {doc} = DOMTool.parseHTML(docHtml);
+    let selectedNode = doc.querySelector('.' + KLASS);
+    selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
+
+    const aNodes       = DOMTool.queryNodesByTagName(selectedNode, 'a');
+    const pictureNodes = DOMTool.queryNodesByTagName(selectedNode, 'picture');
+    const imgNodes     = DOMTool.queryNodesByTagName(selectedNode, 'img');
+    const iframeNodes  = DOMTool.queryNodesByTagName(selectedNode, 'iframe');
+
+    const captureInfos = [
+      {
+        nodes: pictureNodes,
+        capturer: CapturerPicture,
+        opts: {baseUrl, storageInfo, clipId, mimeTypeDict}
+      },
+      {
+        nodes: imgNodes,
+        capturer: CapturerImg,
+        opts: {baseUrl, storageInfo, clipId, mimeTypeDict}
+      },
+      {
+        nodes: aNodes,
+        capturer: CapturerA,
+        opts: {baseUrl, docUrl}
+      },
+      {
+        nodes:iframeNodes,
+        capturer: CapturerIframe,
+        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, saveFormat, frames}
       }
-    };
+    ];
 
-    Log.debug("iframe length: ", promises.length);
-    if(promises.length == 0){
-      return [clonedElem, []];
-    } else {
-      const results = await Promise.all(promises)
-      let container = clonedElem;
-      const taskCollection = [];
-      T.each(results, (result, idx) => {
-        if(result) {
-          // Replace frame element use frame html.
-          // FIXME
-          // If a frame have images, this replacement will trigger some image requests immediately. those request will end with 404 errors, cause we haven't save those image yet.
-          const {html, tasks} = result;
-          taskCollection.push(...tasks);
-          const frameElem = frameElems[idx];
-          const newNode = document.createElement("div");
-          T.setHtml(newNode, (html || ''));
-          if(container === frameElem) {
-            container = newNode;
-          } else {
-            const pNode = frameElem.parentNode;
-            pNode.insertBefore(newNode, frameElem);
-            pNode.removeChild(frameElem);
-          }
-        } else {
-          // Do nothing.
-          // Frame page failed to load.
-          // result is undefind, return by promise.catch
-        }
-      });
-      return [container, taskCollection];
+    const taskCollection = [];
+
+    for (let i = 0; i < captureInfos.length; i++) {
+      const it = captureInfos[i];
+      for (let j = 0; j < it.nodes.length; j++) {
+        const node = it.nodes[j];
+        const tasks = await it.capturer.capture(node, it.opts);
+        taskCollection.push(...tasks);
+      }
     }
+
+
+    selectedNode = MdPluginMisc.handle(doc, selectedNode);
+    selectedNode = MdPluginGist.handle(doc, selectedNode);
+    selectedNode = MdPluginMathJax.handle(doc, selectedNode);
+    selectedNode = MdPluginMathML2LaTeX.handle(doc, selectedNode);
+
+    let elemHtml = selectedNode.outerHTML;
+    return {elemHtml: elemHtml, tasks: taskCollection};
   }
-
-
 
   function generateMarkDown(elemHtml, info){
     Log.debug('generateMarkDown');
     const turndownService = getTurndownService();
     let md = "";
-    md += `# [${info.title}]\n\n`;
+    if (!elemHtml.match(/<h1[\s>]{1}/i)) {
+      md += `\n# ${info.title}\n\n`;
+    }
     md += turndownService.turndown(elemHtml);
     return md;
   }
@@ -212,10 +186,10 @@
     Log.debug('generateMdClippingInfo');
     let md = ""
     md += "\n\n---------------------------------------------------\n"
-    md += `\n\n${t('original-url')}: [${t('access')}](${info.link})`;
-    md += `\n\n${t('created-at')}: ${info.created_at}`;
-    let categoryStr = t('none');
-    let tagStr = t('none');
+    md += `\n\n${I18N.t('original-url')}: [${I18N.t('access')}](${info.link})`;
+    md += `\n\n${I18N.t('created-at')}: ${info.created_at}`;
+    let categoryStr = I18N.t('none');
+    let tagStr = I18N.t('none');
     if(info.category){
       categoryStr = info.category
     }
@@ -224,8 +198,8 @@
         return "`" + tag + "`";
       }).join(", ");
     }
-    md += `\n\n${t('category')}: ${categoryStr}`;
-    md += `\n\n${t('tags')}: ${tagStr}`;
+    md += `\n\n${I18N.t('category')}: ${categoryStr}`;
+    md += `\n\n${I18N.t('tags')}: ${tagStr}`;
     md += "\n\n";
     return md
   }
