@@ -86,11 +86,19 @@
   }
 
   function getKeyword(){
-    return window.localStorage.getItem('search.keyword');
+    try {
+      return window.localStorage.getItem('search.keyword');
+    } catch(e) {
+      return '';
+    }
   }
 
   function storeKeyword(value){
-    window.localStorage.setItem('search.keyword', value);
+    try {
+      window.localStorage.setItem('search.keyword', value);
+    } catch(e) {
+      // localStorage invalid
+    }
   }
 
   function searchAction(e){

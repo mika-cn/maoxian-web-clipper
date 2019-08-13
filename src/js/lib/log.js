@@ -31,4 +31,4 @@ this.Log = (function(logLevel) {
   if (shouldLog.error) { exports.error = console.error; }
 
   return exports;
-})((window && window.localStorage && window.localStorage.getItem('logLevel')) || (ENV && ENV.logLevel) || 'debug');
+})((window && window.location && window.location.search.indexOf('debug') > 0 && 'debug') || (ENV && ENV.logLevel) || 'debug');
