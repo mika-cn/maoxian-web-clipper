@@ -16,7 +16,7 @@
 
   let logLevel = 'debug';
   try {
-    logLevel = (window && window.localStorage && window.localStorage.getItem('logLevel')) || (ENV && ENV.logLevel || 'debug');
+    logLevel = (window && window.location && window.location.search.indexOf('debug') > 0 && 'debug') || (ENV && ENV.logLevel || 'debug');
   } catch(e) {
     logLevel = 'debug';
   }
@@ -49,4 +49,3 @@
 
   return exports;
 });
-

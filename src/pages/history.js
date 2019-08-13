@@ -307,9 +307,9 @@
     }
   }
 
-  function initSearch(){
+  async function initSearch(){
     const search = T.findElem('search');
-    search.value = getKeyword();
+    search.value = await cacheGet('search.keyword', '');
 
     //created_at
     const i18n = Pikaday.getI18n(ExtApi.locale);
@@ -374,14 +374,6 @@
     });
   }
 
-  function getKeyword(){
-    return window.localStorage.getItem('search.keyword');
-  }
-
-  function storeKeyword(value){
-    window.localStorage.setItem('search.keyword', value);
-  }
-
   function searchAction(e){
     if(e) { e.preventDefault()}
     const qRowA = {__logic__: 'AND'};
@@ -400,7 +392,7 @@
 
     let qRowB = {};
     const keyword = T.findElem('search').value.trim();
-    storeKeyword(keyword);
+    cacheSet('search.keyword', keyword);
     if(keyword !== ""){
       const regExp = new RegExp(keyword, 'i');
       qRowB = {
@@ -515,14 +507,14 @@
     modal.style.display = 'none';
   }
 
-  function initSwitches(){
-    initCheckbox({
+  async function initSwitches(){
+    await initCheckbox({
       domId: 'confirm-mode',
       storageKey: 'enableConfirmMode',
       defaultValue: true
     });
 
-    initCheckbox({
+    await initCheckbox({
       domId: 'advanced-search-mode',
       storageKey: 'enableAdvancedSearchMode',
       defaultValue: false,
@@ -533,20 +525,61 @@
     });
   }
 
-  function initCheckbox(options) {
+  async function initCheckbox(options) {
     const {domId, storageKey, defaultValue, action} = options;
     const input = T.findElem(domId);
-    const isEnable = window.localStorage.getItem(storageKey)
-    if(['true', 'false'].indexOf(isEnable) > -1) {
-      input.checked = (isEnable === 'true');
-    } else {
-      input.checked = defaultValue;
-    }
+    const checked = await cacheGet(storageKey, defaultValue);
+    input.checked = checked;
     if(action){ action(input.checked) }
-    T.bind(input, 'click', function(e){
-      window.localStorage.setItem(storageKey, e.target.checked);
+    T.bind(input, 'click', async function(e){
+      cacheSet(storageKey, e.target.checked);
       if(action){ action(e.target.checked) }
     });
+  }
+
+  // TODO delete me.
+  async function migrateLocalStorage() {
+
+    const migrationKey = 'localstorage.migrated';
+    const v = await cacheGet(migrationKey);
+    if(v) {
+      console.debug('migrated');
+    } else {
+      try {
+        const keys = ['search.keyword', 'enableConfirmMode', 'enableAdvancedSearchMode' ];
+        for(let i=0; i<keys.length; i++) {
+          const k = keys[i];
+          const value = window.localStorage.getItem(k);
+          if(value !== null) {
+            if (value === 'true') {
+              await cacheSet(k, true);
+            } else if (value === 'false') {
+              await cacheSet(k, false);
+            } else {
+              await cacheSet(k, value);
+            }
+          }
+        }
+        await cacheSet(migrationKey, true);
+        console.debug('run migration');
+      } catch(e) {
+        // User care about their privacy. set migrated, using deafult value
+        await cacheSet(migrationKey, true);
+        console.debug('run migration');
+      }
+    }
+  }
+
+  async function cacheSet(key, value) {
+    return await MxWcStorage.set(prefixCacheKey(key), value);
+  }
+
+  async function cacheGet(key, defaultValue) {
+    return await MxWcStorage.get(prefixCacheKey(key), defaultValue);
+  }
+
+  function prefixCacheKey(key) {
+    return ['history.page.cache', key].join('.');
   }
 
   function initState(clips) {
@@ -565,18 +598,18 @@
     state.allClips = clips;
   }
 
-  function init(){
+  async function init(){
+    await migrateLocalStorage();
     listenMessage();
-    MxWcStorage.get('clips', []).then(function(clips) {
-      initState(clips);
-      initSearch();
-      initLinks();
-      initActions();
-      initSwitches();
-      initModal();
-      I18N.i18nPage();
-      showHistory();
-    });
+    const clips = await MxWcStorage.get('clips', []);
+    initState(clips);
+    await initSearch();
+    initLinks();
+    initActions();
+    await initSwitches();
+    initModal();
+    I18N.i18nPage();
+    showHistory();
   }
 
   init();
