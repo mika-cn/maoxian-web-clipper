@@ -41,7 +41,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.title}</title>
-      ${v.styleHtml}
+      ${v.headInnerHtml}
     </head>
     ${v.html}
   </html>`;
@@ -59,7 +59,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.info.title}</title>
-      ${v.styleHtml}
+      ${v.headInnerHtml}
       <style class="mx-wc-style">
         .mx-wc-main img {max-width: 100%;}
         .mx-wc-main{
@@ -102,7 +102,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.info.title}</title>
-      ${v.styleHtml}
+      ${v.headInnerHtml}
       <style class="mx-wc-style">
   ${MxWcTemplate.clippingInformationStyle}
       </style>

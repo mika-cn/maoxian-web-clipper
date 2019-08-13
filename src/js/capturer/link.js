@@ -68,9 +68,10 @@
       if (linkType.match(/icon/)) {
         return captureIcon({node, href, opts});
       }
-    } else if (linkType === 'preload') {
-      // remove node?
-      // node.parentNode.removeChild(node);
+    } else {
+      if (linkTypes.indexOf('icon') > -1) {
+        return captureIcon({node, href, opts});
+      }
     }
 
     return [];

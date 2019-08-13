@@ -80,6 +80,14 @@ describe('Capture link', () => {
     H.assertMatch(node.getAttribute('href'), /assets\/[^\.\/]+\.icon/);
   });
 
+  it('capture link rel="shortcut icon"', async() => {
+    const html = '<link rel="shortcut icon" href="a.icon">';
+    const {node, params, Capturer} = initTest(html);
+    const tasks = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 1);
+  });
+
+
   it('capture link rel="apple-touch-icon-precomposed"', async() => {
     const html = '<link rel="apple-touch-icon-precomposed" href="a" type="image/png">';
     const {node, params, Capturer} = initTest(html);

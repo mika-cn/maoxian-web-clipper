@@ -563,7 +563,7 @@
     }
   }
 
-  function isIndivisible(elem, pElem) => {
+  function isIndivisible(elem, pElem) {
     if(elem && pElem) {
       return [
         ['CODE', 'PRE'],

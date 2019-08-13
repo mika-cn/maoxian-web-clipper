@@ -222,7 +222,7 @@
   function toCssText(cssObj) {
     let r = '';
     for (let k in cssObj) {
-      style += `${k}: ${cssObj[k]} !important;`;
+      r += `${k}: ${cssObj[k]} !important;`;
     }
     return r;
   }
@@ -230,7 +230,7 @@
   return {
     getRenderParams: getRenderParams,
     getSelectedNodeStyle: getSelectedNodeStyle,
-    getWrapperStyle: getComputedStyle,
+    getWrapperStyle: getWrapperStyle,
   }
 
 });

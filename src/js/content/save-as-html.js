@@ -67,7 +67,7 @@
 
 
     // 获取选中元素的html
-    const {elemHtml, styleHtml, tasks} = await getElemHtml({
+    const {elemHtml, headInnerHtml, tasks} = await getElemHtml({
       clipId: info.clipId,
       frames: frames,
       storageInfo: storageInfo,
@@ -83,7 +83,7 @@
     const v = StyleHelper.getRenderParams(elem);
     const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
     v.info = info;
-    v.styleHtml = styleHtml;
+    v.headInnerHtml = headInnerHtml;
     v.elemHtml = elemHtml;
     v.config = config;
     const html = Template[page].render(v);
@@ -176,7 +176,11 @@
 
 
 
-    const styleHtml = getStyleHtml(doc.querySelectorAll('link[rel~=stylesheet]')) + getStyleHtml(doc.querySelectorAll('style'));
+    const headInnerHtml = [
+      getNodesHtml(doc.querySelectorAll('link[rel*=icon]')),
+      getNodesHtml(doc.querySelectorAll('link[rel~=stylesheet]')),
+      getNodesHtml(doc.querySelectorAll('style')),
+    ].join("\n");
 
     let elemHtml = "";
     if(elem.tagName === 'BODY') {
@@ -184,7 +188,7 @@
     } else {
       elemHtml = dealNormalElem(selectedNode, elem);
     }
-    return { elemHtml: elemHtml, styleHtml: styleHtml, tasks: taskCollection};
+    return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection};
   }
 
   function dealBodyElem(node, originalNode) {
@@ -206,7 +210,7 @@
       }
     });
     return DOMTool.removeNodeBySelectors(contextNode, [
-      'link[rel~=stylesheet]',
+      'link',
       'style',
       'script',
       'noscript',
@@ -237,7 +241,7 @@
   }
 
 
-  function getStyleHtml(nodes) {
+  function getNodesHtml(nodes) {
     const html = [].map.call(nodes, (node) => {
       return node.outerHTML;
     }).join("\n");
