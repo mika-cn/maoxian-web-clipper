@@ -36,6 +36,7 @@
 
   const state = {
     isListening: false,
+    createdFilenameDict: T.createDict(), // downloadItemId => filename (full path)
     taskFilenameDict: T.createDict(), // downloadItemId => taskFilename
   };
 
@@ -80,6 +81,13 @@
     }).then((downloadItemId) => {
       // download started successfully
       state.taskFilenameDict.add(downloadItemId, msg.filename);
+
+      const createdFilename = state.createdFilenameDict.find(downloadItemId);
+      if (createdFilename) {
+        // We've got filename in downloadCreated event if we are in firefox.
+        // see downloadCreated function.
+        filenameCreated(downloadItemId, createdFilename);
+      }
     }, (rejectMsg) => {
       Log.error(rejectMsg);
       SavingTool.taskFailed(msg.filename, errMsg);
@@ -100,6 +108,7 @@
 
   function downloadCompleted(downloadItemId){
     // file that not download through maoxian web clipper
+    state.createdFilenameDict.remove(downloadItemId);
     if(!isDownloadByUs(downloadItemId)) { return false }
     ExtApi.findDownloadItem(downloadItemId)
       .then((downloadItem) => {
@@ -152,10 +161,10 @@
     if(e.filename){
       // firefox has filename on downloadCreated but not in downloadChanged
       // download created event is emit before resolve of ExtApi.download
-      // We deal this event next tick (after ExtApi.download function resolved).
-      setTimeout(() => {
-        filenameCreated(e.id, T.sanitizePath(e.filename))
-      }, 0);
+      // and we don't know when ExtApi.download will resolve (we can't
+      // just use setTimeout to delay it. cause it'll unstable)
+      //
+      state.createdFilenameDict.add(e.id, T.sanitizePath(e.filename));
     }
   }
 
