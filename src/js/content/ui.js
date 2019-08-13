@@ -2,14 +2,13 @@
   root.MxWcUI = factory(
     root.MxWcLog,
     root.MxWcTool,
-    root.MxWcElemTool,
     root.MxWcExtApi,
     root.MxWcFrameMsg,
     root.MxWcEvent,
     root.MxWcHandler,
     root.MxWcSave
   );
-})(this, function(Log, T, ElemTool, ExtApi, FrameMsg,
+})(this, function(Log, T, ExtApi, FrameMsg,
     MxWcEvent, MxWcHandler, MxWcSave, undefined) {
   "use strict";
 
@@ -502,7 +501,7 @@
     if(state.clippingState === 'selected'){
       if(MxWc.selector.stack.isEmpty()){
         let cElem = state.currElem.children[0];
-        while(cElem && (isOnBlackList(cElem) || ElemTool.isBoxSizeEq(state.currElem, cElem))){
+        while(cElem && (isOnBlackList(cElem) || isBoxSizeEq(state.currElem, cElem))){
           cElem = cElem.children[0];
         }
         if(cElem){
@@ -547,12 +546,36 @@
   function getOutermostWrapper(elem){
     if(['HTML', 'BODY'].indexOf(elem.tagName) > 0){ return elem }
     const pElem = elem.parentElement;
-    if(ElemTool.isBoxSizeEq(elem, pElem) || ElemTool.isIndivisible(elem, pElem)){
+    if(isBoxSizeEq(elem, pElem) || isIndivisible(elem, pElem)){
       return getOutermostWrapper(pElem);
     } else {
       return elem;
     }
   }
+
+  function isBoxSizeEq(elemA, elemB) {
+    if(elemA && elemB){
+      const boxA = elemA.getBoundingClientRect();
+      const boxB = elemB.getBoundingClientRect();
+      return boxA.width === boxB.width && boxA.height === boxB.height;
+    } else {
+      return false;
+    }
+  }
+
+  function isIndivisible(elem, pElem) => {
+    if(elem && pElem) {
+      return [
+        ['CODE', 'PRE'],
+        ['PRE', 'CODE'],
+        ['THEAD', 'TABLE'],
+        ['TBODY', 'TABLE'],
+      ].some((p) => elem.tagName === p[0] && pElem.tagName === p[1])
+    } else {
+      return false;
+    }
+  }
+
 
   function isOnBlackList(elem){
     const blackList = ["SCRIPT", "STYLE", "TEMPLATE"];

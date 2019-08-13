@@ -5,7 +5,6 @@
       require('../lib/translation.js'),
       require('../lib/tool.js'),
       require('../lib/dom-tool.js'),
-      require('./elem-tool.js'),
       require('../lib/log.js'),
       require('../lib/ext-msg.js'),
       require('../lib/task.js'),
@@ -15,7 +14,6 @@
       require('../lib/md-plugin-mathml2latex.js'),
       require('../capturer/a.js'),
       require('../capturer/img.js'),
-      require('../capturer/style.js'),
       require('../capturer/iframe.js'),
    );
   } else {
@@ -24,7 +22,6 @@
       root.MxWcI18N,
       root.MxWcTool,
       root.MxWcDOMTool,
-      root.MxWcElemTool,
       root.MxWcLog,
       root.MxWcExtMsg,
       root.MxWcTask,
@@ -33,18 +30,16 @@
       root.MxWcMdPluginMathjax,
       root.MxWcMdPluginMathML2LaTeX,
       root.MxWcCapturerA,
-      root.MxWcCapturerPicture,
       root.MxWcCapturerImg,
       root.MxWcCapturerIframe,
     );
   }
-})(this, function(I18N, T, DOMTool, ElemTool, Log, ExtMsg, Task,
+})(this, function(I18N, T, DOMTool, Log, ExtMsg, Task,
     MdPluginGist,
     MdPluginMisc,
     MdPluginMathJax,
     MdPluginMathML2LaTeX,
     CapturerA,
-    CapturerPicture,
     CapturerImg,
     CapturerIframe,
     undefined) {

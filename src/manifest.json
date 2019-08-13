@@ -62,8 +62,7 @@
         "js/capturer/link.js",
         "js/capturer/style.js",
         "js/capturer/iframe.js",
-        "js/content/elem-tool.js",
-        "js/content/calc-style.js",
+        "js/content/style-helper.js",
         "js/content/save-as-markdown.js",
         "js/content/save-as-html.js",
         "js/content-frame.js"

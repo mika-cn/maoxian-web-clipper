@@ -6,7 +6,6 @@
     module.exports = factory(
       require('../lib/tool.js'),
       require('../lib/dom-tool.js'),
-      require('./elem-tool.js'),
       require('../lib/log.js'),
       require('../lib/ext-msg.js'),
       require('../lib/task.js'),
@@ -16,14 +15,13 @@
       require('../capturer/style.js'),
       require('../capturer/link.js'),
       require('../capturer/iframe.js'),
-      require('./calc-style.js')
+      require('./style-helper.js')
     );
   } else {
     // browser or other
     root.MxWcHtml = factory(
       root.MxWcTool,
       root.MxWcDOMTool,
-      root.MxWcElemTool,
       root.MxWcLog,
       root.MxWcExtMsg,
       root.MxWcTask,
@@ -34,16 +32,16 @@
       root.MxWcCapturerStyle,
       root.MxWcCapturerLink,
       root.MxWcCapturerIframe,
-      root.MxWcCalcStyle
+      root.MxWcStyleHelper
     );
   }
-})(this, function(T, DOMTool, ElemTool, Log, ExtMsg, Task, MxWcTemplate,
+})(this, function(T, DOMTool, Log, ExtMsg, Task, Template,
     CapturerA,
     CapturerPicture,
     CapturerImg,
     CapturerStyle,
     CapturerLink,
-    CapturerIframe, CalcStyle, undefined) {
+    CapturerIframe, StyleHelper, undefined) {
   "use strict";
 
   /*
@@ -82,13 +80,13 @@
     });
 
     // 将elemHtml 渲染进模板里，渲染成完整网页。
-    const v = CalcStyle.calc(elem);
+    const v = StyleHelper.getRenderParams(elem);
     const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
     v.info = info;
     v.styleHtml = styleHtml;
     v.elemHtml = elemHtml;
     v.config = config;
-    const html = MxWcTemplate[page].render(v);
+    const html = Template[page].render(v);
     const filename = T.joinPath(storageInfo.saveFolder, info.filename)
 
     const mainFileTask = Task.createHtmlTask(filename, html, info.clipId);
@@ -195,7 +193,7 @@
   }
 
   function dealNormalElem(node, originalNode){
-    node.style = CalcStyle.getSelectedNodeStyle(originalNode);
+    node.style = StyleHelper.getSelectedNodeStyle(originalNode);
     node = removeUselessNode(node);
     return wrapToBody(originalNode, node.outerHTML);
   }
@@ -221,18 +219,14 @@
     let pElem = elem.parentElement;
     while(pElem && ['html', 'body'].indexOf(pElem.tagName.toLowerCase()) == -1){
       const tagName = pElem.tagName
-      let attrs = []
-      /* make sure highest priority */
-      const displayCss = (tagName == 'table' ? 'display: table;' : 'display: block;');
-      let style = displayCss + "float: none !important; position: relative !important; top: 0 !important; left: 0 !important; border: 0px !important; width: 100% !important; min-width:100% !important; max-width: 100% !important; min-height: auto !important; max-height: 100% !important; height: auto !important; padding: 0px !important; margin: 0px !important;"
+
+      const attrs = [];
       T.each(pElem.attributes, function(attr){
-        if(attr.name == "style"){
-          style = (attr.value || "") + style;
-        }else{
+        if(attr.name !== "style"){
           attrs.push([attr.name, attr.value]);
         }
       });
-      attrs.push(['style', style]);
+      attrs.push(['style', StyleHelper.getWrapperStyle(pElem)]);
       const attrHtml = T.map(attrs, function(pair){
         return `${pair[0]}="${pair[1]}"`;
       }).join(' ');

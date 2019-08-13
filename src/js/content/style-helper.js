@@ -7,7 +7,7 @@
     );
   } else {
     // browser or other
-    root.MxWcCalcStyle = factory(
+    root.MxWcStyleHelper = factory(
       root.MxWcLog,
       root.MxWcTool
     );
@@ -15,7 +15,7 @@
 })(this, function(Log, T, undefined) {
   "use strict";
 
-  function calc(elem){
+  function getRenderParams(elem){
     const htmlId = document.documentElement.id;
     const htmlClass = document.documentElement.className;
     if (elem.tagName === 'BODY') {
@@ -161,8 +161,33 @@
     }
   }
 
+  function getWrapperStyle(node) {
+    const cssObj = {
+      'display'    : 'block',
+      'float'      : 'none',
+      'position'   : 'relative',
+      'top'        : '0',
+      'left'       : '0',
+      'border'     : '0px',
+      'width'      : '100%',
+      'min-width'  : '100%',
+      'max-width'  : '100%',
+      'height'     : 'auto',
+      'min-height' : 'auto',
+      'max-height' : '100%',
+      'margin'     : '0px',
+      'padding'    : '0px',
+    }
+
+    if (node.tagName === 'TABLE') {
+      cssObj['display'] = 'table';
+    }
+
+    return (node.style.cssText || '') + toCssText(cssObj);
+  }
+
   function getSelectedNodeStyle(node) {
-    const rules = {
+    const cssObj = {
       'float'      : 'none',
       'position'   : 'relative',
       'top'        : '0',
@@ -174,7 +199,7 @@
     };
 
     if (getStyleText(node, 'box-sizing') !== 'border-box') {
-      rules['box-sizing'] = 'border-box';
+      cssObj['box-sizing'] = 'border-box';
     }
 
     const marginLeft  = getCssSize(node, 'margin-left');
@@ -183,22 +208,29 @@
     const paddingTop  = getCssSize(node, 'padding-top');
 
     if (marginLeft !== 0 && (marginLeft + paddingLeft) == 0) {
-      // Some programer write code like this :(
-      rules['padding-left'] = `${paddingTop}px`;
+      // Some programers write code like this :(
+      cssObj['padding-left'] = `${paddingTop}px`;
     }
 
     if (marginTop !== 0 && (marginTop + paddingTop) == 0) {
-      rules['padding-top'] = `${paddingLeft}px`;
+      cssObj['padding-top'] = `${paddingLeft}px`;
     }
 
-    let style = '';
-    for (let k in rules) {
-      style += `${k}: ${rules[k]} !important;`;
-    }
-
-    return (node.style.cssText || '') + style;
+    return (node.style.cssText || '') + toCssText(cssObj);
   }
 
-  return {calc: calc, getSelectedNodeStyle: getSelectedNodeStyle}
+  function toCssText(cssObj) {
+    let r = '';
+    for (let k in cssObj) {
+      style += `${k}: ${cssObj[k]} !important;`;
+    }
+    return r;
+  }
+
+  return {
+    getRenderParams: getRenderParams,
+    getSelectedNodeStyle: getSelectedNodeStyle,
+    getWrapperStyle: getComputedStyle,
+  }
 
 });
