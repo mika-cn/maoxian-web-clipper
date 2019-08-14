@@ -347,43 +347,94 @@
   // @see https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file
   // More strict
   T.sanitizeFilename = function(name){
-    const winReservedNames = [ 'CON', 'PRN', 'AUX', 'NUL',
-      'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-      'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
-    ];
-    if(winReservedNames.indexOf(name) > -1){
-      return "InvalidName" + name;
+
+    if (typeof name !== 'string') {
+      throw new Error("Filename must be string");
+    }
+
+    // Unicode Control codes
+    // 0x00-0x1f and 0x80-0x9f
+    const regExp_unicodeControlCode = /[\x00-\x1f\x80-\x9f]/g
+
+    // remove "\s" "\." ","
+    // Illegal characters on most file systems.
+    //   "/", "?", "|", "<", ">", "\", ":", "*", '"'
+    const regExp_illegalChars = /[\/\?\|<>\\:\*"]/g
+
+    // Reserved names in Windows: 'CON', 'PRN', 'AUX', 'NUL',
+    // 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+    // 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
+    // case-insesitively and with or without filename extensions.
+    const regExp_winReservedNames = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i;
+
+    // <space> and "." are not allowed in the end (in the Windows).
+    const regExp_winTrailingChars = /[ \.]$/;
+
+
+    // Reserved names in Unix liked OS
+    // ".", ".."
+    const regExp_UnixLikedReservedNames = /^\.+$/;
+
+    // clear name string.
+    const input = name.trim().replace(regExp_unicodeControlCode, '');
+    const replacement = ["invalid-filename", Math.round(Math.random() * 10000)].join('-');
+
+    if (input.match(regExp_winReservedNames) || input.match(regExp_UnixLikedReservedNames)) {
+      return replacement;
+    }
+
+    // separator
+    const s = '-';
+    const result = input.replace(regExp_illegalChars, s).replace(regExp_winTrailingChars, s)
+      // avoid ugly filename :)
+      .replace(/\s/g, s)
+      .replace(/,/g, s)
+      .replace(/\./g, s)
+      .replace(/'/g, s)
+      .replace(/#/g, s)
+      .replace(/~/g, s)
+      .replace(/`/g, s)
+      .replace(/!/g, s)
+      .replace(/%/g, s)
+      .replace(/&/g, s)
+      .replace(/\+/g, s)
+      .replace(/\?/g, s)
+      .replace(/\[/g, s)
+      .replace(/\]/g, s)
+      .replace(/\(/g, s)
+      .replace(/\)/g, s)
+      .replace(/\{/g, s)
+      .replace(/\}/g, s)
+
+      .replace(/，/g, s)
+      .replace(/。/g, s)
+      .replace(/！/g, s)
+      .replace(/？/g, s)
+      .replace(/《/g, s)
+      .replace(/》/g, s)
+      .replace(/〈/g, s)
+      .replace(/〉/g, s)
+      .replace(/«/g, s)
+      .replace(/»/g, s)
+      .replace(/‹/g, s)
+      .replace(/›/g, s)
+      .replace(/「/g, s)
+      .replace(/」/g, s)
+      .replace(/【/g, s)
+      .replace(/】/g, s)
+      .replace(/〔/g, s)
+      .replace(/〕/g, s)
+      .replace(/［/g, s)
+      .replace(/］/g, s)
+
+      .replace(/-+/g, s) // multiple dash to one dash
+      .replace(/-$/, ''); // delete dash at the end
+
+    if (result.length > 200) {
+      // Stupid windows: Path Length Limitation
+      return result.slice(0, 200);
     } else {
-      if(name.length > 200){
-        // Stupid windows: Path Length Limitation
-        name = name.slice(0, 200);
-      }
-      /* "/", "?", <space>, "|", "<", ">", "\", ":", ","
-       * "*", '"'
-       * "#"
-       * "."
-       * "。" chinese period
-       * "~"
-       * "!"
-       * "！" chinese exclamation mark
-       * "，" chinese comma
-       * "？" chinese question mark
-       * "-" multiple dash to one dash
-       * "-" delete dash at the end
-       */
-      return name
-        .replace(/[\/\?\s\|<>\\:,\.]/g, '-')
-        .replace(/[\*"]/g, '-')
-        .replace(/#/g, '-')
-        .replace(/\.$/, '-')
-        .replace(/。/g, '-')
-        .replace(/~/g, '-')
-        .replace(/!/g, '-')
-        .replace(/！/g, '-')
-        .replace(/，/g, '-')
-        .replace(/？/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/-$/, '');
+      return (result === '' ? replacement : result);
     }
   }
 
