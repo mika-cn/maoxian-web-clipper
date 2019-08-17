@@ -128,6 +128,7 @@
     const imgNodes     = DOMTool.queryNodesByTagName(selectedNode, 'img');
     const aNodes       = DOMTool.queryNodesByTagName(selectedNode, 'a');
     const iframeNodes  = DOMTool.queryNodesByTagName(selectedNode, 'iframe');
+    const frameNodes   = DOMTool.queryNodesByTagName(selectedNode, 'frame');
 
     const captureInfos = [
       {
@@ -156,7 +157,12 @@
         opts: {baseUrl, docUrl}
       },
       {
-        nodes:iframeNodes,
+        nodes: iframeNodes,
+        capturer: CapturerIframe,
+        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+      },
+      {
+        nodes: frameNodes,
         capturer: CapturerIframe,
         opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       }
@@ -203,7 +209,7 @@
 
   function removeUselessNode(contextNode){
     // extension Iframe
-    T.each(contextNode.querySelectorAll('iframe'), function(iframe){
+    T.each(contextNode.querySelectorAll('iframe, frame'), function(iframe){
       if(T.isExtensionUrl(iframe.src)){
         iframe.parentNode.removeChild(iframe);
       }

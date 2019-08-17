@@ -119,6 +119,7 @@
     const aNodes       = DOMTool.queryNodesByTagName(selectedNode, 'a');
     const imgNodes     = DOMTool.queryNodesByTagName(selectedNode, 'img');
     const iframeNodes  = DOMTool.queryNodesByTagName(selectedNode, 'iframe');
+    const frameNodes   = DOMTool.queryNodesByTagName(selectedNode, 'frame');
 
     const captureInfos = [
       {
@@ -132,7 +133,12 @@
         opts: {baseUrl, docUrl}
       },
       {
-        nodes:iframeNodes,
+        nodes: iframeNodes,
+        capturer: CapturerIframe,
+        opts: {saveFormat, baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+      },
+      {
+        nodes: frameNodes,
         capturer: CapturerIframe,
         opts: {saveFormat, baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       }
