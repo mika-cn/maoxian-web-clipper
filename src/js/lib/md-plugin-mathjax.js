@@ -1,8 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcMdPluginMathjax', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory();
   } else {
@@ -12,7 +9,7 @@
 })(this, function(undefined) {
   "use strict";
 
-  function handle(win, elem) {
+  function handle(doc, elem) {
     const mathJaxScripts = elem.querySelectorAll('script[id^=MathJax-Element-]');
     Array.prototype.forEach.call(mathJaxScripts, (mathJaxScript) => {
       const mathJaxFrameId = [mathJaxScript.id, 'Frame'].join('-');
@@ -21,17 +18,17 @@
         let newNode = null;
         switch(mathJaxScript.type){
           case "math/tex":
-            newNode = toTeXNode(win, mathJaxScript.innerText)
+            newNode = toTeXNode(doc, mathJaxScript.innerText)
             break;
           case "math/mml":
-            newNode = mathMLHtml2TeXNode(win, mathJaxScript.innerText)
+            newNode = mathMLHtml2TeXNode(doc, mathJaxScript.innerText)
             break;
           default: break;
         }
         if(!newNode){
           const dataMathml = mathJaxFrame.getAttribute('data-mathml');
           if(dataMathml && dataMathml.match(/^<math/)){
-            newNode = mathMLHtml2TeXNode(win, dataMathml);
+            newNode = mathMLHtml2TeXNode(doc, dataMathml);
           }
         }
         if(newNode){
@@ -44,13 +41,13 @@
     return elem;
   }
 
-  function mathMLHtml2TeXNode(win, mathMLHtml) {
+  function mathMLHtml2TeXNode(doc, mathMLHtml) {
     const teX = MathML2LaTeX.convert(mathMLHtml);
-    return toTeXNode(win, teX);
+    return toTeXNode(doc, teX);
   }
 
-  function toTeXNode(win, teX) {
-    const newNode = win.document.createElement('code');
+  function toTeXNode(doc, teX) {
+    const newNode = doc.createElement('code');
     newNode.innerText = "MathJaxTeX " + teX + " MathJaxTeX";
     return newNode;
   }

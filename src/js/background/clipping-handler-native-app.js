@@ -1,14 +1,6 @@
 
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcClippingHandler_NativeApp', [
-      'MxWcTool',
-      'MxWcLog',
-      'MxWcI18N',
-      'MxWcSavingTool'
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
       require('../lib/tool.js'),

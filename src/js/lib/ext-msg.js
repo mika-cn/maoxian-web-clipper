@@ -1,11 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcExtMsg', [
-      'MxWcTool',
-      'MxWcExtApi'
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
       require('./tool.js'),

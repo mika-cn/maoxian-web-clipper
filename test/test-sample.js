@@ -1,8 +1,8 @@
 
-var assert = require('assert');
+const H = require('./helper.js');
 
 describe('Test sample', () => {
   it('Floor a number', () => {
-    assert.equal(Math.floor(1.9), 1);
+    H.assertEqual(Math.floor(1.9), 1);
   });
 })

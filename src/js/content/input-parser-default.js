@@ -1,9 +1,6 @@
 
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcInputParser_Default', ['MxWcTool'], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(require('../lib/tool.js'));
   } else {
@@ -43,7 +40,7 @@
     const [category, saveFolder] = dealCategoryAndSaveFolder(config, originalCategory, clippingFolder);
     const [assetFolder, assetRelativePath] = dealAssetFolderAndPath(config, saveFolder);
 
-    const path =  { saveFolder: saveFolder, assetFolder: assetFolder, assetRelativePath: assetRelativePath};
+    const storageInfo =  { saveFolder: saveFolder, assetFolder: assetFolder, assetRelativePath: assetRelativePath};
     //Log.debug(path)
 
     const info = {
@@ -61,7 +58,7 @@
 
     const result = {
       info: info,
-      path: path,
+      storageInfo: storageInfo,
       input: inputHistory,
       needSaveIndexFile: true,
       needSaveTitleFile: needSaveTitleFile(config)
@@ -75,14 +72,14 @@
     let assetRelativePath = null;
     if(config.assetPath.indexOf('$CLIPPING-PATH') > -1){
       assetRelativePath = config.assetPath.replace('$CLIPPING-PATH/', '');
-      assetFolder = T.joinPath([saveFolder, assetRelativePath]);
+      assetFolder = T.joinPath(saveFolder, assetRelativePath);
     } else {
       if(config.assetPath.indexOf('$STORAGE-PATH') > -1){
-        assetFolder = T.joinPath([config.rootFolder, config.assetPath.replace('$STORAGE-PATH/', '')]);
+        assetFolder = T.joinPath(config.rootFolder, config.assetPath.replace('$STORAGE-PATH/', ''));
         assetRelativePath = T.calcPath(saveFolder, assetFolder)
       } else {
         assetRelativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
-        assetFolder = T.joinPath([saveFolder, assetRelativePath]);
+        assetFolder = T.joinPath(saveFolder, assetRelativePath);
       }
     }
     return [assetFolder, assetRelativePath];
@@ -92,17 +89,17 @@
     let folder = null;
     if(category === ""){
       if(config.defaultCategory === "$NONE"){
-        folder = T.joinPath([config.rootFolder, clippingFolder])
+        folder = T.joinPath(config.rootFolder, clippingFolder)
       } else {
         category = (config.defaultCategory === '' ? 'default' : config.defaultCategory);
-        folder = T.joinPath([config.rootFolder, category, clippingFolder]);
+        folder = T.joinPath(config.rootFolder, category, clippingFolder);
       }
     } else {
       if(category === '$NONE'){
         category = '';
-        folder = T.joinPath([config.rootFolder, clippingFolder])
+        folder = T.joinPath(config.rootFolder, clippingFolder)
       } else {
-        folder = T.joinPath([config.rootFolder, category, clippingFolder]);
+        folder = T.joinPath(config.rootFolder, category, clippingFolder);
       }
     }
     return [category, folder]

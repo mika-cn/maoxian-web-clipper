@@ -1,11 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcTemplate', [
-      'MxWcI18N',
-      'MxWcTool'
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
       require('./translation.js'),
@@ -47,7 +41,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.title}</title>
-      ${v.styleHtml}
+      ${v.headInnerHtml}
     </head>
     ${v.html}
   </html>`;
@@ -58,20 +52,21 @@
     render: function(v){
     return `
   <!DOCTYPE html>
-  <html>
+  <html id="${v.htmlId}" class="${v.htmlClass}">
     <!-- OriginalSrc: ${v.info.link} -->
     <head>
       <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.info.title}</title>
-      ${v.styleHtml}
+      ${v.headInnerHtml}
       <style class="mx-wc-style">
         .mx-wc-main img {max-width: 100%;}
         .mx-wc-main{
           box-sizing: content-box;
           background-color: ${v.outerElemBgCss} !important;
           margin: 0 auto;
+          margin-top: 20px;
           max-width: ${v.elemWidth}px;
         }
         @media (min-width: 768px) {
@@ -83,7 +78,7 @@
   ${MxWcTemplate.clippingInformationStyle}
       </style>
     </head>
-    <body style="background-color: ${v.bodyBgCss} !important; min-height: 100%; height: auto;" id="${v.bodyId}" class="${v.bodyClass}">
+    <body style="background-color: ${v.bodyBgCss} !important; min-height: 100%; height: auto; position: static !important; overflow: auto !important; padding-bottom: 0px !important;" id="${v.bodyId}" class="${v.bodyClass}">
       <div class="mx-wc-main">
         ${v.elemHtml}
         ${MxWcTemplate.clippingInformation.render(v)}
@@ -97,17 +92,20 @@
   MxWcTemplate.bodyPage = {
     render: function(v) {
       const infoHtml = MxWcTemplate.clippingInformation.render(v);
-      const bodyHtml = v.elemHtml.replace(/<\/body>/i, [infoHtml, "</body>"].join("\n"));
+      const bodyHtml = T.replaceLastMatch(
+        v.elemHtml, /<\/body>/img,
+        [infoHtml, "</body>"].join("\n")
+      );
     return `
   <!DOCTYPE html>
-  <html>
+  <html id="${v.htmlId}" class="${v.htmlClass}">
     <!-- OriginalSrc: ${v.info.link} -->
     <head>
       <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.info.title}</title>
-      ${v.styleHtml}
+      ${v.headInnerHtml}
       <style class="mx-wc-style">
   ${MxWcTemplate.clippingInformationStyle}
       </style>
@@ -118,12 +116,12 @@
   }
   MxWcTemplate.clippingInformationStyle = `
         .clipping-information{
-          text-align: left;
-          margin-top: 20px;
+          text-align: left !important;
+          margin-top: 20px !important;
           background-color: #eeeeee !important;
-          padding: 15px;
+          padding: 15px !important;
           border-radius: 4px;
-          color: #333;
+          color: #333 !important;
           font-size: 14px !important;
           line-height: 22px !important;
         }
@@ -132,13 +130,15 @@
           text-decoration: underline !important;
         }
         .clipping-information label {
-          display: inline;
-          text-transform: none;
+          font-weight: normal !important;
+          display: inline !important;
+          text-transform: none !important;
         }
         .clipping-information label > code {
-          padding: 2px 8px;
+          color: #333 !important;
+          padding: 2px 8px !important;
           background-color: rgba(200, 200, 200, 0.7)!important;
-          font-size: 14px;
+          font-size: 14px !important;
         }
   `;
 

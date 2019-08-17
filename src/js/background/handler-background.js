@@ -1,14 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcHandlerBackground', [
-      'MxWcConfig',
-      'MxWcHandler',
-      'MxWcClippingHandler_Browser',
-      'MxWcClippingHandler_NativeApp',
-      'MxWcClippingHandler_WizNotePlus',
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
       require('../lib/config.js'),

@@ -1,14 +1,8 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcI18N', [
-      'MxWcLocaleEn',
-      'MxWcLocaleZhCN',
-      'MxWcExtApi'
-    ], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
+      require('../../vendor/js/i18n.js'),
       require('../../_locales/en.js'),
       require('../../_locales/zh-CN.js'),
       require('./ext-api.js')
@@ -16,12 +10,13 @@
   } else {
     // browser or other
     root.MxWcI18N = factory(
+      root.i18n,
       root.MxWcLocaleEn,
       root.MxWcLocaleZhCN,
       root.MxWcExtApi
     );
   }
-})(this, function(en, zhCN, ExtApi, undefined) {
+})(this, function(i18n, en, zhCN, ExtApi, undefined) {
   "use strict";
 
   const I18N_DICT = {'en': en, 'zh-CN': zhCN};
@@ -64,15 +59,19 @@
   }
 
   function listen() {
-    document.addEventListener('___.mx-wc.page.changed', function(e) {
-      const detail = JSON.parse(e.detail);
-      if(detail.selector !== '') {
-        const contextNode = document.querySelector(detail.selector);
-        i18nPage(contextNode);
-      } else {
-        i18nPage();
-      }
-    });
+    try {
+      document.addEventListener('___.mx-wc.page.changed', function(e) {
+        const detail = JSON.parse(e.detail);
+        if(detail.selector !== '') {
+          const contextNode = document.querySelector(detail.selector);
+          i18nPage(contextNode);
+        } else {
+          i18nPage();
+        }
+      });
+    } catch(e) {
+      // not running in browser;
+    }
   }
 
   function init() {

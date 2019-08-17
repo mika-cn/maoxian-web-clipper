@@ -1,0 +1,134 @@
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    const JSDOM = require('jsdom').JSDOM;
+    const jsdom = new JSDOM();
+    module.exports = factory(jsdom.window, require('./tool.js'));
+  } else {
+    // browser or other
+    root.MxWcDOMTool = factory(root, root.MxWcTool);
+  }
+})(this, function(win, T, undefined) {
+  "use strict";
+
+  function parseHTML(html) {
+    const parser = new win.DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rootNode = doc.body.children[0];
+    return {doc: doc, node: rootNode};
+  }
+
+  function markHiddenNode(win, node) {
+    const nodeIterator = win.document.createNodeIterator(
+      node, win.NodeFilter.SHOW_ELEMENT,
+      {
+        acceptNode: (it) => {
+          if (T.isElemVisible(win, it)) {
+            return win.NodeFilter.FILTER_REJECT;
+          } else {
+            return win.NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      }
+    );
+    let curr;
+    while(curr = nodeIterator.nextNode()) {
+      curr.setAttribute('data-mx-hidden-node', '1');
+    }
+  }
+
+  function clearHiddenMark(contextNode) {
+    const selector = '[data-mx-hidden-node="1"]';
+    const nodes = contextNode.querySelectorAll(selector);
+    [].forEach.call(nodes, (it) => {
+      it.removeAttribute('data-mx-hidden-node');
+    })
+  }
+
+  function removeNodeByHiddenMark(contextNode) {
+    const selector = '[data-mx-hidden-node="1"]';
+    const nodes = contextNode.querySelectorAll(selector);
+    [].forEach.call(nodes, (it) => {
+      it.parentNode.removeChild(it);
+    })
+    return contextNode;
+  }
+
+  function removeNodeByXpaths(doc, contextNode, xpaths) {
+    const childToRemove = [];
+    xpaths.forEach((xpath) => {
+      const child = findNodeByXpath(doc, contextNode, xpath);
+      if(child){
+        childToRemove.push(child);
+      } else {
+        console.error("Xpath node not found", xpath);
+      }
+    });
+
+    childToRemove.forEach((child) => {
+      const pNode = child.parentElement;
+      pNode.removeChild(child);
+    })
+    return contextNode;
+  }
+
+  function removeNodeBySelectors(contextNode, selectors) {
+    selectors.forEach((it) => {
+      const nodes = contextNode.querySelectorAll(it);
+      [].forEach.call(nodes, (node) => {
+        node.parentNode.removeChild(node);
+      });
+    })
+    return contextNode;
+  }
+
+  function findNodeByXpath(doc, contextNode, xpath) {
+    const XPathResult_FIRST_ORDERED_NODE_TYPE = 9
+    return doc.evaluate(
+      xpath,
+      contextNode,
+      null,
+      XPathResult_FIRST_ORDERED_NODE_TYPE,
+      null
+    ).singleNodeValue;
+  }
+
+  function queryNodesByTagName(contextNode, tagName) {
+    if (contextNode.tagName.toLowerCase() === tagName) {
+      return [contextNode];
+    } else {
+      return contextNode.querySelectorAll(tagName);
+    }
+  }
+
+  function calcXpath(contextNode, targetNode) {
+    let currNode = targetNode;
+    let pNode = targetNode.parentNode;
+    let xpath = '';
+    while (currNode != contextNode) {
+      if (!pNode) { return '' }
+      const idx = [].indexOf.call(pNode.children, currNode) + 1;
+      const part = `*[${idx}]`;
+      xpath = (xpath !== '' ? [part, xpath].join('/') : part);
+      currNode = pNode;
+      pNode = pNode.parentNode;
+    }
+    return xpath;
+  }
+
+  return {
+    parseHTML: parseHTML,
+
+    markHiddenNode: markHiddenNode,
+    removeNodeByHiddenMark: removeNodeByHiddenMark,
+    clearHiddenMark: clearHiddenMark,
+
+    removeNodeByXpaths: removeNodeByXpaths,
+    removeNodeBySelectors: removeNodeBySelectors,
+    calcXpath: calcXpath,
+    findNodeByXpath: findNodeByXpath,
+    queryNodesByTagName: queryNodesByTagName,
+  }
+
+});
+

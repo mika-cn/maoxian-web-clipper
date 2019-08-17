@@ -1,25 +1,22 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcMdPluginMathml2Latex', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory();
   } else {
     // browser or other
-    root.MxWcMdPluginMathml2Latex = factory();
+    root.MxWcMdPluginMathML2LaTeX = factory();
   }
 })(this, function(undefined) {
   "use strict";
 
-  function handle(win, elem) {
+  function handle(doc, elem) {
     if(elem.tagName === 'MATH') {
-      const newNode = toLaTeXNode(win, elem);
+      const newNode = toLaTeXNode(doc, elem);
       return newNode ? newNode : elem;
     } else{
       const nodes = elem.querySelectorAll('math');
       nodes.forEach(function(node) {
-        const newNode = toLaTeXNode(win, node);
+        const newNode = toLaTeXNode(doc, node);
         if(newNode){
           const pNode = node.parentNode;
           pNode.insertBefore(newNode, node);
@@ -30,10 +27,10 @@
     }
   }
 
-  function toLaTeXNode(win, math) {
+  function toLaTeXNode(doc, math) {
     const latex = MathML2LaTeX.convert(math.outerHTML);
     // use code tag to avoid turndown escape '\';
-    const newNode = win.document.createElement('code');
+    const newNode = doc.createElement('code');
     newNode.innerText = "LaTeX " + latex + " LaTeX";
     return newNode;
   }

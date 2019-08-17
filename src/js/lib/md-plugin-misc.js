@@ -1,8 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcMdPluginMisc', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory();
   } else {
@@ -12,7 +9,7 @@
 })(this, function(undefined) {
   "use strict";
 
-  function handle(win, elem) {
+  function handle(doc, elem) {
     fixCodeBrTag(elem);
     return elem;
   }

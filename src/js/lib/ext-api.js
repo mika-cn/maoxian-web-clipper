@@ -1,8 +1,5 @@
 ;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcExtApi', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory();
   } else {
@@ -20,7 +17,11 @@
    *****************************/
   ExtApi.getLocale = () => {
     //return 'zh-CN';
-    return browser.i18n.getUILanguage();
+    try {
+      return browser.i18n.getUILanguage();
+    } catch(e) {
+      return 'en';
+    }
   }
 
   // not avariable in content script and popup page
