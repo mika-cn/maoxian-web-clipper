@@ -54,11 +54,14 @@
       console.warn("<mx-wc>", message);
       return [];
     }
-    const canAdd = await ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: [clipId, url].join('.')}});
-    if (canAdd) {
-      try {
-        const text = await ExtMsg.sendToBackground({type: 'fetch.text', body: { url: url, headers: headers }});
 
+    try {
+      const {fromCache, result: text} = await ExtMsg.sendToBackground({type: 'fetch.text', body: { clipId: clipId, url: url, headers: headers }});
+
+      if (fromCache) {
+        // processed.
+        return [];
+      } else {
         // Use url as baseUrl
         const {cssText, tasks} = await captureText(Object.assign({baseUrl: url, docUrl: docUrl}, {
           text, storageInfo, clipId, mimeTypeDict, config
@@ -74,14 +77,11 @@
 
         tasks.push(Task.createStyleTask(filename, cssText, clipId));
         return tasks;
-      } catch(errMsg) {
-        // Fetching text is rejected
-        Log.error(`fetch.text request css (url:${url}) failed`, errMsg);
-        // it's fine.
-        return [];
       }
-    } else {
-      // processed.
+    } catch(errMsg) {
+      // Fetching text is rejected
+      Log.error(`fetch.text request css (url:${url}) failed`, errMsg);
+      // it's fine.
       return [];
     }
   }

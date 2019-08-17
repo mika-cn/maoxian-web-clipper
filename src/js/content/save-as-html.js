@@ -54,7 +54,6 @@
     const [mimeTypeDict, frames] = await Promise.all([
       ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
       ExtMsg.sendToBackground({type: 'get.allFrames'}),
-      ExtMsg.sendToBackground({type: 'keyStore.init'})
     ])
 
 

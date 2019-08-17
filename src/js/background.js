@@ -13,6 +13,7 @@
       require('./background/fetcher.js'),
       require('./background/migration.js'),
       require('./background/web-request.js'),
+      require('./background/cache-service.js'),
       require('./background/handler-background.js')
     );
   } else {
@@ -28,12 +29,13 @@
       root.MxWcFetcher,
       root.MxWcMigration,
       root.MxWcWebRequest,
+      root.MxWcCacheService,
       root.MxWcHandlerBackground
     );
   }
 })(this, function( ENV, Log, T, ExtApi, ExtMsg,
     MxWcStorage, MxWcConfig, MxWcFetcher, MxWcMigration,
-    WebRequest, MxWcHandlerBackground, undefined) {
+    WebRequest, CacheService, MxWcHandlerBackground, undefined) {
 
   "use strict";
 
@@ -50,14 +52,12 @@
         case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
         case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
         case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
-        case 'keyStore.init':
-          keyStoreService.init(resolve);
-          break;
-        case 'keyStore.add':
-          keyStoreService.add(message.body.key, resolve);
-          break;
         case 'fetch.text':
-          MxWcFetcher.get('text', message.body.url, message.body.headers).then(resolve, reject);
+          CacheService.findOrCache(
+            [message.body.clipId, message.body.url].join('.'),
+            () => {
+            return MxWcFetcher.get('text', message.body.url, message.body.headers);
+          }).then(resolve, reject);
           break;
         case 'get.allFrames':
           ExtApi.getAllFrames(sender.tab.id)
@@ -65,18 +65,19 @@
           break;
         case 'frame.toHtml':
         case 'frame.toMd':
-          // Redirect message to content frame.
-          ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId)
-            .then((data) => {
-              resolve(data);
-            });
+          CacheService.findOrCache(
+            [message.body.clipId, message.frameUrl].join('.'),
+            () => {
+            // Redirect message to content frame.
+            return ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId);
+          }).then(resolve);
           break;
-
         case 'export.history':
           exportHistory(message.body.content);
           resolve();
           break;
         case 'clipping.save':
+          CacheService.removeByKeyPrefix(message.body.info.clipId);
           saveClipping(sender.tab.id, message.body);
           resolve();
           break;
@@ -98,7 +99,9 @@
           break;
         case 'create-tab':
           ExtApi.createTab(message.body.link).then(resolve);
-        default: break;
+        default:
+          throw new Error("Unknown message" + message.type);
+          break;
       }
     });
   }
@@ -325,32 +328,6 @@
       })
   }
 
-
-
-  function createKeyStoreService(){
-    const queue = T.createFunQueue();
-
-    function add(key, callback){
-      queue.enqueue((state) => {
-        const canAdd = (state.keys.has(key) ? false : true);
-        state.keys.add(key);
-        callback(canAdd);
-      });
-    }
-
-    function init(callback) {
-      queue.enqueue((state) => {
-        state.keys = new Set();
-        callback();
-      });
-    }
-
-    return {
-      init: init,
-      add: add
-    };
-  }
-
   function welcomeNewUser(){
     MxWcStorage.get('firstRunning', true)
       .then((firstRunning) => {
@@ -377,8 +354,6 @@
     });
   }
 
-  // state
-  let keyStoreService = null;
   function init(){
     Log.debug("background init...");
     MxWcMigration.perform();
@@ -386,7 +361,6 @@
     ExtMsg.initPage('background');
     ExtMsg.listen(messageHandler);
     WebRequest.listen();
-    keyStoreService = createKeyStoreService();
     refreshHistoryIfNeed();
     welcomeNewUser();
     Log.debug("background init finish...");

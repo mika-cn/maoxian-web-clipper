@@ -92,7 +92,10 @@
   MxWcTemplate.bodyPage = {
     render: function(v) {
       const infoHtml = MxWcTemplate.clippingInformation.render(v);
-      const bodyHtml = v.elemHtml.replace(/<\/body>/i, [infoHtml, "</body>"].join("\n"));
+      const bodyHtml = T.replaceLastMatch(
+        v.elemHtml, /<\/body>/img,
+        [infoHtml, "</body>"].join("\n")
+      );
     return `
   <!DOCTYPE html>
   <html id="${v.htmlId}" class="${v.htmlClass}">

@@ -54,14 +54,14 @@
 
     // in content script, frameNode.contentWindow is undefined.
     // window.frames includes current layer frames.
-    //   firefox: all frames
+    //   firefox: all frames (includes frame outside body node)
     //   chrome: frames inside body node.
 
-    if (srcdoc || !src) {
+    if (srcdoc) {
       // inline iframe
       // assetName = Asset.getFilenameByContent({content: srcdoc, extension: 'frame.html'});
       // TODO ?
-      node.setAttribute('data-mx-warn', 'srcdoc attribute is not capture by maoxian');
+      node.setAttribute('data-mx-warn', 'srcdoc attribute was not captured by maoxian');
       return [];
     }
 
@@ -86,31 +86,37 @@
     } else if(frame.errorOccurred) {
       // the last navigation in this frame was interrupted by an error
       return [];
-    } else {
-      // console.log("MatchIframe", frame);
     }
 
     node.removeAttribute('referrerpolicy');
 
-    const key = [clipId, url].join('.');
-    const canAdd = await ExtMsg.sendToBackground({type: 'keyStore.add', body: {key: key}});
-    if (canAdd) {
+    const msgType = saveFormat === 'html' ? 'frame.toHtml' : 'frame.toMd';
+    try {
+      const {fromCache, result} = await ExtMsg.sendToBackground({
+        type: msgType,
+        frameId: frame.frameId,
+        frameUrl: frame.url,
+        body: { clipId, frames, storageInfo,
+          mimeTypeDict, config }
+      });
 
-      const msgType = saveFormat === 'html' ? 'frame.toHtml' : 'frame.toMd';
-      try {
-        const {elemHtml, styleHtml, title, tasks} = await ExtMsg.sendToBackground({
-          type: msgType,
-          frameId: frame.frameId,
-          frameUrl: frame.url,
-          body: { clipId, frames, storageInfo,
-            mimeTypeDict, config }
-        });
-
+      if (fromCache) {
+        // processed
+        if (saveFormat === 'html') {
+          const assetName = Asset.getFilename({ link: frame.url, extension: 'frame.html'});
+          node.setAttribute('src', assetName);
+        } else {
+          const {elemHtml} = result;
+          node.outerHTML = `<div>${elemHtml}</div>`;
+        }
+        return [];
+      } else {
+        const {elemHtml, headInnerHtml, title, tasks} = result;
         if (saveFormat === 'html') {
           const html = Template.framePage.render({
             originalSrc: frame.url,
             title: (title || ""),
-            styleHtml: styleHtml,
+            headInnerHtml: headInnerHtml,
             html: elemHtml
           });
           const assetName = Asset.getFilename({ link: frame.url, extension: 'frame.html'});
@@ -123,27 +129,17 @@
           node.outerHTML = `<div>${elemHtml}</div>`;
           return tasks;
         }
-      } catch(e) {
-        Log.error(e);
-        // Frame page failed to load (mainly caused by network problem).
-        // ExtMsg.sendToContentFrame resolve undefined.
-        // (catched by ExtMsg.sendToTab).
-        //
-        node.outerHTML = `<div data-mx-warn="Frame page failed to load" data-mx-original-src="${url}"></div>`;
-        return [];
       }
-    } else {
-      // processed
-      if (saveFormat === 'html') {
-        const assetName = Asset.getFilename({ link: frame.url, extension: 'frame.html'});
-        node.setAttribute('src', assetName);
-      } else {
-        // FIXME
-        // Maybe we can cache the message and retrieve it back in here.
-        // So we can get the frame html;
-      }
+    } catch(e) {
+      Log.error(e);
+      // Frame page was failed to load (mainly caused by network problem).
+      // ExtMsg.sendToContentFrame resolve undefined.
+      // (catched by ExtMsg.sendToTab).
+      //
+      node.outerHTML = `<div data-mx-warn="Frame page failed to load" data-mx-original-src="${url}"></div>`;
       return [];
     }
+
   }
 
 

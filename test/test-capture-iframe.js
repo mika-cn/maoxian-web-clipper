@@ -29,9 +29,17 @@ describe("Capture iframe", async () => {
     }
   }
 
-  it('capture invalid iframe url', async () => {
-    const url = 'https://:invalid.org/iframe.html';
-    const html = `<iframe src="${url}"></iframe>`;
+  it('capture srcdoc', async () => {
+    const html = `<iframe srcdoc="<body>TEXT</body>"></iframe>`;
+    const {node} = DOMTool.parseHTML(html);
+    const params = getParams();
+    const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
+    const tasks = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(node.hasAttribute('data-mx-warn'));
+  })
+
+  async function captureInvalidIframeUrl(html) {
     const {node} = DOMTool.parseHTML(html);
     const parentNode = node.parentNode;
     const params = getParams();
@@ -40,6 +48,16 @@ describe("Capture iframe", async () => {
     const newNode = parentNode.children[0]
     H.assertTrue(newNode.hasAttribute('data-mx-warn'));
     H.assertTrue(newNode.hasAttribute('data-mx-original-src'));
+  }
+
+  it('capture empty url', async () => {
+    const html = `<iframe></iframe>`;
+    await captureInvalidIframeUrl(html);
+  });
+
+  it('capture invalid iframe url', async () => {
+    const html = `<iframe src="https://:invalid.org/iframe.html"></iframe>`;
+    await captureInvalidIframeUrl(html);
   });
 
   it('capture web extension iframe', async () => {
@@ -55,10 +73,8 @@ describe("Capture iframe", async () => {
   })
 
   it('capture iframe that load failed', async() => {
-    ExtMsg.mock('frame.toHtml', () => {
-      // imitate ExtMsg.sendToTab
-      return Promise.resolve(undefined);
-    });
+    // imitate ExtMsg.sendToTab
+    ExtMsg.mockFrameToHtmlStatic(undefined);
     const url = 'https://a.org/frame-A.html';
     const html = `<iframe src="${url}"></iframe>`;
     const {node} = DOMTool.parseHTML(html);
@@ -75,15 +91,15 @@ describe("Capture iframe", async () => {
 
   it('capture normal iframe - html', async () => {
     const frameHtml = '<framecontent></framecontent>';
-    ExtMsg.mock('frame.toHtml', () => {
-      return Promise.resolve({
+    const url = 'https://a.org/frame-A.html';
+    const html = `<iframe src="${url}" referrerpolicy="same-origin"></iframe>`;
+    ExtMsg.mockFrameMsgUrls('frame.toHtml', {
+      [url]: {
         title: 'frame title',
         elemHtml: frameHtml,
         tasks: []
-      });
+      }
     });
-    const url = 'https://a.org/frame-A.html';
-    const html = `<iframe src="${url}" referrerpolicy="same-origin"></iframe>`;
     const {node} = DOMTool.parseHTML(html);
     const params = getParams();
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
@@ -101,15 +117,15 @@ describe("Capture iframe", async () => {
 
   it('capture normal iframe - markdown', async () => {
     const frameHtml = '<framecontent></framecontent>';
-    ExtMsg.mock('frame.toMd', () => {
-      return Promise.resolve({
+    const url = 'https://a.org/frame-A.html';
+    const html = `<iframe src="${url}" ></iframe>`;
+    ExtMsg.mockFrameMsgUrls('frame.toMd', {
+      [url]: {
         title: 'frame title',
         elemHtml: frameHtml,
         tasks: []
-      });
+      }
     });
-    const url = 'https://a.org/frame-A.html';
-    const html = `<iframe src="${url}" ></iframe>`;
     const {node} = DOMTool.parseHTML(html);
     const parentNode = node.parentNode;
     const params = getParams();

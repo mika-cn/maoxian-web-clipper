@@ -12,33 +12,70 @@
     handlers[msgType] = handler;
   }
 
-  function mockDefault() {
+  function mockFetchTextStatic(text, fromCache=false) {
+    mock('fetch.text', (msg, state) => {
+      const key = [msg.body.clipId, msg.body.url].join('.');
+      state.keys = state.keys || {};
+      let result = state.keys[key];
+      if (result) {
+        return Promise.resolve({fromCache: true, result: result});
+      } else {
+        result = text;
+        state.keys[key] = result;
+        return Promise.resolve({fromCache: false, result: result});
+      }
+    })
+  }
 
-    mock('keyStore.init', function(msg, state) {
-      const key = msg.body.key;
-      state.keys = state.keys || new Set();
-    });
+  function mockFetchTextUrls(textObj) {
+    mock('fetch.text', (msg, state) => {
+      const key = [msg.body.clipId, msg.body.url].join('.');
+      state.keys = state.keys || {};
+      let result = state.keys[key];
+      if (result) {
+        return Promise.resolve({fromCache: true, result: result});
+      } else {
+        result = textObj[msg.body.url];
+        state.keys[key] = result;
+        return Promise.resolve({fromCache: false, result: result});
+      }
+    })
+  }
 
-    mock('keyStore.add', function(msg, state) {
-      const key = msg.body.key;
-      state.keys = state.keys || new Set();
-      const canAdd = !state.keys.has(key)
-      state.keys.add(key);
-      return Promise.resolve(canAdd);
+  function mockFrameToHtmlStatic(result, fromCache=false) {
+    mock('frame.toHtml', (msg, state) => {
+      return Promise.resolve({fromCache: fromCache, result: result});
     });
   }
+
+  function mockFrameMsgUrls(type, textObj) {
+    mock(type, (msg, state) => {
+      const key = [msg.body.clipId, msg.frameUrl].join('.');
+      state.keys = state.keys || {};
+      let result = state.keys[key];
+      if (result) {
+        return Promise.resolve({fromCache: true, result: result});
+      } else {
+        result = textObj[msg.frameUrl];
+        state.keys[key] = result;
+        return Promise.resolve({fromCache: false, result: result});
+      }
+    });
+  }
+
 
   function clearMocks() {
     handlers = {};
     state = {};
-    mockDefault();
   }
 
-  mockDefault();
-
   module.exports = {
-    sendToBackground: sendToBackground,
-    mock: mock,
-    clearMocks: clearMocks,
+    sendToBackground,
+    mock,
+    clearMocks,
+    mockFetchTextStatic,
+    mockFetchTextUrls,
+    mockFrameToHtmlStatic,
+    mockFrameMsgUrls,
   }
 })();

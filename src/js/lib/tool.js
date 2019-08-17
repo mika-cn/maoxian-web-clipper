@@ -45,6 +45,22 @@
     ];
   }
 
+  T.replaceLastMatch = function(str, regExp, replacement) {
+    const matches = str.match(regExp);
+    if (matches) {
+      let i = 0, last = matches.length;
+      return str.replace(regExp, (match) => {
+        if (++i === last) {
+          return replacement;
+        } else {
+          return match;
+        }
+      })
+    } else {
+      return str;
+    }
+  }
+
 
   T.createId = function() {
     return '' + Math.round(Math.random() * 100000000000);
@@ -637,6 +653,13 @@
       dict: {},
       add: function(k, v){ this.dict[k] = v; },
       remove: function(k){ delete this.dict[k] },
+      removeByKeyPrefix: function(prefix) {
+        for(let k in this.dict) {
+          if (k.startsWith(prefix)) {
+            this.remove(k);
+          }
+        }
+      },
       hasKey: function(k) { return this.dict.hasOwnProperty(k) },
       find: function(k){ return this.dict[k] },
     }

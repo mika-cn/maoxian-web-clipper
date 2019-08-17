@@ -47,9 +47,7 @@ describe("Capturer css", () => {
       @import url('e.css');
     `;
     const linkText = '.CSSTEXT{}';
-    ExtMsg.mock('fetch.text', function(msg) {
-      return Promise.resolve(linkText);
-    });
+    ExtMsg.mockFetchTextStatic(linkText)
     const Capturer = getCapturer();
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 5);
@@ -64,9 +62,9 @@ describe("Capturer css", () => {
     const params = getParams();
     params.baseUrl = params.docUrl;
     params.link = 'style-A.css';
-    ExtMsg.mock('fetch.text', function(msg) {
-      return Promise.resolve("@import 'style-A.css';");
-    })
+    ExtMsg.mockFetchTextUrls({
+      "https://a.org/style-A.css": "@import 'style-A.css';"
+    });
     const Capturer = getCapturer();
     const tasks = await Capturer.captureLink(params);
     ExtMsg.clearMocks();
@@ -79,14 +77,9 @@ describe("Capturer css", () => {
     const params = getParams();
     params.baseUrl = params.docUrl;
     params.link = 'style-A.css';
-    ExtMsg.mock('fetch.text', function(msg) {
-      const {body} = msg;
-      switch(body.url) {
-        case 'https://a.org/style-A.css':
-          return Promise.resolve("@import 'style-B.css';");
-        case 'https://a.org/style-B.css':
-          return Promise.resolve("@import 'style-A.css';");
-      }
+    ExtMsg.mockFetchTextUrls({
+      "https://a.org/style-A.css": "@import 'style-B.css';",
+      "https://a.org/style-B.css": "@import 'style-A.css';",
     });
     const Capturer = getCapturer();
     const tasks = await Capturer.captureLink(params);

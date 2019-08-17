@@ -45,6 +45,25 @@ function assertFalse(value) {
   }
 }
 
+async function assertResolve(promise, validate) {
+  return promise.then(
+    (value) => {validate(value)},
+    () => {
+      assert.fail(`Expecting promise to be resolved but it was rejected`);
+    }
+  );
+}
+
+function assertReject(promise, validate) {
+  return promise.then(
+    () => {
+      assert.fail(`Expecting promise to be rejected but it was resolved`);
+    },
+    (value) => {validate(value)}
+  );
+}
+
+
 module.exports = {
   depJs: depJs,
   depMockJs: depMockJs,
@@ -55,4 +74,6 @@ module.exports = {
   assertMatch: assertMatch,
   assertTrue: assertTure,
   assertFalse: assertFalse,
+  assertResolve: assertResolve,
+  assertReject: assertReject,
 };

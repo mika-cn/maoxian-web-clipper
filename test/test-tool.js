@@ -15,6 +15,12 @@ describe('Tool', () => {
     H.assertEqual(T.deCapitalize('FooBar', '.'), 'foo.bar');
   })
 
+  it("replaceLastMatch", () => {
+    const str = 'abcdabcdabcd';
+    H.assertEqual(T.replaceLastMatch(str, /def/ig, "XXX"), 'abcdabcdabcd');
+    H.assertEqual(T.replaceLastMatch(str, /bcd/ig, "BCD"), 'abcdabcdaBCD');
+  })
+
   it("isExtensionUrl", () => {
     H.assertTrue(T.isExtensionUrl("moz-extension://abc/index"));
     H.assertTrue(T.isExtensionUrl("chrome-extension://abc/index"));

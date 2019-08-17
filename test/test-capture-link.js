@@ -48,9 +48,7 @@ describe('Capture link', () => {
 
   function initTest(html) {
     const text = 'body{font-size:12pt;}';
-    ExtMsg.mock('fetch.text', function() {
-      return Promise.resolve(text);
-    });
+    ExtMsg.mockFetchTextStatic(text);
     return {
       node: getNode(html),
       params: getParams(),
