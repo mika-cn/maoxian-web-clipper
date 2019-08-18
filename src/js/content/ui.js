@@ -162,18 +162,16 @@
 
   function mouseMove(msg) {
     try {
-      if (!isEventInCurrElem(msg)) {
-        const elem = getElementFromPoint(msg.x, msg.y);
-        if(['HTML'].indexOf(elem.tagName) > -1) {
-          return;
-        }
-        if(state.currElem && state.currElem == elem){
-          // event trigger in same element
-          return;
-        }
-        state.currElem = elem;
-        drawSelectingStyle(elem);
+      const elem = getElementFromPoint(msg.x, msg.y);
+      if(['HTML'].indexOf(elem.tagName) > -1) {
+        return;
       }
+      if(state.currElem && state.currElem == elem){
+        // event trigger in same element
+        return;
+      }
+      state.currElem = elem;
+      drawSelectingStyle(elem);
     } catch(e) {
       Log.error(e);
     }
