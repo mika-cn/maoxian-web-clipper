@@ -42,12 +42,13 @@
    *   - {Object} mimeTypeDict
    *   - {Object} config
    *   - {Object} headers
+   *   - {Boolean} needFixStyle
    *
    * @return {Array} tasks
    *
    */
   async function captureLink(params) {
-    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config, headers} = params;
+    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config, headers, needFixStyle} = params;
 
     const {isValid, url, message} = T.completeUrl(params.link, baseUrl);
     if (!isValid) {
@@ -64,7 +65,7 @@
       } else {
         // Use url as baseUrl
         const {cssText, tasks} = await captureText(Object.assign({baseUrl: url, docUrl: docUrl}, {
-          text, storageInfo, clipId, mimeTypeDict, config
+          text, storageInfo, clipId, mimeTypeDict, config, needFixStyle
         }));
 
         const assetName = Asset.getFilename({
@@ -97,13 +98,14 @@
    *   - {String} clipId
    *   - {Object} mimeTypeDict
    *   - {Object} config
+   *   - {Boolean} needFixStyle
    *
    * @return {Array}
    *   - {String} cssText
    *   - {Array}  tasks
    */
   async function captureText(params) {
-    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config} = params;
+    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config, needFixStyle} = params;
     let {text: styleText} = params;
     const taskCollection = [];
     // FIXME danger here (order matter)
@@ -194,7 +196,9 @@
       taskCollection.push(...tasks);
     }
 
-    styleText = fixBodyChildrenStyle(styleText);
+    if (needFixStyle) {
+      styleText = fixBodyChildrenStyle(styleText);
+    }
 
     return {cssText: styleText, tasks: taskCollection};
   }
@@ -271,9 +275,11 @@
   }
 
   function fixBodyChildrenStyle(css) {
-    const cssBodyExp = /[\{\}\s,;]{1}(body\s*>)/igm;
-    return css.replace(cssBodyExp, function(match, p1){
-      return match.replace(p1, "body ");
+    // We wrap captured html in a div (with class mx-wc-main),
+    // So we should fix this.
+    const cssBodyExp = /(^|[\{\}\s,;]{1})(body\s*>\s?)/igm;
+    return css.replace(cssBodyExp, function(match, p1, p2){
+      return match.replace(p2, "body > .mx-wc-main > ");
     });
   }
 

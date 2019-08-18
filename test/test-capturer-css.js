@@ -28,7 +28,8 @@ function getParams() {
     config: {
       saveWebFont: false,
       saveCssImage: false
-    }
+    },
+    needFixStyle: false,
   }
 }
 
@@ -179,6 +180,32 @@ describe("Capturer css", () => {
     H.assertMatch(cssText, /url\("[^\.\/]+.png"\)/);
     H.assertMatch(cssText, /url\("[^\.\/]+.bmp"\)/);
   });
+
+  function testFixStyle(text, n = 1) {
+    it("fix style : " + text, async() => {
+      const params = getParams();
+      params.needFixStyle = true;
+      params.text = text;
+      const Capturer = getCapturer();
+      const {cssText, tasks} = await Capturer.captureText(params);
+      const match = cssText.match(/body > \.mx-wc-main >/mg);
+      if (n > 0) {
+        H.assertNotEqual(match, null);
+        H.assertEqual(match.length, n);
+      } else {
+        H.assertEqual(match, null);
+      }
+    });
+  }
+
+  testFixStyle('body > .target');
+  testFixStyle(' body > .target');
+  testFixStyle('}body>.target');
+  testFixStyle('} body>.target');
+  testFixStyle('\nbody>.target');
+  testFixStyle('header,body > .target');
+  testFixStyle('body > .target{}\nbody>.target{}', 2);
+  testFixStyle('.body > .target', 0);
 
 })
 
