@@ -162,16 +162,18 @@
 
   function mouseMove(msg) {
     try {
-      const elem = getElementFromPoint(msg.x, msg.y);
-      if(['HTML'].indexOf(elem.tagName) > -1) {
-        return;
+      if (!isEventInCurrElem(msg)) {
+        const elem = getElementFromPoint(msg.x, msg.y);
+        if(['HTML'].indexOf(elem.tagName) > -1) {
+          return;
+        }
+        if(state.currElem && state.currElem == elem){
+          // event trigger in same element
+          return;
+        }
+        state.currElem = elem;
+        drawSelectingStyle(elem);
       }
-      if(state.currElem && state.currElem == elem){
-        // event trigger in same element
-        return;
-      }
-      state.currElem = elem;
-      drawSelectingStyle(elem);
     } catch(e) {
       Log.error(e);
     }
@@ -179,16 +181,22 @@
 
   function isEventInCurrElem(msg){
     if(state.currElem){
-      const x = msg.x + window.scrollX;
-      const y = msg.y + window.scrollY;
-      const box = getBox(state.currElem);
-      return (
-         box.x <= x && x <= box.x + box.w
-      && box.y <= y && y <= box.y + box.h
-      );
+      return isPointInElem({x: msg.x, y: msg.y}, state.currElem);
     } else {
       return false;
     }
+  }
+
+  // @param {Object} point - {:x, :y} relative to viewport.
+  function isPointInElem(point, elem) {
+    // calculate x and y that relative to webpage.
+    const x = window.scrollX + point.x;
+    const y = window.scrollY + point.y;
+    const box = getBox(elem);
+    return (
+       box.x <= x && x <= box.x + box.w
+    && box.y <= y && y <= box.y + box.h
+    );
   }
 
   /*
@@ -208,6 +216,7 @@
   }
 
 
+  // x, y relative to viewport.
   function getElementFromPoint(x, y) {
     selectionIframe.element.style.pointerEvents = 'none';
     controlIframe.element.style.pointerEvents = 'none';
@@ -546,11 +555,22 @@
   function getOutermostWrapper(elem){
     if(['HTML', 'BODY'].indexOf(elem.tagName) > 0){ return elem }
     const pElem = elem.parentElement;
-    if(isBoxSizeEq(elem, pElem) || isIndivisible(elem, pElem)){
+    if(isBoxSizeEq(elem, pElem) && !isElemHasVisibleSibling(elem) || isIndivisible(elem, pElem)){
       return getOutermostWrapper(pElem);
     } else {
       return elem;
     }
+  }
+
+  function isElemHasVisibleSibling(elem) {
+    const children = elem.parentNode.children;
+    for(let i = 0; i < children.length; i++) {
+      const child = children[i];
+      if (child !== elem && T.isElemVisible(window, child)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function isBoxSizeEq(elemA, elemB) {
