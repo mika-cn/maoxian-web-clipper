@@ -64,6 +64,8 @@
       "User-Agent" : window.navigator.userAgent
     }
 
+    const isBodyElem = elem.tagName === 'BODY';
+
 
     // 获取选中元素的html
     const {elemHtml, headInnerHtml, tasks} = await getElemHtml({
@@ -76,11 +78,12 @@
       mimeTypeDict: mimeTypeDict,
       config: config,
       headers: headers,
+      needFixStyle: !isBodyElem,
     });
 
     // 将elemHtml 渲染进模板里，渲染成完整网页。
     const v = StyleHelper.getRenderParams(elem);
-    const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
+    const page = (isBodyElem ? 'bodyPage' : 'elemPage');
     v.info = info;
     v.headInnerHtml = headInnerHtml;
     v.elemHtml = elemHtml;
@@ -106,6 +109,7 @@
       parentFrameId = topFrameId,
       config,
       headers,
+      needFixStyle,
     } = params;
     Log.debug('getElemHtml', baseUrl);
 
@@ -134,12 +138,12 @@
       {
         nodes: linkNodes,
         capturer: CapturerLink,
-        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers}
+        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers, needFixStyle}
       },
       {
         nodes: styleNodes,
         capturer: CapturerStyle,
-        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers}
+        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers, needFixStyle}
       },
       {
         nodes: pictureNodes,
