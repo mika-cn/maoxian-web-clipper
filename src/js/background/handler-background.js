@@ -63,8 +63,16 @@
   }
 
   function isReady(exp) {
-    return MxWcHandler.isReady(exp, 'background');
+    return MxWcHandler.isReady(exp, getHandlerInfo);
   }
+
+  function getHandlerInfo(name, callback) {
+    const handler = get(name);
+    handler.getInfo((handlerInfo) => {
+      callback(handlerInfo, handler);
+    });
+  }
+
 
   return {
     get: get,

@@ -35,7 +35,7 @@
    *     handler     => Handler object (if ok is true and env is background)
    *   }
    */
-  function isReady(exp, env = 'nobackground') {
+  function isReady(exp, getHandlerInfoFn = getHandlerInfoThroughBG) {
     return new Promise(function(resolve, reject) {
       MxWcConfig.load().then((config) => {
 
@@ -79,21 +79,17 @@
           }
         }
 
-        if(env === 'background') {
-          const handler = get(name);
-          handler.getInfo((handlerInfo) => {
-            response(handlerInfo, handler);
-          });
-        } else {
-          // content script or extention page
-          ExtMsg.sendToBackground({
-            type: 'handler.get-info',
-            body: {name: name}
-          }).then(response);
-        }
-
+        getHandlerInfoFn(name, response);
       });
     });
+  }
+
+  function getHandlerInfoThroughBG(name, callback) {
+    // content script or extention page
+    ExtMsg.sendToBackground({
+      type: 'handler.get-info',
+      body: {name: name}
+    }).then(callback);
   }
 
   function getHandlerLink(name) {
