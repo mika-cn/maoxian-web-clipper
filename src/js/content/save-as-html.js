@@ -113,7 +113,8 @@
     } = params;
     Log.debug('getElemHtml', baseUrl);
 
-    const KLASS = 'mx-wc-selected-elem';
+    const KLASS = ['mx-wc', clipId].join('-');
+    elem.classList.add('mx-wc-selected-elem');
     elem.classList.add(KLASS);
     DOMTool.markHiddenNode(window, elem);
     const docHtml = document.documentElement.outerHTML;
@@ -128,11 +129,11 @@
 
     const styleNodes   = doc.querySelectorAll('style');
     const linkNodes    = doc.querySelectorAll('link');
-    const pictureNodes = DOMTool.queryNodesByTagName(selectedNode, 'picture');
-    const imgNodes     = DOMTool.queryNodesByTagName(selectedNode, 'img');
-    const aNodes       = DOMTool.queryNodesByTagName(selectedNode, 'a');
-    const iframeNodes  = DOMTool.queryNodesByTagName(selectedNode, 'iframe');
-    const frameNodes   = DOMTool.queryNodesByTagName(selectedNode, 'frame');
+    const pictureNodes = DOMTool.querySelectorIncludeSelf(selectedNode, 'picture');
+    const imgNodes     = DOMTool.querySelectorIncludeSelf(selectedNode, 'img');
+    const aNodes       = DOMTool.querySelectorIncludeSelf(selectedNode, 'a');
+    const iframeNodes  = DOMTool.querySelectorIncludeSelf(selectedNode, 'iframe');
+    const frameNodes   = DOMTool.querySelectorIncludeSelf(selectedNode, 'frame');
 
     const captureInfos = [
       {

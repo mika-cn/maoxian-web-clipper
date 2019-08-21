@@ -8,8 +8,7 @@
       require('../lib/log.js'),
       require('../lib/ext-msg.js'),
       require('../lib/task.js'),
-      require('../lib/md-plugin-gist.js'),
-      require('../lib/md-plugin-misc.js'),
+      require('../lib/md-plugin-code.js'),
       require('../lib/md-plugin-mathjax.js'),
       require('../lib/md-plugin-mathml2latex.js'),
       require('../capturer/a.js'),
@@ -25,8 +24,7 @@
       root.MxWcLog,
       root.MxWcExtMsg,
       root.MxWcTask,
-      root.MxWcMdPluginGist,
-      root.MxWcMdPluginMisc,
+      root.MxWcMdPluginCode,
       root.MxWcMdPluginMathjax,
       root.MxWcMdPluginMathML2LaTeX,
       root.MxWcCapturerA,
@@ -35,8 +33,7 @@
     );
   }
 })(this, function(I18N, T, DOMTool, Log, ExtMsg, Task,
-    MdPluginGist,
-    MdPluginMisc,
+    MdPluginCode,
     MdPluginMathJax,
     MdPluginMathML2LaTeX,
     CapturerA,
@@ -104,7 +101,8 @@
     Log.debug("getElemHtml", docUrl);
 
 
-    const KLASS = 'mx-wc-selected-elem';
+    const KLASS = ['mx-wc', clipId].join('-');
+    elem.classList.add('mx-wc-selected-elem');
     elem.classList.add(KLASS);
     DOMTool.markHiddenNode(window, elem);
     const docHtml = document.documentElement.outerHTML;
@@ -116,10 +114,10 @@
     let selectedNode = doc.querySelector('.' + KLASS);
     selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
-    const aNodes       = DOMTool.queryNodesByTagName(selectedNode, 'a');
-    const imgNodes     = DOMTool.queryNodesByTagName(selectedNode, 'img');
-    const iframeNodes  = DOMTool.queryNodesByTagName(selectedNode, 'iframe');
-    const frameNodes   = DOMTool.queryNodesByTagName(selectedNode, 'frame');
+    const aNodes       = DOMTool.querySelectorIncludeSelf(selectedNode, 'a');
+    const imgNodes     = DOMTool.querySelectorIncludeSelf(selectedNode, 'img');
+    const iframeNodes  = DOMTool.querySelectorIncludeSelf(selectedNode, 'iframe');
+    const frameNodes   = DOMTool.querySelectorIncludeSelf(selectedNode, 'frame');
 
     const captureInfos = [
       {
@@ -156,8 +154,7 @@
     }
 
 
-    selectedNode = MdPluginMisc.handle(doc, selectedNode);
-    selectedNode = MdPluginGist.handle(doc, selectedNode);
+    selectedNode = MdPluginCode.handle(doc, selectedNode);
     selectedNode = MdPluginMathJax.handle(doc, selectedNode);
     selectedNode = MdPluginMathML2LaTeX.handle(doc, selectedNode);
 
