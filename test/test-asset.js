@@ -4,45 +4,45 @@ const Asset = H.depJs('lib/asset.js');
 
 describe("Asset", () => {
 
-  it("getFilename", () => {
+  it("getNameByLink", () => {
     const link = 'https://a.org/foo.jpg';
-    const nameA = Asset.getFilename({link: link});
+    const nameA = Asset.getNameByLink({link: link});
     H.assertMatch(nameA, /^[^\.\/]+\.jpg$/);
 
-    const nameB = Asset.getFilename({link: link, mimeType: 'image/png'});
+    const nameB = Asset.getNameByLink({link: link, mimeType: 'image/png'});
     H.assertMatch(nameB, /\.jpg$/);
   });
 
-  it("getFilename with extension", () => {
+  it("getNameByLink with extension", () => {
     const link = 'https://a.org/foo.jpg';
-    const name = Asset.getFilename({link: link, extension: 'txt'});
+    const name = Asset.getNameByLink({link: link, extension: 'txt'});
     H.assertMatch(name, /^[^\.\/]+\.txt$/);
   });
 
-  it("getFilename with prefix", () => {
+  it("getNameByLink with prefix", () => {
     const link = 'https://a.org/foo.jpg';
-    const name = Asset.getFilename({link: link, prefix: '001'});
+    const name = Asset.getNameByLink({link: link, prefix: '001'});
     H.assertMatch(name, /^001-[^\.\/]+\.jpg$/);
   });
 
-  it("getFilename with mimeType", () => {
+  it("getNameByLink with mimeType", () => {
     const link = 'https://a.org/foo';
-    const name = Asset.getFilename({link: link, mimeType: 'image/jpeg'});
+    const name = Asset.getNameByLink({link: link, mimeType: 'image/jpeg'});
     H.assertMatch(name, /^[^\.\/]+\.jpg$/);
   });
 
-  it("getFilename - link doesn't has an extension", () => {
+  it("getNameByLink - link doesn't has an extension", () => {
     const link = 'https://a.org/foo';
-    const name = Asset.getFilename({link: link, mimeType: undefined});
+    const name = Asset.getNameByLink({link: link, mimeType: undefined});
     H.assertMatch(name, /^[^\.\/]+$/);
   })
 
-  it("getFilename = data link", () => {
+  it("getNameByLink = data link", () => {
     const link = 'data:image/png;base64,imagedata';
-    const nameA = Asset.getFilename({link: link, mimeType: 'image/jpeg'});
+    const nameA = Asset.getNameByLink({link: link, mimeType: 'image/jpeg'});
     H.assertMatch(nameA, /^[^\.\/]+\.png$/);
 
-    const nameB = Asset.getFilename({link: link, extension: 'ico'});
+    const nameB = Asset.getNameByLink({link: link, extension: 'ico'});
     H.assertMatch(nameB, /^[^\.\/]+\.png$/);
   });
 

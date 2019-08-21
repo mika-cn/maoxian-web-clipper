@@ -45,9 +45,9 @@
     const src = node.getAttribute('src');
     const {isValid, url, message} = T.completeUrl(src, baseUrl);
     if (isValid) {
-      const {filename, url: assetPath} = Asset.calcInfo(url, storageInfo, mimeTypeDict[url], clipId);
+      const {filename, path} = Asset.calcInfo(url, storageInfo, mimeTypeDict[url], clipId);
       const task = Task.createImageTask(filename, url, clipId);
-      node.setAttribute('src', assetPath);
+      node.setAttribute('src', path);
       tasks.push(task);
     } else {
       node.setAttribute('data-mx-warn', message);

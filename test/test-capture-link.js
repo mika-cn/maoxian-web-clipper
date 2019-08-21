@@ -113,6 +113,11 @@ describe('Capture link', () => {
     await testCaptureStylesheet(html);
   });
 
+  it('capture rel="Stylesheet" that have not extension', async() => {
+    const html = '<link rel="Stylesheet" href="style-A">';
+    await testCaptureStylesheet(html);
+  });
+
   it('capture rel="alternate stylesheet" disabled', async() => {
     const html = '<link rel="alternate stylesheet" href="style-A.css" disabled>';
     const {node, params, Capturer} = initTest(html);

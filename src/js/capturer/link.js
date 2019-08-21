@@ -84,10 +84,10 @@
     if (isValid) {
       let mimeType = node.getAttribute('type');
       if (!mimeType) { mimeType = mimeTypeDict[url] }
-      const {filename, url: assetPath} = Asset.calcInfo(
+      const {filename, path} = Asset.calcInfo(
         url, storageInfo, mimeType, clipId);
       const task = Task.createImageTask(filename, url, clipId);
-      node.setAttribute('href', assetPath);
+      node.setAttribute('href', path);
       node = handleOtherAttrs(node);
       return [task];
     } else {
@@ -114,11 +114,15 @@
     } else {
       const {isValid, url, message} = T.completeUrl(href, baseUrl);
       if (isValid) {
-        const {filename, url: assetPath} = Asset.calcInfo(
-          url, storageInfo, mimeTypeDict[url], clipId);
+        const assetName = Asset.getNameByLink({
+          link: url,
+          extension: 'css',
+          prefix: clipId
+        });
+        const path = Asset.getPath({storageInfo, assetName});
         const tasks = await CapturerCss.captureLink(Object.assign({
           link: url, }, opts));
-        node.setAttribute('href', assetPath);
+        node.setAttribute('href', path);
         node = handleOtherAttrs(node);
         return tasks;
       } else {

@@ -36,13 +36,10 @@
         const {isValid, url, message} = T.completeUrl(itemSrc, baseUrl);
         if (isValid) {
           if (!mimeType) { mimeType = mimeTypeDict[url] }
-          const {
-            filename: assetFilename,
-            url: assetPath
-          } = Asset.calcInfo(url, storageInfo, mimeType, clipId);
-          const task = Task.createImageTask(assetFilename, url, clipId);
+          const {filename, path} = Asset.calcInfo(url, storageInfo, mimeType, clipId);
+          const task = Task.createImageTask(filename, url, clipId);
           tasks.push(task);
-          item[0] = assetPath;
+          item[0] = path;
         } else {
           item[0] = 'invalid-url.png';
         }

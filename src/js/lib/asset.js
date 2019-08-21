@@ -16,28 +16,37 @@
   "use strict";
 
   // link http:, https: or data:
-  function getFilename({link, extension, mimeType, prefix}) {
+  function getNameByLink({link, extension, mimeType, prefix}) {
     const name = generateName(link, prefix);
     const ext  = getFileExtension(link, extension, mimeType);
     return ext ? [name, ext].join('.') : name;
   }
 
-  function getFilenameByContent({content: content, extension, prefix}) {
+  function getNameByContent({content, extension, prefix}) {
     const name = generateName(content, prefix);
     const ext = extension;
     return ext ? [name, ext].join('.') : name;
   }
 
+  function getFilename({storageInfo, assetName}) {
+    return T.joinPath(storageInfo.assetFolder, assetName);
+  }
+
+  function getPath({storageInfo, assetName}) {
+    return T.joinPath(storageInfo.assetRelativePath, assetName);
+  }
+
   function calcInfo(link, storageInfo, mimeType, prefix) {
-    const {assetFolder, assetRelativePath} = storageInfo;
-    const assetName = getFilename({
+    const assetName = getNameByLink({
       link: link,
       prefix: prefix,
       mimeType: mimeType
-    })
-    const filename = T.joinPath(assetFolder, assetName);
-    const assetUrl = T.joinPath(assetRelativePath, assetName);
-    return {filename: filename, url: assetUrl};
+    });
+
+    return {
+      filename: getFilename({storageInfo, assetName}),
+      path: getPath({storageInfo, assetName})
+    }
   }
 
 
@@ -122,8 +131,10 @@
   }
 
   return {
+    getNameByLink: getNameByLink,
+    getNameByContent: getNameByContent,
     getFilename: getFilename,
-    getFilenameByContent: getFilenameByContent,
+    getPath: getPath,
     calcInfo: calcInfo,
   }
 });

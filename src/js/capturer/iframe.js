@@ -59,7 +59,7 @@
 
     if (srcdoc) {
       // inline iframe
-      // assetName = Asset.getFilenameByContent({content: srcdoc, extension: 'frame.html'});
+      // assetName = Asset.getNameByContent({content: srcdoc, extension: 'frame.html'});
       // TODO ?
       node.setAttribute('data-mx-warn', 'srcdoc attribute was not captured by maoxian');
       return [];
@@ -103,7 +103,7 @@
       if (fromCache) {
         // processed
         if (saveFormat === 'html') {
-          const assetName = Asset.getFilename({ link: frame.url, extension: 'frame.html'});
+          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html'});
           node.setAttribute('src', assetName);
         } else {
           const {elemHtml} = result;
@@ -119,7 +119,7 @@
             headInnerHtml: headInnerHtml,
             html: elemHtml
           });
-          const assetName = Asset.getFilename({ link: frame.url, extension: 'frame.html'});
+          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html'});
           const filename = T.joinPath(storageInfo.saveFolder, assetName);
           node.setAttribute('src', assetName);
           const task = Task.createFrameTask(filename, html, clipId);

@@ -68,13 +68,13 @@
           text, storageInfo, clipId, mimeTypeDict, config, needFixStyle
         }));
 
-        const assetName = Asset.getFilename({
+        const assetName = Asset.getNameByLink({
           link: url,
           extension: 'css',
           prefix: clipId,
           mimeType: mimeTypeDict[url]
         });
-        const filename = T.joinPath(storageInfo.assetFolder, assetName);
+        const filename = Asset.getFilename({storageInfo, assetName});
 
         tasks.push(Task.createStyleTask(filename, cssText, clipId));
         return tasks;
@@ -246,16 +246,16 @@
         if(T.isDataUrl(url) || T.isHttpUrl(url)) {
 
           if(saveAsset){
-            const assetName = Asset.getFilename({
+            const assetName = Asset.getNameByLink({
               link: url,
               extension: extension,
               prefix: clipId,
               mimeType: mimeTypeDict[url]
             });
-            const {filename, url: _} = Asset.calcInfo(url, storageInfo, mimeTypeDict[url], clipId);
+            const filename = Asset.getFilename({storageInfo, assetName});
             tasks.push(Task.createUrlTask(filename, url, clipId, taskType));
             if(baseUrl === docUrl){
-              return rule.template.replace('$PATH', [storageInfo.assetRelativePath, assetName].join('/'));
+              return rule.template.replace('$PATH', Asset.getPath({storageInfo, assetName}));
             }else{
               return rule.template.replace('$PATH', assetName);
             }
