@@ -93,11 +93,11 @@
     ).singleNodeValue;
   }
 
-  function queryNodesByTagName(contextNode, tagName) {
-    if (contextNode.tagName.toLowerCase() === tagName) {
+  function querySelectorIncludeSelf(contextNode, selector) {
+    if (contextNode.matches(selector)) {
       return [contextNode];
     } else {
-      return contextNode.querySelectorAll(tagName);
+      return contextNode.querySelectorAll(selector);
     }
   }
 
@@ -127,7 +127,7 @@
     removeNodeBySelectors: removeNodeBySelectors,
     calcXpath: calcXpath,
     findNodeByXpath: findNodeByXpath,
-    queryNodesByTagName: queryNodesByTagName,
+    querySelectorIncludeSelf: querySelectorIncludeSelf,
   }
 
 });

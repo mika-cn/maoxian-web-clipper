@@ -207,20 +207,18 @@
   T.include = function(collection, member){
     return collection.indexOf(member) > -1;
   }
-
-  // max value key
-  T.maxValueKey = function(numValueObj){
-    let maxk = null;
-    let maxv = -1;
-    for(const key in numValueObj){
-      const v = numValueObj[key];
-      if(v > maxv){
-        maxv = v;
-        maxk = key;
+  T.all = function(collection, fn) {
+    let r = true;
+    for (let i = 0; i < collection.length; i++) {
+      const result = fn(collection[i]);
+      if(!result) {
+        r = false;
+        break;
       }
     }
-    return maxk;
+    return r;
   }
+
 
   T.toJson = function(hash) { return JSON.stringify(hash);}
 
@@ -628,6 +626,36 @@
     return r;
   }
 
+
+  // ====================================
+
+  T.createCounter = function() {
+    return {
+      dict: {},
+      count: function (key) {
+        this.dict[key] = (this.dict[key] || 0) + 1
+      },
+      max: function() {
+        return T.maxValueKey(this.dict);
+      },
+    }
+  };
+
+
+  // max value key
+  T.maxValueKey = function(numValueObj){
+    let maxk = null;
+    let maxv = -1;
+    for(const key in numValueObj){
+      const v = numValueObj[key];
+      if(v > maxv){
+        maxv = v;
+        maxk = key;
+      }
+    }
+    return maxk;
+  }
+
   // Avoid invoking a function many times in a short period.
   T.createDelayCall = function(fn, delay){
     var dc = {};
@@ -716,6 +744,8 @@
 
     return {enqueue: enqueue}
   }
+
+  // ====================================
 
 
   T.escapeHtml = function(string) {
