@@ -59,29 +59,29 @@ describe('Capture link', () => {
   it('capture link without rel attribute', async () => {
     const html = '<link href="_">';
     const {node, params, Capturer} = initTest(html);
-    const tasks = await Capturer.capture(node, params);
+    const {tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
   });
 
   it('capture link without href attribute', async () => {
     const html = '<link rel="_">';
     const {node, params, Capturer} = initTest(html);
-    const tasks = await Capturer.capture(node, params);
+    const {tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
   });
 
   it('capture link rel="icon"', async() => {
     const html = '<link rel="icon" href="a.icon">';
     const {node, params, Capturer} = initTest(html);
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 1);
-    H.assertMatch(node.getAttribute('href'), /assets\/[^\.\/]+\.icon/);
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 1);
+    H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.icon/);
   });
 
   it('capture link rel="shortcut icon"', async() => {
     const html = '<link rel="shortcut icon" href="a.icon">';
     const {node, params, Capturer} = initTest(html);
-    const tasks = await Capturer.capture(node, params);
+    const {tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 1);
   });
 
@@ -89,17 +89,17 @@ describe('Capture link', () => {
   it('capture link rel="apple-touch-icon-precomposed"', async() => {
     const html = '<link rel="apple-touch-icon-precomposed" href="a" type="image/png">';
     const {node, params, Capturer} = initTest(html);
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 1);
-    H.assertMatch(node.getAttribute('href'), /assets\/[^\.\/]+\.png/);
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 1);
+    H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.png/);
   });
 
   async function testCaptureStylesheet(html) {
     const {node, params, Capturer} = initTest(html);
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 1);
-    H.assertEqual(node.getAttribute('referrerpolicy'), 'no-referrer');
-    H.assertMatch(node.getAttribute('href'), /assets\/[^\.\/]+\.css/);
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 1);
+    H.assertEqual(r.node.getAttribute('referrerpolicy'), 'no-referrer');
+    H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.css/);
     ExtMsg.clearMocks();
   }
 
@@ -121,11 +121,10 @@ describe('Capture link', () => {
   it('capture rel="alternate stylesheet" disabled', async() => {
     const html = '<link rel="alternate stylesheet" href="style-A.css" disabled>';
     const {node, params, Capturer} = initTest(html);
-    const head = node.parentNode;
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 0);
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 0);
     // node removed
-    H.assertEqual(head.children.length, 0);
+    H.assertEqual(r.node, null);
   });
 
 

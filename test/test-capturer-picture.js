@@ -30,9 +30,9 @@ describe('Capture Picture', () => {
   it('capture picture source element', ()=> {
     const {baseUrl, storageInfo, clipId} = getParams();
     const node = getNode();
-    const tasks = Capturer.capture(node, {baseUrl, storageInfo, clipId});
-    H.assertEqual(tasks.length, 4);
-    const [sourceA, sourceB, sourceC, img] = node.children;
+    const r = Capturer.capture(node, {baseUrl, storageInfo, clipId});
+    H.assertEqual(r.tasks.length, 4);
+    const [sourceA, sourceB, sourceC, img] = r.node.children;
     H.assertMatch(sourceB.getAttribute('srcset'), /\.jpg$/);
     H.assertMatch(sourceC.getAttribute('srcset'), /\.png$/);
     H.assertEqual(img.getAttribute('src'), 'img.png');

@@ -37,7 +37,7 @@
     const text = node.textContent;
     const {cssText, tasks} = await CapturerCss.captureText(Object.assign({ text: text }, opts));
     node.textContent = cssText;
-    return tasks;
+    return {node, tasks};
   }
 
 

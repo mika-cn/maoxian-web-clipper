@@ -14,7 +14,7 @@
    */
 
   function capture(node, opts) {
-    return tasks;
+    return {node, tasks};
   }
 
 

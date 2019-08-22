@@ -47,7 +47,7 @@
       }).join(',');
       node.setAttribute('srcset', newSrcset);
     }
-    return tasks;
+    return {node, tasks};
   }
 
   /**

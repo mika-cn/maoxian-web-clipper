@@ -15,8 +15,8 @@ describe('Capture A', () => {
     node.removeAttribute('href');
     const docUrl = 'https://a.org/index.html';
     const baseUrl = docUrl;
-    Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
-    H.assertTrue(node.hasAttribute('data-mx-warn'));
+    const r = Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
+    H.assertTrue(r.node.hasAttribute('data-mx-warn'));
   });
 
   function capture(link, expectedValue) {
@@ -24,8 +24,8 @@ describe('Capture A', () => {
       const node = getNode(link);
       const docUrl = 'https://a.org/index.html';
       const baseUrl = docUrl;
-      Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
-      H.assertEqual(node.getAttribute('href'), expectedValue);
+      const r = Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
+      H.assertEqual(r.node.getAttribute('href'), expectedValue);
     })
   }
   capture('a/b/c', 'https://a.org/a/b/c');
@@ -41,8 +41,8 @@ describe('Capture A', () => {
       const node = getNode(link);
       const docUrl = 'https://a.org/index.html';
       const baseUrl = 'https://b.org/index.html';
-      Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
-      H.assertEqual(node.getAttribute('href'), expectedValue);
+      const r = Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
+      H.assertEqual(r.node.getAttribute('href'), expectedValue);
     });
   }
   captureBase('a/b/c', 'https://b.org/a/b/c');
@@ -57,18 +57,18 @@ describe('Capture A', () => {
     const docUrl = 'https://a.org/index.html';
     const baseUrl = docUrl;
     node.setAttribute('ping', 'https://track.a.org/entry');
-    Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
-    H.assertEqual(node.getAttribute('referrerpolicy'), 'no-referrer');
-    H.assertEqual(node.getAttribute('rel'), 'noopener noreferrer');
-    H.assertEqual(node.getAttribute('target'), '_blank');
-    H.assertFalse(node.hasAttribute('ping'));
+    let r = Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
+    H.assertEqual(r.node.getAttribute('referrerpolicy'), 'no-referrer');
+    H.assertEqual(r.node.getAttribute('rel'), 'noopener noreferrer');
+    H.assertEqual(r.node.getAttribute('target'), '_blank');
+    H.assertFalse(r.node.hasAttribute('ping'));
 
     const nodeB = getNode('#xxx');
     const originalTarget = nodeB.getAttribute('target');
     nodeB.setAttribute('ping', 'https://track.a.org/entry');
-    Capturer.capture(nodeB, {baseUrl: baseUrl, docUrl: docUrl});
-    H.assertEqual(nodeB.getAttribute('target'), originalTarget);
-    H.assertFalse(node.hasAttribute('ping'));
+    r = Capturer.capture(nodeB, {baseUrl: baseUrl, docUrl: docUrl});
+    H.assertEqual(r.node.getAttribute('target'), originalTarget);
+    H.assertFalse(r.node.hasAttribute('ping'));
   });
 
   it("capture A - not http protocol", () => {
@@ -76,8 +76,8 @@ describe('Capture A', () => {
     const baseUrl = docUrl;
     function t(href) {
       let node = getNode(href);
-      Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
-      H.assertEqual(node.getAttribute('href'), href);
+      const r = Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
+      H.assertEqual(r.node.getAttribute('href'), href);
     }
     t('mailto:nobody@a.org');
     t('tel:+4912345');

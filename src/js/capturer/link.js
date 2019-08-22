@@ -45,17 +45,18 @@
 
     const rel = node.getAttribute('rel')
     const href = node.getAttribute('href');
+    const tasks = [];
 
     if (!rel) {
       // "rel" is absent, or empty
       // This node does not create any links.
-      return [];
+      return {node, tasks};
     }
 
     if(!href) {
       // "href" is absent, or empty
       // This node does not create any links.
-      return [];
+      return {node, tasks};
     }
 
     // Link types are case-insensitive.
@@ -74,25 +75,26 @@
       }
     }
 
-    return [];
+    return {node, tasks};
   }
 
   function captureIcon({node, href, opts}) {
     //The favicon of the website.
     const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config, headers} = opts;
     const {isValid, url, message} = T.completeUrl(href, baseUrl);
+    const tasks = [];
     if (isValid) {
       let mimeType = node.getAttribute('type');
       if (!mimeType) { mimeType = mimeTypeDict[url] }
       const {filename, path} = Asset.calcInfo(
         url, storageInfo, mimeType, clipId);
-      const task = Task.createImageTask(filename, url, clipId);
+      tasks.push(Task.createImageTask(filename, url, clipId));
       node.setAttribute('href', path);
       node = handleOtherAttrs(node);
-      return [task];
+      return {node, tasks};
     } else {
       node.setAttribute('data-mx-warn', message);
-      return [];
+      return {node, tasks};
     }
   }
 
@@ -110,7 +112,7 @@
     if (node.hasAttribute('disabled')) {
       // style disabled
       node.parentNode.removeChild(node);
-      return [];
+      return {node: null, tasks: []};
     } else {
       const {isValid, url, message} = T.completeUrl(href, baseUrl);
       if (isValid) {
@@ -124,10 +126,10 @@
           link: url, }, opts));
         node.setAttribute('href', path);
         node = handleOtherAttrs(node);
-        return tasks;
+        return {node: node, tasks: tasks};
       } else {
         node.setAttribute('data-mx-warn', message);
-        return [];
+        return {node: node, tasks: []};
       }
     }
   }
