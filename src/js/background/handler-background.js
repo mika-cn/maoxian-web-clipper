@@ -2,6 +2,7 @@
   if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
+      require('../lib/log.js'),
       require('../lib/config.js'),
       require('../lib/handler.js'),
       require('./clipping-handler-browser.js'),
@@ -11,6 +12,7 @@
   } else {
     // browser or other
     root.MxWcHandlerBackground = factory(
+      root.MxWcLog,
       root.MxWcConfig,
       root.MxWcHandler,
       root.MxWcClippingHandler_Browser,
@@ -18,7 +20,7 @@
       root.MxWcClippingHandler_WizNotePlus
     );
   }
-})(this, function(MxWcConfig, MxWcHandler,
+})(this, function(Log, MxWcConfig, MxWcHandler,
     ClippingHandler_Browser,
     ClippingHandler_NativeApp,
     ClippingHandler_WizNotePlus,

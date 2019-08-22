@@ -3,6 +3,7 @@
   if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
+      require('../env.js'),
       require('../lib/tool.js'),
       require('../lib/log.js'),
       require('../lib/translation.js'),
@@ -11,13 +12,14 @@
   } else {
     // browser or other
     root.MxWcClippingHandler_NativeApp = factory(
+      root.MxWcENV,
       root.MxWcTool,
       root.MxWcLog,
       root.MxWcI18N,
       root.MxWcSavingTool,
     );
   }
-})(this, function(T, Log, I18N, SavingTool, undefined) {
+})(this, function(ENV, T, Log, I18N, SavingTool, undefined) {
   "use strict";
 
   const APP_NAME = 'maoxian_web_clipper_native';
