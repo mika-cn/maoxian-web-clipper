@@ -50,8 +50,8 @@ describe('Capture style', () => {
     const node = doc.head.children[0];
     const params = getParams();
     const Capturer = getCapturer();
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 0);
-    H.assertFalse(node.hasAttribute('nonce'));
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertFalse(r.node.hasAttribute('nonce'));
   });
 });

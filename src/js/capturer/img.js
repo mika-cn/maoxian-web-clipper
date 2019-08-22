@@ -57,11 +57,12 @@
 
     // handle srcset
     if (saveFormat === 'html') {
-      const srcsetTasks = CaptureTool.captureImageSrcset(node, opts);
-      tasks.push(...srcsetTasks);
+      const r = CaptureTool.captureImageSrcset(node, opts);
+      node = r.node;
+      tasks.push(...r.tasks);
     }
 
-    return tasks;
+    return {node, tasks};
   }
 
   return {capture: capture}

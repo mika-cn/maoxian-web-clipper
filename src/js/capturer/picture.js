@@ -40,10 +40,10 @@
 
     const sourceNodes = node.querySelectorAll('source');
     [].forEach.call(sourceNodes, (sourceNode) => {
-      const sourceTasks = CaptureTool.captureImageSrcset(sourceNode, opts);
+      const {tasks: sourceTasks} = CaptureTool.captureImageSrcset(sourceNode, opts);
       tasks.push(...sourceTasks);
     });
-    return tasks;
+    return {node, tasks};
   }
 
 

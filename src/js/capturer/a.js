@@ -28,13 +28,14 @@
     const {baseUrl, docUrl} = opts;
     const href = node.getAttribute('href');
     const {isValid, url, message} = T.completeUrl(href, baseUrl);
+    const tasks = [];
 
     let newHref = href;
     if (isValid) {
       newHref = T.url2Anchor(url, docUrl);
     } else {
       node.setAttribute('data-mx-warn', message);
-      return [];
+      return {node, tasks};
     }
 
     node.setAttribute('href', newHref);
@@ -46,7 +47,7 @@
       node.setAttribute('referrerpolicy', 'no-referrer');
       node.setAttribute('rel', 'noopener noreferrer');
     }
-    return [];
+    return {node, tasks};
   }
 
   return {capture: capture}

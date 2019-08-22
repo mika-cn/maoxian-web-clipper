@@ -34,20 +34,18 @@ describe("Capture iframe", async () => {
     const {node} = DOMTool.parseHTML(html);
     const params = getParams();
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 0);
-    H.assertTrue(node.hasAttribute('data-mx-warn'));
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertTrue(r.node.hasAttribute('data-mx-warn'));
   })
 
   async function captureInvalidIframeUrl(html) {
     const {node} = DOMTool.parseHTML(html);
-    const parentNode = node.parentNode;
     const params = getParams();
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
-    const tasks = await Capturer.capture(node, params);
-    const newNode = parentNode.children[0]
-    H.assertTrue(newNode.hasAttribute('data-mx-warn'));
-    H.assertTrue(newNode.hasAttribute('data-mx-original-src'));
+    const r = await Capturer.capture(node, params);
+    H.assertTrue(r.node.hasAttribute('data-mx-warn'));
+    H.assertTrue(r.node.hasAttribute('data-mx-original-src'));
   }
 
   it('capture empty url', async () => {
@@ -64,12 +62,11 @@ describe("Capture iframe", async () => {
     const url = 'moz-extension://klasdfbwerssdfasdf/iframe.html';
     const html = `<iframe src="${url}"></iframe>`;
     const {node} = DOMTool.parseHTML(html);
-    const parentNode = node.parentNode;
     const params = getParams();
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 0);
-    H.assertEqual(parentNode.children.length, 0);
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertTrue(r.node.hasAttribute('data-mx-warn'));
   })
 
   it('capture iframe that load failed', async() => {
@@ -78,15 +75,13 @@ describe("Capture iframe", async () => {
     const url = 'https://a.org/frame-A.html';
     const html = `<iframe src="${url}"></iframe>`;
     const {node} = DOMTool.parseHTML(html);
-    const parentNode = node.parentNode;
     const params = getParams();
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
-    const tasks = await Capturer.capture(node, params);
+    const r = await Capturer.capture(node, params);
     ExtMsg.clearMocks();
-    H.assertEqual(tasks.length, 0);
-    const newNode = parentNode.children[0];
-    H.assertTrue(newNode.hasAttribute('data-mx-warn'));
-    H.assertTrue(newNode.hasAttribute('data-mx-original-src'));
+    H.assertEqual(r.tasks.length, 0);
+    H.assertTrue(r.node.hasAttribute('data-mx-warn'));
+    H.assertTrue(r.node.hasAttribute('data-mx-original-src'));
   });
 
   it('capture normal iframe - html', async () => {
@@ -103,15 +98,15 @@ describe("Capture iframe", async () => {
     const {node} = DOMTool.parseHTML(html);
     const params = getParams();
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 1);
-    H.assertFalse(node.hasAttribute('referrerpolicy'));
+    let r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 1);
+    H.assertFalse(r.node.hasAttribute('referrerpolicy'));
 
     // capture same frame html again
     const {node: nodeB} = DOMTool.parseHTML(html);
-    const tasksB = await Capturer.capture(nodeB, params);
-    H.assertEqual(tasksB.length, 0);
-    H.assertMatch(node.getAttribute('src'), /[^\/^.].frame.html/);
+    r = await Capturer.capture(nodeB, params);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertMatch(r.node.getAttribute('src'), /[^\/^.].frame.html/);
     ExtMsg.clearMocks();
   });
 
@@ -126,26 +121,23 @@ describe("Capture iframe", async () => {
         tasks: []
       }
     });
-    const {node} = DOMTool.parseHTML(html);
-    const parentNode = node.parentNode;
+    const {doc, node} = DOMTool.parseHTML(html);
     const params = getParams();
+    params.doc = doc;
     params.saveFormat = 'md';
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
-    const tasks = await Capturer.capture(node, params);
-    H.assertEqual(tasks.length, 0);
-    const newNode = parentNode.children[0];
-    H.assertNotEqual(newNode.tagName, 'IFRAME');
-    H.assertEqual(newNode.innerHTML, frameHtml);
+    let r = await Capturer.capture(node, params);
+    console.log(r.node.outerHTML);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertNotEqual(r.node.tagName, 'IFRAME');
+    H.assertEqual(r.node.innerHTML, frameHtml);
 
     // capture same frame html again
     const {node: nodeB} = DOMTool.parseHTML(html);
-    const parentNodeB = nodeB.parentNode;
-    const tasksB = await Capturer.capture(nodeB, params);
-    H.assertEqual(tasksB.length, 0);
-    const newNodeB = parentNodeB.children[0];
-    //FIXME
-    H.assertNotEqual(newNodeB.tagName, 'IFRAME');
-    H.assertEqual(newNodeB.innerHTML, frameHtml);
+    r = await Capturer.capture(nodeB, params);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertNotEqual(r.node.tagName, 'IFRAME');
+    H.assertEqual(r.node.innerHTML, frameHtml);
     ExtMsg.clearMocks();
   });
 

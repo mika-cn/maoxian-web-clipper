@@ -96,7 +96,7 @@
       docUrl,
       mimeTypeDict,
       parentFrameId = topFrameId,
-      config: config,
+      config,
     } = params;
     Log.debug("getElemHtml", docUrl);
 
@@ -138,7 +138,7 @@
       {
         nodes: frameNodes,
         capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+        opts: {saveFormat, baseUrl, doc, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       }
     ];
 
@@ -148,8 +148,14 @@
       const it = captureInfos[i];
       for (let j = 0; j < it.nodes.length; j++) {
         const node = it.nodes[j];
-        const tasks = await it.capturer.capture(node, it.opts);
-        taskCollection.push(...tasks);
+        if (node === selectedNode) {
+          const r = await it.capturer.capture(node, it.opts);
+          taskCollection.push(...r.tasks);
+          selectedNode = r.node;
+        } else {
+          const r = await it.capturer.capture(node, it.opts);
+          taskCollection.push(...r.tasks);
+        }
       }
     }
 
