@@ -27,14 +27,20 @@
   // 4. handle <code>?
   //
 
+
   const KEYWORDS = ['highlight', 'syntax', 'code'];
   const DEFAULT_LANGUAGE = 'plain';
+
+  const state = {
+    nodeTypeCounterCache: T.createArrayCache('reverselySeek'),
+  }
 
   function handle(doc, contextNode) {
     contextNode = handleTableNodes(doc, contextNode);
     contextNode = handleDivNodes(doc, contextNode);
     contextNode = handlePreNodes(contextNode);
     contextNode = handleCodeNodes(contextNode);
+    state.nodeTypeCounterCache.clear();
     return contextNode;
   }
 
@@ -76,68 +82,93 @@
 
   function handleCodeWrapper(doc, wrapper) {
     const paths = groupLeafNode(wrapper);
-    if (paths.length === 2) {
+    const {
+      isCodeWithLineNumbers,
+      codePath,
+      codeNodes
+    } = analyzeWrapper(wrapper, paths);
+
+    if (isCodeWithLineNumbers) {
       // probally is code (with line numbers)
-      const [pathA, pathB] = paths;
 
-      const score = calcLineNumberScore(wrapper, pathA);
-      const isLineNumber = score >= 2;
+      const codeLines = [];
+      const counter = T.createCounter();
+      [].forEach.call(codeNodes, (node) => {
+        const lang = node.getAttribute('lang');
+        if (lang) { counter.count(lang); }
+        codeLines.push(node2CodeLine(node));
+      });
+      const code = codeLines.join('\n');
 
-      if (isLineNumber) {
-        const codeLines = [];
-        const counter = T.createCounter();
-        [].forEach.call(wrapper.querySelectorAll(pathB), (node) => {
-          const lang = node.getAttribute('lang');
-          if (lang) { counter.count(lang); }
-          codeLines.push(node.textContent.replace(/\n+/mg, ''));
-        });
-        const code = codeLines.join('\n');
-
-        let language;
-        const languageFromCodeLine = getLanguageByName(counter.max());
-        if (languageFromCodeLine) {
-          language = languageFromCodeLine;
-        } else {
-          const klasses = path2klasses(pathB).reverse();
-          const languageFromPath = getLanguageByKlasses(klasses);
-          if (languageFromPath) {
-            language = languageFromPath;
-          } else {
-            language = getLanguageFromNearNodes(wrapper, 0, 1, 2) || DEFAULT_LANGUAGE;
-          }
-        }
-
-        const klass = toTurndownLanguageClass(language);
-        const newNode = doc.createElement('div');
-        newNode.innerHTML = `<pre><code class="${klass}">${T.escapeHtml(code)}</code></pre>`;
-
-        const pNode = wrapper.parentNode;
-        if (pNode) {
-          pNode.insertBefore(newNode, wrapper);
-          pNode.removeChild(wrapper);
-          return newNode;
-        } else {
-          Log.error("Parent node is empty");
-        }
+      let language;
+      const languageFromCodeLine = getLanguageByName(counter.max());
+      if (languageFromCodeLine) {
+        language = languageFromCodeLine;
       } else {
-        Log.debug("Not a line number");
+        const klasses = path2klasses(codePath).reverse();
+        const languageFromPath = getLanguageByKlasses(klasses);
+        if (languageFromPath) {
+          language = languageFromPath;
+        } else {
+          language = getLanguageFromNearNodes(wrapper, 0, 1, 2) || DEFAULT_LANGUAGE;
+        }
+      }
+
+      const klass = toTurndownLanguageClass(language);
+      const newNode = doc.createElement('div');
+      newNode.innerHTML = `<pre><code class="${klass}">${T.escapeHtml(code)}</code></pre>`;
+
+      const pNode = wrapper.parentNode;
+      if (wrapper.parentNode) {
+        wrapper.parentNode.replaceChild(newNode, wrapper);
+        return newNode;
+      } else {
+        Log.error("Parent node is empty");
+        return wrapper;
       }
     }
     return wrapper;
   }
 
-  function calcLineNumberScore(wrapper, path) {
-    let score = 0;
-    if (path.match(/line-num/)) {
-      score++;
-    } else if (path.match(/line/)) {
-      score++;
-    }
-    if (path.match(/gutter/)) {score++}
+  function analyzeWrapper(wrapper, paths) {
+    const not = {isCodeWithLineNumbers: false};
 
-    const nodes = wrapper.querySelectorAll(path);
+    if (paths.length !== 2) {
+      return not;
+    }
+
+    // probally is code (with line numbers)
+    const [pathA, pathB] = paths;
+
+    const pathA_nodes = wrapper.querySelectorAll(pathA);
+    const pathB_nodes = wrapper.querySelectorAll(pathB);
+
+    if (pathA_nodes.length !== pathB_nodes.length) {
+      return not;
+    }
+
+    if (isLineNumber(pathA, pathA_nodes)) {
+      return {
+        isCodeWithLineNumbers: true,
+        codePath: pathB,
+        codeNodes: pathB_nodes
+      }
+    } else if (isLineNumber(pathB, pathB_nodes)) {
+      return {
+        isCodeWithLineNumbers: true,
+        codePath: pathA,
+        codeNodes: pathA_nodes
+      }
+    }
+
+    return not;
+  }
+
+  function isLineNumber(path, nodes) {
     let allNodeHaveDataLineNumAttr = true;
     let allNodeHaveLineNumberText = true;
+    let allNodeHaveBlankText = true;
+    let allNodeHaveNotChild = true;
 
     [].forEach.call(nodes, (node, idx) => {
       if (!(node.hasAttribute('data-line-number') || node.hasAttribute('data-line-num'))) {
@@ -148,11 +179,31 @@
       if (!(text.match(/^\s*\d+\s*$/) && parseInt(text) === idx + 1)) {
         allNodeHaveLineNumberText = false;
       }
+
+      if (!text.match(/^\s*$/)) {
+        allNodeHaveBlankText = false;
+      }
+
+      if (node.children.length > 0) {
+        allNodeHaveNotChild = false;
+      }
     });
 
+    if (!allNodeHaveNotChild) {return false}
+    if (!(allNodeHaveLineNumberText || allNodeHaveBlankText)) {
+      return false;
+    }
+
+    let score = 0;
+    if (path.match(/line-num/i)) {
+      score++;
+    } else if (path.match(/line/i)) {
+      score++;
+    }
+    if (path.match(/gutter/i)) {score++}
     if (allNodeHaveDataLineNumAttr) {score++}
-    if (allNodeHaveLineNumberText) {score++}
-    return score;
+
+    return score >= 1;
   }
 
   function path2klasses(path) {
@@ -183,6 +234,10 @@
     return wrapper;
   }
 
+  function node2CodeLine(node) {
+    return node.textContent.replace(/\n+/mg, '');
+  }
+
   function node2Str(node) {
     const arr = [];
     arr.push(node.tagName.toLowerCase());
@@ -190,6 +245,9 @@
     if (klass) {
       klass.split(/\s+/).forEach((it) => {
         if (it.match(/\d+$/) || it === '') {
+          // ends with number
+        } else if (it.match(/^[,\.:\*"']/)) {
+          // invalid klass
         } else {
           arr.push(it);
         }
@@ -264,14 +322,14 @@
 
   // TODO This function is slow
   function flattenNode(node, result, fn) {
-    const count = countChildrenByNodeType(node);
+    const count = countChildrenByNodeType(node, {abortOnTextNode: true});
 
     if (count.textNode === 0 && count.elementNode === 1) {
       // has only one child
       result.push(node2Str(node));
       flattenNode(node.children[0], result, fn);
     } else if (count.textNode === 0 && count.otherNode === 0 && count.elementNode > 0) {
-
+      // children are all element node.
       const nodeStr = node2Str(node);
       [].forEach.call(node.children, (child) => {
         const newResult = [...result];
@@ -295,26 +353,74 @@
 
   function handlePreNodes(contextNode) {
     const nodes = DOMTool.querySelectorIncludeSelf(contextNode, 'pre');
-    [].forEach.call(nodes, (node) => {
-      const language = getLanguageFromNearNodes(node, -1, 0, 1, 2);
-      const klass = toTurndownLanguageClass(language);
+    const processedIndexes = [];
+    for (let i = 0; i < nodes.length; i++) {
 
-      if (hasOnlyOneChild(node)) {
-        const child = node.children[0];
-        if (child.tagName === 'CODE') {
-          //<pre><code>...</code></pre>
-          child.setAttribute('class', klass);
-          fixLineBreak(child);
+      if (processedIndexes.indexOf(i) === -1) {
+        let node = nodes[i];
+        const klassStr = node.getAttribute('class');
+
+        if (node !== contextNode
+          && klassStr && klassStr.match(/line/i)
+          && allChildNodesAreAlike(node.parentNode)
+        ) {
+          // Programer using <pre> as a code line
+          // We merge these lines.
+          const codeLines = [];
+          [].forEach.call(node.parentNode.children, (it, idx) => {
+            codeLines.push(node2CodeLine(it));
+            processedIndexes.push(i + idx);
+          });
+          const code = codeLines.join('\n');
+          const language = getLanguageFromNearNodes(node, 0, 1, 2, 3);
+          const klass = toTurndownLanguageClass(language);
+          node.parentNode.innerHTML = `<pre><code class="${klass}">${T.escapeHtml(code)}</code></pre>`;
         } else {
-          fixLineBreak(node);
-          node = toCommonStructure(node, klass);
+          const language = getLanguageFromNearNodes(node, -1, 0, 1, 2);
+          const klass = toTurndownLanguageClass(language);
+
+          if (hasOnlyOneChild(node)) {
+            const child = node.children[0];
+            if (child.tagName === 'CODE') {
+              //<pre><code>...</code></pre>
+              child.setAttribute('class', klass);
+              fixLineBreak(child);
+            } else {
+              fixLineBreak(node);
+              node = toCommonStructure(node, klass);
+            }
+          } else {
+            const firstChild = node.children[0];
+            if (firstChild
+                && ['div'].indexOf(firstChild.tagName.toLowerCase()) > -1
+                && allChildNodesAreAlike(node)
+            ) {
+              // Programer using block element as a code line
+              // We merge those too.
+              const code = [].map.call(node.children, node2CodeLine).join('\n');
+              node.innerHTML = `<code class="${klass}">${T.escapeHtml(code)}</code>`;
+            } else {
+              fixLineBreak(node);
+              node = toCommonStructure(node, klass);
+            }
+          }
         }
-      } else {
-        fixLineBreak(node);
-        node = toCommonStructure(node, klass);
+
       }
-    });
+    }
+
     return contextNode;
+  }
+
+  function allChildNodesAreAlike(node) {
+    const count = countChildrenByNodeType(node, {abortOnTextNode: true});
+
+    if (count.textNode === 0 && count.otherNode === 0 && count.elementNode > 0) {
+      const selector = node2Str(node.children[0]);
+      return count.elementNode === node.querySelectorAll(selector).length;
+    } else {
+      return false;
+    }
   }
 
   function toCommonStructure(node, klass) {
@@ -387,27 +493,31 @@
 
 
   function hasOnlyOneChild(node) {
-    const count = countChildrenByNodeType(node);
+    const count = countChildrenByNodeType(node, {abortOnTextNode: true});
     return count.textNode === 0 && count.elementNode === 1;
   }
 
-  function countChildrenByNodeType(node) {
-    let elementNode = 0, textNode = 0, otherNode = 0;
-    for(let i = 0; i < node.childNodes.length; i++) {
-      switch(node.childNodes[i].nodeType) {
-        case 1: elementNode++; break;
-        case 3:
+  function countChildrenByNodeType(node, {abortOnTextNode = false}) {
+    return state.nodeTypeCounterCache.findOrCache(node, () => {
+      let elementNode = 0, textNode = 0, otherNode = 0;
+      for(let i = 0; i < node.childNodes.length; i++) {
+        const nodeType = node.childNodes[i].nodeType;
+        if (nodeType === 1) {
+          elementNode++;
+        } else if (nodeType === 3) {
           if(!node.textContent.match(/^\s*$/m)) {
             // not blank text node
             textNode++;
+            if (abortOnTextNode) {
+              break;
+            }
           }
-          break;
-        default:
+        } else {
           otherNode++;
-          break;
+        }
       }
-    }
-    return {elementNode, textNode, otherNode}
+      return {elementNode, textNode, otherNode}
+    });
   }
 
   function getLanguageByKlassStr(klassStr) {
@@ -449,12 +559,16 @@
 
   function getLanguageByName(name) {
     if(!name) { return null }
-    const idx = LANGUAGE_NAMES.indexOf(name.toLowerCase());
-    return idx > -1 ? LANGUAGE_NAMES[idx] : null;
+    const key = sanitizeName(name);
+    return languageDict[key] ? key : null;
+  }
+
+  function sanitizeName(name) {
+    return name.trim().replace(/\s+/, '-').toLowerCase();
   }
 
   // FIXME enhance me
-  const LANGUAGE_NAMES = (`Plain
+  const LANGUAGE_NAMES_STR = (`Plain
     Text
     ABCL
     ActionScript
@@ -611,8 +725,12 @@
     XHTML
     XOTcl
     YAML
-  `).split(/\n+/).map((it) => {
-    return it.trim().replace(/\s+/, '-').toLowerCase()
+  `);
+
+  // init language dictionary
+  const languageDict = {};
+  LANGUAGE_NAMES_STR.split(/\n+/).forEach((it) => {
+    languageDict[sanitizeName(it)] = true;
   });
 
   return {

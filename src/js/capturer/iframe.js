@@ -71,10 +71,11 @@
     const {isValid, url, message} = r;
 
     if (!isValid) {
-      node.setAttribute('data-mx-warn', message);
-      node.setAttribute('data-mx-original-src', src);
-      node.removeAttribute('src');
-      return {node, tasks};
+      const newNode = doc.createElement('div');
+      newNode.setAttribute('data-mx-warn', message);
+      newNode.setAttribute('data-mx-original-src', src);
+      node.parentNode.replaceChild(newNode, node);
+      return {node: newNode, tasks: tasks};
     }
 
     if (T.isExtensionUrl(url)) {

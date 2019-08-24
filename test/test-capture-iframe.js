@@ -40,8 +40,9 @@ describe("Capture iframe", async () => {
   })
 
   async function captureInvalidIframeUrl(html) {
-    const {node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(html);
     const params = getParams();
+    params.doc = doc;
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     const r = await Capturer.capture(node, params);
     H.assertTrue(r.node.hasAttribute('data-mx-warn'));
