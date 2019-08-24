@@ -93,6 +93,7 @@
     ).singleNodeValue;
   }
 
+  // Do not pass selector that you cann't control
   function querySelectorIncludeSelf(contextNode, selector) {
     if (contextNode.matches(selector)) {
       return [contextNode];

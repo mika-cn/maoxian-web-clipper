@@ -745,6 +745,34 @@
     return {enqueue: enqueue}
   }
 
+  T.createArrayCache = function(reverselySeek = 'noReverselySeek') {
+    return {
+      keys: [],
+      values: [],
+      findOrCache: function(key, action) {
+        let idx;
+        if (reverselySeek === 'reverselySeek') {
+          idx = this.keys.lastIndexOf(key);
+        } else {
+          idx = this.keys.indexOf(key);
+        }
+
+        if (idx > -1) {
+          return this.values[idx];
+        } else {
+          const value = action();
+          this.keys.push(key);
+          this.values.push(value);
+          return value;
+        }
+      },
+      clear: function() {
+        this.keys = [];
+        this.values = [];
+      }
+    }
+  }
+
   // ====================================
 
 

@@ -106,6 +106,7 @@
     elem.classList.add(KLASS);
     DOMTool.markHiddenNode(window, elem);
     const docHtml = document.documentElement.outerHTML;
+    elem.classList.remove('mx-wc-selected-elem');
     elem.classList.remove(KLASS);
     DOMTool.clearHiddenMark(elem);
 
@@ -133,7 +134,7 @@
       {
         nodes: iframeNodes,
         capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+        opts: {saveFormat, baseUrl, doc, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       },
       {
         nodes: frameNodes,

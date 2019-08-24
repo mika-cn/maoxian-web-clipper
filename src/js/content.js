@@ -204,7 +204,7 @@
     if(e.target.tagName === 'BODY'){
       UI.entryClick(e);
     }else{
-      // console.log(e.target.tagName);
+      Log.debug(e.target.tagName);
     }
   }
 
