@@ -635,6 +635,9 @@
       count: function (key) {
         this.dict[key] = (this.dict[key] || 0) + 1
       },
+      get: function(key) {
+        return this.dict[key];
+      },
       max: function() {
         return T.maxValueKey(this.dict);
       },
@@ -747,23 +750,25 @@
 
   T.createArrayCache = function(reverselySeek = 'noReverselySeek') {
     return {
+      findIdxFnName: (reverselySeek === 'reverselySeek' ? 'lastIndexOf' : 'indexOf'),
       keys: [],
       values: [],
+      invalidIndexes: [],
       findOrCache: function(key, action) {
-        let idx;
-        if (reverselySeek === 'reverselySeek') {
-          idx = this.keys.lastIndexOf(key);
-        } else {
-          idx = this.keys.indexOf(key);
-        }
-
-        if (idx > -1) {
-          return this.values[idx];
-        } else {
+        const idx = this.keys[this.findIdxFnName](key);
+        if (this.invalidIndexes.indexOf(idx) > -1 || idx == -1) {
           const value = action();
           this.keys.push(key);
           this.values.push(value);
           return value;
+        } else {
+          return this.values[idx];
+        }
+      },
+      setInvalid: function(key) {
+        const idx = this.keys[this.findIdxFnName](key);
+        if (idx > -1) {
+          this.invalidIndexes.push(key);
         }
       },
       clear: function() {

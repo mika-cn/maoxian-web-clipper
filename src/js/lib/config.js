@@ -27,7 +27,7 @@
       // content relative
       saveWebFont: false,
       saveCssImage: false,
-      saveClippingInformation: true,
+      saveClippingInformation: false,
       saveDomainAsTag: false,
 
       // control
