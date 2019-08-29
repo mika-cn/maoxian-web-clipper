@@ -38,8 +38,8 @@
   function handle(doc, contextNode) {
     contextNode = handleTableNodes(doc, contextNode);
     contextNode = handleDivNodes(doc, contextNode);
-    contextNode = handlePreNodes(contextNode);
-    contextNode = handleCodeNodes(contextNode);
+    contextNode = handlePreNodes(doc, contextNode);
+    contextNode = handleCodeNodes(doc, contextNode);
     state.nodeTypeCounterCache.clear();
     return contextNode;
   }
@@ -80,88 +80,90 @@
     return contextNode;
   }
 
-  function handleCodeWrapper(doc, wrapper) {
-    const paths = groupLeafNode(wrapper);
-    const {
-      isCodeWithLineNumbers,
-      codePath,
-      codeNodes
-    } = analyzeWrapper(wrapper, paths);
+  function getCodeWrapper(node) {
+    const nodes = getNearNodesByRange(node, 0, 1, 2, 3);
+    let wrapper = null;
+    for (let i = 0; i < nodes.length; i++) {
+      const currNode = nodes[i];
 
-    if (isCodeWithLineNumbers) {
-      // probally is code (with line numbers)
-
-      const codeLines = [];
-      const counter = T.createCounter();
-      [].forEach.call(codeNodes, (node) => {
-        const lang = node.getAttribute('lang');
-        if (lang) { counter.count(lang); }
-        codeLines.push(node2CodeLine(node));
-      });
-      const code = codeLines.join('\n');
-
-      let language;
-      const languageFromCodeLine = getLanguageByName(counter.max());
-      if (languageFromCodeLine) {
-        language = languageFromCodeLine;
-      } else {
-        const klasses = path2klasses(codePath).reverse();
-        const languageFromPath = getLanguageByKlasses(klasses);
-        if (languageFromPath) {
-          language = languageFromPath;
-        } else {
-          language = getLanguageFromNearNodes(wrapper, 0, 1, 2) || DEFAULT_LANGUAGE;
+      for(let j = 0; j < KEYWORDS.length; j++) {
+        const selector = `[class*=${KEYWORDS[j]}]`;
+        if (currNode.matches(selector)) {
+          wrapper = currNode;
+          break;
         }
-      }
-
-      const klass = toTurndownLanguageClass(language);
-      const newNode = doc.createElement('div');
-      newNode.innerHTML = `<pre><code class="${klass}">${T.escapeHtml(code)}</code></pre>`;
-
-      const pNode = wrapper.parentNode;
-      if (wrapper.parentNode) {
-        wrapper.parentNode.replaceChild(newNode, wrapper);
-        return newNode;
-      } else {
-        Log.error("Parent node is empty");
-        return wrapper;
       }
     }
     return wrapper;
   }
 
+
+  function handleCodeWrapper(doc, wrapper) {
+    const paths = groupLeafNode(wrapper);
+    const {
+      isCodeWithLineNumbers,
+      isCodeWrappedByLine = false,
+      codePath,
+      codeNodes
+    } = analyzeWrapper(wrapper, paths);
+
+    if (isCodeWithLineNumbers) {
+      return handleCodeLines(wrapper, codePath, codeNodes, doc);
+    } else if (isCodeWrappedByLine) {
+      return handleCodeLines(wrapper, codePath, codeNodes, doc);
+    } else {
+      Log.debug(paths);
+    }
+    return wrapper;
+  }
+
   function analyzeWrapper(wrapper, paths) {
-    const not = {isCodeWithLineNumbers: false};
+    const not = {
+      isCodeWrappedByLine: false,
+      isCodeWithLineNumbers: false,
+    };
 
-    if (paths.length !== 2) {
+    if (paths.length === 1) {
+      const [path] = paths;
+      if (path.match(/code/i) && path.match(/line/i)) {
+        const nodes = wrapper.querySelectorAll(path);
+        return {
+          isCodeWrappedByLine: true,
+          isCodeWithLineNumbers: false,
+          codePath: path,
+          codeNodes: nodes,
+        }
+      }
+      return not;
+    } else if (paths.length === 2) {
+      // probally is code (with line numbers)
+      const [pathA, pathB] = paths;
+
+      const pathA_nodes = wrapper.querySelectorAll(pathA);
+      const pathB_nodes = wrapper.querySelectorAll(pathB);
+
+      if (pathA_nodes.length !== pathB_nodes.length) {
+        return not;
+      }
+
+      if (isLineNumber(pathA, pathA_nodes)) {
+        return {
+          isCodeWithLineNumbers: true,
+          codePath: pathB,
+          codeNodes: pathB_nodes
+        }
+      } else if (isLineNumber(pathB, pathB_nodes)) {
+        return {
+          isCodeWithLineNumbers: true,
+          codePath: pathA,
+          codeNodes: pathA_nodes
+        }
+      }
+      return not;
+    } else {
       return not;
     }
 
-    // probally is code (with line numbers)
-    const [pathA, pathB] = paths;
-
-    const pathA_nodes = wrapper.querySelectorAll(pathA);
-    const pathB_nodes = wrapper.querySelectorAll(pathB);
-
-    if (pathA_nodes.length !== pathB_nodes.length) {
-      return not;
-    }
-
-    if (isLineNumber(pathA, pathA_nodes)) {
-      return {
-        isCodeWithLineNumbers: true,
-        codePath: pathB,
-        codeNodes: pathB_nodes
-      }
-    } else if (isLineNumber(pathB, pathB_nodes)) {
-      return {
-        isCodeWithLineNumbers: true,
-        codePath: pathA,
-        codeNodes: pathA_nodes
-      }
-    }
-
-    return not;
   }
 
   function isLineNumber(path, nodes) {
@@ -206,6 +208,63 @@
     return score >= 1;
   }
 
+  function handleCodeContainer(wrapper, codePath, codeNode, doc) {
+    codeNode = fixLineBreak(codeNode);
+    const code = codeNode.textContent;
+    const language = getLanguageFromInside2Wrapper(wrapper, codePath);
+    return renderCodeInWrapper(wrapper, code, language, doc);
+  }
+
+  function handleCodeLines(wrapper, codePath, codeNodes, doc) {
+    const codeLines = [];
+    const counter = T.createCounter();
+    [].forEach.call(codeNodes, (node) => {
+      const lang = node.getAttribute('lang');
+      if (lang) { counter.count(lang); }
+      codeLines.push(node2CodeLine(node));
+    });
+    const code = codeLines.join('\n');
+    const language = getLanguageFromInside2Wrapper(wrapper, codePath, counter);
+    return renderCodeInWrapper(wrapper, code, language, doc);
+  }
+
+  function renderCodeInWrapper(wrapper, code, language, doc) {
+    const newNode = doc.createElement('div');
+    const klass = toTurndownLanguageClass(language);
+    newNode.innerHTML = `<pre data-mx-wc-processed><code class="${klass}">${T.escapeHtml(code)}</code></pre>`;
+
+    const pNode = wrapper.parentNode;
+    if (pNode) {
+      pNode.replaceChild(newNode, wrapper);
+      return newNode;
+    } else {
+      Log.error("Parent node is empty");
+      return wrapper;
+    }
+  }
+
+  function getLanguageFromInside2Wrapper(wrapper, codePath, counter) {
+    let language, languageFromCodeLine;
+    if (counter) {
+      languageFromCodeLine = getLanguageByName(counter.max());
+    }
+    if (languageFromCodeLine) {
+      language = languageFromCodeLine;
+    } else {
+      const klasses = path2klasses(codePath).reverse();
+      const languageFromPath = getLanguageByKlasses(klasses);
+      if (languageFromPath) {
+        language = languageFromPath;
+      } else {
+        language = getLanguageFromNearNodes(wrapper, 0, 1, 2) || DEFAULT_LANGUAGE;
+      }
+    }
+
+    return language;
+  }
+
+
+
   function path2klasses(path) {
     const arr = [];
     path.split('>').forEach((it) => {
@@ -215,23 +274,6 @@
       }
     })
     return arr;
-  }
-
-  function getCodeWrapper(node) {
-    const nodes = getNearNodesByRange(node, 0, 1, 2, 3);
-    let wrapper = null;
-    for (let i = 0; i < nodes.length; i++) {
-      const currNode = nodes[i];
-
-      for(let j = 0; j < KEYWORDS.length; j++) {
-        const selector = `[class*=${KEYWORDS[j]}]`;
-        if (currNode.matches(selector)) {
-          wrapper = currNode;
-          break;
-        }
-      }
-    }
-    return wrapper;
   }
 
   function node2CodeLine(node) {
@@ -257,17 +299,14 @@
   }
 
   function groupLeafNode(node) {
-    const dict = {}
     const SEPARATOR = '>';
-    const rootNodeStr = node2Str(node);
-    dict[rootNodeStr] = [];
 
-    flattenNode(node, [], (leafPath) => {
-      leafPath.shift(); // remove rootNodeStr
-      dict[rootNodeStr].push(leafPath);
-    });
+    const paths = flattenNodeNew(node);
 
+    let currIdx = 1;
+    const dict = { __ROOT__: paths }
     while(true) {
+
       let allGroupEmpty = true;
       for (let k in dict) {
         if (dict[k].length > 0) {
@@ -279,6 +318,7 @@
       if (allGroupEmpty) {
         break;
       }
+
       for (let k in dict) {
         const group = dict[k];
         if (group.length > 0) {
@@ -286,11 +326,19 @@
 
           let tmpDict = {}
           let anyLeafPathReachEnd = false;
+          const codeNodeStrs = [];
+          const spanNodeStrs = [];
 
           for (let j = 0; j < group.length; j++) {
             const leafPath = group[j];
             if (leafPath.length > 0) {
               const nodeStr = leafPath.shift();
+              if (nodeStr.startsWith('code')) {
+                codeNodeStrs.push(nodeStr);
+              } else if (nodeStr.startsWith('span')) {
+                spanNodeStrs.push(nodeStr);
+              }
+
               const newKey = [k, nodeStr].join(SEPARATOR);
               tmpDict[newKey] = tmpDict[newKey] || [];
               tmpDict[newKey].push(leafPath);
@@ -302,7 +350,15 @@
 
           if (anyLeafPathReachEnd) {
             dict[k] = [];
-          } else {
+          } else if (codeNodeStrs.length === group.length
+              && T.unique(codeNodeStrs).length > 1) {
+            // new branch
+            dict[k] = [];
+          } else if (spanNodeStrs.length === group.length
+              && T.unique(spanNodeStrs).length > 1) {
+            // new branch
+            dict[k] = [];
+          }else {
             delete dict[k];
             Object.assign(dict, tmpDict);
           }
@@ -310,6 +366,7 @@
 
         }
       }
+
     }
 
     const keys = [];
@@ -320,43 +377,61 @@
     return keys;
   }
 
-  // TODO This function is slow
-  function flattenNode(node, result, fn) {
-    const count = countChildrenByNodeType(node, {abortOnTextNode: true});
 
-    if (count.textNode === 0 && count.elementNode === 1) {
-      // has only one child
-      result.push(node2Str(node));
-      flattenNode(node.children[0], result, fn);
-    } else if (count.textNode === 0 && count.otherNode === 0 && count.elementNode > 0) {
-      // children are all element node.
-      const nodeStr = node2Str(node);
-      [].forEach.call(node.children, (child) => {
-        const newResult = [...result];
-        newResult.push(nodeStr);
-        flattenNode(child, newResult, fn);
-      });
-    } else {
-      if (['br'].indexOf(node.tagName.toLowerCase()) > -1) {
+  function flattenNodeNew(node) {
+    const queue = [node];
+    const parentPaths = [[]]
+
+    let currNode;
+    let currPath;
+
+    const paths = [];
+    const blackList = ['BR', 'BUTTON'];
+
+    while(currNode = queue.shift()) {
+      currPath = parentPaths.shift();
+      if (blackList.indexOf(currNode.tagName) > -1) {
+        currPath = undefined;
+
       } else {
-        result.push(node2Str(node));
-        fn(result);
+        const count = countChildrenByNodeType(currNode, {abortOnTextNode: true});
+
+        if (count.textNode === 0 && count.elementNode === 1) {
+          // has only one child
+          currPath.push(node2Str(currNode));
+          parentPaths.push([...currPath]);
+          queue.push(currNode.children[0]);
+
+        } else if (count.textNode === 0 && count.otherNode === 0 && count.elementNode > 0) {
+          // children are all element node.
+          currPath.push(node2Str(currNode));
+          [].forEach.call(currNode.children, (child) => {
+            parentPaths.push([...currPath]);
+            queue.push(child);
+          })
+
+        } else {
+          currPath.push(node2Str(currNode));
+          paths.push(currPath);
+        }
+        currPath = undefined;
       }
     }
+
+    return paths;
   }
 
-
-  function handleCodeNodes(contextNode) {
+  function handleCodeNodes(doc, contextNode) {
     // Should we handle code node?
     return contextNode;
   }
 
-  function handlePreNodes(contextNode) {
+  function handlePreNodes(doc, contextNode) {
     const nodes = DOMTool.querySelectorIncludeSelf(contextNode, 'pre');
     const processedIndexes = [];
     for (let i = 0; i < nodes.length; i++) {
 
-      if (processedIndexes.indexOf(i) === -1) {
+      if (processedIndexes.indexOf(i) === -1 && !nodes[i].hasAttribute('data-mx-wc-processed')) {
         let node = nodes[i];
         const klassStr = node.getAttribute('class');
 
@@ -364,51 +439,61 @@
           && klassStr && klassStr.match(/line/i)
           && allChildNodesAreAlike(node.parentNode)
         ) {
+
           // Programer using <pre> as a code line
           // We merge these lines.
           const codeLines = [];
-          [].forEach.call(node.parentNode.children, (it, idx) => {
+          const counter = T.createCounter();
+          [].forEach.call(node.parentNode.children, (it) => {
+            const lang = node.getAttribute('lang');
+            if (lang) { counter.count(lang); }
             codeLines.push(node2CodeLine(it));
-            processedIndexes.push(i + idx);
+            const index = [].indexOf.call(nodes, it);
+            if (index > -1) { processedIndexes.push(index) }
           });
           const code = codeLines.join('\n');
-          const language = getLanguageFromNearNodes(node, 0, 1, 2, 3);
-          const klass = toTurndownLanguageClass(language);
-          node.parentNode.innerHTML = `<pre><code class="${klass}">${T.escapeHtml(code)}</code></pre>`;
-        } else {
-          const language = getLanguageFromNearNodes(node, -1, 0, 1, 2);
-          const klass = toTurndownLanguageClass(language);
+          let language;
+          const languageFromCodeLine = getLanguageByName(counter.max());
+          if (languageFromCodeLine) {
+            language = languageFromCodeLine;
+          } else {
+            language = getLanguageFromNearNodes(node, 0, 1, 2, 3);
+          }
+          const isContextNode = (node.parentNode === contextNode);
+          const newNode = renderCodeInWrapper(node.parentNode, code, language, doc);
+          if(isContextNode) {contextNode = newNode}
 
-          if (hasOnlyOneChild(node)) {
-            const child = node.children[0];
-            if (child.tagName === 'CODE') {
-              //<pre><code>...</code></pre>
-              child.setAttribute('class', klass);
-              fixLineBreak(child);
+        } else {
+
+          const paths = groupLeafNode(node);
+          if (paths.length === 1) {
+            const [path] = paths;
+            const codeNodes = [];
+            if (path === node2Str(node)) {
+              codeNodes.push(node);
             } else {
-              fixLineBreak(node);
-              node = toCommonStructure(node, klass);
+              codeNodes.push(...node.querySelectorAll(path));
+            }
+            const isContextNode = (node === contextNode);
+
+            let newNode;
+            if (codeNodes.length === 1) {
+              newNode = handleCodeContainer(node, path, codeNodes[0], doc);
+            } else {
+              newNode = handleCodeLines(node, path, codeNodes, doc);
+            }
+            if (isContextNode) {
+              contextNode = newNode;
             }
           } else {
-            const firstChild = node.children[0];
-            if (firstChild
-                && ['div'].indexOf(firstChild.tagName.toLowerCase()) > -1
-                && allChildNodesAreAlike(node)
-            ) {
-              // Programer using block element as a code line
-              // We merge those too.
-              const code = [].map.call(node.children, node2CodeLine).join('\n');
-              node.innerHTML = `<code class="${klass}">${T.escapeHtml(code)}</code>`;
-            } else {
-              fixLineBreak(node);
-              node = toCommonStructure(node, klass);
-            }
+            // TODO
+            Log.debug(paths);
           }
+
         }
 
       }
     }
-
     return contextNode;
   }
 
@@ -421,11 +506,6 @@
     } else {
       return false;
     }
-  }
-
-  function toCommonStructure(node, klass) {
-    node.innerHTML = `<code class="${klass}">${node.innerHTML}</code>`;
-    return node;
   }
 
   function fixLineBreak(node) {
@@ -469,7 +549,10 @@
     // handle positive offset
     let currNode = node;
     for (let i = idx + 1; i < range.length; i++) {
-      if (currNode.parentNode && hasOnlyOneChild(currNode.parentNode)) {
+      if (currNode.parentNode
+        && currNode.parentNode.tagName !== 'BODY'
+        && hasOnlyOneChild(currNode.parentNode)
+      ) {
         currNode = currNode.parentNode;
         arr.push(currNode);
       } else {

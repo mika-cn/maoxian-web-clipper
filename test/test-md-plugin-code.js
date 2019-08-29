@@ -12,21 +12,21 @@ describe('MdPluginCode', () => {
   });
 
 
-  function testGetLanguageFromNode(html, language) {
-    it('get language from node ' + language, () => {
+  function testGetLanguage(html, language) {
+    it('get language ' + language, () => {
       let {doc, node: contextNode} = DOMTool.parseHTML(html);
       contextNode = mdPlugin.handle(doc, contextNode);
-      const node = contextNode.querySelector('pre');
-      H.assertNotEqual(node, null);
-      const child = node.children[0];
+      const preNodes = contextNode.querySelectorAll('pre');
+      H.assertEqual(preNodes.length, 1);
+      const child = preNodes[0].children[0];
       H.assertEqual(child.tagName, 'CODE');
       H.assertEqual(child.getAttribute('class'), ['language', language].join('-'));
     });
   }
 
-  testGetLanguageFromNode(`<div><pre>code text</pre></div>`, 'plain');
+  testGetLanguage(`<div><pre>code text</pre></div>`, 'plain');
 
-  testGetLanguageFromNode(`
+  testGetLanguage(`
     <div>
       <pre class="lang-javascript">
         code text
@@ -34,7 +34,7 @@ describe('MdPluginCode', () => {
     </div>
   `, 'javascript');
 
-  testGetLanguageFromNode(`
+  testGetLanguage(`
     <div>
       <pre class="lang-javascript">
 
@@ -45,13 +45,53 @@ describe('MdPluginCode', () => {
     </div>
   `, 'shell');
 
-  testGetLanguageFromNode(`
-      <div class="language-ruby highlight">
-        <div class="highlight">
-          <pre class="highlight">code text</pre>
-        </div>
+  testGetLanguage(`
+    <div class="language-ruby highlight">
+      <div class="highlight">
+        <pre class="highlight">code text</pre>
       </div>
+    </div>
   `, 'ruby');
+
+  testGetLanguage(`
+    <div>
+      <pre>
+        <div class="line" lang="ruby">line 1</div>
+        <div class="line" lang="elixir">line 2</div>
+        <div class="line" lang="elixir">line 3</div>
+      </pre>
+    </div>
+  `, 'elixir');
+
+  /*
+  testGetLanguage(`
+    <div>
+      <pre>
+        <div class="line ruby">line 1</div>
+        <div class="line elixir">line 2</div>
+        <div class="line elixir">line 3</div>
+      </pre>
+    </div>
+  `, 'elixir');
+  */
+
+  testGetLanguage(`
+    <div>
+      <pre class="line" lang="css">line 1</pre>
+      <pre class="line" lang="text">line 2</pre>
+      <pre class="line" lang="css">line 3</pre>
+    </div>
+  `, 'css');
+
+  /*
+  testGetLanguage(`
+    <div>
+      <pre class="line css">line 1</pre>
+      <pre class="line text">line 2</pre>
+      <pre class="line css">line 3</pre>
+    </div>
+  `, 'css');
+  */
 
   it('merge <pre> lines', () => {
     // get from CoffeeScript (Zeal)
@@ -73,9 +113,9 @@ describe('MdPluginCode', () => {
     const {doc, node} = DOMTool.parseHTML(html);
     let contextNode = node;
     contextNode = mdPlugin.handle(doc, contextNode);
-    const nodesA = contextNode.querySelectorAll('.will-merge pre');
+    const nodesA = contextNode.querySelectorAll('pre');
     const nodesB = contextNode.querySelectorAll('.will-not-merge pre');
-    H.assertEqual(nodesA.length, 1);
+    H.assertEqual(nodesA.length, 3);
     H.assertEqual(nodesB.length, 2);
   });
 
@@ -99,6 +139,66 @@ describe('MdPluginCode', () => {
     H.assertNotEqual(matches, null);
     H.assertEqual(matches.length, 2);
   });
+
+  // get from rust (Zeal)
+  //
+  //   nested pre node
+  //   buttons inside pre node
+  const preCode_with_buttons_A = `
+    <pre>
+      <pre class="playpen">
+        <div class="buttons">
+          <button></button>
+          <button></button>
+        </div>
+        <code class="language-rust hljs">code <span>text</span></code>
+      </pre>
+    </pre>
+  `;
+
+  const preCode_with_buttons_B = `
+    <pre>
+      <pre class="playpen">
+        <code class="language-rust hljs">code <span>text</span></code>
+        <div class="buttons">
+          <button></button>
+          <button></button>
+        </div>
+      </pre>
+    </pre>
+  `;
+
+  const preCode_with_buttons_C = `
+    <pre>
+      <pre class="playpen">
+        <div class="buttons">
+          <button></button>
+          <button></button>
+        </div>
+        <code class="language-rust hljs">code <span>text</span></code>
+        <div class="buttons">
+          <button></button>
+          <button></button>
+        </div>
+      </pre>
+    </pre>
+  `;
+
+  function testPreCodeWithButtons(html) {
+    it("remove buttons", () => {
+      const {doc, node} = DOMTool.parseHTML(html);
+      let contextNode = node;
+      contextNode = mdPlugin.handle(doc, contextNode);
+      const buttons = contextNode.querySelectorAll('button');
+      H.assertEqual(buttons.length, 0);
+      const code = contextNode.querySelector('code');
+      H.assertNotEqual(code, null);
+    });
+  }
+
+  testPreCodeWithButtons(preCode_with_buttons_A);
+  testPreCodeWithButtons(preCode_with_buttons_B);
+  testPreCodeWithButtons(preCode_with_buttons_C);
 
   // get from que01.github.io
   const codeTable_gutterAndCode_A = `
@@ -389,6 +489,7 @@ describe('MdPluginCode', () => {
     });
   }
 
+
   testHandleNormalTable('A ~ without line number keyword', normalTable_A);
   testHandleNormalTable('B ~ without line number keyword', normalTable_B);
   testHandleNormalTable('C ~ node has child', normalTable_C);
@@ -397,5 +498,42 @@ describe('MdPluginCode', () => {
   testHandleNormalDiv('A ~ without line number keyword', normalDiv_A);
   testHandleNormalDiv('B ~ the number of node is not equal', normalDiv_B);
   testHandleNormalDiv('Z ~ without keyword', normalDiv_Z);
+
+  // get from rubyOnRails (Zeal)
+  const codeTable_without_line_number = `
+    <div class="code-container">
+      <div>
+        <div class="syntaxhighlighter nogutter ruby">
+          <table><tbody>
+            <tr>
+              <td class="code">
+                <div class="container">
+                  <div class="line number1 index0"><code>line 1</code></div>
+                  <div class="line number2 index1"><code>line</code> <code>2</code></div>
+                  <div class="line number3 index2">line <code>3</code></div>
+                </div>
+              </td>
+            </tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  `;
+
+  function testHandleCodeTableWithoutLineNumber(name, html) {
+    it("handle code table without line number" + name, () => {
+      const {doc, node} = DOMTool.parseHTML(html);
+      let contextNode = node;
+      contextNode = mdPlugin.handle(doc, contextNode);
+      const table = contextNode.querySelector('table');
+      H.assertEqual(table, null);
+      const preNode = contextNode.querySelector('pre');
+      const codeNode = preNode.children[0];
+      H.assertMatch(codeNode.getAttribute('class'), /language-/);
+    });
+  }
+
+  testHandleCodeTableWithoutLineNumber("rubyOnRails", codeTable_without_line_number);
+
 
 });
