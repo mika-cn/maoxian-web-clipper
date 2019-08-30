@@ -1,5 +1,18 @@
-
-this.ExtMsg = (function(ExtApi, T) {
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('./tool.js'),
+      require('./ext-api.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcExtMsg = factory(
+      root.MxWcTool,
+      root.MxWcExtApi
+    );
+  }
+})(this, function(T, ExtApi, undefined) {
   "use strict";
 
   /*!
@@ -131,7 +144,7 @@ this.ExtMsg = (function(ExtApi, T) {
     })
   }
 
-  const publicApi = {
+  return {
     initPage: initPage,
     listen: listen,
     sendToBackground: sendToBackground,
@@ -141,5 +154,4 @@ this.ExtMsg = (function(ExtApi, T) {
     broadcastToContent: broadcastToContent,
   }
 
-  return publicApi;
-})(ExtApi, T);
+});

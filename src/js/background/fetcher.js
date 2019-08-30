@@ -1,7 +1,13 @@
-"use strict";
-
-
-this.Fetcher = (function(){
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcFetcher = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
   /*
    * @respType {string} text or blob
@@ -61,4 +67,4 @@ this.Fetcher = (function(){
 
   return {get: get}
 
-})();
+});

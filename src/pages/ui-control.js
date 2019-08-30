@@ -1,6 +1,18 @@
 
-"use strict";
-(function(){
+;(function(root, factory) {
+  factory(
+    root.MxWcI18N,
+    root.MxWcLog,
+    root.MxWcTool,
+    root.MxWcTemplate,
+    root.MxWcStorage,
+    root.MxWcConfig,
+    root.MxWcFrameMsg,
+  );
+})(this, function(I18N, Log, T, MxWcTemplate, MxWcStorage, MxWcConfig,
+    FrameMsg, undefined) {
+  "use strict";
+
   const ID = 'mx-wc-iframe-control';
 
   const ID_SWITCH_BTN    = 'switch-btn';
@@ -205,7 +217,7 @@
   function setStateIdle(msg){
     const gbox = getGbox();
     const btn = getEntryBtn();
-    btn.title = t('switch.title');
+    btn.title = I18N.t('switch.title');
     gbox.classList.remove('selected');
     gbox.classList.remove('selecting');
     gbox.classList.remove('confirmed');
@@ -218,19 +230,19 @@
     const gbox = getGbox();
     const btn = getEntryBtn();
     btn.innerText = "ON";
-    btn.title = t('switch.title');
+    btn.title = I18N.t('switch.title');
     gbox.classList.remove('idle');
     gbox.classList.add('selecting');
-    setHint(t('hint.selecting'));
+    setHint(I18N.t('hint.selecting'));
   }
   function setStateSelected(msg){
     const gbox = getGbox();
     const btn = getEntryBtn();
     btn.innerText = "ON";
-    btn.title = t('switch.title');
+    btn.title = I18N.t('switch.title');
     gbox.classList.remove('selecting');
     gbox.classList.add('selected');
-    setHint(t('hint.selected'));
+    setHint(I18N.t('hint.selected'));
   }
   function setStateConfirmed(msg){
     const gbox = getGbox();
@@ -243,7 +255,7 @@
     const gbox = getGbox();
     gbox.classList.remove('confirmed');
     gbox.classList.add('clipping');
-    setHint(t('hint.clipping'));
+    setHint(I18N.t('hint.clipping'));
   }
 
   /************** change saving state ****************/
@@ -253,17 +265,17 @@
     const gbox = getGbox();
     gbox.classList.remove('clipping');
     gbox.classList.add('saving');
-    setHint(t('hint.saving.started'));
+    setHint(I18N.t('hint.saving.started'));
   }
 
   function setSavingStateProgress(msg) {
-    let hint = t('hint.saving.progress')
+    let hint = I18N.t('hint.saving.progress')
     hint = hint.replace('$finished', msg.finished).replace('$total', msg.total);
     setHint(hint);
   }
 
   function setSavingStateCompleted(msg) {
-    setHint(t('hint.saving.completed'));
+    setHint(I18N.t('hint.saving.completed'));
   }
 
   function setHint(text){
@@ -467,4 +479,4 @@
   initFrameMsg();
   listenFrameMsg();
   Log.info('control layer ready..');
-})();
+});

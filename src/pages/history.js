@@ -1,6 +1,20 @@
-"use strict";
+;(function(root, factory) {
+  factory(
+    root.MxWcTool,
+    root.MxWcLog,
+    root.MxWcI18N,
+    root.MxWcExtApi,
+    root.MxWcExtMsg,
+    root.MxWcStorage,
+    root.MxWcConfig,
+    root.MxWcLink,
+    root.MxWcQuery
+  );
 
-(function(){
+})(this, function(T, Log, I18N, ExtApi, ExtMsg,
+    MxWcStorage, MxWcConfig, MxWcLink, Query, undefined) {
+  "use strict";
+
   const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
   function listenMessage() {
@@ -219,7 +233,7 @@
   function deleteHistoryAndFile(config, id) {
     MxWcStorage.get('downloadFolder').then((downloadFolder) => {
       if(downloadFolder) {
-        confirmIfNeed(t('history.confirm-msg.delete-history-and-file'), () => {
+        confirmIfNeed(I18N.t('history.confirm-msg.delete-history-and-file'), () => {
           const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
           const path = [downloadFolder, clip.path].join('');
           const root = [downloadFolder, config.rootFolder].join('');
@@ -249,7 +263,7 @@
               if(result.message){
                 Notify.error(t(result.message));
               } else {
-                Notify.success(t('history.notice.delete-history-success'));
+                Notify.success(I18N.t('history.notice.delete-history-success'));
               }
             } else {
               console.error(result)
@@ -280,7 +294,7 @@
       if(noConfirm) {
         action();
       } else {
-        confirmIfNeed(t('history.confirm-msg.delete-history'), action);
+        confirmIfNeed(I18N.t('history.confirm-msg.delete-history'), action);
       }
     }
   }
@@ -433,16 +447,16 @@
 
 
   function clearHistory(e){
-    confirmIfNeed(t('history.confirm-msg.clear-history'), () => {
+    confirmIfNeed(I18N.t('history.confirm-msg.clear-history'), () => {
       MxWcStorage.set('clips', [])
       initState([]);
       renderClips([]);
-      Notify.success(t('history.notice.clear-history-success'));
+      Notify.success(I18N.t('history.notice.clear-history-success'));
     })
   }
 
   function exportHistory(e){
-    let content = T.toJson({error: t('history.export.no-record')});
+    let content = T.toJson({error: I18N.t('history.export.no-record')});
     if(state.currClips.length > 0){
       content = T.toJson(state.currClips)
     }
@@ -455,7 +469,7 @@
   function initLinks(){
     const elem = T.queryElem(".links");
     const links = [
-      {name: t('history.a.reset-history'), pageName: "extPage.reset-history" }
+      {name: I18N.t('history.a.reset-history'), pageName: "extPage.reset-history" }
     ]
     links.forEach((link) => {
       const a = document.createElement("a");
@@ -594,9 +608,9 @@
     initActions();
     await initSwitches();
     initModal();
-    i18nPage();
+    I18N.i18nPage();
     showHistory();
   }
 
   init();
-})();
+});

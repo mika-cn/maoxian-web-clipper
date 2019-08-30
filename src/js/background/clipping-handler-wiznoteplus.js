@@ -1,7 +1,20 @@
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../lib/log.js'),
+      require('./saving-tool.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcClippingHandler_WizNotePlus = factory(
+      root.MxWcLog,
+      root.MxWcSavingTool
+    );
+  }
+})(this, function(Log, SavingTool, undefined) {
+    "use strict";
 
-"use strict";
-
-const ClippingHandler_WizNotePlus = (function(){
     const state = {
         /** Used to identify webchannel state. */
         isConnected: false,
@@ -269,6 +282,4 @@ const ClippingHandler_WizNotePlus = (function(){
       saveClipping: saveClipping,
       handleClippingResult: handleClippingResult
     }
-
-
-})();
+});

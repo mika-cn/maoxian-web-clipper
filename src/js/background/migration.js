@@ -1,5 +1,23 @@
 
-(function(global, MxWcConfig, MxWcStorage, T, ENV) {
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../env.js'),
+      require('../lib/tool.js'),
+      require('../lib/storage.js'),
+      require('../lib/config.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcMigration = factory(
+      root.MxWcENV,
+      root.MxWcTool,
+      root.MxWcStorage,
+      root.MxWcConfig
+    );
+  }
+})(this, function(ENV, T, MxWcStorage, MxWcConfig, undefined) {
   "use strict";
 
   function perform() {
@@ -73,6 +91,6 @@
     });
   }
 
-  global.MxWcMigration = { perform: perform }
+  return { perform: perform }
 
-})(this, MxWcConfig, MxWcStorage, T, ENV);
+});

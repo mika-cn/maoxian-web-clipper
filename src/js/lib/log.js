@@ -1,8 +1,22 @@
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(require('../env.js'));
+  } else {
+    // browser or other
+    root.MxWcLog = factory(root.MxWcENV);
+  }
+})(this, function(ENV, undefined) {
+  "use strict";
 
-"use strict";
-
-this.Log = (function(logLevel) {
   const exports = {};
+
+  let logLevel = 'debug';
+  try {
+    logLevel = (window && window.location && window.location.search.indexOf('debug') > 0 && 'debug') || (ENV && ENV.logLevel || 'debug');
+  } catch(e) {
+    logLevel = 'debug';
+  }
 
   const levels = ["debug", "info", "warn", "error"];
   if (!levels.includes(logLevel)) {
@@ -31,4 +45,4 @@ this.Log = (function(logLevel) {
   if (shouldLog.error) { exports.error = console.error; }
 
   return exports;
-})((window && window.location && window.location.search.indexOf('debug') > 0 && 'debug') || (ENV && ENV.logLevel) || 'debug');
+});

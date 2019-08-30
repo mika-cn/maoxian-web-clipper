@@ -1,6 +1,12 @@
 
-"use strict";
-(function(){
+;(function(root, factory) {
+  factory(
+    root.MxWcLog,
+    root.MxWcFrameMsg,
+  );
+
+})(this, function(Log, FrameMsg, undefined) {
+  "use strict";
   const ID = 'mx-wc-iframe-selection';
 
   function initFrameMsg(){
@@ -40,5 +46,4 @@
   initFrameMsg();
   Log.info('selection layer ready..');
 
-})();
-
+});

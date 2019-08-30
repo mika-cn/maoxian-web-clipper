@@ -1,7 +1,17 @@
+;(function (root, factory) {
+  root.MxWcUI = factory(
+    root.MxWcLog,
+    root.MxWcTool,
+    root.MxWcExtApi,
+    root.MxWcFrameMsg,
+    root.MxWcEvent,
+    root.MxWcHandler,
+    root.MxWcSave
+  );
+})(this, function(Log, T, ExtApi, FrameMsg,
+    MxWcEvent, MxWcHandler, MxWcSave, undefined) {
+  "use strict";
 
-"use strict";
-
-this.UI = (function(){
   const state = { clippingState: 'idle' };
 
   // ifarme common functions
@@ -169,16 +179,22 @@ this.UI = (function(){
 
   function isEventInCurrElem(msg){
     if(state.currElem){
-      const x = msg.x + window.scrollX;
-      const y = msg.y + window.scrollY;
-      const box = getBox(state.currElem);
-      return (
-         box.x <= x && x <= box.x + box.w
-      && box.y <= y && y <= box.y + box.h
-      );
+      return isPointInElem({x: msg.x, y: msg.y}, state.currElem);
     } else {
       return false;
     }
+  }
+
+  // @param {Object} point - {:x, :y} relative to viewport.
+  function isPointInElem(point, elem) {
+    // calculate x and y that relative to webpage.
+    const x = window.scrollX + point.x;
+    const y = window.scrollY + point.y;
+    const box = getBox(elem);
+    return (
+       box.x <= x && x <= box.x + box.w
+    && box.y <= y && y <= box.y + box.h
+    );
   }
 
   /*
@@ -198,6 +214,7 @@ this.UI = (function(){
   }
 
 
+  // x, y relative to viewport.
   function getElementFromPoint(x, y) {
     selectionIframe.element.style.pointerEvents = 'none';
     controlIframe.element.style.pointerEvents = 'none';
@@ -491,7 +508,7 @@ this.UI = (function(){
     if(state.clippingState === 'selected'){
       if(MxWc.selector.stack.isEmpty()){
         let cElem = state.currElem.children[0];
-        while(cElem && (isOnBlackList(cElem) || ElemTool.isBoxSizeEq(state.currElem, cElem))){
+        while(cElem && (isOnBlackList(cElem) || isBoxSizeEq(state.currElem, cElem))){
           cElem = cElem.children[0];
         }
         if(cElem){
@@ -536,12 +553,47 @@ this.UI = (function(){
   function getOutermostWrapper(elem){
     if(['HTML', 'BODY'].indexOf(elem.tagName) > 0){ return elem }
     const pElem = elem.parentElement;
-    if(ElemTool.isBoxSizeEq(elem, pElem) || ElemTool.isIndivisible(elem, pElem)){
+    if(isBoxSizeEq(elem, pElem) && !isElemHasVisibleSibling(elem) || isIndivisible(elem, pElem)){
       return getOutermostWrapper(pElem);
     } else {
       return elem;
     }
   }
+
+  function isElemHasVisibleSibling(elem) {
+    const children = elem.parentNode.children;
+    for(let i = 0; i < children.length; i++) {
+      const child = children[i];
+      if (child !== elem && T.isElemVisible(window, child)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function isBoxSizeEq(elemA, elemB) {
+    if(elemA && elemB){
+      const boxA = elemA.getBoundingClientRect();
+      const boxB = elemB.getBoundingClientRect();
+      return boxA.width === boxB.width && boxA.height === boxB.height;
+    } else {
+      return false;
+    }
+  }
+
+  function isIndivisible(elem, pElem) {
+    if(elem && pElem) {
+      return [
+        ['CODE', 'PRE'],
+        ['PRE', 'CODE'],
+        ['THEAD', 'TABLE'],
+        ['TBODY', 'TABLE'],
+      ].some((p) => elem.tagName === p[0] && pElem.tagName === p[1])
+    } else {
+      return false;
+    }
+  }
+
 
   function isOnBlackList(elem){
     const blackList = ["SCRIPT", "STYLE", "TEMPLATE"];
@@ -657,4 +709,4 @@ this.UI = (function(){
     clipElem: clipElem,
     setFormInputs: setFormInputs,
   }
-})();
+});

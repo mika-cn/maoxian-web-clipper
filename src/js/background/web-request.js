@@ -1,6 +1,21 @@
-"use strict";
-
-this.WebRequest = (function(){
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../lib/log.js'),
+      require('../lib/tool.js'),
+      require('../lib/ext-msg.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcWebRequest = factory(
+      root.MxWcLog,
+      root.MxWcTool,
+      root.MxWcExtMsg
+    );
+  }
+})(this, function(Log, T, ExtMsg, undefined) {
+  "use strict";
 
   const StoreMimeType = (function() {
     let state = {};
@@ -159,4 +174,4 @@ this.WebRequest = (function(){
     listen: listen,
     getMimeTypeDict: getMimeTypeDict
   }
-})();
+});

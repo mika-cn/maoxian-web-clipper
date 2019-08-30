@@ -1,16 +1,34 @@
-
-(function(win, I18N_DICT, ExtApi, T) {
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../../vendor/js/i18n.js'),
+      require('../../_locales/en.js'),
+      require('../../_locales/zh-CN.js'),
+      require('./ext-api.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcI18N = factory(
+      root.i18n,
+      root.MxWcLocaleEn,
+      root.MxWcLocaleZhCN,
+      root.MxWcExtApi
+    );
+  }
+})(this, function(i18n, en, zhCN, ExtApi, undefined) {
   "use strict";
 
-  function initTranslate(locale){
+  const I18N_DICT = {'en': en, 'zh-CN': zhCN};
+
+  function initTranslator(locale){
     const dict = I18N_DICT[locale]
     if(dict){
       i18n.translator.add(dict);
     }else{
-      initTranslate('en');
+      initTranslator('en');
     }
   }
-  initTranslate(ExtApi.locale);
 
   //
   // all parts will join by '.'
@@ -18,7 +36,7 @@
   // Usage:
   //   t(key)
   //   t(keyPart1, keyPart2, ..keyPartN)
-  function t(...parts) {
+  function translate(...parts) {
     return i18n(parts.join('.'));
   }
 
@@ -31,29 +49,42 @@
     }
     iterate('i18n', function(elem, value) {
       if(elem.innerHTML === '' && value) {
-        elem.innerHTML = t(value);
+        elem.innerHTML = translate(value);
       }
     });
     iterate('i18n-attr', function(elem, value) {
       const [attr, key] = value.split(':');
-      elem.setAttribute(attr, t(key));
+      elem.setAttribute(attr, translate(key));
     });
   }
 
   function listen() {
-    document.addEventListener('___.mx-wc.page.changed', function(e) {
-      const detail = JSON.parse(e.detail);
-      if(detail.selector !== '') {
-        const contextNode = document.querySelector(detail.selector);
-        i18nPage(contextNode);
-      } else {
-        i18nPage();
-      }
-    });
+    try {
+      document.addEventListener('___.mx-wc.page.changed', function(e) {
+        const detail = JSON.parse(e.detail);
+        if(detail.selector !== '') {
+          const contextNode = document.querySelector(detail.selector);
+          i18nPage(contextNode);
+        } else {
+          i18nPage();
+        }
+      });
+    } catch(e) {
+      // not running in browser;
+    }
   }
 
-  listen();
-  win.t = t;
-  win.i18nPage = i18nPage;
+  function init() {
+    const locale = ExtApi.getLocale();
+    initTranslator(locale);
+    listen();
+  }
 
-})(this, I18N_DICT, ExtApi, T);
+  init();
+
+
+  return {
+    t: translate,
+    i18nPage: i18nPage
+  };
+});

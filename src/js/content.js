@@ -1,4 +1,15 @@
-(function(){
+;(function (root, factory) {
+  factory(
+    root.MxWcLog,
+    root.MxWcTool,
+    root.MxWcExtMsg,
+    root.MxWcEvent,
+    root.MxWcConfig,
+    root.MxWcUI,
+  );
+})(this, function(Log, T, ExtMsg, MxWcEvent,
+    MxWcConfig, UI, undefined) {
+  "use strict";
 
   function listenMessage(){
     ExtMsg.initPage('content');
@@ -193,7 +204,7 @@
     if(e.target.tagName === 'BODY'){
       UI.entryClick(e);
     }else{
-      // console.log(e.target.tagName);
+      Log.debug(e.target.tagName);
     }
   }
 
@@ -230,5 +241,4 @@
 
   run();
 
-})();
-
+});

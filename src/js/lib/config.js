@@ -1,7 +1,15 @@
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(require('./storage.js'));
+  } else {
+    // browser or other
+    root.MxWcConfig = factory(root.MxWcStorage);
+  }
+})(this, function(MxWcStorage, undefined) {
 
-"use strict";
+  "use strict";
 
-this.MxWcConfig = (function() {
   const state = {};
 
   function getDefault(){
@@ -19,7 +27,7 @@ this.MxWcConfig = (function() {
       // content relative
       saveWebFont: false,
       saveCssImage: false,
-      saveClippingInformation: true,
+      saveClippingInformation: false,
       saveDomainAsTag: false,
 
       // control
@@ -133,5 +141,4 @@ this.MxWcConfig = (function() {
     reset: reset,
     getDefault: getDefault
   }
-
-})();
+});

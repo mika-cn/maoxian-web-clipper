@@ -1,22 +1,29 @@
 
-"use strict";
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcQuery = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-/*!
- * Usage:
- *
- * Query.findObjByQ(objs, q)
- * Query.queryObjByQ(objs, q}
- * Query.q2Filter(q)
- * Query.combineFilter(logic, filterA, filterB)
- * Query.queryObjByFilter(objs, filter)
- *
- * q: {
- *   _logic_: 'and' or 'or'
- *   attr: [matcherName, *args]
- * }
- */
-
-var Query = (function(){
+  /*!
+   * Usage:
+   *
+   * Query.findObjByQ(objs, q)
+   * Query.queryObjByQ(objs, q}
+   * Query.q2Filter(q)
+   * Query.combineFilter(logic, filterA, filterB)
+   * Query.queryObjByFilter(objs, filter)
+   *
+   * q: {
+   *   _logic_: 'and' or 'or'
+   *   attr: [matcherName, *args]
+   * }
+   */
 
   function findObjByQ(objs, q) {
     const filter = q2Filter(q);
@@ -111,7 +118,7 @@ var Query = (function(){
       if(key != '__logic__') {
         const args = q[key];
         const name = args.shift();
-        const matchFn = Query.m[name];
+        const matchFn = m[name];
 
         if(matchFn) {
 
@@ -155,13 +162,12 @@ var Query = (function(){
     });
   }
 
-  const Lib = {
+  return {
     findObjByQ: findObjByQ,
     queryObjByQ: queryObjByQ,
     queryObjByFilter: queryObjByFilter,
     q2Filter: q2Filter,
     combineFilter: combineFilter,
   }
-  Lib.m = m;
-  return Lib;
-})();
+
+});

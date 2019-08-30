@@ -1,585 +1,252 @@
 
 "use strict";
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../lib/tool.js'),
+      require('../lib/dom-tool.js'),
+      require('../lib/log.js'),
+      require('../lib/ext-msg.js'),
+      require('../lib/task.js'),
+      require('../lib/template.js'),
+      require('../capturer/a.js'),
+      require('../capturer/img.js'),
+      require('../capturer/style.js'),
+      require('../capturer/link.js'),
+      require('../capturer/iframe.js'),
+      require('./style-helper.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcHtml = factory(
+      root.MxWcTool,
+      root.MxWcDOMTool,
+      root.MxWcLog,
+      root.MxWcExtMsg,
+      root.MxWcTask,
+      root.MxWcTemplate,
+      root.MxWcCapturerA,
+      root.MxWcCapturerPicture,
+      root.MxWcCapturerImg,
+      root.MxWcCapturerStyle,
+      root.MxWcCapturerLink,
+      root.MxWcCapturerIframe,
+      root.MxWcStyleHelper
+    );
+  }
+})(this, function(T, DOMTool, Log, ExtMsg, Task, Template,
+    CapturerA,
+    CapturerPicture,
+    CapturerImg,
+    CapturerStyle,
+    CapturerLink,
+    CapturerIframe, StyleHelper, undefined) {
+  "use strict";
 
-this.MxWcHtml = (function () {
   /*
    * @param {Object} params
    */
   async function parse(params){
     Log.debug("html parser");
-    const {path, elem, info, config} = params;
+    const {storageInfo, elem, info, config} = params;
 
     const [mimeTypeDict, frames] = await Promise.all([
       ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
       ExtMsg.sendToBackground({type: 'get.allFrames'}),
-      KeyStore.init()
     ])
 
+
+    //FIXME
+    const headers = {
+      "Referer"    : window.location.href,
+      "Origin"     : window.location.origin,
+      "User-Agent" : window.navigator.userAgent
+    }
+
+    const isBodyElem = elem.tagName === 'BODY';
+
+
     // 获取选中元素的html
-    const {elemHtml, styleHtml, tasks} = await getElemHtml({
+    const {elemHtml, headInnerHtml, tasks} = await getElemHtml({
       clipId: info.clipId,
       frames: frames,
-      path: path,
+      storageInfo: storageInfo,
       elem: elem,
-      refUrl: window.location.href,
+      docUrl: window.location.href,
+      baseUrl: window.document.baseURI,
       mimeTypeDict: mimeTypeDict,
       config: config,
+      headers: headers,
+      needFixStyle: !isBodyElem,
     });
 
     // 将elemHtml 渲染进模板里，渲染成完整网页。
-    const v = getElemRenderParams(elem);
-    const page = (elem.tagName === 'BODY' ? 'bodyPage' : 'elemPage');
+    const v = StyleHelper.getRenderParams(elem);
+    const page = (isBodyElem ? 'bodyPage' : 'elemPage');
     v.info = info;
-    v.styleHtml = styleHtml;
+    v.headInnerHtml = headInnerHtml;
     v.elemHtml = elemHtml;
     v.config = config;
-    const html = MxWcTemplate[page].render(v);
-    const filename = T.joinPath([path.saveFolder, info.filename])
+    const html = Template[page].render(v);
+    const filename = T.joinPath(storageInfo.saveFolder, info.filename)
 
-    const mainFileTask = {
-      taskType: 'mainFileTask',
-      type: 'text',
-      filename: filename,
-      mimeType: 'text/html',
-      text: html,
-      clipId: info.clipId,
-      createdMs: T.currentTime().str.intMs
-    }
-
+    const mainFileTask = Task.createHtmlTask(filename, html, info.clipId);
     tasks.push(mainFileTask);
-    return tasks;
+    return Task.appendHeaders(tasks, headers);
   }
 
   async function getElemHtml(params){
-    const topFrameId = 0;
+    const topFrameId = 0, saveFormat = 'html';
     const {
       clipId,
       frames,
-      path,
+      storageInfo,
       elem,
-      refUrl,
+      baseUrl,
+      docUrl,
       mimeTypeDict,
       parentFrameId = topFrameId,
       config,
+      headers,
+      needFixStyle,
     } = params;
-    Log.debug('getElemHtml', refUrl);
-    const xpaths = ElemTool.getHiddenElementXpaths(window, elem);
-    Log.debug(xpaths);
-    let clonedElem = elem.cloneNode(true);
-    let taskCollection = [];
-    clonedElem = ElemTool.removeChildByXpath(window, clonedElem, xpaths);
-    clonedElem = T.completeElemLink(clonedElem, refUrl);
-    const result = parseAssetInfo(clipId, clonedElem, mimeTypeDict);
+    Log.debug('getElemHtml', baseUrl);
 
-    // deal internal style
-    result.internalStyles = [];
+    const KLASS = ['mx-wc', clipId].join('-');
+    elem.classList.add('mx-wc-selected-elem');
+    elem.classList.add(KLASS);
+    DOMTool.markHiddenNode(window, elem);
+    const docHtml = document.documentElement.outerHTML;
+    elem.classList.remove('mx-wc-selected-elem');
+    elem.classList.remove(KLASS);
+    DOMTool.clearHiddenMark(elem);
 
-    for(let i = 0; i < result.styleTexts.length; i++) {
-      const styleText = result.styleTexts[i];
-      const {cssText, tasks} = await parseCss({
-        clipId: clipId,
-        path: path,
-        styleText: styleText,
-        refUrl: refUrl,
-        mimeTypeDict: mimeTypeDict,
-        config: config,
-      });
-      taskCollection.push(...tasks);
-      result.internalStyles.push(cssText);
+    const {doc} = DOMTool.parseHTML(docHtml);
+    let selectedNode = doc.querySelector('.' + KLASS);
+    Log.debug(selectedNode);
+    selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
+
+    const styleNodes   = doc.querySelectorAll('style');
+    const linkNodes    = doc.querySelectorAll('link');
+    const pictureNodes = DOMTool.querySelectorIncludeSelf(selectedNode, 'picture');
+    const imgNodes     = DOMTool.querySelectorIncludeSelf(selectedNode, 'img');
+    const aNodes       = DOMTool.querySelectorIncludeSelf(selectedNode, 'a');
+    const iframeNodes  = DOMTool.querySelectorIncludeSelf(selectedNode, 'iframe');
+    const frameNodes   = DOMTool.querySelectorIncludeSelf(selectedNode, 'frame');
+
+    const captureInfos = [
+      {
+        nodes: linkNodes,
+        capturer: CapturerLink,
+        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers, needFixStyle}
+      },
+      {
+        nodes: styleNodes,
+        capturer: CapturerStyle,
+        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers, needFixStyle}
+      },
+      {
+        nodes: pictureNodes,
+        capturer: CapturerPicture,
+        opts: {baseUrl, storageInfo, clipId, mimeTypeDict}
+      },
+      {
+        nodes: imgNodes,
+        capturer: CapturerImg,
+        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict}
+      },
+      {
+        nodes: aNodes,
+        capturer: CapturerA,
+        opts: {baseUrl, docUrl}
+      },
+      {
+        nodes: iframeNodes,
+        capturer: CapturerIframe,
+        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+      },
+      {
+        nodes: frameNodes,
+        capturer: CapturerIframe,
+        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+      }
+    ];
+
+    const taskCollection = [];
+
+    for (let i = 0; i < captureInfos.length; i++) {
+      const it = captureInfos[i];
+      for (let j = 0; j < it.nodes.length; j++) {
+        const node = it.nodes[j];
+        if (node === selectedNode) {
+          const r = await it.capturer.capture(node, it.opts);
+          taskCollection.push(...r.tasks);
+          selectedNode = r.node;
+        } else {
+          const r = await it.capturer.capture(node, it.opts);
+          taskCollection.push(...r.tasks);
+        }
+      }
     }
 
-    // deal external style
-    const tasks = await downloadCssFiles({
-      clipId: clipId,
-      path: path,
-      assetInfos: result.cssAssetInfos,
-      mimeTypeDict: mimeTypeDict,
-      config: config
-    });
-    taskCollection.push(...tasks);
-
-    // image tasks
-    const imgTasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, result.imgAssetInfos);
-    taskCollection.push(...imgTasks);
 
 
-    const styleHtml = getExternalStyleHtml(path, result.cssAssetInfos) + getInternalStyleHtml(result.internalStyles);
-    // deal frames
-    let [newClonedElem, frameTasks] = await handleFrames(params, clonedElem);
-    clonedElem = newClonedElem;
-    taskCollection.push(...frameTasks);
+    const headInnerHtml = [
+      getNodesHtml(doc.querySelectorAll('link[rel*=icon]')),
+      getNodesHtml(doc.querySelectorAll('link[rel~=stylesheet]')),
+      getNodesHtml(doc.querySelectorAll('style')),
+    ].join("\n");
+
     let elemHtml = "";
     if(elem.tagName === 'BODY') {
-      elemHtml = dealBodyElem(elem, clonedElem, refUrl, result, path);
+      elemHtml = dealBodyElem(selectedNode, elem);
     } else {
-      elemHtml = dealNormalElem(elem, clonedElem, refUrl, result, path);
+      elemHtml = dealNormalElem(selectedNode, elem);
     }
-    return { elemHtml: elemHtml, styleHtml: styleHtml, tasks: taskCollection};
+    return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection};
   }
 
-  async function handleFrames(params, clonedElem) {
-    const topFrameId = 0;
-    const {clipId, frames, path, mimeTypeDict,
-      parentFrameId = topFrameId, config} = params;
-
-    // collect current layer frames
-    const promises = [];
-    const currLayerFrames = [];
-    for(let i = 0; i < frames.length; i++) {
-      const frame = frames[i];
-      if(parentFrameId === frame.parentFrameId && !T.isExtensionUrl(frame.url)) {
-        const frameElem = ElemTool.getFrameBySrc(clonedElem, frame.url);
-        if(frameElem){
-          const canAdd = await KeyStore.add(frame.url);
-          if(canAdd) {
-            currLayerFrames.push(frame);
-            promises.push(
-              ExtMsg.sendToBackground({
-                type: 'frame.toHtml',
-                frameId: frame.frameId,
-                frameUrl: frame.url,
-                body: {
-                  clipId: clipId,
-                  frames: frames,
-                  path: path,
-                  mimeTypeDict: mimeTypeDict,
-                  config: config,
-                }
-              })
-            );
-          }
-        }
-      }
-    };
-
-    if(promises.length === 0) {
-      return [clonedElem, []];
-    } else {
-      const results = await Promise.all(promises);
-      const taskCollection = [];
-      T.each(results, (result, idx) => {
-        const frame = currLayerFrames[idx];
-        if(result) {
-          const {elemHtml, styleHtml, tasks} = result;
-          const html = MxWcTemplate.framePage.render({
-            originalSrc: frame.url,
-            title: window.document.title,
-            styleHtml: styleHtml,
-            html: elemHtml
-          });
-          const assetName = rewriteFrameSrc(clonedElem, frame);
-          taskCollection.push(...tasks);
-          taskCollection.push({
-            taskType: 'frameFileTask',
-            type: 'text',
-            filename: T.joinPath([path.saveFolder, assetName]),
-            mimeType: 'text/html',
-            text: html,
-            clipId: clipId,
-            createdMs: T.currentTime().str.intMs
-          })
-        } else {
-          // Do nothing.
-          // Frame page failed to load.
-          // result is undefind, return by promise.catch
-        }
-      }); // end of each
-      return [clonedElem, taskCollection];
-    }
+  function dealBodyElem(node, originalNode) {
+    node = removeUselessNode(node);
+    return node.outerHTML;
   }
 
-
-  function rewriteFrameSrc(container, frame) {
-    const assetName = T.calcAssetName(frame.url, 'frame.html');
-    if(['IFRAME', 'FRAME'].indexOf(container.tagName) > -1 && container.src == frame.url) {
-      container.src = assetName;
-    } else {
-      const iframeElems = container.querySelectorAll(`iframe[src="${frame.url}"]`);
-      T.each(iframeElems, (it) => {
-        it.src = assetName;
-      });
-      const frameElems = container.querySelectorAll(`frame[src="${frame.url}"]`);
-      T.each(frameElems, (it) => {
-        it.src = assetName;
-      })
-    }
-    return assetName;
+  function dealNormalElem(node, originalNode){
+    node.style = StyleHelper.getSelectedNodeStyle(originalNode);
+    node = removeUselessNode(node);
+    return wrapToBody(originalNode, node.outerHTML);
   }
 
-  function dealBodyElem(elem, clonedElem, refUrl, parseResult, path) {
-    let html = getFixedLinkHtml(path, clonedElem, refUrl, parseResult.imgAssetInfos);
-    html = removeUselessHtml(html, elem);
-    return html;
-  }
-
-  function dealNormalElem(elem, clonedElem, refUrl, parseResult, path){
-    clonedElem = fixNormalElemStyle(clonedElem);
-    let html = getFixedLinkHtml(path, clonedElem, refUrl, parseResult.imgAssetInfos);
-    html = removeUselessHtml(html, elem);
-    html = wrapToBody(elem, html);
-    return html
-  }
-
-  function fixNormalElemStyle(elem) {
-    const getFixedStyle = (element) => {
-      return (element.style.cssText || '') + "float: none; position: relative; top: 0; left: 0; margin: 0px; flex:unset; width: 100%; max-width: 100%; box-sizing: border-box;";
-    }
-    elem.classList.add("mx-wc-selected-elem");
-    elem.style = getFixedStyle(elem);
-    return elem;
-  }
-
-
-  function getFixedLinkHtml(path, clonedElem, refUrl, imgAssetInfos) {
-    clonedElem = ElemTool.rewriteAnchorLink(clonedElem, refUrl);
-    let html = clonedElem.outerHTML;
-    html = ElemTool.rewriteImgLink(html, path.assetRelativePath, imgAssetInfos)
-    return html;
-  }
-
-  function removeUselessHtml(html, elem){
+  function removeUselessNode(contextNode){
     // extension Iframe
-    T.each(elem.querySelectorAll('iframe'), function(iframe){
+    T.each(contextNode.querySelectorAll('iframe, frame'), function(iframe){
       if(T.isExtensionUrl(iframe.src)){
-        html = html.replace(iframe.outerHTML, '');
+        iframe.parentNode.removeChild(iframe);
       }
     });
-    // external style tags
-    T.each(elem.querySelectorAll('link[rel=stylesheet]'), function(tag) {
-      html = html.replace(tag.outerHTML, '');
-    });
-    T.each(['style', 'script', 'noscript', 'template'], function(tagName){
-      T.each(elem.getElementsByTagName(tagName), function(tag){
-        html = html.replace(tag.outerHTML, '');
-      })
-    });
-    return html;
+    return DOMTool.removeNodeBySelectors(contextNode, [
+      'link',
+      'style',
+      'script',
+      'noscript',
+      'template'
+    ]);
   }
-
-  /*
-   * assetInfo: {:tag, :link, :assetName}
-   */
-  function parseAssetInfo(clipId, clonedElem, mimeTypeDict){
-    const listA = T.getTagsByName(clonedElem, 'img');
-    const listB = T.getTagsByName(document, 'style');
-    const listC = document.querySelectorAll("link[rel=stylesheet]");
-
-    return {
-      imgAssetInfos: ElemTool.getAssetInfos({
-        type: 'imageFile',
-        clipId: clipId,
-        assetTags: listA,
-        attrName: 'src',
-        mimeTypeDict: mimeTypeDict
-      }),
-      cssAssetInfos: ElemTool.getAssetInfos({
-        type: 'styleFile',
-        clipId: clipId,
-        assetTags: listC,
-        attrName: 'href',
-        mimeTypeDict: mimeTypeDict,
-        extension: 'css'
-      }),
-      styleTexts: T.map(listB, (tag) => { return tag.innerHTML })
-    }
-  }
-
-  async function downloadCssFiles(params){
-    const {clipId, path, assetInfos, mimeTypeDict, config} = params;
-    let taskCollection = [];
-    let promises = [];
-    T.each(assetInfos, function(it){
-      const promise = new Promise((resolve, reject) => {
-        KeyStore.add(it.link).then((canAdd) => {
-          if(canAdd) {
-            StoreClient.fetchText(it.link)
-              .then((txt) => {
-                parseCss({
-                  clipId: clipId,
-                  path: path,
-                  styleText: txt,
-                  refUrl: it.link,
-                  mimeTypeDict: mimeTypeDict,
-                  config: config,
-                }).then((value) => {
-                  const {cssText, tasks} = value;
-                  tasks.push({
-                    taskType: 'styleFileTask',
-                    type: 'text',
-                    filename: T.joinPath([path.assetFolder, it.assetName]),
-                    mimeType: 'text/css',
-                    text: cssText,
-                    clipId: clipId,
-                    createdMs: T.currentTime().str.intMs
-                  })
-                  resolve(tasks);
-                });
-              }, (errMsg) => {
-                // rejected
-                Log.error('fetch.text request css failed', errMsg);
-                // it's fine.
-                resolve([]);
-              });
-          } else {
-            // processed.
-            resolve([]);
-          }
-        });
-      });// promise
-      promises.push(promise);
-    });
-    const tasksSet = await Promise.all(promises)
-    T.each(tasksSet, (tasks) => { taskCollection.push(...tasks)})
-    return taskCollection;
-  }
-
-
-  async function parseCss(params){
-    const {clipId, path, refUrl, mimeTypeDict, config} = params;
-    let styleText = params.styleText;
-    const taskCollection = [];
-    // FIXME danger here (order matter)
-    const rule1 = {regExp: /url\("[^\)]+"\)/gm, template: 'url("$PATH")', separator: '"'};
-    const rule2 = {regExp: /url\('[^\)]+'\)/gm, template: 'url("$PATH")', separator: "'"};
-    const rule3 = {regExp: /url\([^\)'"]+\)/gm, template: 'url("$PATH")', separator: /\(|\)/ };
-
-    const rule11 = {regExp: /@import\s+url\("[^\)]+"\)/igm, template: '@import url("$PATH")', separator: '"'};
-    const rule12 = {regExp: /@import\s+url\('[^\)]+'\)/igm, template: '@import url("$PATH")', separator: "'"};
-    const rule13 = {regExp: /@import\s+url\([^\)'"]+\)/igm, template: '@import url("$PATH")', separator: /\(|\)/ };
-
-    const rule14 = {regExp: /@import\s*'[^;']+'/igm, template: '@import url("$PATH")', separator: "'"};
-    const rule15 = {regExp: /@import\s*"[^;"]+"/igm, template: '@import url("$PATH")', separator: '"'};
-
-
-    styleText = stripCssComments(styleText);
-
-
-    // fonts
-    const fontRegExp = /@font-face\s?\{[^\}]+\}/gm;
-    styleText = styleText.replace(fontRegExp, function(match){
-      const r = parseCssTextUrl({
-        clipId: clipId,
-        cssText: match,
-        refUrl: refUrl,
-        rules: [rule1, rule2, rule3],
-        path: path,
-        mimeTypeDict: mimeTypeDict,
-        assetInfoType: 'fontFile',
-        saveAsset: config.saveWebFont
-      });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
-      taskCollection.push(...tasks);
-      return r.cssText;
-    });
-
-    // background
-    const bgRegExp = /background:([^:;]*url\([^\)]+\)[^:;]*)+;/img;
-    styleText = styleText.replace(bgRegExp, function(match){
-      const r = parseCssTextUrl({
-        clipId: clipId,
-        cssText: match,
-        refUrl: refUrl,
-        rules: [rule1, rule2, rule3],
-        path: path,
-        mimeTypeDict: mimeTypeDict,
-        assetInfoType: 'imageFile',
-        saveAsset: config.saveCssImage
-      });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
-      taskCollection.push(...tasks);
-      return r.cssText;
-    });
-
-    // background-image
-    const bgImgRegExp = /background-image:([^:;]*url\([^\)]+\)[^:;]*)+;/img;
-    styleText = styleText.replace(bgImgRegExp, function(match){
-      const r = parseCssTextUrl({
-        clipId: clipId,
-        cssText: match,
-        refUrl: refUrl,
-        rules: [rule1, rule2, rule3],
-        path: path,
-        mimeTypeDict: mimeTypeDict,
-        assetInfoType: 'imageFile',
-        saveAsset: config.saveCssImage
-      });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
-      taskCollection.push(...tasks);
-      return r.cssText;
-    });
-
-    // border-image
-    const borderImgExp = /border-image:([^:;]*url\([^\)]+\)[^:;]*)+;/img;
-    styleText = styleText.replace(borderImgExp, function(match){
-      const r = parseCssTextUrl({
-        clipId: clipId,
-        cssText: match,
-        refUrl: refUrl,
-        rules: [rule1, rule2, rule3],
-        path: path,
-        mimeTypeDict: mimeTypeDict,
-        assetInfoType: 'imageFile',
-        saveAsset: config.saveCssImage
-      });
-      const tasks = StoreClient.assetInfos2Tasks(clipId, path.assetFolder, r.assetInfos);
-      taskCollection.push(...tasks);
-      return r.cssText;
-    });
-
-    // @import css
-    const cssRegExp = /@import[^;]+;/igm;
-    const assetInfosCollection = [];
-    styleText = styleText.replace(cssRegExp, function(match){
-      const r = parseCssTextUrl({
-        clipId: clipId,
-        cssText: match,
-        refUrl: refUrl,
-        rules: [rule11, rule12, rule13, rule14, rule15],
-        path: path,
-        mimeTypeDict: mimeTypeDict,
-        extension: 'css',
-        saveAsset: true
-      });
-      assetInfosCollection.push(r.assetInfos);
-      return r.cssText;
-    });
-
-    for(let i = 0; i < assetInfosCollection.length; i++) {
-      const assetInfos = assetInfosCollection[i];
-      const tasks = await downloadCssFiles({
-        clipId: clipId,
-        path: path,
-        assetInfos: assetInfos,
-        mimeTypeDict: mimeTypeDict,
-        config: config,
-      });
-      taskCollection.push(...tasks);
-    }
-
-    // fix body's children style
-    const cssBodyExp = /[\{\}\s,;]{1}(body\s*>)/igm;
-    styleText = styleText.replace(cssBodyExp, function(match, p1){
-      return match.replace(p1, "body ");
-    });
-
-    return {cssText: styleText, tasks: taskCollection};
-  }
-
-  function parseCssTextUrl(params){
-    const {clipId, refUrl, rules, path, mimeTypeDict, extension, assetInfoType, saveAsset} = params;
-    let cssText = params.cssText;
-    let assetInfos = [];
-    const getReplace = function(rule){
-      return function(match){
-        const part = match.split(rule.separator)[1].trim();
-        const fullUrl = T.prefixUrl(part, refUrl);
-        if(T.isDataProtocol(fullUrl) || T.isHttpProtocol(fullUrl)) {
-
-          if(saveAsset){
-            const assetName = ElemTool.getAssetName({
-              clipId: clipId,
-              link: fullUrl,
-              extension: extension,
-              mimeTypeDict: mimeTypeDict
-            });
-            assetInfos.push({
-              type: assetInfoType,
-              link: fullUrl,
-              assetName: assetName
-            });
-            if(refUrl === window.location.href) {
-              return rule.template.replace('$PATH', [path.assetRelativePath, assetName].join('/'));
-            }else{
-              return rule.template.replace('$PATH', assetName);
-            }
-          } else {
-            // set path to blank
-            return rule.template.replace('$PATH', '');
-          }
-        } else {
-          return match;
-        }
-      }
-    }
-    T.each(rules, function(rule){
-      cssText = cssText.replace(rule.regExp, getReplace(rule));
-    });
-    return { cssText: cssText, assetInfos: assetInfos };
-  }
-
-  // calculate selected elem backgroundColor
-  // TODO check other browser represent background as 'rgb(x,x,x,)' format
-  function getBgCss(elem){
-    if(!elem){
-      return "rgb(255, 255, 255)";
-    }//  default white;
-    const bgCss = window.getComputedStyle(elem, null).getPropertyValue('background-color');
-    if(bgCss == "rgba(0, 0, 0, 0)"){ // transparent
-      return getBgCss(elem.parentElement);
-    }else{
-      return bgCss;
-    }
-  }
-
-  function getElemRenderParams(elem){
-    if (elem.tagName === 'BODY') {
-      return {};
-    } else {
-      const bodyId = document.body.id;
-      const bodyClass = document.body.className;
-      let bodyBgCss = getBgCss(document.body);
-      const elemWrappers = getWrappers(elem, []);
-      const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
-      const outerElemBgCss = getBgCss(outerElem);
-      const elemBgCss = getBgCss(elem);
-      Log.debug('elemBgCss:', elemBgCss);
-      Log.debug('outerElemBgCss:', outerElemBgCss);
-      Log.debug('bodyBgCss:', bodyBgCss);
-      if(elemBgCss == outerElemBgCss){
-        const [r,g,b] = T.extractRgbStr(outerElemBgCss);
-        if(r == g && g == b && r - 70 >= 86){
-          // condition above means: color lighter than #868686
-          bodyBgCss = '#464646';
-        }else{
-          //TODO use opposite color?
-          bodyBgCss = '#ffffff';
-        }
-      }else{
-        if(elemBgCss == bodyBgCss || outerElemBgCss == bodyBgCss){
-          bodyBgCss = '#464646';
-        }
-      }
-      const elemWidth = getFitWidth(elem);
-      return {
-        outerElemBgCss: outerElemBgCss,
-        elemWidth: elemWidth,
-        bodyBgCss: bodyBgCss,
-        bodyId: bodyId,
-        bodyClass: bodyClass,
-      }
-    }
-  }
-
-
-
 
   /* wrap to body element */
   function wrapToBody(elem, html){
     let pElem = elem.parentElement;
     while(pElem && ['html', 'body'].indexOf(pElem.tagName.toLowerCase()) == -1){
       const tagName = pElem.tagName
-      let attrs = []
-      /* make sure highest priority */
-      const displayCss = (tagName == 'table' ? 'display: table;' : 'display: block;');
-      let style = displayCss + " float: none; position: relative; top: 0; left: 0; border: 0px; width: 100%; min-width:100%; max-width: 100%; min-height: auto; max-height: 100%; height: auto; padding: 0px; margin: 0px;"
+
+      const attrs = [];
       T.each(pElem.attributes, function(attr){
-        if(attr.name == "style"){
-          style = (attr.value || "") + style;
-        }else{
+        if(attr.name !== "style"){
           attrs.push([attr.name, attr.value]);
         }
       });
-      attrs.push(['style', style]);
+      attrs.push(['style', StyleHelper.getWrapperStyle(pElem)]);
       const attrHtml = T.map(attrs, function(pair){
         return `${pair[0]}="${pair[1]}"`;
       }).join(' ');
@@ -590,125 +257,15 @@ this.MxWcHtml = (function () {
   }
 
 
-  function getWrappers(elem, wrapperList){
-    const pElem = elem.parentElement;
-    if(pElem && ['HTML', 'BODY'].indexOf(pElem.tagName) == -1){
-      if(pElemHasNearWidth(pElem, elem) || siblingHasSameStructure(elem)){
-        // probably is a wrapper
-        wrapperList.push(pElem);
-        return getWrappers(pElem, wrapperList);
-      }else{
-        return wrapperList;
-      }
-    }else{
-      return wrapperList;
-    }
-  }
-
-  // maybe need to compare all sibling?
-  function siblingHasSameStructure(elem){
-    const prevSibling = elem.previousElementSibling;
-    const nextSibling = elem.nextElementSibling;
-    if(prevSibling && hasSameStructure(prevSibling, elem)){
-      return true;
-    }
-    if(nextSibling && hasSameStructure(nextSibling, elem)){
-      return true;
-    }
-    return false;
-  }
-
-  function hasSameStructure(elemA, elemB){
-    if(elemA.tagName != elemB.tagName){ return false }
-    const listA = T.unique(elemA.classList);
-    const listB = T.unique(elemB.classList);
-    const list = T.intersection(listA, listB)
-    return list.length === Math.min(listA.length, listB.length);
-  }
-
-  function pElemHasNearWidth(pElem, elem){
-    const threshold = 10; //10px
-    const box = elem.getBoundingClientRect();
-    const pBox = pElem.getBoundingClientRect();
-    return pBox.width - 2 * getElemPaddingLeft(pElem) - box.width < threshold
-  }
-
-  function getElemPaddingLeft(elem){
-    return getCssSize(elem, 'padding-left')
-  }
-
-  function getFitWidth(elem){
-    const width = elem.getBoundingClientRect().width;
-    const widthText = getStyleText(elem, 'width')
-    if(widthText.match(/\d+px/)){
-      // absolate width
-      return width;
-    }else{
-      // percentage or not set.
-      if(width > 980){ return width }
-      if(width > 900){ return 980 }
-      if(width > 800){ return 900 }
-      if(width > 700){ return 800 }
-      if(width > 600){ return 700 }
-      return 600;
-    }
-  }
-
-  // get original style text. e.g. '100px' , '50%'
-  // See: https://stackoverflow.com/questions/30250918/how-to-know-if-a-div-width-is-set-in-percentage-or-pixel-using-jquery#30251040
-  function getStyleText(elem, cssKey){
-    const style = window.getComputedStyle(elem, null);
-    const display = style.getPropertyValue("display");
-    elem.style.display = "none";
-    const value = style.getPropertyValue(cssKey);
-    elem.style.display = display;
-    return value;
-  }
-
-  function getCssSize(elem, cssKey){
-    const style = window.getComputedStyle(elem, null);
-    let size = style.getPropertyValue(cssKey);
-    size.replace('px', '');
-    if(size === ''){
-      return 0;
-    }else{
-      return parseInt(size);
-    }
-  }
-
-
-  // external(css file)
-  function getExternalStyleHtml(path, assetInfos){
-    let html = "";
-    T.each(assetInfos, function(it){
-      const tag = it.tag.cloneNode(true);
-      tag.removeAttribute('crossorigin');
-      tag.removeAttribute('integrity');
-      let part = tag.outerHTML;
-      const href = tag.getAttribute('href');
-      part = part.replace(href, [path.assetRelativePath, it.assetName].join('/'));
-      part = part.replace(href.replace(/&/g, '&amp;'), [path.assetRelativePath, it.assetName].join('/'));
-
-      html += "\n";
-      html += part;
-      html += "\n";
-    })
-    return html;
-  }
-
-  // internal(<style> tag)
-  function getInternalStyleHtml(styles){
-    let html = "";
-    T.each( styles, function(style){
-      html += "<style>\n";
-      html += style
-      html += "\n</style>\n";
-    });
-    return html;
+  function getNodesHtml(nodes) {
+    const html = [].map.call(nodes, (node) => {
+      return node.outerHTML;
+    }).join("\n");
+    return ['', html, ''].join("\n");
   }
 
   return {
     parse: parse,
     getElemHtml: getElemHtml
   }
-})();
+});

@@ -1,9 +1,15 @@
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcMdPluginMathjax = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-"use strict"
-
-this.PluginMathJax = (function(){
-
-  function handle(win, elem) {
+  function handle(doc, elem) {
     const mathJaxScripts = elem.querySelectorAll('script[id^=MathJax-Element-]');
     Array.prototype.forEach.call(mathJaxScripts, (mathJaxScript) => {
       const mathJaxFrameId = [mathJaxScript.id, 'Frame'].join('-');
@@ -12,17 +18,17 @@ this.PluginMathJax = (function(){
         let newNode = null;
         switch(mathJaxScript.type){
           case "math/tex":
-            newNode = toTeXNode(win, mathJaxScript.innerText)
+            newNode = toTeXNode(doc, mathJaxScript.innerText)
             break;
           case "math/mml":
-            newNode = mathMLHtml2TeXNode(win, mathJaxScript.innerText)
+            newNode = mathMLHtml2TeXNode(doc, mathJaxScript.innerText)
             break;
           default: break;
         }
         if(!newNode){
           const dataMathml = mathJaxFrame.getAttribute('data-mathml');
           if(dataMathml && dataMathml.match(/^<math/)){
-            newNode = mathMLHtml2TeXNode(win, dataMathml);
+            newNode = mathMLHtml2TeXNode(doc, dataMathml);
           }
         }
         if(newNode){
@@ -35,13 +41,13 @@ this.PluginMathJax = (function(){
     return elem;
   }
 
-  function mathMLHtml2TeXNode(win, mathMLHtml) {
+  function mathMLHtml2TeXNode(doc, mathMLHtml) {
     const teX = MathML2LaTeX.convert(mathMLHtml);
-    return toTeXNode(win, teX);
+    return toTeXNode(doc, teX);
   }
 
-  function toTeXNode(win, teX) {
-    const newNode = win.document.createElement('code');
+  function toTeXNode(doc, teX) {
+    const newNode = doc.createElement('code');
     newNode.innerText = "MathJaxTeX " + teX + " MathJaxTeX";
     return newNode;
   }
@@ -50,5 +56,8 @@ this.PluginMathJax = (function(){
     return markdown.replace(/`MathJaxTeX /mg, '$ ').replace(/ MathJaxTeX`/mg, ' $');
   }
 
-  return {handle: handle, unEscapeMathJax: unEscapeMathJax}
-})();
+  return {
+    handle: handle,
+    unEscapeMathJax: unEscapeMathJax
+  };
+});

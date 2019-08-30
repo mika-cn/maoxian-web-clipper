@@ -1,5 +1,13 @@
 
-this.MxWcEvent = (function(FrameMsg) {
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(require('./frame-msg.js'));
+  } else {
+    // browser or other
+    root.MxWcEvent = factory(root.MxWcFrameMsg);
+  }
+})(this, function(FrameMsg, undefined) {
   "use strict";
 
   /*!
@@ -95,5 +103,4 @@ this.MxWcEvent = (function(FrameMsg) {
     listenInternal: listenInternal,
     listenPublic, listenPublic
   }
-
-})(FrameMsg);
+});

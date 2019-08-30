@@ -1,6 +1,18 @@
-var I18N_DICT = I18N_DICT || {};
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('MxWcLocaleZhCN', [], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcLocaleZhCN = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-I18N_DICT['zh-CN'] = {
+  return {
   "values": {
     "name": "MaoXian 网页裁剪",
 
@@ -330,5 +342,5 @@ I18N_DICT['zh-CN'] = {
     "notification.title": "消息中心",
     "notification.hint": "删除消息，请直接点击消息",
 
-  }
-};
+  }};
+});

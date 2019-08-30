@@ -1,20 +1,29 @@
-/*!
- * Communication between iframe and top window
- *
- * Normal message
- *
- * topWindow --> iframe
- * iframe    --> topWindow
- * iframe    --> topWindow --> otherIframe
- *
- * Broadcast message
- *
- * topWindow --> Iframe
- */
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcFrameMsg = factory();
+  }
+})(this, function(undefined) {
+  "use strict";
 
-"use strict";
+  /*!
+   * Communication between iframe and top window
+   *
+   * Normal message
+   *
+   * topWindow --> iframe
+   * iframe    --> topWindow
+   * iframe    --> topWindow --> otherIframe
+   *
+   * Broadcast message
+   *
+   * topWindow --> Iframe
+   */
 
-this.FrameMsg = (function(window){
+
   const state = {
     id: null,
     origin: null,
@@ -48,24 +57,35 @@ this.FrameMsg = (function(window){
   // Broadcast to children only.
   // params: {:type, :msg}
   function broadcast(params) {
-    const message = params;
-    message.broadcast = true;
-    const frames = document.querySelectorAll('iframe');
-    frames.forEach(function(frame) {
-      if(!isExtensionFrame(frame)) {
-        const {targetWindow, targetOrigin} = frame2TargetInfo(frame);
-        targetWindow.postMessage(message, targetOrigin);
-      }
-    });
+    try{
+      const message = params;
+      message.broadcast = true;
+      const frames = document.querySelectorAll('iframe');
+      frames.forEach(function(frame) {
+        if(!isExtensionFrame(frame)) {
+          const {targetWindow, targetOrigin} = frame2TargetInfo(frame);
+          targetWindow.postMessage(message, targetOrigin);
+        }
+      });
+    }catch(e) {
+      console.log(e);
+      console.trace();
+    }
   }
 
   // params: {:to, :type, :msg}
   function send(params){
-    const message = params;
-    const {to} = params;
-    const {targetWindow, targetOrigin} = getTargetInfo(to);
-    //console.log(to, message);
-    targetWindow.postMessage(message, targetOrigin);
+    try{
+      const message = params;
+      const {to} = params;
+      const {targetWindow, targetOrigin} = getTargetInfo(to);
+      //console.log(to, message);
+      targetWindow.postMessage(message, targetOrigin);
+    } catch(e) {
+      console.log(e)
+      console.trace();
+    }
+
   }
 
   function receiveMessage(e) {
@@ -139,7 +159,6 @@ this.FrameMsg = (function(window){
     return state.ready;
   }
 
-
   return {
     init: init,
     isReady: isReady,
@@ -149,4 +168,4 @@ this.FrameMsg = (function(window){
     removeListener: removeListener,
     clearListener: clearListener,
   }
-})(window);
+});

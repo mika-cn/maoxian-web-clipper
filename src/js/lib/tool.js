@@ -1,5 +1,12 @@
-
-(function(global, undefined) {
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(require('blueimp-md5'));
+  } else {
+    // browser or other
+    root.MxWcTool = factory(root.md5);
+  }
+})(this, function(md5, undefined) {
   "use strict";
   // Tool
   const T = {};
@@ -38,6 +45,22 @@
     ];
   }
 
+  T.replaceLastMatch = function(str, regExp, replacement) {
+    const matches = str.match(regExp);
+    if (matches) {
+      let i = 0, last = matches.length;
+      return str.replace(regExp, (match) => {
+        if (++i === last) {
+          return replacement;
+        } else {
+          return match;
+        }
+      })
+    } else {
+      return str;
+    }
+  }
+
 
   T.createId = function() {
     return '' + Math.round(Math.random() * 100000000000);
@@ -66,6 +89,7 @@
     if(style.display === 'none') {
       return false;
     }
+
     if(style.visibility === 'hidden'){
       return false
     }
@@ -183,25 +207,64 @@
   T.include = function(collection, member){
     return collection.indexOf(member) > -1;
   }
-
-  // max value key
-  T.maxValueKey = function(numValueObj){
-    let maxk = null;
-    let maxv = -1;
-    for(const key in numValueObj){
-      const v = numValueObj[key];
-      if(v > maxv){
-        maxv = v;
-        maxk = key;
+  T.all = function(collection, fn) {
+    let r = true;
+    for (let i = 0; i < collection.length; i++) {
+      const result = fn(collection[i]);
+      if(!result) {
+        r = false;
+        break;
       }
     }
-    return maxk;
+    return r;
   }
+
 
   T.toJson = function(hash) { return JSON.stringify(hash);}
 
+  //========== Url ===================
+
+  /*
+   * file://
+   * chrome-extension://
+   * moz-extension://
+   * chrome://communicator/skin/
+   * ...
+   * javascript:
+   * data:
+   * about:
+   * mailto:
+   * tel:
+   * ...
+   */
+  T.newUrl = function(part, base) {
+    if ([undefined, null, ''].indexOf(part) > -1) {
+      return {isvalid: false, message: 'Empty URL'};
+    }
+    try {
+      const url = new URL(part, base);
+      return {isValid: true, url: url};
+    } catch(e) {
+      return {isValid: false, message: e.message};
+    }
+  }
+
+  T.completeUrl = function(part, base) {
+    const {isValid, url, message} = T.newUrl(part, base);
+    if (isValid) {
+      return {isValid: true, url: url.href};
+    } else {
+      return {isValid: false, message: message}
+    }
+  }
+
+
   T.isFileUrl = function(url){
-    return url.startsWith('file:');
+    if (url.match(/^file:/i)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   T.isExtensionUrl = function(url){
@@ -210,6 +273,22 @@
       return !!protocol.match(/-extension$/);
     } else {
       return false
+    }
+  }
+
+  T.isDataUrl = function(url){
+    if (url.match(/^data:/i)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  T.isHttpUrl = function(url){
+    if (url.match(/^https:/i) || url.match(/^http:/i)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -224,18 +303,50 @@
     });
   }
 
-  T.prefixUrl = function(part, base){
-    try {
-      return (new URL(part, base)).href;
-    } catch(e) {
-      console.warn("mx-wc", e);
-      return part;
+
+  // pageUrl should be a valid url
+  T.url2Anchor = function(url, pageUrl) {
+    const page = T.newUrl(pageUrl);
+    if (!page.isValid) { return (url || '') }
+
+    const curr = T.newUrl(url);
+    if (!curr.isValid) { return (url || '') }
+
+    if (T.isHttpUrl(url)) {
+      const isSamePage = function(urlA, urlB) {
+        if(urlA.origin != urlB.origin) return false;
+        if(urlA.pathname != urlB.pathname) return false;
+        const searchA = new URLSearchParams(urlA.search);
+        const searchB = new URLSearchParams(urlB.search);
+        searchA.sort();
+        searchB.sort();
+        return searchA.toString() === searchB.toString();
+      }
+
+      if (isSamePage(curr.url, page.url)) {
+        if (curr.url.hash != '') {
+          return curr.url.hash
+        } else if (url.match(/#$/)){
+          // empty fragment '#'
+          // is used to link to the top of current page.
+          return '#';
+        } else {
+          return url;
+        }
+      } else {
+        return url;
+      }
+      if (curr.url.hash != '' && isSamePage(curr.url, page.url)) {
+        return curr.url.hash;
+      } else {
+        return url;
+      }
+    } else {
+      // not http url, do nothing
+      return url;
     }
   }
 
-  T.isUrlSameLevel = function(a, b){
-    return a.slice(0, a.lastIndexOf('/')) === b.slice(0, b.lastIndexOf('/'));
-  }
 
   T.getDoOnceObj = function(){
     return {
@@ -259,11 +370,25 @@
     return new URL(decodeURI(url)).pathname.split('/').pop();
   }
 
+
   T.getFileExtension = function(filename){
     if(filename.indexOf('.') > -1){
       return filename.split('.').pop();
     }else{
       return '';
+    }
+  }
+
+  // return [name, extension]
+  T.splitFilename = function(filename) {
+    const idx = filename.lastIndexOf('.');
+    if (idx > -1) {
+      return [
+        filename.substring(0, idx),
+        filename.substring(idx + 1)
+      ]
+    } else {
+      return [filename, null];
     }
   }
 
@@ -337,43 +462,102 @@
   // @see https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file
   // More strict
   T.sanitizeFilename = function(name){
-    const winReservedNames = [ 'CON', 'PRN', 'AUX', 'NUL',
-      'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-      'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
-    ];
-    if(winReservedNames.indexOf(name) > -1){
-      return "InvalidName" + name;
+
+    if (typeof name !== 'string') {
+      throw new Error("Filename must be string");
+    }
+
+    // Unicode Control codes
+    // 0x00-0x1f and 0x80-0x9f
+    const regExp_unicodeControlCode = /[\x00-\x1f\x80-\x9f]/g
+
+    // remove "\s" "\." ","
+    // Illegal characters on most file systems.
+    //   "/", "?", "|", "<", ">", "\", ":", "*", '"'
+    const regExp_illegalChars = /[\/\?\|<>\\:\*"]/g
+
+    // Reserved names in Windows: 'CON', 'PRN', 'AUX', 'NUL',
+    // 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+    // 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
+    // case-insesitively and with or without filename extensions.
+    const regExp_winReservedNames = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i;
+
+    // <space> and "." are not allowed in the end (in the Windows).
+    const regExp_winTrailingChars = /[ \.]$/;
+
+
+    // Reserved names in Unix liked OS
+    // ".", ".."
+    const regExp_UnixLikedReservedNames = /^\.+$/;
+
+    // clear name string.
+    const input = name.trim().replace(regExp_unicodeControlCode, '');
+    const replacement = ["invalid-filename", Math.round(Math.random() * 10000)].join('-');
+
+    if (input.match(regExp_winReservedNames) || input.match(regExp_UnixLikedReservedNames)) {
+      return replacement;
+    }
+
+    // separator
+    const s = '-';
+    const result = input.replace(regExp_illegalChars, s).replace(regExp_winTrailingChars, s)
+      // avoid ugly filename :)
+      .replace(/\s/g, s)
+      .replace(/,/g, s)
+      .replace(/\./g, s)
+      .replace(/'/g, s)
+      .replace(/#/g, s)
+      .replace(/@/g, s)
+      .replace(/~/g, s)
+      .replace(/`/g, s)
+      .replace(/!/g, s)
+      .replace(/%/g, s)
+      .replace(/&/g, s)
+      .replace(/\+/g, s)
+      .replace(/\?/g, s)
+      .replace(/\[/g, s)
+      .replace(/\]/g, s)
+      .replace(/\(/g, s)
+      .replace(/\)/g, s)
+      .replace(/\{/g, s)
+      .replace(/\}/g, s)
+
+      .replace(/：/g, s)
+      .replace(/‘/g, s)
+      .replace(/’/g, s)
+      .replace(/“/g, s)
+      .replace(/”/g, s)
+      .replace(/，/g, s)
+      .replace(/。/g, s)
+      .replace(/！/g, s)
+      .replace(/？/g, s)
+      .replace(/《/g, s)
+      .replace(/》/g, s)
+      .replace(/〈/g, s)
+      .replace(/〉/g, s)
+      .replace(/«/g, s)
+      .replace(/»/g, s)
+      .replace(/‹/g, s)
+      .replace(/›/g, s)
+      .replace(/（/g, s)
+      .replace(/）/g, s)
+      .replace(/「/g, s)
+      .replace(/」/g, s)
+      .replace(/【/g, s)
+      .replace(/】/g, s)
+      .replace(/〔/g, s)
+      .replace(/〕/g, s)
+      .replace(/［/g, s)
+      .replace(/］/g, s)
+
+      .replace(/-+/g, s) // multiple dash to one dash
+      .replace(/-$/, ''); // delete dash at the end
+
+    if (result.length > 200) {
+      // Stupid windows: Path Length Limitation
+      return result.slice(0, 200);
     } else {
-      if(name.length > 200){
-        // Stupid windows: Path Length Limitation
-        name = name.slice(0, 200);
-      }
-      /* "/", "?", <space>, "|", "<", ">", "\", ":", ","
-       * "*", '"'
-       * "#"
-       * "."
-       * "。" chinese period
-       * "~"
-       * "!"
-       * "！" chinese exclamation mark
-       * "，" chinese comma
-       * "？" chinese question mark
-       * "-" multiple dash to one dash
-       * "-" delete dash at the end
-       */
-      return name
-        .replace(/[\/\?\s\|<>\\:,\.]/g, '-')
-        .replace(/[\*"]/g, '-')
-        .replace(/#/g, '-')
-        .replace(/\.$/, '-')
-        .replace(/。/g, '-')
-        .replace(/~/g, '-')
-        .replace(/!/g, '-')
-        .replace(/！/g, '-')
-        .replace(/，/g, '-')
-        .replace(/？/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/-$/, '');
+      return (result === '' ? replacement : result);
     }
   }
 
@@ -400,7 +584,7 @@
     return path.replace(/\\/g, '/')
   }
 
-  T.joinPath = function(paths){
+  T.joinPath = function(...paths){
     const arr = [];
     T.each(paths, function(path){
       path = T.sanitizePath(path);
@@ -437,6 +621,39 @@
     return r;
   }
 
+
+  // ====================================
+
+  T.createCounter = function() {
+    return {
+      dict: {},
+      count: function (key) {
+        this.dict[key] = (this.dict[key] || 0) + 1
+      },
+      get: function(key) {
+        return this.dict[key];
+      },
+      max: function() {
+        return T.maxValueKey(this.dict);
+      },
+    }
+  };
+
+
+  // max value key
+  T.maxValueKey = function(numValueObj){
+    let maxk = null;
+    let maxv = -1;
+    for(const key in numValueObj){
+      const v = numValueObj[key];
+      if(v > maxv){
+        maxv = v;
+        maxk = key;
+      }
+    }
+    return maxk;
+  }
+
   // Avoid invoking a function many times in a short period.
   T.createDelayCall = function(fn, delay){
     var dc = {};
@@ -462,6 +679,13 @@
       dict: {},
       add: function(k, v){ this.dict[k] = v; },
       remove: function(k){ delete this.dict[k] },
+      removeByKeyPrefix: function(prefix) {
+        for(let k in this.dict) {
+          if (k.startsWith(prefix)) {
+            this.remove(k);
+          }
+        }
+      },
       hasKey: function(k) { return this.dict.hasOwnProperty(k) },
       find: function(k){ return this.dict[k] },
     }
@@ -519,32 +743,38 @@
     return {enqueue: enqueue}
   }
 
-  T.isDataProtocol = function(link){
-    return (link.match(/^data:/i) ? true : false)
-  }
-
-  T.isHttpProtocol = function(link){
-    if(!link){ return false }
-    if(link.match(/^[^\/:]+:\/\//)){
-      if(link.match(/^http/i)){
-        return true
-      }else{
-        /*
-         * file://
-         * chrome-extension://
-         * moz-extension://
-         */
-        return false
+  T.createArrayCache = function(reverselySeek = 'noReverselySeek') {
+    return {
+      findIdxFnName: (reverselySeek === 'reverselySeek' ? 'lastIndexOf' : 'indexOf'),
+      keys: [],
+      values: [],
+      invalidIndexes: [],
+      findOrCache: function(key, action) {
+        const idx = this.keys[this.findIdxFnName](key);
+        if (this.invalidIndexes.indexOf(idx) > -1 || idx == -1) {
+          const value = action();
+          this.keys.push(key);
+          this.values.push(value);
+          return value;
+        } else {
+          return this.values[idx];
+        }
+      },
+      setInvalid: function(key) {
+        const idx = this.keys[this.findIdxFnName](key);
+        if (idx > -1) {
+          this.invalidIndexes.push(key);
+        }
+      },
+      clear: function() {
+        this.keys = [];
+        this.values = [];
       }
-    }else{
-      if(  link.match(/^javascript:/i)
-        || link.match(/^void\(0\)/i)
-        || link.match(/^data:/i)
-        || link.match(/^about:/i)
-      ){ return false }
-      return true
     }
   }
+
+  // ====================================
+
 
   T.escapeHtml = function(string) {
     return String(string).replace(/[&<>"'`=\/]/g, function (s) {
@@ -560,30 +790,6 @@
       })[s];
     });
 
-  }
-
-  T.completeElemLink = function(elem, fullUrl){
-    const anchorTags = T.getTagsByName(elem, 'a');
-    const imageTags  = T.getTagsByName(elem, 'img');
-    const iframeTags = T.getTagsByName(elem, 'iframe');
-    const groups = [
-      [anchorTags , 'href'],
-      [imageTags  , 'src'],
-      [iframeTags , 'src']
-    ];
-    T.each(groups, function(it){
-      const [tags, attr] = it;
-      T.each(tags, function(tag){
-        if(attr === 'src' && tag.hasAttribute('srcset')){
-          // FIXME
-          tag.removeAttribute('srcset');
-        }
-        if(T.isHttpProtocol(tag[attr])){
-          tag.setAttribute(attr, T.prefixUrl(tag[attr], fullUrl));
-        }
-      });
-    })
-    return elem;
   }
 
 
@@ -621,16 +827,5 @@
     });
   }
 
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define(function () {
-      return T;
-    });
-  } else if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = T;
-  } else {
-    // browser or other
-    global.T = T;
-  }
-})(this);
+  return T;
+});

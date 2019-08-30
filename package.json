@@ -1,0 +1,19 @@
+{
+  "name": "whatever",
+  "version": "0.0.0",
+  "description": "no description",
+  "main": "",
+  "scripts": {
+    "test": "MX_WC_TESTING=yes mocha"
+  },
+  "author": "Mika",
+  "license": "MIT",
+  "devDependencies": {
+    "blueimp-md5": "^2.11.0",
+    "jsdom": "^15.1.1",
+    "mocha": "^6.2.0"
+  },
+  "dependencies": {
+    "strip-css-comments": "^4.0.0"
+  }
+}

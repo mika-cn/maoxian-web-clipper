@@ -1,4 +1,29 @@
-const ClippingHandler_Browser = (function(){
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory(
+      require('../lib/tool.js'),
+      require('../lib/ext-api.js'),
+      require('../lib/log.js'),
+      require('../lib/storage.js'),
+      require('./saving-tool.js'),
+      require('./fetcher.js')
+    );
+  } else {
+    // browser or other
+    root.MxWcClippingHandler_Browser = factory(
+      root.MxWcTool,
+      root.MxWcLog,
+      root.MxWcExtApi,
+      root.MxWcStorage,
+      root.MxWcSavingTool,
+      root.MxWcFetcher
+    );
+  }
+})(this, function(T, Log, ExtApi, MxWcStorage, SavingTool, Fetcher, undefined) {
+  "use strict";
+
+
   const state = {
     isListening: false,
     createdFilenameDict: T.createDict(), // downloadItemId => filename (full path)
@@ -66,9 +91,9 @@ const ClippingHandler_Browser = (function(){
 
   function isMainFile(filename) {
     return (
-         filename.endsWith('.html') && !filename.endsWith('.frame.html')
-      || filename.endsWith('.md')
-      || filename.endsWith('.mxwc'));
+        filename.endsWith('.html') && !filename.endsWith('.frame.html')
+        || filename.endsWith('.md')
+        || filename.endsWith('.mxwc'));
   }
 
   function downloadCompleted(downloadItemId){
@@ -76,29 +101,29 @@ const ClippingHandler_Browser = (function(){
     state.createdFilenameDict.remove(downloadItemId);
     if(!isDownloadByUs(downloadItemId)) { return false }
     ExtApi.findDownloadItem(downloadItemId)
-    .then((downloadItem) => {
-      if(downloadItem) {
-        const {filename, url} = downloadItem;
-        revokeObjectUrl(url);
-        if(filename.endsWith('.mxwc')) {
-          // touch file
-          ExtApi.deleteDownloadItem(downloadItemId);
-        } else {
-          const taskFilename = state.taskFilenameDict.find(downloadItemId);
-          state.taskFilenameDict.remove(downloadItemId);
-          SavingTool.taskCompleted(taskFilename, {
-            fullFilename: filename,
-            downloadItemId: downloadItemId
-          });
-          if(!isMainFile(filename)) {
-            // erase assets download history
-            browser.downloads.erase({id: downloadItemId, limit: 1});
+      .then((downloadItem) => {
+        if(downloadItem) {
+          const {filename, url} = downloadItem;
+          revokeObjectUrl(url);
+          if(filename.endsWith('.mxwc')) {
+            // touch file
+            ExtApi.deleteDownloadItem(downloadItemId);
+          } else {
+            const taskFilename = state.taskFilenameDict.find(downloadItemId);
+            state.taskFilenameDict.remove(downloadItemId);
+            SavingTool.taskCompleted(taskFilename, {
+              fullFilename: filename,
+              downloadItemId: downloadItemId
+            });
+            if(!isMainFile(filename)) {
+              // erase assets download history
+              browser.downloads.erase({id: downloadItemId, limit: 1});
+            }
           }
+        } else {
+          Log.error('<mx-wc>', "Couldn't find DownloadItem using downloadItemId: ", downloadItemId);
         }
-      } else {
-        Log.error('<mx-wc>', "Couldn't find DownloadItem using downloadItemId: ", downloadItemId);
-      }
-    });
+      });
   }
 
 
@@ -227,6 +252,4 @@ const ClippingHandler_Browser = (function(){
     handleClippingResult: handleClippingResult,
     initDownloadFolder: initDownloadFolder
   }
-
-
-})();
+});
