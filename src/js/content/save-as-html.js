@@ -122,7 +122,6 @@
     elem.classList.remove(KLASS);
     DOMTool.clearHiddenMark(elem);
 
-    //console.log(docHtml.replace(/</mg, "\n<"));
     const {doc} = DOMTool.parseHTML(docHtml);
     let selectedNode = doc.querySelector('.' + KLASS);
     Log.debug(selectedNode);
@@ -165,12 +164,12 @@
       {
         nodes: iframeNodes,
         capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       },
       {
         nodes: frameNodes,
         capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       }
     ];
 

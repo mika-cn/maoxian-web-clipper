@@ -22,10 +22,10 @@
       //
       // what if the frame src atribute is not exist
       // it's content set by srcdoc attribute
+      //
       // Actually, this message is sent to this frame
       // by background.js
-      //
-      // Maybe it's save to remove this "if".
+      // Maybe it's safe to remove this "if".
       //
       if (message.frameUrl === window.location.href) {
         switch (message.type) {

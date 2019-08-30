@@ -348,11 +348,6 @@
   }
 
 
-  //TODO DELETEME
-  T.isUrlSameLevel = function(a, b){
-    return a.slice(0, a.lastIndexOf('/')) === b.slice(0, b.lastIndexOf('/'));
-  }
-
   T.getDoOnceObj = function(){
     return {
       list: new Set(),

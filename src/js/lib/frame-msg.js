@@ -35,7 +35,6 @@
   // options: {id:, :origin, allowOrigins}
   function init(options){
     const {id, origin, allowOrigins = []} = options;
-    console.log("FRAMEMSG INIT", id, origin, allowOrigins);
     state.id = id;
     state.origin = origin;
     state.allowOrigins = allowOrigins;
@@ -59,15 +58,15 @@
   // params: {:type, :msg}
   function broadcast(params) {
     try{
-    const message = params;
-    message.broadcast = true;
-    const frames = document.querySelectorAll('iframe');
-    frames.forEach(function(frame) {
-      if(!isExtensionFrame(frame)) {
-        const {targetWindow, targetOrigin} = frame2TargetInfo(frame);
-        targetWindow.postMessage(message, targetOrigin);
-      }
-    });
+      const message = params;
+      message.broadcast = true;
+      const frames = document.querySelectorAll('iframe');
+      frames.forEach(function(frame) {
+        if(!isExtensionFrame(frame)) {
+          const {targetWindow, targetOrigin} = frame2TargetInfo(frame);
+          targetWindow.postMessage(message, targetOrigin);
+        }
+      });
     }catch(e) {
       console.log(e);
       console.trace();
@@ -77,11 +76,11 @@
   // params: {:to, :type, :msg}
   function send(params){
     try{
-    const message = params;
-    const {to} = params;
-    const {targetWindow, targetOrigin} = getTargetInfo(to);
-    //console.log(to, message);
-    targetWindow.postMessage(message, targetOrigin);
+      const message = params;
+      const {to} = params;
+      const {targetWindow, targetOrigin} = getTargetInfo(to);
+      //console.log(to, message);
+      targetWindow.postMessage(message, targetOrigin);
     } catch(e) {
       console.log(e)
       console.trace();

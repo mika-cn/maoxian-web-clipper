@@ -79,10 +79,11 @@
     }
 
     if (T.isExtensionUrl(url)) {
-      node.setAttribute('data-mx-warn', 'extension url was not captured by MaoXian')
-      node.setAttribute('data-mx-original-src', src);
-      node.removeAttribute('src');
-      return {node, tasks};
+      const newNode = doc.createElement('div');
+      newNode.setAttribute('data-mx-warn', 'extension url was not captured by MaoXian')
+      newNode.setAttribute('data-mx-original-src', src);
+      node.parentNode.replaceChild(newNode, node);
+      return {node: newNode, tasks: tasks};
     }
 
     const frame = frames.find((it) => it.url === url && it.parentFrameId === parentFrameId);

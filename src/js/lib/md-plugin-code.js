@@ -210,7 +210,8 @@
 
   function handleCodeContainer(wrapper, codePath, codeNode, doc) {
     codeNode = fixLineBreak(codeNode);
-    const code = codeNode.textContent;
+    // browser ignore last line break inside <code>.
+    const code = codeNode.textContent.replace(/\n$/, '');
     const language = getLanguageFromInside2Wrapper(wrapper, codePath);
     return renderCodeInWrapper(wrapper, code, language, doc);
   }

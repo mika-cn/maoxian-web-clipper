@@ -31,7 +31,7 @@
       saveDomainAsTag: false,
 
       // control
-      hotkeySwitchEnabled: true,
+      hotkeySwitchEnabled: false,
       mouseModeEnabled: false,
       inputFieldSaveFormatEnabled: false,
 

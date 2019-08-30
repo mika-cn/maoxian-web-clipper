@@ -62,8 +62,9 @@ describe("Capture iframe", async () => {
   it('capture web extension iframe', async () => {
     const url = 'moz-extension://klasdfbwerssdfasdf/iframe.html';
     const html = `<iframe src="${url}"></iframe>`;
-    const {node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(html);
     const params = getParams();
+    params.doc = doc;
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 0);

@@ -134,12 +134,12 @@
       {
         nodes: iframeNodes,
         capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, doc, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       },
       {
         nodes: frameNodes,
         capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, doc, docUrl, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
       }
     ];
 

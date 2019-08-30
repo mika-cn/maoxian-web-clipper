@@ -63,7 +63,7 @@
       type: 'url',
       filename: filename,
       url: url,
-      headers: headers, // FIXME
+      headers: headers,
       clipId: clipId,
       createdMs: T.currentTime().str.intMs,
     }
