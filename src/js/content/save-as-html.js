@@ -93,7 +93,7 @@
 
     const mainFileTask = Task.createHtmlTask(filename, html, info.clipId);
     tasks.push(mainFileTask);
-    return Task.appendHeaders(tasks, headers);
+    return Task.appendAttrsToUrlTask(tasks, {headers: headers, timeout: config.requestTimeout});
   }
 
   async function getElemHtml(params){

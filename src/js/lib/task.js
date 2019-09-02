@@ -21,6 +21,7 @@
   *   mimeType : resource's mimeType (if type is 'text')
   *   text     : resource's content (if type is 'text')
   *   headers  : http headers (Referer, UserAgent etc. if type is 'url')
+  *   timeout  : http request timeout (seconds, if type is 'url')
   *   clipId   : clipping id
   *   createdMs: created time (millisecond)
   * }
@@ -96,10 +97,12 @@
     return result;
   }
 
-  function appendHeaders(tasks, headers) {
+  function appendAttrsToUrlTask(tasks, attrs) {
     tasks.forEach((task) => {
       if (task.type === 'url') {
-        task.headers = headers;
+        for(let k in attrs) {
+          task[k] = attrs[k];
+        }
       }
     });
     return tasks;
@@ -115,7 +118,7 @@
     createImageTask: createImageTask,
     createUrlTask: createUrlTask,
     rmReduplicate: rmReduplicate,
-    appendHeaders: appendHeaders,
+    appendAttrsToUrlTask: appendAttrsToUrlTask,
   }
 
 });

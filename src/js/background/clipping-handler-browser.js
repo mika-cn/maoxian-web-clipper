@@ -208,8 +208,11 @@
 
   function fetchAndDownload(task) {
     Log.debug('fetch', task.url);
-    Fetcher.get('blob', task.url, task.headers)
-      .then(
+    Fetcher.get(task.url, {
+      respType: 'blob',
+      headers: task.headers,
+      timeout: task.timeout,
+    }).then(
         (blob) => {
           downloadBlob({
             blob: blob,
