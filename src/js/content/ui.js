@@ -6,10 +6,11 @@
     root.MxWcFrameMsg,
     root.MxWcEvent,
     root.MxWcHandler,
-    root.MxWcSave
+    root.MxWcSave,
+    root.MxWcNotify
   );
 })(this, function(Log, T, ExtApi, FrameMsg,
-    MxWcEvent, MxWcHandler, MxWcSave, undefined) {
+    MxWcEvent, MxWcHandler, MxWcSave, Notify, undefined) {
   "use strict";
 
   const state = { clippingState: 'idle' };
