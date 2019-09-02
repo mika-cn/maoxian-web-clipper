@@ -8,11 +8,13 @@
     root.MxWcStorage,
     root.MxWcConfig,
     root.MxWcLink,
-    root.MxWcQuery
+    root.MxWcQuery,
+    root.MxWcNotify,
+    root.MxWcHandler
   );
 
 })(this, function(T, Log, I18N, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcLink, Query, undefined) {
+    MxWcStorage, MxWcConfig, MxWcLink, Query, Notify, MxWcHandler, undefined) {
   "use strict";
 
   const state = { allClips: [], currClips: [], categories: [], tags: [] };

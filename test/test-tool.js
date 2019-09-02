@@ -3,6 +3,13 @@ const H = require('./helper.js');
 const T = H.depJs('lib/tool.js');
 
 describe('Tool', () => {
+  it("versionGteq", () => {
+    H.assertTrue(T.isVersionGteq('0.0.2', '0.0.1'));
+    H.assertTrue(T.isVersionGteq('0.1.2', '0.1.1'));
+    H.assertTrue(T.isVersionGteq('0.2.0', '0.1.9'));
+    H.assertTrue(T.isVersionGteq('2.0.0', '1.9.0'));
+  })
+
   it("capitalize", () => {
     H.assertEqual(T.capitalize('foo'), 'Foo');
     H.assertEqual(T.capitalize('FOO'), 'Foo');

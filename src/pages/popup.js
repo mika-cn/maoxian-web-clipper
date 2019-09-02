@@ -6,11 +6,12 @@
     root.MxWcExtApi,
     root.MxWcExtMsg,
     root.MxWcStorage,
-    root.MxWcConfig
+    root.MxWcConfig,
+    root.MxWcLink
   );
 
 })(this, function(T, MxWcIcon, I18N, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, undefined) {
+    MxWcStorage, MxWcConfig, MxWcLink, undefined) {
   "use strict";
   const state = {};
 

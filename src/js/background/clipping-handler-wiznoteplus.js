@@ -3,16 +3,18 @@
     // CJS
     module.exports = factory(
       require('../lib/log.js'),
+      require('../lib/storage.js'),
       require('./saving-tool.js')
     );
   } else {
     // browser or other
     root.MxWcClippingHandler_WizNotePlus = factory(
       root.MxWcLog,
+      root.MxWcStorage,
       root.MxWcSavingTool
     );
   }
-})(this, function(Log, SavingTool, undefined) {
+})(this, function(Log, MxWcStorage, SavingTool, undefined) {
     "use strict";
 
     const state = {
