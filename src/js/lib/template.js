@@ -37,7 +37,7 @@
   <html>
     <!-- ${v.originalSrc} -->
     <head>
-      <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
+      <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.title}</title>
@@ -55,7 +55,7 @@
   <html id="${v.htmlId}" class="${v.htmlClass}">
     <!-- OriginalSrc: ${v.info.link} -->
     <head>
-      <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
+      <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <title>${v.info.title}</title>
@@ -75,7 +75,7 @@
         @media (max-width: 767px) {
           .mx-wc-main { padding: 15px 3px 80px 3px }
         }
-  ${MxWcTemplate.clippingInformationStyle}
+  ${MxWcTemplate.clippingInformationStyle.render(v)}
       </style>
     </head>
     <body style="background-color: ${v.bodyBgCss} !important; min-height: 100%; height: auto; position: static !important; overflow: auto !important; padding-bottom: 0px !important;" id="${v.bodyId}" class="${v.bodyClass}">
@@ -96,6 +96,8 @@
         v.elemHtml, /<\/body>/img,
         [infoHtml, "</body>"].join("\n")
       );
+      const clippingInfoStyle = MxWcTemplate.clippingInformationStyle.render(v);
+      const mxWcStyle = (clippingInfoStyle === '' ? '' : `<style class="mx-wc-style">${clippingInfoStyle}</style>`);
     return `
   <!DOCTYPE html>
   <html id="${v.htmlId}" class="${v.htmlClass}">
@@ -106,15 +108,16 @@
 
       <title>${v.info.title}</title>
       ${v.headInnerHtml}
-      <style class="mx-wc-style">
-  ${MxWcTemplate.clippingInformationStyle}
-      </style>
+      ${mxWcStyle}
     </head>
     ${bodyHtml}
   </html>`;
     }
   }
-  MxWcTemplate.clippingInformationStyle = `
+  MxWcTemplate.clippingInformationStyle = {
+    render: function(v) {
+      if(v.config.saveClippingInformation){
+        return `
         .clipping-information{
           text-align: left !important;
           margin-top: 20px !important;
@@ -140,7 +143,12 @@
           background-color: rgba(200, 200, 200, 0.7)!important;
           font-size: 14px !important;
         }
-  `;
+       `;
+      } else {
+        return '';
+      }
+    }
+  }
 
   MxWcTemplate.clippingInformation = {
     render: function(v) {

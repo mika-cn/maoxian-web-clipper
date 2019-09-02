@@ -261,7 +261,7 @@
     const html = [].map.call(nodes, (node) => {
       return node.outerHTML;
     }).join("\n");
-    return ['', html, ''].join("\n");
+    return html === '' ? '' : ['', html, ''].join("\n");
   }
 
   return {
