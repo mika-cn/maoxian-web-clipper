@@ -37,6 +37,10 @@
 
       allowFileSchemeAccess: false,
 
+      // advanced
+      /* unit: seconds */
+      requestTimeout: 40,
+
       //=====================================
       // Storage
       //=====================================
@@ -80,6 +84,8 @@
       //=====================================
       refreshHistoryHandler: 'NativeApp',
       autoRefreshHistory: false,
+
+
     }
   }
 

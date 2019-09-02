@@ -16,7 +16,6 @@
   "values": {
     "name": "MaoXian web clipper",
 
-
     //=====================================
     // global
     //=====================================
@@ -29,6 +28,11 @@
     // options
     "option.save-format.html.name": "HTML",
     "option.save-format.md.name": "Markdown",
+
+    // errors
+    "error.not-a-number": "Input value is not a number",
+    "error.not-in-allowed-range": "Input value is not in allowed range",
+
 
     //=====================================
     // home page
@@ -112,6 +116,7 @@
     "setting.title.save-format": "Save Format",
     "setting.title.control": "Control",
     "setting.title.file-url": "File URL",
+    "setting.title.advanced": "Advanced",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.offline-page": "Offline Index Page",
     "setting.title.refresh-history": "Refresh History",
@@ -212,6 +217,7 @@
     // label
     "setting.enable-handler.label": "Enable this handler",
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
+    "setting.request-timeout-input.label": "Timeout for performing a request (secs, 5~240)",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags) in main file",
     "setting.save-web-font-input.label": "Save web fonts (not recommended)",
     "setting.save-css-image-input.label": "Save CSS background images (not recommended)",
