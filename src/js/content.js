@@ -5,10 +5,11 @@
     root.MxWcExtMsg,
     root.MxWcEvent,
     root.MxWcConfig,
+    root.MxWcLink,
     root.MxWcUI,
   );
 })(this, function(Log, T, ExtMsg, MxWcEvent,
-    MxWcConfig, UI, undefined) {
+    MxWcConfig, MxWcLink, UI, undefined) {
   "use strict";
 
   function listenMessage(){

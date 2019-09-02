@@ -7,6 +7,7 @@
       require('../lib/tool.js'),
       require('../lib/log.js'),
       require('../lib/translation.js'),
+      require('../lib/storage.js'),
       require('./saving-tool.js')
     );
   } else {
@@ -16,10 +17,11 @@
       root.MxWcTool,
       root.MxWcLog,
       root.MxWcI18N,
+      root.MxWcStorage,
       root.MxWcSavingTool,
     );
   }
-})(this, function(ENV, T, Log, I18N, SavingTool, undefined) {
+})(this, function(ENV, T, Log, I18N, MxWcStorage, SavingTool, undefined) {
   "use strict";
 
   const APP_NAME = 'maoxian_web_clipper_native';

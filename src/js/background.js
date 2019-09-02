@@ -10,6 +10,8 @@
       require('./lib/ext-msg.js'),
       require('./lib/storage.js'),
       require('./lib/config.js'),
+      require('./lib/link.js'),
+      require('./lib/icon.js'),
       require('./background/fetcher.js'),
       require('./background/migration.js'),
       require('./background/web-request.js'),
@@ -26,6 +28,8 @@
       root.MxWcExtMsg,
       root.MxWcStorage,
       root.MxWcConfig,
+      root.MxWcLink,
+      root.MxWcIcon,
       root.MxWcFetcher,
       root.MxWcMigration,
       root.MxWcWebRequest,
@@ -34,7 +38,7 @@
     );
   }
 })(this, function( ENV, Log, T, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcFetcher, MxWcMigration,
+    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, MxWcFetcher, MxWcMigration,
     WebRequest, CacheService, MxWcHandlerBackground, undefined) {
 
   "use strict";

@@ -805,7 +805,9 @@
   T.isVersionGteq = function(versionA, versionB) {
     const [majorA, minorA, patchA] = T.extractVersion(versionA);
     const [majorB, minorB, patchB] = T.extractVersion(versionB);
-    return majorA >= majorB && minorA >= minorB && patchA >= patchB;
+    if (majorA != majorB) { return majorA > majorB }
+    if (minorA != minorB) { return minorA > minorB }
+    return patchA >= patchB;
   }
 
   T.extractVersion = function(version) {
