@@ -11,7 +11,7 @@
 
   return {
     logLevel: "warn",
-    version: '0.1.37',
+    version: '0.1.38',
     minNativeAppVersion: '0.1.9'
   };
 });
