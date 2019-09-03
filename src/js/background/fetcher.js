@@ -10,18 +10,24 @@
   "use strict";
 
   /*
-   * @respType {string} text or blob
-   * @url  {string} request url
-   * @headers {object} http headers
+   * @param {String} url request url
+   * @param {Object} options
+   *   - {String} respType "text" or "blob"
+   *   - {Object} headers http headers
+   *   - {Integer} timeout (seconds)
+   *
    * @return {Promise} resolve with text or blob.
    */
-  function get(respType, url, headers) {
+  function get(url, {respType = 'text', headers, timeout = 40}) {
     return new Promise((resolve, reject) => {
       // how to ensure mode is right
-      fetch(url, {
+      const {extraFetchOpts, timeoutPromise} = getTimeoutParams(timeout);
+      const options = Object.assign(extraFetchOpts, {
         method: 'GET',
         headers: new Headers(escapeHeaders(headers)),
-      }).then(
+      });
+
+      Promise.race([ fetch(url, options), timeoutPromise ]).then(
         (resp) => {
           if(resp.ok) {
             resp[respType]().then(resolve)
@@ -36,7 +42,12 @@
 
         (e) => {
           // rejects with a TypeError when a network error is encountered, although this usually means a permissions issue or similar
-          const msg = [url, e.message].join(', ');
+          const arr = [url, e.message];
+          if (e.message.match(/aborted/i)) {
+            // aborted by us
+            arr.push("Timeout")
+          }
+          const msg = arr.join(", ");
           console.warn('mx-wc', msg);
           console.error('mx-wc', e);
           reject(msg);
@@ -44,12 +55,39 @@
       ).catch((e) => {
         // TypeError Since Firefox 43, fetch() will throw a TypeError if the URL has credentials
         const msg = [url, e.message].join(', ');
-        console.warn('mx-wc', url);
+        console.warn('mx-wc', msg);
         console.error('mx-wc', e);
         reject(msg);
       });
     });
   }
+
+  /**
+   * FIXME fetch don't support timeout option. (maybe it'll be supported in the future)
+   * @param {Integer} delay (seconds)
+   */
+  function getTimeoutParams(delay) {
+    let timeoutPromise;
+    const extraFetchOpts = {};
+    try {
+      // AbortController is an experimental technology.
+      // Firefox Full support (since 57)
+      // Chrome Full support (since 66)
+      const controller = new AbortController();
+      extraFetchOpts.signal = controller.signal;
+      timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          controller.abort();
+        }, delay * 1000);
+      });
+    } catch(e) {
+      timeoutPromise = new Promise((_, reject) => {
+        setTimeout(reject, delay * 1000, new Error("Timeout"));
+      });
+    }
+    return {extraFetchOpts, timeoutPromise};
+  }
+
 
   // see js/background/web-request.js UnescapeHeader for more details.
   function escapeHeaders(headers) {

@@ -29,6 +29,10 @@
     "option.save-format.html.name": "HTML",
     "option.save-format.md.name": "Markdown",
 
+    // errors
+    "error.not-a-number": "输入值不是数字",
+    "error.not-in-allowed-range": "输入值不在允许范围之内",
+
 
     //=====================================
     // home page
@@ -113,6 +117,7 @@
     "setting.title.save-format": "保存格式",
     "setting.title.control": "操作设置",
     "setting.title.file-url": "本地网址",
+    "setting.title.advanced": "高级",
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.offline-page": "离线索引页面",
     "setting.title.refresh-history": "刷新裁剪历史",
@@ -211,6 +216,7 @@
     // label
     "setting.enable-handler.label": "启用该处理程序",
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
+    "setting.request-timeout-input.label": "请求的超时时长 (秒, 5~240)",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
     "setting.save-web-font-input.label": "保存Web字体(建议取消勾选)",
     "setting.save-css-image-input.label": "存储 CSS 背景图(建议取消勾选)",

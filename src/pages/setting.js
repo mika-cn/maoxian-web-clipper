@@ -76,6 +76,12 @@
       'allowFileSchemeAccess'
     );
 
+    // Advanced
+    initNumberInput(config,
+      'request-timeout-input',
+      'requestTimeout'
+    );
+
   }
 
   // section: Storage
@@ -241,6 +247,32 @@
   function textInputBlured(e) {
     const configKey = getConfigKey(e.target);
     if(updateConfig(configKey, e.target.value)){
+      Notify.success(I18N.t('op.update-success'));
+    }
+  }
+
+  function initNumberInput(config, elemId, configKey) {
+    const elem = T.findElem(elemId);
+    elem.value = config[configKey];
+    setConfigKey(elem, configKey);
+    T.bindOnce(elem, 'change', NumberInputChanged)
+  }
+
+  function NumberInputChanged(e) {
+    const elem = e.target;
+    const configKey = getConfigKey(elem);
+    const value = parseInt(elem.value);
+    if (isNaN(value)) {
+      Notify.error(I18N.t('error.not-a-number'));
+      return;
+    }
+    const min = parseInt(elem.min);
+    const max = parseInt(elem.max);
+    if (value < min || value > max) {
+      Notify.error(I18N.t('error.not-in-allowed-range'));
+      return;
+    }
+    if(updateConfig(configKey, value)){
       Notify.success(I18N.t('op.update-success'));
     }
   }

@@ -7,16 +7,45 @@ module Config
   end
 
   class Configuration
-    attr_accessor :environment, :data_dir
+    attr_accessor :environment, :data_dir, :proxy_url, :username, :password
     def initialize(params)
       @environment = params['environment']
       @data_dir = params['data_dir']
+      @proxy_url = params['proxy_url']
+      @username = params['username']
+      @password = params['password']
       expand_data_dir_path
       set_default_environment
     end
 
     def valid?
-      data_dir_valid?
+      data_dir_valid? && proxy_url_valid? && proxy_user_valid?
+    end
+
+    def data_dir_valid?
+      return false if data_dir === ''
+      File.exist?(data_dir)
+    end
+
+    def proxy_url_valid?
+      if proxy_url
+        begin
+          uri = URI.parse(proxy_url)
+          return ['http', 'https'].include?(uri.scheme) && !uri.host.nil?
+        rescue URI::InvalidURIError => e
+          false
+        end
+      else
+        true
+      end
+    end
+
+    def proxy_user_valid?
+      if username || password
+        return !username.nil? && !password.nil? && !proxy_url.nil?
+      else
+        true
+      end
     end
 
     private
@@ -33,9 +62,5 @@ module Config
       end
     end
 
-    def data_dir_valid?
-      return false if data_dir === ''
-      File.exist?(data_dir)
-    end
   end
 end

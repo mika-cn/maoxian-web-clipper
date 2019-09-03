@@ -18,7 +18,17 @@ def run
     at_exit { Log.info("App exit: #{Process.pid}") }
 
     unless config.valid?
-      Log.error("Config Invalid, data_dir not exist: #{config.data_dir}")
+      if !config.data_dir_valid?
+        Log.error("Config Invalid, data_dir not exist: #{config.data_dir}")
+      end
+
+      if !config.proxy_url_valid?
+        Log.error("Proxy url invalid: #{config.proxy_url}")
+      end
+
+      if !config.proxy_user_valid?
+        Log.error("Proxy user info invalid, or you forget to config proxy url")
+      end
       exit 1
     end
     Log.info("App Start")

@@ -38,7 +38,7 @@
     );
   }
 })(this, function( ENV, Log, T, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, MxWcFetcher, MxWcMigration,
+    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, Fetcher, MxWcMigration,
     WebRequest, CacheService, MxWcHandlerBackground, undefined) {
 
   "use strict";
@@ -60,7 +60,11 @@
           CacheService.findOrCache(
             [message.body.clipId, message.body.url].join('.'),
             () => {
-            return MxWcFetcher.get('text', message.body.url, message.body.headers);
+            return Fetcher.get(message.body.url, {
+              respType: 'text',
+              headers: message.body.headers,
+              timeout: message.body.timeout,
+            });
           }).then(resolve, reject);
           break;
         case 'get.allFrames':

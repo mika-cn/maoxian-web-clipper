@@ -57,7 +57,15 @@
     }
 
     try {
-      const {fromCache, result: text} = await ExtMsg.sendToBackground({type: 'fetch.text', body: { clipId: clipId, url: url, headers: headers }});
+      const {fromCache, result: text} = await ExtMsg.sendToBackground({
+        type: 'fetch.text',
+        body: {
+          clipId: clipId,
+          url: url,
+          headers: headers,
+          timeout: config.requestTimeout,
+        }
+      });
 
       if (fromCache) {
         // processed.

@@ -9,7 +9,7 @@ require_relative './clipping'
 require_relative './history'
 
 class Application
-  VERSION = '0.1.9'
+  VERSION = '0.2.0'
 
   attr_accessor :config
 
@@ -69,7 +69,22 @@ class Application
       if msg['url'] =~ /^data:/i
         content = convert_data_url_to_bin(msg['url'])
       else
-        content = open(msg['url'], msg['headers']).read
+        default_timeout = 40
+        options = msg['headers'].clone
+        timeout = msg.fetch('timeout', default_timeout)
+        options[:open_timeout] = timeout.to_i
+        options[:read_timeout] = timeout.to_i
+        if config.username
+          options[:proxy_http_basic_authentication] = [
+            config.proxy_url,
+            config.username,
+            config.password
+          ]
+        elsif config.proxy_url
+          options[:proxy] = config.proxy_url
+        end
+        Log.debug(options.inspect)
+        content = open(msg['url'], options).read
       end
       File.open(filename, 'wb') {|file| file.write content}
       respond_download_success(msg, filename)
