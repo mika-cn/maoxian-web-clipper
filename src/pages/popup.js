@@ -97,12 +97,17 @@
 
     if(lastClippingResult){
       // Browser will erase download records when user restart it.
-      const downloadItem = await ExtApi.findDownloadItem(lastClippingResult.downloadItemId);
-      if (downloadItem) {
+      if (lastClippingResult.downloadItemId) {
+        const downloadItem = await ExtApi.findDownloadItem(lastClippingResult.downloadItemId);
+        if (downloadItem) {
+          state.lastClippingResult = lastClippingResult;
+          menuIds.unshift('last-result');
+        } else {
+          MxWcStorage.set('lastClippingResult', null);
+        }
+      } else {
         state.lastClippingResult = lastClippingResult;
         menuIds.unshift('last-result');
-      } else {
-        MxWcStorage.set('lastClippingResult', null);
       }
     }
     const template = T.findElem('menu-tpl').innerHTML;
