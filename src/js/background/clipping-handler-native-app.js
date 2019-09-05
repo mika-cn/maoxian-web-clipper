@@ -25,14 +25,19 @@
   "use strict";
 
   const APP_NAME = 'maoxian_web_clipper_native';
-  const state = {port: null};
+  const state = {port: null, version: null};
 
   function saveClipping(clipping, feedback) {
-    init();
-    // compatible with native-app (version < 0.1.7)
-    SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenMainTaskFinished'});
-    T.each(clipping.tasks, (task) => {
-      saveTask(task);
+    getVersion((r) => {
+      // compatible with native-app (version < 0.1.7) - no feedback failure.
+      let mode = 'completeWhenMainTaskFinished';
+      if (r.ok && T.isVersionGteq(r.version, '0.2.0')) {
+        mode = 'completeWhenAllTaskFinished';
+      }
+      SavingTool.startSaving(clipping, feedback, {mode: mode});
+      T.each(clipping.tasks, (task) => {
+        saveTask(task);
+      });
     });
   }
 
@@ -79,6 +84,7 @@
         }
         break;
       case 'get.version':
+        state.version = resp.version;
         if(state.getVersionCallback){
           state.getVersionCallback({ ok: true, version: resp.version });
         }
@@ -117,6 +123,7 @@
       }
     }
     state.port = null;
+    state.version = null;
   }
 
   function updateDownloadFolder(downloadFolder) {
@@ -130,15 +137,19 @@
 
   function getVersion(callback) {
     init();
-    try{
-      state.getVersionCallback = callback;
-      state.disconnectCallback = function(message) {
-        callback({ok: false, message: message});
+    if (state.version) {
+      callback({ok: true, version: state.version});
+    } else {
+      try{
+        state.getVersionCallback = callback;
+        state.disconnectCallback = function(message) {
+          callback({ok: false, message: message});
+        }
+        state.port.postMessage({type: 'get.version'})
+      } catch(e) {
+        // avoid other exception
+        callback({ ok: false, message: e.message })
       }
-      state.port.postMessage({type: 'get.version'})
-    } catch(e) {
-      // avoid other exception
-      callback({ ok: false, message: e.message })
     }
   }
 

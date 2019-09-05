@@ -70,7 +70,7 @@
 
       const clipping = {
         info: info,
-        tasks: Task.rmReduplicate(tasks)
+        tasks: Task.sort(Task.rmReduplicate(tasks))
       };
 
       Log.debug(clipping);
