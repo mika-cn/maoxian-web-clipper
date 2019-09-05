@@ -11,7 +11,7 @@
 
   return {
     logLevel: "debug",
-    version: '0.1.38',
+    version: '0.1.39',
     minNativeAppVersion: '0.1.9'
   };
 });
