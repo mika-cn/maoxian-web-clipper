@@ -108,6 +108,24 @@
     return tasks;
   }
 
+  /*
+   * We want to save text tasks before url tasks.
+   * because url task need to make a HTTP request.
+   * HTTP request may be blocked or very slow.
+   */
+  function sort(tasks) {
+    const textTasks = [];
+    const urlTasks = [];
+    tasks.forEach((task) => {
+      if (task.type === 'url') {
+        urlTasks.push(task);
+      } else {
+        textTasks.push(task);
+      }
+    });
+    return textTasks.concat(urlTasks);
+  }
+
   return {
     createHtmlTask: createHtmlTask,
     createMarkdownTask: createMarkdownTask,
@@ -119,6 +137,7 @@
     createUrlTask: createUrlTask,
     rmReduplicate: rmReduplicate,
     appendAttrsToUrlTask: appendAttrsToUrlTask,
+    sort: sort,
   }
 
 });

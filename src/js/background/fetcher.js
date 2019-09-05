@@ -77,7 +77,13 @@
       extraFetchOpts.signal = controller.signal;
       timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
-          controller.abort();
+          try {
+            controller.abort();
+            reject(new Error("timeout (natually)"));
+          } catch (e) {
+            // real evil network environment
+            reject(new Error("timeout (catch)"));
+          }
         }, delay * 1000);
       });
     } catch(e) {
