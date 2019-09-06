@@ -13,7 +13,7 @@
     MxWcEvent, MxWcHandler, MxWcSave, Notify, undefined) {
   "use strict";
 
-  const state = { clippingState: 'idle' };
+  const state = { clippingState: 'idle', currElem: null };
 
   // ifarme common functions
 
@@ -465,6 +465,10 @@
   }
 
   function pressEnter(msg){
+    if(state.clippingState === 'selecting' && state.currElem){
+      selectedTarget(state.currElem);
+      return;
+    }
     if(state.clippingState === 'selected'){
       MxWcHandler.isReady('config.clippingHandler')
       .then((result) => {

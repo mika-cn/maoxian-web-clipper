@@ -203,7 +203,7 @@
     "setting.notice.file-url.ext-id": "扩展标识",
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
     "setting.notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
-    "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />使用 <strong>$NONE</strong> 来表示空值（即无目录）",
+    "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />使用 <strong>$NONE</strong> 来表示空值（即无目录）<br />使用 <strong>$DOMAIN</strong> 表示当前网页域名",
     "setting.notice.title-clipping-folder-format": "<strong>格式A</strong> =&gt; <code>默认裁剪目录</code> + <code>-</code> + <code>标题</code><br />第一部分 (<i>默认裁剪目录</i>) 取决于你配置的<strong>默认裁剪目录格式</strong><br />最后一部分 (<i>标题</i>) 则是你裁剪网页时，输入的标题.<br />例子： 2018-10-11-1539236251-我是一个酷炫的标题<br /><br /><strong>格式B</strong> =&gt; <code>标题</code><br />例子： 我是一个酷炫的标题<br /><strong>警告</strong>: <em>格式B</em> 可能造成裁剪文件的覆盖，因为你要裁剪的网页可能会有相同的标题（虽然概率很小），或者你多次对同一个网页进行裁剪。",
     "setting.notice.asset-path": "这里所提到的资源是指跟随网页的图片、字体和样式（注： 我们不会保存脚本文件）</strong><br />使用 <strong>$CLIPPING-PATH</strong> 来表示: <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code> / <code> 裁剪目录</code> <br />使用 <strong>$STORAGE-PATH</strong> 来表示： <code>下载路径</code> / <code>根目录</code>",
     "setting.notice.clipping-handler.link-label": "安装地址",
@@ -303,7 +303,7 @@
     // entry(btn & hint)
     //=====================================
     "switch.title": "开关 (快捷键: c)",
-    "hint.selecting": "请点击要操作的区域",
+    "hint.selecting": "请点击或按 'Enter' 进行选中",
     "hint.selected": "按 'Enter' 确认, 方向键调整当前选中区域",
     "hint.clipping": "裁剪中...",
 

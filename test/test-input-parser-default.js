@@ -50,4 +50,12 @@ describe('InputParserDefault', () => {
     H.assertEqual(clippingFolder, 'A-awesome-title');
   });
 
+  it('should use domain as default category', () => {
+    const params = getParams();
+    params.config.defaultCategory = "$DOMAIN";
+    params.category = '';
+    const {info} = Parser.parse(params);
+    H.assertEqual(info.category, params.host);
+  });
+
 });
