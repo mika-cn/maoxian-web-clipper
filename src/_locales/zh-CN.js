@@ -303,7 +303,7 @@
     // entry(btn & hint)
     //=====================================
     "switch.title": "开关 (快捷键: c)",
-    "hint.selecting": "请点击要操作的区域",
+    "hint.selecting": "请点击或按 'Enter' 进行选中",
     "hint.selected": "按 'Enter' 确认, 方向键调整当前选中区域",
     "hint.clipping": "裁剪中...",
 

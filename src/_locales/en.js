@@ -307,7 +307,7 @@
     // entry(btn & hint)
     //=====================================
     "switch.title": "Switch (hotkey: c)",
-    "hint.selecting": "Click to select.",
+    "hint.selecting": "Click or press 'Enter' to select.",
     "hint.selected": "Press 'Enter' to Confirm, Use arrow key to adjust",
     "hint.clipping": "Clipping...",
 
