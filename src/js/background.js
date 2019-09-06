@@ -16,6 +16,7 @@
       require('./background/migration.js'),
       require('./background/web-request.js'),
       require('./background/cache-service.js'),
+      require('./background/clipping-handler-native-app.js'),
       require('./background/handler-background.js')
     );
   } else {
@@ -34,12 +35,13 @@
       root.MxWcMigration,
       root.MxWcWebRequest,
       root.MxWcCacheService,
+      root.MxWcClippingHandler_NativeApp,
       root.MxWcHandlerBackground
     );
   }
 })(this, function( ENV, Log, T, ExtApi, ExtMsg,
     MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, Fetcher, MxWcMigration,
-    WebRequest, CacheService, MxWcHandlerBackground, undefined) {
+    WebRequest, CacheService, ClippingHandler_NativeApp, MxWcHandlerBackground, undefined) {
 
   "use strict";
 
@@ -116,7 +118,6 @@
 
 
   function getHandlerInfo(msg, resolve) {
-    console.log(msg);
     const handler = MxWcHandlerBackground.get(msg.name);
     handler.getInfo(resolve);
   }
