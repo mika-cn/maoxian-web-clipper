@@ -57,6 +57,9 @@
       /* $CLIPPING-PATH */
       assetPath: '$CLIPPING-PATH/assets',
       saveTitleAsFilename: false,
+
+      /* $NONE */
+      /* $DOMAIN */
       defaultCategory: 'default',
 
       /* $FORMAT-A => 2018-10-11-1539236251*/

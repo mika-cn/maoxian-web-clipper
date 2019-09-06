@@ -37,7 +37,7 @@
 
     // folder and path
     const clippingFolder = getClippingFolder(config, title, now);
-    const [category, saveFolder] = dealCategoryAndSaveFolder(config, originalCategory, clippingFolder);
+    const [category, saveFolder] = dealCategoryAndSaveFolder(config, originalCategory, clippingFolder, host);
     const [assetFolder, assetRelativePath] = dealAssetFolderAndPath(config, saveFolder);
 
     const storageInfo =  { saveFolder: saveFolder, assetFolder: assetFolder, assetRelativePath: assetRelativePath};
@@ -85,13 +85,14 @@
     return [assetFolder, assetRelativePath];
   }
 
-  function dealCategoryAndSaveFolder(config, category, clippingFolder) {
+  function dealCategoryAndSaveFolder(config, category, clippingFolder, host) {
+    const defaultCategory = config.defaultCategory.replace(/\$DOMAIN/g, host.replace(':', '_'));
     let folder = null;
     if(category === ""){
-      if(config.defaultCategory === "$NONE"){
+      if(defaultCategory === "$NONE"){
         folder = T.joinPath(config.rootFolder, clippingFolder)
       } else {
-        category = (config.defaultCategory === '' ? 'default' : config.defaultCategory);
+        category = (defaultCategory === '' ? 'default' : defaultCategory);
         folder = T.joinPath(config.rootFolder, category, clippingFolder);
       }
     } else {
