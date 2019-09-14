@@ -119,6 +119,26 @@ describe('MdPluginCode', () => {
     H.assertEqual(nodesB.length, 2);
   });
 
+  it('test linebreak at the end', () => {
+    const html = `
+      <div>
+        <div class="language-shell highlighter-rouge mika">
+          <pre class="highlight">
+
+
+            <code><span class="gt">code </span>text\n</code>
+
+          </pre>
+        </div>
+      </div>
+    `
+    const {doc, node} = DOMTool.parseHTML(html);
+    let contextNode = node;
+    contextNode = mdPlugin.handle(doc, contextNode);
+    const code = contextNode.querySelector('code').textContent;
+    H.assertEqual(code, 'code text');
+  });
+
   it('Using block element as code line', () => {
     // get from Load-Dash (Zeal)
     const html = (`
@@ -193,6 +213,7 @@ describe('MdPluginCode', () => {
       H.assertEqual(buttons.length, 0);
       const code = contextNode.querySelector('code');
       H.assertNotEqual(code, null);
+      H.assertEqual(code.textContent, 'code text')
     });
   }
 

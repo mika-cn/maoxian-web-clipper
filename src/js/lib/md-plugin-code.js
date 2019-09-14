@@ -112,7 +112,7 @@
     } else if (isCodeWrappedByLine) {
       return handleCodeLines(wrapper, codePath, codeNodes, doc);
     } else {
-      Log.debug(paths);
+      Log.debug("CODE WRAPPER", paths);
     }
     return wrapper;
   }
@@ -488,7 +488,7 @@
             }
           } else {
             // TODO
-            Log.debug(paths);
+            Log.debug("PRENODE", paths);
           }
 
         }
@@ -589,7 +589,7 @@
         if (nodeType === 1) {
           elementNode++;
         } else if (nodeType === 3) {
-          if(!node.textContent.match(/^\s*$/m)) {
+          if(!node.childNodes[i].textContent.match(/^\s*$/)) {
             // not blank text node
             textNode++;
             if (abortOnTextNode) {
