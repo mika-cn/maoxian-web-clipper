@@ -308,12 +308,12 @@
   }
 
   async function initSaveFormatOption(config, handlerInfo) {
-    T.findElem(ID_FORMAT).value = config.saveFormat;
     const inputGroup = T.queryElem('.input-group.save-format');
     if(!config.inputFieldSaveFormatEnabled) {
       inputGroup.classList.remove('active');
       return;
     }
+    T.findElem(ID_FORMAT).value = config.saveFormat;
     inputGroup.classList.add('active');
     const html = MxWcTemplate.options.render({
       type: 'save-format',
@@ -407,7 +407,7 @@
     const tagstrInput = T.findElem(ID_TAGSTR);
 
     sendFrameMsgToTop('startClip', {
-      format: formatInput.value,
+      format: (formatInput.value === '' ? undefined : formatInput.value),
       title: titleInput.value,
       category: categoryInput.value,
       tagstr: tagstrInput.value,
