@@ -1,12 +1,16 @@
 ;(function (root, factory) {
   if (typeof module === 'object' && module.exports) {
     // CJS
-    module.exports = factory();
+    module.exports = factory(
+      require('./bg-env.js')
+    );
   } else {
     // browser or other
-    root.MxWcFetcher = factory();
+    root.MxWcFetcher = factory(
+      root.MxWcBgEnv
+    );
   }
-})(this, function(undefined) {
+})(this, function(BgEnv, undefined) {
   "use strict";
 
   /*
@@ -24,7 +28,7 @@
       const {extraFetchOpts, timeoutPromise} = getTimeoutParams(timeout);
       const options = Object.assign(extraFetchOpts, {
         method: 'GET',
-        headers: new Headers(escapeHeaders(headers)),
+        headers: new Headers(appendToken(escapeHeaders(headers))),
       });
 
       Promise.race([ fetch(url, options), timeoutPromise ]).then(
@@ -107,6 +111,10 @@
       }
     }
     return result;
+  }
+
+  function appendToken(headers) {
+    return Object.assign({"X-MxWc-Token": BgEnv.requestToken}, headers)
   }
 
   return {get: get}

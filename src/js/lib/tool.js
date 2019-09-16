@@ -218,6 +218,9 @@
     }
     return r;
   }
+  T.any = function(collection, fn) {
+    return [].some.call(collection, fn);
+  }
 
 
   T.toJson = function(hash) { return JSON.stringify(hash);}
