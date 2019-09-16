@@ -4,17 +4,19 @@
     module.exports = factory(
       require('../lib/log.js'),
       require('../lib/tool.js'),
-      require('../lib/ext-msg.js')
+      require('../lib/ext-msg.js'),
+      require('./bg-env.js')
     );
   } else {
     // browser or other
     root.MxWcWebRequest = factory(
       root.MxWcLog,
       root.MxWcTool,
-      root.MxWcExtMsg
+      root.MxWcExtMsg,
+      root.MxWcBgEnv
     );
   }
-})(this, function(Log, T, ExtMsg, undefined) {
+})(this, function(Log, T, ExtMsg, BgEnv, undefined) {
   "use strict";
 
   const StoreMimeType = (function() {
@@ -108,6 +110,10 @@
 
 
 
+  /**
+   * This could be very dangerous,
+   * We should only do this if requests are made by us.
+   */
   const UnescapeHeader = (function(){
 
     function listen() {
@@ -124,13 +130,25 @@
     }
 
     function listener(details) {
-      details.requestHeaders.forEach((header) => {
-        const originalName = unescapeName(header.name);
-        if(originalName !== header.name) {
-          header.name = originalName;
-        }
+      if (isSentByUs(details.requestHeaders)) {
+        const headers = [];
+        details.requestHeaders.forEach((header) => {
+          if (header.name !== 'X-MxWc-Token') {
+            const originalName = unescapeName(header.name);
+            headers.push({name: originalName, value: header.value});
+          }
+        })
+        return {requestHeaders: headers};
+      } else {
+        return {requestHeaders: details.requestHeaders};
+      }
+    }
+
+    function isSentByUs(requestHeaders) {
+      return T.any(requestHeaders, (header) => {
+        return (header.name === 'X-MxWc-Token'
+          && header.value === BgEnv.requestToken);
       })
-      return {requestHeaders: details.requestHeaders};
     }
 
     function unescapeName(name) {
