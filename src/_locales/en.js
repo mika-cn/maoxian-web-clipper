@@ -117,6 +117,8 @@
     "setting.title.control": "Control",
     "setting.title.file-url": "File URL",
     "setting.title.advanced": "Advanced",
+    "setting.title.request": "HTTP Request",
+    "setting.title.misc": "Misc",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.offline-page": "Offline Index Page",
     "setting.title.refresh-history": "Refresh History",
@@ -236,6 +238,8 @@
     "setting.refresh-now-msg-sent.label": "Refresh command has been sent",
     "setting.refresh-now-success.label": "Refresh success",
     "setting.last-refresh-time.label": "Last refreshed time",
+    "setting.dispatch-public-event-input.label": "Dispatch public event",
+    "setting.communicate-with-third-party-input.label": "Communicate with third party",
 
     // placeholder
     "setting.placeholder.notblank": "This value can not blank!",

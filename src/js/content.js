@@ -12,6 +12,10 @@
     MxWcConfig, MxWcLink, UI, undefined) {
   "use strict";
 
+  const state = {
+    config: null
+  };
+
   function listenMessage(){
     ExtMsg.initPage('content');
     ExtMsg.listen(function(msg){
@@ -91,12 +95,14 @@
   }
 
   function tellTpClipCompleted(detail) {
-    MxWcEvent.dispatchPublic('completed', {
-      handler: detail.handler,
-      filename: detail.filename,
-      url: detail.url,
-      completedAt: T.currentTime().toString()
-    });
+    if (state.config.communicateWithThirdParty) {
+      MxWcEvent.dispatchPublic('completed', {
+        handler: detail.handler,
+        filename: detail.filename,
+        url: detail.url,
+        completedAt: T.currentTime().toString()
+      });
+    }
   }
 
   function focusElem(e) {
@@ -210,16 +216,13 @@
   }
 
   function initialize(){
-    MxWcConfig.load()
-      .then((config) => {
-        if(config.hotkeySwitchEnabled) {
-          T.bindOnce(document, "keydown", toggleSwitch);
-        }
-        T.bind(window, 'resize', function(e){
-          UI.windowSizeChanged(e);
-        });
-        Log.debug("content init...");
-      });
+    if(state.config.hotkeySwitchEnabled) {
+      T.bindOnce(document, "keydown", toggleSwitch);
+    }
+    T.bind(window, 'resize', function(e){
+      UI.windowSizeChanged(e);
+    });
+    Log.debug("content init...");
   }
 
   function run(){
@@ -229,12 +232,18 @@
         /* page is rss/atom ... */
       }else{
         setTimeout(() => {
-          initialize();
-          listenMessage();
-          listenPopState();
-          listenTpMessage();
-          tellTpWeAreReady();
-          MxWcLink.listen(document.body);
+          MxWcConfig.load().then((config) => {
+            state.config = config;
+            UI.init(config);
+            initialize();
+            listenMessage();
+            listenPopState();
+            if (config.communicateWithThirdParty) {
+              listenTpMessage();
+              tellTpWeAreReady();
+            }
+            MxWcLink.listen(document.body);
+          });
         }, 0)
       }
     }

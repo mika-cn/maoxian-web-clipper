@@ -37,9 +37,12 @@
 
       allowFileSchemeAccess: false,
 
-      // advanced
+      //=====================================
+      // Advanced
+      //=====================================
       /* unit: seconds */
       requestTimeout: 40,
+      communicateWithThirdParty: false,
 
       //=====================================
       // Storage
