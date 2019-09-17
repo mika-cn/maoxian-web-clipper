@@ -3,11 +3,12 @@
     root.MxWcLog,
     root.MxWcExtMsg,
     root.MxWcFrameMsg,
+    root.MxWcConfig,
     root.MxWcEvent,
     root.MxWcHtml,
     root.MxWcMarkdown
   );
-})(this, function(Log, ExtMsg, FrameMsg, MxWcEvent,
+})(this, function(Log, ExtMsg, FrameMsg, MxWcConfig, MxWcEvent,
     MxWcHtml, MxWcMarkdown, undefined) {
   "use strict";
 
@@ -78,7 +79,12 @@
       id: window.location.href,
       origin: window.location.origin
     });
-    MxWcEvent.handleBroadcast();
+    MxWcEvent.handleBroadcastInternal();
+    MxWcConfig.load().then((config) => {
+      if (config.communicateWithThirdParty) {
+        MxWcEvent.handleBroadcastPublic();
+      }
+    });
   }
 
   // This script only run in web page and it's external iframes (NOT includes inline iframe)

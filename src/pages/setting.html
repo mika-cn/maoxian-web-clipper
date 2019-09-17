@@ -17,6 +17,7 @@
           <a class="menu" href="#setting-storage" i18n="setting.title.storage"></a>
           <a class="menu" href="#setting-offline-page" i18n="setting.title.offline-page"></a>
           <a class="menu" href="#setting-refresh-history" i18n="setting.title.refresh-history"></a>
+          <a class="menu" href="#setting-advanced" i18n="setting.title.advanced"></a>
           <hr />
           <a class="menu" href="#setting-handler-browser" i18n="setting.title.handler-browser"></a>
           <a class="menu" href="#setting-handler-native-app" i18n="setting.title.handler-native-app"></a>
@@ -26,6 +27,23 @@
       <div class="content">
       </div>
     </div>
+
+    <template id="section-setting-advanced-tpl">
+      <section id="setting-advanced">
+        <h2 class="center" i18n="setting.title.advanced"></h2>
+        <div>
+          <h3 i18n="setting.title.request"></h3>
+          <input type="number" id="request-timeout-input" min="5" max="240" value="20" required/>
+          <label for="request-timeout-input" i18n="setting.request-timeout-input.label"></label>
+          <br />
+        </div>
+        <div>
+          <h3 i18n="setting.title.misc"></h3>
+          <input type="checkbox" id="communicate-with-third-party" />
+          <label for="communicate-with-third-party" i18n="setting.communicate-with-third-party-input.label"></label>
+        </div>
+      </section>
+    </template>
 
     <template id="section-setting-general-tpl">
       <section id="setting-general">
@@ -73,11 +91,6 @@
           </div>
           <input type="checkbox" id="file-scheme-access-input"/>
           <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
-        </div>
-        <div>
-          <h3 i18n="setting.title.advanced"></h3>
-          <input type="number" id="request-timeout-input" min="5" max="240" value="20" required/>
-          <label for="request-timeout-input" i18n="setting.request-timeout-input.label"></label>
         </div>
       </section>
     </template>

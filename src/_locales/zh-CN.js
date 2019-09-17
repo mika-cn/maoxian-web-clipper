@@ -118,6 +118,8 @@
     "setting.title.control": "操作设置",
     "setting.title.file-url": "本地网址",
     "setting.title.advanced": "高级",
+    "setting.title.request": "HTTP 请求",
+    "setting.title.misc": "杂项",
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.offline-page": "离线索引页面",
     "setting.title.refresh-history": "刷新裁剪历史",
@@ -235,6 +237,7 @@
     "setting.refresh-now-msg-sent.label": "刷新命令已发送",
     "setting.refresh-now-success.label": "刷新成功",
     "setting.last-refresh-time.label": "上次刷新时间",
+    "setting.communicate-with-third-party-input.label": "开启第三方消息",
 
     // placeholder
     "setting.placeholder.notblank": "此项不能为空",
