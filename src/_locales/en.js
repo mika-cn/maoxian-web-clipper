@@ -87,7 +87,7 @@
     "welcome.extra-2-chrome": "2. Allow MaoXian to access file URLs for fast file preview, by ticking the checkbox <i>Allow access to file URLs</i> on <strong>$extensionLink</strong>.",
     "welcome.extra-2-firefox": "2. Allow MaoXian to access file URLs for fast file preview, see <strong><a href='go.page:faq-allow-access-file-urls' target='_blank'>Allow Access File URLs</a></strong>",
     "welcome.notice": "<strong class='green'>Notice:</strong> If you want to clip a page before MaoXian's installation. Reload it first!",
-    "welcome.last-hint": "If you have any question, please visit our <a href='go.page:faq'>FAQ</a> page</p>",
+    "welcome.last-hint": "If you have any question, please visit our <a href='go.page:faq' target='_blank'>FAQ</a> page</p>",
 
 
     //=====================================

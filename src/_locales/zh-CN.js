@@ -88,7 +88,7 @@
     "welcome.extra-2-chrome": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 勾选复选框<i>「允许扩展访问本地文件」</i> 通过 <strong>$extensionLink</strong>.",
     "welcome.extra-2-firefox": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 详见 <strong><a href='go.page:faq-allow-access-file-urls' target='_blank'>允许访问本地网址</a></strong>",
     "welcome.notice": "<strong class='green'>注意:</strong> 如果你要裁剪的页面是在安装本扩展之前打开的，请先刷新那个页面",
-    "welcome.last-hint": "如果你还有其他的问题，请访问我们的 <a href='go.page:faq'>FAQ</a> 页面</p>",
+    "welcome.last-hint": "如果你还有其他的问题，请访问我们的 <a href='go.page:faq' target='_blank'>FAQ</a> 页面</p>",
 
     //=====================================
     // setting page

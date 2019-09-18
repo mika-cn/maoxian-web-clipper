@@ -2,23 +2,24 @@
   if (typeof module === 'object' && module.exports) {
     // CJS
     module.exports = factory(
+      require('../env.js'),
       require('./ext-api.js'),
       require('./ext-msg.js')
     );
   } else {
     // browser or other
     root.MxWcLink = factory(
+      root.MxWcENV,
       root.MxWcExtApi,
       root.MxWcExtMsg
     );
   }
-})(this, function(ExtApi, ExtMsg, undefined) {
+})(this, function(ENV, ExtApi, ExtMsg, undefined) {
   "use strict";
 
   const extensionRoot = ExtApi.getURL('/');
   const extensionId = extensionRoot.split('//')[1].replace('/', '');
-  const websiteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
-  const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
+  const {websiteRoot, projectRoot} = ENV;
   const remotePaths = {
     "en": {
       "home": "/index.html",
