@@ -219,8 +219,8 @@
             filename: task.filename
           })
         },
-        (errMsg) => {
-          SavingTool.taskFailed(task.filename, errMsg);
+        (err) => {
+          SavingTool.taskFailed(task.filename, err.message);
         }
       );
   }

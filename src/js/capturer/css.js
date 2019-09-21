@@ -87,9 +87,9 @@
         tasks.push(Task.createStyleTask(filename, cssText, clipId));
         return tasks;
       }
-    } catch(errMsg) {
+    } catch(err) {
       // Fetching text is rejected
-      Log.error(`fetch.text request css (url:${url}) failed`, errMsg);
+      Log.error(`fetch.text request css (url:${url}) failed`, err.message);
       // it's fine.
       return [];
     }
