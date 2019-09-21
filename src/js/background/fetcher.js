@@ -40,7 +40,7 @@
             const msg = [url, resp.status, resp.statusText].join(', ');
             console.warn('mx-wc', msg);
             console.warn('mx-wc', resp.headers);
-            reject(msg);
+            reject(new Error(msg));
           }
         },
 
@@ -54,14 +54,14 @@
           const msg = arr.join(", ");
           console.warn('mx-wc', msg);
           console.error('mx-wc', e);
-          reject(msg);
+          reject(new Error(msg));
         }
       ).catch((e) => {
         // TypeError Since Firefox 43, fetch() will throw a TypeError if the URL has credentials
         const msg = [url, e.message].join(', ');
         console.warn('mx-wc', msg);
         console.error('mx-wc', e);
-        reject(msg);
+        reject(new Error(msg));
       });
     });
   }
