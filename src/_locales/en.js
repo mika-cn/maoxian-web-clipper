@@ -221,6 +221,7 @@
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.request-timeout-input.label": "Timeout for performing a request (secs, 5~240)",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags) in main file",
+    "setting.save-icon-input.label": "Save website icons",
     "setting.save-web-font-input.label": "Save web fonts (not recommended)",
     "setting.save-css-image-input.label": "Save CSS background images (not recommended)",
     "setting.save-domain-tag-input.label": "Save current domain as tag",

@@ -220,6 +220,7 @@
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.request-timeout-input.label": "请求的超时时长 (秒, 5~240)",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
+    "setting.save-icon-input.label": "保存网站图标",
     "setting.save-web-font-input.label": "保存Web字体(建议取消勾选)",
     "setting.save-css-image-input.label": "存储 CSS 背景图(建议取消勾选)",
     "setting.save-domain-tag-input.label": "裁剪时，添加当前域名为标签",

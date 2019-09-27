@@ -42,6 +42,10 @@
       'saveClippingInformation'
     );
     initCheckboxInput(config,
+      'save-icon',
+      'saveIcon'
+    );
+    initCheckboxInput(config,
       'save-web-font',
       'saveWebFont'
     );
