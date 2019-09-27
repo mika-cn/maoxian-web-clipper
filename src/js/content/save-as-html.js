@@ -258,10 +258,14 @@
 
 
   function getNodesHtml(nodes) {
-    const html = [].map.call(nodes, (node) => {
-      return node.outerHTML;
-    }).join("\n");
-    return html === '' ? '' : ['', html, ''].join("\n");
+    const outerHtmls = [];
+    [].forEach.call(nodes, (node) => {
+      if (!node.hasAttribute('data-mx-ignore-me')) {
+        outerHtmls.push(node.outerHTML);
+      }
+    });
+
+    return outerHtmls.length === 0 ? '' : ['', ...outerHtmls, ''].join('\n');
   }
 
   return {

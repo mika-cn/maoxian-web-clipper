@@ -25,6 +25,7 @@
       //=====================================
 
       // content relative
+      saveIcon: false,
       saveWebFont: false,
       saveCssImage: false,
       saveClippingInformation: false,

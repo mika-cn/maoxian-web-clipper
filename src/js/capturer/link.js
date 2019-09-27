@@ -46,6 +46,7 @@
     const rel = node.getAttribute('rel')
     const href = node.getAttribute('href');
     const tasks = [];
+    const {config} = opts;
 
     if (!rel) {
       // "rel" is absent, or empty
@@ -81,8 +82,14 @@
   function captureIcon({node, href, opts}) {
     //The favicon of the website.
     const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config, headers} = opts;
-    const {isValid, url, message} = T.completeUrl(href, baseUrl);
     const tasks = [];
+
+    if (!config.saveIcon) {
+      node.setAttribute('data-mx-ignore-me', 'true');
+      return {node, tasks};
+    }
+
+    const {isValid, url, message} = T.completeUrl(href, baseUrl);
     if (isValid) {
       let mimeType = node.getAttribute('type');
       if (!mimeType) { mimeType = mimeTypeDict[url] }
