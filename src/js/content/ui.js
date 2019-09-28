@@ -594,13 +594,17 @@
   }
 
   function isIndivisible(elem, pElem) {
+    const ANY = '___ANY___';
     if(elem && pElem) {
       return [
         ['CODE', 'PRE'],
         ['PRE', 'CODE'],
         ['THEAD', 'TABLE'],
         ['TBODY', 'TABLE'],
-      ].some((p) => elem.tagName === p[0] && pElem.tagName === p[1])
+        [ANY, 'DETAILS'],
+      ].some((p) => {
+        return (p[0] === ANY || elem.tagName === p[0]) && pElem.tagName === p[1]
+      })
     } else {
       return false;
     }
