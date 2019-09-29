@@ -9,9 +9,14 @@
 })(this, function(undefined) {
 "use strict";
 
+  const websiteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
+  const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
+
   return {
     logLevel: "warn",
-    version: '0.1.41',
-    minNativeAppVersion: '0.1.9'
+    version: '0.1.42',
+    minNativeAppVersion: '0.1.9',
+    websiteRoot: websiteRoot,
+    projectRoot: projectRoot,
   };
 });

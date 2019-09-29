@@ -13,7 +13,11 @@
     MxWcEvent, MxWcHandler, MxWcSave, Notify, undefined) {
   "use strict";
 
-  const state = { clippingState: 'idle', currElem: null };
+  const state = {
+    clippingState: 'idle',
+    currElem: null,
+    config: null,
+  };
 
   // ifarme common functions
 
@@ -285,8 +289,11 @@
 
   function dispatchMxEvent(name, data) {
     MxWcEvent.dispatchInternal(name, data);
-    MxWcEvent.dispatchPublic(name, data);
-    MxWcEvent.broadcast2Iframe(name, data);
+    MxWcEvent.broadcastInternal(name, data);
+    if (state.config.communicateWithThirdParty) {
+      MxWcEvent.dispatchPublic(name, data);
+      MxWcEvent.broadcastPublic(name, data);
+    }
   }
 
   // ----------------------------
@@ -587,13 +594,17 @@
   }
 
   function isIndivisible(elem, pElem) {
+    const ANY = '___ANY___';
     if(elem && pElem) {
       return [
         ['CODE', 'PRE'],
         ['PRE', 'CODE'],
         ['THEAD', 'TABLE'],
         ['TBODY', 'TABLE'],
-      ].some((p) => elem.tagName === p[0] && pElem.tagName === p[1])
+        [ANY, 'DETAILS'],
+      ].some((p) => {
+        return (p[0] === ANY || elem.tagName === p[0]) && pElem.tagName === p[1]
+      })
     } else {
       return false;
     }
@@ -698,8 +709,12 @@
     return inputs;
   }
 
+  function init(config) {
+    state.config = config;
+  }
 
   return {
+    init: init,
     remove: remove,
     entryClick: entryClick,
     windowSizeChanged: windowSizeChanged,

@@ -175,6 +175,7 @@
           time: renderTime(clip),
           category: clip.category,
           tags: clip.tags.join(", "),
+          format: clip.format,
           title: T.escapeHtml(clip.title)
         }));
       });

@@ -88,7 +88,7 @@
     "welcome.extra-2-chrome": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 勾选复选框<i>「允许扩展访问本地文件」</i> 通过 <strong>$extensionLink</strong>.",
     "welcome.extra-2-firefox": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 详见 <strong><a href='go.page:faq-allow-access-file-urls' target='_blank'>允许访问本地网址</a></strong>",
     "welcome.notice": "<strong class='green'>注意:</strong> 如果你要裁剪的页面是在安装本扩展之前打开的，请先刷新那个页面",
-    "welcome.last-hint": "如果你还有其他的问题，请访问我们的 <a href='go.page:faq'>FAQ</a> 页面</p>",
+    "welcome.last-hint": "如果你还有其他的问题，请访问我们的 <a href='go.page:faq' target='_blank'>FAQ</a> 页面</p>",
 
     //=====================================
     // setting page
@@ -118,6 +118,8 @@
     "setting.title.control": "操作设置",
     "setting.title.file-url": "本地网址",
     "setting.title.advanced": "高级",
+    "setting.title.request": "HTTP 请求",
+    "setting.title.misc": "杂项",
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.offline-page": "离线索引页面",
     "setting.title.refresh-history": "刷新裁剪历史",
@@ -218,6 +220,7 @@
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.request-timeout-input.label": "请求的超时时长 (秒, 5~240)",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
+    "setting.save-icon-input.label": "保存网站图标",
     "setting.save-web-font-input.label": "保存Web字体(建议取消勾选)",
     "setting.save-css-image-input.label": "存储 CSS 背景图(建议取消勾选)",
     "setting.save-domain-tag-input.label": "裁剪时，添加当前域名为标签",
@@ -235,6 +238,7 @@
     "setting.refresh-now-msg-sent.label": "刷新命令已发送",
     "setting.refresh-now-success.label": "刷新成功",
     "setting.last-refresh-time.label": "上次刷新时间",
+    "setting.communicate-with-third-party-input.label": "开启第三方消息",
 
     // placeholder
     "setting.placeholder.notblank": "此项不能为空",

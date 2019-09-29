@@ -32,59 +32,83 @@
    *
    */
 
+  const evTarget_public = document;
+  const evTarget_internal = document.createElement('mx-wc-internal');
+
   function dispatchInternal(name, data) {
     const evType = getType(name, true);
-    dispatch(evType, data);
+    dispatch(evTarget_internal, evType, data);
   }
 
   function dispatchPublic(name, data) {
     const evType = getType(name);
-    dispatch(evType, data);
+    dispatch(evTarget_public, evType, data);
   }
 
   function listenInternal(name, listener) {
     const evType = getType(name, true);
-    listen(evType, listener);
+    listen(evTarget_internal, evType, listener);
   }
 
   function listenPublic(name, listener) {
     const evType = getType(name);
-    listen(evType, listener);
+    listen(evTarget_public, evType, listener);
   }
 
-  function broadcast2Iframe(name, data) {
-    const evType = getType(name);
+  function broadcastPublic(name, data) {
+    const evType   = getType(name);
     FrameMsg.broadcast({type: evType, msg: (data || {})});
   }
 
+  function broadcastInternal(name, data) {
+    const evType = getType(name, true);
+    FrameMsg.broadcast({type: evType, msg: (data || {})});
+  }
+
+  const BROADCAST_EVENT_NAMES = [
+    'idle', 'selecting', 'selected',
+    'confirmed', 'clipping'
+  ];
+
   // you should call FrameMsg.init before call this function
-  function handleBroadcast() {
-    [
-      'idle', 'selecting', 'selected',
-      'confirmed', 'clipping'
-    ].forEach(function(name) {
-      const evType = getType(name);
-      FrameMsg.addListener(evType, broadcastHandler);
-    })
+  function handleBroadcastPublic() {
+    BROADCAST_EVENT_NAMES.forEach(function(name) {
+      const evType   = getType(name);
+      FrameMsg.addListener(evType, broadcastHandler_public);
+    });
+  }
+
+  // you should call FrameMsg.init before call this function
+  function handleBroadcastInternal() {
+    BROADCAST_EVENT_NAMES.forEach(function(name) {
+      const evType   = getType(name, true);
+      FrameMsg.addListener(evType, broadcastHandler_internal);
+    });
   }
 
   //=================
 
-  function broadcastHandler(msg, type) {
-    dispatch(type, msg);
+  function broadcastHandler_public(msg, type) {
+    dispatch(evTarget_public, type, msg);
     // Continue broadcast this message.
     FrameMsg.broadcast({type: type, msg: msg});
   }
 
-  function listen(type, listener) {
-    document.removeEventListener(type, listener);
-    document.addEventListener(type, listener);
+  function broadcastHandler_internal(msg, type) {
+    dispatch(evTarget_internal, type, msg);
+    // Continue broadcast this message.
+    FrameMsg.broadcast({type: type, msg: msg});
   }
 
-  function dispatch(type, data) {
+  function listen(evTarget, type, listener) {
+    evTarget.removeEventListener(type, listener);
+    evTarget.addEventListener(type, listener);
+  }
+
+  function dispatch(evTarget, type, data) {
     const detailJson = JSON.stringify(data || {})
     const e = new CustomEvent(type, {detail: detailJson});
-    document.dispatchEvent(e);
+    evTarget.dispatchEvent(e);
   }
 
   function getType(name, isInternal) {
@@ -93,11 +117,12 @@
     return r.join('.');
   }
 
-
   return {
     getType: getType,
-    broadcast2Iframe: broadcast2Iframe,
-    handleBroadcast: handleBroadcast,
+    broadcastPublic: broadcastPublic,
+    broadcastInternal: broadcastInternal,
+    handleBroadcastPublic: handleBroadcastPublic,
+    handleBroadcastInternal: handleBroadcastInternal,
     dispatchInternal: dispatchInternal,
     dispatchPublic, dispatchPublic,
     listenInternal: listenInternal,

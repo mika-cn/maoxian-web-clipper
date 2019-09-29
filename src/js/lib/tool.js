@@ -81,7 +81,7 @@
 
 
   T.isElemVisible = function(win, elem) {
-    if(['IMG', 'PICTURE'].indexOf(elem.tagName) > -1) {
+    if(['STYLE', 'IMG', 'PICTURE'].indexOf(elem.tagName) > -1) {
       return true
     }
 
@@ -217,6 +217,9 @@
       }
     }
     return r;
+  }
+  T.any = function(collection, fn) {
+    return [].some.call(collection, fn);
   }
 
 

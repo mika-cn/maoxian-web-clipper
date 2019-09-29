@@ -42,6 +42,10 @@
       'saveClippingInformation'
     );
     initCheckboxInput(config,
+      'save-icon',
+      'saveIcon'
+    );
+    initCheckboxInput(config,
       'save-web-font',
       'saveWebFont'
     );
@@ -74,12 +78,6 @@
     initCheckboxInput(config,
       'file-scheme-access-input',
       'allowFileSchemeAccess'
-    );
-
-    // Advanced
-    initNumberInput(config,
-      'request-timeout-input',
-      'requestTimeout'
     );
 
   }
@@ -189,6 +187,20 @@
       'clipping-js-path',
       'clippingJsPath'
     );
+  }
+
+  function initSettingAdvanced(config) {
+
+    initNumberInput(config,
+      'request-timeout-input',
+      'requestTimeout'
+    );
+
+    initCheckboxInput(config,
+      'communicate-with-third-party',
+      'communicateWithThirdParty'
+    );
+
   }
 
   // ======================================
@@ -503,6 +515,9 @@
       case 'setting-refresh-history':
         render = renderSectionRefreshHistory;
         break;
+      case 'setting-advanced':
+        render = renderSectionAdvanced;
+        break;
     }
     render(id, container, template);
   }
@@ -520,6 +535,14 @@
     T.setHtml(container, html);
     MxWcConfig.load().then((config) => {
       initSettingGeneral(config);
+    });
+  }
+
+  function renderSectionAdvanced(id, container, template) {
+    const html = template;
+    T.setHtml(container, html);
+    MxWcConfig.load().then((config) => {
+      initSettingAdvanced(config);
     });
   }
 

@@ -25,6 +25,7 @@
       //=====================================
 
       // content relative
+      saveIcon: false,
       saveWebFont: false,
       saveCssImage: false,
       saveClippingInformation: false,
@@ -37,9 +38,12 @@
 
       allowFileSchemeAccess: false,
 
-      // advanced
+      //=====================================
+      // Advanced
+      //=====================================
       /* unit: seconds */
       requestTimeout: 40,
+      communicateWithThirdParty: false,
 
       //=====================================
       // Storage

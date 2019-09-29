@@ -87,7 +87,7 @@
     "welcome.extra-2-chrome": "2. Allow MaoXian to access file URLs for fast file preview, by ticking the checkbox <i>Allow access to file URLs</i> on <strong>$extensionLink</strong>.",
     "welcome.extra-2-firefox": "2. Allow MaoXian to access file URLs for fast file preview, see <strong><a href='go.page:faq-allow-access-file-urls' target='_blank'>Allow Access File URLs</a></strong>",
     "welcome.notice": "<strong class='green'>Notice:</strong> If you want to clip a page before MaoXian's installation. Reload it first!",
-    "welcome.last-hint": "If you have any question, please visit our <a href='go.page:faq'>FAQ</a> page</p>",
+    "welcome.last-hint": "If you have any question, please visit our <a href='go.page:faq' target='_blank'>FAQ</a> page</p>",
 
 
     //=====================================
@@ -117,6 +117,8 @@
     "setting.title.control": "Control",
     "setting.title.file-url": "File URL",
     "setting.title.advanced": "Advanced",
+    "setting.title.request": "HTTP Request",
+    "setting.title.misc": "Misc",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.offline-page": "Offline Index Page",
     "setting.title.refresh-history": "Refresh History",
@@ -219,6 +221,7 @@
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.request-timeout-input.label": "Timeout for performing a request (secs, 5~240)",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags) in main file",
+    "setting.save-icon-input.label": "Save website icons",
     "setting.save-web-font-input.label": "Save web fonts (not recommended)",
     "setting.save-css-image-input.label": "Save CSS background images (not recommended)",
     "setting.save-domain-tag-input.label": "Save current domain as tag",
@@ -236,6 +239,8 @@
     "setting.refresh-now-msg-sent.label": "Refresh command has been sent",
     "setting.refresh-now-success.label": "Refresh success",
     "setting.last-refresh-time.label": "Last refreshed time",
+    "setting.dispatch-public-event-input.label": "Dispatch public event",
+    "setting.communicate-with-third-party-input.label": "Communicate with third party",
 
     // placeholder
     "setting.placeholder.notblank": "This value can not blank!",
