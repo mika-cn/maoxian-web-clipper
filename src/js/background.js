@@ -12,6 +12,7 @@
       require('./lib/config.js'),
       require('./lib/link.js'),
       require('./lib/icon.js'),
+      require('./assistant/plan-repository.js'),
       require('./background/fetcher.js'),
       require('./background/migration.js'),
       require('./background/web-request.js'),
@@ -31,6 +32,7 @@
       root.MxWcConfig,
       root.MxWcLink,
       root.MxWcIcon,
+      root.MxWcPlanRepository,
       root.MxWcFetcher,
       root.MxWcMigration,
       root.MxWcWebRequest,
@@ -40,15 +42,28 @@
     );
   }
 })(this, function( ENV, Log, T, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, Fetcher, MxWcMigration,
+    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, PlanRepository, Fetcher, MxWcMigration,
     WebRequest, CacheService, ClippingHandler_NativeApp, MxWcHandlerBackground, undefined) {
 
   "use strict";
+
+  const asyncFunQueue = T.createAsyncFnQueue();
 
 
   function messageHandler(message, sender){
     return new Promise(function(resolve, reject){
       switch(message.type){
+        case 'get.plan':
+          asyncFunQueue.enqueue(async () => {
+            PlanRepository.get(message.body.url).then(resolve);
+          });
+          break;
+        case 'update.public-plan':
+          PlanRepository.updatePublicPlans(message.body.urls).then(resolve);
+          break;
+        case 'save.custom-plan':
+          PlanRepository.updateCustomPlans(message.body.planText).then(resolve);
+          break;
         case 'get.mimeTypeDict' : WebRequest.getMimeTypeDict(resolve)     ; break     ;
         case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
         case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
@@ -115,7 +130,6 @@
       }
     });
   }
-
 
   function getHandlerInfo(msg, resolve) {
     const handler = MxWcHandlerBackground.get(msg.name);
@@ -372,6 +386,7 @@
     WebRequest.listen();
     refreshHistoryIfNeed();
     welcomeNewUser();
+    PlanRepository.init();
     Log.debug("background init finish...");
   }
 

@@ -15,6 +15,15 @@
     return browser.storage[this.type].set(d)
   }
 
+  // keys: string or Array
+  function remove(keys) {
+    return browser.storage[this.type].remove(keys);
+  }
+
+  function clear() {
+    return browser.storage[this.type].clear();
+  }
+
   function get(k, defaultValue){
     return new Promise((resolve, reject) => {
       browser.storage[this.type].get(k)
@@ -34,5 +43,11 @@
     });
   }
 
-  return { type: 'local', set: set, get: get };
+  return {
+    type: 'local',
+    get: get,
+    set: set,
+    remove: remove,
+    clear: clear,
+  };
 });

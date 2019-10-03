@@ -90,6 +90,17 @@
     );
   }
 
+  function initSettingAssistant(config) {
+    initCheckboxInput(config,
+      'assistant-enabled',
+      'assistantEnabled'
+    );
+    initCheckboxInput(config,
+      'auto-update-public-plan',
+      'autoUpdatePublicPlan'
+    );
+  }
+
   // section: handler-browser
   function initSettingHandlerBrowser(config) {
     initCheckboxInput(config,
@@ -500,6 +511,9 @@
       case 'setting-storage':
         render = renderSectionStorage;
         break;
+      case 'setting-assistant':
+        render = renderSectionAssistant;
+        break;
       case 'setting-handler-browser':
         render = renderSectionHandlerBrowser;
         break;
@@ -518,6 +532,8 @@
       case 'setting-advanced':
         render = renderSectionAdvanced;
         break;
+      default:
+        throw new Error("Unknown section " + id)
     }
     render(id, container, template);
   }
@@ -552,6 +568,141 @@
     MxWcConfig.load().then((config) => {
       initSettingStorage(config);
     });
+  }
+
+  function renderSectionAssistant(id, container, template) {
+    const examplePlan = `  {
+    "name" : "A example plan",
+    "pattern" : "https://example.org/posts/**/*.html",
+    "pick" : ".post",
+    "hide" : [".post-btns", "div.comments"]
+  }`;
+    const defaultIndexUrl = MxWcLink.get('assistant.subscription.default.index');
+
+    const html = T.renderTemplate(template, {});
+    T.setHtml(container, html);
+    renderSubscriptions();
+    MxWcStorage.get('assistant.custom-plan.text', `[\n${examplePlan}\n]`).then((value) => {
+      T.setElemValue('#custom-plans', value);
+    });
+    MxWcStorage.get('assistant.public-plan.subscription-text').then((value) => {
+      const subscription = (value || defaultIndexUrl);
+      T.setElemValue('#plan-subscription', subscription);
+      if (!value) {
+        MxWcStorage.set('assistant.public-plan.subscription-urls', [defaultIndexUrl]);
+      }
+    });
+    MxWcConfig.load().then((config) => {
+      initSettingAssistant(config);
+    });
+    bindButtonListener('update-public-plan-now', updatePublicPlans);
+    bindButtonListener('save-plan-subscription', savePlanSubscription);
+    bindButtonListener('save-custom-plan', saveCustomPlan);
+  }
+
+  function renderSubscriptions() {
+    MxWcStorage.get('assistant.public-plan.subscriptions', [])
+      .then((subscriptions) => {
+        const elem = T.queryElem('.public-plan > .subscriptions > .list');
+        if (subscriptions.length > 0) {
+          const tpl = T.findElem('subscription-tpl').innerHTML;
+          const html = T.map(subscriptions, (it) => {
+            return T.renderTemplate(tpl, {
+              name: it.name,
+              url: it.url,
+              size: it.size,
+            });
+          }).join('');
+          T.setHtml(elem, ['<ul>', html, '</ul>'].join(''));
+        } else {
+          T.setHtml(elem, '<label i18n="none"></label>');
+        }
+      });
+  }
+
+  function savePlanSubscription(e) {
+    const text = T.getElemValue('#plan-subscription');
+    const lines = text.split(/\n+/);
+    const urls = [];
+    const errors = [];
+    lines.forEach((it) => {
+      const lineText = it.trim();
+      const commentRe = /^#/;
+      if (!lineText.match(commentRe) && lineText !== '') {
+        try {
+          const url = new URL(lineText);
+          urls.push(lineText);
+        } catch(e) {
+          errors.push([e.message, T.escapeHtml(lineText)].join(": "));
+        }
+      }
+    });
+    if (errors.length > 0) {
+      Notify.error(errors.join('\n'));
+    } else {
+      MxWcStorage.set('assistant.public-plan.subscription-text', text);
+      MxWcStorage.set('assistant.public-plan.subscription-urls', urls);
+      Notify.success(I18N.t('op.saved'));
+    }
+  }
+
+  function updatePublicPlans(e) {
+    MxWcStorage.get('assistant.public-plan.subscription-urls', []).then((urls) => {
+      if (urls.length === 0) { return; }
+      ExtMsg.sendToBackground({type: 'update.public-plan', body: {urls: urls}})
+        .then((result) => {
+          const logs = [];
+          result.forEach((it) => {
+            if (it.ok) {
+              const arr = [it.subscription.url];
+              if (it.updated) {
+                arr.push(" (updated)");
+              } else {
+                arr.push(" (up to date)");
+              }
+              logs.push(renderLog(arr.join('')));
+            } else {
+              logs.push(renderLog(it.message, true));
+            }
+          })
+          const elem = T.findElem('update-public-plan-log');
+          logs.push(renderLog("Done! " + T.currentTime().time()));
+          T.setHtml(elem, logs.join(''));
+          elem.classList.add('active');
+          renderSubscriptions();
+        })
+    });
+  }
+
+  function renderLog(log, isError) {
+    if (isError) {
+      return `<div class="log failure">[failure] ${log}</div>`;
+    } else {
+      return `<div class="log success">&gt; ${log}</div>`;
+    }
+  }
+
+  function saveCustomPlan(e) {
+    const elem = T.findElem('custom-plans');
+    try {
+      const plans = JSON.parse(elem.value);
+      if (plans instanceof Array) {
+        ExtMsg.sendToBackground({
+          type: 'save.custom-plan',
+          body: {planText: elem.value}
+        }).then((result) => {
+          if (result.ok) {
+            Notify.success(I18N.t('op.saved'));
+          } else {
+            Notify.error(result.message);
+          }
+        })
+      } else {
+        Notify.error(I18N.t('error.value-invalid'));
+      }
+    } catch(e) {
+      Notify.error(I18N.t('error.value-invalid'));
+    }
   }
 
   function renderSectionHandlerBrowser(id, container, template) {

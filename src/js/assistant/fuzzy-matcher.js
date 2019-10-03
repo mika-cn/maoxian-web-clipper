@@ -2,8 +2,6 @@
  * FuzzyMatcher
  */
 
-//=META version 0.0.2
-
 ;(function(global) {
   "use strict";
 

@@ -28,6 +28,10 @@ describe('Tool', () => {
     H.assertEqual(T.replaceLastMatch(str, /bcd/ig, "BCD"), 'abcdabcdaBCD');
   })
 
+  it("deleteLastPart", () => {
+    H.assertEqual(T.deleteLastPart('a.b.c'), 'a.b');
+  });
+
   it("isExtensionUrl", () => {
     H.assertTrue(T.isExtensionUrl("moz-extension://abc/index"));
     H.assertTrue(T.isExtensionUrl("chrome-extension://abc/index"));

@@ -61,15 +61,43 @@
     }
   }
 
+  T.deleteLastPart = function(str, sep = '.') {
+    const arr = str.split(sep);
+    arr.pop();
+    return arr.join(sep);
+  }
+
 
   T.createId = function() {
     return '' + Math.round(Math.random() * 100000000000);
   }
 
+  // ===============================
+  // DOM relative
+  // ===============================
+
   T.findElem = function(id, contextNode = document){ return contextNode.querySelector(`#${id}`) }
   T.firstElem = function(className, contextNode = document){ return T.queryElem(`.${className}`, contextNode) }
   T.queryElem = function(selector, contextNode = document){ return contextNode.querySelector(selector) }
   T.queryElems = function(selector, contextNode = document){ return contextNode.querySelectorAll(selector) }
+
+  T.setElemValue = function(selector, value) {
+    const elem = document.querySelector(selector);
+    if (elem) {
+      elem.value = value;
+    } else {
+      console.error(`Could not find elem. selector ${selector}`);
+    }
+  }
+
+  T.getElemValue = function(selector) {
+    const elem = document.querySelector(selector);
+    if (elem) {
+      return elem.value;
+    } else {
+      console.error(`Could not find elem. selector ${selector}`);
+    }
+  }
 
   T.findParentById = function(elem, id) {
     if(elem.parentNode.id === id) {
@@ -449,6 +477,11 @@
       return `${s.year}-${s.month}-${s.day} ${s.hour}:${s.minute}:${s.second}`;
     }
 
+    tObj.time = function() {
+      const s = tObj.str;
+      return `${s.hour}:${s.minute}:${s.second}`;
+    }
+
     tObj.beginingOfDay = function(){
       const s = tObj.str;
       return `${s.year}-${s.month}-${s.day} 00:00:00`;
@@ -554,6 +587,7 @@
       .replace(/］/g, s)
 
       .replace(/-+/g, s) // multiple dash to one dash
+      .replace(/^-/, '') // delete dash at the beginning
       .replace(/-$/, ''); // delete dash at the end
 
     if (result.length > 200) {
@@ -745,6 +779,33 @@
 
     return {enqueue: enqueue}
   }
+
+  T.createAsyncFnQueue = function() {
+    const queue = []
+    let running = false;
+
+    async function enqueue(fun) {
+      queue.push(async () => {
+        running = true;
+        await fun();
+        running = false;
+        await next();
+      })
+      if(!running) {
+        await next();
+      }
+    }
+
+    async function next(){
+      const first = queue.shift();
+      if(first) {
+        await first()
+      }
+    }
+
+    return {enqueue: enqueue}
+  }
+
 
   T.createArrayCache = function(reverselySeek = 'noReverselySeek') {
     return {

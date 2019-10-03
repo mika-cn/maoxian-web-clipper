@@ -11,12 +11,14 @@
 
   const websiteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
   const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
+  const mxAssistantRoot = [websiteRoot, 'assistant'].join('/');
 
   return {
     logLevel: "warn",
-    version: '0.1.42',
+    version: '0.1.43',
     minNativeAppVersion: '0.1.9',
     websiteRoot: websiteRoot,
     projectRoot: projectRoot,
+    mxAssistantRoot: mxAssistantRoot,
   };
 });
