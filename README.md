@@ -28,11 +28,6 @@ That's it, Not bored registration, Not charged.
 * Chrome - [https://chrome.google.com/webstore/detail/maoxian-web-clipper/kjahokgdcbohofgdidndeiaigkehdjdc](https://chrome.google.com/webstore/detail/maoxian-web-clipper/kjahokgdcbohofgdidndeiaigkehdjdc)
 * Chrome - [install by crx](https://mika-cn.github.io/maoxian-web-clipper/chrome-install-by-crx.html)
 
-## Useful Resources
-
-* [index](useful-res/)
-* [MaoXian assistant](useful-res/assistant/) (Recommended)
-
 ## Third party library
 
 Thanks to these awesome libraries for making MaoXian's development become more easier.

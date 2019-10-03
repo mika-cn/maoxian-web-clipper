@@ -53,6 +53,8 @@
         "js/lib/md-plugin-mathjax.js",
         "js/lib/md-plugin-mathml2latex.js",
         "js/lib/asset.js",
+        "js/assistant/plan.js",
+        "js/assistant/main.js",
         "js/capturer/tool.js",
         "js/capturer/css.js",
         "js/capturer/a.js",

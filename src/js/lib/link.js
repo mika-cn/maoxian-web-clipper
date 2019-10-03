@@ -19,7 +19,7 @@
 
   const extensionRoot = ExtApi.getURL('/');
   const extensionId = extensionRoot.split('//')[1].replace('/', '');
-  const {websiteRoot, projectRoot} = ENV;
+  const {websiteRoot, projectRoot, mxAssistantRoot} = ENV;
   const remotePaths = {
     "en": {
       "home": "/index.html",
@@ -27,8 +27,10 @@
       "faq-allow-access-file-urls": "/faq.html#allow-access-file-urls",
       "native-app": "/native-app/index.html",
       "offline-page": "/offline-page/index.html",
+      "how-to-write-a-plan": "/assistant/index.html",
       "project.index": "/",
       "project.issue": "/issues",
+      "assistant.subscription.default.index": "/plans/default/index.json",
     },
     "zh-CN": {
       "home": "/index-zh-CN.html",
@@ -36,8 +38,10 @@
       "faq-allow-access-file-urls": "/faq-zh-CN.html#allow-access-file-urls",
       "native-app": "/native-app/index-zh-CN.html",
       "offline-page": "/offline-page/index-zh-CN.html",
+      "how-to-write-a-plan": "/assistant/index-zh-CN.html",
       "project.index": "/",
       "project.issue": "/issues",
+      "assistant.subscription.default.index": "/plans/default/index.json",
     }
   }
 
@@ -71,6 +75,8 @@
     if(path) {
       if(pageName.startsWith('project.')){
         return projectRoot + path;
+      } else if (pageName.startsWith('assistant.')) {
+        return mxAssistantRoot + path;
       } else {
         return websiteRoot + path;
       }

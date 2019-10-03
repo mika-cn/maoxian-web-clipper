@@ -136,7 +136,8 @@
   }
 
   function renderNotify(content, behavior, type) {
-    return `<label class="notify-btn" title="dismiss me">&#4030;</label><label class="notify-content">${content}</label>
+    const html = content.replace(/\n/g, '<br />');
+    return `<label class="notify-btn" title="dismiss me">&#4030;</label><label class="notify-content">${html}</label>
     `;
   }
 

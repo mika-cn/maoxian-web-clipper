@@ -17,7 +17,7 @@
   };
 
   function listenMessage(){
-    ExtMsg.initPage('content');
+    // ExtMsg has initialized in content-frame.js
     ExtMsg.listen(function(msg){
       return new Promise(function(resolve, reject){
         switch(msg.type){
@@ -75,6 +75,12 @@
     }
   }
 
+  function listenInternalMessage() {
+    MxWcEvent.listenInternal('focus-elem', focusElem);
+    MxWcEvent.listenInternal('confirm-elem', confirmElem);
+    MxWcEvent.listenInternal('clip-elem', clipElem);
+    Log.debug('listen internal message');
+  }
 
   /*
    * ThirdParty: userScript or other Extension.
@@ -238,6 +244,7 @@
             initialize();
             listenMessage();
             listenPopState();
+            listenInternalMessage();
             if (config.communicateWithThirdParty) {
               listenTpMessage();
               tellTpWeAreReady();

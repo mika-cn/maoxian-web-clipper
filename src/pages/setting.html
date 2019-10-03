@@ -17,6 +17,7 @@
           <a class="menu" href="#setting-storage" i18n="setting.title.storage"></a>
           <a class="menu" href="#setting-offline-page" i18n="setting.title.offline-page"></a>
           <a class="menu" href="#setting-refresh-history" i18n="setting.title.refresh-history"></a>
+          <a class="menu" href="#setting-assistant" i18n="setting.title.assistant"></a>
           <a class="menu" href="#setting-advanced" i18n="setting.title.advanced"></a>
           <hr />
           <a class="menu" href="#setting-handler-browser" i18n="setting.title.handler-browser"></a>
@@ -97,6 +98,50 @@
           <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
         </div>
       </section>
+    </template>
+
+    <template id="section-setting-assistant-tpl">
+      <section id="setting-assistant">
+        <h2 class="center" i18n="setting.title.assistant"></h2>
+        <div class="intro">
+          <h3 i18n="setting.title.intro"></h3>
+          <div class="notice-info" i18n="setting.notice.assistant-intro"></div>
+          <input type="checkbox" id="assistant-enabled"/>
+          <label for="assistant-enabled" i18n="setting.assistant-enabled-input.label"></label>
+        </div>
+        <div class="custom-plan">
+          <h3 i18n="setting.title.custom-plan"></h3>
+          <div class="notice-info" i18n="setting.notice.custom-plan-intro"></div>
+          <textarea id="custom-plans"></textarea>
+          <br />
+          <button id="save-custom-plan" i18n="setting.button.save"></button>
+        </div>
+        <div class="public-plan">
+          <h3 i18n="setting.title.public-plan"></h3>
+          <div class="notice-info" i18n="setting.notice.public-plan-intro"></div>
+          <div class="subscriptions">
+            <h4 i18n="setting.title.subscriptions"></h4>
+            <div class="list"></div>
+          </div>
+          <br /><br />
+          <div class="edit-subscription">
+            <div class="notice-info" i18n="setting.notice.edit-subscription"></div>
+            <textarea id="plan-subscription"></textarea>
+            <div class="logs" id="update-public-plan-log"></div>
+            <br>
+            <button id="save-plan-subscription" i18n="setting.button.save"></button>
+            <button id="update-public-plan-now" i18n="setting.button.update-now"></button>
+          </div>
+          <div class="switches">
+            <br />
+            <input type="checkbox" id="auto-update-public-plan"/>
+            <label for="auto-update-public-plan" i18n="setting.auto-update-public-plan-input.label"></label>
+          </div>
+        </div>
+      </section>
+    </template>
+    <template id="subscription-tpl">
+      <li><label>${name} (${size})</label> - <label>${url}</label></li>
     </template>
 
     <template id="section-setting-storage-tpl">
