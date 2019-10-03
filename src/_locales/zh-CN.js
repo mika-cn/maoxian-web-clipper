@@ -19,9 +19,10 @@
     //=====================================
     // global
     //=====================================
-    "none": "无",
+    "none": "暂无信息",
     "btn.confirm": "确认",
 
+    "op.saved": "已保存",
     "op.update-success": "更新成功!",
     "op.delete-success": "删除成功!",
 
@@ -99,6 +100,7 @@
     // errors
     "error.handler.not-enabled": "处理程序未启用",
     "error.handler.not-ready": "处理程序处于不可用状态",
+    "error.value-invalid": "输入值无效",
 
 
     // title
@@ -109,6 +111,10 @@
 
     "setting.title.general": "基础设置",
     "setting.title.storage": "存储设置",
+    "setting.title.assistant": "助手设置",
+    "setting.title.public-plan": "公开的「计划」",
+    "setting.title.subscriptions": "我的订阅（已下载）",
+    "setting.title.custom-plan": "自定义「计划」",
     "setting.title.handler": "处理程序",
     "setting.title.handler-browser": "浏览器",
     "setting.title.handler-native-app": "本地程序",
@@ -197,6 +203,8 @@
     // buttons
     "setting.button.generate-now": "马上生成",
     "setting.button.refresh-now": "马上刷新",
+    "setting.button.update-now": "马上更新",
+    "setting.button.save": "保存",
 
     // notice
     "setting.notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
@@ -214,6 +222,10 @@
     "setting.notice.autogenerate-clipping-js": "<strong>自动生成脚本文件</strong><br />勾选这个之后，每一次裁剪网页或通过历史页面删除裁剪文件，插件都会自动更新此脚本文件。此脚本文件包含了你当前所有裁剪历史，该文件会被用于上面提到的「离线索引页面」.",
     "setting.notice.clipping-js-path": "<strong>脚本文件的存储路径</strong><br />一般放到「离线索引页面」同一个目录下 <br />使用 <strong>$STORAGE-PATH</strong> 来表示： <code>下载路径</code> / <code>根目录</code>",
     "setting.notice.refresh-history": "当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。",
+    "setting.notice.assistant-intro": "使用「毛线助手」，我们可以对于某个网站的网页，预先定义一个「计划」，该计划包含一系列「动作」。当你对这个网站的网页进行裁剪时，该计划就会运用到网页上面。目前支持的「动作」包括： 选中元素、隐藏元素、显示元素以及修改元素的属性。",
+    "setting.notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
+    "setting.notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。",
+    "setting.notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
 
     // label
     "setting.enable-handler.label": "启用该处理程序",
@@ -239,6 +251,10 @@
     "setting.refresh-now-success.label": "刷新成功",
     "setting.last-refresh-time.label": "上次刷新时间",
     "setting.communicate-with-third-party-input.label": "开启第三方消息",
+    "setting.assistant-enabled-input.label": "启用助手",
+    "setting.auto-update-public-plan-input.label": "自动更新 (每次你打开浏览器都会尝试进行更新)",
+    "setting.last-update-time.label": "上次更新时间",
+    "setting.update-now-success.label": "更新成功",
 
     // placeholder
     "setting.placeholder.notblank": "此项不能为空",

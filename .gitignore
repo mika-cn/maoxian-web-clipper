@@ -16,5 +16,3 @@ native-app/pack.yaml
 native-app/pack.yaml.production
 native-app/test/mx-wc/clippings
 native-app/test/mx-wc/global-assets
-useful-res/assistant/public/dev/*
-useful-res/assistant/public/dist/*

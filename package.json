@@ -4,7 +4,7 @@
   "description": "no description",
   "main": "",
   "scripts": {
-    "test": "MX_WC_TESTING=yes mocha"
+    "test": "MX_WC_TESTING=yes mocha --recursive"
   },
   "author": "Mika",
   "license": "MIT",

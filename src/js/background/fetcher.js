@@ -22,7 +22,7 @@
    *
    * @return {Promise} resolve with text or blob.
    */
-  function get(url, {respType = 'text', headers, timeout = 40}) {
+  function get(url, {respType = 'text', headers = {}, timeout = 40}) {
     return new Promise((resolve, reject) => {
       // how to ensure mode is right
       const {extraFetchOpts, timeoutPromise} = getTimeoutParams(timeout);

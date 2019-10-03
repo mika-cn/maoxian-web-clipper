@@ -3,13 +3,14 @@
     root.MxWcLog,
     root.MxWcExtMsg,
     root.MxWcFrameMsg,
-    root.MxWcConfig,
     root.MxWcEvent,
+    root.MxWcConfig,
     root.MxWcHtml,
-    root.MxWcMarkdown
+    root.MxWcMarkdown,
+    root.MxWcAssistantMain
   );
-})(this, function(Log, ExtMsg, FrameMsg, MxWcConfig, MxWcEvent,
-    MxWcHtml, MxWcMarkdown, undefined) {
+})(this, function(Log, ExtMsg, FrameMsg, MxWcEvent, Config,
+    MxWcHtml, MxWcMarkdown, MxWcAssistantMain, undefined) {
   "use strict";
 
   /*
@@ -69,20 +70,25 @@
     }
   }
 
-  function listenBackgroundMessage() {
-    ExtMsg.initPage('content-frame');
-    ExtMsg.listen(backgroundMessageHandler);
-  }
-
   function listenFrameMessage() {
     FrameMsg.init({
       id: window.location.href,
       origin: window.location.origin
     });
     MxWcEvent.handleBroadcastInternal();
-    MxWcConfig.load().then((config) => {
+    Config.load().then((config) => {
       if (config.communicateWithThirdParty) {
         MxWcEvent.handleBroadcastPublic();
+      }
+    });
+  }
+
+  function initMxWcAssistant() {
+    Config.load().then((config) => {
+      if (config.assistantEnabled) {
+        MxWcAssistantMain.init();
+      } else {
+        Log.debug("Assistant disabled");
       }
     });
   }
@@ -91,9 +97,13 @@
   function init() {
     if(window === window.top){
       // Main window
+      ExtMsg.initPage('content');
+      initMxWcAssistant();
     }else{
       // Iframe
-      listenBackgroundMessage();
+      ExtMsg.initPage('content-frame');
+      initMxWcAssistant();
+      ExtMsg.listen(backgroundMessageHandler);
       listenFrameMessage();
     }
   }

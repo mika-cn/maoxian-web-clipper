@@ -92,7 +92,11 @@
       refreshHistoryHandler: 'NativeApp',
       autoRefreshHistory: false,
 
-
+      //=====================================
+      // MxWc Assistant
+      //=====================================
+      assistantEnabled: false,
+      autoUpdatePublicPlan: false,
     }
   }
 

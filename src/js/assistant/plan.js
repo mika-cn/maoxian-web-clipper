@@ -1,4 +1,3 @@
-;
 /*!
  * MaoXian Web Clipper Tool
  *   apply function is used to apply a plan. Plan describes some operators include hiding DOM element, picking DOM element etc.
@@ -8,22 +7,23 @@
  *     pickAction: 'focus' or 'confirm' or 'clip'
  *   }
  */
-
-//=META version 0.2.3
-
-var MxWc = (function(undefined){
+;(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    // CJS
+    module.exports = factory();
+  } else {
+    // browser or other
+    root.MxWcAssistantPlan = factory(root.MxWcEvent);
+  }
+})(this, function(MxWcEvent, undefined) {
   "use strict";
-  let ready = false;
+
   let listeners = {};
 
   function listen(type, action) {
     const actions = getActions(type);
     actions.push(action);
     listeners[type] = actions;
-    if(type == 'ready' && ready == true) {
-      // MxWc is ready before we listen
-      performWhenReady();
-    }
   }
 
   function getActions(type) {
@@ -35,22 +35,9 @@ var MxWc = (function(undefined){
 
 
   function bindListener() {
-    document.addEventListener('mx-wc.ready', performWhenReady);
-    document.addEventListener('mx-wc.selecting', performWhenSelecting);
-    document.addEventListener('mx-wc.completed', performWhenCompleted);
-    document.addEventListener('mx-wc.idle', performWhenIdle);
-  }
-
-  function unbindListener() {
-    document.removeEventListener('mx-wc.ready', performWhenReady);
-    document.removeEventListener('mx-wc.selecting', performWhenSelecting);
-    document.removeEventListener('mx-wc.completed', performWhenCompleted);
-    document.removeEventListener('mx-wc.idle', performWhenIdle);
-  }
-
-  function performWhenReady(e) {
-    const detail = {};
-    perform('ready', detail);
+    MxWcEvent.listenInternal('selecting', performWhenSelecting);
+    MxWcEvent.listenInternal('completed', performWhenCompleted);
+    MxWcEvent.listenInternal('idle', performWhenIdle);
   }
 
   function performWhenSelecting(e) {
@@ -107,7 +94,7 @@ var MxWc = (function(undefined){
               .forEach(function(elem) {
                 const style = window.getComputedStyle(elem);
                 if(style.display != params.display) {
-                  elem.setAttribute("mx-original-display", style.display);
+                  elem.setAttribute("data-mx-original-display", elem.style.display);
                   elem.style.display = params.display;
                 }
               });
@@ -139,9 +126,9 @@ var MxWc = (function(undefined){
         selectorStrs.forEach(function(it) {
           queryElemsBySelector(it, (This.contextNode || document))
             .forEach(function(elem) {
-              const attrName = "mx-original-display";
-              const originalValue = elem.getAttribute(attrName);
-              if(originalValue) {
+              const attrName = "data-mx-original-display";
+              if (elem.hasAttribute(attrName)) {
+                const originalValue = elem.getAttribute(attrName);
                 elem.style.display = originalValue;
                 elem.removeAttribute(attrName);
               }
@@ -199,7 +186,7 @@ var MxWc = (function(undefined){
             .forEach(function(elem) {
               const value = This.getValue(elem, action);
               if(value) {
-                const attrName = ['mx-original-attr', action.attr].join(':');
+                const attrName = ['data-mx-original-attr', action.attr].join('-');
                 elem.setAttribute(attrName, elem.getAttribute(action.attr));
                 elem.setAttribute(action.attr, value);
               }
@@ -266,7 +253,7 @@ var MxWc = (function(undefined){
           selectorStrs.forEach(function(it) {
             queryElemsBySelector(it, (This.contextNode || document))
               .forEach(function(elem) {
-                const attrName = ['mx-original-attr', action.attr].join(':');
+                const attrName = ['data-mx-original-attr', action.attr].join('-');
                 const originalValue = elem.getAttribute(attrName);
                 if(originalValue) {
                   elem.setAttribute(action.attr, originalValue);
@@ -297,7 +284,7 @@ var MxWc = (function(undefined){
             if(params.options) {
               msg.options = params.options
             }
-            dispatchEvent(params.eventName, msg);
+            MxWcEvent.dispatchInternal(params.eventName, msg);
           }
         }
       }
@@ -306,18 +293,18 @@ var MxWc = (function(undefined){
 
   Action.focusElem = createPickedElemAction({
     name: 'focusElem',
-    eventName: 'mx-wc.focus-elem'
+    eventName: 'focus-elem'
   });
 
   Action.confirmElem = createPickedElemAction({
     name: 'confirmElem',
-    eventName: 'mx-wc.confirm-elem',
+    eventName: 'confirm-elem',
     options: {}
   });
 
   Action.clipElem = createPickedElemAction({
     name: 'clipElem',
-    eventName: 'mx-wc.clip-elem',
+    eventName: 'clip-elem',
     options: {}
   });
 
@@ -327,7 +314,7 @@ var MxWc = (function(undefined){
       isPerformOnce: true,
       inputs: inputs,
       perform: function(detail={}) {
-        dispatchEvent('mx-wc.set-form-inputs', {
+        MxWcEvent.dispatchInternal('set-form-inputs', {
           options: inputs
         });
       }
@@ -343,23 +330,6 @@ var MxWc = (function(undefined){
         fn(detail);
       }
     }
-  }
-
-  Action.init = function() {
-    return {
-      name: 'init',
-      isPerformOnce: true,
-      perform: function(detail={}) {
-        ready = true;
-      }
-    }
-  }
-
-  function dispatchEvent(name, detail){
-    const detailJson = JSON.stringify(detail)
-    const ev = new CustomEvent(name, {detail: detailJson});
-    console.debug('emitEvent', name, detail);
-    document.dispatchEvent(ev);
   }
 
   //=========================================
@@ -484,9 +454,11 @@ var MxWc = (function(undefined){
         if(pickedElem) {
           handleNormalAttr(plan, pickedElem);
           switch(pickAction) {
-            case 'clip'    : listen('ready', Action.clipElem(selectorInput)); break;
             case 'confirm' : listen('selecting', Action.confirmElem(selectorInput)); break;
-            case 'focus'   : listen('selecting', Action.focusElem(selectorInput)); break;
+            default:
+              /* 'focus' or other */
+              listen('selecting', Action.focusElem(selectorInput));
+              break;
           }
         } else {
           // plan invalid, do nothing
@@ -520,7 +492,7 @@ var MxWc = (function(undefined){
 
     if(hasSelector(showElem)) {
       const selectorInput = showElem;
-      listen('selecting', Action.hideElem(selectorInput, contextNode));
+      listen('selecting', Action.showElem(selectorInput, contextNode));
       listen('idle', Action.undoDisplay(selectorInput, contextNode));
     }
 
@@ -533,16 +505,13 @@ var MxWc = (function(undefined){
   const hasSelector = function(it) { return it && it.length > 0; }
 
   /* initialize */
-  listen('ready', Action.init());
   bindListener();
-  console.log('MxWcTool initialized..');
 
   const PublicApi = {
     apply: apply,
     applyGlobal: applyGlobal,
-    setFormInputs: setFormInputs,
-    onClipCompleted: onClipCompleted
+    setFormInputs: setFormInputs
   }
 
   return PublicApi;
-})();
+});
