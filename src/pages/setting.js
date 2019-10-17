@@ -212,6 +212,11 @@
       'communicateWithThirdParty'
     );
 
+    initRadioInput(config,
+      'request-referrer-policy',
+      'requestReferrerPolicy',
+    );
+
   }
 
   // ======================================

@@ -97,12 +97,10 @@
     return result;
   }
 
-  function appendAttrsToUrlTask(tasks, attrs) {
+  function changeUrlTask(tasks, action) {
     tasks.forEach((task) => {
       if (task.type === 'url') {
-        for(let k in attrs) {
-          task[k] = attrs[k];
-        }
+        task = action(task);
       }
     });
     return tasks;
@@ -136,7 +134,7 @@
     createImageTask: createImageTask,
     createUrlTask: createUrlTask,
     rmReduplicate: rmReduplicate,
-    appendAttrsToUrlTask: appendAttrsToUrlTask,
+    changeUrlTask: changeUrlTask,
     sort: sort,
   }
 

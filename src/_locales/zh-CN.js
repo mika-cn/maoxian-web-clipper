@@ -125,6 +125,8 @@
     "setting.title.file-url": "本地网址",
     "setting.title.advanced": "高级",
     "setting.title.request": "HTTP 请求",
+    "setting.title.request-timeout": "超时设置",
+    "setting.title.request-referrer-policy": "設置 Referrer",
     "setting.title.misc": "杂项",
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.offline-page": "离线索引页面",
@@ -178,6 +180,10 @@
 
     "setting.option.title-style-clipping-folder-format.a": "格式A",
     "setting.option.title-style-clipping-folder-format.b": "格式B",
+    "setting.option.request-referrer-policy.origin-when-cross-origin": "同域请求时，Referrer 为全路径（请求域 + 请求路径），跨域请求时，Referrer 只包含请求域（协议 + 域名 + 端口）",
+    "setting.option.request-referrer-policy.origin": "Referrer 只包含请求域（协议 + 域名 + 端口）",
+    "setting.option.request-referrer-policy.no-referrer": "不发送 Referer",
+    "setting.option.request-referrer-policy.unsafe-url": "Referrer 为全路径（请求域 + 请求路径）",
 
 
     "setting.notice.info.storage.browser": "使用浏览器来下载裁剪结果",

@@ -48,11 +48,10 @@
   function getParams(message) {
     const {clipId, frames, storageInfo, mimeTypeDict, config} = message.body;
 
-    //FIXME
-    const headers = {
-      "Referer"    : window.location.href,
-      "Origin"     : window.location.origin,
-      "User-Agent" : window.navigator.userAgent
+    const headerParams = {
+      refUrl: window.location.href,
+      userAgent: window.navigator.userAgent,
+      referrerPolicy: config.requestReferrerPolicy,
     }
 
     return {
@@ -65,7 +64,7 @@
       mimeTypeDict: mimeTypeDict,
       parentFrameId: message.frameId,
       config: config,
-      headers: headers,
+      headerParams: headerParams,
       needFixStyle: false,
     }
   }

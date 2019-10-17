@@ -29,6 +29,12 @@ function getParams() {
       saveWebFont: false,
       saveCssImage: false
     },
+    headerParams: {
+      refUrl: 'https://a.org/index.html',
+      origin: 'https://a.org',
+      userAgent: 'ua',
+      referrerPolicy: 'origin',
+    },
     needFixStyle: false,
   }
 }

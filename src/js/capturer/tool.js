@@ -68,10 +68,79 @@
     });
   }
 
+  function getRequestHeaders(url, headerParams) {
+    const {refUrl, userAgent, referrerPolicy} = headerParams;
+    const headers = { 'User-Agent' : userAgent };
+
+    const referer = getReferrerHeader(
+      headerParams.refUrl, url,
+      headerParams.referrerPolicy
+    );
+
+    if (referer) {
+      headers['Referer'] = referer;
+    }
+
+    const origin = getOriginHeader(refUrl, url);
+    if (origin) {
+      headers['Origin'] = origin;
+    }
+
+    return headers;
+  }
+
+  /*
+   * @param {String} policy - see <img>'s attribute referrerpolicy for details.
+   */
+  function getReferrerHeader(refUrl, targetUrl, policy) {
+    if (isDowngradeHttpRequest(refUrl, targetUrl)) {
+      // no-referrer-when-downgrade
+      return null;
+    }
+    switch (policy) {
+      case 'originWhenCrossOrigin':
+        const u = new URL(refUrl);
+        const t = new URL(targetUrl);
+        if (u.origin !== t.origin) {
+          return u.origin;
+        } else {
+          break;
+        }
+      case 'origin':
+        return (new URL(refUrl)).origin;
+      case 'noReferer':
+        return null;
+      case 'unsafeUrl':
+      default: break;
+    }
+
+    if (refUrl.indexOf('#') > 0) {
+      return refUrl.split('#')[0];
+    } else {
+      return refUrl;
+    }
+  }
+
+  function getOriginHeader(refUrl, targetUrl) {
+    if (isDowngradeHttpRequest(refUrl, targetUrl)) {
+      // not origin when downgrade request
+      return null;
+    }
+    const u = new URL(refUrl);
+    const t = new URL(targetUrl);
+    return u.origin === t.origin ? null : u.origin;
+  }
+
+  function isDowngradeHttpRequest(fromUrl, toUrl) {
+    return fromUrl.match(/^https:/i) && toUrl.match(/^http:/i)
+  }
+
+
 
   return {
     captureImageSrcset: captureImageSrcset,
     parseSrcset: parseSrcset,
+    getRequestHeaders: getRequestHeaders,
   }
 
 });

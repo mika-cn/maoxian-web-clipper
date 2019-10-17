@@ -10,6 +10,7 @@
       require('../lib/ext-msg.js'),
       require('../lib/task.js'),
       require('../lib/template.js'),
+      require('../capturer/tool.js'),
       require('../capturer/a.js'),
       require('../capturer/img.js'),
       require('../capturer/style.js'),
@@ -26,6 +27,7 @@
       root.MxWcExtMsg,
       root.MxWcTask,
       root.MxWcTemplate,
+      root.MxWcCaptureTool,
       root.MxWcCapturerA,
       root.MxWcCapturerPicture,
       root.MxWcCapturerImg,
@@ -35,7 +37,7 @@
       root.MxWcStyleHelper
     );
   }
-})(this, function(T, DOMTool, Log, ExtMsg, Task, Template,
+})(this, function(T, DOMTool, Log, ExtMsg, Task, Template, CaptureTool,
     CapturerA,
     CapturerPicture,
     CapturerImg,
@@ -56,12 +58,10 @@
       ExtMsg.sendToBackground({type: 'get.allFrames'}),
     ])
 
-
-    //FIXME
-    const headers = {
-      "Referer"    : window.location.href,
-      "Origin"     : window.location.origin,
-      "User-Agent" : window.navigator.userAgent
+    const headerParams = {
+      refUrl: window.location.href,
+      userAgent: window.navigator.userAgent,
+      referrerPolicy: config.requestReferrerPolicy,
     }
 
     const isBodyElem = elem.tagName === 'BODY';
@@ -77,7 +77,7 @@
       baseUrl: window.document.baseURI,
       mimeTypeDict: mimeTypeDict,
       config: config,
-      headers: headers,
+      headerParams: headerParams,
       needFixStyle: !isBodyElem,
     });
 
@@ -93,7 +93,12 @@
 
     const mainFileTask = Task.createHtmlTask(filename, html, info.clipId);
     tasks.push(mainFileTask);
-    return Task.appendAttrsToUrlTask(tasks, {headers: headers, timeout: config.requestTimeout});
+
+    return Task.changeUrlTask(tasks, (task) => {
+      task['headers'] = CaptureTool.getRequestHeaders(
+        task.url, headerParams);
+      task['timeout'] = config.requestTimeout;
+    });
   }
 
   async function getElemHtml(params){
@@ -108,7 +113,7 @@
       mimeTypeDict,
       parentFrameId = topFrameId,
       config,
-      headers,
+      headerParams,
       needFixStyle,
     } = params;
     Log.debug('getElemHtml', baseUrl);
@@ -139,12 +144,12 @@
       {
         nodes: linkNodes,
         capturer: CapturerLink,
-        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers, needFixStyle}
+        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headerParams, needFixStyle}
       },
       {
         nodes: styleNodes,
         capturer: CapturerStyle,
-        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headers, needFixStyle}
+        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headerParams, needFixStyle}
       },
       {
         nodes: pictureNodes,
@@ -219,18 +224,13 @@
   }
 
   function removeUselessNode(contextNode){
-    // extension Iframe
-    T.each(contextNode.querySelectorAll('iframe, frame'), function(iframe){
-      if(T.isExtensionUrl(iframe.src)){
-        iframe.parentNode.removeChild(iframe);
-      }
-    });
     return DOMTool.removeNodeBySelectors(contextNode, [
       'link',
       'style',
       'script',
       'noscript',
-      'template'
+      'template',
+      '*[data-mx-ignore-me="true"]'
     ]);
   }
 

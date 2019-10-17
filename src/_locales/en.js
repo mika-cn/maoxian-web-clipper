@@ -124,6 +124,8 @@
     "setting.title.file-url": "File URL",
     "setting.title.advanced": "Advanced",
     "setting.title.request": "HTTP Request",
+    "setting.title.request-timeout": "Timeout",
+    "setting.title.request-referrer-policy": "Referrer Policy",
     "setting.title.misc": "Misc",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.offline-page": "Offline Index Page",
@@ -177,6 +179,11 @@
 
     "setting.option.title-style-clipping-folder-format.a": "Format A",
     "setting.option.title-style-clipping-folder-format.b": "Format B",
+
+    "setting.option.request-referrer-policy.origin-when-cross-origin": "originWhenCrossOrigin: full path (origin + path) when request to same origins, origin (protocol + host + port) only when request to other origins.",
+    "setting.option.request-referrer-policy.origin": "origin: origin only (protocol + host + port).",
+    "setting.option.request-referrer-policy.no-referrer": "noReferrer: The Referer header will not be sent.",
+    "setting.option.request-referrer-policy.unsafe-url": "unsafeUrl: The Referer header will include full path (origin + path).",
 
 
 

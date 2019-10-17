@@ -39,7 +39,14 @@ function getParams() {
     clipId: '001',
     config: {
       saveWebFont: false,
-      saveCssImage: false
+      saveCssImage: false,
+      saveIcon: true,
+    },
+    headerParams: {
+      refUrl: 'https://a.org/index.html',
+      origin: 'https://a.org',
+      userAgent: 'ua',
+      referrerPolicy: 'origin',
     }
   }
 }
