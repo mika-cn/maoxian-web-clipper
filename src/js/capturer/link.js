@@ -117,9 +117,8 @@
      */
 
     if (node.hasAttribute('disabled')) {
-      // style disabled
-      node.parentNode.removeChild(node);
-      return {node: null, tasks: []};
+      node.setAttribute('data-mx-ignore-me', 'true');
+      return {node: node, tasks: []};
     } else {
       const {isValid, url, message} = T.completeUrl(href, baseUrl);
       if (isValid) {

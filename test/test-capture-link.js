@@ -130,8 +130,7 @@ describe('Capture link', () => {
     const {node, params, Capturer} = initTest(html);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 0);
-    // node removed
-    H.assertEqual(r.node, null);
+    H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
   });
 
 

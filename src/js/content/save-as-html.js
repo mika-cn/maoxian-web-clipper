@@ -228,7 +228,6 @@
       'link',
       'style',
       'script',
-      'noscript',
       'template',
       '*[data-mx-ignore-me="true"]'
     ]);

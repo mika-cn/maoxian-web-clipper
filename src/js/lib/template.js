@@ -61,12 +61,12 @@
       <title>${v.info.title}</title>
       ${v.headInnerHtml}
       <style class="mx-wc-style">
+        body {padding-top: 20px;}
         .mx-wc-main img {max-width: 100%;}
         .mx-wc-main{
           box-sizing: content-box;
           background-color: ${v.outerElemBgCss} !important;
           margin: 0 auto;
-          margin-top: 20px;
           max-width: ${v.elemWidth}px;
         }
         @media (min-width: 768px) {
