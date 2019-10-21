@@ -11,6 +11,7 @@
       require('../lib/md-plugin-code.js'),
       require('../lib/md-plugin-mathjax.js'),
       require('../lib/md-plugin-mathml2latex.js'),
+      require('../capturer/tool.js'),
       require('../capturer/a.js'),
       require('../capturer/img.js'),
       require('../capturer/iframe.js'),
@@ -27,6 +28,7 @@
       root.MxWcMdPluginCode,
       root.MxWcMdPluginMathjax,
       root.MxWcMdPluginMathML2LaTeX,
+      root.MxWcCaptureTool,
       root.MxWcCapturerA,
       root.MxWcCapturerImg,
       root.MxWcCapturerIframe,
@@ -36,6 +38,7 @@
     MdPluginCode,
     MdPluginMathJax,
     MdPluginMathML2LaTeX,
+    CaptureTool,
     CapturerA,
     CapturerImg,
     CapturerIframe,
@@ -55,11 +58,10 @@
       ExtMsg.sendToBackground({type: 'get.allFrames'}),
     ]);
 
-    //FIXME
-    const headers = {
-      "Referer"    : window.location.href,
-      "Origin"     : window.location.origin,
-      "User-Agent" : window.navigator.userAgent
+    const headerParams = {
+      refUrl: window.location.href,
+      userAgent: window.navigator.userAgent,
+      referrerPolicy: config.requestReferrerPolicy,
     }
 
 
@@ -82,7 +84,12 @@
     const filename = T.joinPath(storageInfo.saveFolder, info.filename);
     const mainFileTask = Task.createMarkdownTask(filename, markdown, info.clipId);
     tasks.push(mainFileTask);
-    return Task.appendAttrsToUrlTask(tasks, {headers: headers, timeout: config.requestTimeout});
+
+    return Task.changeUrlTask(tasks, (task) => {
+      task['headers'] = CaptureTool.getRequestHeaders(
+        task.url, headerParams);
+      task['timeout'] = config.requestTimeout;
+    });
   }
 
   async function getElemHtml(params){

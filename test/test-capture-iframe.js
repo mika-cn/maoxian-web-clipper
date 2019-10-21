@@ -68,7 +68,7 @@ describe("Capture iframe", async () => {
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 0);
-    H.assertTrue(r.node.hasAttribute('data-mx-warn'));
+    H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
   })
 
   it('capture iframe that load failed', async() => {

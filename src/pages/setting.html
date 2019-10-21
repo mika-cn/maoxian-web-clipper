@@ -34,9 +34,29 @@
         <h2 class="center" i18n="setting.title.advanced"></h2>
         <div>
           <h3 i18n="setting.title.request"></h3>
+          <h4 i18n="setting.title.request-timeout"></h4>
           <input type="number" id="request-timeout-input" min="5" max="240" value="20" required/>
           <label for="request-timeout-input" i18n="setting.request-timeout-input.label"></label>
           <br />
+          <h4 i18n="setting.title.request-referrer-policy"></h4>
+          <div id="request-referrer-policy">
+            <div>
+              <input type="radio" value="originWhenCrossOrigin" id="request-referrer-policy-a" name="request-referrer-policy" />
+              <label for="request-referrer-policy-a" i18n="setting.option.request-referrer-policy.origin-when-cross-origin"></label>
+            </div>
+            <div>
+              <input type="radio" value="origin" id="request-referrer-policy-b" name="request-referrer-policy" />
+              <label for="request-referrer-policy-b" i18n="setting.option.request-referrer-policy.origin"></label>
+            </div>
+            <div>
+              <input type="radio" value="noReferrer" id="request-referrer-policy-c" name="request-referrer-policy" />
+              <label for="request-referrer-policy-c" i18n="setting.option.request-referrer-policy.no-referrer"></label>
+            </div>
+            <div>
+              <input type="radio" value="unsafeUrl" id="request-referrer-policy-d" name="request-referrer-policy" />
+              <label for="request-referrer-policy-d" i18n="setting.option.request-referrer-policy.unsafe-url"></label>
+            </div>
+          </div>
         </div>
         <div>
           <h3 i18n="setting.title.misc"></h3>
@@ -121,7 +141,17 @@
           <div class="notice-info" i18n="setting.notice.public-plan-intro"></div>
           <div class="subscriptions">
             <h4 i18n="setting.title.subscriptions"></h4>
-            <div class="list"></div>
+            <table>
+              <thead>
+                <tr>
+                  <th i18n="setting.title.subscription.name"></th>
+                  <th i18n="setting.title.subscription.version"></th>
+                  <th i18n="setting.title.subscription.size"></th>
+                  <th i18n="setting.title.subscription.detail"></th>
+                </tr>
+              <thead>
+              <tbody class="subscription-list"></tbody>
+            </table>
           </div>
           <br /><br />
           <div class="edit-subscription">
@@ -141,7 +171,12 @@
       </section>
     </template>
     <template id="subscription-tpl">
-      <li><label>${name} (${size})</label> - <label>${url}</label></li>
+      <tr>
+        <td>${name}</td>
+        <td>${version}</td>
+        <td>${size}</td>
+        <td><a href="go.page:extPage.plan-subscription?t=${t}" target="_blank" i18n="setting.title.subscription.detail"></a></td>
+      </tr>
     </template>
 
     <template id="section-setting-storage-tpl">

@@ -41,14 +41,14 @@
    *   - {String} clipId
    *   - {Object} mimeTypeDict
    *   - {Object} config
-   *   - {Object} headers
+   *   - {Object} headerParams
    *   - {Boolean} needFixStyle
    *
    * @return {Array} tasks
    *
    */
   async function captureLink(params) {
-    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config, headers, needFixStyle} = params;
+    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config, headerParams, needFixStyle} = params;
 
     const {isValid, url, message} = T.completeUrl(params.link, baseUrl);
     if (!isValid) {
@@ -62,7 +62,7 @@
         body: {
           clipId: clipId,
           url: url,
-          headers: headers,
+          headers: CaptureTool.getRequestHeaders(url, headerParams),
           timeout: config.requestTimeout,
         }
       });
@@ -73,7 +73,7 @@
       } else {
         // Use url as baseUrl
         const {cssText, tasks} = await captureText(Object.assign({baseUrl: url, docUrl: docUrl}, {
-          text, storageInfo, clipId, mimeTypeDict, config, needFixStyle
+          text, storageInfo, clipId, mimeTypeDict, config, headerParams, needFixStyle
         }));
 
         const assetName = Asset.getNameByLink({
@@ -106,6 +106,7 @@
    *   - {String} clipId
    *   - {Object} mimeTypeDict
    *   - {Object} config
+   *   - {Object} headerParams
    *   - {Boolean} needFixStyle
    *
    * @return {Array}
@@ -113,7 +114,7 @@
    *   - {Array}  tasks
    */
   async function captureText(params) {
-    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config, needFixStyle} = params;
+    const {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict={}, config, headerParams, needFixStyle} = params;
     let {text: styleText} = params;
     const taskCollection = [];
     // FIXME danger here (order matter)
@@ -199,7 +200,9 @@
     for(let i = 0; i < result.tasks.length; i++) {
       const tasks = await captureLink(Object.assign({
         link: result.tasks[i].url,
-        config: config
+        config: config,
+        headerParams: headerParams,
+        needFixStyle: needFixStyle,
       }, commonParams));
       taskCollection.push(...tasks);
     }

@@ -195,6 +195,27 @@ textarea {
   border-radius: 3px;
   min-height: 100px;
   padding: 10px;
+  line-height: 18px;
+}
+
+/********** table *********/
+
+table {
+  width: 100%;
+  padding: 5px;
+  border-radius: 3px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table > thead {
+  background-color: #e8e8e8;
+}
+
+table th, td {
+  line-height: 25px;
+  border: 1px solid #ccc;
+  padding: 2px 5px 2px 5px;
 }
 
 

@@ -80,8 +80,7 @@
 
     if (T.isExtensionUrl(url)) {
       const newNode = doc.createElement('div');
-      newNode.setAttribute('data-mx-warn', 'extension url was not captured by MaoXian')
-      newNode.setAttribute('data-mx-original-src', src);
+      newNode.setAttribute('data-mx-ignore-me', 'true');
       node.parentNode.replaceChild(newNode, node);
       return {node: newNode, tasks: tasks};
     }

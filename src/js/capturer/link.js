@@ -38,7 +38,7 @@
    *   - {Object} storageInfo
    *   - {Object} mimeTypeDict
    *   - {Object} config
-   *   - {Object} headers
+   *   - {Object} headerParams
    *
    */
   async function capture(node, opts) {
@@ -81,7 +81,7 @@
 
   function captureIcon({node, href, opts}) {
     //The favicon of the website.
-    const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config, headers} = opts;
+    const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config} = opts;
     const tasks = [];
 
     if (!config.saveIcon) {
@@ -106,7 +106,7 @@
   }
 
   async function captureStylesheet({node, linkTypes, href, opts}) {
-    const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config, headers} = opts;
+    const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config} = opts;
 
     /*
      * TODO Shall we handle alternative style sheets?
@@ -117,9 +117,8 @@
      */
 
     if (node.hasAttribute('disabled')) {
-      // style disabled
-      node.parentNode.removeChild(node);
-      return {node: null, tasks: []};
+      node.setAttribute('data-mx-ignore-me', 'true');
+      return {node: node, tasks: []};
     } else {
       const {isValid, url, message} = T.completeUrl(href, baseUrl);
       if (isValid) {

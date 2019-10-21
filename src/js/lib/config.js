@@ -43,6 +43,8 @@
       //=====================================
       /* unit: seconds */
       requestTimeout: 40,
+      /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
+      requestReferrerPolicy: 'originWhenCrossOrigin',
       communicateWithThirdParty: false,
 
       //=====================================
