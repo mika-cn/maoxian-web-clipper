@@ -103,7 +103,6 @@
 
 
   async function updatePublicPlans(urls) {
-    if (urls.length === 0) { return []}
     state.cachedPlans = [];
     const now = T.currentTime();
     const newPublicPlanPointers = [];
@@ -111,6 +110,7 @@
     const defaultVersion = '20180101';
     const subscriptions = [];
     const result = [];
+    const oldSubscriptions = await Storage.get([keyPrefix, 'subscriptions'].join('.'));
 
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -167,9 +167,20 @@
 
       } catch (err) {
         result.push({ok: false, message: err.message});
+        const subscription = oldSubscriptions.find((it) => {
+          return it.url === urls[i]
+        });
+
+        if (subscription) {
+          // keep old subscription
+          const key = [keyPrefix, subscription.name, subscription.latestVersion].join('.');
+          newPublicPlanPointers.push(key);
+          subscriptions.push(subscription);
+        }
         Log.error(err);
       }
     }
+
 
     // delete
     for (let j = 0; j < state.publicPlanPointers.length; j++) {

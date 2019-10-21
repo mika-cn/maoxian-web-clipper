@@ -113,6 +113,12 @@
     "setting.title.assistant": "Assistant",
     "setting.title.public-plan": "Public plan",
     "setting.title.subscriptions": "Subscriptions",
+    "setting.title.subscription.name": "Name",
+    "setting.title.subscription.version": "Version",
+    "setting.title.subscription.size": "Size",
+    "setting.title.subscription.plans": "Plans",
+    "setting.title.subscription.url": "Url",
+    "setting.title.subscription.detail": "Detail",
     "setting.title.custom-plan": "Custom plan",
     "setting.title.handler": "Handler",
     "setting.title.handler-browser": "Browser",
@@ -231,7 +237,7 @@
     "setting.notice.refresh-history": "This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest.",
     "setting.notice.assistant-intro": "Using MaoXian Assistant, you can predefine some actions in a plan, and this plan will be applied to the webpage that you're going to clip. These actions includes picking an element, hiding an element, showing an element and changing attributes of an element.",
     "setting.notice.public-plan-intro": "Public Plans are contributed by every MaoXian user. so that more people can use it.",
-    "setting.notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it",
+    "setting.notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it<br /><br />See <a href='go.page:public-subscriptions' target='_blank'>this page</a> for more subscriptions.",
     "setting.notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
 
 
@@ -374,10 +380,11 @@
     "created-at": "Created at",
 
     //=====================================
-    // notifications page
+    // plan subscription page
     //=====================================
-    "notification.title": "Message Center",
-    "notification.hint": "Click message to delete it",
+    "plan-subscription.page-title": "Subscription detail",
+    "plan-subscription.title.subscription": "Base Information",
+    "plan-subscription.title.plans": "Plans",
 
   }};
 });

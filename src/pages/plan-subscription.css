@@ -1,0 +1,48 @@
+.main {
+  max-width: 90%;
+  min-height: 800px;
+  margin: 0 auto;
+  padding: 50px 20px 200px 20px;
+  /*
+  border: 1px solid #ccc;*/
+  background-color: #fefefe;
+}
+
+.installation-hint {
+  border-top: 1px dashed #4caf50;
+  border-bottom: 1px dashed #4caf50;
+  margin-bottom: 40px;
+}
+
+.main a {
+  color: #5a84b3;
+  text-decoration: underline;
+}
+
+.plans pre {
+  background-color: #efefef;
+  padding: 15px;
+}
+
+.plans pre > code {
+  border: 0px;
+  line-height: 20px;
+}
+
+.link {
+  margin-bottom: 10px;
+  line-height: 20px;
+}
+
+table th {
+  text-align: right;
+}
+
+table th, td {
+  line-height: 25px;
+  padding: 2px 5px 2px 5px;
+}
+
+.page-title {
+  text-align: center;
+}

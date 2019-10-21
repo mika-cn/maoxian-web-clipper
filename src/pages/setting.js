@@ -608,19 +608,20 @@
   function renderSubscriptions() {
     MxWcStorage.get('assistant.public-plan.subscriptions', [])
       .then((subscriptions) => {
-        const elem = T.queryElem('.public-plan > .subscriptions > .list');
+        const elem = T.queryElem('.public-plan .subscription-list');
         if (subscriptions.length > 0) {
           const tpl = T.findElem('subscription-tpl').innerHTML;
           const html = T.map(subscriptions, (it) => {
             return T.renderTemplate(tpl, {
               name: it.name,
-              url: it.url,
               size: it.size,
+              version: it.latestVersion,
+              t: btoa(it.url),
             });
           }).join('');
-          T.setHtml(elem, ['<ul>', html, '</ul>'].join(''));
+          T.setHtml(elem,  html);
         } else {
-          T.setHtml(elem, '<label i18n="none"></label>');
+          T.setHtml(elem, '<tr><td colspan="4" i18n="none" align="center"></td></tr>');
         }
       });
   }
@@ -653,7 +654,6 @@
 
   function updatePublicPlans(e) {
     MxWcStorage.get('assistant.public-plan.subscription-urls', []).then((urls) => {
-      if (urls.length === 0) { return; }
       ExtMsg.sendToBackground({type: 'update.public-plan', body: {urls: urls}})
         .then((result) => {
           const logs = [];
@@ -670,8 +670,13 @@
               logs.push(renderLog(it.message, true));
             }
           })
+
           const elem = T.findElem('update-public-plan-log');
-          logs.push(renderLog("Done! " + T.currentTime().time()));
+          if (logs.length > 0) {
+            logs.push(renderLog("Done! " + T.currentTime().time()));
+          } else {
+            logs.push("Not subscription");
+          }
           T.setHtml(elem, logs.join(''));
           elem.classList.add('active');
           renderSubscriptions();

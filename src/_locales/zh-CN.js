@@ -114,6 +114,12 @@
     "setting.title.assistant": "助手设置",
     "setting.title.public-plan": "公开的「计划」",
     "setting.title.subscriptions": "我的订阅（已下载）",
+    "setting.title.subscription.name": "名称",
+    "setting.title.subscription.version": "版本",
+    "setting.title.subscription.size": "记录数",
+    "setting.title.subscription.plans": "查看计划",
+    "setting.title.subscription.url": "网址",
+    "setting.title.subscription.detail": "细节",
     "setting.title.custom-plan": "自定义「计划」",
     "setting.title.handler": "处理程序",
     "setting.title.handler-browser": "浏览器",
@@ -230,7 +236,7 @@
     "setting.notice.refresh-history": "当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。",
     "setting.notice.assistant-intro": "使用「毛线助手」，我们可以对于某个网站的网页，预先定义一个「计划」，该计划包含一系列「动作」。当你对这个网站的网页进行裁剪时，该计划就会运用到网页上面。目前支持的「动作」包括： 选中元素、隐藏元素、显示元素以及修改元素的属性。",
     "setting.notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
-    "setting.notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。",
+    "setting.notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。<br /><br /><a href='go.page:public-subscriptions' target='_blank'>查看可订阅列表</a>",
     "setting.notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
 
     // label
@@ -369,10 +375,11 @@
     "created-at": "创建于",
 
     //=====================================
-    // notifications page
+    // plan subscription page
     //=====================================
-    "notification.title": "消息中心",
-    "notification.hint": "删除消息，请直接点击消息",
+    "plan-subscription.page-title": "订阅详情",
+    "plan-subscription.title.subscription": "基本信息",
+    "plan-subscription.title.plans": "计划",
 
   }};
 });
