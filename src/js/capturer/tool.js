@@ -58,14 +58,51 @@
    *   - {Array} item
    *     - {String} url
    *     - {String} widthDescriptor
-   *     - {String} pixelDensityDescriptor
+   *      or pixelDensityDescriptor (optional)
    *
    */
   function parseSrcset(srcset) {
-    const items = srcset.split(',');
-    return [].map.call(items, (it) => {
-      return it.trim().split(/\s+/);
-    });
+    const result = [];
+    let currItem = [];
+    let str = '';
+    for (let i = 0; i < srcset.length; i++) {
+      const currChar = srcset[i];
+      switch(currChar) {
+        case ',':
+          const nextChar = srcset[i + 1];
+          if (// is going to start a new item
+              nextChar && nextChar === ' '
+              // or current str is a descriptor
+              // (end of item)
+            || str.match(/^[\d\.]+[xw]{1}$/)
+          ) {
+            if (str !== '') {
+              currItem.push(str);
+              result.push(Array.of(...currItem));
+              str = '';
+              currItem = [];
+            }
+          } else {
+            str += currChar;
+          }
+          break;
+        case ' ':
+          if (str !== '') {
+            currItem.push(str);
+            str = '';
+          }
+          break;
+        default:
+          str += currChar
+      }
+    }
+    if (str !== '') {
+      currItem.push(str);
+      result.push(Array.of(...currItem));
+      str = '';
+      currItem = [];
+    }
+    return result;
   }
 
   function getRequestHeaders(url, headerParams) {
