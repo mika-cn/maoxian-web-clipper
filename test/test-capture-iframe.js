@@ -131,14 +131,14 @@ describe("Capture iframe", async () => {
     let r = await Capturer.capture(node, params);
     console.log(r.node.outerHTML);
     H.assertEqual(r.tasks.length, 0);
-    H.assertNotEqual(r.node.tagName, 'IFRAME');
+    H.assertNotEqual(r.node.tagName.toUpperCase(), 'IFRAME');
     H.assertEqual(r.node.innerHTML, frameHtml);
 
     // capture same frame html again
     const {node: nodeB} = DOMTool.parseHTML(html);
     r = await Capturer.capture(nodeB, params);
     H.assertEqual(r.tasks.length, 0);
-    H.assertNotEqual(r.node.tagName, 'IFRAME');
+    H.assertNotEqual(r.node.tagName.toUpperCase(), 'IFRAME');
     H.assertEqual(r.node.innerHTML, frameHtml);
     ExtMsg.clearMocks();
   });

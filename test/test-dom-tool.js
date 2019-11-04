@@ -63,7 +63,7 @@ describe('DomTool', () => {
     const html = getHtml2();
     const {doc, node} = T.parseHTML(html);
     const target = T.findNodeByXpath(doc, node, '*[2]/*[1]');
-    H.assertEqual(target.tagName.toLowerCase(), 'target');
+    H.assertEqual(target.tagName.toUpperCase(), 'TARGET');
   });
 
 })

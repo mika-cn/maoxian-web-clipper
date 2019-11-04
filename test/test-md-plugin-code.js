@@ -19,7 +19,7 @@ describe('MdPluginCode', () => {
       const preNodes = contextNode.querySelectorAll('pre');
       H.assertEqual(preNodes.length, 1);
       const child = preNodes[0].children[0];
-      H.assertEqual(child.tagName, 'CODE');
+      H.assertEqual(child.tagName.toUpperCase(), 'CODE');
       H.assertEqual(child.getAttribute('class'), ['language', language].join('-'));
     });
   }

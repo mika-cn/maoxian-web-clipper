@@ -168,7 +168,7 @@
   function mouseMove(msg) {
     try {
       const elem = getElementFromPoint(msg.x, msg.y);
-      if(['HTML'].indexOf(elem.tagName) > -1) {
+      if(['HTML'].indexOf(elem.tagName.toUpperCase()) > -1) {
         return;
       }
       if(state.currElem && state.currElem == elem){
@@ -508,7 +508,7 @@
   function pressLeft(msg){
     if(state.clippingState === 'selected'){
       const pElem = getOutermostWrapper(state.currElem.parentElement);
-      if(['HTML'].indexOf(pElem.tagName) < 0){
+      if(['HTML'].indexOf(pElem.tagName.toUpperCase()) < 0){
         MxWc.selector.stack.push(state.currElem);
         switchSelected(state.currElem, pElem);
       }
@@ -563,7 +563,7 @@
   }
 
   function getOutermostWrapper(elem){
-    if(['HTML', 'BODY'].indexOf(elem.tagName) > 0){ return elem }
+    if(['HTML', 'BODY'].indexOf(elem.tagName.toUpperCase()) > 0){ return elem }
     const pElem = elem.parentElement;
     if(isBoxSizeEq(elem, pElem) && !isElemHasVisibleSibling(elem) || isIndivisible(elem, pElem)){
       return getOutermostWrapper(pElem);
@@ -603,7 +603,7 @@
         ['TBODY', 'TABLE'],
         [ANY, 'DETAILS'],
       ].some((p) => {
-        return (p[0] === ANY || elem.tagName === p[0]) && pElem.tagName === p[1]
+        return (p[0] === ANY || elem.tagName.toUpperCase() === p[0]) && pElem.tagName.toUpperCase() === p[1]
       })
     } else {
       return false;
@@ -613,8 +613,8 @@
 
   function isOnBlackList(elem){
     const blackList = ["SCRIPT", "STYLE", "TEMPLATE"];
-    return (blackList.indexOf(elem.tagName) > -1
-      || elem.tagName === 'IFRAME' && T.isExtensionUrl(elem.src)
+    return (blackList.indexOf(elem.tagName.toUpperCase()) > -1
+      || elem.tagName.toUpperCase() === 'IFRAME' && T.isExtensionUrl(elem.src)
       || elem.getBoundingClientRect().height === 0
       || elem.innerText.trim().length === 0
     )

@@ -64,7 +64,7 @@
       referrerPolicy: config.requestReferrerPolicy,
     }
 
-    const isBodyElem = elem.tagName === 'BODY';
+    const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
 
 
     // 获取选中元素的html
@@ -204,7 +204,7 @@
     ].join("\n");
 
     let elemHtml = "";
-    if(elem.tagName === 'BODY') {
+    if(elem.tagName.toUpperCase() === 'BODY') {
       elemHtml = dealBodyElem(selectedNode, elem);
     } else {
       elemHtml = dealNormalElem(selectedNode, elem);
@@ -236,7 +236,7 @@
   /* wrap to body element */
   function wrapToBody(elem, html){
     let pElem = elem.parentElement;
-    while(pElem && ['html', 'body'].indexOf(pElem.tagName.toLowerCase()) == -1){
+    while(pElem && ['HTML', 'BODY'].indexOf(pElem.tagName.toUpperCase()) == -1){
       const tagName = pElem.tagName
 
       const attrs = [];

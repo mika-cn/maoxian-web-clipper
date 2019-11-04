@@ -391,7 +391,7 @@
 
     while(currNode = queue.shift()) {
       currPath = parentPaths.shift();
-      if (blackList.indexOf(currNode.tagName) > -1) {
+      if (blackList.indexOf(currNode.tagName.toUpperCase()) > -1) {
         currPath = undefined;
 
       } else {
@@ -551,7 +551,7 @@
     let currNode = node;
     for (let i = idx + 1; i < range.length; i++) {
       if (currNode.parentNode
-        && currNode.parentNode.tagName !== 'BODY'
+        && currNode.parentNode.tagName.toUpperCase() !== 'BODY'
         && hasOnlyOneChild(currNode.parentNode)
       ) {
         currNode = currNode.parentNode;

@@ -110,7 +110,7 @@
 
   function listen(contextNode) {
     (contextNode || window.document).addEventListener('click', function(e) {
-      if(e.target.tagName == 'A' && e.target.href.startsWith('go.page:')) {
+      if(e.target.tagName.toUpperCase() == 'A' && e.target.href.startsWith('go.page:')) {
         const exp = e.target.href.split(':')[1];
         const link = get(exp);
         e.preventDefault();

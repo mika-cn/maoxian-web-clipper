@@ -109,7 +109,7 @@
 
 
   T.isElemVisible = function(win, elem) {
-    if(['STYLE', 'IMG', 'PICTURE'].indexOf(elem.tagName) > -1) {
+    if(['STYLE', 'IMG', 'PICTURE'].indexOf(elem.tagName.toUpperCase()) > -1) {
       return true
     }
 
@@ -859,7 +859,7 @@
 
   T.getTagsByName = function(elem, name){
     let r = []
-    if(elem.tagName === name.toUpperCase()){
+    if(elem.tagName.toUpperCase() === name.toUpperCase()){
       r.push(elem);
     }
     const child = elem.getElementsByTagName(name)

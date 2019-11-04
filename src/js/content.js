@@ -214,7 +214,7 @@
     if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey){ return }
     // 67 keyCode of 'c'
     if(e.keyCode != 67){ return }
-    if(e.target.tagName === 'BODY'){
+    if(e.target.tagName.toUpperCase() === 'BODY'){
       UI.entryClick(e);
     }else{
       Log.debug(e.target.tagName);
@@ -232,11 +232,9 @@
   }
 
   function run(){
-    if(document){
-      const xml = new XMLSerializer().serializeToString(document).trim();
-      if(xml.match(/^<\?xml/i)){
-        /* page is rss/atom ... */
-      }else{
+    if (document) {
+      if (document.documentElement.tagName.toUpperCase() === 'HTML') {
+        // html xhm etc.
         setTimeout(() => {
           MxWcConfig.load().then((config) => {
             state.config = config;
@@ -252,6 +250,8 @@
             MxWcLink.listen(document.body);
           });
         }, 0)
+      } else {
+        // feed or others
       }
     }
   }

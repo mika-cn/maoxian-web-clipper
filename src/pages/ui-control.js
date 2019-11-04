@@ -82,7 +82,7 @@
   }
 
   function keyboardClicked(e) {
-    if(e.target.tagName === 'KBD') {
+    if(e.target.tagName.toUpperCase() === 'KBD') {
       const keyCode = parseInt(e.target.getAttribute('data-key-code'));
       if(keyCode > -2000) {
         // webpage relative event
@@ -174,7 +174,7 @@
   function keyDownHandler(e) {
     const keyCodes = [27, 13, 37, 46, 38, 39, 40];
     if(keyCodes.indexOf(e.keyCode) < 0) { return }
-    if(!INPUT_TAG_NAMES.includes(e.target.tagName) && !CLASS_FORM_INPUTS.includes(e.target.parentNode.className)){
+    if(!INPUT_TAG_NAMES.includes(e.target.tagName.toUpperCase()) && !CLASS_FORM_INPUTS.includes(e.target.parentNode.className)){
       sendKeyPressMessage(e.keyCode);
     }else{
       Log.debug(e.target.tagName);
@@ -201,7 +201,7 @@
     if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey){ return }
     // 67 keyCode of 'c'
     if(e.keyCode != 67){ return }
-    if(e.target.tagName === 'BODY'){
+    if(e.target.tagName.toUpperCase() === 'BODY'){
       entryClick();
     }else{
       // console.log(e.target.tagName);
@@ -324,7 +324,7 @@
     T.setHtml(formatOption, html);
 
     T.bind(formatOption, 'click', (e) => {
-      if(e.target.tagName === 'A'){
+      if(e.target.tagName.toUpperCase() === 'A'){
         const value = e.target.getAttribute('data-value');
         T.findElem(ID_FORMAT).value = value;
         updateOptionsState(formatOption, value)

@@ -28,7 +28,7 @@
     if (srcset) {
       const arr = parseSrcset(srcset);
       let mimeType = null;
-      if (node.tagName.toLowerCase() === 'source') {
+      if (node.tagName.toUpperCase() === 'SOURCE') {
         mimeType = node.getAttribute('type');
       }
       const newSrcset = arr.map((item) => {
