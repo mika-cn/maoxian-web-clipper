@@ -94,8 +94,9 @@
               .forEach(function(elem) {
                 const style = window.getComputedStyle(elem);
                 if(style.display != params.display) {
-                  elem.setAttribute("data-mx-original-display", elem.style.display);
-                  elem.style.display = params.display;
+                  elem.setAttribute("data-mx-original-display-value", elem.style.getPropertyValue('display'));
+                  elem.setAttribute("data-mx-original-display-priority", elem.style.getPropertyPriority('display'));
+                  elem.style.setProperty('display', params.display, params.priority);
                 }
               });
           })
@@ -106,12 +107,14 @@
 
   Action.showElem = createSetDisplayAction({
     name: 'showElem',
-    display: 'block'
+    display: 'block',
+    priority: 'important'
   });
 
   Action.hideElem = createSetDisplayAction({
     name: 'hideElem',
-    display: 'none'
+    display: 'none',
+    priority: 'important'
   });
 
   Action.undoDisplay = function(selectorInput, contextNode) {
@@ -126,11 +129,18 @@
         selectorStrs.forEach(function(it) {
           queryElemsBySelector(it, (This.contextNode || document))
             .forEach(function(elem) {
-              const attrName = "data-mx-original-display";
-              if (elem.hasAttribute(attrName)) {
-                const originalValue = elem.getAttribute(attrName);
-                elem.style.display = originalValue;
-                elem.removeAttribute(attrName);
+              const attrNameOfValue = "data-mx-original-display-value";
+              const attrNameOfPriority = "data-mx-original-display-priority";
+
+              if (elem.hasAttribute(attrNameOfValue)) {
+                const originalValue = elem.getAttribute(attrNameOfValue);
+                const originalPriority = elem.getAttribute(attrNameOfPriority);
+                elem.style.setProperty('display', originalValue, originalPriority);
+                elem.removeAttribute(attrNameOfValue);
+                elem.removeAttribute(attrNameOfPriority);
+                if (elem.style.length === 0) {
+                  elem.removeAttribute('style');
+                }
               }
             });
         })
