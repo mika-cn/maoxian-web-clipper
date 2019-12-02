@@ -40,6 +40,8 @@
     const btn = getEntryBtn();
     const saveBtn = T.firstElem(CLASS_SAVE_BTN);
     const cancelBtn = T.firstElem(CLASS_CANCEL_BTN);
+    const titleInput = T.findElem(ID_TITLE);
+    const categoryInput = T.findElem(ID_CATEGORY);
     const tagstrInput = T.findElem(ID_TAGSTR);
     T.bindOnce(btn, 'click', entryClick);
 
@@ -76,6 +78,8 @@
     T.bindOnce(saveBtn     , 'keypress' , formEnterKeyHandler);
     T.bindOnce(cancelBtn   , 'keypress' , formEnterKeyHandler);
     T.bindOnce(tagstrInput , 'keypress' , formEnterKeyHandler);
+    T.bindOnce(titleInput  , 'keypress' , formEnterKeyHandler);
+    T.bindOnce(categoryInput, 'keypress', formEnterKeyHandler);
 
 
     window.focus();
@@ -298,9 +302,18 @@
   function formEnterKeyHandler(e){
     if(e.keyCode === 13){
       e.preventDefault();
-      if(e.target.classList.contains(CLASS_CANCEL_BTN)){
+      if ([ID_TITLE, ID_CATEGORY].indexOf(e.target.id) > -1) {
+        // title input and category input
+        // focus next input
+        const form = T.firstElem(CLASS_FORM);
+        const inputs = T.queryElems('input', form);
+        const index = [].indexOf.call(inputs, e.target);
+        const next = inputs[index + 1];
+        if (next) { next.focus() }
+      } else if (e.target.classList.contains(CLASS_CANCEL_BTN)){
         cancelForm();
-      }else{
+      } else {
+        // tagstr input and save button
         saveForm();
       }
       stopEvent(e);
