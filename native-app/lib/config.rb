@@ -1,5 +1,6 @@
 require 'yaml'
 require 'fileutils'
+require 'uri'
 module Config
   def self.load(path)
     content = YAML.load_file(path)
