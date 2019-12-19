@@ -17,6 +17,30 @@
 })(this, function(T, Asset, Task, undefined) {
   "use strict";
 
+  function captureBackgroundAttr(node, {baseUrl, storageInfo, config, clipId, mimeTypeDict = {}}) {
+    if (node.hasAttribute('background')) {
+      const bg = node.getAttribute('background');
+
+      if (!config.saveCssImage) {
+        node.setAttribute('data-mx-original-background', (bg || ''));
+        node.setAttribute('background', '');
+        return {node: node, tasks: []};
+      }
+      const {isValid, url, message} = T.completeUrl(bg, baseUrl);
+      if (isValid) {
+        const {filename, path} = Asset.calcInfo(url, storageInfo, mimeTypeDict[url], clipId);
+        const task = Task.createImageTask(filename, url, clipId);
+        node.setAttribute('background', path);
+        return {node: node, tasks: [task]};
+      } else {
+        node.setAttribute('data-mx-warn', message);
+        node.setAttribute('data-mx-original-background', (bg || ''));
+        node.setAttribute('background', '');
+      }
+    }
+    return {node: node, tasks: []}
+  }
+
   /**
    * capture srcset of <img> element
    * and <source> element in <picture>
@@ -175,6 +199,7 @@
 
 
   return {
+    captureBackgroundAttr: captureBackgroundAttr,
     captureImageSrcset: captureImageSrcset,
     parseSrcset: parseSrcset,
     getRequestHeaders: getRequestHeaders,

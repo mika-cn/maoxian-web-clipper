@@ -13,6 +13,7 @@
       require('../capturer/tool.js'),
       require('../capturer/a.js'),
       require('../capturer/img.js'),
+      require('../capturer/css.js'),
       require('../capturer/style.js'),
       require('../capturer/link.js'),
       require('../capturer/iframe.js'),
@@ -31,6 +32,7 @@
       root.MxWcCapturerA,
       root.MxWcCapturerPicture,
       root.MxWcCapturerImg,
+      root.MxWcCapturerCss,
       root.MxWcCapturerStyle,
       root.MxWcCapturerLink,
       root.MxWcCapturerIframe,
@@ -41,6 +43,7 @@
     CapturerA,
     CapturerPicture,
     CapturerImg,
+    CapturerCss,
     CapturerStyle,
     CapturerLink,
     CapturerIframe, StyleHelper, undefined) {
@@ -129,73 +132,114 @@
 
     const {doc} = DOMTool.parseHTML(docHtml);
     let selectedNode = doc.querySelector('.' + KLASS);
+    selectedNode.classList.remove(KLASS);
     Log.debug(selectedNode);
     selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
-    const styleNodes   = doc.querySelectorAll('style');
-    const linkNodes    = doc.querySelectorAll('link');
-    const pictureNodes = DOMTool.querySelectorIncludeSelf(selectedNode, 'picture');
-    const imgNodes     = DOMTool.querySelectorIncludeSelf(selectedNode, 'img');
-    const aNodes       = DOMTool.querySelectorIncludeSelf(selectedNode, 'a');
-    const iframeNodes  = DOMTool.querySelectorIncludeSelf(selectedNode, 'iframe');
-    const frameNodes   = DOMTool.querySelectorIncludeSelf(selectedNode, 'frame');
-
-    const captureInfos = [
-      {
-        nodes: linkNodes,
-        capturer: CapturerLink,
-        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headerParams, needFixStyle}
-      },
-      {
-        nodes: styleNodes,
-        capturer: CapturerStyle,
-        opts: {baseUrl, docUrl, storageInfo, clipId, mimeTypeDict, config, headerParams, needFixStyle}
-      },
-      {
-        nodes: pictureNodes,
-        capturer: CapturerPicture,
-        opts: {baseUrl, storageInfo, clipId, mimeTypeDict}
-      },
-      {
-        nodes: imgNodes,
-        capturer: CapturerImg,
-        opts: {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict}
-      },
-      {
-        nodes: aNodes,
-        capturer: CapturerA,
-        opts: {baseUrl, docUrl}
-      },
-      {
-        nodes: iframeNodes,
-        capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
-      },
-      {
-        nodes: frameNodes,
-        capturer: CapturerIframe,
-        opts: {saveFormat, baseUrl, doc, storageInfo, clipId, mimeTypeDict, config, parentFrameId, frames}
+    /**
+     * @return {:node, :tasks}
+     */
+    const captureNode = async function (node) {
+      let opts = {};
+      let r = {node: node, tasks: []}
+      switch (node.tagName.toUpperCase()) {
+        case 'LINK':
+          opts = {baseUrl, docUrl, storageInfo, clipId,
+            mimeTypeDict, config, headerParams, needFixStyle};
+          r = await CapturerLink.capture(node, opts);
+          break;
+        case 'STYLE':
+          opts = {baseUrl, docUrl, storageInfo, clipId,
+            mimeTypeDict, config, headerParams, needFixStyle};
+          r = await CapturerStyle.capture(node, opts);
+          break;
+        case 'PICTURE':
+          opts = {baseUrl, storageInfo, clipId, mimeTypeDict};
+          r = await CapturerPicture.capture(node, opts);
+          break;
+        case 'IMG':
+          opts = {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict};
+          r = await CapturerImg.capture(node, opts);
+          break;
+        case 'A':
+          opts = {baseUrl, docUrl};
+          r = await CapturerA.capture(node, opts);
+          break;
+        case 'BODY':
+        case 'TABLE':
+        case 'TH':
+        case 'TD':
+          // background attribute (deprecated since HTML5)
+          opts = {baseUrl, storageInfo, config, clipId, mimeTypeDict};
+          r = CaptureTool.captureBackgroundAttr(node, opts);
+          break;
+        case 'AUDIO':
+        case 'VEDIO':
+        case 'EMBED':
+        case 'OBJECT':
+        case 'APPLET':
+        case 'CANVAS':
+          // Don't capture media nodes.
+          node.setAttribute('data-mx-ignore-me', 'true');
+          r.node = node;
+          break;
+        case 'IFRAME':
+        case 'FRAME':
+          opts = {saveFormat, baseUrl, doc, storageInfo,
+            clipId, mimeTypeDict, config, parentFrameId, frames};
+          r = await CapturerIframe.capture(node, opts);
+          break;
+        default: break;
       }
-    ];
 
-    const taskCollection = [];
+      // handle global attributes
+      [].forEach.call(r.node.attributes, async (attr) => {
+        const attrName = attr.name.toLowerCase();
 
-    for (let i = 0; i < captureInfos.length; i++) {
-      const it = captureInfos[i];
-      for (let j = 0; j < it.nodes.length; j++) {
-        const node = it.nodes[j];
-        if (node === selectedNode) {
-          const r = await it.capturer.capture(node, it.opts);
-          taskCollection.push(...r.tasks);
-          selectedNode = r.node;
-        } else {
-          const r = await it.capturer.capture(node, it.opts);
-          taskCollection.push(...r.tasks);
+        // remove event listener
+        if (attrName.startsWith('on')) {
+          r.node.removeAttribute(attrName);
         }
-      }
+
+        // inline style
+        if (attrName === 'style') {
+          const {cssText, tasks} = await CapturerCss.captureText(
+            Object.assign({
+              text: attr.value
+            }, {
+              baseUrl, docUrl, storageInfo, clipId,
+              mimeTypeDict, config, headerParams,
+              needFixStyle
+            })
+          );
+          r.node.setAttribute('style', cssText);
+          r.tasks.push(...tasks);
+        }
+
+      })
+      return r;
     }
 
+    const taskCollection = [];
+    const headNodes = doc.querySelectorAll('style, link');
+    [].forEach.call(headNodes, async (node) => {
+      const r = await captureNode(node);
+      taskCollection.push(...r.tasks);
+    });
 
+    const childNodes = selectedNode.querySelectorAll('*');
+    [].forEach.call(childNodes, async (node) => {
+      if (['STYLE', 'LINK'].indexOf(node.tagName.toUpperCase()) > -1) {
+        // processed
+      } else {
+        const r = await captureNode(node);
+        taskCollection.push(...r.tasks);
+      }
+    });
+
+    const r = await captureNode(selectedNode);
+    taskCollection.push(...r.tasks);
+    selectedNode = r.node;
 
     const headInnerHtml = [
       getNodesHtml(doc.querySelectorAll('link[rel*=icon]')),
@@ -211,6 +255,7 @@
     }
     return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection};
   }
+
 
   function dealBodyElem(node, originalNode) {
     node = removeUselessNode(node);

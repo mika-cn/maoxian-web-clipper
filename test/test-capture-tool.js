@@ -1,8 +1,54 @@
 
 const H = require('./helper.js');
+const DOMTool = H.depJs('lib/dom-tool.js');
 const CaptureTool = H.depJs('capturer/tool.js');
 
 describe('CaptureTool', () => {
+
+  describe('captureBackgroundAttr', () => {
+
+    function getNode() {
+      const {node} = DOMTool.parseHTML('<div></div>');
+      return node;
+    }
+
+    function getParams() {
+      return {
+        baseUrl: 'https://a.org/index.html',
+        storageInfo: {
+          assetFolder: 'category-a/clippings/assets',
+          assetRelativePath: 'assets'
+        },
+        clipId: '001',
+        config: { saveCssImage: true }
+      }
+    }
+
+    it('it should capture empty background', () => {
+      const node = getNode();
+      const params = getParams();
+      const r = CaptureTool.captureBackgroundAttr(node, params);
+      H.assertEqual(r.tasks.length, 0);
+    });
+
+    it('it should capture background', () => {
+      const node = getNode();
+      node.setAttribute('background', 'assets/a.jpg');
+      const params = getParams();
+      const r = CaptureTool.captureBackgroundAttr(node, params);
+      H.assertEqual(r.tasks.length, 1);
+    });
+
+    it('it should not capture background if config is not true', () => {
+      const node = getNode();
+      node.setAttribute('background', 'assets/a.jpg');
+      const params = getParams();
+      params.config.saveCssImage = false;
+      const r = CaptureTool.captureBackgroundAttr(node, params);
+      H.assertEqual(r.tasks.length, 0);
+    });
+
+  });
 
   describe('parseSrcset', () => {
 

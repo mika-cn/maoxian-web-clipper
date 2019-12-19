@@ -120,6 +120,7 @@
 
     const {doc} = DOMTool.parseHTML(docHtml);
     let selectedNode = doc.querySelector('.' + KLASS);
+    selectedNode.classList.remove(KLASS);
     selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
     const aNodes       = DOMTool.querySelectorIncludeSelf(selectedNode, 'a');
