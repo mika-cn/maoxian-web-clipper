@@ -117,7 +117,7 @@
             });
             if(!isMainFile(filename)) {
               // erase assets download history
-              browser.downloads.erase({id: downloadItemId, limit: 1});
+              ExtApi.eraseDownloadItem(downloadItemId)
             }
           }
         } else {
