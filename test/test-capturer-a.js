@@ -25,16 +25,24 @@ describe('Capture A', () => {
       const docUrl = 'https://a.org/index.html';
       const baseUrl = docUrl;
       const r = Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
-      H.assertEqual(r.node.getAttribute('href'), expectedValue);
+      H.assertEqual(r.node.getAttribute('href'), (expectedValue || link));
     })
   }
+
   capture('a/b/c', 'https://a.org/a/b/c');
   capture('#', '#');
   capture('#xxx', '#xxx');
   capture('https://a.org/index.html#xxx', '#xxx');
-  capture('javascript:void(0)', 'javascript:void(0)');
   capture('https://a.org/a/b', 'https://a.org/a/b');
   capture('https://:invalid.url', 'https://:invalid.url');
+
+  capture('mailto:nobody@a.org');
+  capture('tel:+4912345');
+  capture('javascript:void(0)', 'javascript:');
+  capture('javascript:submit(this)', 'javascript:');
+  capture('about:home');
+  capture('ftp://192.0.0.1/home');
+  capture('chrome://communicator/skin/');
 
   function captureBase(link, expectedValue) {
     it("Capture A with different baseUrl: " + link, () => {
@@ -71,20 +79,5 @@ describe('Capture A', () => {
     H.assertFalse(r.node.hasAttribute('ping'));
   });
 
-  it("capture A - not http protocol", () => {
-    const docUrl = 'https://a.org/index.html';
-    const baseUrl = docUrl;
-    function t(href) {
-      let node = getNode(href);
-      const r = Capturer.capture(node, {baseUrl: baseUrl, docUrl: docUrl});
-      H.assertEqual(r.node.getAttribute('href'), href);
-    }
-    t('mailto:nobody@a.org');
-    t('tel:+4912345');
-    t('javascript:void(0)');
-    t('about:home');
-    t('ftp://192.0.0.1/home');
-    t('chrome://communicator/skin/');
-  });
 
 })
