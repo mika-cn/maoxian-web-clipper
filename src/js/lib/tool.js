@@ -536,16 +536,29 @@
 
     // separator
     const s = '-';
-    const result = input.replace(regExp_illegalChars, s).replace(regExp_winTrailingChars, s)
-      // avoid ugly filename :)
-      .replace(/\s/g, s)
+    let result = input.replace(regExp_illegalChars, s).replace(regExp_winTrailingChars, s);
+
+    result = result.replace(new RegExp('`', 'g'), s);
+    // remember conflict values
+    const conflicts = [ /c\+\+/ig ];
+    const idxTool = T.createIdxTool();
+    const conflictValues = [];
+
+    conflicts.forEach((regExp) => {
+      result = result.replace(regExp, (match) => {
+        conflictValues.push(match);
+        return "`" + idxTool.next() + "`";
+      })
+    })
+
+    // avoid ugly filename :)
+    result = result.replace(/\s/g, s)
       .replace(/,/g, s)
       .replace(/\./g, s)
       .replace(/'/g, s)
       .replace(/#/g, s)
       .replace(/@/g, s)
       .replace(/~/g, s)
-      .replace(/`/g, s)
       .replace(/!/g, s)
       .replace(/%/g, s)
       .replace(/&/g, s)
@@ -589,6 +602,11 @@
       .replace(/-+/g, s) // multiple dash to one dash
       .replace(/^-/, '') // delete dash at the beginning
       .replace(/-$/, ''); // delete dash at the end
+
+    // replace back conflict values
+    result = result.replace(/`(\d+)`/g, (match, idx) => {
+      return conflictValues[parseInt(idx)];
+    });
 
     if (result.length > 200) {
       // Stupid windows: Path Length Limitation
@@ -660,6 +678,15 @@
 
 
   // ====================================
+
+  T.createIdxTool = function(start) {
+    return {
+      idx: (start || -1),
+      next: function() {
+        return ++this.idx;
+      }
+    }
+  }
 
   T.createCounter = function() {
     return {
