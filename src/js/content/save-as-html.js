@@ -222,20 +222,21 @@
 
     const taskCollection = [];
     const headNodes = doc.querySelectorAll('style, link');
-    [].forEach.call(headNodes, async (node) => {
-      const r = await captureNode(node);
+    for (let i = 0; i < headNodes.length; i++) {
+      const r = await captureNode(headNodes[i]);
       taskCollection.push(...r.tasks);
-    });
+    }
 
     const childNodes = selectedNode.querySelectorAll('*');
-    [].forEach.call(childNodes, async (node) => {
+    for (let i = 0; i < childNodes.length; i++) {
+      const node = childNodes[i];
       if (['STYLE', 'LINK'].indexOf(node.tagName.toUpperCase()) > -1) {
         // processed
       } else {
         const r = await captureNode(node);
         taskCollection.push(...r.tasks);
       }
-    });
+    }
 
     const r = await captureNode(selectedNode);
     taskCollection.push(...r.tasks);
