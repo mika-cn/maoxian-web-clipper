@@ -1,15 +1,22 @@
 ;(function (root, factory) {
   if (typeof module === 'object' && module.exports) {
     // CJS
-    module.exports = factory();
+    module.exports = factory(
+      require('../lib/log.js'),
+      require('../lib/ext-msg.js'),
+      require('../lib/event.js'),
+      require('./plan.js')
+    );
   } else {
     // browser or other
     root.MxWcAssistantMain = factory(
+      root.MxWcLog,
       root.MxWcExtMsg,
+      root.MxWcEvent,
       root.MxWcAssistantPlan
     );
   }
-})(this, function(ExtMsg, Plan, undefined) {
+})(this, function(Log, ExtMsg, MxWcEvent, Plan, undefined) {
   "use strict";
 
   const config = {
@@ -51,7 +58,10 @@
       if (plan) {
         Plan.apply(toMxPlan(plan));
       } else {
-        console.log("NotPlan matched");
+        Log.debug("NotPlan matched");
+        setTimeout(() => {
+          MxWcEvent.dispatchInternal('assistant.not-plan-matched');
+        }, 0);
       }
     });
   }

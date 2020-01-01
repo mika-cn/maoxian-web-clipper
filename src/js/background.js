@@ -13,6 +13,7 @@
       require('./lib/link.js'),
       require('./lib/icon.js'),
       require('./assistant/plan-repository.js'),
+      require('./selection/backend.js'),
       require('./background/fetcher.js'),
       require('./background/migration.js'),
       require('./background/web-request.js'),
@@ -33,6 +34,7 @@
       root.MxWcLink,
       root.MxWcIcon,
       root.MxWcPlanRepository,
+      root.MxWcSelectionBackend,
       root.MxWcFetcher,
       root.MxWcMigration,
       root.MxWcWebRequest,
@@ -42,7 +44,7 @@
     );
   }
 })(this, function( ENV, Log, T, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, PlanRepository, Fetcher, MxWcMigration,
+    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, PlanRepository, SelectionBackend, Fetcher, MxWcMigration,
     WebRequest, CacheService, ClippingHandler_NativeApp, MxWcHandlerBackground, undefined) {
 
   "use strict";
@@ -63,6 +65,12 @@
           break;
         case 'save.custom-plan':
           PlanRepository.updateCustomPlans(message.body.planText).then(resolve);
+          break;
+        case 'query.selection':
+          SelectionBackend.query(message.body).then(resolve);
+          break;
+        case 'save.selection':
+          SelectionBackend.save(message.body).then(resolve);
           break;
         case 'get.mimeTypeDict' : WebRequest.getMimeTypeDict(resolve)     ; break     ;
         case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;

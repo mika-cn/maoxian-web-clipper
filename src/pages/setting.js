@@ -74,6 +74,11 @@
       'inputFieldSaveFormatEnabled',
     );
 
+    initCheckboxInput(config,
+      'remember-selection',
+      'rememberSelection',
+    );
+
     // File url access
     initCheckboxInput(config,
       'file-scheme-access-input',
