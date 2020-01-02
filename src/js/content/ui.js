@@ -7,10 +7,12 @@
     root.MxWcEvent,
     root.MxWcHandler,
     root.MxWcSave,
-    root.MxWcNotify
+    root.MxWcNotify,
+    root.MxWcSelectionMain
   );
 })(this, function(Log, T, ExtApi, FrameMsg,
-    MxWcEvent, MxWcHandler, MxWcSave, Notify, undefined) {
+    MxWcEvent, MxWcHandler, MxWcSave,
+  Notify, MxWcSelectionMain, undefined) {
   "use strict";
 
   const state = {
@@ -344,6 +346,9 @@
         eraseHigtlightStyle();
         msg.elem = state.currElem;
         setStateClipping();
+        if (config.rememberSelection) {
+          MxWcSelectionMain.save(state.currElem);
+        }
         MxWcSave.save(msg, config);
       } else {
         Notify.error(message);
@@ -353,6 +358,7 @@
       }
     });
   }
+
 
   function ignoreFrameMsg(){
     FrameMsg.clearListener();

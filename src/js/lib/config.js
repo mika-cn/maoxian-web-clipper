@@ -35,6 +35,7 @@
       hotkeySwitchEnabled: false,
       mouseModeEnabled: false,
       inputFieldSaveFormatEnabled: false,
+      rememberSelection: false,
 
       allowFileSchemeAccess: false,
 

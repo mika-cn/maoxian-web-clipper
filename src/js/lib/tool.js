@@ -169,19 +169,6 @@
     T.bind(elem, evt, fn, useCapture);
   }
 
-  T.unique = function(collection){
-    const arr = T.toArray(collection);
-    return arr.filter(function(value, index, self) {
-      return self.indexOf(value) === index;
-    });
-  }
-
-  T.intersection = function(arrA, arrB){
-    return arrA.filter(function(n) {
-      return arrB.indexOf(n) > -1;
-    });
-  }
-
   // split tag string by space or comma.
   T.splitTagstr = function(str){
     str = str.replace(/^[ ,，]+/, '');
@@ -199,6 +186,20 @@
   }
 
   // collection
+
+  T.unique = function(collection){
+    const arr = T.toArray(collection);
+    return arr.filter(function(value, index, self) {
+      return self.indexOf(value) === index;
+    });
+  }
+
+  T.intersection = function(arrA, arrB){
+    return arrA.filter(function(n) {
+      return arrB.indexOf(n) > -1;
+    });
+  }
+
   T.remove = function(collection, element){
     const index = collection.indexOf(element);
     if(index > -1){

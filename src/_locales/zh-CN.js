@@ -253,6 +253,7 @@
     "setting.hotkey-switch-enabled-input.label": "启用快捷键 `c` (裁剪开关)",
     "setting.mouse-mode-enabled-input.label": "鼠标友好模式",
     "setting.input-field-save-format-enabled.label": "启用表单上的格式选择",
+    "setting.remember-selection-input.label": "记住选区，并在下次尝试自动选中",
     "setting.autogenerate-clipping-js-input.label": "自动生成脚本文件",
     "setting.not-generated-yet.label": "还没有生成过",
     "setting.generate-now-msg-sent.label": "生成命令已经发送",

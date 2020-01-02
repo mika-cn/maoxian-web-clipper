@@ -6,10 +6,11 @@
     root.MxWcEvent,
     root.MxWcConfig,
     root.MxWcLink,
+    root.MxWcSelectionMain,
     root.MxWcUI,
   );
 })(this, function(Log, T, ExtMsg, MxWcEvent,
-    MxWcConfig, MxWcLink, UI, undefined) {
+    MxWcConfig, MxWcLink, MxWcSelectionMain, UI, undefined) {
   "use strict";
 
   const state = {
@@ -238,6 +239,7 @@
         setTimeout(() => {
           MxWcConfig.load().then((config) => {
             state.config = config;
+            MxWcSelectionMain.init(config);
             UI.init(config);
             initialize();
             listenMessage();

@@ -77,6 +77,8 @@
     },
     {
       "js": [
+        "vendor/js/css-selector-generator.js",
+        "js/selection/main.js",
         "js/lib/notify.js",
         "js/content/input-parser-default.js",
         "js/content/input-parser-wiznoteplus.js",
