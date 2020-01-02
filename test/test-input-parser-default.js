@@ -58,4 +58,34 @@ describe('InputParserDefault', () => {
     H.assertEqual(info.category, params.host);
   });
 
+
+  function clearPath(path) {
+    return path.replace(/\d{4}-\d{2}-\d{2}-\d{8,}/, 'CLIPPING-FOLDER');
+  }
+  it('config.assetPath: $CLIPPING-PATH/static', () => {
+    const params = getParams();
+    params.config.assetPath = "$CLIPPING-PATH/static";
+    const {storageInfo} = Parser.parse(params);
+    H.assertEqual(clearPath(storageInfo.assetFolder),
+      'mx-wc/test/CLIPPING-FOLDER/static');
+    H.assertEqual(storageInfo.assetRelativePath, 'static');
+  });
+
+  it('config.assetPath: $STORAGE-PATH/static', () => {
+    const params = getParams();
+    params.config.assetPath = "$STORAGE-PATH/static";
+    const {storageInfo} = Parser.parse(params);
+    H.assertEqual(storageInfo.assetFolder, 'mx-wc/static');
+    H.assertEqual(storageInfo.assetRelativePath, '../../static');
+  });
+
+  it('config.assetPath: static', () => {
+    const params = getParams();
+    params.config.assetPath = "static";
+    const {storageInfo} = Parser.parse(params);
+    H.assertEqual(clearPath(storageInfo.assetFolder),
+      'mx-wc/test/CLIPPING-FOLDER/static');
+    H.assertEqual(storageInfo.assetRelativePath, 'static');
+  });
+
 });

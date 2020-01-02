@@ -46,5 +46,19 @@ describe("Asset", () => {
     H.assertMatch(nameB, /^[^\.\/]+\.png$/);
   });
 
+  it("getPath - assetRelativePath: assets", () => {
+    const storageInfo = { assetRelativePath: 'assets' };
+    const assetName = "A.jpeg";
+    const path = Asset.getPath({storageInfo, assetName});
+    H.assertMatch(path, 'assets/A.jpeg')
+  });
+
+  it("getPath - assetRelativePath: ../../assets", () => {
+    const storageInfo = { assetRelativePath: '../../assets' };
+    const assetName = "A.jpeg";
+    const path = Asset.getPath({storageInfo, assetName});
+    H.assertMatch(path, '../../assets/A.jpeg')
+  });
+
 });
 

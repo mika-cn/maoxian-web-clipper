@@ -640,6 +640,11 @@
     return path.replace(/\\/g, '/')
   }
 
+  /**
+   * WARNING:
+   *   This function doesn't support any relative path (e.g. ../../assets).
+   *   It just sanitizes '../', './' and '//', which come from configuration.
+   */
   T.joinPath = function(...paths){
     const arr = [];
     T.each(paths, function(path){
