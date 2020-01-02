@@ -10,7 +10,7 @@
   "use strict";
 
   function handle(doc, elem) {
-    if(elem.tagName === 'MATH') {
+    if(elem.tagName.toUpperCase() === 'MATH') {
       const newNode = toLaTeXNode(doc, elem);
       return newNode ? newNode : elem;
     } else{

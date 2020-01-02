@@ -74,6 +74,11 @@
       'inputFieldSaveFormatEnabled',
     );
 
+    initCheckboxInput(config,
+      'remember-selection',
+      'rememberSelection',
+    );
+
     // File url access
     initCheckboxInput(config,
       'file-scheme-access-input',
@@ -313,7 +318,7 @@
   }
 
   function optionChanged(e) {
-    if(e.target.tagName === 'A'){
+    if(e.target.tagName.toUpperCase() === 'A'){
       const elem = e.target.parentElement;
       const configKey = getConfigKey(elem);
       const value = e.target.getAttribute('data-value');

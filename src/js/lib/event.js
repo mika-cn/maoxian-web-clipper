@@ -30,6 +30,9 @@
    *   mx-wc.clip-elem
    *   mx-wc.set-form-input
    *
+   * Events that we use internally only.
+   *   mx-wc.assistant.not-plan-matched
+   *
    */
 
   const evTarget_public = document;

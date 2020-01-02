@@ -18,7 +18,7 @@
   function getRenderParams(elem){
     const htmlId = document.documentElement.id;
     const htmlClass = document.documentElement.className;
-    if (elem.tagName === 'BODY') {
+    if (elem.tagName.toUpperCase() === 'BODY') {
       return {htmlId, htmlClass};
     } else {
       const bodyId = document.body.id;
@@ -75,7 +75,7 @@
 
   function getWrappers(elem, wrapperList){
     const pElem = elem.parentElement;
-    if(pElem && ['HTML', 'BODY'].indexOf(pElem.tagName) == -1){
+    if(pElem && ['HTML', 'BODY'].indexOf(pElem.tagName.toUpperCase()) == -1){
       if(pElemHasNearWidth(pElem, elem) || siblingHasSameStructure(elem)){
         // probably is a wrapper
         wrapperList.push(pElem);
@@ -102,7 +102,7 @@
   }
 
   function hasSameStructure(elemA, elemB){
-    if(elemA.tagName != elemB.tagName){ return false }
+    if(elemA.tagName.toUpperCase() != elemB.tagName.toUpperCase()){ return false }
     const listA = T.unique(elemA.classList);
     const listB = T.unique(elemB.classList);
     const list = T.intersection(listA, listB)
@@ -179,7 +179,7 @@
       'padding'    : '0px',
     }
 
-    if (node.tagName === 'TABLE') {
+    if (node.tagName.toUpperCase() === 'TABLE') {
       cssObj['display'] = 'table';
     }
 

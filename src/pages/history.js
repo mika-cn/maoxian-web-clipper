@@ -204,7 +204,7 @@
   }
 
   function tbodyClick(e){
-    if(e.target.tagName === 'A') {
+    if(e.target.tagName.toUpperCase() === 'A') {
       /* action clicked */
       const [operation, id] = e.target.href.split(':');
       switch(operation) {
@@ -360,7 +360,7 @@
   function initSearchListeners(){
     T.queryElems('.search-box').forEach((searchBox) => {
       T.bind(searchBox, 'keypress', function(e) {
-        if(e.target.tagName === 'INPUT' && e.keyCode === 13) {
+        if(e.target.tagName.toUpperCase() === 'INPUT' && e.keyCode === 13) {
           // Press Enter in input
           searchAction(e);
         }

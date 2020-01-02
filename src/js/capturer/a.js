@@ -32,7 +32,11 @@
 
     let newHref = href;
     if (isValid) {
-      newHref = T.url2Anchor(url, docUrl);
+      if (url.toLowerCase().startsWith('javascript:')) {
+        newHref = 'javascript:';
+      } else {
+        newHref = T.url2Anchor(url, docUrl);
+      }
     } else {
       node.setAttribute('data-mx-warn', message);
       return {node, tasks};

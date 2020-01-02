@@ -94,16 +94,22 @@
 
   // This script only run in web page and it's external iframes (NOT includes inline iframe)
   function init() {
-    if(window === window.top){
-      // Main window
-      ExtMsg.initPage('content');
-      initMxWcAssistant();
-    }else{
-      // Iframe
-      ExtMsg.initPage('content-frame');
-      initMxWcAssistant();
-      ExtMsg.listen(backgroundMessageHandler);
-      listenFrameMessage();
+    if (document) {
+      if (document.documentElement.tagName.toUpperCase() === 'HTML') {
+        if(window === window.top){
+          // Main window
+          ExtMsg.initPage('content');
+          initMxWcAssistant();
+        }else{
+          // Iframe
+          ExtMsg.initPage('content-frame');
+          initMxWcAssistant();
+          ExtMsg.listen(backgroundMessageHandler);
+          listenFrameMessage();
+        }
+      } else {
+        // feed or others
+      }
     }
   }
 

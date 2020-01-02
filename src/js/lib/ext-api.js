@@ -117,6 +117,10 @@
     return browser.downloads.open(downloadItemId)
   }
 
+  ExtApi.eraseDownloadItem = (downloadItemId) => {
+    browser.downloads.erase({id: downloadItemId, limit: 1});
+  }
+
   // delete both download history And file
   ExtApi.deleteDownloadItem = (downloadItemId) => {
     browser.downloads.removeFile(downloadItemId);

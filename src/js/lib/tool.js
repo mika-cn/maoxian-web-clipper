@@ -109,7 +109,7 @@
 
 
   T.isElemVisible = function(win, elem) {
-    if(['STYLE', 'IMG', 'PICTURE'].indexOf(elem.tagName) > -1) {
+    if(['STYLE', 'IMG', 'PICTURE'].indexOf(elem.tagName.toUpperCase()) > -1) {
       return true
     }
 
@@ -169,19 +169,6 @@
     T.bind(elem, evt, fn, useCapture);
   }
 
-  T.unique = function(collection){
-    const arr = T.toArray(collection);
-    return arr.filter(function(value, index, self) {
-      return self.indexOf(value) === index;
-    });
-  }
-
-  T.intersection = function(arrA, arrB){
-    return arrA.filter(function(n) {
-      return arrB.indexOf(n) > -1;
-    });
-  }
-
   // split tag string by space or comma.
   T.splitTagstr = function(str){
     str = str.replace(/^[ ,，]+/, '');
@@ -199,6 +186,20 @@
   }
 
   // collection
+
+  T.unique = function(collection){
+    const arr = T.toArray(collection);
+    return arr.filter(function(value, index, self) {
+      return self.indexOf(value) === index;
+    });
+  }
+
+  T.intersection = function(arrA, arrB){
+    return arrA.filter(function(n) {
+      return arrB.indexOf(n) > -1;
+    });
+  }
+
   T.remove = function(collection, element){
     const index = collection.indexOf(element);
     if(index > -1){
@@ -536,16 +537,29 @@
 
     // separator
     const s = '-';
-    const result = input.replace(regExp_illegalChars, s).replace(regExp_winTrailingChars, s)
-      // avoid ugly filename :)
-      .replace(/\s/g, s)
+    let result = input.replace(regExp_illegalChars, s).replace(regExp_winTrailingChars, s);
+
+    result = result.replace(new RegExp('`', 'g'), s);
+    // remember conflict values
+    const conflicts = [ /c\+\+/ig ];
+    const idxTool = T.createIdxTool();
+    const conflictValues = [];
+
+    conflicts.forEach((regExp) => {
+      result = result.replace(regExp, (match) => {
+        conflictValues.push(match);
+        return "`" + idxTool.next() + "`";
+      })
+    })
+
+    // avoid ugly filename :)
+    result = result.replace(/\s/g, s)
       .replace(/,/g, s)
       .replace(/\./g, s)
       .replace(/'/g, s)
       .replace(/#/g, s)
       .replace(/@/g, s)
       .replace(/~/g, s)
-      .replace(/`/g, s)
       .replace(/!/g, s)
       .replace(/%/g, s)
       .replace(/&/g, s)
@@ -589,6 +603,11 @@
       .replace(/-+/g, s) // multiple dash to one dash
       .replace(/^-/, '') // delete dash at the beginning
       .replace(/-$/, ''); // delete dash at the end
+
+    // replace back conflict values
+    result = result.replace(/`(\d+)`/g, (match, idx) => {
+      return conflictValues[parseInt(idx)];
+    });
 
     if (result.length > 200) {
       // Stupid windows: Path Length Limitation
@@ -660,6 +679,15 @@
 
 
   // ====================================
+
+  T.createIdxTool = function(start) {
+    return {
+      idx: (start || -1),
+      next: function() {
+        return ++this.idx;
+      }
+    }
+  }
 
   T.createCounter = function() {
     return {
@@ -859,7 +887,7 @@
 
   T.getTagsByName = function(elem, name){
     let r = []
-    if(elem.tagName === name.toUpperCase()){
+    if(elem.tagName.toUpperCase() === name.toUpperCase()){
       r.push(elem);
     }
     const child = elem.getElementsByTagName(name)

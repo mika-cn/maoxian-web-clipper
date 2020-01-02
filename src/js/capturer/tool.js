@@ -17,6 +17,30 @@
 })(this, function(T, Asset, Task, undefined) {
   "use strict";
 
+  function captureBackgroundAttr(node, {baseUrl, storageInfo, config, clipId, mimeTypeDict = {}}) {
+    if (node.hasAttribute('background')) {
+      const bg = node.getAttribute('background');
+
+      if (!config.saveCssImage) {
+        node.setAttribute('data-mx-original-background', (bg || ''));
+        node.setAttribute('background', '');
+        return {node: node, tasks: []};
+      }
+      const {isValid, url, message} = T.completeUrl(bg, baseUrl);
+      if (isValid) {
+        const {filename, path} = Asset.calcInfo(url, storageInfo, mimeTypeDict[url], clipId);
+        const task = Task.createImageTask(filename, url, clipId);
+        node.setAttribute('background', path);
+        return {node: node, tasks: [task]};
+      } else {
+        node.setAttribute('data-mx-warn', message);
+        node.setAttribute('data-mx-original-background', (bg || ''));
+        node.setAttribute('background', '');
+      }
+    }
+    return {node: node, tasks: []}
+  }
+
   /**
    * capture srcset of <img> element
    * and <source> element in <picture>
@@ -28,7 +52,7 @@
     if (srcset) {
       const arr = parseSrcset(srcset);
       let mimeType = null;
-      if (node.tagName.toLowerCase() === 'source') {
+      if (node.tagName.toUpperCase() === 'SOURCE') {
         mimeType = node.getAttribute('type');
       }
       const newSrcset = arr.map((item) => {
@@ -58,14 +82,51 @@
    *   - {Array} item
    *     - {String} url
    *     - {String} widthDescriptor
-   *     - {String} pixelDensityDescriptor
+   *      or pixelDensityDescriptor (optional)
    *
    */
   function parseSrcset(srcset) {
-    const items = srcset.split(',');
-    return [].map.call(items, (it) => {
-      return it.trim().split(/\s+/);
-    });
+    const result = [];
+    let currItem = [];
+    let str = '';
+    for (let i = 0; i < srcset.length; i++) {
+      const currChar = srcset[i];
+      switch(currChar) {
+        case ',':
+          const nextChar = srcset[i + 1];
+          if (// is going to start a new item
+              nextChar && nextChar === ' '
+              // or current str is a descriptor
+              // (end of item)
+            || str.match(/^[\d\.]+[xw]{1}$/)
+          ) {
+            if (str !== '') {
+              currItem.push(str);
+              result.push(Array.of(...currItem));
+              str = '';
+              currItem = [];
+            }
+          } else {
+            str += currChar;
+          }
+          break;
+        case ' ':
+          if (str !== '') {
+            currItem.push(str);
+            str = '';
+          }
+          break;
+        default:
+          str += currChar
+      }
+    }
+    if (str !== '') {
+      currItem.push(str);
+      result.push(Array.of(...currItem));
+      str = '';
+      currItem = [];
+    }
+    return result;
   }
 
   function getRequestHeaders(url, headerParams) {
@@ -138,6 +199,7 @@
 
 
   return {
+    captureBackgroundAttr: captureBackgroundAttr,
     captureImageSrcset: captureImageSrcset,
     parseSrcset: parseSrcset,
     getRequestHeaders: getRequestHeaders,

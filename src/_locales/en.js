@@ -255,6 +255,7 @@
     "setting.hotkey-switch-enabled-input.label": "Enable hotkey `c` (clip switch)",
     "setting.mouse-mode-enabled-input.label": "Mouse friendly mode",
     "setting.input-field-save-format-enabled.label": "Enable selecting save format in form",
+    "setting.remember-selection-input.label": "Remember selection and try to apply it next time",
     "setting.autogenerate-clipping-js-input.label": "Autogenerate javascript file",
     "setting.not-generated-yet.label": "Not generated yet",
     "setting.generate-now-msg-sent.label": "Generate command has been sent",
