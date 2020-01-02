@@ -33,7 +33,7 @@
   }
 
   function getPath({storageInfo, assetName}) {
-    return T.joinPath(storageInfo.assetRelativePath, assetName);
+    return [storageInfo.assetRelativePath, assetName].join('/');
   }
 
   function calcInfo(link, storageInfo, mimeType, prefix) {
