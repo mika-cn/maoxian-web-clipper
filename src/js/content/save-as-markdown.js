@@ -87,7 +87,7 @@
     if (config.saveClippingInformation){
       markdown += generateMdClippingInfo(info);
     }
-    const filename = T.joinPath(storageInfo.saveFolder, info.filename);
+    const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName);
     const mainFileTask = Task.createMarkdownTask(filename, markdown, info.clipId);
     tasks.push(mainFileTask);
 

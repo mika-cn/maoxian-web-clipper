@@ -20,7 +20,8 @@ describe("Capture iframe", async () => {
       clipId: '001',
       saveFormat: 'html',
       storageInfo: {
-        saveFolder: 'category-a/clipping-001',
+        mainFileFolder: 'category-a/clipping-001',
+        frameFileFolder: 'category-a/clipping-001',
       },
       frames: [
         {parentFrameId: 0, frameId: 1, url: 'https://a.org/frame-A.html'}
@@ -99,17 +100,27 @@ describe("Capture iframe", async () => {
     });
     const {node} = DOMTool.parseHTML(html);
     const params = getParams();
+    params.storageInfo.frameFileFolder = 'category-a/clipping-001/frames';
     const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     let r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
     H.assertFalse(r.node.hasAttribute('referrerpolicy'));
+    H.assertMatch(r.node.getAttribute('src'), /^frames\//);
 
     // capture same frame html again
     const {node: nodeB} = DOMTool.parseHTML(html);
     r = await Capturer.capture(nodeB, params);
     H.assertEqual(r.tasks.length, 0);
-    H.assertMatch(r.node.getAttribute('src'), /[^\/^.].frame.html/);
+    H.assertMatch(r.node.getAttribute('src'), /^frames\//);
+
+    // capture same frame html again with different frameFileFolder
+    params.storageInfo.frameFileFolder = 'category-a/clipping-001';
+    const {node: nodeC} = DOMTool.parseHTML(html);
+    r = await Capturer.capture(nodeC, params);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertNotMatch(r.node.getAttribute('src'), /^frames\//);
     ExtMsg.clearMocks();
+
   });
 
   it('capture normal iframe - markdown', async () => {

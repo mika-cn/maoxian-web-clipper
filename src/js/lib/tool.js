@@ -671,16 +671,37 @@
     return arr.join('/');
   }
 
-  T.calcPath = function(currDir, destDir) {
-    const partA = currDir.split('/');
-    const partB = destDir.split('/');
+  /** calculate path.
+   * @param {string} currDir must be directory.
+   * @param {string} destPath can be directory or file.
+   * @return {string} relative path, if two params is the same,
+   *   it return "" (empty string)
+   *
+   *
+   * WARNING
+   *   This funciton will throw a Error, if two parameters can not be calculated.
+   *
+   */
+  T.calcPath = function(currDir, destPath) {
+    const strA = currDir.replace(/\/$/, '');
+    const strB = destPath.replace(/\/$/, '')
+    const throwError = function() {
+      throw new Error(`Couldn't calculate ${currDir} and ${destPath}`);
+    }
+    if (strA == '' || strB == '') { throwError() }
+    const partA = strA.split('/');
+    const partB = strB.split('/');
+    if (partA[0] !== partB[0]) {
+      // we can not calculate in this situation.
+      throwError();
+    }
     while(true){
-      let folderA = partA[0];
-      let folderB = partB[0];
-      if(folderA === null || folderB === null){
+      let a = partA[0];
+      let b = partB[0];
+      if( a === undefined || b === undefined){
         break;
       }
-      if(folderA !== folderB){
+      if(a !== b){
         break;
       }
       partA.shift();

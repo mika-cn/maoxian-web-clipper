@@ -38,12 +38,28 @@ describe('Tool', () => {
     H.assertFalse(T.isExtensionUrl("http://example.org/index"));
   })
 
-  it("calcPath(currDir, destDir)", () => {
+  it("calcPath(currDir, destPath)", () => {
+
+    H.assertThrowError(() => T.calcPath('', ''));
+    H.assertThrowError(() => T.calcPath('a', ''));
+    H.assertThrowError(() => T.calcPath('', 'a'));
+    H.assertThrowError(() => T.calcPath('/a', ''));
+    H.assertThrowError(() => T.calcPath('', '/a'));
+    H.assertThrowError(() => T.calcPath('a', 'd'));
+    H.assertThrowError(() => T.calcPath('a/b', 'c/d'));
+
+    H.assertEqual(T.calcPath('/a', '/a'), '');
+    H.assertEqual(T.calcPath('/a/', '/a'), '');
+    H.assertEqual(T.calcPath('/a', '/a/b/'), 'b');
+    H.assertEqual(T.calcPath('/a', '/a/b/c'), 'b/c');
+    H.assertEqual(T.calcPath('/a/b', '/a/d'), '../d');
+    H.assertEqual(T.calcPath('/a/b', '/d/e'), '../../d/e');
+
     H.assertEqual(T.calcPath('a', 'a/b'), 'b')
-    H.assertEqual(T.calcPath('a', ''), '../')
     H.assertEqual(T.calcPath('a/b', 'a'), '../')
     H.assertEqual(T.calcPath('a/b/c', 'a/b'), '../')
     H.assertEqual(T.calcPath('a/b/c', 'a'), '../../')
+    H.assertEqual(T.calcPath('a/b/c', 'a/d/e'), '../../d/e');
   })
 
   it("splitFilename", () => {
@@ -130,5 +146,6 @@ describe('Tool', () => {
     H.assertEqual(T.sanitizeFilename('x c++xx-C++'), 'x-c++xx-C++')
     H.assertEqual(T.sanitizeFilename('x`c++`x-'), 'x-c++-x')
   });
+
 
 })

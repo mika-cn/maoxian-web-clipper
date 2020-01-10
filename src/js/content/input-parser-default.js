@@ -66,6 +66,15 @@
       storageInfo.mainFileFolder, storageInfo.assetFolder
     );
 
+    if (format === 'html') {
+      storageInfo.frameFileFolder = Render.exec(
+        fixPathVariable(config.frameFileFolder),
+        pathValueHash, pathVariables);
+    } else {
+      // md
+      storageInfo.frameFileFolder = storageInfo.mainFileFolder;
+    }
+
     if (config.saveTitleFile) {
       storageInfo.titleFileFolder = Render.exec(
         fixPathVariable(config.titleFileFolder),

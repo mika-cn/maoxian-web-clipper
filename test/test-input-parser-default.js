@@ -55,6 +55,8 @@ describe('InputParserDefault', () => {
         mainFileFolder: '$CLIPPING-PATH',
         mainFileName: 'index.$FORMAT',
 
+        frameFileFolder: '$CLIPPING-PATH',
+
         saveTitleFile: true,
         titleFileFolder: '$CLIPPING-PATH',
         titleFileName: 'a-title_$TITLE',

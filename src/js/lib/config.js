@@ -94,6 +94,12 @@
       mainFileName: 'index.$FORMAT',
 
       /**
+       * ======== Frame File ========
+       *   embed HTML file
+       */
+      frameFileFolder: '$CLIPPING-PATH',
+
+      /**
        * ======== Info File ========
        *   A json file which stores clipping information.
        */
