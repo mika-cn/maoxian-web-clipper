@@ -65,7 +65,7 @@
       rootFolder: 'mx-wc',
 
       /**
-       * >>>>>> Variables <<<<<<
+       * ======== Variables ========
        *
        * $STORAGE-PATH  => downloadPath + rootFolder
        * $CATEGORY-PATH => downloadPath + rootFolder + categoryFolder
@@ -86,23 +86,23 @@
        */
 
       /**
-       * >>>>>> Main File <<<<<<
+       * ======== Main File ========
        *   HTML file or Markdown file.
        */
       mainFileFolder: '$CLIPPING-PATH',
       /* $TITLE */
-      mainFileName: 'index',
+      mainFileName: 'index.$FORMAT',
 
       /**
-       * >>>>> Info File <<<<<<
+       * ======== Info File ========
        *   A json file which stores clipping information.
        */
       infoFileFolder: '$CLIPPING-PATH',
-      infoFileName: 'index',
+      infoFileName: 'index.json',
 
 
       /**
-       * >>>>> Title File <<<<<<
+       * ======== Title File ========
        *   A Empty file which contains title in it's name.
        */
       saveTitleFile: true,
@@ -110,7 +110,7 @@
       titleFileName: 'a-title_$TITLE',
 
       /**
-       * >>>>>> Asset Files <<<<<<
+       * ======== Asset Files ========
        *   picture, icon, webfont, style
        */
       assetFolder: '$CLIPPING-PATH/assets',

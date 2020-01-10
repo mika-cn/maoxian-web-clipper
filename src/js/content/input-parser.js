@@ -15,7 +15,7 @@
 })(this, function(Default, WizNotePlus, undefined) {
   "use strict";
 
-  // params: {format, title, category, tags, host, link, config}
+  // params: {format, title, category, tags, domain, link, config}
   function parse(params) {
     const {config} = params;
     switch(config.clippingHandler) {

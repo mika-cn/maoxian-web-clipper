@@ -43,13 +43,11 @@
     return createTextTask(filename, html, 'text/html', clipId, 'frameFileTask');
   }
 
-  function createTitleTask(saveFolder, title, clipId) {
-    const filename = [saveFolder, `a-title__${T.sanitizeFilename(title)}` ].join('/');
+  function createTitleTask(filename, clipId) {
     return createTextTask(filename, '-', 'text/plain', clipId, 'titleFileTask');
   }
 
-  function createIndexTask(saveFolder, info) {
-    const filename = [saveFolder, 'index.json'].join('/');
+  function createInfoTask(filename, info) {
     const text = T.toJson(info);
     return createTextTask(filename, text, 'application/json', info.clipId, 'infoFileTask');
   }
@@ -130,7 +128,7 @@
     createFrameTask: createFrameTask,
     createStyleTask: createStyleTask,
     createTitleTask: createTitleTask,
-    createIndexTask: createIndexTask,
+    createInfoTask: createInfoTask,
     createImageTask: createImageTask,
     createUrlTask: createUrlTask,
     rmReduplicate: rmReduplicate,

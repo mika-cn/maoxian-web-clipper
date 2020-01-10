@@ -14,15 +14,15 @@
   //==========================================
 
   function parse(params) {
-      let {format, title, category, tags, host, link, config} = params;
+      let {format, title, category, tags, domain, link, config} = params;
 
       // Set default title
       if(title === ""){ title = 'Untitled' }
 
-      // Add host as tag
+      // Add domain as tag
       const appendTags = []
       if (config.saveDomainAsTag) {
-          appendTags.push(host);
+          appendTags.push(domain);
       }
 
       // Set default category
@@ -40,7 +40,8 @@
       // Keep all paths relative to $WIZNOTE_TEMP/webclipping
       const storageInfo =  {
           /** the path to place index.html and assetFolder */
-          saveFolder: clipId,
+          mainFileFolder: clipId,
+          mainFileName: mainFilename,
           /** the path to place asset files */
           assetFolder: clipId + "/index_files",
           /** the path is relative to index.html */

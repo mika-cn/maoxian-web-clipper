@@ -15,33 +15,66 @@
   //==========================================
 
   function parse(params) {
-    let {format, title, category: originalCategory, tags, host, link, config} = params;
+    let {format, title, category: originalCategory, tags, domain, link, config} = params;
 
-    if(title === ""){ title = 'default' }
+    // Set default title
+    if(title === ""){ title = 'Untitled' }
 
+    // Add domain as tag
     const appendTags = []
     if (config.saveDomainAsTag) {
-      appendTags.push(host);
+      appendTags.push(domain);
     }
-
-    // main filename
-    const mainFileArr = ['index', format];
-    if (config.saveTitleAsFilename) {
-      mainFileArr[0] = T.sanitizeFilename(title);
-    }
-    const mainFilename = mainFileArr.join('.');
 
     // clipId
     const now = T.currentTime();
     const clipId = now.str.intSec;
 
-    // folder and path
-    const clippingFolder = getClippingFolder(config, title, now);
-    const [category, saveFolder] = dealCategoryAndSaveFolder(config, originalCategory, clippingFolder, host);
-    const [assetFolder, assetRelativePath] = dealAssetFolderAndPath(config, saveFolder);
 
-    const storageInfo =  { saveFolder: saveFolder, assetFolder: assetFolder, assetRelativePath: assetRelativePath};
-    //Log.debug(path)
+    const storagePath = config.rootFolder;
+    const {category, categoryPath} = dealCategoryAndCategoryPath(config, originalCategory, now, domain, storagePath);
+
+    const filenameValueHash = {now, title, format, domain};
+    // folder and path
+    const clippingFolderName = Render.exec(config.clippingFolderName,
+      filenameValueHash, Render.FilenameVariables);
+    const clippingPath = T.joinPath(categoryPath, clippingFolderName);
+
+    const pathValueHash = {storagePath, categoryPath, clippingPath};
+    const pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH', '$CLIPPING-PATH'];
+
+
+    const storageInfo = {};
+
+    storageInfo.mainFileFolder = Render.exec(
+      fixPathVariable(config.mainFileFolder),
+      pathValueHash, pathVariables);
+    storageInfo.mainFileName = Render.exec(config.mainFileName,
+      filenameValueHash, Render.FilenameVariables);
+
+    storageInfo.infoFileFolder = Render.exec(
+      fixPathVariable(config.infoFileFolder),
+      pathValueHash, pathVariables);
+    storageInfo.infoFileName = Render.exec(config.infoFileName,
+      filenameValueHash, Render.FilenameVariables);
+
+    storageInfo.assetFolder = Render.exec(
+      fixPathVariable(config.assetFolder, 'assetFolder'),
+      pathValueHash, pathVariables);
+
+    storageInfo.assetRelativePath = T.calcPath(
+      storageInfo.mainFileFolder, storageInfo.assetFolder
+    );
+
+    if (config.saveTitleFile) {
+      storageInfo.titleFileFolder = Render.exec(
+        fixPathVariable(config.titleFileFolder),
+        pathValueHash, pathVariables);
+      storageInfo.titleFileName = Render.exec(config.titleFileName,
+        filenameValueHash, Render.FilenameVariables);
+    }
+
+    //console.debug(storageInfo);
 
     const info = {
       clipId     : clipId,
@@ -51,7 +84,7 @@
       category   : category,
       tags       : tags.concat(appendTags),
       created_at : now.toString(),
-      filename   : mainFilename
+      filename   : storageInfo.mainFileName
     }
 
     const inputHistory = { title: title, category: category, tags: tags }
@@ -61,93 +94,143 @@
       storageInfo: storageInfo,
       input: inputHistory,
       needSaveIndexFile: true,
-      needSaveTitleFile: needSaveTitleFile(config)
+      needSaveTitleFile: config.saveTitleFile
     }
 
     return result;
   }
 
-  function dealAssetFolderAndPath(config, saveFolder) {
-    let assetFolder = null;
-    let assetRelativePath = null;
-    if(config.assetPath.indexOf('$CLIPPING-PATH') > -1){
-      assetRelativePath = config.assetPath.replace('$CLIPPING-PATH/', '');
-      assetFolder = T.joinPath(saveFolder, assetRelativePath);
-    } else {
-      if(config.assetPath.indexOf('$STORAGE-PATH') > -1){
-        assetFolder = T.joinPath(config.rootFolder, config.assetPath.replace('$STORAGE-PATH/', ''));
-        assetRelativePath = T.calcPath(saveFolder, assetFolder)
-      } else {
-        assetRelativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
-        assetFolder = T.joinPath(saveFolder, assetRelativePath);
-      }
-    }
-    return [assetFolder, assetRelativePath];
-  }
-
-  function dealCategoryAndSaveFolder(config, category, clippingFolder, host) {
-    const defaultCategory = config.defaultCategory.replace(/\$DOMAIN/g, host.replace(':', '_'));
-    let folder = null;
-    if(category === ""){
+  function dealCategoryAndCategoryPath(config, category, now, domain, storagePath) {
+    let categoryPath;
+    const v = {now: now, domain: domain};
+    const defaultCategory = Render.exec(config.defaultCategory, v, Render.TimeVariables.concat(['$DOMAIN']));
+    if (category === '') {
       if(defaultCategory === "$NONE"){
-        folder = T.joinPath(config.rootFolder, clippingFolder)
+        categoryPath = storagePath;
       } else {
         category = (defaultCategory === '' ? 'default' : defaultCategory);
-        folder = T.joinPath(config.rootFolder, category, clippingFolder);
+        categoryPath = T.joinPath(storagePath, category);
       }
     } else {
       if(category === '$NONE'){
         category = '';
-        folder = T.joinPath(config.rootFolder, clippingFolder)
+        categoryPath = storagePath;
       } else {
-        folder = T.joinPath(config.rootFolder, category, clippingFolder);
+        categoryPath = T.joinPath(storagePath, category);
       }
     }
-    return [category, folder]
+    return {category, categoryPath};
   }
 
-  function getClippingFolder(config, title, now) {
-    const defaultName = generateDefaultClippingFolderName(config, now)
-    let name = defaultName;
-    if (config.titleStyleClippingFolderEnabled) {
-      switch(config.titleStyleClippingFolderFormat){
-        case '$FORMAT-B':
-          name = T.sanitizeFilename(title);
-          break;
-        default:
-          // $FORMAT-A or other
-          name = [defaultName, T.sanitizeFilename(title)].join('-');
+  function fixPathVariable(value, key) {
+    if (value === '') {
+      // user didn't specify any path, then we use default
+      if (key === 'assetFolder') {
+        return '$CLIPPING-PATH/assets';
+      } else {
+        // mainFileFolder, infoFileFolder, titleFileFolder
+        return '$CLIPPING-PATH'
+      }
+    } else {
+      const startsWithVariable = [
+        '$STORAGE-PATH',
+        '$CATEGORY-PATH',
+        '$CLIPPING-PATH'
+      ].some((it) => {
+        return value.startsWith(it);
+      });
+      if (startsWithVariable) {
+        return value;
+      } else {
+        return ['$CLIPPING-PATH', value].join('/');
       }
     }
-    return name;
   }
 
-  function generateDefaultClippingFolderName(config, now) {
-    const s = now.str;
-    let name = '';
-    switch(config.defaultClippingFolderFormat) {
-      case '$FORMAT-B':
-        name = [
-          s.year, s.month, s.day,
-          s.hour, s.minute, s.second
-        ].join('')
-        break;
-      case '$FORMAT-C':
-        name = s.intSec;
-        break;
-      default:
-        // $FORMAT-A or other
-        name = [
-          s.year, s.month, s.day,
-          s.intSec
-        ].join('-');
+  const Render = {}
+  Render.TimeVariables = ['$TIME-INTSEC',
+    '$YYYY', '$YY', '$MM', '$DD',
+    '$HH', '$mm', '$SS'
+  ];
+
+  Render.FilenameVariables = Render.TimeVariables.concat([
+    '$TITLE', '$FORMAT', '$DOMAIN']);
+
+  Render['$TIME-INTSEC'] = function(str, v) {
+    return str.replace(/\$TIME-INTSEC/mg, () => {
+      return v.now.str.intSec;
+    });
+  }
+
+  Render['$YYYY'] = function(str, v) {
+    return str.replace(/\$YYYY/mg, () => {
+      return v.now.str.year;
+    });
+  }
+
+  Render['$YY'] = function(str, v) {
+    return str.replace(/\$YY/mg, () => {
+      return v.now.str.sYear;
+    });
+  }
+
+  Render['$MM'] = function(str, v) {
+    return str.replace(/\$MM/mg, () => {
+      return v.now.str.month;
+    });
+  }
+
+  Render['$DD'] = function(str, v) {
+    return str.replace(/\$DD/mg, () => {
+      return v.now.str.day;
+    });
+  }
+
+  Render['$HH'] = function(str, v) {
+    return str.replace(/\$HH/mg, () => {
+      return v.now.str.hour;
+    });
+  }
+
+  Render['$mm'] = function(str, v) {
+    return str.replace(/\$mm/mg, () => {
+      return v.now.str.minute;
+    });
+  }
+
+  Render['$SS'] = function(str, v) {
+    return str.replace(/\$SS/mg, () => {
+      return v.now.str.second;
+    });
+  }
+
+  Render['$TITLE'] = function(str, v) {
+    return str.replace(/\$TITLE/mg, () => {
+      return T.sanitizeFilename(v.title);
+    });
+  }
+
+  Render.getDefault = function(variable) {
+    return function(str, v) {
+      const name = T.toJsVariableName(variable.replace('$', ''));
+      const re = new RegExp(variable.replace('$', '\\$'), 'mg');
+      return str.replace(re, () => {
+        return v[name];
+      });
     }
-    return name;
   }
 
-  function needSaveTitleFile(config) {
-    return !(config.titleStyleClippingFolderEnabled || config.saveTitleAsFilename)
+  Render.exec = function(str, v, variables) {
+    let s = str;
+    variables.forEach((variable) => {
+      let renderFn = Render[variable];
+      if(!renderFn) {
+        renderFn = Render.getDefault(variable);
+      }
+      s = renderFn(s, v);
+    });
+    return s;
   }
 
-  return {parse: parse};
+  return {parse: parse, Render: Render};
 });

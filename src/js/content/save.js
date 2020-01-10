@@ -36,7 +36,7 @@
       title: title.trim(),
       category: category.trim(),
       tags: T.splitTagstr(tagstr),
-      host: window.location.host,
+      domain: window.location.host.split(':')[0],
       link: window.location.href,
       config: config
     }
@@ -62,10 +62,13 @@
     const params = { storageInfo: storageInfo, elem: elem, info: info, config: config }
     parser.parse(params).then((tasks) => {
       if(needSaveTitleFile) {
-        tasks.unshift(Task.createTitleTask(storageInfo.saveFolder, title, info.clipId));
+        const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);
+        tasks.unshift(Task.createTitleTask(filename, info.clipId));
       }
       if(needSaveIndexFile) {
-        tasks.unshift(Task.createIndexTask(storageInfo.saveFolder, info))
+        // FIXME info
+        const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
+        tasks.unshift(Task.createInfoTask(filename, info))
       }
 
       const clipping = {
@@ -81,6 +84,7 @@
         body: clipping
       });
     })
+    // FIXME
     saveClippingHistory(storageInfo.saveFolder, info);
   }
 

@@ -11,6 +11,15 @@
   // Tool
   const T = {};
 
+  T.toJsVariableName = function(str) {
+    const it = T.capitalize(str);
+    const [char1, rest] = [
+      it.substr(0, 1),
+      it.substr(1)
+    ];
+    return char1.toLowerCase() + rest;
+  }
+
   T.capitalize = function(str) {
     const arr = str.split(/[-_]+/)
     return arr.map((it) => {
@@ -453,6 +462,7 @@
     const tObj = {
       value  : date,
       year   : date.getFullYear(),
+      sYear  : date.getFullYear() % 100,
       month  : date.getMonth() + 1,
       day    : date.getDate(),
       hour   : date.getHours(),
@@ -461,8 +471,10 @@
       intSec : Math.floor(date/1000),
       intMs  : date / 1
     }
+    // sYear => short year
     tObj.str = {
       year: tObj.year.toString(),
+      sYear: T.rjustNum(tObj.sYear, 2),
       month: T.rjustNum(tObj.month, 2),
       day: T.rjustNum(tObj.day, 2),
       hour: T.rjustNum(tObj.hour, 2),
