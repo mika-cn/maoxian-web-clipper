@@ -140,22 +140,48 @@
     "setting.title.markdown-content": "Markdown",
     "setting.title.offline-page": "离线索引页面",
     "setting.title.refresh-history": "刷新裁剪历史",
-    "setting.title.default-clipping-folder-format": "默认裁剪目录格式",
-    "setting.title.title-style-clipping-folder-format": "标题式裁剪目录的格式",
-    "setting.title.title-style-clipping-folder": "标题式裁剪目录",
-    "setting.title.clipping-file": "主文件",
-    "setting.title.asset-path": "资源文件的存储路径",
-    "setting.title.default-category": "默认分类",
-    "setting.title.path": "存储路径",
+
     "setting.title.root-folder": "根目录",
+    "setting.title.default-category": "默认分类",
+    "setting.title.clipping-folder-name": "裁剪目录",
+    "setting.title.main-file": "主文件",
+    "setting.title.asset-file": "资源文件",
+    "setting.title.frame-file": "内嵌的网页文件",
+    "setting.title.info-file": "元信息文件",
+    "setting.title.title-file": "标题文件",
 
+    "setting.title.path": "存储路径",
     "setting.path-intro.format": "格式：",
-
     "setting.path.download": "下载路径",
     "setting.path.filename": "主文件名",
     "setting.folder.root": "根目录",
     "setting.folder.category": "分类目录",
     "setting.folder.clipping": "裁剪目录",
+
+    "setting.help.label": "点击显示（或隐藏）帮助信息",
+    "setting.help.avariable-variable": "可用变量",
+    // variables
+    "setting.variable-in-folder": "以下变量可用于存储目录",
+    "setting.variable-in-filename": "以下变量可用于文件名",
+    "setting.variable.storage-path": '$STORAGE-PATH 等同于： <code>下载路径</code> / <code>根目录</code>',
+    "setting.variable.category-path": '$CATEGORY-PATH 等同于： <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code>',
+    "setting.variable.clipping-path": '$CLIPPING-PATH 等同于： <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code> / <code> 裁剪目录</code>',
+
+
+    "setting.variable.none": "<pre>$NONE => 表示空值（即无目录）</pre>",
+    "setting.variable.title": "<pre>$TITLE  => 网页标题 </pre>",
+    "setting.variable.domain": "<pre>$DOMAIN => 当前网站的域名 （例： blog.example.org） </pre>",
+    "setting.variable.format": "<pre>$FORMAT => 'html' 或者 'md' （取决于保存格式） </pre>",
+
+    "setting.variable.year"                : "<pre>$YYYY => 年 （4 位数字, 例： 2018）</pre>",
+    "setting.variable.short-year"          : "<pre>$YY   => 年 （2 位数字, 例： 18）</pre>",
+    "setting.variable.month"               : "<pre>$MM   => 月 （2 位数字, 01 ~ 12）</pre>",
+    "setting.variable.day"                 : "<pre>$DD   => 日 （2 位数字, 01 ~ 31）</pre>",
+    "setting.variable.hour"                : "<pre>$HH   => 时 （2 位数字, 00 ~ 23）</pre>",
+    "setting.variable.minute"              : "<pre>$mm   => 分 （2 位数字, 00 ~ 59）</pre>",
+    "setting.variable.second"              : "<pre>$SS   => 秒 （2 位数字, 00 ~ 59）</pre>",
+    "setting.variable.time-integer-second" : "<pre>$TIME-INTSEC => 以秒表示的裁剪时间（例：1578712781）.</pre>",
+
 
     "setting.path.download.intro": "下载路径： 该路径即是你浏览器设置的下载目录，如果你使用「本地程序」的话，该路径是你配置文件（config.yaml）里面的 data_dir 项所配置的目录。",
     "setting.path.filename.intro": "主文件名： 即保存下来的主文件的名字，默认为 <code>index.html</code> 或 <code>index.md</code>",
@@ -183,12 +209,7 @@
     "handler.wiz-note-plus.feature.a": "将网页剪裁保存到为知笔记数据库",
     "handler.wiz-note-plus.warning": "<strong> 警告！ </strong><br /> 如果你启用为知笔记，你必须先 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装它</a>，并且剪裁时为知笔记必须处于启动状态，否则处理程序无法正常工作",
 
-    "setting.option.default-clipping-folder-format.a": "格式A （例: 2018-10-11-1539236251）",
-    "setting.option.default-clipping-folder-format.b": "格式B （例: 20181011102009）",
-    "setting.option.default-clipping-folder-format.c": "格式C （例: 1539236251）",
 
-    "setting.option.title-style-clipping-folder-format.a": "格式A",
-    "setting.option.title-style-clipping-folder-format.b": "格式B",
     "setting.option.request-referrer-policy.origin-when-cross-origin": "同域请求时，Referrer 为全路径（请求域 + 请求路径），跨域请求时，Referrer 只包含请求域（协议 + 域名 + 端口）",
     "setting.option.request-referrer-policy.origin": "Referrer 只包含请求域（协议 + 域名 + 端口）",
     "setting.option.request-referrer-policy.no-referrer": "不发送 Referer",
@@ -222,6 +243,12 @@
     "setting.button.save": "保存",
 
     // notice
+    "setting.notice.main-file-intro": "主文件是你裁剪下来的 HTML 文件（即网页文件）或者是 Markdown 文件（取决于保存格式是什么）",
+    "setting.notice.asset-file-intro": "资源文件指的是跟随网页的图片，样式，字体和网站图标（注：不包含脚本文件，居于安全考虑，MaoXian 不保存脚本文件）。",
+    "setting.notice.frame-file-intro": "故名思意，这些网页内嵌在主网页中。在裁剪的过程中，如果保存格式为 HTML，则会把这些内嵌的网页另存为一个文件，并在主文件中引入；如果保存格式为 Markdown，则会把这些内嵌的网页的内容嵌入到主文件中。",
+    "setting.notice.info-file-intro": "元信息文件是用来记录整个裁剪过程所涉及的信息的，内容包括保存格式，裁剪时间，原网址，分类，标签等等。",
+    "setting.notice.title-file-intro": "标题文件是一个包含空内容的文件，其特点是文件名包含标题，如果你的主文件的路径不包含标题信息，则可以在主文件的同级目录中保存该文件，以便浏览，该文件为可选。",
+
     "setting.notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
     "setting.notice.file-url.link-label": "查看如何设置",
     "setting.notice.file-url.help-msg": "你将需要以下信息:",
@@ -230,9 +257,8 @@
     "setting.notice.front-matter": "YAML Front Matter 是一段位于 Markdown 文件开头的 YAML 文本，常用于保存文档本身的元信息，你可以使用它来保存裁剪信息。",
     "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags</strong> 和 <strong>createdAt</strong>。",
     "setting.notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
-    "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />使用 <strong>$NONE</strong> 来表示空值（即无目录）<br />使用 <strong>$DOMAIN</strong> 表示当前网页域名",
-    "setting.notice.title-clipping-folder-format": "<strong>格式A</strong> =&gt; <code>默认裁剪目录</code> + <code>-</code> + <code>标题</code><br />第一部分 (<i>默认裁剪目录</i>) 取决于你配置的<strong>默认裁剪目录格式</strong><br />最后一部分 (<i>标题</i>) 则是你裁剪网页时，输入的标题.<br />例子： 2018-10-11-1539236251-我是一个酷炫的标题<br /><br /><strong>格式B</strong> =&gt; <code>标题</code><br />例子： 我是一个酷炫的标题<br /><strong>警告</strong>: <em>格式B</em> 可能造成裁剪文件的覆盖，因为你要裁剪的网页可能会有相同的标题（虽然概率很小），或者你多次对同一个网页进行裁剪。",
-    "setting.notice.asset-path": "这里所提到的资源是指跟随网页的图片、字体和样式（注： 我们不会保存脚本文件）</strong><br />使用 <strong>$CLIPPING-PATH</strong> 来表示: <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code> / <code> 裁剪目录</code> <br />使用 <strong>$STORAGE-PATH</strong> 来表示： <code>下载路径</code> / <code>根目录</code>",
+    "setting.notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
+    "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />",
     "setting.notice.clipping-handler.link-label": "安装地址",
     "setting.notice.offline-page": "「离线索引页面」是一个静态的  HTML 页面, 使用这个页面，你可以脱离 MaoXian 扩展，从而离线地浏览或搜索你裁剪下来的信息。",
     "setting.notice.offline-page.link-label": "点我了解更多",
@@ -245,6 +271,10 @@
     "setting.notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
 
     // label
+    "setting.storage-folder.label": "存储目录",
+    "setting.storage-filename.label": "文件名",
+    "setting.save-title-file-input.label": "保存标题文件",
+
     "setting.enable-handler.label": "启用该处理程序",
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.request-timeout-input.label": "请求的超时时长 (秒, 5~240)",
@@ -254,8 +284,6 @@
     "setting.save-web-font-input.label": "保存Web字体(建议取消勾选)",
     "setting.save-css-image-input.label": "存储 CSS 背景图(建议取消勾选)",
     "setting.save-domain-tag-input.label": "裁剪时，添加当前域名为标签",
-    "setting.title-style-clipping-folder-enabled-input.label": "启用标题式裁剪目录",
-    "setting.save-title-as-filename-input.label": "使用标题作为文件名（默认为 index.html 或 index.md ）",
     "setting.hotkey-switch-enabled-input.label": "启用快捷键 `c` (裁剪开关)",
     "setting.mouse-mode-enabled-input.label": "鼠标友好模式",
     "setting.input-field-save-format-enabled.label": "启用表单上的格式选择",

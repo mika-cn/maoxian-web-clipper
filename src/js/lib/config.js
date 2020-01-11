@@ -76,7 +76,7 @@
        *
        * $YYYY => year (4 digits, e.g. 2018)
        * $YY   => year (2 digits, e.g. 18)
-       * $MM   => mouth (2 digits, 01 ~ 12)
+       * $MM   => month (2 digits, 01 ~ 12)
        * $DD   => day (2 digits, 01 ~ 31)
        * $HH   => hour (2 digits, 00 ~ 23)
        * $mm   => minute (2 digits, 00 ~ 59)
