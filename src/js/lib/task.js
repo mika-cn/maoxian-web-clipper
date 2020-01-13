@@ -122,6 +122,19 @@
     return textTasks.concat(urlTasks);
   }
 
+  function getRelativePath(tasks, currDir) {
+    let mainPath;
+    const paths = [];
+    tasks.forEach((it) => {
+      const path = T.calcPath(currDir, it.filename);
+      if (it.taskType === 'mainFileTask') {
+        mainPath = path;
+      }
+      paths.push(path);
+    });
+    return {mainPath: mainPath, paths: paths};
+  }
+
   return {
     createHtmlTask: createHtmlTask,
     createMarkdownTask: createMarkdownTask,
@@ -134,6 +147,7 @@
     rmReduplicate: rmReduplicate,
     changeUrlTask: changeUrlTask,
     sort: sort,
+    getRelativePath: getRelativePath,
   }
 
 });

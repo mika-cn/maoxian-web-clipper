@@ -65,15 +65,25 @@
         const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);
         tasks.unshift(Task.createTitleTask(filename, info.clipId));
       }
+      const _tasks = Task.rmReduplicate(tasks);
+
       if(needSaveIndexFile) {
-        // FIXME info
+        info.paths = [storageInfo.infoFileName];
+        const {mainPath, paths} = Task.getRelativePath(
+          _tasks, storageInfo.infoFileFolder);
+        info.mainPath = mainPath;
+        info.paths.push(...paths);
+
         const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
-        tasks.unshift(Task.createInfoTask(filename, info))
+        _tasks.unshift(Task.createInfoTask(filename, info))
+
       }
 
+      // versions: none, 2.0
+      info.version = '2.0'
       const clipping = {
         info: info,
-        tasks: Task.sort(Task.rmReduplicate(tasks))
+        tasks: Task.sort(_tasks)
       };
 
       Log.debug(clipping);
@@ -83,9 +93,10 @@
         type: 'clipping.save',
         body: clipping
       });
+
+      saveClippingHistory(info);
     })
-    // FIXME
-    saveClippingHistory(storageInfo.saveFolder, info);
+
   }
 
   //private
@@ -99,9 +110,10 @@
   }
 
   //private
-  function saveClippingHistory(saveFolder, info){
-    const path = [saveFolder, 'index.json'].join('/');
-    const clippingHistory = Object.assign({path: path}, info);
+  function saveClippingHistory(info){
+    // FIXME path not avariable anymore.
+    // const path = [saveFolder, 'index.json'].join('/');
+    // const clippingHistory = Object.assign({path: path}, info);
     ExtMsg.sendToBackground({
       type: 'save.clippingHistory',
       body: {clippingHistory: clippingHistory}

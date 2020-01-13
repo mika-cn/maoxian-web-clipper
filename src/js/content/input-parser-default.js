@@ -93,7 +93,6 @@
       category   : category,
       tags       : tags.concat(appendTags),
       created_at : now.toString(),
-      filename   : storageInfo.mainFileName
     }
 
     const inputHistory = { title: title, category: category, tags: tags }

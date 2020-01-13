@@ -56,7 +56,6 @@
           category   : category,
           tags       : tags.concat(appendTags),
           created_at : now.toString(),
-          filename   : mainFilename
       }
 
       const inputHistory = { title: title, category: category, tags: tags }
