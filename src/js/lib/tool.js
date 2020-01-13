@@ -652,6 +652,13 @@
     return path.replace(/\\/g, '/')
   }
 
+
+  T.expandPath = function(relativePath, currentPath) {
+    const tmp = ["http://a.org", currentPath].join('/');
+    const url = new URL(relativePath, tmp);
+    return url.pathname;
+  }
+
   /**
    * WARNING:
    *   This function doesn't support any relative path (e.g. ../../assets).

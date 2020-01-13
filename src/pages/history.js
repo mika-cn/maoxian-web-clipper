@@ -49,9 +49,17 @@
       ]).then((values) => {
         const [downloadFolder, config, allowFileSchemeAccess] = values;
         const allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
-        let {url} = clip;
-        let filename = clip.filename ? clip.filename : `index.${clip.format}`;
-        const clipPath = T.replacePathFilename(clip.path, filename);
+
+        let {url, version = '1.0'} = clip;
+        let clipPath;
+        if (version === '2.0') {
+          clipPath = T.expandPath(clip.mainPath, clip.path);
+        } else {
+          const filename = clip.filename ? clip.filename : `index.${clip.format}`;
+          clipPath = T.replacePathFilename(clip.path, filename);
+        }
+
+
         if(!url) {
           url = clipPath;
           if(downloadFolder){

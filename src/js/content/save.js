@@ -94,7 +94,7 @@
         body: clipping
       });
 
-      saveClippingHistory(info);
+      saveClippingHistory(info, storageInfo);
     })
 
   }
@@ -110,10 +110,9 @@
   }
 
   //private
-  function saveClippingHistory(info){
-    // FIXME path not avariable anymore.
-    // const path = [saveFolder, 'index.json'].join('/');
-    // const clippingHistory = Object.assign({path: path}, info);
+  function saveClippingHistory(info, storageInfo){
+    const path = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
+    const clippingHistory = Object.assign({path: path}, info);
     ExtMsg.sendToBackground({
       type: 'save.clippingHistory',
       body: {clippingHistory: clippingHistory}
