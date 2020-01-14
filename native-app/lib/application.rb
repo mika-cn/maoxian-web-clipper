@@ -9,7 +9,7 @@ require_relative './clipping'
 require_relative './history'
 
 class Application
-  VERSION = '0.2.1'
+  VERSION = '0.2.2'
 
   attr_accessor :config
 
@@ -41,11 +41,11 @@ class Application
     when 'get.downloadFolder' then
       NativeMessage.write({type: msg['type'], downloadFolder: root})
     when 'clipping.op.delete' then
-      case (msg['version'] || '01')
-      when '02'
+      case (msg['version'] || '1.0')
+      when '2.0'
         result = Clipping.delete_v2(root, msg)
         NativeMessage.write({type: msg['type']}.merge(result))
-      when '01'
+      when '1.0'
         result = Clipping.delete(root, msg)
         NativeMessage.write({type: msg['type']}.merge(result))
       end
