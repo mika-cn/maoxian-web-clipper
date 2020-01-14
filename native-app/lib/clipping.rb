@@ -1,7 +1,52 @@
+require 'json'
 require_relative 'fileutils_hacked'
 require_relative 'log'
 
 module Clipping
+
+  # msg {:path}
+  def self.delete_v2(root, msg)
+    root = sanitize(root)
+    path = sanitize(msg.fetch('path'))
+
+    if path_overflow?(root, path)
+      return { ok: false, message: 'clipping.op-error.path-overflow' }
+    else
+      if File.exist?(path)
+        json_str = File.open(path, 'r').read
+        begin
+          info = JSON.parse(json_str)
+          info_file_folder = File.dirname(path)
+          msgs = []
+          info['paths'].each do |relative_path|
+            file_path = File.expand_path(relative_path, info_file_folder)
+            if path_overflow?(root, file_path)
+              msgs.push "Path overflow: #{file_path}"
+              next
+            end
+            if File.exist?(file_path)
+              is_succ, msg = try_perform { FileUtils.rm(file_path) }
+              remove_empty_pdir(root, file_path)
+              if !is_succ
+                msgs.push "Fail to remove #{file_path}, error: #{msg}"
+              end
+            else
+              msgs.push "File #{file_path} doesn't exist"
+            end
+          end
+          if msgs.size == 0
+            return {ok: true, clip_id: info['clipId']}
+          else
+            return {ok: true, clip_id: info['clipId'], message: msgs.join("\n")}
+          end
+        rescue JSON::ParserError => e
+          return {ok: false, message: 'clipping.op-error.json-parse-error'}
+        end
+      else
+        return { ok: false, message: 'clipping.op-error.path-not-exist' }
+      end
+    end
+  end
 
   # msg: {:asset_folder, :clip_id, :path}
   def self.delete(root, msg)
@@ -63,7 +108,7 @@ module Clipping
     pdir = File.dirname(path)
     return if root == pdir
     return if path_overflow?(root, pdir)
-    if is_dir_empty?(pdir)
+    if File.exist?(pdir) && is_dir_empty?(pdir)
       Dir.rmdir(pdir)
       remove_empty_pdir(root, pdir)
     end

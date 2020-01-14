@@ -41,8 +41,14 @@ class Application
     when 'get.downloadFolder' then
       NativeMessage.write({type: msg['type'], downloadFolder: root})
     when 'clipping.op.delete' then
-      result = Clipping.delete(root, msg)
-      NativeMessage.write({type: msg['type']}.merge(result))
+      case (msg['version'] || '01')
+      when '02'
+        result = Clipping.delete_v2(root, msg)
+        NativeMessage.write({type: msg['type']}.merge(result))
+      when '01'
+        result = Clipping.delete(root, msg)
+        NativeMessage.write({type: msg['type']}.merge(result))
+      end
     when 'history.refresh' then
       result = History.refresh(root, msg['root_folder'])
       NativeMessage.write(msg.merge(result))
