@@ -44,6 +44,9 @@
       needSaveIndexFile, needSaveTitleFile
     } = InputParser.parse(inputParams);
 
+    // versions: none, 2.0
+    info.version = '2.0'
+
     if(input.category != '') {
       saveInputHistory('category', input.category);
     }
@@ -67,6 +70,7 @@
       }
       const _tasks = Task.rmReduplicate(tasks);
 
+
       if(needSaveIndexFile) {
         info.paths = [storageInfo.infoFileName];
         const {mainPath, paths} = Task.getRelativePath(
@@ -79,8 +83,6 @@
 
       }
 
-      // versions: none, 2.0
-      info.version = '2.0'
       const clipping = {
         info: info,
         tasks: Task.sort(_tasks)
