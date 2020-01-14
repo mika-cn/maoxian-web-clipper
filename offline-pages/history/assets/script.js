@@ -21,12 +21,19 @@
       const template = T.findElem('clipping-tpl').innerHTML;
       const items = [];
       clips.forEach(function(clip){
-        const jsonUrl = calcRelativePath(clip.path);
-        let filename = clip.filename;
-        if(!filename) {
-          filename = ['index', clip.format].join('.');
+        const {version} = clip;
+        let url;
+        if (version === '2.0') {
+          const mainFilePath = T.expandPath(clip.mainPath, clip.path);
+          url = calcRelativePath(mainFilePath);
+        } else {
+          const jsonUrl = calcRelativePath(clip.path);
+          let filename = clip.filename;
+          if(!filename) {
+            filename = ['index', clip.format].join('.');
+          }
+          url = jsonUrl.replace('index.json', filename);
         }
-        const  url = jsonUrl.replace('index.json', filename);
         items.push(T.renderTemplate(template, {
           clipId: clip.clipId,
           time: renderTime(clip),
@@ -43,7 +50,7 @@
     }
   }
 
-  function calcRelativePath(clippingPath){
+  function calcRelativePath(filePath){
     const path = window.location.pathname;
     const ridx = path.lastIndexOf('/');
     let dir = path.substring(0, ridx);
@@ -52,7 +59,7 @@
       dir = dir.substring(idx + Config.rootFolder.length);
     }
     const currDir = [Config.rootFolder, dir].join('');
-    return T.calcPath(currDir, clippingPath);
+    return T.calcPath(currDir, filePath);
   }
 
   function renderTags(clip) {

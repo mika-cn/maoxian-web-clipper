@@ -654,9 +654,15 @@
 
 
   T.expandPath = function(relativePath, currentPath) {
-    const tmp = ["http://a.org", currentPath].join('/');
-    const url = new URL(relativePath, tmp);
-    return url.pathname;
+    const isAbsolute = currentPath.startsWith('/');
+    const sep = isAbsolute ? '' : '/';
+    const base = ["http://a.org", currentPath].join(sep);
+    const url = new URL(relativePath, base);
+    if (isAbsolute) {
+      return url.pathname;
+    } else {
+      return url.pathname.substring(1);
+    }
   }
 
   /**
