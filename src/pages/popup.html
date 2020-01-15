@@ -11,9 +11,15 @@
       <div class="menus"></div>
     </div>
     <template id="menu-tpl">
+
       <a class="menu" data-id="${menuId}">
-        <i class="icon${iconAppendClass}">${icon}</i>
-        ${menuContent}
+        <div class="icon ${icon}">
+          <div class="r1"><span class="c11"></span><span class="c12"></span><span class="c13"></span><span class="c14"></span><span class="c15"></span></div>
+          <div class="r2"><span class="c21"></span><span class="c22"></span><span class="c23"></span><span class="c24"></span><span class="c25"></span></div>
+          <div class="r3"><span class="c31"></span><span class="c32"></span><span class="c33"></span><span class="c34"></span><span class="c35"></span></div>
+          <div class="r4"><span class="c41"></span><span class="c42"></span><span class="c43"></span><span class="c44"></span><span class="c45"></span></div>
+          <div class="r5"><span class="c51"></span><span class="c52"></span><span class="c53"></span><span class="c54"></span><span class="c55"></span></div>
+        </div><div class="content">${menuContent} </div>
       </a>
     </template>
     <script type="text/javascript" src="../vendor/js/browser-polyfill.js"></script>

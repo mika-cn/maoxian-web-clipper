@@ -13,27 +13,107 @@ body {
 }
 
 .menu{
-  font-size: 14px;
   display: block;
   width: 100%;
-  line-height: 28px;
   color: #4a4a4a;
   background-color: white;
   text-decoration: none;
   padding: 0px 8px 0px 8px;
+  height: 30px;
+  line-height: 30px;
 }
 .menu:hover{
   background-color: #ccc;
   cursor: pointer;
 }
 
-.menu > .icon {
-  font-style: normal;
-  font-size: 18px;
-  font-weight: bold;
+
+.menu .icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  top: 4px;
   margin-right: 5px;
 }
-
-.menu > .icon.active{
-  color: #0a84ff;
+.menu > .content {
+  display: inline-block;
+  font-size: 14px;
+  height: 20px;
+  line-height: 20px;
+  position: relative;
+  top: 1px;
 }
+
+.icon .r1,
+.icon .r2,
+.icon .r3,
+.icon .r4,
+.icon .r5 {
+  height: 4px;
+  line-height: 0px;
+  box-sizing: border-box;
+}
+
+.icon span {
+  display: inline-block;
+  width: 20%;
+  height: 100%;
+  /*border-radius: 2px;*/
+}
+.icon.check .c25,
+.icon.check .c31,
+.icon.check .c34,
+.icon.check .c42,
+.icon.check .c43 {background-color: #0a84ff;}
+
+.icon.clip .c14,
+.icon.clip .c22,
+.icon.clip .c23,
+.icon.clip .c24,
+.icon.clip .c25,
+.icon.clip .c32,
+.icon.clip .c34,
+.icon.clip .c41,
+.icon.clip .c42,
+.icon.clip .c43,
+.icon.clip .c44,
+.icon.clip .c52 { background-color: #636363;}
+
+.icon.home .c13,
+.icon.home .c22,
+.icon.home .c23,
+.icon.home .c24,
+.icon.home .c31,
+.icon.home .c32,
+.icon.home .c33,
+.icon.home .c34,
+.icon.home .c35,
+.icon.home .c42,
+.icon.home .c44,
+.icon.home .c52,
+.icon.home .c53,
+.icon.home .c54 { background-color: #636363; }
+
+
+.icon.history .c12,
+.icon.history .c13,
+.icon.history .c14,
+.icon.history .c32,
+.icon.history .c33,
+.icon.history .c34,
+.icon.history .c52,
+.icon.history .c53,
+.icon.history .c54 { background-color: #636363; height: 3px;}
+.icon.history > .r2, .icon.history > .r4 { height: 2px }
+
+.icon.setting {padding-left: 1px; padding-top: 1px;}
+.icon.setting .c22,
+.icon.setting .c24,
+.icon.setting .c42,
+.icon.setting .c44 { background-color: #636363; }
+.icon.setting .c23,
+.icon.setting .c33,
+.icon.setting .c43 {width: 2px}
+.icon.setting .r3 {height: 2px}
+

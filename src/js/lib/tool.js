@@ -328,7 +328,7 @@
   T.isBrowserUrl = function(url){
     return ([
       'about:',     /* Firefox */
-      'chrome://',  /* Chrome or Chromium */
+      'chrome',  /* Chrome or Chromium (chrome-serach://, chrome://) */
       'vivaldi://', /* vivaldi */
     ]).some(function(it){
       return url.startsWith(it);
