@@ -70,6 +70,19 @@ describe('Selection Store', () => {
     H.assertEqual(Store.get('/X/').length, 0)
   });
 
+  it('second layer, has same name with a leaf node', () => {
+    Store = SelectionStore.create();
+    Store.set('/A', selection);
+    Store.set('/A/File', selectionA);
+
+    // A(S)
+    // A/File(A)
+    H.assertEqual(Store.get('/A').length, 1);
+    H.assertEqual(Store.get('/A')[0], selection);
+    H.assertEqual(Store.get('/A/X').length,1);
+    H.assertEqual(Store.get('/A/X')[0], selectionA);
+  });
+
   /*
     Generally is same page.
       /articleA/
@@ -188,6 +201,18 @@ describe('Selection Store', () => {
     H.assertEqual(Store.get('/Fixed/X/FixeX').length, 2);
   });
 
+  it('should not merge branch with different length', () => {
+    Store = SelectionStore.create();
+    Store.set('/Fixed/A/B', selection);
+    Store.set('/Fixed/A/a1/File', selectionA);
+    Store.set('/Fixed/A/a2/File', selectionA);
+    // Fixed/A/B(S)
+    // Fixed/A/$VARIABLE/File(A)
+    H.assertEqual(Store.get('/Fixed/A/x').length, 1)
+    H.assertEqual(Store.get('/Fixed/A/x')[0], selection)
+  });
+
+
   it('should merge branch', () => {
     Store = SelectionStore.create();
     Store.set('/Fixed/A/a1/File', selectionA);
@@ -214,6 +239,5 @@ describe('Selection Store', () => {
     H.assertEqual(Store.get('/Fixed/X/x/File').length, 1)
     H.assertEqual(Store.get('/Fixed/X/x/File')[0], selection)
   });
-
 
 })
