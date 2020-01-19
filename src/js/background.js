@@ -132,6 +132,7 @@
           break;
         case 'create-tab':
           ExtApi.createTab(message.body.link).then(resolve);
+          break;
         default:
           throw new Error("Unknown message" + message.type);
           break;

@@ -31,7 +31,7 @@
       .notify {
         line-height: 18px;
         font-size: 13px !important;
-        padding: 0px;
+        padding: 3px;
         border: solid 1px #aaa;
         border-radius: 3px;
         margin-bottom: 15px;
@@ -41,18 +41,48 @@
       .notify > .notify-btn {
         cursor: pointer;
         display: inline-block;
-        line-height: 30px;
-        width: 30px;
-        height: 30px;
-        text-align: center;
+        width: 20px;
+        height: 20px;
+        position: relative;
+        top: 4px;
+        margin-right: 5px;
         padding: 0px !important;
-        font-size: 16px;
-        color: #333;
+        background-color: #333;
       }
+
+      .notify > .notify-btn .r1,
+      .notify > .notify-btn .r2,
+      .notify > .notify-btn .r3,
+      .notify > .notify-btn .r4,
+      .notify > .notify-btn .r5 {
+        height: 4px;
+        line-height: 0px;
+        box-sizing: border-box;
+      }
+
+      .notify > .notify-btn span {
+        display: inline-block;
+        width: 20%;
+        height: 100%;
+        /*border-radius: 2px;*/
+      }
+      .notify:hover > .notify-btn .c11,
+      .notify:hover > .notify-btn .c15,
+      .notify:hover > .notify-btn .c22,
+      .notify:hover > .notify-btn .c24,
+      .notify:hover > .notify-btn .c33,
+      .notify:hover > .notify-btn .c42,
+      .notify:hover > .notify-btn .c44,
+      .notify:hover > .notify-btn .c51,
+      .notify:hover > .notify-btn .c55 { background-color: #ccc; }
+
       .notify > .notify-content {
         display: inline-block;
-        height: 30px;
-        line-height: 30px;
+        font-size: 14px;
+        height: 20px;
+        line-height: 20px;
+        position: relative;
+        top: 1px;
         padding: 0px 10px !important;
       }
       .notify > .notify-content > a{
@@ -129,15 +159,46 @@
   }
 
   function containerClicked(e) {
-    if(e.target.className === 'notify-btn'){
-      const container = getContainer();
-      removeNotify(e.target.parentNode);
+    if (e.target.tagName.toUpperCase() === 'A') {
+      const elem = getNotifyByTarget(e.target);
+      removeNotify(elem);
+    } else {
+      const btn = getBtnTarget(e.target)
+      if (btn) {
+        const elem = getNotifyByTarget(btn);
+        removeNotify(elem);
+      }
+    }
+  }
+
+  function getNotifyByTarget(evTarget) {
+    if (evTarget.classList.contains('notify')) {
+      return evTarget;
+    } else {
+      return getNotifyByTarget(evTarget.parentNode);
+    }
+  }
+
+  function getBtnTarget(evTarget) {
+    if(evTarget.classList.contains('notify')) { return null }
+    if(evTarget.className === 'notify-btn') {
+      return evTarget;
+    } else {
+      return getBtnTarget(evTarget.parentElement);
     }
   }
 
   function renderNotify(content, behavior, type) {
     const html = content.replace(/\n/g, '<br />');
-    return `<label class="notify-btn" title="dismiss me">&#4030;</label><label class="notify-content">${html}</label>
+    return `
+      <div class="notify-btn" title="Dismiss me">
+        <div class="r1"><span class="c11"></span><span class="c12"></span><span class="c13"></span><span class="c14"></span><span class="c15"></span></div>
+        <div class="r2"><span class="c21"></span><span class="c22"></span><span class="c23"></span><span class="c24"></span><span class="c25"></span></div>
+        <div class="r3"><span class="c31"></span><span class="c32"></span><span class="c33"></span><span class="c34"></span><span class="c35"></span></div>
+        <div class="r4"><span class="c41"></span><span class="c42"></span><span class="c43"></span><span class="c44"></span><span class="c45"></span></div>
+        <div class="r5"><span class="c51"></span><span class="c52"></span><span class="c53"></span><span class="c54"></span><span class="c55"></span></div>
+      </div>
+      <div class="notify-content">${html}</div>
     `;
   }
 
