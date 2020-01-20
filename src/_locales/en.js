@@ -19,7 +19,8 @@
     //=====================================
     // global
     //=====================================
-    "none": "No record yet.",
+    "none": "None",
+    "no.record": "No records",
     "btn.confirm": "Confirm",
 
     "op.saved": "Saved!",
@@ -134,6 +135,8 @@
     "setting.title.request-referrer-policy": "Referrer Policy",
     "setting.title.misc": "Misc",
     "setting.title.clipping-content": "Clipping Content",
+    "setting.title.html-content": "HTML",
+    "setting.title.markdown-content": "Markdown",
     "setting.title.offline-page": "Offline Index Page",
     "setting.title.refresh-history": "Refresh History",
     "setting.title.default-clipping-folder-format": "Default Clipping Folder Format",
@@ -225,6 +228,8 @@
     "setting.notice.file-url.help-msg": "Your will need message below:",
     "setting.notice.file-url.ext-id": "Extension identify",
     "setting.notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after you allow browser to access file URLs.",
+    "setting.notice.front-matter": "YAML Front Matter is a block of text that is placed in front of markdown content. Usually, it is used to save meta information. You can use it to save clipping information",
+    "setting.notice.front-matter-template": "Using template below to configure which information you want to save.<br />Avariable variables are: <strong>title, url, category, tags</strong> and <strong>createdAt</strong>",
     "setting.notice.root-folder": "<strong>Notice:</strong><br /> This folder is used as storage entry, We suggest you don't change it after you set it right. If you do want to change it, you should change the name of folder in your file system too. So that you won't get two storage entry.",
     "setting.notice.default-category": "<strong>Default Category</strong><br />Use <strong>/</strong> to separate sub category<br />Use <strong>$NONE</strong> to represent empty value<br />Use <strong>$DOMAIN</strong> to represent current domain",
     "setting.notice.title-clipping-folder-format": "<strong>Format A</strong> =&gt; <code>default-clipping-folder</code> + <code>-</code> + <code>title</code><br />First part (<i>default-clipping-folder</i>) depends on <strong>Default Clipping Folder Format</strong> you configure.<br />Last part (<i>title</i>) is the title you input when clipping.<br />e.g. 2018-10-11-1539236251-a-awesome-title<br /><br /><strong>Format B</strong> =&gt; <code>title</code><br />e.g. a-awesome-title<br /><strong>Warning</strong>: <em>Format B</em> may cause clipping overwrite, if your clippings have same title. ",
@@ -246,6 +251,7 @@
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.request-timeout-input.label": "Timeout for performing a request (secs, 5~240)",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags) in main file",
+    "setting.md-front-matter-enabled-input.label": "Enable YAML Front Matter",
     "setting.save-icon-input.label": "Save website icons",
     "setting.save-web-font-input.label": "Save web fonts (not recommended)",
     "setting.save-css-image-input.label": "Save CSS background images (not recommended)",

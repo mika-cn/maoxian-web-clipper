@@ -70,24 +70,6 @@
       <section id="setting-general">
         <h2 class="center" i18n="setting.title.general"></h2>
         <div>
-          <h3 i18n="setting.title.clipping-content"></h3>
-          <input type="checkbox" id="save-clipping-information" />
-          <label for="save-clipping-information" i18n="setting.clip-information-input.label"></label>
-          <br />
-          <input type="checkbox" id="save-icon" />
-          <label for="save-icon" i18n="setting.save-icon-input.label"></label>
-          <br />
-
-          <input type="checkbox" id="save-web-font" />
-          <label for="save-web-font" i18n="setting.save-web-font-input.label"></label>
-          <br />
-          <input type="checkbox" id="save-css-image" />
-          <label for="save-css-image" i18n="setting.save-css-image-input.label"></label>
-          <br />
-          <input type="checkbox" id="save-domain-as-tag" />
-          <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
-        </div>
-        <div>
           <h3 i18n="setting.title.control"></h3>
           <input type="checkbox" id="hotkey-switch-enabled" />
           <label for="hotkey-switch-enabled" i18n="setting.hotkey-switch-enabled-input.label"></label>
@@ -119,6 +101,37 @@
           </div>
           <input type="checkbox" id="file-scheme-access-input"/>
           <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
+        </div>
+        <div>
+          <h3 i18n="setting.title.clipping-content"></h3>
+          <input type="checkbox" id="save-clipping-information" />
+          <label for="save-clipping-information" i18n="setting.clip-information-input.label"></label>
+          <br />
+
+          <input type="checkbox" id="save-domain-as-tag" />
+          <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
+          <div>
+            <h4 i18n="setting.title.html-content"></h3>
+            <input type="checkbox" id="save-icon" />
+            <label for="save-icon" i18n="setting.save-icon-input.label"></label>
+            <br />
+            <input type="checkbox" id="save-web-font" />
+            <label for="save-web-font" i18n="setting.save-web-font-input.label"></label>
+            <br />
+            <input type="checkbox" id="save-css-image" />
+            <label for="save-css-image" i18n="setting.save-css-image-input.label"></label>
+            <br />
+          </div>
+          <div>
+            <h4 i18n="setting.title.markdown-content"></h3>
+            <input type="checkbox" id="md-front-matter-enabled" />
+            <label for="md-front-matter-enabled" i18n="setting.md-front-matter-enabled-input.label"></label>
+            <div class="notice-info">
+              <span i18n="setting.notice.front-matter"></span><br /><br />
+              <span i18n="setting.notice.front-matter-template"></span>
+            </div>
+            <textarea id="md-front-matter-template"></textarea>
+          </div>
         </div>
       </section>
     </template>

@@ -19,7 +19,8 @@
     //=====================================
     // global
     //=====================================
-    "none": "暂无信息",
+    "none": "无",
+    "no.record": "无信息",
     "btn.confirm": "确认",
 
     "op.saved": "已保存",
@@ -135,6 +136,8 @@
     "setting.title.request-referrer-policy": "設置 Referrer",
     "setting.title.misc": "杂项",
     "setting.title.clipping-content": "裁剪内容",
+    "setting.title.html-content": "HTML",
+    "setting.title.markdown-content": "Markdown",
     "setting.title.offline-page": "离线索引页面",
     "setting.title.refresh-history": "刷新裁剪历史",
     "setting.title.default-clipping-folder-format": "默认裁剪目录格式",
@@ -224,6 +227,8 @@
     "setting.notice.file-url.help-msg": "你将需要以下信息:",
     "setting.notice.file-url.ext-id": "扩展标识",
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
+    "setting.notice.front-matter": "YAML Front Matter 是一段位于 Markdown 文件开头的 YAML 文本，常用于保存文档本身的元信息，你可以使用它来保存裁剪信息。",
+    "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags</strong> 和 <strong>createdAt</strong>。",
     "setting.notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />使用 <strong>$NONE</strong> 来表示空值（即无目录）<br />使用 <strong>$DOMAIN</strong> 表示当前网页域名",
     "setting.notice.title-clipping-folder-format": "<strong>格式A</strong> =&gt; <code>默认裁剪目录</code> + <code>-</code> + <code>标题</code><br />第一部分 (<i>默认裁剪目录</i>) 取决于你配置的<strong>默认裁剪目录格式</strong><br />最后一部分 (<i>标题</i>) 则是你裁剪网页时，输入的标题.<br />例子： 2018-10-11-1539236251-我是一个酷炫的标题<br /><br /><strong>格式B</strong> =&gt; <code>标题</code><br />例子： 我是一个酷炫的标题<br /><strong>警告</strong>: <em>格式B</em> 可能造成裁剪文件的覆盖，因为你要裁剪的网页可能会有相同的标题（虽然概率很小），或者你多次对同一个网页进行裁剪。",
@@ -244,6 +249,7 @@
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.request-timeout-input.label": "请求的超时时长 (秒, 5~240)",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
+    "setting.md-front-matter-enabled-input.label": "启用 YAML Front Matter",
     "setting.save-icon-input.label": "保存网站图标",
     "setting.save-web-font-input.label": "保存Web字体(建议取消勾选)",
     "setting.save-css-image-input.label": "存储 CSS 背景图(建议取消勾选)",

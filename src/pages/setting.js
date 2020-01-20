@@ -42,6 +42,12 @@
       'saveClippingInformation'
     );
     initCheckboxInput(config,
+      'save-domain-as-tag',
+      'saveDomainAsTag'
+    );
+
+    // - html
+    initCheckboxInput(config,
       'save-icon',
       'saveIcon'
     );
@@ -53,10 +59,16 @@
       'save-css-image',
       'saveCssImage'
     );
+    // - markdown
     initCheckboxInput(config,
-      'save-domain-as-tag',
-      'saveDomainAsTag'
+      'md-front-matter-enabled',
+      'mdFrontMatterEnabled'
     );
+    initTextInput(config,
+      'md-front-matter-template',
+      'mdFrontMatterTemplate'
+    );
+
 
     // control
     initCheckboxInput(config,
@@ -626,7 +638,7 @@
           }).join('');
           T.setHtml(elem,  html);
         } else {
-          T.setHtml(elem, '<tr><td colspan="4" i18n="none" align="center"></td></tr>');
+          T.setHtml(elem, '<tr><td colspan="4" i18n="no.record" align="center"></td></tr>');
         }
       });
   }

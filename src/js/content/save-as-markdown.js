@@ -78,7 +78,13 @@
     let markdown = generateMarkDown(elemHtml, info);
     markdown = MdPluginMathJax.unEscapeMathJax(markdown);
     markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
-    if(config.saveClippingInformation){
+    if (config.mdFrontMatterEnabled) {
+      markdown = [
+        generateMdFrontMatter(info, config.mdFrontMatterTemplate),
+        markdown
+      ].join("\n\n");
+    }
+    if (config.saveClippingInformation){
       markdown += generateMdClippingInfo(info);
     }
     const filename = T.joinPath(storageInfo.saveFolder, info.filename);
@@ -208,6 +214,26 @@
     md += `\n\n${I18N.t('tags')}: ${tagStr}`;
     md += "\n\n";
     return md
+  }
+
+  function generateMdFrontMatter(info, template) {
+    let category = I18N.t('none');
+    let tags = "\n- " + I18N.t('none');
+    if(info.category){
+      category = info.category
+    }
+    if(info.tags.length > 0){
+      tags = "\n" + T.map(info.tags, function(tag){
+        return `  - ${tag}`
+      }).join("\n");
+    }
+    return T.renderTemplate(template, {
+      title: (info.title || "-"),
+      url: info.link,
+      createdAt: info.created_at,
+      category: category,
+      tags: tags
+    });
   }
 
   function getTurndownService(){

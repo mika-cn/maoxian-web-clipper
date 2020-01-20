@@ -31,6 +31,9 @@
       saveClippingInformation: false,
       saveDomainAsTag: false,
 
+      mdFrontMatterEnabled: false,
+      mdFrontMatterTemplate: "---\nurl: ${url}\ncreated_at: ${createdAt}\ncategory: ${category}\ntags: ${tags}\n---",
+
       // control
       hotkeySwitchEnabled: false,
       mouseModeEnabled: false,
