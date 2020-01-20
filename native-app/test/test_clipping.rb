@@ -4,7 +4,7 @@ require 'clipping'
 
 class ClippingTest < Minitest::Test
 
-  # ====== V1 ======
+  # ====== V2 ======
 
   def test_v2_info_path_overflow
     result = Clipping.delete_v2(T.mx_wc_root, {

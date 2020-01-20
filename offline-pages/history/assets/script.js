@@ -21,7 +21,7 @@
       const template = T.findElem('clipping-tpl').innerHTML;
       const items = [];
       clips.forEach(function(clip){
-        const {version} = clip;
+        const {version = '1.0'} = clip;
         let url;
         if (version === '2.0') {
           const mainFilePath = T.expandPath(clip.mainPath, clip.path);

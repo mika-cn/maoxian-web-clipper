@@ -187,7 +187,7 @@
     "setting.path.filename.intro": "filename of main file： The filename of main file (entry file), default is <code>index.html</code> or <code>index.md</code>.",
     "setting.folder.root.intro": "root folder： This is the storage root, all clipping files will storage under this folder.",
     "setting.folder.category.intro": "category folder: This part is used to category your clippings. It's value depends on what you input in saving form. Let's assume your input value is <code>news/sports</code>, then extension will create a folder named <code>news</code> and a subfolder named <code>sports</code>.",
-    "setting.folder.clipping.intro": "clpping folder： Extension creates a clipping folder in every clipping, and saves clipping files inside it.",
+    "setting.folder.clipping.intro": "clpping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
 
     // handler
     "handler.browser.name": "Browser",
@@ -341,10 +341,12 @@
 
     "clipping.op-error.path-overflow": "The file you want to delete is not inside of data folder, check your configure file (config.yaml) ",
     "clipping.op-error.path-not-exist": "Can't find clipping files",
+    "clipping.op-error.json-parse-error": "Failed to parse json",
     "clipping.op-warning.asset-folder-overflow": "The asset folder is outside of data folder, which means native-app won't delete asset files in asset folder. check your configure file (cinfig.yaml)",
     "history.notice.delete-history-success": "Delete success!",
     "history.notice.clear-history-success": "Clear success!",
     "history.notice.delete": "ATTENTION: You can install our Native APP(enhance the abilities of MaoXian) to delete clipping files, otherwise, we delete history record only.",
+    "history.error.native-app-version-too-small": "Current version ($VERSION) of Native APP can not handle this message, please upgrade it.",
 
     //=====================================
     // reset history page

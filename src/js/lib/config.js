@@ -97,7 +97,7 @@
        * ======== Frame File ========
        *   embed HTML file
        */
-      frameFileFolder: '$CLIPPING-PATH',
+      frameFileFolder: '$CLIPPING-PATH/frames',
 
       /**
        * ======== Info File ========

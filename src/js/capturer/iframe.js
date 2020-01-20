@@ -112,7 +112,7 @@
       if (fromCache) {
         // processed
         if (saveFormat === 'html') {
-          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html'});
+          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
           const src = T.calcPath(
             storageInfo.mainFileFolder,
             T.joinPath(storageInfo.frameFileFolder, assetName)
@@ -136,7 +136,7 @@
             headInnerHtml: headInnerHtml,
             html: elemHtml
           });
-          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html'});
+          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
           const filename = T.joinPath(storageInfo.frameFileFolder, assetName);
           const src = T.calcPath(
             storageInfo.mainFileFolder,

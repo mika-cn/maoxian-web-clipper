@@ -233,7 +233,10 @@
         if(T.isVersionGteq(r.handlerInfo.version, '0.2.2')) {
           deleteHistoryAndFile(r.config, id);
         } else {
-          console.debug("Native App not support this message, version: ", r.handlerInfo.version);
+          Notify.error(
+            I18N.t('history.error.native-app-version-too-small')
+            .replace('$VERSION', r.handlerInfo.version)
+          );
         }
       } else {
         deleteHistoryOnly(id);
@@ -257,7 +260,7 @@
             if(config.assetFolder.indexOf('$CLIPPING-PATH') > -1) {
               assetFolder = [saveFolder, config.assetFolder.replace('$CLIPPING-PATH/', '')].join('/');
             } else {
-              if(config.asseFolder.indexOf('$STORAGE-PATH') > -1) {
+              if(config.assetFolder.indexOf('$STORAGE-PATH') > -1) {
                 assetFolder = [root, config.assetFolder.replace('$STORAGE-PATH/', '')].join('/');
               } else {
                 const relativePath = (config.assetFolder === '' ? 'assets' : config.assetFolder);

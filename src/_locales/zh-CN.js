@@ -187,7 +187,7 @@
     "setting.path.filename.intro": "主文件名： 即保存下来的主文件的名字，默认为 <code>index.html</code> 或 <code>index.md</code>",
     "setting.folder.root.intro": "根目录： 该目录为扩展的存储入口，所有裁剪下来的文件都会存储在该目录下。",
     "setting.folder.category.intro": "分类目录： 该目录是用于归类的，可由多级组成，其值由表单的输入决定，例如表单的输入项为 <code>新闻/体育</code> 那么会生成 <code>新闻</code> 这个目录，同时在新闻目录下生成 <code>体育</code> 这个子目录。",
-    "setting.folder.clipping.intro": "裁剪目录： 扩展为每次裁剪都生成一个裁剪目录，并把裁剪下来的文件保存在该目录下",
+    "setting.folder.clipping.intro": "裁剪目录： 扩展可以为每次裁剪都生成一个裁剪目录，并把裁剪下来的文件保存在该目录下",
 
     // handler
     "handler.browser.name": "浏览器",
@@ -337,10 +337,13 @@
 
     "clipping.op-error.path-overflow": "要删除的文件不在裁剪目录下，请检查你本地程序的配置文件(config.yaml) ",
     "clipping.op-error.path-not-exist": "找不到要删除的文件",
+    "clipping.op-error.json-parse-error": "JSON 解析失败",
     "clipping.op-warning.asset-folder-overflow": "你当前配置的资源目录不在裁剪目录下，这会造成某些资源文件删除不干净的问题，请检查你本地程序的配置文件(config.yaml) ",
     "history.notice.delete-history-success": "删除成功!",
     "history.notice.clear-history-success": "清除成功!",
     "history.notice.delete": "温馨提示： 只有安装了「本地程序」，本页面提供的删除功能才会删除你本地的文件。",
+    "history.error.native-app-version-too-small": "「本地程序」的当前版本（$VERSION） 无法处理该消息, 请升级「本地程序」.",
+
 
     //=====================================
     // reset history page

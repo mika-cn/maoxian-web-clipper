@@ -70,17 +70,16 @@
       }
       const _tasks = Task.rmReduplicate(tasks);
 
+      // calculate path
+      info.paths = [storageInfo.infoFileName];
+      const {mainPath, paths} = Task.getRelativePath(
+        _tasks, storageInfo.infoFileFolder);
+      info.mainPath = mainPath;
+      info.paths.push(...paths);
 
       if(needSaveIndexFile) {
-        info.paths = [storageInfo.infoFileName];
-        const {mainPath, paths} = Task.getRelativePath(
-          _tasks, storageInfo.infoFileFolder);
-        info.mainPath = mainPath;
-        info.paths.push(...paths);
-
         const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
         _tasks.unshift(Task.createInfoTask(filename, info))
-
       }
 
       const clipping = {

@@ -2,12 +2,18 @@
 ;(function (root, factory) {
   if (typeof module === 'object' && module.exports) {
     // CJS
-    module.exports = factory(require('../lib/tool.js'));
+    module.exports = factory(
+      require('../lib/tool.js'),
+      require('../lib/config.js')
+    );
   } else {
     // browser or other
-    root.MxWcInputParser_Default = factory(root.MxWcTool);
+    root.MxWcInputParser_Default = factory(
+      root.MxWcTool,
+      root.MxWcConfig
+    );
   }
-})(this, function(T, undefined) {
+})(this, function(T, Config, undefined) {
   "use strict";
 
   //==========================================
@@ -47,13 +53,13 @@
     const storageInfo = {};
 
     storageInfo.mainFileFolder = Render.exec(
-      fixPathVariable(config.mainFileFolder),
+      fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
       pathValueHash, pathVariables);
     storageInfo.mainFileName = Render.exec(config.mainFileName,
       filenameValueHash, Render.FilenameVariables);
 
     storageInfo.infoFileFolder = Render.exec(
-      fixPathVariable(config.infoFileFolder),
+      fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
       pathValueHash, pathVariables);
     storageInfo.infoFileName = Render.exec(config.infoFileName,
       filenameValueHash, Render.FilenameVariables);
@@ -68,7 +74,7 @@
 
     if (format === 'html') {
       storageInfo.frameFileFolder = Render.exec(
-        fixPathVariable(config.frameFileFolder),
+        fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
         pathValueHash, pathVariables);
     } else {
       // md
@@ -77,7 +83,7 @@
 
     if (config.saveTitleFile) {
       storageInfo.titleFileFolder = Render.exec(
-        fixPathVariable(config.titleFileFolder),
+        fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
         pathValueHash, pathVariables);
       storageInfo.titleFileName = Render.exec(config.titleFileName,
         filenameValueHash, Render.FilenameVariables);
@@ -131,14 +137,10 @@
   }
 
   function fixPathVariable(value, key) {
+    const DefaultConfig = Config.getDefault();
     if (value === '') {
       // user didn't specify any path, then we use default
-      if (key === 'assetFolder') {
-        return '$CLIPPING-PATH/assets';
-      } else {
-        // mainFileFolder, infoFileFolder, titleFileFolder
-        return '$CLIPPING-PATH'
-      }
+      return DefaultConfig[key];
     } else {
       const startsWithVariable = [
         '$STORAGE-PATH',
