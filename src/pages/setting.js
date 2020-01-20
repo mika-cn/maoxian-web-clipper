@@ -151,10 +151,6 @@
 
   // local path relative
   function initSettingPath(config) {
-    initTextInput(config,
-      'default-category',
-      'defaultCategory'
-    );
 
     initTextInput(config,
       'root-folder',
@@ -162,28 +158,58 @@
     );
 
     initTextInput(config,
-      'asset-path',
-      'assetPath'
+      'default-category',
+      'defaultCategory'
+    );
+
+    initTextInput(config,
+      'clipping-folder-name',
+      'clippingFolderName'
+    );
+
+    initTextInput(config,
+      'main-file-folder',
+      'mainFileFolder',
+    );
+
+    initTextInput(config,
+      'main-file-name',
+      'mainFileName',
+    );
+
+    initTextInput(config,
+      'asset-folder',
+      'assetFolder'
+    );
+
+    initTextInput(config,
+      'frame-file-folder',
+      'frameFileFolder'
+    );
+
+    initTextInput(config,
+      'info-file-folder',
+      'infoFileFolder',
+    );
+
+    initTextInput(config,
+      'info-file-name',
+      'infoFileName',
     );
 
     initCheckboxInput(config,
-      'save-title-as-filename',
-      'saveTitleAsFilename'
+      'save-title-file',
+      'saveTitleFile'
     );
 
-    initRadioInput(config,
-      'default-clipping-folder-format',
-      'defaultClippingFolderFormat'
+    initTextInput(config,
+      'title-file-folder',
+      'titleFileFolder',
     );
 
-    initCheckboxInput(config,
-      'title-style-clipping-folder-enabled',
-      'titleStyleClippingFolderEnabled'
-    );
-
-    initRadioInput(config,
-      'title-style-clipping-folder-format',
-      'titleStyleClippingFolderFormat'
+    initTextInput(config,
+      'title-file-name',
+      'titleFileName',
     );
   }
 

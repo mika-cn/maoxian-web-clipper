@@ -170,6 +170,30 @@ section {
 }
 
 /********** inputs ***********/
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+details {
+  font-size: 12px;
+}
+details > summary {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.help-content {
+  width: 90%;
+  padding: 5px 5px 25px 25px;
+}
+
+.help-content > span > pre {
+  margin: 0px;
+  padding 0px;
+}
+
+
 input[type=text] {
   display: block;
   font-size: 12px;

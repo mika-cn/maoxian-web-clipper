@@ -92,7 +92,7 @@
     v.elemHtml = elemHtml;
     v.config = config;
     const html = Template[page].render(v);
-    const filename = T.joinPath(storageInfo.saveFolder, info.filename)
+    const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName)
 
     const mainFileTask = Task.createHtmlTask(filename, html, info.clipId);
     tasks.push(mainFileTask);

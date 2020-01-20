@@ -274,6 +274,10 @@
         }
         const filename = pathConfig.replace('$STORAGE-PATH', config.rootFolder);
         MxWcStorage.get('clips', []).then((clippings) => {
+          clippings.forEach((it) => {
+            // minimize size
+            delete it['paths'];
+          });
           const json = JSON.stringify(clippings);
           const task = {
             text: `;var clippings = ${json};`,

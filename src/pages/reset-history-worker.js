@@ -17,34 +17,42 @@
     const msRegExp = /-(\d{9,})\//;
     for(let i=0; i < length; i++){
       const file = files[i];
-      if(file.type === "application/json" && file.name === 'index.json'){
+      if(file.type === "application/json"){
         const clip = readJson(file);
 
-        // old index.json file compatible( not id attr => id => clipId )
-        if(!clip.clipId) {
-          if(clip.id) {
-            clip.clipId = clip.id;
-          } else {
-            const path = file.webkitRelativePath;
-            if(path.match(msRegExp)){
-              clip.clipId = path.match(msRegExp)[1];
-            } else {
-              clip.clipId = '00' + Math.round(Math.random() * 10000000);
+        if (clip) {
+          const {version = '1.0'} = clip;
+
+          if (version === '1.0') {
+
+            // old index.json file compatible( not id attr => id => clipId )
+            if(!clip.clipId) {
+              if(clip.id) {
+                clip.clipId = clip.id;
+              } else {
+                const path = file.webkitRelativePath;
+                if(path.match(msRegExp)){
+                  clip.clipId = path.match(msRegExp)[1];
+                } else {
+                  clip.clipId = '00' + Math.round(Math.random() * 10000000);
+                }
+              }
+            }
+
+            // handle category
+            const storePath = toStorePath(clip.path, rootFolder);
+            const parts = storePath.split('/');
+            // FIXME Not safe: path relative.
+            clip.category = parts.slice(0, parts.length - 2).join('/');
+
+            if(!clip.format) {
+              clip.format = 'html';
             }
           }
+
+          items.push({t: parseInt(clip.clipId), clip: clip});
         }
 
-        // handle category
-        const storePath = toStorePath(clip.path, rootFolder);
-        const parts = storePath.split('/');
-        // FIXME Not safe: path relative.
-        clip.category = parts.slice(0, parts.length - 2).join('/');
-
-        if(!clip.format) {
-          clip.format = 'html';
-        }
-
-        items.push({t: parseInt(clip.clipId), clip: clip});
       }
     }
     items = items.sort(function(a, b){ return b.t - a.t });
@@ -80,8 +88,20 @@
     const reader = new FileReaderSync();
     const text =  reader.readAsText(file);
     const json = JSON.parse(text);
-    // fix win path
-    json.path = file.webkitRelativePath.replace(/\\/g, '/');
-    return json;
+    if(isClippingInfoFile(json)) {
+      // fix windows path
+      json.path = file.webkitRelativePath.replace(/\\/g, '/');
+      return json;
+    } else {
+      return null;
+    }
+  }
+
+  function isClippingInfoFile(json) {
+    if (json.version && json.version === '2.0') {
+      return json.title && json.link && json.mainPath && json.paths;
+    } else {
+      return json.title && json.created_at && json.link;
+    }
   }
 })(this);

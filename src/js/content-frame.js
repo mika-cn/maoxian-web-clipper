@@ -1,6 +1,7 @@
 ;(function(root, factory) {
   factory(
     root.MxWcLog,
+    root.MxWcTool,
     root.MxWcExtMsg,
     root.MxWcFrameMsg,
     root.MxWcEvent,
@@ -9,7 +10,7 @@
     root.MxWcMarkdown,
     root.MxWcAssistantMain
   );
-})(this, function(Log, ExtMsg, FrameMsg, MxWcEvent, Config,
+})(this, function(Log, T, ExtMsg, FrameMsg, MxWcEvent, Config,
     MxWcHtml, MxWcMarkdown, MxWcAssistantMain, undefined) {
   "use strict";
 
@@ -53,6 +54,10 @@
       userAgent: window.navigator.userAgent,
       referrerPolicy: config.requestReferrerPolicy,
     }
+
+    storageInfo.assetRelativePath = T.calcPath(
+      storageInfo.frameFileFolder, storageInfo.assetFolder
+    );
 
     return {
       clipId: clipId,

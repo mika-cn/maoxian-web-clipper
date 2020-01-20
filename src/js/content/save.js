@@ -36,13 +36,16 @@
       title: title.trim(),
       category: category.trim(),
       tags: T.splitTagstr(tagstr),
-      host: window.location.host,
+      domain: window.location.host.split(':')[0],
       link: window.location.href,
       config: config
     }
     const {info, storageInfo, input,
       needSaveIndexFile, needSaveTitleFile
     } = InputParser.parse(inputParams);
+
+    // versions: none, 2.0
+    info.version = '2.0'
 
     if(input.category != '') {
       saveInputHistory('category', input.category);
@@ -62,15 +65,26 @@
     const params = { storageInfo: storageInfo, elem: elem, info: info, config: config }
     parser.parse(params).then((tasks) => {
       if(needSaveTitleFile) {
-        tasks.unshift(Task.createTitleTask(storageInfo.saveFolder, title, info.clipId));
+        const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);
+        tasks.unshift(Task.createTitleTask(filename, info.clipId));
       }
+      const _tasks = Task.rmReduplicate(tasks);
+
+      // calculate path
+      info.paths = [storageInfo.infoFileName];
+      const {mainPath, paths} = Task.getRelativePath(
+        _tasks, storageInfo.infoFileFolder);
+      info.mainPath = mainPath;
+      info.paths.push(...paths);
+
       if(needSaveIndexFile) {
-        tasks.unshift(Task.createIndexTask(storageInfo.saveFolder, info))
+        const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
+        _tasks.unshift(Task.createInfoTask(filename, info))
       }
 
       const clipping = {
         info: info,
-        tasks: Task.sort(Task.rmReduplicate(tasks))
+        tasks: Task.sort(_tasks)
       };
 
       Log.debug(clipping);
@@ -80,8 +94,10 @@
         type: 'clipping.save',
         body: clipping
       });
+
+      saveClippingHistory(info, storageInfo);
     })
-    saveClippingHistory(storageInfo.saveFolder, info);
+
   }
 
   //private
@@ -95,8 +111,8 @@
   }
 
   //private
-  function saveClippingHistory(saveFolder, info){
-    const path = [saveFolder, 'index.json'].join('/');
+  function saveClippingHistory(info, storageInfo){
+    const path = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
     const clippingHistory = Object.assign({path: path}, info);
     ExtMsg.sendToBackground({
       type: 'save.clippingHistory',

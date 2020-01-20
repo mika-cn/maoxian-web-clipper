@@ -1,7 +1,106 @@
+require 'json'
 require 'test_helper'
 require 'clipping'
 
 class ClippingTest < Minitest::Test
+
+  # ====== V2 ======
+
+  def test_v2_info_path_overflow
+    result = Clipping.delete_v2(T.mx_wc_root, {
+      'path' => "/tmp/mx-wc-not-exist-folder/index.json"
+    })
+    assert_equal false, result[:ok]
+    assert_equal 'clipping.op-error.path-overflow', result[:message]
+  end
+
+  def test_v2_info_path_not_exist
+    result = Clipping.delete_v2(T.mx_wc_root, {
+      'path' => "#{T.mx_wc_clippings}/not-exist-folder/index.json"
+    })
+    assert_equal false, result[:ok]
+    assert_equal 'clipping.op-error.path-not-exist', result[:message]
+  end
+
+  def test_v2_file_path_overflow
+    clipping_folder = "#{T.mx_wc_clippings}/test-000"
+    T.create_file("#{clipping_folder}/meta.json", JSON.generate({
+      clipId: '0000',
+      paths: [
+        "meta.json",
+        "../../../../index.html"
+      ]
+    }))
+    result = Clipping.delete_v2(T.mx_wc_root, {
+      'path' => "#{clipping_folder}/meta.json"
+    })
+    assert_equal true, result[:ok]
+    assert_equal '0000', result[:clip_id]
+    refute_nil result[:message]
+  end
+
+  def test_v2_file_path_not_exist
+    clipping_folder = "#{T.mx_wc_clippings}/test-000"
+    T.create_file("#{clipping_folder}/meta.json", JSON.generate({
+      clipId: '0000',
+      paths: [
+        "meta.json",
+        "whatever.html"
+      ]
+    }))
+    result = Clipping.delete_v2(T.mx_wc_root, {
+      'path' => "#{clipping_folder}/meta.json"
+    })
+    assert_equal true, result[:ok]
+    assert_equal '0000', result[:clip_id]
+    refute_nil result[:message]
+    assert_match /exist/, result[:message]
+  end
+
+  def test_v2_default_info
+    clipping_folder = "#{T.mx_wc_clippings}/test-000"
+    T.create_files([
+      "#{clipping_folder}/index.html",
+      "#{clipping_folder}/assets/image.png"
+    ])
+    T.create_file("#{clipping_folder}/meta.json", JSON.generate({
+      clipId: '0000',
+      paths: [
+        "meta.json",
+        "index.html",
+        "assets/image.png"
+      ]
+    }))
+    result = Clipping.delete_v2(T.mx_wc_root, {
+      'path' => "#{clipping_folder}/meta.json"
+    })
+    assert_equal true, result[:ok]
+    assert_equal '0000', result[:clip_id]
+    assert_nil result[:message]
+  end
+
+  def test_v2_delete_parent_dir_when_it_is_empty
+    clipping_folder = "#{T.mx_wc_clippings}/test-000"
+    T.create_files([
+      "#{clipping_folder}/index.html",
+      "#{clipping_folder}/assets/image.png"
+    ])
+    T.create_file("#{clipping_folder}/meta.json", JSON.generate({
+      clipId: '0000',
+      paths: [
+        "meta.json",
+        "index.html",
+        "assets/image.png"]
+    }))
+    result = Clipping.delete_v2(T.mx_wc_root, {
+      'path' => "#{clipping_folder}/meta.json"
+    })
+    assert_equal true, result[:ok]
+    assert_equal '0000', result[:clip_id]
+    assert !File.exist?(clipping_folder)
+  end
+
+  # ====== V1 ======
 
   def test_given_path_overflow
     result = Clipping.delete(T.mx_wc_root, {
@@ -74,7 +173,7 @@ class ClippingTest < Minitest::Test
     assert File.exist?(T.mx_wc_root)
   end
 
-  def test_deep_parent_dir_when_it_is_not_empty
+  def test_keep_parent_dir_when_it_is_not_empty
     clipping1 = create_clipping_with_default_asset_folder('test1', '0001')
     clipping2 = create_clipping_with_default_asset_folder('test2', '0002')
     result = Clipping.delete(T.mx_wc_root, {

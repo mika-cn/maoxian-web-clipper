@@ -41,6 +41,21 @@ class HistoryTest < Minitest::Test
     assert_equal 'article/js', r.category
   end
 
+  def test_clippings_info_v2
+    info = {
+      clipId: '001',
+      version: '2.0',
+      format: 'html',
+      mainPath: 'index.html',
+      category: 'foo/bar',
+      paths: ['001.json', 'index.html']
+    }
+    info_path = 'clippings/test/20190101/001.json';
+    path = File.join(@root_dir, info_path)
+    r = History::ClippingInfo.new(info, path, 'clippings')
+    assert_equal 'foo/bar', r.category
+  end
+
   def test_history_refresh_empth_data_dir
     data_dir = File.join(T.file_root, 'test_history_refresh')
     T.mkdir(data_dir)
@@ -60,6 +75,8 @@ class HistoryTest < Minitest::Test
         filename: 'awesome.html',
         category: 'foo/bar',
         tags: ['awesome'],
+        title: 'awesome title',
+        created_at: '2019-01-01',
       })
     )
 
@@ -70,6 +87,8 @@ class HistoryTest < Minitest::Test
         filename: 'awesome.html',
         category: 'foo/bar',
         tags: ['nice-article', 'too-old'],
+        title: 'awesome title',
+        created_at: '2019-01-01',
       })
     )
 
@@ -94,6 +113,8 @@ class HistoryTest < Minitest::Test
         filename: 'awesome.html',
         category: 'foo/bar',
         tags: ['awesome'],
+        title: 'awesome title',
+        created_at: '2019-01-01',
       })
     )
 
