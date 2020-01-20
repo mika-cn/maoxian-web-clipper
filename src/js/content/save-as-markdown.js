@@ -84,7 +84,7 @@
         markdown
       ].join("\n\n");
     }
-    if (config.saveClippingInformation){
+    if (config.mdSaveClippingInformation){
       markdown += generateMdClippingInfo(info);
     }
     const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName);

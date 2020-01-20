@@ -38,15 +38,15 @@
   function initSettingGeneral(config) {
     // clipping content
     initCheckboxInput(config,
-      'save-clipping-information',
-      'saveClippingInformation'
-    );
-    initCheckboxInput(config,
       'save-domain-as-tag',
       'saveDomainAsTag'
     );
 
     // - html
+    initCheckboxInput(config,
+      'html-save-clipping-information',
+      'htmlSaveClippingInformation'
+    );
     initCheckboxInput(config,
       'save-icon',
       'saveIcon'
@@ -60,6 +60,10 @@
       'saveCssImage'
     );
     // - markdown
+    initCheckboxInput(config,
+      'md-save-clipping-information',
+      'mdSaveClippingInformation'
+    );
     initCheckboxInput(config,
       'md-front-matter-enabled',
       'mdFrontMatterEnabled'

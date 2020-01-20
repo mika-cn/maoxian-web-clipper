@@ -121,6 +121,9 @@
   //
   // Renames
   //   assetPath -> assetFolder
+  //   saveClippingInformation
+  //     -> htmlSaveClippingInformation
+  //     -> mdSaveClippingInformation
   function migrateConfigToV0146() {
     MxWcConfig.load().then((config) => {
       if (config.titleStyleClippingFolderFormat) {
@@ -157,6 +160,8 @@
         }
 
         config.assetFolder = config.assetPath;
+        config.htmlSaveClippingInformation = config.saveClippingInformation;
+        config.mdSaveClippingInformation = config.saveClippingInformation;
 
         MxWcStorage.set('config', config);
         console.debug("0.1.46 migrate");

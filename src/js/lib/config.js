@@ -25,12 +25,14 @@
       //=====================================
 
       // content relative
+      saveDomainAsTag: false,
+
       saveIcon: false,
       saveWebFont: false,
       saveCssImage: false,
-      saveClippingInformation: false,
-      saveDomainAsTag: false,
+      htmlSaveClippingInformation: false,
 
+      mdSaveClippingInformation: false,
       mdFrontMatterEnabled: false,
       mdFrontMatterTemplate: "---\nurl: ${url}\ncreated_at: ${createdAt}\ncategory: ${category}\ntags: ${tags}\n---",
 
