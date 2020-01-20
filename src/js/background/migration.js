@@ -22,6 +22,7 @@
 
   function perform() {
     migrateV0134();
+    migrateV0146();
   }
 
   function migrateV0134(){
@@ -36,6 +37,19 @@
       } else {
         migrateConfigToV0134();
         migrateStorageToV0134();
+        MxWcStorage.set(key, true);
+      }
+    });
+  }
+
+  function migrateV0146() {
+    const {version} = ENV;
+    const key = 'mx-wc-config-migrated-0.1.46'
+    MxWcStorage.get(key, false).then((isMigrated) => {
+      if(isMigrated) {
+        console.info(key);
+      } else {
+        migrateConfigToV0146();
         MxWcStorage.set(key, true);
       }
     });
@@ -87,6 +101,73 @@
         console.debug("0.1.34 migrate");
       } else {
         // config version >= 0.1.34
+      }
+    });
+  }
+
+  // in version 0.1.46
+  //
+  // New configs
+  //
+  //   mainFileName
+  //     saveTitleAsFilename -> $TITLE
+  //
+  //   saveTitleFile
+  //     saveTitleAsFilename -> false
+  //     titleStyleClippingFolderEnabled -> false
+  //     else -> true
+  //
+  //   clippingFolderName
+  //
+  // Renames
+  //   assetPath -> assetFolder
+  //   saveClippingInformation
+  //     -> htmlSaveClippingInformation
+  //     -> mdSaveClippingInformation
+  function migrateConfigToV0146() {
+    MxWcConfig.load().then((config) => {
+      if (config.titleStyleClippingFolderFormat) {
+        // version < 0.1.46
+        if (config.saveTitleAsFilename) {
+          config.mainFileName = '$TITLE';
+          config.saveTitleFile = false;
+        }
+
+        if (config.titleStyleClippingFolderEnabled) {
+          config.saveTitleFile = false;
+        }
+
+        // clippingFolderName
+        let arr = [];
+        switch(config.defaultClippingFolderFormat) {
+          case '$FORMAT-B':
+            arr.push('$YYYY$MM$DD$HH$mm$SS');
+            break;
+          case '$FORMAT-C':
+            arr.push('$TIME-INTSEC')
+            break;
+          default:
+            arr.push('$YYYY-$MM-$DD-$TIME-INTSEC');
+        }
+
+        if (config.titleStyleClippingFolderEnabled) {
+          if (config.titleClippingFolderFormat === '$FORMAT-B') {
+            config.clippingFolderName = '$TITLE';
+          } else {
+            arr.push('$TITLE');
+            config.clippingFolderName = arr.join('-');
+          }
+        }
+
+        config.assetFolder = config.assetPath;
+        config.htmlSaveClippingInformation = config.saveClippingInformation;
+        config.mdSaveClippingInformation = config.saveClippingInformation;
+
+        MxWcStorage.set('config', config);
+        console.debug("0.1.46 migrate");
+
+      } else {
+        // version >= 0.1.46
       }
     });
   }

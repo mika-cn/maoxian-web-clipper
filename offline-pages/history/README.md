@@ -5,7 +5,7 @@
 
 This is a static page, which supports list and search clipping history like the MaoXian's history page does. use this page, you can browse your clippings offline.
 
-version: 0.0.4
+version: 0.0.5
 
 ## Usage
 

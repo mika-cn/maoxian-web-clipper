@@ -16,14 +16,23 @@
   const state = {};
 
   function menuClick(e){
-    const menu = e.target;
-    switch(menu.getAttribute('data-id')){
+    const menuId = getMenuId(e.target);
+    switch(menuId){
       case 'clip': startClip(); break;
       case 'history': jumpToPage('extPage.history'); break;
       case 'setting': jumpToPage('extPage.setting'); break;
       case 'home'   : jumpToPage('extPage.home'); break;
       case 'last-result':viewLastResult(); break;
       default: break;
+    }
+  }
+
+  function getMenuId(evTarget) {
+    if (evTarget.className === 'menus') { return null }
+    if (evTarget.className === 'menu') {
+      return evTarget.getAttribute('data-id');
+    } else {
+      return getMenuId(evTarget.parentElement);
     }
   }
 
@@ -113,26 +122,17 @@
     const template = T.findElem('menu-tpl').innerHTML;
 
     const icons = {
-      "last-result" : '&#9745;',
-      "clip"        : '&#9984;',
-      "history"     : '&#9780;',
-      "setting"     : '&#9965;',
-      "home"        : '&#9961;',
+      "last-result" : 'check',
+      "clip"        : 'clip',
+      "history"     : 'history',
+      "setting"     : 'setting',
+      "home"        : 'home',
     }
-    // 9745 ☑
-    // 9215 ⏿
-    // 9984 ✀
-    // 9780 ☴
-    // 9776 ☰
-    // 9965 ⛭
-    // 9961 ⛩
 
     let html = "";
     menuIds.forEach(function(menuId){
-      const appendClass = (menuId == 'last-result' ? ' active' : '');
       html += T.renderTemplate(template, {
         icon: icons[menuId],
-        iconAppendClass: appendClass,
         menuId: menuId,
         menuContent: I18N.t("popup.menu." + menuId),
       });
@@ -143,10 +143,8 @@
   }
 
   function bindListener(){
-    const menus = document.querySelectorAll(".menu");
-    menus.forEach(function(menu){
-      T.bindOnce(menu, 'click', menuClick);
-    });
+    const elem = document.querySelector(".menus");
+    T.bindOnce(elem, 'click', menuClick, true);
   }
 
 

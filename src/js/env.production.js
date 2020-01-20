@@ -15,8 +15,8 @@
 
   return {
     logLevel: "warn",
-    version: '0.1.45',
-    minNativeAppVersion: '0.1.9',
+    version: '0.1.46',
+    minNativeAppVersion: '0.2.2',
     websiteRoot: websiteRoot,
     projectRoot: projectRoot,
     mxAssistantRoot: mxAssistantRoot,

@@ -60,15 +60,17 @@
 
           // find child that has same name in current layer.
           let child = parentNode.children.find((child) => {
-            return child.name === name;
+            if (isLastIndex) {
+              return child.name === name && child.isLeaf();
+            } else {
+              return child.name === name && !child.isLeaf();
+            }
           })
 
           if (isLastIndex) {
             if (child) {
-              if (child.isLeaf()) {
-                // we found it.
-                selections.push(child.selection);
-              }
+              // we found it.
+              selections.push(child.selection);
             } else {
               for (let i = 0; i < parentNode.children.length; i++) {
                 const currNode = parentNode.children[i];
@@ -161,15 +163,17 @@
 
           // find child that has same name in current layer.
           let child = parentNode.children.find((child) => {
-            return child.name === name;
+            if (isLastIndex) {
+              return child.name === name && child.isLeaf();
+            } else {
+              return child.name === name && !child.isLeaf();
+            }
           })
 
           if (isLastIndex) {
             if (child) {
-              if (child.isLeaf()) {
-                // we found it
-                child.selection = selection;
-              }
+              // we found it
+              child.selection = selection;
             } else {
               // try variable node
               let variableNodeNotFound = true;
@@ -312,25 +316,22 @@
             /**
              * compare their tail.
              */
-            if (currNode.children.length == 0) {
-              // reach end
-            } else {
-              let childA = node.children[0];
-              let childB = currNode.children[0];
-              while (childA.children.length > 0 && childB.children.length > 0) {
-                childA = childA.children[0];
-                childB = childB.children[0];
-                if (childA.name !== childB.name) {
-                  break;
-                }
+            let nodeA = node;
+            let nodeB = currNode;
+            while (nodeA.children.length > 0 && nodeB.children.length > 0) {
+              nodeA = nodeA.children[0];
+              nodeB = nodeB.children[0];
+              if (nodeA.name !== nodeB.name) {
+                break;
               }
+            }
 
-              if ( childA.children.length == 0
-                && childB.children.length == 0
-                && isSelectionEqual(childA.selection, childB.selection)
-              ) {
-                merges.push(child);
-              }
+            // reach leaf node and their selections are equal
+            if ( nodeA.children.length == 0
+              && nodeB.children.length == 0
+              && isSelectionEqual(nodeA.selection, nodeB.selection)
+            ) {
+              merges.push(child);
             }
 
           }

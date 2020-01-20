@@ -11,6 +11,15 @@
   // Tool
   const T = {};
 
+  T.toJsVariableName = function(str) {
+    const it = T.capitalize(str);
+    const [char1, rest] = [
+      it.substr(0, 1),
+      it.substr(1)
+    ];
+    return char1.toLowerCase() + rest;
+  }
+
   T.capitalize = function(str) {
     const arr = str.split(/[-_]+/)
     return arr.map((it) => {
@@ -328,7 +337,7 @@
   T.isBrowserUrl = function(url){
     return ([
       'about:',     /* Firefox */
-      'chrome://',  /* Chrome or Chromium */
+      'chrome',  /* Chrome or Chromium (chrome-serach://, chrome://) */
       'vivaldi://', /* vivaldi */
     ]).some(function(it){
       return url.startsWith(it);
@@ -453,6 +462,7 @@
     const tObj = {
       value  : date,
       year   : date.getFullYear(),
+      sYear  : date.getFullYear() % 100,
       month  : date.getMonth() + 1,
       day    : date.getDate(),
       hour   : date.getHours(),
@@ -461,8 +471,10 @@
       intSec : Math.floor(date/1000),
       intMs  : date / 1
     }
+    // sYear => short year
     tObj.str = {
       year: tObj.year.toString(),
+      sYear: T.rjustNum(tObj.sYear, 2),
       month: T.rjustNum(tObj.month, 2),
       day: T.rjustNum(tObj.day, 2),
       hour: T.rjustNum(tObj.hour, 2),
@@ -640,6 +652,19 @@
     return path.replace(/\\/g, '/')
   }
 
+
+  T.expandPath = function(relativePath, currentPath) {
+    const isAbsolute = currentPath.startsWith('/');
+    const sep = isAbsolute ? '' : '/';
+    const base = ["http://a.org", currentPath].join(sep);
+    const url = new URL(relativePath, base);
+    if (isAbsolute) {
+      return url.pathname;
+    } else {
+      return url.pathname.substring(1);
+    }
+  }
+
   /**
    * WARNING:
    *   This function doesn't support any relative path (e.g. ../../assets).
@@ -659,16 +684,37 @@
     return arr.join('/');
   }
 
-  T.calcPath = function(currDir, destDir) {
-    const partA = currDir.split('/');
-    const partB = destDir.split('/');
+  /** calculate path.
+   * @param {string} currDir must be directory.
+   * @param {string} destPath can be directory or file.
+   * @return {string} relative path, if two params is the same,
+   *   it return "" (empty string)
+   *
+   *
+   * WARNING
+   *   This funciton will throw a Error, if two parameters can not be calculated.
+   *
+   */
+  T.calcPath = function(currDir, destPath) {
+    const strA = currDir.replace(/\/$/, '');
+    const strB = destPath.replace(/\/$/, '')
+    const throwError = function() {
+      throw new Error(`Couldn't calculate ${currDir} and ${destPath}`);
+    }
+    if (strA == '' || strB == '') { throwError() }
+    const partA = strA.split('/');
+    const partB = strB.split('/');
+    if (partA[0] !== partB[0]) {
+      // we can not calculate in this situation.
+      throwError();
+    }
     while(true){
-      let folderA = partA[0];
-      let folderB = partB[0];
-      if(folderA === null || folderB === null){
+      let a = partA[0];
+      let b = partB[0];
+      if( a === undefined || b === undefined){
         break;
       }
-      if(folderA !== folderB){
+      if(a !== b){
         break;
       }
       partA.shift();

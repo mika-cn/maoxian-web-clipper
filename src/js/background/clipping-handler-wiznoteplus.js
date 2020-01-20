@@ -48,7 +48,7 @@
         const info = clipping.info;
         const indexFileName = [state.tempPath, info.clipId, "index.html"].join('/');
         // Embed markdown into index.html
-        if (info.filename.endsWith('.md')) {
+        if (info.mainPath.endsWith('.md')) {
             info.title = info.title + ".md";
             const markdownText = getMarkdownText(clipping.tasks);
             const html = embedMarkdownIntoHtml(markdownText, info.title, info.link);
@@ -246,7 +246,7 @@
     async function downloadUrlToFile(task, clipping){
       const objCom = state.objCom;
       const filename = [state.tempPath, task.filename].join('/');
-      const isImage = ['gif', 'png', 'jpg', 'ico'].includes(task.filename.split('.').pop());
+      const isImage = ['gif', 'png', 'apng', 'jpg', 'svg', 'bmp', 'webp', 'ico'].includes(task.filename.split('.').pop());
       const isDownloaded = await objCom.URLDownloadToFile(task.url, filename, isImage);
       downloadCompleted(task, isDownloaded, clipping);
       return isDownloaded;

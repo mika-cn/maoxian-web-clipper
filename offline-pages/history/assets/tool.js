@@ -75,13 +75,25 @@ T.renderTemplate = function(template, v) {
   });
 }
 
+T.expandPath = function(relativePath, currentPath) {
+  const isAbsolute = currentPath.startsWith('/');
+  const sep = isAbsolute ? '' : '/';
+  const base = ["http://a.org", currentPath].join(sep);
+  const url = new URL(relativePath, base);
+  if (isAbsolute) {
+    return url.pathname;
+  } else {
+    return url.pathname.substring(1);
+  }
+}
+
 T.calcPath = function(currDir, destDir) {
   const partA = currDir.split('/');
   const partB = destDir.split('/');
   while(true){
     let foldA = partA[0];
     let foldB = partB[0];
-    if(foldA === null || foldB === null){
+    if(foldA === undefined || foldB === undefined){
       break;
     }
     if(foldA !== foldB){

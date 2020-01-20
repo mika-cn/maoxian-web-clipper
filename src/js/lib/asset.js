@@ -33,7 +33,11 @@
   }
 
   function getPath({storageInfo, assetName}) {
-    return [storageInfo.assetRelativePath, assetName].join('/');
+    if (storageInfo.assetRelativePath === '') {
+      return assetName;
+    } else {
+      return [storageInfo.assetRelativePath, assetName].join('/');
+    }
   }
 
   function calcInfo(link, storageInfo, mimeType, prefix) {

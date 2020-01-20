@@ -25,11 +25,16 @@
       //=====================================
 
       // content relative
+      saveDomainAsTag: false,
+
       saveIcon: false,
       saveWebFont: false,
       saveCssImage: false,
-      saveClippingInformation: false,
-      saveDomainAsTag: false,
+      htmlSaveClippingInformation: false,
+
+      mdSaveClippingInformation: false,
+      mdFrontMatterEnabled: false,
+      mdFrontMatterTemplate: "---\nurl: ${url}\ncreated_at: ${createdAt}\ncategory: ${category}\ntags: ${tags}\n---",
 
       // control
       hotkeySwitchEnabled: false,
@@ -60,27 +65,69 @@
 
       // ======== Local path ==========
       rootFolder: 'mx-wc',
-      /* $STORAGE-PATH */
-      /* $CLIPPING-PATH */
-      assetPath: '$CLIPPING-PATH/assets',
-      saveTitleAsFilename: false,
+
+      /**
+       * ======== Variables ========
+       *
+       * $STORAGE-PATH  => downloadPath + rootFolder
+       * $CATEGORY-PATH => downloadPath + rootFolder + categoryFolder
+       * $CLIPPING-PATH => downloadPath + rootFolder + categoryFolder + clippingFolder
+       *
+       * $TITLE
+       * $DOMAIN
+       *
+       * $YYYY => year (4 digits, e.g. 2018)
+       * $YY   => year (2 digits, e.g. 18)
+       * $MM   => month (2 digits, 01 ~ 12)
+       * $DD   => day (2 digits, 01 ~ 31)
+       * $HH   => hour (2 digits, 00 ~ 23)
+       * $mm   => minute (2 digits, 00 ~ 59)
+       * $SS   => second (2 digits, 00 ~ 59)
+       * $TIME-INTSEC => time in seconds.
+       *
+       */
+
+      /**
+       * ======== Main File ========
+       *   HTML file or Markdown file.
+       */
+      mainFileFolder: '$CLIPPING-PATH',
+      /* $TITLE */
+      mainFileName: 'index.$FORMAT',
+
+      /**
+       * ======== Frame File ========
+       *   embed HTML file
+       */
+      frameFileFolder: '$CLIPPING-PATH/frames',
+
+      /**
+       * ======== Info File ========
+       *   A json file which stores clipping information.
+       */
+      infoFileFolder: '$CLIPPING-PATH',
+      infoFileName: 'index.json',
+
+
+      /**
+       * ======== Title File ========
+       *   A Empty file which contains title in it's name.
+       */
+      saveTitleFile: true,
+      titleFileFolder: '$CLIPPING-PATH',
+      titleFileName: 'a-title_$TITLE',
+
+      /**
+       * ======== Asset Files ========
+       *   picture, icon, webfont, style
+       */
+      assetFolder: '$CLIPPING-PATH/assets',
 
       /* $NONE */
       /* $DOMAIN */
       defaultCategory: 'default',
 
-      /* $FORMAT-A => 2018-10-11-1539236251*/
-      /* $FORMAT-B => 20181011102009 */
-      /* $FORMAT-C => 1539236251 */
-      defaultClippingFolderFormat: '$FORMAT-A',
-
-      titleStyleClippingFolderEnabled: false,
-      /* $FORMAT-A => $default-clipping-folder + $title */
-      /* $FORMAT-B => $title */
-      titleStyleClippingFolderFormat: '$FORMAT-A',
-
-
-
+      clippingFolderName: '$YYYY-$MM-$DD-$TIME-INTSEC',
 
       //=====================================
       // Offine pages

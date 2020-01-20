@@ -19,7 +19,8 @@
     //=====================================
     // global
     //=====================================
-    "none": "No record yet.",
+    "none": "None",
+    "no.record": "No records",
     "btn.confirm": "Confirm",
 
     "op.saved": "Saved!",
@@ -134,30 +135,59 @@
     "setting.title.request-referrer-policy": "Referrer Policy",
     "setting.title.misc": "Misc",
     "setting.title.clipping-content": "Clipping Content",
+    "setting.title.html-content": "HTML",
+    "setting.title.markdown-content": "Markdown",
     "setting.title.offline-page": "Offline Index Page",
     "setting.title.refresh-history": "Refresh History",
-    "setting.title.default-clipping-folder-format": "Default Clipping Folder Format",
-    "setting.title.title-style-clipping-folder-format": "Title Style Clipping Folder Format",
-    "setting.title.title-style-clipping-folder": "Title Style Clipping Folder",
-    "setting.title.clipping-file": "Main file",
-    "setting.title.asset-path": "Asset Path",
-    "setting.title.default-category": "Default Category",
-    "setting.title.path": "Path",
+
+
     "setting.title.root-folder": "Root Folder",
+    "setting.title.default-category": "Default Category",
+    "setting.title.clipping-folder-name": "Clipping Folder",
+    "setting.title.main-file": "Main File",
+    "setting.title.asset-file": "Asset File",
+    "setting.title.frame-file": "Frame File",
+    "setting.title.info-file": "Information File",
+    "setting.title.title-file": "Title File",
 
+    "setting.title.path": "Path",
     "setting.path-intro.format": "Format: ",
-
     "setting.path.download": "download path",
     "setting.path.filename": "filename of main file",
     "setting.folder.root": "root folder",
     "setting.folder.category": "category folder",
     "setting.folder.clipping": "clipping folder",
 
+    "setting.help.label": "Click me to show (or hide) help content",
+    "setting.help.avariable-variable": "Variables",
+    // variables
+    "setting.variable-in-folder": "Variables below can be used in saving folder",
+    "setting.variable-in-filename": "Variables below can be used in filename",
+    "setting.variable-intro": "<strong>Avariable variables are:</strong>",
+    "setting.variable.storage-path": '$STORAGE-PATH =&gt; <code>download path</code> / <code>root folder</code>',
+    "setting.variable.category-path": '$CATEGORY-PATH =&gt; <code>download path</code> / <code> root folder</code> / <code>category folder</code>',
+    "setting.variable.clipping-path": '$CLIPPING-PATH =&gt; <code>download path</code> / <code>root folder</code> / <code>category folder</code> / <code>clipping folder</code>',
+
+    "setting.variable.none": "<pre>$NONE => empty value (not category)</pre>",
+    "setting.variable.title": "<pre>$TITLE  => title </pre>",
+    "setting.variable.domain": "<pre>$DOMAIN => Domain of current website (e.g. blog.example.org) </pre>",
+    "setting.variable.format": "<pre>$FORMAT => 'html' or 'md' (depends on saving format) </pre>",
+
+    "setting.variable.year"                : "<pre>$YYYY => year (4 digits, e.g. 2018)</pre>",
+    "setting.variable.short-year"          : "<pre>$YY   => year (2 digits, e.g. 18)</pre>",
+    "setting.variable.month"               : "<pre>$MM   => month (2 digits, 01 ~ 12)</pre>",
+    "setting.variable.day"                 : "<pre>$DD   => day (2 digits, 01 ~ 31)</pre>",
+    "setting.variable.hour"                : "<pre>$HH   => hour (2 digits, 00 ~ 23)</pre>",
+    "setting.variable.minute"              : "<pre>$mm   => minute (2 digits, 00 ~ 59)</pre>",
+    "setting.variable.second"              : "<pre>$SS   => second (2 digits, 00 ~ 59)</pre>",
+    "setting.variable.time-integer-second" : "<pre>$TIME-INTSEC => clipping time in seconds (e.g. 1578712781)</pre>",
+
+
     "setting.path.download.intro": "download path： Download location of your browser, If you use NativeApp to save clipping file, this path is the value of \"data_dir\" in configure file (config.yaml) of NativeApp.",
     "setting.path.filename.intro": "filename of main file： The filename of main file (entry file), default is <code>index.html</code> or <code>index.md</code>.",
     "setting.folder.root.intro": "root folder： This is the storage root, all clipping files will storage under this folder.",
     "setting.folder.category.intro": "category folder: This part is used to category your clippings. It's value depends on what you input in saving form. Let's assume your input value is <code>news/sports</code>, then extension will create a folder named <code>news</code> and a subfolder named <code>sports</code>.",
-    "setting.folder.clipping.intro": "clpping folder： Extension creates a clipping folder in every clipping, and saves clipping files inside it.",
+    "setting.folder.clipping.intro": "clpping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
 
     // handler
     "handler.browser.name": "Browser",
@@ -179,12 +209,7 @@
     "handler.wiz-note-plus.feature.a": "Save clipping file to WizNotePlus database.",
     "handler.wiz-note-plus.warning": "<strong> Warning! </strong><br /> If you enable this handler, you must <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>install WizNotePlus application</a> first.",
 
-    "setting.option.default-clipping-folder-format.a": "Format A (e.g. 2018-10-11-1539236251)",
-    "setting.option.default-clipping-folder-format.b": "Format B (e.g. 20181011102009)",
-    "setting.option.default-clipping-folder-format.c": "Format C (e.g. 1539236251)",
 
-    "setting.option.title-style-clipping-folder-format.a": "Format A",
-    "setting.option.title-style-clipping-folder-format.b": "Format B",
 
     "setting.option.request-referrer-policy.origin-when-cross-origin": "originWhenCrossOrigin: full path (origin + path) when request to same origins, origin (protocol + host + port) only when request to other origins.",
     "setting.option.request-referrer-policy.origin": "origin: origin only (protocol + host + port).",
@@ -220,15 +245,22 @@
     "setting.button.save": "Save",
 
     // notice
+    "setting.notice.main-file-intro": "Main file is the HTML file or the Markdown file (depends on which format that you configure to save) that you clip",
+    "setting.notice.asset-file-intro": "Asset files are image files, style files, web font files and website icon files (notice that this doesn't include script files, MaoXian won't save script files due to security reason)",
+    "setting.notice.frame-file-intro": "Frame file is another webpage that is embedded in a webpage. In the process of clipping, MaoXian will save these files if your saving format is HTML. on the other hand, MaoXian will embed it's content into main file if saving format is Markdown",
+    "setting.notice.info-file-intro": "Information file (or meta file) is used to save clipping information (includes saving format, clipping time, original url, category, tags etc.)",
+    "setting.notice.title-file-intro": "Title file is just an empty file with a filename that contains the title. it's useful, expecially when the path of main file doesn't contains title information, save this file alongside the main file for more conviniently browser.",
+
     "setting.notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
     "setting.notice.file-url.link-label": "Learn how to setting",
     "setting.notice.file-url.help-msg": "Your will need message below:",
     "setting.notice.file-url.ext-id": "Extension identify",
     "setting.notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after you allow browser to access file URLs.",
+    "setting.notice.front-matter": "YAML Front Matter is a block of text that is placed in front of markdown content. Usually, it is used to save meta information. You can use it to save clipping information",
+    "setting.notice.front-matter-template": "Using template below to configure which information you want to save.<br />Avariable variables are: <strong>title, url, category, tags</strong> and <strong>createdAt</strong>",
     "setting.notice.root-folder": "<strong>Notice:</strong><br /> This folder is used as storage entry, We suggest you don't change it after you set it right. If you do want to change it, you should change the name of folder in your file system too. So that you won't get two storage entry.",
-    "setting.notice.default-category": "<strong>Default Category</strong><br />Use <strong>/</strong> to separate sub category<br />Use <strong>$NONE</strong> to represent empty value<br />Use <strong>$DOMAIN</strong> to represent current domain",
-    "setting.notice.title-clipping-folder-format": "<strong>Format A</strong> =&gt; <code>default-clipping-folder</code> + <code>-</code> + <code>title</code><br />First part (<i>default-clipping-folder</i>) depends on <strong>Default Clipping Folder Format</strong> you configure.<br />Last part (<i>title</i>) is the title you input when clipping.<br />e.g. 2018-10-11-1539236251-a-awesome-title<br /><br /><strong>Format B</strong> =&gt; <code>title</code><br />e.g. a-awesome-title<br /><strong>Warning</strong>: <em>Format B</em> may cause clipping overwrite, if your clippings have same title. ",
-    "setting.notice.asset-path": "<strong>Asset Path (image,font,style...)</strong><br />Use <strong>$CLIPPING-PATH</strong> to represent <code>download path</code> / <code>root folder</code> / <code>category folder</code> / <code>clipping folder</code><br />Use <strong>$STORAGE-PATH</strong> to represent <code>download path</code> / <code>root folder</code>",
+    "setting.notice.default-category": "Default category is the value that will be used if you don't specify a category in saving form.<br />Use <strong>/</strong> to separate sub category<br />",
+    "setting.notice.clipping-folder-name": "MaoXian can creates a directory to store clipping result in every clipping, we call this directory clipping folder.",
     "setting.notice.clipping-handler.link-label": "install native App",
     "setting.notice.offline-page": "Offline index page is a static HTML page which can be used to browse your clippings without MaoXian Web Clipper or network. ",
     "setting.notice.offline-page.link-label": "Learn more detail",
@@ -242,16 +274,19 @@
 
 
     // label
+    "setting.storage-folder.label": "Saving Folder",
+    "setting.storage-filename.label": "Filename",
+    "setting.save-title-file-input.label": "Save Title File",
+
     "setting.enable-handler.label": "Enable this handler",
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.request-timeout-input.label": "Timeout for performing a request (secs, 5~240)",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags) in main file",
+    "setting.md-front-matter-enabled-input.label": "Enable YAML Front Matter",
     "setting.save-icon-input.label": "Save website icons",
     "setting.save-web-font-input.label": "Save web fonts (not recommended)",
     "setting.save-css-image-input.label": "Save CSS background images (not recommended)",
     "setting.save-domain-tag-input.label": "Save current domain as tag",
-    "setting.title-style-clipping-folder-enabled-input.label": "Enable title style clipping folder",
-    "setting.save-title-as-filename-input.label": "Use title as filename (default: index.html or index.md)",
     "setting.hotkey-switch-enabled-input.label": "Enable hotkey `c` (clip switch)",
     "setting.mouse-mode-enabled-input.label": "Mouse friendly mode",
     "setting.input-field-save-format-enabled.label": "Enable selecting save format in form",
@@ -272,7 +307,7 @@
     "setting.update-now-success.label": "Update success",
 
     // placeholder
-    "setting.placeholder.notblank": "This value can not blank!",
+    "setting.placeholder.notblank": "This value can not be blank!",
 
 
     //=====================================
@@ -306,10 +341,12 @@
 
     "clipping.op-error.path-overflow": "The file you want to delete is not inside of data folder, check your configure file (config.yaml) ",
     "clipping.op-error.path-not-exist": "Can't find clipping files",
+    "clipping.op-error.json-parse-error": "Failed to parse json",
     "clipping.op-warning.asset-folder-overflow": "The asset folder is outside of data folder, which means native-app won't delete asset files in asset folder. check your configure file (cinfig.yaml)",
     "history.notice.delete-history-success": "Delete success!",
     "history.notice.clear-history-success": "Clear success!",
     "history.notice.delete": "ATTENTION: You can install our Native APP(enhance the abilities of MaoXian) to delete clipping files, otherwise, we delete history record only.",
+    "history.error.native-app-version-too-small": "Current version ($VERSION) of Native APP can not handle this message, please upgrade it.",
 
     //=====================================
     // reset history page

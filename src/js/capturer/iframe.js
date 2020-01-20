@@ -112,8 +112,12 @@
       if (fromCache) {
         // processed
         if (saveFormat === 'html') {
-          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html'});
-          node.setAttribute('src', assetName);
+          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
+          const src = T.calcPath(
+            storageInfo.mainFileFolder,
+            T.joinPath(storageInfo.frameFileFolder, assetName)
+          );
+          node.setAttribute('src', src);
           return {node, tasks};
         } else {
           const {elemHtml} = result;
@@ -132,9 +136,13 @@
             headInnerHtml: headInnerHtml,
             html: elemHtml
           });
-          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html'});
-          const filename = T.joinPath(storageInfo.saveFolder, assetName);
-          node.setAttribute('src', assetName);
+          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
+          const filename = T.joinPath(storageInfo.frameFileFolder, assetName);
+          const src = T.calcPath(
+            storageInfo.mainFileFolder,
+            T.joinPath(storageInfo.frameFileFolder, assetName)
+          );
+          node.setAttribute('src', src);
           tasks.push(Task.createFrameTask(filename, html, clipId));
           return {node, tasks};
         } else {

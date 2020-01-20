@@ -49,9 +49,17 @@
       ]).then((values) => {
         const [downloadFolder, config, allowFileSchemeAccess] = values;
         const allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
-        let {url} = clip;
-        let filename = clip.filename ? clip.filename : `index.${clip.format}`;
-        const clipPath = T.replacePathFilename(clip.path, filename);
+
+        let {url, version = '1.0'} = clip;
+        let clipPath;
+        if (version === '2.0') {
+          clipPath = T.expandPath(clip.mainPath, clip.path);
+        } else {
+          const filename = clip.filename ? clip.filename : `index.${clip.format}`;
+          clipPath = T.replacePathFilename(clip.path, filename);
+        }
+
+
         if(!url) {
           url = clipPath;
           if(downloadFolder){
@@ -222,10 +230,13 @@
     MxWcHandler.isReady('NativeApp')
     .then((r) => {
       if(r.ok) {
-        if(T.isVersionGteq(r.handlerInfo.version, '0.1.9')) {
+        if(T.isVersionGteq(r.handlerInfo.version, '0.2.2')) {
           deleteHistoryAndFile(r.config, id);
-        } {
-          console.debug("Native App not support this message, version: ", r.handlerInfo.version);
+        } else {
+          Notify.error(
+            I18N.t('history.error.native-app-version-too-small')
+            .replace('$VERSION', r.handlerInfo.version)
+          );
         }
       } else {
         deleteHistoryOnly(id);
@@ -238,25 +249,29 @@
       if(downloadFolder) {
         confirmIfNeed(I18N.t('history.confirm-msg.delete-history-and-file'), () => {
           const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
+          const {version = '1.0'} = clip;
           const path = [downloadFolder, clip.path].join('');
-          const root = [downloadFolder, config.rootFolder].join('');
-          const saveFolder = path.replace('/index.json', '');
-          let assetFolder = '';
-          if(config.assetPath.indexOf('$CLIPPING-PATH') > -1) {
-            assetFolder = [saveFolder, config.assetPath.replace('$CLIPPING-PATH/', '')].join('/');
-          } else {
-            if(config.assetPath.indexOf('$STORAGE-PATH') > -1) {
-              assetFolder = [root, config.assetPath.replace('$STORAGE-PATH/', '')].join('/');
+          let msg = {version: version, path: path};
+
+          if (version === '1.0') {
+            const root = [downloadFolder, config.rootFolder].join('');
+            const saveFolder = path.replace('/index.json', '');
+            let assetFolder = '';
+            if(config.assetFolder.indexOf('$CLIPPING-PATH') > -1) {
+              assetFolder = [saveFolder, config.assetFolder.replace('$CLIPPING-PATH/', '')].join('/');
             } else {
-              const relativePath = (config.assetPath === '' ? 'assets' : config.assetPath);
-              assetFolder = [saveFolder, relativePath].join('/')
+              if(config.assetFolder.indexOf('$STORAGE-PATH') > -1) {
+                assetFolder = [root, config.assetFolder.replace('$STORAGE-PATH/', '')].join('/');
+              } else {
+                const relativePath = (config.assetFolder === '' ? 'assets' : config.assetFolder);
+                assetFolder = [saveFolder, relativePath].join('/')
+              }
             }
+            msg.clip_id = clip.clipId;
+            msg.path = path;
+            msg.asset_folder = assetFolder;
           }
-          const msg = {
-            clip_id: clip.clipId,
-            path: path,
-            asset_folder: assetFolder
-          }
+
           ExtMsg.sendToBackground({
             type: 'clipping.delete',
             body: msg

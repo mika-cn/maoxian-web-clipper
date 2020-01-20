@@ -38,8 +38,14 @@
   function initSettingGeneral(config) {
     // clipping content
     initCheckboxInput(config,
-      'save-clipping-information',
-      'saveClippingInformation'
+      'save-domain-as-tag',
+      'saveDomainAsTag'
+    );
+
+    // - html
+    initCheckboxInput(config,
+      'html-save-clipping-information',
+      'htmlSaveClippingInformation'
     );
     initCheckboxInput(config,
       'save-icon',
@@ -53,10 +59,20 @@
       'save-css-image',
       'saveCssImage'
     );
+    // - markdown
     initCheckboxInput(config,
-      'save-domain-as-tag',
-      'saveDomainAsTag'
+      'md-save-clipping-information',
+      'mdSaveClippingInformation'
     );
+    initCheckboxInput(config,
+      'md-front-matter-enabled',
+      'mdFrontMatterEnabled'
+    );
+    initTextInput(config,
+      'md-front-matter-template',
+      'mdFrontMatterTemplate'
+    );
+
 
     // control
     initCheckboxInput(config,
@@ -139,10 +155,6 @@
 
   // local path relative
   function initSettingPath(config) {
-    initTextInput(config,
-      'default-category',
-      'defaultCategory'
-    );
 
     initTextInput(config,
       'root-folder',
@@ -150,28 +162,58 @@
     );
 
     initTextInput(config,
-      'asset-path',
-      'assetPath'
+      'default-category',
+      'defaultCategory'
+    );
+
+    initTextInput(config,
+      'clipping-folder-name',
+      'clippingFolderName'
+    );
+
+    initTextInput(config,
+      'main-file-folder',
+      'mainFileFolder',
+    );
+
+    initTextInput(config,
+      'main-file-name',
+      'mainFileName',
+    );
+
+    initTextInput(config,
+      'asset-folder',
+      'assetFolder'
+    );
+
+    initTextInput(config,
+      'frame-file-folder',
+      'frameFileFolder'
+    );
+
+    initTextInput(config,
+      'info-file-folder',
+      'infoFileFolder',
+    );
+
+    initTextInput(config,
+      'info-file-name',
+      'infoFileName',
     );
 
     initCheckboxInput(config,
-      'save-title-as-filename',
-      'saveTitleAsFilename'
+      'save-title-file',
+      'saveTitleFile'
     );
 
-    initRadioInput(config,
-      'default-clipping-folder-format',
-      'defaultClippingFolderFormat'
+    initTextInput(config,
+      'title-file-folder',
+      'titleFileFolder',
     );
 
-    initCheckboxInput(config,
-      'title-style-clipping-folder-enabled',
-      'titleStyleClippingFolderEnabled'
-    );
-
-    initRadioInput(config,
-      'title-style-clipping-folder-format',
-      'titleStyleClippingFolderFormat'
+    initTextInput(config,
+      'title-file-name',
+      'titleFileName',
     );
   }
 
@@ -626,7 +668,7 @@
           }).join('');
           T.setHtml(elem,  html);
         } else {
-          T.setHtml(elem, '<tr><td colspan="4" i18n="none" align="center"></td></tr>');
+          T.setHtml(elem, '<tr><td colspan="4" i18n="no.record" align="center"></td></tr>');
         }
       });
   }

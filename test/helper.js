@@ -29,6 +29,14 @@ function assertMatch(value, regExp) {
   }
 }
 
+function assertNotMatch(value, regExp) {
+  if (value.match(regExp)) {
+    assert.fail(`${value} is not expected to match ${regExp}`);
+  } else {
+    assert(true);
+  }
+}
+
 function assertTure(value) {
   if (value === true) {
     assert(true);
@@ -43,6 +51,16 @@ function assertFalse(value) {
   } else {
     assert.fail(`${value} is not false`);
   }
+}
+
+function assertThrowError(fn) {
+  try {
+    fn();
+  } catch(e) {
+    assert(true);
+    return;
+  }
+  assert.fail("It should throw an Error, But it didn't");
 }
 
 async function assertResolve(promise, validate) {
@@ -72,8 +90,10 @@ module.exports = {
   assertEqual: assertEqual,
   assertNotEqual: assertNotEqual,
   assertMatch: assertMatch,
+  assertNotMatch: assertNotMatch,
   assertTrue: assertTure,
   assertFalse: assertFalse,
+  assertThrowError: assertThrowError,
   assertResolve: assertResolve,
   assertReject: assertReject,
 };

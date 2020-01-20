@@ -116,7 +116,7 @@
   }
   MxWcTemplate.clippingInformationStyle = {
     render: function(v) {
-      if(v.config.saveClippingInformation){
+      if(v.config.htmlSaveClippingInformation){
         return `
         .clipping-information{
           text-align: left !important;
@@ -152,7 +152,7 @@
 
   MxWcTemplate.clippingInformation = {
     render: function(v) {
-      if(v.config.saveClippingInformation){
+      if(v.config.htmlSaveClippingInformation){
         let tagHtml = I18N.t('none');
         if(v.info.tags.length > 0) {
           tagHtml = T.map(v.info.tags, function(tag) {
