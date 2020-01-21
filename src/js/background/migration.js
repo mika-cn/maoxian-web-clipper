@@ -23,6 +23,7 @@
   function perform() {
     migrateV0134();
     migrateV0146();
+    migrateV0147();
   }
 
   function migrateV0134(){
@@ -50,6 +51,19 @@
         console.info(key);
       } else {
         migrateConfigToV0146();
+        MxWcStorage.set(key, true);
+      }
+    });
+  }
+
+  function migrateV0147() {
+    const {version} = ENV;
+    const key = 'mx-wc-config-migrated-0.1.47'
+    MxWcStorage.get(key, false).then((isMigrated) => {
+      if(isMigrated) {
+        console.info(key);
+      } else {
+        migrateConfigToV0147();
         MxWcStorage.set(key, true);
       }
     });
@@ -129,7 +143,7 @@
       if (config.titleStyleClippingFolderFormat) {
         // version < 0.1.46
         if (config.saveTitleAsFilename) {
-          config.mainFileName = '$TITLE';
+          config.mainFileName = '$TITLE.$FORMAT';
           config.saveTitleFile = false;
         }
 
@@ -169,6 +183,21 @@
       } else {
         // version >= 0.1.46
       }
+    });
+  }
+
+  //
+  // Fix migration of 0.1.46
+  //
+  // fix mainFileName $TITLE => $TITLE.$FORMAT
+  //
+  function migrateConfigToV0147() {
+    MxWcConfig.load().then((config) => {
+      if (config.mainFileName === '$TITLE') {
+        config.mainFileName = '$TITLE.$FORMAT';
+      }
+      MxWcStorage.set('config', config);
+      console.debug("0.1.47 migrate");
     });
   }
 
