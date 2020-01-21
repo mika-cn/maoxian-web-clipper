@@ -23,45 +23,48 @@
   const state = {applied: false}
 
   function save(elem) {
-    /*
-    if (elem.tagName.toUpperCase() === 'BODY') {
-      // We don't save body element
-      // It's so common, every webpage has a body element
-      return;
-    }
-    */
-    const generator = new CssSelectorGenerator();
-    const selection = {
-      tagName: elem.tagName.toUpperCase(),
-      selector: generator.getSelector(elem),
-      ancestors: getAncestors(elem)
-    }
-    ExtMsg.sendToBackground({
-      type: 'save.selection',
-      body: {
-        host: window.location.host,
-        path: window.location.pathname,
-        selection: selection
+    try {
+      const generator = new CssSelectorGenerator();
+      const selection = {
+        tagName: elem.tagName.toUpperCase(),
+        selector: generator.getSelector(elem),
+        ancestors: getAncestors(elem)
       }
-    });
+      ExtMsg.sendToBackground({
+        type: 'save.selection',
+        body: {
+          host: window.location.host,
+          path: window.location.pathname,
+          selection: selection
+        }
+      });
+    } catch (e) {
+      // save selection should not influence other function
+      Log.error(e);
+    }
   }
 
   function apply() {
-    if (!state.applied) {
-      ExtMsg.sendToBackground({
-        type: 'query.selection',
-        body: {
-          host: window.location.host,
-          path: window.location.pathname
-        }
-      }).then((selections) => {
-        Log.debug(selections);
-        const selection = chooseSelection(selections);
-        if (selection) {
-          applySelection(selection);
-        }
-        state.applied = true;
-      })
+    try {
+      if (!state.applied) {
+        ExtMsg.sendToBackground({
+          type: 'query.selection',
+          body: {
+            host: window.location.host,
+            path: window.location.pathname
+          }
+        }).then((selections) => {
+          Log.debug(selections);
+          const selection = chooseSelection(selections);
+          if (selection) {
+            applySelection(selection);
+          }
+          state.applied = true;
+        })
+      }
+    } catch (e) {
+      // apply selection should not influence other function
+      Log.error(e);
     }
   }
 
@@ -154,7 +157,7 @@
     const arr = [];
     arr.push(node.tagName.toLowerCase());
     const id = node.getAttribute('id');
-    if (id != null && id != '' && !/\s/.match(id) && !/^\d/.match(id)) {
+    if (id != null && id != '' && !id.match(/^\s+$/) && !id.match(/\d+$/)) {
       const sanitized_id = generator.sanitizeItem(id);
       arr.push(sanitized_id);
       return arr.join('#');
