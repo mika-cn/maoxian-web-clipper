@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.1.47",
+  "version": "0.1.48",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*"
