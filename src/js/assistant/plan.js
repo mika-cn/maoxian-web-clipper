@@ -46,7 +46,7 @@
   }
 
   function performWhenCompleted(e) {
-    const detail = JSON.parse(e.detail);
+    const detail = MxWcEvent.getData(e);
     perform('completed', detail);
   }
 
