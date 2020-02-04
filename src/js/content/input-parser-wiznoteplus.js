@@ -42,6 +42,7 @@
           /** the path to place index.html and assetFolder */
           mainFileFolder: clipId,
           mainFileName: mainFilename,
+          infoFileFolder: clipId + "/index_files",
           /** the path to place frame files */
           frameFileFolder: clipId + "/index_files",
           /** the path to place asset files */
