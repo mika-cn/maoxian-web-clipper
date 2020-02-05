@@ -45,7 +45,7 @@
     const src = node.getAttribute('src');
     const {isValid, url, message} = T.completeUrl(src, baseUrl);
     if (isValid) {
-      const {filename, path} = Asset.calcInfo(url, storageInfo, mimeTypeDict[url], clipId);
+      const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: mimeTypeDict[url]}, clipId);
       const task = Task.createImageTask(filename, url, clipId);
       node.setAttribute('src', path);
       tasks.push(task);

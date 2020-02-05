@@ -91,10 +91,12 @@
 
     const {isValid, url, message} = T.completeUrl(href, baseUrl);
     if (isValid) {
-      let mimeType = node.getAttribute('type');
-      if (!mimeType) { mimeType = mimeTypeDict[url] }
+      const mimeTypeData = {
+        httpMimeType: mimeTypeDict[url],
+        attrMimeType: node.getAttribute('type')
+      };
       const {filename, path} = Asset.calcInfo(
-        url, storageInfo, mimeType, clipId);
+        url, storageInfo, mimeTypeData, clipId);
       tasks.push(Task.createImageTask(filename, url, clipId));
       node.setAttribute('href', path);
       node = handleOtherAttrs(node);

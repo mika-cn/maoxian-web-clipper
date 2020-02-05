@@ -16,9 +16,9 @@
   "use strict";
 
   // link http:, https: or data:
-  function getNameByLink({link, extension, mimeType, prefix}) {
+  function getNameByLink({link, extension, mimeTypeData, prefix}) {
     const name = generateName(link, prefix);
-    const ext  = getFileExtension(link, extension, mimeType);
+    const ext  = getFileExtension(link, extension, mimeTypeData);
     return ext ? [name, ext].join('.') : name;
   }
 
@@ -40,11 +40,11 @@
     }
   }
 
-  function calcInfo(link, storageInfo, mimeType, prefix) {
+  function calcInfo(link, storageInfo, mimeTypeData, prefix) {
     const assetName = getNameByLink({
       link: link,
       prefix: prefix,
-      mimeType: mimeType
+      mimeTypeData: mimeTypeData
     });
 
     return {
@@ -74,24 +74,34 @@
     return parts.join('-');
   }
 
-  function getFileExtension(link, extension, mimeType) {
+  function getFileExtension(link, extension, mimeTypeData) {
+    const {
+      // mime type that get from http request.
+      httpMimeType,
+      // mime type that get from attribute of HTML tag.
+      attrMimeType
+    } = (mimeTypeData || {});
     try{
       let url = new URL(link);
-      if(url.protocol === 'data:') {
+      if (url.protocol === 'data:') {
         //data:[<mediatype>][;base64],<data>
         const mimeType = url.pathname.split(';')[0];
         return mimeType2Extension(mimeType);
       } else {
         // http OR https
-        if(extension) { return extension }
-        let ext = T.getUrlExtension(url.href)
-        if(ext) {
-          return ext;
+        if (extension) { return extension }
+        if (httpMimeType) {
+          return mimeType2Extension(httpMimeType);
         } else {
-          if(mimeType) {
-            return mimeType2Extension(mimeType);
+          const ext = T.getUrlExtension(url.href)
+          if(ext) {
+            return ext;
           } else {
-            return null;
+            if(attrMimeType) {
+              return mimeType2Extension(attrMimeType);
+            } else {
+              return null;
+            }
           }
         }
       }

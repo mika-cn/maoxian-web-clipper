@@ -299,6 +299,11 @@
     }
   }
 
+  T.isUrlHasFileExtension = function(url) {
+    const filename = url.split('?')[0].split('#')[0].split('/').pop();
+    return filename.indexOf('.') > -1;
+  }
+
 
   T.isFileUrl = function(url){
     if (url.match(/^file:/i)) {

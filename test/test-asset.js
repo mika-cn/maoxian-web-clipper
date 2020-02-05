@@ -4,42 +4,53 @@ const Asset = H.depJs('lib/asset.js');
 
 describe("Asset", () => {
 
-  it("getNameByLink", () => {
+  it("getNameByLink: link only", () => {
     const link = 'https://a.org/foo.jpg';
     const nameA = Asset.getNameByLink({link: link});
     H.assertMatch(nameA, /^[^\.\/]+\.jpg$/);
-
-    const nameB = Asset.getNameByLink({link: link, mimeType: 'image/png'});
-    H.assertMatch(nameB, /\.jpg$/);
   });
 
-  it("getNameByLink with extension", () => {
+  it("getNameByLink: with extension", () => {
     const link = 'https://a.org/foo.jpg';
     const name = Asset.getNameByLink({link: link, extension: 'txt'});
     H.assertMatch(name, /^[^\.\/]+\.txt$/);
   });
 
-  it("getNameByLink with prefix", () => {
+  it("getNameByLink: link doesn't has an extension", () => {
+    const link = 'https://a.org/foo';
+    const name = Asset.getNameByLink({link: link});
+    H.assertMatch(name, /^[^\.\/]+$/);
+  })
+
+
+  it("getNameByLink: with prefix", () => {
     const link = 'https://a.org/foo.jpg';
     const name = Asset.getNameByLink({link: link, prefix: '001'});
     H.assertMatch(name, /^001-[^\.\/]+\.jpg$/);
   });
 
-  it("getNameByLink with mimeType", () => {
-    const link = 'https://a.org/foo';
-    const name = Asset.getNameByLink({link: link, mimeType: 'image/jpeg'});
+  it("getNameByLink: with httpMimeType", () => {
+    const link = 'https://a.org/foo.bmp';
+    const name = Asset.getNameByLink({link: link, mimeTypeData: {
+      httpMimeType: 'image/jpeg',
+      attrMimeType: 'image/png'
+    }});
     H.assertMatch(name, /^[^\.\/]+\.jpg$/);
   });
 
-  it("getNameByLink - link doesn't has an extension", () => {
-    const link = 'https://a.org/foo';
-    const name = Asset.getNameByLink({link: link, mimeType: undefined});
-    H.assertMatch(name, /^[^\.\/]+$/);
-  })
+  it("getNameByLink: with attrMimeType", () => {
+    const link = 'https://a.org/foo.bmp';
+    const name = Asset.getNameByLink({link: link, mimeTypeData: {
+      attrMimeType: 'image/png'
+    }});
+    H.assertMatch(name, /^[^\.\/]+\.bmp$/);
+  });
 
-  it("getNameByLink = data link", () => {
+  it("getNameByLink: data link", () => {
     const link = 'data:image/png;base64,imagedata';
-    const nameA = Asset.getNameByLink({link: link, mimeType: 'image/jpeg'});
+    const nameA = Asset.getNameByLink({link: link, mimeTypeData: {
+      httpMimeType: 'image/jpeg'
+    }});
     H.assertMatch(nameA, /^[^\.\/]+\.png$/);
 
     const nameB = Asset.getNameByLink({link: link, extension: 'ico'});
@@ -58,6 +69,13 @@ describe("Asset", () => {
     const assetName = "A.jpeg";
     const path = Asset.getPath({storageInfo, assetName});
     H.assertMatch(path, '../../assets/A.jpeg')
+  });
+
+  it("getPath - assetRelativePath: empty string", () => {
+    const storageInfo = { assetRelativePath: '' };
+    const assetName = 'A.jpeg';
+    const path = Asset.getPath({storageInfo, assetName});
+    H.assertMatch(path, assetName);
   });
 
 });

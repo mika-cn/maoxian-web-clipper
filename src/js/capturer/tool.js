@@ -28,7 +28,7 @@
       }
       const {isValid, url, message} = T.completeUrl(bg, baseUrl);
       if (isValid) {
-        const {filename, path} = Asset.calcInfo(url, storageInfo, mimeTypeDict[url], clipId);
+        const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: mimeTypeDict[url]}, clipId);
         const task = Task.createImageTask(filename, url, clipId);
         node.setAttribute('background', path);
         return {node: node, tasks: [task]};
@@ -51,16 +51,18 @@
     const tasks = [];
     if (srcset) {
       const arr = parseSrcset(srcset);
-      let mimeType = null;
+      let attrMimeType = null;
       if (node.tagName.toUpperCase() === 'SOURCE') {
-        mimeType = node.getAttribute('type');
+        attrMimeType = node.getAttribute('type');
       }
       const newSrcset = arr.map((item) => {
         const [itemSrc] = item;
         const {isValid, url, message} = T.completeUrl(itemSrc, baseUrl);
         if (isValid) {
-          if (!mimeType) { mimeType = mimeTypeDict[url] }
-          const {filename, path} = Asset.calcInfo(url, storageInfo, mimeType, clipId);
+          const {filename, path} = Asset.calcInfo(url, storageInfo, {
+            httpMimeType: mimeTypeDict[url],
+            attrMimeType: attrMimeType
+          }, clipId);
           const task = Task.createImageTask(filename, url, clipId);
           tasks.push(task);
           item[0] = path;

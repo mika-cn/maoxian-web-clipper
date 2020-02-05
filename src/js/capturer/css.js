@@ -79,8 +79,7 @@
         const assetName = Asset.getNameByLink({
           link: url,
           extension: 'css',
-          prefix: clipId,
-          mimeType: mimeTypeDict[url]
+          prefix: clipId
         });
         const filename = Asset.getFilename({storageInfo, assetName});
 
@@ -261,7 +260,7 @@
               link: url,
               extension: extension,
               prefix: clipId,
-              mimeType: mimeTypeDict[url]
+              mimeTypeData: {httpMimeType: mimeTypeDict[url]}
             });
             const filename = Asset.getFilename({storageInfo, assetName});
             tasks.push(Task.createUrlTask(filename, url, clipId, taskType));
