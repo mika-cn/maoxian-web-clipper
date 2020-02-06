@@ -184,6 +184,7 @@
                   && isSelectionEqual(currNode.selection, selection)
                 ) {
                   variableNodeNotFound = false;
+                  currNode.selection = selection;
                   break;
                 }
               }
@@ -199,6 +200,7 @@
                   ) {
                     normalNodeNotFound = false;
                     currNode.toVariableNode();
+                    currNode.selection = selection;
                     changes.push(currNode);
                     break;
                   }

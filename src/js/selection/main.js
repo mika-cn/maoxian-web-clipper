@@ -20,48 +20,62 @@
   CssSelectorGenerator, undefined) {
   "use strict";
 
-  const state = {applied: false}
+  const state = {appliedSelection: null};
 
-  function save(elem) {
+  function save(elem, deletedElems) {
     try {
       const generator = new CssSelectorGenerator();
-      const selection = {
-        tagName: elem.tagName.toUpperCase(),
-        selector: generator.getSelector(elem),
-        ancestors: getAncestors(elem)
-      }
-      ExtMsg.sendToBackground({
-        type: 'save.selection',
-        body: {
-          host: window.location.host,
-          path: window.location.pathname,
-          selection: selection
+      const selector = generator.getSelector(elem);
+      if ( deletedElems.length == 0
+        && state.appliedSelection
+        && state.appliedSelection.selector == selector
+      ) {
+        // Applied selection was accepted.
+        // Do nothing
+      } else {
+        const selection = {
+          tagName: elem.tagName.toUpperCase(),
+          selector: selector,
+          ancestors: getAncestors(elem),
+          deletion: {
+            selectors: deletedElems.map((it) => {
+              return generator.getSelector(it)
+            })
+          }
         }
-      });
+        Log.debug(selection);
+        ExtMsg.sendToBackground({
+          type: 'save.selection',
+          body: {
+            host: window.location.host,
+            path: window.location.pathname,
+            selection: selection
+          }
+        });
+      }
     } catch (e) {
       // save selection should not influence other function
       Log.error(e);
+      console.trace();
     }
   }
 
   function apply() {
     try {
-      if (!state.applied) {
-        ExtMsg.sendToBackground({
-          type: 'query.selection',
-          body: {
-            host: window.location.host,
-            path: window.location.pathname
-          }
-        }).then((selections) => {
-          Log.debug(selections);
-          const selection = chooseSelection(selections);
-          if (selection) {
-            applySelection(selection);
-          }
-          state.applied = true;
-        })
-      }
+      ExtMsg.sendToBackground({
+        type: 'query.selection',
+        body: {
+          host: window.location.host,
+          path: window.location.pathname
+        }
+      }).then((selections) => {
+        Log.debug(selections);
+        const selection = chooseSelection(selections);
+        if (selection) {
+          applySelection(selection);
+          state.appliedSelection = selection;
+        }
+      })
     } catch (e) {
       // apply selection should not influence other function
       Log.error(e);
@@ -105,9 +119,14 @@
   }
 
   function applySelection(selection) {
-    MxWcEvent.dispatchInternal('focus-elem', {
-      qType: 'css',
-      q: selection.selector
+    if (selection.deletion) {
+      // The first implementation didn't include deletion
+      MxWcEvent.dispatchInternal('assistant.apply-plan-global', {
+        hideOnce: selection.deletion.selectors
+      });
+    }
+    MxWcEvent.dispatchInternal('assistant.apply-plan', {
+      pick: selection.selector
     });
   }
 
@@ -195,11 +214,11 @@
       // listen message
       if (config.assistantEnabled) {
         MxWcEvent.listenInternal('assistant.not-plan-matched', () => {
-          MxWcEvent.listenInternal('selecting', apply);
+          apply();
           Log.debug("MxWcSelectionInited (assistant)");
         });
       } else {
-        MxWcEvent.listenInternal('selecting', apply);
+        apply();
         Log.debug("MxWcSelectionInited");
       }
     }
@@ -208,6 +227,5 @@
   return {
     init: init,
     save: save,
-    apply: apply,
   }
 });

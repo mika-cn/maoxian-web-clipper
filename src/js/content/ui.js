@@ -19,6 +19,7 @@
     clippingState: 'idle',
     currElem: null,
     config: null,
+    deletedElems: []
   };
 
   // ifarme common functions
@@ -347,7 +348,7 @@
         msg.elem = state.currElem;
         setStateClipping();
         if (config.rememberSelection) {
-          MxWcSelectionMain.save(state.currElem);
+          MxWcSelectionMain.save(state.currElem, state.deletedElems);
         }
         MxWcSave.save(msg, config);
       } else {
@@ -504,7 +505,9 @@
   function pressDelete(msg) {
     if(state.clippingState === 'selected'){
       const elem = state.currElem;
-      elem.parentNode.removeChild(elem);
+      state.deletedElems.push(elem);
+      // FIXME
+      elem.style.display = 'none';
       disable();
       enable();
       return;

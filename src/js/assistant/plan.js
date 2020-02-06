@@ -83,7 +83,7 @@
     return function(selectorInput, contextNode) {
       return {
         name: params.name,
-        isPerformOnce: false,
+        isPerformOnce: (params.performOnce || false),
         selectorInput: selectorInput,
         contextNode: contextNode,
         perform: function(detail={}) {
@@ -115,6 +115,13 @@
     name: 'hideElem',
     display: 'none',
     priority: 'important'
+  });
+
+  Action.hideElemOnce = createSetDisplayAction({
+    name: 'hideElem',
+    display: 'none',
+    priority: 'important',
+    performOnce: true
   });
 
   Action.undoDisplay = function(selectorInput, contextNode) {
@@ -450,6 +457,7 @@
    *   pickElem: $SelectorInput,
    *   pickAction: 'focus' or 'confirm', or 'clip'
    *   hideElem: $SelectorInput,
+   *   hideElemOnce: $SelectorInput,
    *   showElem: $SelectorInput,
    *   chAttr: [$action, ...]
    * }
@@ -493,10 +501,16 @@
   }
 
   function handleNormalAttr(plan, contextNode) {
-    const {hideElem, showElem, chAttr} = plan;
+    const {hideElem, hideElemOnce, showElem, chAttr} = plan;
     if(hasSelector(hideElem)) {
       const selectorInput = hideElem;
       listen('selecting', Action.hideElem(selectorInput, contextNode));
+      listen('idle', Action.undoDisplay(selectorInput, contextNode));
+    }
+
+    if(hasSelector(hideElemOnce)) {
+      const selectorInput = hideElemOnce;
+      listen('selecting', Action.hideElemOnce(selectorInput, contextNode));
       listen('idle', Action.undoDisplay(selectorInput, contextNode));
     }
 
