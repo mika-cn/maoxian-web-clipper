@@ -321,7 +321,9 @@
 
   function textInputBlured(e) {
     const configKey = getConfigKey(e.target);
-    if(updateConfig(configKey, e.target.value)){
+    const value = e.target.value.trim();
+    e.target.value = value;
+    if(updateConfig(configKey, value)){
       Notify.success(I18N.t('op.update-success'));
     }
   }
@@ -336,7 +338,7 @@
   function NumberInputChanged(e) {
     const elem = e.target;
     const configKey = getConfigKey(elem);
-    const value = parseInt(elem.value);
+    const value = parseInt(elem.value.trim());
     if (isNaN(value)) {
       Notify.error(I18N.t('error.not-a-number'));
       return;
@@ -347,6 +349,7 @@
       Notify.error(I18N.t('error.not-in-allowed-range'));
       return;
     }
+    elem.value = value.toString();
     if(updateConfig(configKey, value)){
       Notify.success(I18N.t('op.update-success'));
     }

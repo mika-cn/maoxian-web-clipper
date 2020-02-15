@@ -255,7 +255,7 @@
     "setting.notice.file-url.ext-id": "扩展标识",
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
     "setting.notice.front-matter": "YAML Front Matter 是一段位于 Markdown 文件开头的 YAML 文本，常用于保存文档本身的元信息，你可以使用它来保存裁剪信息。",
-    "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags</strong> 和 <strong>createdAt</strong>。",
+    "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags、createdAt、sYear、month、day、hour、minute、second、intSec</strong>。",
     "setting.notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "setting.notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
     "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />",

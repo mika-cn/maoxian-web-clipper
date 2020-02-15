@@ -227,13 +227,15 @@
         return `  - ${tag}`
       }).join("\n");
     }
-    return T.renderTemplate(template, {
+    const tObj = T.wrapDate(new Date(info.created_at));
+    const v = Object.assign({
       title: (info.title || "-"),
       url: info.link,
       createdAt: info.created_at,
       category: category,
       tags: tags
-    });
+    }, tObj.str);
+    return T.renderTemplate(template, v);
   }
 
   function getTurndownService(){

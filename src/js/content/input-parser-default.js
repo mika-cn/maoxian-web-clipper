@@ -166,53 +166,6 @@
   Render.FilenameVariables = Render.TimeVariables.concat([
     '$TITLE', '$FORMAT', '$DOMAIN']);
 
-  Render['$TIME-INTSEC'] = function(str, v) {
-    return str.replace(/\$TIME-INTSEC/mg, () => {
-      return v.now.str.intSec;
-    });
-  }
-
-  Render['$YYYY'] = function(str, v) {
-    return str.replace(/\$YYYY/mg, () => {
-      return v.now.str.year;
-    });
-  }
-
-  Render['$YY'] = function(str, v) {
-    return str.replace(/\$YY/mg, () => {
-      return v.now.str.sYear;
-    });
-  }
-
-  Render['$MM'] = function(str, v) {
-    return str.replace(/\$MM/mg, () => {
-      return v.now.str.month;
-    });
-  }
-
-  Render['$DD'] = function(str, v) {
-    return str.replace(/\$DD/mg, () => {
-      return v.now.str.day;
-    });
-  }
-
-  Render['$HH'] = function(str, v) {
-    return str.replace(/\$HH/mg, () => {
-      return v.now.str.hour;
-    });
-  }
-
-  Render['$mm'] = function(str, v) {
-    return str.replace(/\$mm/mg, () => {
-      return v.now.str.minute;
-    });
-  }
-
-  Render['$SS'] = function(str, v) {
-    return str.replace(/\$SS/mg, () => {
-      return v.now.str.second;
-    });
-  }
 
   Render['$TITLE'] = function(str, v) {
     return str.replace(/\$TITLE/mg, () => {
@@ -220,7 +173,17 @@
     });
   }
 
-  Render.getDefault = function(variable) {
+  Render.getTimeVariableRender = function(variable) {
+    return function(str, v) {
+      const name = variable.replace('$', '');
+      const re = new RegExp(variable.replace('$', '\\$'), 'mg');
+      return str.replace(re, () => {
+        return v.now.str[name];
+      })
+    }
+  }
+
+  Render.getDefaultRender = function(variable) {
     return function(str, v) {
       const name = T.toJsVariableName(variable.replace('$', ''));
       const re = new RegExp(variable.replace('$', '\\$'), 'mg');
@@ -235,7 +198,11 @@
     variables.forEach((variable) => {
       let renderFn = Render[variable];
       if(!renderFn) {
-        renderFn = Render.getDefault(variable);
+        if (Render.TimeVariables.indexOf(variable) > -1) {
+          renderFn = Render.getTimeVariableRender(variable);
+        } else {
+          renderFn = Render.getDefaultRender(variable);
+        }
       }
       s = renderFn(s, v);
     });

@@ -477,7 +477,7 @@
       intMs  : date / 1
     }
     // sYear => short year
-    tObj.str = {
+    const s = {
       year: tObj.year.toString(),
       sYear: T.rjustNum(tObj.sYear, 2),
       month: T.rjustNum(tObj.month, 2),
@@ -489,24 +489,33 @@
       intMs: tObj.intMs.toString()
     }
 
+    s['YYYY'] = s.year;
+    s['YY'] = s.sYear;
+    s['MM'] = s.month;
+    s['DD'] = s.day;
+    s['dd'] = s.day;
+    s['HH'] = s.hour;
+    s['mm'] = s.minute;
+    s['SS'] = s.second;
+    s['ss'] = s.second;
+    s['TIME-INTSEC'] = s.intSec;
+
+    tObj.str = s;
+
     tObj.toString = function(){
       // YYYY-MM-dd HH:mm:ss
-      const s = tObj.str;
       return `${s.year}-${s.month}-${s.day} ${s.hour}:${s.minute}:${s.second}`;
     }
 
     tObj.time = function() {
-      const s = tObj.str;
       return `${s.hour}:${s.minute}:${s.second}`;
     }
 
     tObj.beginingOfDay = function(){
-      const s = tObj.str;
       return `${s.year}-${s.month}-${s.day} 00:00:00`;
     }
 
     tObj.endOfDay = function(){
-      const s = tObj.str;
       return `${s.year}-${s.month}-${s.day} 23:59:59`;
     }
     return tObj;
