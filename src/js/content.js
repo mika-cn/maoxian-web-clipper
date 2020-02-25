@@ -94,11 +94,23 @@
     Log.debug('listenTpMessage');
   }
 
+  /*
+   * We don't know third party's code will execute before MaoXian
+   * or after it. In order to make sure they can receive this
+   * event, We dispatch it multiple times.
+   */
   function tellTpWeAreReady(){
-    setTimeout(function(){
-      Log.debug("tellTpWeAreReady");
-      MxWcEvent.dispatchPublic('ready');
-    }, 0);
+    const timeouts = [1, 100, 300, 500, 1000, 1600, 2000, 3000, 5000, 8000];
+    const emitEvent = function () {
+      const timeout = timeouts.shift();
+      if (timeout) {
+        setTimeout(function(){
+          MxWcEvent.dispatchPublic('ready');
+          emitEvent();
+        }, timeout);
+      }
+    }
+    emitEvent();
   }
 
   function tellTpClipCompleted(detail) {
