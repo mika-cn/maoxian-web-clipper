@@ -104,6 +104,7 @@
         if(window === window.top){
           // Main window
           ExtMsg.initPage('content');
+          MxWcAssistantMain.listenInternalEvent();
           initMxWcAssistant();
         }else{
           // Iframe

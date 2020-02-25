@@ -34,7 +34,7 @@
 
       mdSaveClippingInformation: false,
       mdFrontMatterEnabled: false,
-      mdFrontMatterTemplate: "---\nurl: ${url}\ncreated_at: ${createdAt}\ncategory: ${category}\ntags: ${tags}\n---",
+      mdFrontMatterTemplate: "---\ntitle: ${title}\ncategory: ${category}\ntags: ${tags}\ncreated_at: ${createdAt}\noriginal_url: ${url}\n---",
 
       // control
       hotkeySwitchEnabled: false,

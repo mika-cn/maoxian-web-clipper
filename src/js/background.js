@@ -72,7 +72,7 @@
         case 'save.selection':
           SelectionBackend.save(message.body).then(resolve);
           break;
-        case 'get.mimeTypeDict' : WebRequest.getMimeTypeDict(resolve)     ; break     ;
+        case 'get.mimeTypeDict' : resolve(WebRequest.getMimeTypeDict())   ; break;
         case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
         case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
         case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;

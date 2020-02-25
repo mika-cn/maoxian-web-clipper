@@ -94,11 +94,23 @@
     Log.debug('listenTpMessage');
   }
 
+  /*
+   * We don't know third party's code will execute before MaoXian
+   * or after it. In order to make sure they can receive this
+   * event, We dispatch it multiple times.
+   */
   function tellTpWeAreReady(){
-    setTimeout(function(){
-      Log.debug("tellTpWeAreReady");
-      MxWcEvent.dispatchPublic('ready');
-    }, 0);
+    const timeouts = [1, 100, 300, 500, 1000, 1600, 2000, 3000, 5000, 8000];
+    const emitEvent = function () {
+      const timeout = timeouts.shift();
+      if (timeout) {
+        setTimeout(function(){
+          MxWcEvent.dispatchPublic('ready');
+          emitEvent();
+        }, timeout);
+      }
+    }
+    emitEvent();
   }
 
   function tellTpClipCompleted(detail) {
@@ -113,41 +125,29 @@
   }
 
   function focusElem(e) {
-    const msg = parseMsgFromTpEvent(e);
+    const msg = MxWcEvent.getData(e);
     queryElem(msg, (elem) => {
       UI.focusElem(elem)
     });
   }
 
   function confirmElem(e) {
-    const msg = parseMsgFromTpEvent(e);
+    const msg = MxWcEvent.getData(e);
     queryElem(msg, (elem) => {
       UI.confirmElem(elem, (msg.options || {}));
     });
   }
 
   function clipElem(e) {
-    const msg = parseMsgFromTpEvent(e);
+    const msg = MxWcEvent.getData(e);
     queryElem(msg, (elem) => {
       UI.clipElem(elem, (msg.options || {}));
     });
   }
 
   function setFormInputs(e) {
-    const msg = parseMsgFromTpEvent(e);
+    const msg = MxWcEvent.getData(e);
     UI.setFormInputs(msg.options || {});
-  }
-
-  function parseMsgFromTpEvent(e) {
-    if(typeof e.detail === 'string') {
-      // Firefox(Gecko) restict(for secure reason) e.detail when it is a custom object.
-      // We use json string to walk around.
-      return JSON.parse(e.detail);
-    } else {
-      // Ensure compatible with old version(mx-wc-tool.js)
-      // e.detail is a custom object.
-      return e.detail;
-    }
   }
 
   function queryElem(msg, callback){

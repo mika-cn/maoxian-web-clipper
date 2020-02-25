@@ -31,6 +31,15 @@ describe('Selection Store', () => {
     H.assertEqual(Store.get('/C').length, 0);
   })
 
+  it('first layer, selection change', () => {
+    Store = SelectionStore.create();
+    Store.set('/A', selectionA);
+    // A(A)
+    Store.set('/A', selection);
+    // A(S)
+    H.assertEqual(Store.get('/A')[0], selection);
+  });
+
   it('first layer, one variable', () => {
     Store = SelectionStore.create();
     Store.set('/A', selection);

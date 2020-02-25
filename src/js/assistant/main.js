@@ -48,9 +48,21 @@
       p.pickAction = (plan.pickAction || config.pickAction);
     }
     if(config.hideElem && plan.hide) { p.hideElem = plan.hide }
+    if(config.hideElem && plan.hideOnce) { p.hideElemOnce = plan.hideOnce }
     if(config.showElem && plan.show) { p.showElem = plan.show }
     if(config.changeAttr && plan.chAttr) { p.chAttr = plan.chAttr }
     return p;
+  }
+
+  function listenInternalEvent() {
+    MxWcEvent.listenInternal('assistant.apply-plan', (e) => {
+      const plan = MxWcEvent.getData(e);
+      Plan.apply(toMxPlan(plan));
+    });
+    MxWcEvent.listenInternal('assistant.apply-plan-global', (e) => {
+      const plan = MxWcEvent.getData(e);
+      Plan.applyGlobal(toMxPlan(plan));
+    });
   }
 
   function init() {
@@ -66,5 +78,8 @@
     });
   }
 
-  return { init: init }
+  return {
+    init: init,
+    listenInternalEvent: listenInternalEvent
+  }
 });

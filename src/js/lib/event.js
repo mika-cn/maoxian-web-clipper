@@ -120,8 +120,21 @@
     return r.join('.');
   }
 
+  function getData(e) {
+    if(typeof e.detail === 'string') {
+      // Firefox(Gecko) restict (for secure reason) e.detail when it is a custom object.
+      // We use json string to walk around.
+      return JSON.parse(e.detail);
+    } else {
+      // Ensure compatible with old version(mx-wc-tool.js)
+      // e.detail is a custom object.
+      return e.detail;
+    }
+  }
+
   return {
     getType: getType,
+    getData: getData,
     broadcastPublic: broadcastPublic,
     broadcastInternal: broadcastInternal,
     handleBroadcastPublic: handleBroadcastPublic,

@@ -26,16 +26,12 @@
       if(details.type === 'xmlhttprequest'){
         handleXhr(details);
       }else{
-        state.mimeTypeStore.add(details.url, details.responseHeaders);
+        handleNormalRequest(details);
       }
     }
 
     function handleXhr(details){
-      // depends on statusLine's format. (could be dangerous)
-      const strs = details.statusLine.split(" ");
-      const httpVersion = strs.shift(),
-            statusCode = strs.shift(),
-            statusText = strs.join(" ");
+      const {statusCode} = parseResponseStatusLine(details.statusLine);
       if(statusCode === '200') {
         const headers = details.responseHeaders;
         const mimeType = getMimeType(headers)
@@ -47,32 +43,61 @@
       }
     }
 
-    function getMimeTypeDict(response){
-      response(state.mimeTypeStore.dict);
+    function handleNormalRequest(details) {
+      const {statusCode} = parseResponseStatusLine(details.statusLine);
+      switch (statusCode) {
+        case '200':
+          state.mimeTypeStore.add(details.url, details.responseHeaders);
+          break;
+        case '301': // Move Permanently
+        case '302': // Found
+        case '303': // See Other
+        case '307': // Temporary Redirect
+          state.redirectionStore.add(details.url, details.responseHeaders);
+          break;
+        default: break;
+      }
+    }
+
+    function parseResponseStatusLine(statusLine) {
+      // depends on statusLine's format. (could be dangerous)
+      const strs = statusLine.split(" ");
+      return {
+        httpVersion: strs.shift(),
+        statusCode: strs.shift(),
+        statusText: strs.join(' ')
+      }
     }
 
     function getMimeType(headers){
-      let match = T.detect(headers, function(header){
-        // some server header name is lower case ... (fixit)
-        return header.name.toLowerCase() === 'content-type';
-      })
+      const header = getHeader(headers, 'content-type');
       // [firefox]
       //  will trigger two times sameUrl(notAll);
       //  one with Content-Type head, anotherOne is not
       // [Strange] attension or bug...
       // fixit.
-      if(match){
-        return match.value.split(';')[0];
+      if(header){
+        return header.value.split(';')[0];
       }else{
         return null;
       }
+    }
+
+    // WARNING: name should be lowercase
+    function getHeader(headers, name) {
+      return [].find.call(headers, function(header){
+        // some server's header name is lower case ... (fixit)
+        return header.name.toLowerCase() === name;
+      })
     }
 
     function initMimeTypeStore(){
       return {
         dict: {},
         add(url, responseHeaders) {
-          if((new URL(url)).pathname.indexOf('.') == -1){
+          if (state.redirectionStore.isTarget(url)
+            || !T.isUrlHasFileExtension(url)
+          ) {
             const mimeType = getMimeType(responseHeaders);
             if(mimeType){
               this.dict[url] = mimeType;
@@ -80,20 +105,78 @@
               Log.warn("MimeType empty: ", url)
             }
           }
-        },
+        }
       };
     }
 
+    function initRedirectionStore() {
+      const MIDDLE = 1, FINAL = 2;
+      return {
+        dict: {}, // url => targetUrl
+        redirectStatus: {}, // targetUrl => status
+        add(url, responseHeaders) {
+          const header = getHeader(responseHeaders, 'location')
+          if (header) {
+            const targetUrl = header.value;
+            this.dict[url] = targetUrl;
+            this.redirectStatus[targetUrl] = FINAL;
+            if (this.redirectStatus[url] === FINAL) {
+              this.redirectStatus[url] = MIDDLE;
+            }
+          } else {
+            // empty location
+            Log.warn("Redirection (empty location): ", url);
+          }
+        },
+        isTarget(url) {
+          return this.redirectStatus[url];
+        },
+        isMiddleTarget(url) {
+          return this.redirectStatus[url] === MIDDLE;
+        },
+        isFinalTarget(url) {
+          return this.redirectStatus[url] === FINAL;
+        },
+        getFinalTarget(url) {
+          const targetUrl = this.dict[url];
+          if (targetUrl) {
+            if (this.isFinalTarget(targetUrl)) {
+              return targetUrl;
+            } else {
+              return this.getFinalTarget(targetUrl);
+            }
+          } else {
+            return null;
+          }
+        },
+        getRedirectionDict() {
+          const r = {};
+          for (let url in this.dict) {
+            if (this.isMiddleTarget(url)) {
+              // Do nothing
+            } else {
+              r[url] = this.getFinalTarget(url);
+            }
+          }
+          return r;
+        }
+      }
+    }
+
+    function init() {
+      state.mimeTypeStore = initMimeTypeStore();
+      state.redirectionStore = initRedirectionStore();
+    }
+
     function listen() {
+      init();
       const filter = {
         urls: ["http://*/*", "https://*/*"],
         types: [
           "xmlhttprequest",
-          "stylesheet",
           "image"
         ]
       };
-      state.mimeTypeStore = initMimeTypeStore();
       browser.webRequest.onHeadersReceived.removeListener(listener);
       browser.webRequest.onHeadersReceived.addListener(
         listener,
@@ -102,9 +185,23 @@
       );
     }
 
+    function getMimeTypeDict() {
+      const mimeTypeDict = Object.assign({}, state.mimeTypeStore.dict);
+      const redirectionDict = state.redirectionStore.getRedirectionDict();
+      for (let url in redirectionDict) {
+        const targetUrl = redirectionDict[url];
+        mimeTypeDict[url] = mimeTypeDict[targetUrl];
+      }
+      return mimeTypeDict;
+    }
+
+
     return {
       listen: listen,
-      getMimeTypeDict: getMimeTypeDict
+      getMimeTypeDict: getMimeTypeDict,
+      // test only
+      init: init,
+      emit: listener,
     }
   })();
 
@@ -183,13 +280,15 @@
     UnescapeHeader.listen();
   }
 
-  function getMimeTypeDict(response) {
-    return StoreMimeType.getMimeTypeDict(response);
+  function getMimeTypeDict() {
+    return StoreMimeType.getMimeTypeDict();
   }
 
 
   return {
     listen: listen,
-    getMimeTypeDict: getMimeTypeDict
+    getMimeTypeDict: getMimeTypeDict,
+    // test only
+    StoreMimeType: StoreMimeType,
   }
 });

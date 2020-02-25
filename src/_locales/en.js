@@ -257,7 +257,7 @@
     "setting.notice.file-url.ext-id": "Extension identify",
     "setting.notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after you allow browser to access file URLs.",
     "setting.notice.front-matter": "YAML Front Matter is a block of text that is placed in front of markdown content. Usually, it is used to save meta information. You can use it to save clipping information",
-    "setting.notice.front-matter-template": "Using template below to configure which information you want to save.<br />Avariable variables are: <strong>title, url, category, tags</strong> and <strong>createdAt</strong>",
+    "setting.notice.front-matter-template": "Using template below to configure which information you want to save.<br />Avariable variables are: <strong>title, url, category, tags, createdAt, year, sYear, month, day, hour, minute, second, intSec</strong>.",
     "setting.notice.root-folder": "<strong>Notice:</strong><br /> This folder is used as storage entry, We suggest you don't change it after you set it right. If you do want to change it, you should change the name of folder in your file system too. So that you won't get two storage entry.",
     "setting.notice.default-category": "Default category is the value that will be used if you don't specify a category in saving form.<br />Use <strong>/</strong> to separate sub category<br />",
     "setting.notice.clipping-folder-name": "MaoXian can creates a directory to store clipping result in every clipping, we call this directory clipping folder.",

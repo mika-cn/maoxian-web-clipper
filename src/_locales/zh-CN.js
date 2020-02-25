@@ -245,7 +245,7 @@
     // notice
     "setting.notice.main-file-intro": "主文件是你裁剪下来的 HTML 文件（即网页文件）或者是 Markdown 文件（取决于保存格式是什么）",
     "setting.notice.asset-file-intro": "资源文件指的是跟随网页的图片，样式，字体和网站图标（注：不包含脚本文件，居于安全考虑，MaoXian 不保存脚本文件）。",
-    "setting.notice.frame-file-intro": "故名思意，这些网页内嵌在主网页中。在裁剪的过程中，如果保存格式为 HTML，则会把这些内嵌的网页另存为一个文件，并在主文件中引入；如果保存格式为 Markdown，则会把这些内嵌的网页的内容嵌入到主文件中。",
+    "setting.notice.frame-file-intro": "顾名思义，这些网页内嵌在主网页中。在裁剪的过程中，如果保存格式为 HTML，则会把这些内嵌的网页另存为一个文件，并在主文件中引入；如果保存格式为 Markdown，则会把这些内嵌的网页的内容嵌入到主文件中。",
     "setting.notice.info-file-intro": "元信息文件是用来记录整个裁剪过程所涉及的信息的，内容包括保存格式，裁剪时间，原网址，分类，标签等等。",
     "setting.notice.title-file-intro": "标题文件是一个包含空内容的文件，其特点是文件名包含标题，如果你的主文件的路径不包含标题信息，则可以在主文件的同级目录中保存该文件，以便浏览，该文件为可选。",
 
@@ -255,7 +255,7 @@
     "setting.notice.file-url.ext-id": "扩展标识",
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
     "setting.notice.front-matter": "YAML Front Matter 是一段位于 Markdown 文件开头的 YAML 文本，常用于保存文档本身的元信息，你可以使用它来保存裁剪信息。",
-    "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags</strong> 和 <strong>createdAt</strong>。",
+    "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags、createdAt、sYear、month、day、hour、minute、second、intSec</strong>。",
     "setting.notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "setting.notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
     "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />",
