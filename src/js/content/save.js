@@ -71,9 +71,11 @@
       const _tasks = Task.rmReduplicate(tasks);
 
       // calculate path
-      info.paths = [storageInfo.infoFileName];
+      info.paths = [];
+      if (needSaveIndexFile)
+        info.paths.push(storageInfo.infoFileName);
       const {mainPath, paths} = Task.getRelativePath(
-        _tasks, storageInfo.infoFileFolder);
+        _tasks, storageInfo.mainFileFolder);
       info.mainPath = mainPath;
       info.paths.push(...paths);
 
@@ -95,7 +97,8 @@
         body: clipping
       });
 
-      saveClippingHistory(info, storageInfo);
+      if (needSaveIndexFile)
+        saveClippingHistory(info, storageInfo);
     })
 
   }
