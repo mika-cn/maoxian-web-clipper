@@ -15,7 +15,7 @@
 
   return {
     logLevel: "debug",
-    version: '0.1.50',
+    version: '0.1.51',
     minNativeAppVersion: '0.2.2',
     websiteRoot: websiteRoot,
     projectRoot: projectRoot,
