@@ -64,20 +64,24 @@
 
     const params = { storageInfo: storageInfo, elem: elem, info: info, config: config }
     parser.parse(params).then((tasks) => {
+
       if(needSaveTitleFile) {
         const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);
         tasks.unshift(Task.createTitleTask(filename, info.clipId));
       }
       const _tasks = Task.rmReduplicate(tasks);
 
-      // calculate path
-      info.paths = [storageInfo.infoFileName];
-      const {mainPath, paths} = Task.getRelativePath(
-        _tasks, storageInfo.infoFileFolder);
-      info.mainPath = mainPath;
-      info.paths.push(...paths);
+      // info.paths is used to delete files.
+      info.paths = [];
+      if (needSaveIndexFile) {
 
-      if(needSaveIndexFile) {
+        // calculate path
+        info.paths.push(storageInfo.infoFileName);
+        const {mainPath, paths} = Task.getRelativePath(
+          _tasks, storageInfo.infoFileFolder);
+        info.mainPath = mainPath;
+        info.paths.push(...paths);
+
         const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
         _tasks.unshift(Task.createInfoTask(filename, info))
       }
@@ -95,7 +99,8 @@
         body: clipping
       });
 
-      saveClippingHistory(info, storageInfo);
+      if (needSaveIndexFile)
+        saveClippingHistory(info, storageInfo);
     })
 
   }

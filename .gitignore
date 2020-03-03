@@ -2,6 +2,7 @@
 .vscode
 .ignore/
 node_modules/
+dist/extension/maoxian-web-clipper
 dist/extension/*.zip
 dist/extension/*.xpi
 dist/native-app/*.zip

@@ -42,7 +42,6 @@
           /** the path to place index.html and assetFolder */
           mainFileFolder: clipId,
           mainFileName: mainFilename,
-          infoFileFolder: clipId + "/index_files",
           /** the path to place frame files */
           frameFileFolder: clipId + "/index_files",
           /** the path to place asset files */
@@ -67,6 +66,8 @@
           info: info,
           storageInfo: storageInfo,
           input: inputHistory,
+          /* We don't need to save index.json, so we don't need infoFileFolder
+             and infoFileName too. */
           needSaveIndexFile: false,
           needSaveTitleFile: false
       }
