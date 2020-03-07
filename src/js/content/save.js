@@ -84,6 +84,12 @@
 
         const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
         _tasks.unshift(Task.createInfoTask(filename, info))
+      } else {
+        let _filtered = _tasks.filter(it => it.taskType === 'mainFileTask')
+        if (_filtered.length != 1)
+          throw Error("Can not find unique mainFileTask");
+        let mainFileTask = _filtered[0];
+        info.mainPath = T.calcPath(storageInfo.mainFileFolder, mainFileTask.filename);
       }
 
       const clipping = {
