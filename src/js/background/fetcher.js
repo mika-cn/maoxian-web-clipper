@@ -99,6 +99,8 @@
   }
 
 
+  // Forbidden header name (cannot be modified programmatically)
+  // see https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name.html
   // see js/background/web-request.js UnescapeHeader for more details.
   function escapeHeaders(headers) {
     const forbidden = ['Referer', 'Origin'];
