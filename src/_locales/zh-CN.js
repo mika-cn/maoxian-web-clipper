@@ -362,6 +362,7 @@
     //=====================================
     // last clipping result page (lcr)
     //=====================================
+    "lcr.label.original-url": "网页网址",
     "lcr.label.file": "文件：",
     "lcr.label.err-msg": "错误信息：",
     "lcr.notice.not-clipping-result": "无内容可查看",

@@ -365,6 +365,7 @@
     //=====================================
     // last clipping result page (lcr)
     //=====================================
+    "lcr.label.original-url": "Original URL",
     "lcr.label.file": "File: ",
     "lcr.label.err-msg": "ErrorMessage: ",
     "lcr.notice.not-clipping-result": "Last clipping result is empty",
