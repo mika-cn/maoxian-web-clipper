@@ -16,16 +16,41 @@ module.exports = {
       {
         test: manifest_filename,
         use: [
-          'extricate-loader',
+          'extract-loader',
           'interpolate-loader'
         ]
       },
+      {
+        test: /\.html$/,
+        use: [
+          'file-loader',
+          'extract-loader',
+          {
+            loader: 'html-loader',
+            options: {
+              attrs: [
+                'link:href',
+                //'script:src',
+                'img:src'
+              ]
+            }
+          }
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'file-loader',
+          'extract-loader',
+          'css-loader',
+        ]
+      }
     ]
   },
   plugins: [
     // This is required to use manifest.json as the entry point.
     new InertEntryPlugin(),
     // Clean dist/extension/maoxian-web-clipper in every build.
-    new CleanWebpackPlugin(),
+    new CleanWebpackPlugin()
   ],
 }
