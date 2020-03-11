@@ -3,6 +3,8 @@ const webpack = require('webpack');
 const InertEntryPlugin = require('inert-entry-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
+const ASSET_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'eot', 'otf', 'svg', 'ttf', 'woff', 'woff2'];
+
 const manifest_filename = path.join(__dirname, "src", "manifest.json")
 
 module.exports = {
@@ -23,7 +25,10 @@ module.exports = {
       {
         test: /\.html$/,
         use: [
-          'file-loader',
+          {
+            loader: 'file-loader',
+            options: { name: '[name].[ext]' }
+          },
           'extract-loader',
           {
             loader: 'html-loader',
@@ -44,7 +49,16 @@ module.exports = {
           'extract-loader',
           'css-loader',
         ]
-      }
+      },
+      {
+        test: new RegExp('\.(' + ASSET_EXTENSIONS.join('|') + ')$'),
+        use: {
+          loader: 'file-loader',
+          options: {
+            outputPath: 'assets/'
+          }
+        }
+      },
     ]
   },
   plugins: [
