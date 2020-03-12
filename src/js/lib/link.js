@@ -97,7 +97,7 @@
   }
 
   function getExtensionPagePath(name){
-    return `/pages/${name}.html`;
+    return `/${name}.html`;
   }
 
   function isChrome(){

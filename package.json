@@ -4,13 +4,16 @@
   "description": "A web extension to clip information from web page. Save it to your local machine to avoid information invalidation. Not bored registration, Not charged.",
   "main": "",
   "scripts": {
+    "build": "webpack",
     "test": "MX_WC_TESTING=yes mocha --recursive"
   },
   "author": "Mika",
   "license": "MIT",
   "devDependencies": {
+    "@altairwei/collect-loader": "^3.1.0",
     "blueimp-md5": "^2.11.0",
     "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.4.2",
     "extract-loader": "^5.0.1",
     "file-loader": "^5.1.0",
@@ -18,6 +21,7 @@
     "inert-entry-webpack-plugin": "^4.0.2",
     "interpolate-loader": "^2.0.1",
     "jsdom": "^15.1.1",
+    "loader-runner": "^3.1.0",
     "mocha": "^6.2.0",
     "prop-loader": "^1.0.0",
     "raw-loader": "^4.0.0",
