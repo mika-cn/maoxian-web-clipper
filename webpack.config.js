@@ -3,16 +3,24 @@ const webpack = require('webpack');
 const InertEntryPlugin = require('inert-entry-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ExtensionReloader  = require('webpack-extension-reloader');
 
 const ASSET_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'eot', 'otf', 'svg', 'ttf', 'woff', 'woff2'];
 
 const manifest_filename = path.join(__dirname, "src", "manifest.json")
 const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipper")
 
-module.exports = {
-  entry: manifest_filename,
+config = {
+  mode: process.env.NODE_ENV || "development",
+  entry: {
+    manifest: manifest_filename
+  },
   output: {
-    filename: "manifest.json",
+    filename: (chunkData) => {
+      if (chunkData.chunk.name == "manifest") {
+        return "manifest.json";
+      }
+    },
     path: dist_folder
   },
   module: {
@@ -53,7 +61,7 @@ module.exports = {
       {
         test: /\.js$/,
         use: [
-          'file-loader?name=[name]-[hash].[ext]&outputPath=js',
+          'file-loader?name=[name]-[hash:8].[ext]&outputPath=js',
           'extract-loader',
           'raw-loader'
         ]
@@ -69,7 +77,7 @@ module.exports = {
   plugins: [
     // This is required to use manifest.json as the entry point.
     new InertEntryPlugin(),
-    // Clean dist/extension/maoxian-web-clipper in every build.
+    // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),
     new CopyPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
@@ -77,3 +85,5 @@ module.exports = {
     ])
   ],
 }
+
+module.exports = config
