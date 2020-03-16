@@ -97,6 +97,7 @@
     //=====================================
     "setting.warning": "警告",
     "setting.version": "当前版本：",
+    "setting.ruby-version": "Ruby 版本：",
 
     // errors
     "error.handler.not-enabled": "处理程序未启用",

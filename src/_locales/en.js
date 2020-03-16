@@ -96,7 +96,8 @@
     // setting page
     //=====================================
     "setting.warning": "Warning",
-    "setting.version": "Current version: ",
+    "setting.version": "Current Version: ",
+    "setting.ruby-version": "Ruby Version: ",
 
     // errors
     "error.handler.not-enabled": "Handler is disabled",

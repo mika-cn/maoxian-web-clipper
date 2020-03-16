@@ -3,19 +3,20 @@ require 'net/http'
 require 'open-uri'
 require 'fileutils'
 require 'base64'
-require_relative './log'
-require_relative './native_message'
-require_relative './clipping'
-require_relative './history'
+require_relative 'app_env'
+require_relative 'log'
+require_relative 'native_message'
+require_relative 'clipping'
+require_relative 'history'
 
 class Application
-  VERSION = '0.2.2'
 
   attr_accessor :config
 
   def initialize(config)
     config.data_dir = File.join(config.data_dir, '/')
     @config = config
+    @ruby_version_gteq_2_7_0 = AppEnv.ruby_version_gteq?('2.7.0')
   end
 
   def start
@@ -37,7 +38,7 @@ class Application
     when 'download.text' then download_text(msg)
     when 'download.url' then download_url(msg)
     when 'get.version' then
-      NativeMessage.write({type: msg['type'], version: VERSION})
+      NativeMessage.write({type: msg['type'], version: AppEnv::APP_VERSION, rubyVersion: AppEnv::RUBY_VERSION})
     when 'get.downloadFolder' then
       NativeMessage.write({type: msg['type'], downloadFolder: root})
     when 'clipping.op.delete' then
@@ -90,7 +91,11 @@ class Application
           options[:proxy] = config.proxy_url
         end
         Log.debug(options.inspect)
-        content = open(msg['url'], options).read
+        if @ruby_version_gteq_2_7_0
+          content = URI.open(msg['url'], options).read
+        else
+          content = open(msg['url'], options).read
+        end
       end
       File.open(filename, 'wb') {|file| file.write content}
       respond_download_success(msg, filename)
@@ -156,6 +161,7 @@ class Application
       throw "ConvertError: unknow encode: #{encode}"
     end
   end
+
 
 end
 
