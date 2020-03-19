@@ -3,7 +3,10 @@ const webpack = require('webpack');
 const InertEntryPlugin = require('inert-entry-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const ExtensionReloader  = require('webpack-extension-reloader');
+const RemovePlugin = require('remove-files-webpack-plugin');
+const ZipPlugin = require('zip-webpack-plugin');
+
+const pkg = require('./package.json')
 
 const ASSET_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'eot', 'otf', 'svg', 'ttf', 'woff', 'woff2'];
 
@@ -84,6 +87,28 @@ config = {
       { from: 'src/_locales/zh-CN', to: path.join(dist_folder, '_locales/zh-CN') },
     ])
   ],
+}
+
+if (process.env.NODE_ENV == "production") {
+  const zipfile = `${pkg.name}-${pkg.version}.zip`
+  config.plugins.push(
+    // Remove last zip files
+    new RemovePlugin({
+      before: {
+        root: path.resolve('dist', 'extension'),
+        include: [
+          zipfile
+        ]
+      }
+    }),
+    // Compress dist/extension/maoxian-web-clipper
+    // Both .xpi and .crx are zip file, so we only need to create one file
+    new ZipPlugin({
+      // Relative to Webpack output path
+      path: '../',
+      filename: zipfile,
+    })
+  )
 }
 
 module.exports = config
