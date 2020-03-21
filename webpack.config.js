@@ -18,14 +18,15 @@ const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipp
 config = {
   mode: process.env.NODE_ENV || "development",
   entry: {
-    manifest: manifest_filename,
-    background: path.join(__dirname, "src", "js", "background.js"),
-    popup: path.join(pages_folder, "popup.js"),
-    history: path.join(pages_folder, "history.js"),
-    home: path.join(pages_folder, "home.js"),
+    'manifest': manifest_filename,
+    'background': path.join(__dirname, "src", "js", "background.js"),
+    'popup': path.join(pages_folder, "popup.js"),
+    'history': path.join(pages_folder, "history.js"),
+    'home': path.join(pages_folder, "home.js"),
     'last-clipping-result': path.join(pages_folder, "last-clipping-result.js"),
     'plan-subscription': path.join(pages_folder, "plan-subscription.js"),
     'reset-history': path.join(pages_folder, "reset-history.js"),
+    'setting': path.join(pages_folder, "setting.js"),
   },
   output: {
     filename: (chunkData) => {
@@ -82,6 +83,8 @@ config = {
   plugins: [
     // This is required to use manifest.json as the entry point.
     new InertEntryPlugin(),
+    // Clean dist/extension/maoxian-web-clipper before every build.
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(pages_folder, "background.html"),
       filename: "background.html",
@@ -117,8 +120,11 @@ config = {
       filename: "reset-history.html",
       chunks: ["reset-history"]
     }),
-    // Clean dist/extension/maoxian-web-clipper before every build.
-    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      template: path.join(pages_folder, "setting.html"),
+      filename: "setting.html",
+      chunks: ["setting"]
+    }),
     new CopyPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
       { from: 'src/_locales/zh-CN', to: path.join(dist_folder, '_locales/zh-CN') },
