@@ -7,23 +7,25 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const RemovePlugin = require('remove-files-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
 
-const pkg = require('./package.json')
+const pkg = require('./package.json');
 
 const ASSET_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'eot', 'otf', 'svg', 'ttf', 'woff', 'woff2'];
 
-const manifest_filename = path.join(__dirname, "src", "manifest.json")
-const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipper")
+const manifest_filename = path.join(__dirname, "src", "manifest.json");
+const pages_folder = path.join(__dirname, "src", "pages");
+const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 
 config = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     manifest: manifest_filename,
     background: path.join(__dirname, "src", "js", "background.js"),
-    popup: path.join(__dirname, "src", "pages", "popup.js"),
-    history: path.join(__dirname, "src", "pages", "history.js"),
-    home: path.join(__dirname, "src", "pages", "home.js"),
-    'last-clipping-result': path.join(__dirname, "src", "pages", "last-clipping-result.js"),
-    'plan-subscription': path.join(__dirname, "src", "pages", "plan-subscription"),
+    popup: path.join(pages_folder, "popup.js"),
+    history: path.join(pages_folder, "history.js"),
+    home: path.join(pages_folder, "home.js"),
+    'last-clipping-result': path.join(pages_folder, "last-clipping-result.js"),
+    'plan-subscription': path.join(pages_folder, "plan-subscription.js"),
+    'reset-history': path.join(pages_folder, "reset-history.js"),
   },
   output: {
     filename: (chunkData) => {
@@ -81,34 +83,39 @@ config = {
     // This is required to use manifest.json as the entry point.
     new InertEntryPlugin(),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "pages","background.html"),
+      template: path.join(pages_folder, "background.html"),
       filename: "background.html",
       chunks: ["background"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "pages","popup.html"),
+      template: path.join(pages_folder, "popup.html"),
       filename: "popup.html",
       chunks: ["popup"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "pages","history.html"),
+      template: path.join(pages_folder, "history.html"),
       filename: "history.html",
       chunks: ["history"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "pages","home.html"),
+      template: path.join(pages_folder, "home.html"),
       filename: "home.html",
       chunks: ["home"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "pages","last-clipping-result.html"),
+      template: path.join(pages_folder, "last-clipping-result.html"),
       filename: "last-clipping-result.html",
       chunks: ["last-clipping-result"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "pages","plan-subscription.html"),
+      template: path.join(pages_folder, "plan-subscription.html"),
       filename: "plan-subscription.html",
       chunks: ["plan-subscription"]
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(pages_folder, "reset-history.html"),
+      filename: "reset-history.html",
+      chunks: ["reset-history"]
     }),
     // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),

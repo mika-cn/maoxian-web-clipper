@@ -1,15 +1,11 @@
-
-;(function(root, factory) {
-  factory(
-    root.MxWcI18N,
-    root.MxWcTool,
-    root.MxWcExtMsg,
-    root.MxWcConfig,
-    root.MxWcLink
-  );
-
-})(this, function(I18N, T, ExtMsg, MxWcConfig, MxWcLink, undefined) {
   "use strict";
+
+  import I18N from '../js/lib/translation.js';
+  import T from '../js/lib/tool.js';
+  import ExtMsg from '../js/lib/ext-msg.js';
+  import MxWcConfig from '../js/lib/config.js';
+  import MxWcLink from '../js/lib/link.js';
+  import Worker from 'worker-loader!./reset-history-worker.js';
 
   const state = {};
 
@@ -94,9 +90,8 @@
     bindListener();
     ExtMsg.initPage('reset-history');
     MxWcLink.listen(document.body);
-    state.worker = new Worker('reset-history-worker.js');
+    state.worker = new Worker();
     state.worker.onmessage = handlerWorkerMessage;
   }
 
   init();
-});
