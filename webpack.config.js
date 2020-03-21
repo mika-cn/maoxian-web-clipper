@@ -28,6 +28,7 @@ const config = {
     'reset-history': path.join(pages_folder, "reset-history.js"),
     'setting': path.join(pages_folder, "setting.js"),
     'support': path.join(pages_folder, "support.js"),
+    'ui-control': path.join(pages_folder, "ui-control.js"),
   },
   output: {
     filename: (chunkData) => {
@@ -130,6 +131,11 @@ const config = {
       template: path.join(pages_folder, "support.html"),
       filename: "support.html",
       chunks: ["support"]
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(pages_folder, "ui-control.html"),
+      filename: "ui-control.html",
+      chunks: ["ui-control"]
     }),
     new CopyPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },

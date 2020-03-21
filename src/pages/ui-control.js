@@ -1,17 +1,12 @@
-
-;(function(root, factory) {
-  factory(
-    root.MxWcI18N,
-    root.MxWcLog,
-    root.MxWcTool,
-    root.MxWcTemplate,
-    root.MxWcStorage,
-    root.MxWcConfig,
-    root.MxWcFrameMsg,
-  );
-})(this, function(I18N, Log, T, MxWcTemplate, MxWcStorage, MxWcConfig,
-    FrameMsg, undefined) {
   "use strict";
+
+  import I18N from '../js/lib/translation.js';
+  import Log from '../js/lib/log.js';
+  import T from '../js/lib/tool.js';
+  import MxWcTemplate from '../js/lib/template.js';
+  import MxWcStorage from '../js/lib/storage.js';
+  import MxWcConfig from '../js/lib/config.js';
+  import FrameMsg from '../js/lib/frame-msg.js';
 
   const ID = 'mx-wc-iframe-control';
 
@@ -492,4 +487,3 @@
   initFrameMsg();
   listenFrameMsg();
   Log.info('control layer ready..');
-});
