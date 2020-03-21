@@ -1,15 +1,10 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcI18N,
-    root.MxWcTool,
-    root.MxWcExtApi,
-    root.MxWcStorage,
-    root.MxWcConfig,
-  );
-
-})(this, function(I18N, T, ExtApi,
-    MxWcStorage, MxWcConfig, undefined) {
   "use strict";
+
+  import I18N from '../js/lib/translation.js';
+  import T from '../js/lib/tool.js';
+  import ExtApi from '../js/lib/ext-api';
+  import MxWcStorage from '../js/lib/storage.js';
+  import MxWcConfig from '../js/lib/config.js';
 
   const state = {};
 
@@ -80,5 +75,3 @@
   }
 
   render();
-
-});
