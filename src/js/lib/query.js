@@ -1,13 +1,3 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcQuery = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
   /*!
@@ -162,7 +152,7 @@
     });
   }
 
-  return {
+  const Query = {
     findObjByQ: findObjByQ,
     queryObjByQ: queryObjByQ,
     queryObjByFilter: queryObjByFilter,
@@ -170,4 +160,4 @@
     combineFilter: combineFilter,
   }
 
-});
+  export default Query;

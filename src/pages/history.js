@@ -1,21 +1,16 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcTool,
-    root.MxWcLog,
-    root.MxWcI18N,
-    root.MxWcExtApi,
-    root.MxWcExtMsg,
-    root.MxWcStorage,
-    root.MxWcConfig,
-    root.MxWcLink,
-    root.MxWcQuery,
-    root.MxWcNotify,
-    root.MxWcHandler
-  );
-
-})(this, function(T, Log, I18N, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcLink, Query, Notify, MxWcHandler, undefined) {
   "use strict";
+
+  import T from '../js/lib/tool.js';
+  import Log from '../js/lib/log.js';
+  import I18N from '../js/lib/translation.js';
+  import ExtApi from '../js/lib/ext-api.js';
+  import ExtMsg from '../js/lib/ext-msg.js';
+  import MxWcStorage from '../js/lib/storage.js';
+  import MxWcConfig from '../js/lib/config.js';
+  import MxWcLink from '../js/lib/link.js';
+  import Query from '../js/lib/query.js';
+  import Notify from '../js/lib/notify.js';
+  import MxWcHandler from '../js/lib/handler.js';
 
   const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
@@ -631,4 +626,3 @@
   }
 
   init();
-});
