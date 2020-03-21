@@ -15,7 +15,7 @@ const manifest_filename = path.join(__dirname, "src", "manifest.json");
 const pages_folder = path.join(__dirname, "src", "pages");
 const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 
-config = {
+const config = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     'manifest': manifest_filename,
@@ -27,6 +27,7 @@ config = {
     'plan-subscription': path.join(pages_folder, "plan-subscription.js"),
     'reset-history': path.join(pages_folder, "reset-history.js"),
     'setting': path.join(pages_folder, "setting.js"),
+    'support': path.join(pages_folder, "support.js"),
   },
   output: {
     filename: (chunkData) => {
@@ -124,6 +125,11 @@ config = {
       template: path.join(pages_folder, "setting.html"),
       filename: "setting.html",
       chunks: ["setting"]
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(pages_folder, "support.html"),
+      filename: "support.html",
+      chunks: ["support"]
     }),
     new CopyPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
