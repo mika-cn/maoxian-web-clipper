@@ -30,6 +30,7 @@ const config = {
     'support': path.join(pages_folder, "support.js"),
     'ui-control': path.join(pages_folder, "ui-control.js"),
     'ui-selection': path.join(pages_folder, "ui-selection.js"),
+    'welcome': path.join(pages_folder, "welcome.js"),
   },
   output: {
     filename: (chunkData) => {
@@ -142,6 +143,11 @@ const config = {
       template: path.join(pages_folder, "ui-selection.html"),
       filename: "ui-selection.html",
       chunks: ["ui-selection"]
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(pages_folder, "welcome.html"),
+      filename: "welcome.html",
+      chunks: ["welcome"]
     }),
     new CopyPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },

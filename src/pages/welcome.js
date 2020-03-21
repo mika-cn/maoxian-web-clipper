@@ -1,13 +1,10 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcENV,
-    root.MxWcTool,
-    root.MxWcI18N,
-    root.MxWcExtApi,
-    root.MxWcLink,
-  );
-})(this, function(ENV, T, I18N, ExtApi, MxWcLink){
   "use strict";
+
+  import ENV from '../js/env.js';
+  import T from '../js/lib/tool.js';
+  import I18N from '../js/lib/translation.js';
+  import ExtApi from '../js/lib/ext-api.js';
+  import MxWcLink from '../js/lib/link.js';
 
   function initListener(){
     const elems = T.queryElems('.tab-link');
@@ -64,4 +61,3 @@
   }
 
   init();
-});
