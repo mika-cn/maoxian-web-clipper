@@ -1,14 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('./storage.js'));
-  } else {
-    // browser or other
-    root.MxWcConfig = factory(root.MxWcStorage);
-  }
-})(this, function(MxWcStorage, undefined) {
-
   "use strict";
+
+  import MxWcStorage from './storage.js';
 
   const state = {};
 
@@ -202,10 +194,11 @@
     });
   }
 
-  return {
+  const Config = {
     load: load,
     update: update,
     reset: reset,
     getDefault: getDefault
   }
-});
+
+  export default Config;

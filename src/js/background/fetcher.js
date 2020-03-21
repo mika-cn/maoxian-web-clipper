@@ -1,17 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('./bg-env.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcFetcher = factory(
-      root.MxWcBgEnv
-    );
-  }
-})(this, function(BgEnv, undefined) {
   "use strict";
+
+  import BgEnv from './bg-env.js';
 
   /*
    * @param {String} url request url
@@ -119,6 +108,6 @@
     return Object.assign({"X-MxWc-Token": BgEnv.requestToken}, headers)
   }
 
-  return {get: get}
+  const Fetcher = {get: get}
 
-});
+  export default Fetcher;

@@ -1,19 +1,10 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcENV = factory();
-  }
-})(this, function(undefined) {
-"use strict";
+  "use strict";
 
   const websiteRoot = "http://dev.pc:3000/maoxian-web-clipper";
   const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
   const mxAssistantRoot = [websiteRoot, 'tmp/assistant'].join('/');
 
-  return {
+  const env = {
     logLevel: "debug",
     version: '0.1.54',
     minNativeAppVersion: '0.2.2',
@@ -21,4 +12,5 @@
     projectRoot: projectRoot,
     mxAssistantRoot: mxAssistantRoot,
   };
-});
+
+  export default env;

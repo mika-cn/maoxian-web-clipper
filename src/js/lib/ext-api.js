@@ -1,12 +1,3 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcExtApi = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
   // Web-Extension Api
@@ -168,5 +159,4 @@
     browser.downloads.onChanged.addListener(listener);
   }
 
-  return ExtApi;
-});
+  export default ExtApi;

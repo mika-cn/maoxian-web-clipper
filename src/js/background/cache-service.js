@@ -1,12 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('../lib/tool.js'));
-  } else {
-    // browser or other
-    root.MxWcCacheService = factory(root.MxWcTool);
-  }
-})(this, function(T) {
+  "use strict";
+
+  import T from '../lib/tool.js';
 
   const cache = T.createDict();
 
@@ -42,9 +36,9 @@
     cache.removeByKeyPrefix(keyPrefix);
   }
 
-  return {
+  const CacheService = {
     findOrCache: findOrCache,
     removeByKeyPrefix: removeByKeyPrefix,
   }
 
-});
+  export default CacheService;

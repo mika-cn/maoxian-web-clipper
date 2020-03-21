@@ -1,12 +1,3 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcStorage = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
   function set(k, v){
@@ -43,11 +34,12 @@
     });
   }
 
-  return {
+  const Storage = {
     type: 'local',
     get: get,
     set: set,
     remove: remove,
     clear: clear,
   };
-});
+
+  export default Storage;

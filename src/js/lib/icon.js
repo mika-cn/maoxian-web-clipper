@@ -1,13 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('./ext-api.js'));
-  } else {
-    // browser or other
-    root.MxWcIcon = factory(root.MxWcExtApi);
-  }
-})(this, function(ExtApi, undefined) {
   "use strict";
+
+  import ExtApi from './ext-api.js';
 
   const MxWcIcon = {};
 
@@ -56,5 +49,4 @@
     img.src = url;
   }
 
-  return MxWcIcon;
-});
+  export default MxWcIcon;

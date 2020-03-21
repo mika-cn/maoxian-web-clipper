@@ -1,29 +1,12 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      requite('./fuzzy-matcher.js'),
-      require('../env.js'),
-      require('../lib/log.js'),
-      require('../lib/tool.js'),
-      require('../lib/config.js'),
-      require('../lib/storage.js'),
-      require('../background/fetcher.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcPlanRepository = factory(
-      root.FuzzyMatcher,
-      root.MxWcENV,
-      root.MxWcLog,
-      root.MxWcTool,
-      root.MxWcConfig,
-      root.MxWcStorage,
-      root.MxWcFetcher,
-    );
-  }
-})(this, function(FuzzyMatcher, ENV, Log, T, Config, Storage, Fetcher, undefined) {
   "use strict";
+
+  import FuzzyMatcher from './fuzzy-matcher.js';
+  import ENV from '../env.js';
+  import Log from '../lib/log.js';
+  import T from '../lib/tool.js';
+  import Config from '../lib/config.js';
+  import Storage from '../lib/storage.js';
+  import Fetcher from '../background/fetcher.js';
 
   /**!
    * Storage keys:
@@ -226,5 +209,5 @@
     });
   }
 
-  return { init, get, updatePublicPlans, updateCustomPlans }
-});
+  const PlanRepository = { init, get, updatePublicPlans, updateCustomPlans }
+  export default PlanRepository;

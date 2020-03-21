@@ -1,4 +1,5 @@
-(function() {
+  "use strict";
+
   var Translator, i18n, translator,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -224,6 +225,4 @@
     return trans.translate;
   };
 
-  (typeof module !== "undefined" && module !== null ? module.exports = i18n : void 0) || (this.i18n = i18n);
-
-}).call(this);
+  export default i18n;

@@ -32,7 +32,7 @@
     "nativeMessaging"
   ],
   "background": {
-    "page": "{{./pages/background.html}}"
+    "page": "background.html"
   },
   "content_scripts": [
     {

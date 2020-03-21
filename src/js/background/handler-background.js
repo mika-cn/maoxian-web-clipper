@@ -1,31 +1,12 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/log.js'),
-      require('../lib/config.js'),
-      require('../lib/handler.js'),
-      require('./clipping-handler-browser.js'),
-      require('./clipping-handler-native-app.js'),
-      require('./clipping-handler-wiznoteplus.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcHandlerBackground = factory(
-      root.MxWcLog,
-      root.MxWcConfig,
-      root.MxWcHandler,
-      root.MxWcClippingHandler_Browser,
-      root.MxWcClippingHandler_NativeApp,
-      root.MxWcClippingHandler_WizNotePlus
-    );
-  }
-})(this, function(Log, MxWcConfig, MxWcHandler,
-    ClippingHandler_Browser,
-    ClippingHandler_NativeApp,
-    ClippingHandler_WizNotePlus,
-    undefined) {
   "use strict";
+
+  import Log from '../lib/log.js';
+  import MxWcConfig from '../lib/config.js';
+  import MxWcHandler from '../lib/handler.js';
+  import ClippingHandler_Browser from './clipping-handler-browser.js';
+  import ClippingHandler_NativeApp from './clipping-handler-native-app.js';
+  import ClippingHandler_WizNotePlus from './clipping-handler-wiznoteplus.js';
+
 
   function initialize() {
     MxWcConfig.load().then((config) => {
@@ -76,10 +57,10 @@
   }
 
 
-  return {
+  const HandlerBackground = {
     get: get,
     isReady: isReady,
     initialize: initialize,
   }
 
-});
+  export default HandlerBackground;

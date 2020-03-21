@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const InertEntryPlugin = require('inert-entry-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin")
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const RemovePlugin = require('remove-files-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
@@ -16,7 +17,8 @@ const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipp
 config = {
   mode: process.env.NODE_ENV || "development",
   entry: {
-    manifest: manifest_filename
+    manifest: manifest_filename,
+    background: path.join(__dirname, "src", "js", "background.js")
   },
   output: {
     filename: (chunkData) => {
@@ -80,12 +82,20 @@ config = {
   plugins: [
     // This is required to use manifest.json as the entry point.
     new InertEntryPlugin(),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "pages","background.html"),
+      filename: "background.html",
+      chunks: ["background"]
+    }),
     // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),
     new CopyPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
       { from: 'src/_locales/zh-CN', to: path.join(dist_folder, '_locales/zh-CN') },
-    ])
+    ]),
+    new webpack.ProvidePlugin({
+      browser: 'webextension-polyfill'
+    }),
   ],
 }
 

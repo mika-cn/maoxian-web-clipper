@@ -1,24 +1,9 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../env.js'),
-      require('../lib/tool.js'),
-      require('../lib/storage.js'),
-      require('../lib/config.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcMigration = factory(
-      root.MxWcENV,
-      root.MxWcTool,
-      root.MxWcStorage,
-      root.MxWcConfig
-    );
-  }
-})(this, function(ENV, T, MxWcStorage, MxWcConfig, undefined) {
   "use strict";
+
+  import ENV from '../env.js';
+  import T from '../lib/tool.js';
+  import MxWcStorage from '../lib/storage.js';
+  import MxWcConfig from '../lib/config.js';
 
   function perform() {
     migrateV0134();
@@ -201,6 +186,6 @@
     });
   }
 
-  return { perform: perform }
+  const Migration = { perform: perform }
 
-});
+  export default Migration;

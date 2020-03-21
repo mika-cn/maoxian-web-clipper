@@ -1,23 +1,9 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/log.js'),
-      require('../lib/tool.js'),
-      require('../lib/ext-msg.js'),
-      require('./bg-env.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcWebRequest = factory(
-      root.MxWcLog,
-      root.MxWcTool,
-      root.MxWcExtMsg,
-      root.MxWcBgEnv
-    );
-  }
-})(this, function(Log, T, ExtMsg, BgEnv, undefined) {
   "use strict";
+
+  import Log from '../lib/log.js';
+  import T from '../lib/tool.js';
+  import ExtMsg from '../lib/ext-msg.js';
+  import BgEnv from './bg-env.js';
 
   const StoreMimeType = (function() {
     let state = {};
@@ -321,11 +307,12 @@
   }
 
 
-  return {
+  const WebRequest = {
     listen: listen,
     getMimeTypeDict: getMimeTypeDict,
     // test only
     StoreMimeType: StoreMimeType,
     UnescapeHeader: UnescapeHeader,
   }
-});
+
+  export default WebRequest;

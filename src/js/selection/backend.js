@@ -1,20 +1,7 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/storage.js'),
-      require('./store.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcSelectionBackend = factory(
-      root.MxWcStorage,
-      root.MxWcSelectionStore
-    );
-  }
-})(this, function(MxWcStorage, SelectionStore, undefined) {
   "use strict";
+
+  import MxWcStorage from '../lib/storage.js';
+  import SelectionStore from './store.js';
 
   // host => store
   const StoreDict = {};
@@ -49,8 +36,9 @@
     return ['selectionStore', host].join('.');
   }
 
-  return {
+  const SelectionBackend = {
     save: save,
     query: query
   }
-});
+
+  export default SelectionBackend;

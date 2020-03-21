@@ -1,24 +1,9 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('./tool.js'),
-      require('./ext-api.js'),
-      require('./config.js'),
-      require('./translation.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcHandler = factory(
-      root.MxWcTool,
-      root.MxWcExtMsg,
-      root.MxWcConfig,
-      root.MxWcI18N
-    );
-  }
-})(this, function(T, ExtMsg, MxWcConfig, I18N, undefined) {
   "use strict";
+
+  import T from './tool.js';
+  import ExtMsg from './ext-msg.js';
+  import MxWcConfig from './config.js';
+  import I18N from './translation.js';
 
   /*
    * @param {string} exp: expression
@@ -104,7 +89,8 @@
     return { ok: false, message: message }
   }
 
-  return {
+  const Handler = {
     isReady: isReady,
   }
-});
+
+  export default Handler;

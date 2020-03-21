@@ -1,28 +1,11 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('../lib/ext-api.js'),
-      require('../lib/log.js'),
-      require('../lib/storage.js'),
-      require('./saving-tool.js'),
-      require('./fetcher.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcClippingHandler_Browser = factory(
-      root.MxWcTool,
-      root.MxWcLog,
-      root.MxWcExtApi,
-      root.MxWcStorage,
-      root.MxWcSavingTool,
-      root.MxWcFetcher
-    );
-  }
-})(this, function(T, Log, ExtApi, MxWcStorage, SavingTool, Fetcher, undefined) {
   "use strict";
 
+  import T from '../lib/tool.js';
+  import Log from '../lib/log.js';
+  import ExtApi from '../lib/ext-api.js';
+  import MxWcStorage from '../lib/storage.js';
+  import SavingTool from './saving-tool.js';
+  import Fetcher from './fetcher.js';
 
   const state = {
     isListening: false,
@@ -247,7 +230,7 @@
   }
 
 
-  return {
+  const ClippingHandler_Browser = {
     name: 'Browser',
     getInfo: getInfo,
     saveClipping: saveClipping,
@@ -255,4 +238,5 @@
     handleClippingResult: handleClippingResult,
     initDownloadFolder: initDownloadFolder
   }
-});
+
+  export default ClippingHandler_Browser;

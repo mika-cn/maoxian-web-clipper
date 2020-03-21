@@ -1,13 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('../lib/tool.js'));
-  } else {
-    // browser or other
-    root.MxWcSavingTool = factory(root.MxWcTool);
-  }
-})(this, function(T, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
 
   const clipIdDict = T.createDict(); // taskFilename => clipId
   const clippingDict = T.createDict(); // clipId => clipping
@@ -156,10 +149,10 @@
     return [finished, clipping.tasks.length];
   }
 
-  return {
+  const SavingTool = {
     startSaving: startSaving,
     taskFailed: taskFailed,
     taskCompleted: taskCompleted
   }
 
-});
+  export default SavingTool;

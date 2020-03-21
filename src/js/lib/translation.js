@@ -1,23 +1,9 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../../vendor/js/i18n.js'),
-      require('../../_locales/en.js'),
-      require('../../_locales/zh-CN.js'),
-      require('./ext-api.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcI18N = factory(
-      root.i18n,
-      root.MxWcLocaleEn,
-      root.MxWcLocaleZhCN,
-      root.MxWcExtApi
-    );
-  }
-})(this, function(i18n, en, zhCN, ExtApi, undefined) {
   "use strict";
+
+  import i18n from '../../vendor/js/i18n.js';
+  import en from '../../_locales/en.js';
+  import zhCN from '../../_locales/zh-CN.js';
+  import ExtApi from './ext-api.js';
 
   const I18N_DICT = {'en': en, 'zh-CN': zhCN};
 
@@ -83,8 +69,9 @@
   init();
 
 
-  return {
+  const I18N = {
     t: translate,
     i18nPage: i18nPage
   };
-});
+
+  export default I18N;

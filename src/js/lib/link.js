@@ -1,21 +1,8 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../env.js'),
-      require('./ext-api.js'),
-      require('./ext-msg.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcLink = factory(
-      root.MxWcENV,
-      root.MxWcExtApi,
-      root.MxWcExtMsg
-    );
-  }
-})(this, function(ENV, ExtApi, ExtMsg, undefined) {
   "use strict";
+
+  import ENV from '../env.js';
+  import ExtApi from './ext-api.js';
+  import ExtMsg from './ext-msg.js';
 
   const extensionRoot = ExtApi.getURL('/');
   const extensionId = extensionRoot.split('//')[1].replace('/', '');
@@ -135,7 +122,7 @@
   }
 
 
-  return {
+  const Link = {
     get: get,
     extensionRoot: extensionRoot,
     extensionId: extensionId,
@@ -144,4 +131,5 @@
     isFirefox: isFirefox,
     listen: listen
   }
-});
+
+  export default Link;

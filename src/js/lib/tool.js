@@ -1,13 +1,7 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('blueimp-md5'));
-  } else {
-    // browser or other
-    root.MxWcTool = factory(root.md5);
-  }
-})(this, function(md5, undefined) {
   "use strict";
+
+  import md5 from 'blueimp-md5';
+
   // Tool
   const T = {};
 
@@ -989,5 +983,4 @@
     });
   }
 
-  return T;
-});
+  export default T;
