@@ -7,6 +7,10 @@
   import MxWcStorage from '../js/lib/storage.js';
   import MxWcConfig from '../js/lib/config.js';
   import FrameMsg from '../js/lib/frame-msg.js';
+  import Awesomplete from 'awesomplete';
+  import 'awesomplete/awesomplete.css';
+
+  import './ui-control.css';
 
   const ID = 'mx-wc-iframe-control';
 
@@ -480,7 +484,7 @@
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1408996
   // save reference
   const Lib = {
-    Awesomplete: window.Awesomplete
+    Awesomplete: Awesomplete
   }
 
   initUI();

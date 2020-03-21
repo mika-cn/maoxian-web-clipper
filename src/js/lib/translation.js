@@ -1,6 +1,6 @@
   "use strict";
 
-  import i18n from '../../vendor/js/i18n.js';
+  import i18n from 'roddeh-i18n';
   import en from '../../_locales/en.js';
   import zhCN from '../../_locales/zh-CN.js';
   import ExtApi from './ext-api.js';

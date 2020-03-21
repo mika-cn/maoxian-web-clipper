@@ -15,6 +15,8 @@
   import CapturerIframe from '../capturer/iframe.js';
 
   // require turndownservice
+  import TurndownService from 'turndown';
+  import turndownPluginGfm from 'turndown-plugin-gfm';
 
   /*
    * @param {Object} params

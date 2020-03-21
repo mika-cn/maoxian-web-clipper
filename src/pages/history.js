@@ -11,6 +11,12 @@
   import Query from '../js/lib/query.js';
   import Notify from '../js/lib/notify.js';
   import MxWcHandler from '../js/lib/handler.js';
+  import getPikadayI18n from '../_locales/pikaday.i18n.js';
+
+  import Awesomplete from 'awesomplete';
+  import 'awesomplete/awesomplete.css';
+  import Pikaday from 'pikaday';
+  import 'pikaday/css/pikaday.css';
 
   const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
@@ -325,7 +331,7 @@
     search.value = await cacheGet('search.keyword', '');
 
     //created_at
-    const i18n = Pikaday.getI18n(ExtApi.locale);
+    const i18n = getPikadayI18n(ExtApi.locale);
     const pickerA = new Pikaday({
       field: T.findElem('created-at-from'),
       i18n: i18n,

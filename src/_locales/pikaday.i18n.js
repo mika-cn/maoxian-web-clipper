@@ -1,4 +1,4 @@
-Pikaday.getI18n = function(locale) {
+export default function(locale) {
   let i18n = {
     previousMonth : 'Previous Month',
     nextMonth     : 'Next Month',

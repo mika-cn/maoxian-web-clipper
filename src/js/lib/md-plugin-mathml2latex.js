@@ -1,5 +1,7 @@
   "use strict";
 
+  import MathML2LaTeX from '../../vendor/js/mathml2latex.js';
+
   function handle(doc, elem) {
     if(elem.tagName.toUpperCase() === 'MATH') {
       const newNode = toLaTeXNode(doc, elem);
