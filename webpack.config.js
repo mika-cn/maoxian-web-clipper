@@ -18,12 +18,15 @@ config = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     manifest: manifest_filename,
-    background: path.join(__dirname, "src", "js", "background.js")
+    background: path.join(__dirname, "src", "js", "background.js"),
+    popup: path.join(__dirname, "src", "pages", "popup.js")
   },
   output: {
     filename: (chunkData) => {
       if (chunkData.chunk.name == "manifest") {
         return "manifest.json";
+      } else {
+        return "[name].[contenthash:8].js"
       }
     },
     path: dist_folder
@@ -41,14 +44,13 @@ config = {
         test: /\.html$/,
         use: [
           'file-loader?name=[name].[ext]',
-          '@altairwei/collect-loader',
+          'extract-loader',
           {
             loader: 'html-loader',
             options: {
               esModule: true,
               attrs: [
                 'link:href',
-                'script:src',
                 'img:src'
               ]
             }
@@ -61,14 +63,6 @@ config = {
           'file-loader?outputPath=css',
           'extract-loader',
           'css-loader',
-        ]
-      },
-      {
-        test: /\.js$/,
-        use: [
-          'file-loader?name=[name]-[hash:8].[ext]&outputPath=js',
-          'extract-loader',
-          'raw-loader'
         ]
       },
       {
@@ -86,6 +80,11 @@ config = {
       template: path.join(__dirname, "src", "pages","background.html"),
       filename: "background.html",
       chunks: ["background"]
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "pages","popup.html"),
+      filename: "popup.html",
+      chunks: ["popup"]
     }),
     // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),
