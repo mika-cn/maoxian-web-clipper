@@ -1,15 +1,11 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcENV,
-    root.MxWcLog,
-    root.MxWcTool,
-    root.MxWcI18N,
-    root.MxWcConfig,
-    root.MxWcLink
-  );
-
-})(this, function(ENV, Log, T, I18N, MxWcConfig, MxWcLink, undefined) {
   "use strict";
+
+  import ENV from '../js/env.js';
+  import Log from '../js/lib/log.js';
+  import T from '../js/lib/tool.js';
+  import I18N from '../js/lib/translation.js';
+  import MxWcConfig from '../js/lib/config.js';
+  import MxWcLink from '../js/lib/link.js';
 
   function renderVersion(){
     T.setHtml(".version", ENV.version);
@@ -67,4 +63,3 @@
   }
 
   init();
-});

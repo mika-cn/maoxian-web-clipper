@@ -21,6 +21,7 @@ config = {
     background: path.join(__dirname, "src", "js", "background.js"),
     popup: path.join(__dirname, "src", "pages", "popup.js"),
     history: path.join(__dirname, "src", "pages", "history.js"),
+    home: path.join(__dirname, "src", "pages", "home.js"),
   },
   output: {
     filename: (chunkData) => {
@@ -91,6 +92,11 @@ config = {
       template: path.join(__dirname, "src", "pages","history.html"),
       filename: "history.html",
       chunks: ["history"]
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "src", "pages","home.html"),
+      filename: "home.html",
+      chunks: ["home"]
     }),
     // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),
