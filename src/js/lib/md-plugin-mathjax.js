@@ -1,12 +1,3 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcMdPluginMathjax = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
   function handle(doc, elem) {
@@ -56,8 +47,9 @@
     return markdown.replace(/`MathJaxTeX /mg, '$ ').replace(/ MathJaxTeX`/mg, ' $');
   }
 
-  return {
+  const MdPluginMathjax = {
     handle: handle,
     unEscapeMathJax: unEscapeMathJax
   };
-});
+
+  export default MdPluginMathjax;

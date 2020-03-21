@@ -1,19 +1,7 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('./tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcCapturerPicture = factory(
-      root.MxWcTool,
-      root.MxWcCaptureTool
-    );
-  }
-})(this, function(T, CaptureTool, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
+  import CaptureTool from './tool.js';
 
   /*!
    * Capture Element Picture
@@ -47,5 +35,6 @@
   }
 
 
-  return {capture: capture}
-});
+  const CapturerPicture = {capture: capture}
+
+  export default CapturerPicture;

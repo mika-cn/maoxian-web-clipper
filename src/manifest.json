@@ -37,48 +37,7 @@
   "content_scripts": [
     {
       "js": [
-        "{{./vendor/js/browser-polyfill.js}}",
-        "{{./vendor/js/md5.min.js}}",
-        "{{./vendor/js/mathml2latex.js}}",
-        "{{./vendor/js/turndown.js}}",
-        "{{./vendor/js/turndown-plugin-gfm.js}}",
-        "{{./vendor/js/strip-css-comments.js}}",
-        "{{./vendor/js/i18n.js}}",
-        "{{./_locales/en.js}}",
-        "{{./_locales/zh-CN.js}}",
-        "{{./js/env.js}}",
-        "{{./js/lib/log.js}}",
-        "{{./js/lib/tool.js}}",
-        "{{./js/lib/dom-tool.js}}",
-        "{{./js/lib/ext-api.js}}",
-        "{{./js/lib/ext-msg.js}}",
-        "{{./js/lib/frame-msg.js}}",
-        "{{./js/lib/translation.js}}",
-        "{{./js/lib/template.js}}",
-        "{{./js/lib/link.js}}",
-        "{{./js/lib/storage.js}}",
-        "{{./js/lib/config.js}}",
-        "{{./js/lib/event.js}}",
-        "{{./js/lib/task.js}}",
-        "{{./js/lib/handler.js}}",
-        "{{./js/lib/md-plugin-code.js}}",
-        "{{./js/lib/md-plugin-mathjax.js}}",
-        "{{./js/lib/md-plugin-mathml2latex.js}}",
-        "{{./js/lib/asset.js}}",
-        "{{./js/assistant/plan.js}}",
-        "{{./js/assistant/main.js}}",
-        "{{./js/capturer/tool.js}}",
-        "{{./js/capturer/css.js}}",
-        "{{./js/capturer/a.js}}",
-        "{{./js/capturer/img.js}}",
-        "{{./js/capturer/picture.js}}",
-        "{{./js/capturer/link.js}}",
-        "{{./js/capturer/style.js}}",
-        "{{./js/capturer/iframe.js}}",
-        "{{./js/content/style-helper.js}}",
-        "{{./js/content/save-as-markdown.js}}",
-        "{{./js/content/save-as-html.js}}",
-        "{{./js/content-frame.js}}"
+        "{{spawn-loader!./js/content-frame.js}}"
       ],
       "matches": [
         "http://*/*",
@@ -89,15 +48,7 @@
     },
     {
       "js": [
-        "{{./vendor/js/css-selector-generator.js}}",
-        "{{./js/selection/main.js}}",
-        "{{./js/lib/notify.js}}",
-        "{{./js/content/input-parser-default.js}}",
-        "{{./js/content/input-parser-wiznoteplus.js}}",
-        "{{./js/content/input-parser.js}}",
-        "{{./js/content/save.js}}",
-        "{{./js/content/ui.js}}",
-        "{{./js/content.js}}"
+        "{{spawn-loader!./js/content.js}}"
       ],
       "matches": [
         "http://*/*",
@@ -116,7 +67,7 @@
   "browser_action": {
     "browser_style": true,
     "default_title": "{{prop-loader?name!../package.json}}",
-    "default_popup": "{{./pages/popup.html}}",
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "{{./icons/mx-wc-16.png}}",
       "32": "{{./icons/mx-wc-32.png}}",

@@ -1,19 +1,7 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('./tool.js'),
-      require('blueimp-md5')
-    );
-  } else {
-    // browser or other
-    root.MxWcAsset = factory(
-      root.MxWcTool,
-      root.md5
-    );
-  }
-})(this, function(T, md5, undefined) {
   "use strict";
+
+  import T from './tool.js';
+  import md5 from 'blueimp-md5';
 
   // link http:, https: or data:
   function getNameByLink({link, extension, mimeTypeData, prefix}) {
@@ -144,11 +132,12 @@
     return ext;
   }
 
-  return {
+  const Asset = {
     getNameByLink: getNameByLink,
     getNameByContent: getNameByContent,
     getFilename: getFilename,
     getPath: getPath,
     calcInfo: calcInfo,
   }
-});
+  
+  export default Asset;

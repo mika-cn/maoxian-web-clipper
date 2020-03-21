@@ -1,19 +1,7 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/log.js'),
-      require('../lib/tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcStyleHelper = factory(
-      root.MxWcLog,
-      root.MxWcTool
-    );
-  }
-})(this, function(Log, T, undefined) {
   "use strict";
+
+  import Log from '../lib/log.js';
+  import T from '../lib/tool.js';
 
   function getRenderParams(elem){
     const {
@@ -264,10 +252,10 @@
     return value ? ` ${name}=${value}` : '';
   }
 
-  return {
+  const StyleHelper = {
     getRenderParams: getRenderParams,
     getSelectedNodeStyle: getSelectedNodeStyle,
     getWrapperStyle: getWrapperStyle,
   }
 
-});
+  export default StyleHelper;

@@ -1,31 +1,12 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('../lib/log.js'),
-      require('../lib/ext-msg.js'),
-      require('../lib/task.js'),
-      require('./input-parser.js'),
-      require('./save-as-html.js'),
-      require('./save-as-markdown.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcSave = factory(
-      root.MxWcTool,
-      root.MxWcLog,
-      root.MxWcExtMsg,
-      root.MxWcTask,
-      root.MxWcInputParser,
-      root.MxWcHtml,
-      root.MxWcMarkdown
-    );
-  }
-})(this, function(T, Log, ExtMsg, Task, InputParser,
-    MxWcHtml, MxWcMarkdown, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
+  import Log from '../lib/log.js';
+  import ExtMsg from '../lib/ext-msg.js';
+  import Task from '../lib/task.js';
+  import InputParser from './input-parser.js';
+  import MxWcHtml from './save-as-html.js';
+  import MxWcMarkdown from './save-as-markdown.js';
 
   // inputs => {:format, :title, :category, :tagstr, :elem}
   function save(inputs, config) {
@@ -135,7 +116,8 @@
   }
 
 
-  return {
+  const Save = {
     save: save
   }
-});
+
+  export default Save;

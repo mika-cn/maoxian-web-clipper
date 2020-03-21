@@ -1,22 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    const process = require('process');
-    if (process.env.MX_WC_TESTING) {
-      module.exports = factory;
-    } else {
-      module.exports = factory(
-        require('./css.js')
-      );
-    }
-  } else {
-    // browser or other
-    root.MxWcCapturerStyle = factory(
-      root.MxWcCapturerCss,
-    );
-  }
-})(this, function(CapturerCss, undefined) {
   "use strict";
+
+  import CapturerCss from './css.js';
 
   /*!
    * Capture Element <style>
@@ -41,5 +25,6 @@
   }
 
 
-  return {capture: capture}
-});
+  const CapturerStyle = {capture: capture}
+
+  export default CapturerStyle;

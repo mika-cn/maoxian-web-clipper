@@ -1,32 +1,11 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    const process = require('process');
-    if (process.env.MX_WC_TESTING) {
-      module.exports = factory;
-    } else {
-      module.exports = factory(
-        require('../lib/log.js'),
-        require('../lib/tool.js'),
-        require('../lib/ext-msg.js'),
-        require('../lib/asset.js'),
-        require('../lib/task.js'),
-        require('../lib/template.js')
-      );
-    }
-  } else {
-    // browser or other
-    root.MxWcCapturerIframe = factory(
-      root.MxWcLog,
-      root.MxWcTool,
-      root.MxWcExtMsg,
-      root.MxWcAsset,
-      root.MxWcTask,
-      root.MxWcTemplate,
-    );
-  }
-})(this, function(Log, T, ExtMsg, Asset, Task, Template, undefined) {
   "use strict";
+
+  import Log from '../lib/log.js';
+  import T from '../lib/tool.js';
+  import ExtMsg from '../lib/ext-msg.js';
+  import Asset from '../lib/asset.js';
+  import Task from '../lib/task.js';
+  import Template from '../lib/template.js';
 
   /*!
    * Capture Element Iframe
@@ -166,5 +145,6 @@
   }
 
 
-  return {capture: capture}
-});
+  const CapturerIframe = {capture: capture}
+
+  export default CapturerIframe;

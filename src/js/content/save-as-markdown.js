@@ -1,49 +1,18 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/translation.js'),
-      require('../lib/tool.js'),
-      require('../lib/dom-tool.js'),
-      require('../lib/log.js'),
-      require('../lib/ext-msg.js'),
-      require('../lib/task.js'),
-      require('../lib/md-plugin-code.js'),
-      require('../lib/md-plugin-mathjax.js'),
-      require('../lib/md-plugin-mathml2latex.js'),
-      require('../capturer/tool.js'),
-      require('../capturer/a.js'),
-      require('../capturer/img.js'),
-      require('../capturer/iframe.js'),
-   );
-  } else {
-    // browser or other
-    root.MxWcMarkdown = factory(
-      root.MxWcI18N,
-      root.MxWcTool,
-      root.MxWcDOMTool,
-      root.MxWcLog,
-      root.MxWcExtMsg,
-      root.MxWcTask,
-      root.MxWcMdPluginCode,
-      root.MxWcMdPluginMathjax,
-      root.MxWcMdPluginMathML2LaTeX,
-      root.MxWcCaptureTool,
-      root.MxWcCapturerA,
-      root.MxWcCapturerImg,
-      root.MxWcCapturerIframe,
-    );
-  }
-})(this, function(I18N, T, DOMTool, Log, ExtMsg, Task,
-    MdPluginCode,
-    MdPluginMathJax,
-    MdPluginMathML2LaTeX,
-    CaptureTool,
-    CapturerA,
-    CapturerImg,
-    CapturerIframe,
-    undefined) {
   "use strict";
+
+  import I18N from '../lib/translation.js';
+  import T from '../lib/tool.js';
+  import DOMTool from '../lib/dom-tool.js';
+  import Log from '../lib/log.js';
+  import ExtMsg from '../lib/ext-msg.js';
+  import Task from '../lib/task.js';
+  import MdPluginCode from '../lib/md-plugin-code.js';
+  import MdPluginMathJax from '../lib/md-plugin-mathjax.js';
+  import MdPluginMathML2LaTeX from '../lib/md-plugin-mathml2latex.js';
+  import CaptureTool from '../capturer/tool.js';
+  import CapturerA from '../capturer/a.js';
+  import CapturerImg from '../capturer/img.js';
+  import CapturerIframe from '../capturer/iframe.js';
 
   // require turndownservice
 
@@ -254,8 +223,9 @@
     return service;
   }
 
-  return {
+  const Markdown = {
     parse: parse,
     getElemHtml: getElemHtml
   }
-});
+
+  export default Markdown;

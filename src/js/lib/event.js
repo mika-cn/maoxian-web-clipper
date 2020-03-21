@@ -1,14 +1,6 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('./frame-msg.js'));
-  } else {
-    // browser or other
-    root.MxWcEvent = factory(root.MxWcFrameMsg);
-  }
-})(this, function(FrameMsg, undefined) {
   "use strict";
+
+  import FrameMsg from './frame-msg.js';
 
   /*!
    *
@@ -132,7 +124,7 @@
     }
   }
 
-  return {
+  const MxWcEvent = {
     getType: getType,
     getData: getData,
     broadcastPublic: broadcastPublic,
@@ -144,4 +136,5 @@
     listenInternal: listenInternal,
     listenPublic, listenPublic
   }
-});
+
+  export default MxWcEvent;

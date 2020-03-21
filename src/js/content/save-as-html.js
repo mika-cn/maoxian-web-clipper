@@ -1,53 +1,20 @@
-
-"use strict";
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('../lib/dom-tool.js'),
-      require('../lib/log.js'),
-      require('../lib/ext-msg.js'),
-      require('../lib/task.js'),
-      require('../lib/template.js'),
-      require('../capturer/tool.js'),
-      require('../capturer/a.js'),
-      require('../capturer/img.js'),
-      require('../capturer/css.js'),
-      require('../capturer/style.js'),
-      require('../capturer/link.js'),
-      require('../capturer/iframe.js'),
-      require('./style-helper.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcHtml = factory(
-      root.MxWcTool,
-      root.MxWcDOMTool,
-      root.MxWcLog,
-      root.MxWcExtMsg,
-      root.MxWcTask,
-      root.MxWcTemplate,
-      root.MxWcCaptureTool,
-      root.MxWcCapturerA,
-      root.MxWcCapturerPicture,
-      root.MxWcCapturerImg,
-      root.MxWcCapturerCss,
-      root.MxWcCapturerStyle,
-      root.MxWcCapturerLink,
-      root.MxWcCapturerIframe,
-      root.MxWcStyleHelper
-    );
-  }
-})(this, function(T, DOMTool, Log, ExtMsg, Task, Template, CaptureTool,
-    CapturerA,
-    CapturerPicture,
-    CapturerImg,
-    CapturerCss,
-    CapturerStyle,
-    CapturerLink,
-    CapturerIframe, StyleHelper, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
+  import DOMTool from '../lib/dom-tool.js';
+  import Log from '../lib/log.js';
+  import ExtMsg from '../lib/ext-msg.js';
+  import Task from '../lib/task.js';
+  import Template from '../lib/template.js';
+  import CaptureTool from '../capturer/tool.js';
+  import CapturerA from '../capturer/a.js';
+  import CapturerPicture from '../capturer/picture.js';
+  import CapturerImg from '../capturer/img.js';
+  import CapturerCss from '../capturer/css.js';
+  import CapturerStyle from '../capturer/style.js';
+  import CapturerLink from '../capturer/link.js';
+  import CapturerIframe from '../capturer/iframe.js';
+  import StyleHelper from './style-helper.js';
 
   /*
    * @param {Object} params
@@ -313,8 +280,9 @@
     return outerHtmls.length === 0 ? '' : ['', ...outerHtmls, ''].join('\n');
   }
 
-  return {
+  const Html = {
     parse: parse,
     getElemHtml: getElemHtml
   }
-});
+
+  export default Html;
