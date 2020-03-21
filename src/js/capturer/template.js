@@ -1,13 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcCapturer$Name = factory();
-  }
-})(this, function(T, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
 
   /*!
    * Capture Element $Name
@@ -18,5 +11,6 @@
   }
 
 
-  return {capture: capture}
-});
+  const CapturerTemplate = {capture: capture}
+
+  export default CapturerTemplate;

@@ -1,19 +1,7 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('./input-parser-default.js'),
-      require('./input-parser-wiznoteplus.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcInputParser = factory(
-      root.MxWcInputParser_Default,
-      root.MxWcInputParser_WizNotePlus
-    );
-  }
-})(this, function(Default, WizNotePlus, undefined) {
   "use strict";
+
+  import Default from './input-parser-default.js';
+  import WizNotePlus from './input-parser-wiznoteplus.js';
 
   // params: {format, title, category, tags, domain, link, config}
   function parse(params) {
@@ -28,5 +16,6 @@
     throw new Error('Should not reach here');
   }
 
-  return {parse: parse}
-});
+  const InputParser = {parse: parse}
+
+  export default InputParser;

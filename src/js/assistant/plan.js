@@ -7,16 +7,10 @@
  *     pickAction: 'focus' or 'confirm' or 'clip'
  *   }
  */
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcAssistantPlan = factory(root.MxWcEvent);
-  }
-})(this, function(MxWcEvent, undefined) {
+
   "use strict";
+
+  import MxWcEvent from '../lib/event.js';
 
   let listeners = {};
 
@@ -537,5 +531,4 @@
     setFormInputs: setFormInputs
   }
 
-  return PublicApi;
-});
+  export default PublicApi;
