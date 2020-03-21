@@ -1,12 +1,8 @@
-
-;(function(root, factory) {
-  factory(
-    root.MxWcLog,
-    root.MxWcFrameMsg,
-  );
-
-})(this, function(Log, FrameMsg, undefined) {
   "use strict";
+
+  import Log from '../js/lib/log.js';
+  import FrameMsg from '../js/lib/frame-msg.js';
+
   const ID = 'mx-wc-iframe-selection';
 
   function initFrameMsg(){
@@ -45,5 +41,3 @@
 
   initFrameMsg();
   Log.info('selection layer ready..');
-
-});
