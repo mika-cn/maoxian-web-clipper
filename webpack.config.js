@@ -1,13 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
-const InertEntryPlugin = require('inert-entry-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const RemovePlugin = require('remove-files-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ExtensionReloader  = require('webpack-extension-reloader');
 
 const pkg = require('./package.json');
 
@@ -92,22 +91,22 @@ const config = {
   plugins: [
     // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),
-    new CopyWebpackPlugin([{
-      from: "src/manifest.json",
-      transform: function (content, path) {
-        // generates the manifest file using the package.json informations
-        const manifest = JSON.parse(content.toString())
-        manifest.author = pkg.author;
-        manifest.version = pkg.version;
-        manifest.browser_action.default_title = pkg.name;
-        return Buffer.from(JSON.stringify(manifest));
-      }
-    }]),
-    new CopyPlugin([
+    new CopyWebpackPlugin([
+      {
+        from: "src/manifest.json",
+        transform: function (content, path) {
+          // generates the manifest file using the package.json informations
+          const manifest = JSON.parse(content.toString())
+          manifest.author = pkg.author;
+          manifest.version = pkg.version;
+          manifest.browser_action.default_title = pkg.name;
+          return Buffer.from(JSON.stringify(manifest));
+        }
+      },
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
       { from: 'src/_locales/zh-CN', to: path.join(dist_folder, '_locales/zh-CN') },
       { from: 'src/icons',          to: path.join(dist_folder, 'icons')}
-    ]),
+    ], { copyUnmodified: true }),
     new MiniCssExtractPlugin({
       filename: 'css/[name].[hash].css'
     }),
@@ -141,7 +140,20 @@ if (process.env.NODE_ENV == "production") {
       filename: zipfile,
     })
   );
-
+  //TODO: remove it
+  config.devtool = 'inline-source-map';
+} else if (process.env.NODE_ENV == "development") {
+  config.plugins.push(
+    new ExtensionReloader({
+      port: 9090,
+      reloadPage: true,
+      entries: {
+        contentScript: ['content', 'content-frame'],
+        background: 'background',
+        extensionPage: 'popup',
+      }
+    }),
+  )
   config.devtool = 'inline-source-map';
 }
 

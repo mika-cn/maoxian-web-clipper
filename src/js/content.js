@@ -238,6 +238,7 @@
             MxWcSelectionMain.init(config);
             UI.init(config);
             initialize();
+            ExtMsg.initPage('content');
             listenMessage();
             listenPopState();
             listenInternalMessage();

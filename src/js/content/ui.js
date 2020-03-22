@@ -67,7 +67,7 @@
     id: 'mx-wc-iframe-control',
     ready: false,
     src: function(){
-      const url =  ExtApi.getURL('/ui-control.html');
+      const url =  ExtApi.getURL('/pages/ui-control.html');
       return url + "?t=" + btoa(window.location.origin)
     },
     append: appendIframe,
