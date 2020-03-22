@@ -5,7 +5,10 @@
   import ExtMsg from '../js/lib/ext-msg.js';
   import MxWcConfig from '../js/lib/config.js';
   import MxWcLink from '../js/lib/link.js';
-  import Worker from 'worker-loader!./reset-history-worker.js';
+  import Worker from 'worker-loader?name=js/[hash].worker.js!./reset-history-worker.js';
+
+  import './_base.css';
+  import './reset-history.css';
 
   const state = {};
 

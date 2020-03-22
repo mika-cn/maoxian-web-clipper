@@ -1,5 +1,7 @@
   "use strict";
 
+  const browser = require('webextension-polyfill');
+
   function set(k, v){
     const d = {}
     d[k] = v

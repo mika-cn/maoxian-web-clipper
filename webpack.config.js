@@ -2,10 +2,12 @@ const path = require('path');
 const webpack = require('webpack');
 const InertEntryPlugin = require('inert-entry-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require("html-webpack-plugin")
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const RemovePlugin = require('remove-files-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const pkg = require('./package.json');
 
@@ -15,64 +17,67 @@ const manifest_filename = path.join(__dirname, "src", "manifest.json");
 const pages_folder = path.join(__dirname, "src", "pages");
 const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 
+const pages = [
+  'popup', 'welcome', 'history', 'home', 'last-clipping-result', 
+  'plan-subscription', 'reset-history', 'setting', 'support', 
+  'ui-control', 'ui-selection']
+
+const pageEntires = pages.reduce((entries, pageName) => {
+  entries[pageName] = path.join(pages_folder, pageName + ".js")
+  return entries;
+}, {})
+
+const pageHtmls = pages.reduce((htmls, pageName) => {
+  htmls.push(
+    new HtmlWebpackPlugin({
+      template: path.join(pages_folder, pageName + ".html"),
+      filename: path.join("pages", pageName + ".html"),
+      chunks: [pageName]
+    })
+  )
+  return htmls;
+}, [])
+
 const config = {
   mode: process.env.NODE_ENV || "development",
   entry: {
-    'manifest': manifest_filename,
+    'content-frame': path.join(__dirname, "src", "js", "content-frame.js"),
+    'content': path.join(__dirname, "src", "js", "content.js"),
     'background': path.join(__dirname, "src", "js", "background.js"),
-    'popup': path.join(pages_folder, "popup.js"),
-    'history': path.join(pages_folder, "history.js"),
-    'home': path.join(pages_folder, "home.js"),
-    'last-clipping-result': path.join(pages_folder, "last-clipping-result.js"),
-    'plan-subscription': path.join(pages_folder, "plan-subscription.js"),
-    'reset-history': path.join(pages_folder, "reset-history.js"),
-    'setting': path.join(pages_folder, "setting.js"),
-    'support': path.join(pages_folder, "support.js"),
-    'ui-control': path.join(pages_folder, "ui-control.js"),
-    'ui-selection': path.join(pages_folder, "ui-selection.js"),
-    'welcome': path.join(pages_folder, "welcome.js"),
+    ...pageEntires
   },
   output: {
-    filename: (chunkData) => {
-      if (chunkData.chunk.name == "manifest") {
-        return "manifest.json";
-      } else {
-        return "[name].[contenthash:8].js"
-      }
-    },
+    filename: "js/[name].js",
     path: dist_folder
   },
   module: {
     rules: [
       {
-        test: manifest_filename,
+        test: /\.js$/,
+        exclude: /(node_modules|bower_components)/,
         use: [
-          '@altairwei/collect-loader',
-          'interpolate-loader'
-        ]
-      },
-      {
-        test: /\.html$/,
-        use: [
-          'file-loader?name=[name].[ext]',
-          'extract-loader',
           {
-            loader: 'html-loader',
+            loader: 'babel-loader',
             options: {
-              esModule: true,
-              attrs: [
-                'link:href',
-                'img:src'
-              ]
+              presets: ['@babel/preset-env'],
+              plugins: [
+                '@babel/plugin-transform-regenerator',
+                "@babel/plugin-transform-runtime"]
             }
           }
         ]
       },
       {
+        test: /\.html$/,
+        use: [
+          // This is necessary to ignore template syntax
+          'raw-loader'
+        ]
+      },
+      {
         test: /\.css$/,
         use: [
-          'file-loader?outputPath=css',
-          'extract-loader',
+          MiniCssExtractPlugin.loader,
           'css-loader',
         ]
       },
@@ -85,77 +90,34 @@ const config = {
     ]
   },
   plugins: [
-    // This is required to use manifest.json as the entry point.
-    new InertEntryPlugin(),
     // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "background.html"),
-      filename: "background.html",
-      chunks: ["background"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "popup.html"),
-      filename: "popup.html",
-      chunks: ["popup"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "history.html"),
-      filename: "history.html",
-      chunks: ["history"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "home.html"),
-      filename: "home.html",
-      chunks: ["home"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "last-clipping-result.html"),
-      filename: "last-clipping-result.html",
-      chunks: ["last-clipping-result"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "plan-subscription.html"),
-      filename: "plan-subscription.html",
-      chunks: ["plan-subscription"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "reset-history.html"),
-      filename: "reset-history.html",
-      chunks: ["reset-history"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "setting.html"),
-      filename: "setting.html",
-      chunks: ["setting"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "support.html"),
-      filename: "support.html",
-      chunks: ["support"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "ui-control.html"),
-      filename: "ui-control.html",
-      chunks: ["ui-control"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "ui-selection.html"),
-      filename: "ui-selection.html",
-      chunks: ["ui-selection"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(pages_folder, "welcome.html"),
-      filename: "welcome.html",
-      chunks: ["welcome"]
-    }),
+    new CopyWebpackPlugin([{
+      from: "src/manifest.json",
+      transform: function (content, path) {
+        // generates the manifest file using the package.json informations
+        const manifest = JSON.parse(content.toString())
+        manifest.author = pkg.author;
+        manifest.version = pkg.version;
+        manifest.browser_action.default_title = pkg.name;
+        return Buffer.from(JSON.stringify(manifest));
+      }
+    }]),
     new CopyPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
       { from: 'src/_locales/zh-CN', to: path.join(dist_folder, '_locales/zh-CN') },
+      { from: 'src/icons',          to: path.join(dist_folder, 'icons')}
     ]),
-    new webpack.ProvidePlugin({
-      browser: 'webextension-polyfill'
+    new MiniCssExtractPlugin({
+      filename: 'css/[name].[hash].css'
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(pages_folder, "background.html"),
+      filename: path.join("pages", "background.html"),
+      chunks: ["background"]
+    }),
+    // Inset all page htmls
+    ...pageHtmls
   ],
 }
 
@@ -178,7 +140,9 @@ if (process.env.NODE_ENV == "production") {
       path: '../',
       filename: zipfile,
     })
-  )
+  );
+
+  config.devtool = 'inline-source-map';
 }
 
 module.exports = config

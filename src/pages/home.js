@@ -7,6 +7,9 @@
   import MxWcConfig from '../js/lib/config.js';
   import MxWcLink from '../js/lib/link.js';
 
+  import './_base.css';
+  import './home.css';
+
   function renderVersion(){
     T.setHtml(".version", ENV.version);
   }

@@ -6,6 +6,8 @@
   import I18N from '../lib/translation.js';
   import MxWcStorage from '../lib/storage.js';
   import SavingTool from './saving-tool.js';
+  
+  const browser = require('webextension-polyfill');
 
   const APP_NAME = 'maoxian_web_clipper_native';
   const state = {port: null, version: null};

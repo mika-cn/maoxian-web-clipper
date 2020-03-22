@@ -2,16 +2,7 @@
 
   import T from './tool.js';
 
-  let win = null;
-  if (typeof module === 'object' && module.exports) {
-    // NodeJS
-    const JSDOM = require('jsdom').JSDOM;
-    const jsdom = new JSDOM();
-    win = jsdom.window;
-  } else {
-    // Browser
-    win = window;
-  }
+  const win = window;
 
   function parseHTML(html) {
     const parser = new win.DOMParser();

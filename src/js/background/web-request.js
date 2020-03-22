@@ -5,6 +5,8 @@
   import ExtMsg from '../lib/ext-msg.js';
   import BgEnv from './bg-env.js';
 
+  const browser = require('webextension-polyfill');
+
   const StoreMimeType = (function() {
     let state = {};
 

@@ -12,6 +12,8 @@
   import Notify from '../js/lib/notify.js';
   import MxWcHandler from '../js/lib/handler.js';
   import getPikadayI18n from '../_locales/pikaday.i18n.js';
+  
+  import './history.css';
 
   import Awesomplete from 'awesomplete';
   import 'awesomplete/awesomplete.css';

@@ -1,5 +1,7 @@
   "use strict";
 
+  const browser = require('webextension-polyfill');
+
   // Web-Extension Api
   const ExtApi = {};
 

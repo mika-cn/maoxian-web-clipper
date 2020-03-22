@@ -2,21 +2,12 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "author": "{{prop-loader?author!../package.json}}",
-  "version": "{{prop-loader?version!../package.json}}",
+  "author": "",
+  "version": "",
   "default_locale": "en",
   "web_accessible_resources": [
-    "history.html",
-    "home.html",
-    "last-clipping-result.html",
-    "plan-subscription.html",
-    "reset-history.html",
-    "setting.html",
-    "support.html",
-    "ui-control.html",
-    "ui-selection.html",
-    "welcome.html",
-    "assets/*",
+    "pages/*",
+    "icons/*",
     "css/*",
     "js/*"
   ],
@@ -32,12 +23,12 @@
     "nativeMessaging"
   ],
   "background": {
-    "page": "background.html"
+    "page": "pages/background.html"
   },
   "content_scripts": [
     {
       "js": [
-        "{{spawn-loader!./js/content-frame.js}}"
+        "js/content-frame.js"
       ],
       "matches": [
         "http://*/*",
@@ -48,7 +39,7 @@
     },
     {
       "js": [
-        "{{spawn-loader!./js/content.js}}"
+        "js/content.js"
       ],
       "matches": [
         "http://*/*",
@@ -59,34 +50,34 @@
     }
   ],
   "icons": {
-    "16": "{{./icons/mx-wc-16.png}}",
-    "32": "{{./icons/mx-wc-32.png}}",
-    "48": "{{./icons/mx-wc-48.png}}",
-    "128": "{{./icons/mx-wc-128.png}}"
+    "16": "icons/mx-wc-16.png",
+    "32": "icons/mx-wc-32.png",
+    "48": "icons/mx-wc-48.png",
+    "128": "icons/mx-wc-128.png"
   },
   "browser_action": {
     "browser_style": true,
-    "default_title": "{{prop-loader?name!../package.json}}",
-    "default_popup": "popup.html",
+    "default_title": "",
+    "default_popup": "pages/popup.html",
     "default_icon": {
-      "16": "{{./icons/mx-wc-16.png}}",
-      "32": "{{./icons/mx-wc-32.png}}",
-      "48": "{{./icons/mx-wc-48.png}}"
+      "16": "icons/mx-wc-16.png",
+      "32": "icons/mx-wc-32.png",
+      "48": "icons/mx-wc-48.png"
     },
     "theme_icons": [
       {
-        "light": "{{./icons/mx-wc-16-light.png}}",
-        "dark": "{{./icons/mx-wc-16.png}}",
+        "light": "icons/mx-wc-16-light.png",
+        "dark": "icons/mx-wc-16.png",
         "size": 16
       },
       {
-        "light": "{{./icons/mx-wc-32-light.png}}",
-        "dark": "{{./icons/mx-wc-32.png}}",
+        "light": "icons/mx-wc-32-light.png",
+        "dark": "icons/mx-wc-32.png",
         "size": 32
       },
       {
-        "light": "{{./icons/mx-wc-48-light.png}}",
-        "dark": "{{./icons/mx-wc-48.png}}",
+        "light": "icons/mx-wc-48-light.png",
+        "dark": "icons/mx-wc-48.png",
         "size": 48
       }
     ]

@@ -46,7 +46,7 @@
     id: 'mx-wc-iframe-selection',
     ready: false,
     src: function(){
-      const url =  ExtApi.getURL('/ui-selection.html');
+      const url =  ExtApi.getURL('/pages/ui-selection.html');
       return url + "?t=" + btoa(window.location.origin)
     },
     append: appendIframe,
