@@ -16,7 +16,7 @@
 
   // require turndownservice
   import TurndownService from 'turndown';
-  import turndownPluginGfm from 'turndown-plugin-gfm';
+  const turndownPluginGfm = require('turndown-plugin-gfm');
 
   /*
    * @param {Object} params

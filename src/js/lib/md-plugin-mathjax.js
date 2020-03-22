@@ -1,6 +1,6 @@
   "use strict";
 
-  import MathML2LaTeX from '../../vendor/js/mathml2latex.js';
+  const MathML2LaTeX = require('../../vendor/js/mathml2latex.js');
 
   function handle(doc, elem) {
     const mathJaxScripts = elem.querySelectorAll('script[id^=MathJax-Element-]');
