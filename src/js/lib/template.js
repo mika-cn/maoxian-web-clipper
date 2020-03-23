@@ -52,7 +52,7 @@
     render: function(v){
     return `
   <!DOCTYPE html>
-  <html id="${v.htmlId}" class="${v.htmlClass}">
+  <html id="${v.htmlId}" class="${v.htmlClass}" style="overflow: auto !important;">
     <!-- OriginalSrc: ${v.info.link} -->
     <head>
       <meta charset="utf-8">
@@ -100,7 +100,7 @@
       const mxWcStyle = (clippingInfoStyle === '' ? '' : `<style class="mx-wc-style">${clippingInfoStyle}</style>`);
     return `
   <!DOCTYPE html>
-  <html id="${v.htmlId}" class="${v.htmlClass}">
+  <html id="${v.htmlId}" class="${v.htmlClass}" style="overflow: auto !important;">
     <!-- OriginalSrc: ${v.info.link} -->
     <head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
