@@ -1,6 +1,6 @@
   "use strict";
 
-  const browser = require('webextension-polyfill');
+  //const browser = require('webextension-polyfill');
 
   function set(k, v){
     const d = {}

@@ -1,4 +1,6 @@
-
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
 const H = require('./helper.js');
 const DOMTool = H.depJs('lib/dom-tool.js');
 
@@ -23,7 +25,7 @@ function getCapturer() {
 }
 
 function getNode(html) {
-  const {doc} = DOMTool.parseHTML(html);
+  const {doc} = DOMTool.parseHTML(win, html);
   return doc.head.children[0];
 }
 
@@ -46,7 +48,7 @@ function getParams() {
 describe('Capture style', () => {
   it("remove nonce", async () => {
     const html = '<style nonce="Axbstebsder">body{background: red;}</style>';
-    const {doc} = DOMTool.parseHTML(html);
+    const {doc} = DOMTool.parseHTML(win, html);
     const node = doc.head.children[0];
     const params = getParams();
     const Capturer = getCapturer();

@@ -1,3 +1,6 @@
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
 const H = require('./helper.js');
 const DOMTool = H.depJs('lib/dom-tool.js');
 const mdPlugin = H.depJs('lib/md-plugin-code.js');
@@ -6,7 +9,7 @@ describe('MdPluginCode', () => {
 
   it('fix linebreak (convert <br> to linebreak)', () => {
     const html = `<pre>code<br />text</pre>`;
-    const {doc, node: contextNode} = DOMTool.parseHTML(html);
+    const {doc, node: contextNode} = DOMTool.parseHTML(win, html);
     const node = mdPlugin.handle(doc, contextNode);
     H.assertMatch(node.textContent, /^code\ntext$/);
   });
@@ -14,7 +17,7 @@ describe('MdPluginCode', () => {
 
   function testGetLanguage(html, language) {
     it('get language ' + language, () => {
-      let {doc, node: contextNode} = DOMTool.parseHTML(html);
+      let {doc, node: contextNode} = DOMTool.parseHTML(win, html);
       contextNode = mdPlugin.handle(doc, contextNode);
       const preNodes = contextNode.querySelectorAll('pre');
       H.assertEqual(preNodes.length, 1);
@@ -110,7 +113,7 @@ describe('MdPluginCode', () => {
         </div>
       </div>
     `;
-    const {doc, node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(win, html);
     let contextNode = node;
     contextNode = mdPlugin.handle(doc, contextNode);
     const nodesA = contextNode.querySelectorAll('pre');
@@ -132,7 +135,7 @@ describe('MdPluginCode', () => {
         </div>
       </div>
     `
-    const {doc, node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(win, html);
     let contextNode = node;
     contextNode = mdPlugin.handle(doc, contextNode);
     const code = contextNode.querySelector('code').textContent;
@@ -151,7 +154,7 @@ describe('MdPluginCode', () => {
       </div>
     `).replace(/^\s+/mg, '').replace(/\s+$/mg, '').replace(/\n/mg, '');
 
-    const {doc, node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(win, html);
     let contextNode = node;
     contextNode = mdPlugin.handle(doc, contextNode);
     const code = contextNode.querySelector('code').textContent;
@@ -206,7 +209,7 @@ describe('MdPluginCode', () => {
 
   function testPreCodeWithButtons(html) {
     it("remove buttons", () => {
-      const {doc, node} = DOMTool.parseHTML(html);
+      const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
       const buttons = contextNode.querySelectorAll('button');
@@ -427,7 +430,7 @@ describe('MdPluginCode', () => {
 
   function testHandleCodeWithLineNumber(html, language) {
     it("handle code with line number " + language, () => {
-      const {doc, node} = DOMTool.parseHTML(html);
+      const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
       const codeNode = contextNode.querySelector('code');
@@ -543,7 +546,7 @@ describe('MdPluginCode', () => {
 
   function testHandleNormalTable(name, html) {
     it("handle normal table " + name, () => {
-      const {doc, node} = DOMTool.parseHTML(html);
+      const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
       const table = contextNode.querySelector('table');
@@ -553,7 +556,7 @@ describe('MdPluginCode', () => {
 
   function testHandleNormalDiv(name, html) {
     it("handle normal div " + name, () => {
-      const {doc, node} = DOMTool.parseHTML(html);
+      const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
       const pre = contextNode.querySelector('pre');
@@ -594,7 +597,7 @@ describe('MdPluginCode', () => {
 
   function testHandleCodeTableWithoutLineNumber(name, html) {
     it("handle code table without line number" + name, () => {
-      const {doc, node} = DOMTool.parseHTML(html);
+      const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
       const table = contextNode.querySelector('table');

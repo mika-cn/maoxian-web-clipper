@@ -91,6 +91,10 @@ const config = {
   plugins: [
     // Clean dist/extension/maoxian-web-clipper before every build.
     new CleanWebpackPlugin(),
+    new webpack.ProvidePlugin({
+      // Workaround for https://github.com/webpack/webpack/issues/5828
+      'browser': "imports-loader?browser=>undefined!webextension-polyfill"
+    }),
     new CopyWebpackPlugin([
       {
         from: "src/manifest.json",

@@ -1,4 +1,6 @@
-
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
 const H = require('./helper.js');
 const T = H.depJs('lib/dom-tool.js');
 
@@ -30,13 +32,13 @@ describe('DomTool', () => {
 
   it("parseHTML", () => {
     const html = getHtml();
-    const {node} = T.parseHTML(html);
+    const {node} = T.parseHTML(win, html);
     H.assertEqual(node.children.length, 3);
   });
 
   it("remove node by xpaths", () => {
     const html = getHtml();
-    const {doc, node} = T.parseHTML(html);
+    const {doc, node} = T.parseHTML(win, html);
     const newNode = T.removeNodeByXpaths(doc, node, [
       "*[1]",
       "*[3]"
@@ -52,7 +54,7 @@ describe('DomTool', () => {
 
   it("calcXpath", () => {
     const html = getHtml2();
-    const {doc, node} = T.parseHTML(html);
+    const {doc, node} = T.parseHTML(win, html);
     const target = node.querySelector('target');
     H.assertEqual(T.calcXpath(node, target), '*[2]/*[1]');
     H.assertEqual(T.calcXpath(node, node), '');
@@ -61,7 +63,7 @@ describe('DomTool', () => {
 
   it("find node by xpath", () => {
     const html = getHtml2();
-    const {doc, node} = T.parseHTML(html);
+    const {doc, node} = T.parseHTML(win, html);
     const target = T.findNodeByXpath(doc, node, '*[2]/*[1]');
     H.assertEqual(target.tagName.toUpperCase(), 'TARGET');
   });

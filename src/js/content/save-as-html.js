@@ -97,7 +97,7 @@
     elem.classList.remove(KLASS);
     DOMTool.clearHiddenMark(elem);
 
-    const {doc} = DOMTool.parseHTML(docHtml);
+    const {doc} = DOMTool.parseHTML(window, docHtml);
     let selectedNode = doc.querySelector('.' + KLASS);
     selectedNode.classList.remove(KLASS);
     Log.debug(selectedNode);

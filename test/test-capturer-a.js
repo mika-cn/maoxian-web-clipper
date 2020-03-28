@@ -1,10 +1,13 @@
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
 const H = require('./helper.js');
 const DOMTool = H.depJs('lib/dom-tool.js');
 const Capturer = H.depJs('capturer/a.js');
 
 function getNode(href) {
   const html = `<a href="${href}" target="_self">Name</a>`;
-  const {node} = DOMTool.parseHTML(html);
+  const {node} = DOMTool.parseHTML(win, html);
   return node;
 }
 

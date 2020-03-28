@@ -1,15 +1,15 @@
-const H = require('./helper.js');
-const DOMTool = H.depJs('lib/dom-tool.js');
+import browser from 'sinon-chrome';
+global.browser = browser;
 
-const Log         = H.depJs('lib/log.js');
-const Tool        = H.depJs('lib/tool.js');
-const Asset       = H.depJs('lib/asset.js');
-const Task        = H.depJs('lib/task.js');
-const Template    = H.depJs('lib/template.js');
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
+const H = require('./helper.js');
+import DOMTool from '../src/js/lib/dom-tool.js';
+
 const ExtMsg      = H.depMockJs('ext-msg.js');
 
-const CapturerFactory = H.depJs('capturer/iframe.js');
-
+import Capturer from '../src/js/capturer/iframe.js';
 
 describe("Capture iframe", async () => {
 
@@ -26,25 +26,24 @@ describe("Capture iframe", async () => {
       frames: [
         {parentFrameId: 0, frameId: 1, url: 'https://a.org/frame-A.html'}
       ],
+      mimeTypeDict: {},
       config: {},
     }
   }
 
   it('capture srcdoc', async () => {
     const html = `<iframe srcdoc="<body>TEXT</body>"></iframe>`;
-    const {node} = DOMTool.parseHTML(html);
+    const {node} = DOMTool.parseHTML(win, html);
     const params = getParams();
-    const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 0);
     H.assertTrue(r.node.hasAttribute('data-mx-warn'));
   })
 
   async function captureInvalidIframeUrl(html) {
-    const {doc, node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(win, html);
     const params = getParams();
     params.doc = doc;
-    const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     const r = await Capturer.capture(node, params);
     H.assertTrue(r.node.hasAttribute('data-mx-warn'));
     H.assertTrue(r.node.hasAttribute('data-mx-original-src'));
@@ -63,10 +62,9 @@ describe("Capture iframe", async () => {
   it('capture web extension iframe', async () => {
     const url = 'moz-extension://klasdfbwerssdfasdf/iframe.html';
     const html = `<iframe src="${url}"></iframe>`;
-    const {doc, node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(win, html);
     const params = getParams();
     params.doc = doc;
-    const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 0);
     H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
@@ -77,9 +75,8 @@ describe("Capture iframe", async () => {
     ExtMsg.mockFrameToHtmlStatic(undefined);
     const url = 'https://a.org/frame-A.html';
     const html = `<iframe src="${url}"></iframe>`;
-    const {node} = DOMTool.parseHTML(html);
+    const {node} = DOMTool.parseHTML(win, html);
     const params = getParams();
-    const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     const r = await Capturer.capture(node, params);
     ExtMsg.clearMocks();
     H.assertEqual(r.tasks.length, 0);
@@ -98,24 +95,23 @@ describe("Capture iframe", async () => {
         tasks: []
       }
     });
-    const {node} = DOMTool.parseHTML(html);
+    const {node} = DOMTool.parseHTML(win, html);
     const params = getParams();
     params.storageInfo.frameFileFolder = 'category-a/clipping-001/frames';
-    const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     let r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
     H.assertFalse(r.node.hasAttribute('referrerpolicy'));
     H.assertMatch(r.node.getAttribute('src'), /^frames\//);
 
     // capture same frame html again
-    const {node: nodeB} = DOMTool.parseHTML(html);
+    const {node: nodeB} = DOMTool.parseHTML(win, html);
     r = await Capturer.capture(nodeB, params);
     H.assertEqual(r.tasks.length, 0);
     H.assertMatch(r.node.getAttribute('src'), /^frames\//);
 
     // capture same frame html again with different frameFileFolder
     params.storageInfo.frameFileFolder = 'category-a/clipping-001';
-    const {node: nodeC} = DOMTool.parseHTML(html);
+    const {node: nodeC} = DOMTool.parseHTML(win, html);
     r = await Capturer.capture(nodeC, params);
     H.assertEqual(r.tasks.length, 0);
     H.assertNotMatch(r.node.getAttribute('src'), /^frames\//);
@@ -134,11 +130,10 @@ describe("Capture iframe", async () => {
         tasks: []
       }
     });
-    const {doc, node} = DOMTool.parseHTML(html);
+    const {doc, node} = DOMTool.parseHTML(win, html);
     const params = getParams();
     params.doc = doc;
     params.saveFormat = 'md';
-    const Capturer = CapturerFactory(Log, Tool, ExtMsg, Asset, Task, Template);
     let r = await Capturer.capture(node, params);
     console.log(r.node.outerHTML);
     H.assertEqual(r.tasks.length, 0);
@@ -146,7 +141,7 @@ describe("Capture iframe", async () => {
     H.assertEqual(r.node.innerHTML, frameHtml);
 
     // capture same frame html again
-    const {node: nodeB} = DOMTool.parseHTML(html);
+    const {node: nodeB} = DOMTool.parseHTML(win, html);
     r = await Capturer.capture(nodeB, params);
     H.assertEqual(r.tasks.length, 0);
     H.assertNotEqual(r.node.tagName.toUpperCase(), 'IFRAME');

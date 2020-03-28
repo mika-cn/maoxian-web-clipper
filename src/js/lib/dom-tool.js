@@ -2,9 +2,7 @@
 
   import T from './tool.js';
 
-  const win = window;
-
-  function parseHTML(html) {
+  function parseHTML(win, html) {
     const parser = new win.DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const rootNode = doc.body.children[0];

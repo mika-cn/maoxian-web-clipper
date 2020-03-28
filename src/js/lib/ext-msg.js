@@ -3,7 +3,7 @@
   import T from './tool.js';
   import ExtApi from './ext-api.js';
 
-  const browser = require('webextension-polyfill');
+  //const browser = require('webextension-polyfill');
 
   /*!
    *   All extension page (popup page, background page, option page etc.)

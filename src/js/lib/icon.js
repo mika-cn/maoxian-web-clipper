@@ -2,7 +2,7 @@
 
   import ExtApi from './ext-api.js';
 
-  const browser = require('webextension-polyfill');
+  //const browser = require('webextension-polyfill');
 
   const MxWcIcon = {};
 
