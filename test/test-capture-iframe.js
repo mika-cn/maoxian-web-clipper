@@ -4,12 +4,14 @@ global.browser = browser;
 const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
-const H = require('./helper.js');
+
+import H from './helper.js';
 import DOMTool from '../src/js/lib/dom-tool.js';
+import Capturer from '../src/js/capturer/iframe.js';
 
 const ExtMsg      = H.depMockJs('ext-msg.js');
+ExtMsg.initBrowser(browser);
 
-import Capturer from '../src/js/capturer/iframe.js';
 
 describe("Capture iframe", async () => {
 

@@ -1,8 +1,9 @@
 const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
-const H = require('./helper.js');
-const T = H.depJs('lib/dom-tool.js');
+
+import H from './helper.js';
+import T from '../src/js/lib/dom-tool.js';
 
 
 function getHtml() {
@@ -17,7 +18,7 @@ function getHtml() {
 }
 
 function getHtml2() {
-  return html = `
+  return `
     <root>
       <div></div>
       <div>

@@ -2,9 +2,19 @@
 ;(function() {
   let handlers = {};
   let state = {};
-  function sendToBackground(msg) {
+
+  function initBrowser(browser) {
+    if (!state.browser) { state.browser = browser; }
+    state.browser.runtime.sendMessage.callsFake(sendMessage);
+  }
+
+  function sendMessage(msg) {
     const handler = handlers[msg.type];
-    return handler(msg, state);
+    if (handler) {
+      return handler(msg, state);
+    } else {
+      throw "Unknow message type: " + msg.type;
+    }
   }
 
   // handler should return a Promise
@@ -70,8 +80,7 @@
   }
 
   module.exports = {
-    sendToBackground,
-    mock,
+    initBrowser,
     clearMocks,
     mockFetchTextStatic,
     mockFetchTextUrls,

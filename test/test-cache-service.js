@@ -1,5 +1,6 @@
-const H = require('./helper.js');
-const CacheService = H.depJs('background/cache-service.js');
+
+import H from './helper.js';
+import CacheService from '../src/js/background/cache-service.js';
 
 describe('CacheService', () => {
   it('cache action - resolve', async () => {

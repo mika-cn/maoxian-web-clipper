@@ -1,5 +1,5 @@
 
-const H = require('./helper.js');
+import H from './helper.js';
 
 describe('Test sample', () => {
   it('Floor a number', () => {

@@ -1,6 +1,6 @@
 
-const H = require('./helper.js');
-const T = H.depJs('lib/tool.js');
+import H from './helper.js'
+import T from '../src/js/lib/tool.js';
 
 describe('Tool', () => {
   it("versionGteq", () => {
