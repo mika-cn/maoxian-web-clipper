@@ -17,6 +17,16 @@
 })(this, function(Log, T, DOMTool, undefined) {
   "use strict";
 
+  /**!
+   * In this module, we try to preprocess code block in HTML,
+   * convert it into the standard format. Which is more
+   * easy for Turndown to convert.
+   *
+   * for example:
+   *   <pre><code class="language-c">CODE TEXT</code><pre>
+   *
+   */
+
   //
   // 1. handle <table>
   //
@@ -65,8 +75,10 @@
       const selector = `div[class*=${KEYWORDS[i]}]`;
       const nodes = DOMTool.querySelectorIncludeSelf(contextNode, selector);
       [].forEach.call(nodes, (node) => {
-        const wrapper = getCodeWrapper(node);
-        wrappers.add(wrapper);
+        if (!isDescendantOfPreNode(node)) {
+          const wrapper = getCodeWrapper(node);
+          wrappers.add(wrapper);
+        }
       });
     }
 
@@ -98,8 +110,8 @@
   }
 
 
-  function handleCodeWrapper(doc, wrapper) {
-    const paths = groupLeafNode(wrapper);
+  function handleCodeWrapper(doc, wrapper, params = {}) {
+    const paths = params.paths ? params.paths : groupLeafNode(wrapper);
     const {
       isCodeWithLineNumbers,
       isCodeWrappedByLine = false,
@@ -231,7 +243,7 @@
 
   function renderCodeInWrapper(wrapper, code, language, doc) {
     const newNode = doc.createElement('div');
-    const klass = toTurndownLanguageClass(language);
+    const klass = Language.toTurndownKlass(language);
     newNode.innerHTML = `<pre data-mx-wc-processed><code class="${klass}">${T.escapeHtml(code)}</code></pre>`;
 
     const pNode = wrapper.parentNode;
@@ -246,18 +258,18 @@
 
   function getLanguageFromInside2Wrapper(wrapper, codePath, counter) {
     let language, languageFromCodeLine;
-    if (counter) {
-      languageFromCodeLine = getLanguageByName(counter.max());
+    if (counter && counter.counted) {
+      languageFromCodeLine = Language.getByName(counter.max());
     }
     if (languageFromCodeLine) {
       language = languageFromCodeLine;
     } else {
       const klasses = path2klasses(codePath).reverse();
-      const languageFromPath = getLanguageByKlasses(klasses);
+      const languageFromPath = Language.getByKlasses(klasses);
       if (languageFromPath) {
         language = languageFromPath;
       } else {
-        language = getLanguageFromNearNodes(wrapper, 0, 1, 2) || DEFAULT_LANGUAGE;
+        language = getLanguageFromNearNodes(wrapper, -1, 0, 1, 2) || DEFAULT_LANGUAGE;
       }
     }
 
@@ -438,8 +450,9 @@
 
         if (node !== contextNode
           && klassStr && klassStr.match(/line/i)
-          && allChildNodesAreAlike(node.parentNode)
+          && allChildrenAreAlike(node.parentNode)
         ) {
+
 
           // Programer using <pre> as a code line
           // We merge these lines.
@@ -454,7 +467,7 @@
           });
           const code = codeLines.join('\n');
           let language;
-          const languageFromCodeLine = getLanguageByName(counter.max());
+          const languageFromCodeLine = Language.getByName(counter.max());
           if (languageFromCodeLine) {
             language = languageFromCodeLine;
           } else {
@@ -467,6 +480,8 @@
         } else {
 
           const paths = groupLeafNode(node);
+          const isContextNode = (node === contextNode);
+          let newNode;
           if (paths.length === 1) {
             const [path] = paths;
             const codeNodes = [];
@@ -475,20 +490,18 @@
             } else {
               codeNodes.push(...node.querySelectorAll(path));
             }
-            const isContextNode = (node === contextNode);
 
-            let newNode;
             if (codeNodes.length === 1) {
               newNode = handleCodeContainer(node, path, codeNodes[0], doc);
             } else {
               newNode = handleCodeLines(node, path, codeNodes, doc);
             }
-            if (isContextNode) {
-              contextNode = newNode;
-            }
           } else {
-            // TODO
-            Log.debug("PRENODE", paths);
+            newNode = handleCodeWrapper(doc, node, {paths});
+          }
+
+          if (isContextNode) {
+            contextNode = newNode;
           }
 
         }
@@ -498,10 +511,10 @@
     return contextNode;
   }
 
-  function allChildNodesAreAlike(node) {
+  function allChildrenAreAlike(node) {
     const count = countChildrenByNodeType(node, {abortOnTextNode: true});
 
-    if (count.textNode === 0 && count.otherNode === 0 && count.elementNode > 0) {
+    if (count.textNode === 0 && count.otherNode === 0 && count.elementNode > 1) {
       const selector = node2Str(node.children[0]);
       return count.elementNode === node.querySelectorAll(selector).length;
     } else {
@@ -515,12 +528,6 @@
     return node;
   }
 
-
-  function toTurndownLanguageClass(language) {
-    return ['language', language].join('-');
-  }
-
-
   function getLanguageFromNearNodes(node, ...range) {
     const nodes = getNearNodesByRange(node, ...range);
     return getLanguageFromNodes(nodes);
@@ -528,7 +535,7 @@
 
   function getLanguageFromNodes(nodes) {
     for (let i = 0; i < nodes.length; i ++) {
-      const language = getLanguageByKlassStr(nodes[i].getAttribute('class'));
+      const language = Language.getByKlassStr(nodes[i].getAttribute('class'));
       if (language) {
         return language;
       }
@@ -575,6 +582,24 @@
     return arr;
   }
 
+  function isDescendantOfPreNode(node) {
+    let currNode = node;
+    while (true) {
+      if (currNode.parentNode) {
+        if (currNode.parentNode.tagName.toUpperCase() === 'BODY') {
+          return false
+        }
+        if (currNode.parentNode.tagName.toUpperCase() === 'PRE') {
+          return true
+        }
+        currNode = currNode.parentNode;
+      } else {
+        return false
+      }
+    }
+  }
+
+
 
   function hasOnlyOneChild(node) {
     const count = countChildrenByNodeType(node, {abortOnTextNode: true});
@@ -604,218 +629,237 @@
     });
   }
 
-  function getLanguageByKlassStr(klassStr) {
-    if (!klassStr) {return null}
-    let input = klassStr.trim();
-    if (input.length === 0) { return null}
+  //=====================================
+  // Language
+  //=====================================
 
-    const klasses = input.split(/\s+/);
-    return getLanguageByKlasses(klasses);
-  }
+  const Language = (function() {
 
-  function getLanguageByKlasses(klasses) {
-    const regExps = [
-      /^lang-(.+)$/i,
-      /^language-(.+)$/i,
-      /^type-(.+)$/i,
-      /^highlight-(.+)$/i,
-    ];
+    function toTurndownKlass(name) {
+      return ['language', name].join('-');
+    }
 
-    for (let i = 0; i < klasses.length; i++) {
-      const klass = klasses[i];
-      for (let j = 0; j < regExps.length; j ++) {
-        const regExp = regExps[j];
-        const matchResult = klass.match(regExp);
-        if (matchResult) {
-          return matchResult[1];
+    function getByKlassStr(klassStr) {
+      if (!klassStr) {return null}
+      let input = klassStr.trim();
+      if (input.length === 0) { return null}
+
+      const klasses = input.split(/\s+/);
+      return getByKlasses(klasses);
+    }
+
+    function getByKlasses(klasses) {
+      const regExps = [
+        /^lang-(.+)$/i,
+        /^language-(.+)$/i,
+        /^type-(.+)$/i,
+        /^highlight-(.+)$/i,
+      ];
+
+      for (let i = 0; i < klasses.length; i++) {
+        const klass = klasses[i];
+        for (let j = 0; j < regExps.length; j ++) {
+          const regExp = regExps[j];
+          const matchResult = klass.match(regExp);
+          if (matchResult) {
+            return matchResult[1];
+          }
+        }
+
+        // Cann't match regExp, try match language names
+        const lang = getByName(klass);
+        if (lang) {
+          return lang;
         }
       }
 
-      // Cann't match regExp, try match language names
-      const lang = getLanguageByName(klass);
-      if (lang) {
-        return lang;
-      }
+      return null;
     }
 
-    return null;
-  }
+    function getByName(name) {
+      if(!name) { return null }
+      const key = sanitizeName(name);
+      return languageDict[key] ? key : null;
+    }
 
-  function getLanguageByName(name) {
-    if(!name) { return null }
-    const key = sanitizeName(name);
-    return languageDict[key] ? key : null;
-  }
+    function sanitizeName(name) {
+      return name.trim().replace(/\s+/, '-').toLowerCase();
+    }
 
-  function sanitizeName(name) {
-    return name.trim().replace(/\s+/, '-').toLowerCase();
-  }
+    // FIXME enhance me
+    const LANGUAGE_NAMES_STR = (`Plain
+      Text
+      ABCL
+      ActionScript
+      Afnix
+      Ada
+      APL
+      AppleScript
+      ASP
+      ALGOL
+      ALF
+      AutoIt
+      Automake
+      Agora
+      awk
+      BASIC
+      BETA
+      BennuGD
+      BeanShell
+      BibTex
+      Boo
+      Bliss
+      C
+      C#
+      C++
+      ChangeLog
+      Charity
+      Cecil
+      Chuck
+      Cilk
+      Curry
+      Clean
+      CLEO
+      CLIST
+      CMake
+      Cobra
+      COBOL
+      ColdFusion
+      CoffeeScript
+      CSS
+      CSV
+      CUDA
+      Curl
+      D
+      DASL
+      DIBOL
+      E
+      Eiffel
+      Erlang
+      Elixir
+      F#
+      Forth
+      Fortran
+      Frink
+      Fril
+      F-Script
+      Go
+      Haskell
+      HTML
+      Haml
+      HyperTalk
+      IDL
+      ICI
+      IO
+      J
+      Jade
+      Java
+      JavaScript
+      Js
+      Janus
+      JASS
+      Joy
+      JOVIAL
+      Joule
+      JSON
+      Julia
+      Kite
+      Lava
+      LaTex
+      Lex
+      Leda
+      Lisp
+      Limbo
+      Lisaac
+      Lua
+      M
+      ML
+      Makefile
+      Markdown
+      Matlab
+      MEL
+      Modula-2
+      Mondrian
+      MOO
+      Moto
+      MATLAB
+      Nemerle
+      Objective-C
+      Objective-J
+      Oberon
+      Obliq
+      Occam
+      OpenGL
+      OPAL
+      OPS5
+      Oxygene
+      Oz
+      Pascal
+      PCASTL
+      Perl
+      PostScript
+      PHP
+      Pict
+      Pig
+      Pliant
+      Poplog
+      Prolog
+      Protobuf
+      Prograph
+      Python
+      Python3
+      Q
+      R
+      Rapira
+      REXX
+      REBOL
+      Revolution
+      Ruby
+      Rust
+      RPG
+      ROOP
+      SALSA
+      Scala
+      Scheme
+      Scilab
+      Self
+      SGML
+      SMALL
+      Smalltalk
+      sh
+      shell
+      S-Lang
+      Slate
+      Spin
+      SQL
+      SR
+      Tcl
+      Turing
+      VB
+      VBScript
+      Visual Basic
+      Visual FoxPro
+      XL
+      XML
+      XHTML
+      XOTcl
+      YAML
+    `);
 
-  // FIXME enhance me
-  const LANGUAGE_NAMES_STR = (`Plain
-    Text
-    ABCL
-    ActionScript
-    Afnix
-    Ada
-    APL
-    AppleScript
-    ASP
-    ALGOL
-    ALF
-    AutoIt
-    Automake
-    Agora
-    awk
-    BASIC
-    BETA
-    BennuGD
-    BeanShell
-    BibTex
-    Boo
-    Bliss
-    C
-    C#
-    C++
-    ChangeLog
-    Charity
-    Cecil
-    Chuck
-    Cilk
-    Curry
-    Clean
-    CLEO
-    CLIST
-    CMake
-    Cobra
-    COBOL
-    ColdFusion
-    CoffeeScript
-    CSS
-    CSV
-    CUDA
-    Curl
-    D
-    DASL
-    DIBOL
-    E
-    Eiffel
-    Erlang
-    Elixir
-    F#
-    Forth
-    Fortran
-    Frink
-    Fril
-    F-Script
-    Go
-    Haskell
-    HTML
-    Haml
-    HyperTalk
-    IDL
-    ICI
-    IO
-    J
-    Jade
-    Java
-    JavaScript
-    Js
-    Janus
-    JASS
-    Joy
-    JOVIAL
-    Joule
-    JSON
-    Julia
-    Kite
-    Lava
-    LaTex
-    Lex
-    Leda
-    Lisp
-    Limbo
-    Lisaac
-    Lua
-    M
-    ML
-    Makefile
-    Markdown
-    Matlab
-    MEL
-    Modula-2
-    Mondrian
-    MOO
-    Moto
-    MATLAB
-    Nemerle
-    Objective-C
-    Objective-J
-    Oberon
-    Obliq
-    Occam
-    OpenGL
-    OPAL
-    OPS5
-    Oxygene
-    Oz
-    Pascal
-    PCASTL
-    Perl
-    PostScript
-    PHP
-    Pict
-    Pig
-    Pliant
-    Poplog
-    Prolog
-    Protobuf
-    Prograph
-    Python
-    Python3
-    Q
-    R
-    Rapira
-    REXX
-    REBOL
-    Revolution
-    Ruby
-    Rust
-    RPG
-    ROOP
-    SALSA
-    Scala
-    Scheme
-    Scilab
-    Self
-    SGML
-    SMALL
-    Smalltalk
-    sh
-    shell
-    S-Lang
-    Slate
-    Spin
-    SQL
-    SR
-    Tcl
-    Turing
-    VB
-    VBScript
-    Visual Basic
-    Visual FoxPro
-    XL
-    XML
-    XHTML
-    XOTcl
-    YAML
-  `);
+    // init language dictionary
+    const languageDict = {};
+    LANGUAGE_NAMES_STR.split(/\n+/).forEach((it) => {
+      languageDict[sanitizeName(it)] = true;
+    });
 
-  // init language dictionary
-  const languageDict = {};
-  LANGUAGE_NAMES_STR.split(/\n+/).forEach((it) => {
-    languageDict[sanitizeName(it)] = true;
-  });
+    return {
+      getByName,
+      getByKlassStr,
+      getByKlasses,
+      toTurndownKlass,
+    }
+  })();
+
 
   return {
     handle: handle

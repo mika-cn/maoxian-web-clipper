@@ -356,7 +356,7 @@ describe('MdPluginCode', () => {
     </div>
   `;
 
-  // lineNumbers are beghind codes
+  // lineNumbers are behind codes
   const codeDiv_A = `
     <div class="highlight">
       <div class="code">
@@ -374,6 +374,55 @@ describe('MdPluginCode', () => {
         </a>
       </div>
     </div>
+  `;
+
+  // https://www.jianshu.com/p/5ec142a5fd8c
+  const codeDiv_B = (
+    `<div><pre class="line-numbers  language-bash">`
+  +   `<code class="language-bash">`
+  +     `line 1\n`
+  +     `line 2\n`
+  +     `line 3`
+  +     `<span aria-hidden="true" class="line-numbers-rows">`
+  +       `<span></span>`
+  +       `<span></span>`
+  +       `<span></span>`
+  +     `</span>`
+  +   `</code>`
+  + `</pre></div>`);
+
+  // https://blog.csdn.net/vanjoge/article/details/79657874
+  const codeDiv_C = `
+    <pre class="has" name="code">
+      <code class="language-perl">
+        <ol class="hljs-ln">
+          <li>
+            <div class="hljs-ln-numbers">
+              <div class="hljs-ln-line hljs-ln-n" data-line-number="1"></div>
+            </div>
+            <div class="hljs-ln-code">
+              <div class="hljs-ln-line">line 1</div>
+            </div>
+          </li>
+          <li>
+            <div class="hljs-ln-numbers">
+              <div class="hljs-ln-line hljs-ln-n" data-line-number="2"></div>
+            </div>
+            <div class="hljs-ln-code">
+              <div class="hljs-ln-line">line 2</div>
+            </div>
+          </li>
+          <li>
+            <div class="hljs-ln-numbers">
+              <div class="hljs-ln-line hljs-ln-n" data-line-number="3"></div>
+            </div>
+            <div class="hljs-ln-code">
+              <div class="hljs-ln-line">line 3</div>
+            </div>
+          </li>
+        </ol>
+      </code>
+    </pre>
   `;
 
   function testHandleCodeWithLineNumber(html, language) {
@@ -397,6 +446,8 @@ describe('MdPluginCode', () => {
   testHandleCodeWithLineNumber(codeTable_gist, 'c');
   testHandleCodeWithLineNumber(codeDiv_gitlab, 'yaml');
   testHandleCodeWithLineNumber(codeDiv_A, 'js');
+  testHandleCodeWithLineNumber(codeDiv_B, 'bash');
+  testHandleCodeWithLineNumber(codeDiv_C, 'perl');
 
   const normalTable_A = `
     <div class="highlight">
@@ -555,6 +606,9 @@ describe('MdPluginCode', () => {
   }
 
   testHandleCodeTableWithoutLineNumber("rubyOnRails", codeTable_without_line_number);
+
+
+
 
 
 });
