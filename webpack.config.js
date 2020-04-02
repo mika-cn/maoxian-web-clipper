@@ -30,7 +30,7 @@ const pageHtmls = pages.reduce((htmls, pageName) => {
   htmls.push(
     new HtmlWebpackPlugin({
       template: path.join(pages_folder, pageName + ".html"),
-      filename: path.join("pages", pageName + ".html"),
+      filename: `pages/${pageName}.html`,
       chunks: [pageName]
     })
   )
@@ -89,8 +89,6 @@ const config = {
     ]
   },
   plugins: [
-    // Clean dist/extension/maoxian-web-clipper before every build.
-    new CleanWebpackPlugin(),
     new webpack.ProvidePlugin({
       // Workaround for https://github.com/webpack/webpack/issues/5828
       'browser': "imports-loader?browser=>undefined!webextension-polyfill"
@@ -116,7 +114,7 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       template: path.join(pages_folder, "background.html"),
-      filename: path.join("pages", "background.html"),
+      filename: "pages/background.html",
       chunks: ["background"]
     }),
     // Inset all page htmls
@@ -127,6 +125,8 @@ const config = {
 if (process.env.NODE_ENV == "production") {
   const zipfile = `${pkg.name}-${pkg.version}.zip`
   config.plugins.push(
+    // Clean dist/extension/maoxian-web-clipper before every build.
+    new CleanWebpackPlugin(),
     // Remove last zip files
     new RemovePlugin({
       before: {
@@ -157,7 +157,7 @@ if (process.env.NODE_ENV == "production") {
         extensionPage: 'popup',
       }
     }),
-  )
+  );
   config.devtool = 'inline-source-map';
 }
 
