@@ -226,15 +226,71 @@
       );
     }
 
+
     function listener(details) {
       if (isSentByUs(details.requestHeaders)) {
-        const headers = [];
+        const originalHeaders = [];
+        const modifiedHeaders = [];
+
         details.requestHeaders.forEach((header) => {
-          if (header.name !== 'X-MxWc-Token') {
-            const originalName = unescapeName(header.name);
-            headers.push({name: originalName, value: header.value});
+          if (header.name.toLowerCase() !== 'x-mxwc-token') {
+            const regex = /^X-MxWc-/i;
+            if (header.name.match(regex)) {
+              // unescape header name
+              const r = header.name.replace(regex, '');
+              // capitalize
+              const originalName = r.split('-').map((it) => {
+                return [
+                  it.substring(0, 1).toUpperCase(),
+                  it.substring(1, it.length)
+                ].join('')
+              }).join('-');
+
+              const whiteList = ['Referer', 'Origin'];
+              if(whiteList.indexOf(originalName) > -1) {
+                modifiedHeaders.push({name: originalName, value: header.value});
+              } else {
+                // Ignore other header (unsafe, wasn't set by us)
+              }
+            } else {
+              originalHeaders.push({name: header.name, value: header.value});
+            }
           }
         })
+
+        // Record exist headers according to modified headers.
+        const indexes = new Set();
+        modifiedHeaders.forEach((modifiedHeader) => {
+          originalHeaders.forEach((originalHeader, index) => {
+            if (originalHeader.name.toLowerCase() === modifiedHeader.name.toLowerCase()) {
+              indexes.add(index);
+            }
+          });
+        });
+
+        // Remove exist headers.
+        const headers = [];
+        originalHeaders.forEach((header, index) => {
+          if (!indexes.has(index)) {
+            headers.push(header);
+          }
+        });
+
+        // Add modified headers.
+        modifiedHeaders.forEach((header) => {
+          if (header.value === '$REMOVE_ME') {
+            // This flag ($REMOVE_ME) is just used to remove
+            // headers that were set by User Agent.
+            //
+            // For example.
+            // Firefox will set "Origin" header to moz-extension://...
+            //
+            // Some asset server will detect this and reject those requests.
+          } else {
+            headers.push(header);
+          }
+        });
+
         return {requestHeaders: headers};
       } else {
         return {requestHeaders: details.requestHeaders};
@@ -243,35 +299,15 @@
 
     function isSentByUs(requestHeaders) {
       return T.any(requestHeaders, (header) => {
-        return (header.name === 'X-MxWc-Token'
+        return (header.name.toLowerCase() === 'x-mxwc-token'
           && header.value === BgEnv.requestToken);
       })
     }
 
-    function unescapeName(name) {
-      const regex = /^X-MxWc-/i;
-      if(name.match(regex)) {
-        const r = name.replace(regex, '');
-        // capitalize
-        const originalName = r.split('-').map((it) => {
-          return [
-            it.substring(0, 1).toUpperCase(),
-            it.substring(1, it.length)
-          ].join('')
-        }).join('-');
-        const whiteList = ['Referer', 'Origin'];
-        if(whiteList.indexOf(originalName) > -1) {
-          return originalName;
-        } else {
-          return name;
-        }
-      } else {
-        return name;
-      }
-    }
-
     return {
-      listen: listen
+      listen: listen,
+      // test only
+      perform: listener,
     }
   })();
 
@@ -290,5 +326,6 @@
     getMimeTypeDict: getMimeTypeDict,
     // test only
     StoreMimeType: StoreMimeType,
+    UnescapeHeader: UnescapeHeader,
   }
 });

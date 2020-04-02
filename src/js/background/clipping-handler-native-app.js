@@ -85,8 +85,9 @@
         break;
       case 'get.version':
         state.version = resp.version;
+        state.rubyVersion = resp.rubyVersion;
         if(state.getVersionCallback){
-          state.getVersionCallback({ ok: true, version: resp.version });
+          state.getVersionCallback({ ok: true, version: resp.version, rubyVersion: resp.rubyVersion });
         }
         break;
       case 'clipping.op.delete':
@@ -138,7 +139,7 @@
   function getVersion(callback) {
     init();
     if (state.version) {
-      callback({ok: true, version: state.version});
+      callback({ok: true, version: state.version, rubyVersion: state.rubyVersion});
     } else {
       try{
         state.getVersionCallback = callback;
@@ -213,6 +214,7 @@
         ready: ready,
         message: message,
         version: r.version,
+        rubyVersion: r.rubyVersion,
         supportFormats: ['html', 'md']
       })
     });

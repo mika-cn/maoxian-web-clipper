@@ -758,6 +758,7 @@
     return {
       dict: {},
       count: function (key) {
+        this.counted = true;
         this.dict[key] = (this.dict[key] || 0) + 1
       },
       get: function(key) {

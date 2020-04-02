@@ -786,9 +786,17 @@
 
       const section = T.findElem(id);
       if(info.ready) {
-        const elem = T.queryElem('.version-value', section);
-        elem.innerText = info.version
-        T.queryElem('.version', section).classList.add('active');
+        showVersion(
+          '#setting-handler-native-app .version.app-version',
+          info.version
+        );
+
+        if (info.rubyVersion) {
+          showVersion(
+            '#setting-handler-native-app .version.ruby-version',
+            info.rubyVersion
+          );
+        }
       } else {
         // render errors
         let msg = I18N.t('setting.notice.danger.native-app-not-ready');
@@ -796,6 +804,17 @@
         renderNoticeBox(section, 'danger', msg);
       }
     });
+  }
+
+  function showVersion(wrapSelector, value) {
+    const wrapper = T.queryElem(wrapSelector);
+    if (wrapper) {
+      const elem = T.queryElem('.version-value', wrapper);
+      if (elem) {
+        elem.innerText = value;
+        wrapper.classList.add('active');
+      }
+    }
   }
 
   async function renderSectionHandlerWizNotePlus(id, container, template) {
