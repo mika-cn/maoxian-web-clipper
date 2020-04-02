@@ -16,13 +16,25 @@
   "use strict";
 
   function getRenderParams(elem){
-    const htmlId = document.documentElement.id;
-    const htmlClass = document.documentElement.className;
+    const {
+         id: htmlId,
+      klass: htmlClass,
+      style: htmlStyle
+    } = extractCssAttrs(document.documentElement);
+    let htmlAppendStyle = '';
+    if (!isOverflowDefault(document.documentElement)) {
+      htmlAppendStyle = 'overflow: auto !important;';
+    }
+
     if (elem.tagName.toUpperCase() === 'BODY') {
-      return {htmlId, htmlClass};
+      return {
+        htmlIdAttr: renderAttr('id', htmlId),
+        htmlClassAttr: renderAttr('class', htmlKlass),
+        htmlStyleAttr: renderAttr('style', htmlStyle + htmlAppendStyle),
+      }
+
     } else {
-      const bodyId = document.body.id;
-      const bodyClass = document.body.className;
+      const {id: bodyId, klass: bodyClass} = extractCssAttrs(document.body);
       let bodyBgCss = getBgCss(document.body);
       const elemWrappers = getWrappers(elem, []);
       const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
@@ -47,13 +59,14 @@
       }
       const elemWidth = getFitWidth(elem);
       return {
-        outerElemBgCss: outerElemBgCss,
-        elemWidth: elemWidth,
-        bodyBgCss: bodyBgCss,
-        bodyId: bodyId,
-        bodyClass: bodyClass,
-        htmlId: htmlId,
-        htmlClass: htmlClass,
+        elemWidth      : elemWidth,
+        bodyBgCss      : bodyBgCss,
+        outerElemBgCss : outerElemBgCss,
+        bodyIdAttr     : renderAttr('id', bodyId),
+        bodyClassAttr  : renderAttr('class', bodyClass),
+        htmlIdAttr     : renderAttr('id', htmlId),
+        htmlClassAttr  : renderAttr('class', htmlClass),
+        htmlStyleAttr  : renderAttr('style', htmlStyle + htmlAppendStyle),
       }
     }
   }
@@ -166,6 +179,7 @@
       'display'    : 'block',
       'float'      : 'none',
       'position'   : 'relative',
+      'transform'  : 'initial',
       'top'        : '0',
       'left'       : '0',
       'border'     : '0px',
@@ -225,6 +239,29 @@
       r += `${k}: ${cssObj[k]} !important;`;
     }
     return r;
+  }
+
+  function isOverflowDefault(node) {
+    const overflow  = getStyleText(node, 'overflow'),
+          overflowX = getStyleText(node, 'overflow-x'),
+          overflowY = getStyleText(node, 'overflow-y');
+    return (
+      overflow === overflowX &&
+      overflow === overflowY &&
+      overflow === 'visible'
+    );
+  }
+
+  function extractCssAttrs(node) {
+    return {
+      id: node.getAttribute('id') || "",
+      klass: node.getAttribute('klass') || "",
+      style: node.getAttribute('style') || "",
+    }
+  }
+
+  function renderAttr(name, value) {
+    return value ? ` ${name}=${value}` : '';
   }
 
   return {
