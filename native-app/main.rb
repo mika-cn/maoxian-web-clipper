@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 
+require_relative 'lib/app_env'
 require_relative 'lib/log'
 require_relative 'lib/config'
 require_relative 'lib/application'
@@ -32,7 +33,8 @@ def run
       exit 1
     end
     Log.info("App Start")
-    Log.info("Version: #{Application::VERSION}")
+    Log.info("Version: #{AppEnv::APP_VERSION}")
+    Log.info("Ruby Version: #{AppEnv::RUBY_VERSION}")
     Log.debug("pid: #{Process.pid}")
     Log.debug("args: #{ARGV}")
 

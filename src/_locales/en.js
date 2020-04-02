@@ -96,7 +96,8 @@
     // setting page
     //=====================================
     "setting.warning": "Warning",
-    "setting.version": "Current version: ",
+    "setting.version": "Current Version: ",
+    "setting.ruby-version": "Ruby Version: ",
 
     // errors
     "error.handler.not-enabled": "Handler is disabled",
@@ -365,6 +366,7 @@
     //=====================================
     // last clipping result page (lcr)
     //=====================================
+    "lcr.label.original-url": "Original URL",
     "lcr.label.file": "File: ",
     "lcr.label.err-msg": "ErrorMessage: ",
     "lcr.notice.not-clipping-result": "Last clipping result is empty",

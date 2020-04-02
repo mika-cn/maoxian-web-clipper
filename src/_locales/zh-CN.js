@@ -97,6 +97,7 @@
     //=====================================
     "setting.warning": "警告",
     "setting.version": "当前版本：",
+    "setting.ruby-version": "Ruby 版本：",
 
     // errors
     "error.handler.not-enabled": "处理程序未启用",
@@ -362,6 +363,7 @@
     //=====================================
     // last clipping result page (lcr)
     //=====================================
+    "lcr.label.original-url": "网页网址",
     "lcr.label.file": "文件：",
     "lcr.label.err-msg": "错误信息：",
     "lcr.notice.not-clipping-result": "无内容可查看",

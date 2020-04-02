@@ -52,7 +52,7 @@
     render: function(v){
     return `
   <!DOCTYPE html>
-  <html id="${v.htmlId}" class="${v.htmlClass}">
+  <html${v.htmlIdAttr}${v.htmlClassAttr}${v.htmlStyleAttr}>
     <!-- OriginalSrc: ${v.info.link} -->
     <head>
       <meta charset="utf-8">
@@ -78,7 +78,7 @@
   ${MxWcTemplate.clippingInformationStyle.render(v)}
       </style>
     </head>
-    <body style="background-color: ${v.bodyBgCss} !important; min-height: 100%; height: auto; position: static !important; overflow: auto !important; padding-bottom: 0px !important;" id="${v.bodyId}" class="${v.bodyClass}">
+    <body style="background-color: ${v.bodyBgCss} !important; min-height: 100%; height: auto; position: static !important; overflow: auto !important; padding-bottom: 0px !important;"${v.bodyIdAttr}${v.bodyClassAttr}>
       <div class="mx-wc-main">
         ${v.elemHtml}
         ${MxWcTemplate.clippingInformation.render(v)}
@@ -100,7 +100,7 @@
       const mxWcStyle = (clippingInfoStyle === '' ? '' : `<style class="mx-wc-style">${clippingInfoStyle}</style>`);
     return `
   <!DOCTYPE html>
-  <html id="${v.htmlId}" class="${v.htmlClass}">
+  <html${v.htmlIdAttr}${v.htmlClassAttr}${v.htmlStyleAttr}>
     <!-- OriginalSrc: ${v.info.link} -->
     <head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />

@@ -112,6 +112,7 @@
 
     const result = {
       clipId: clipping.info.clipId,
+      originalUrl: clipping.info.link,
       filename: mainTask.fullFilename,
       downloadItemId: mainTask.downloadItemId,
       taskNum: clipping.tasks.length,

@@ -87,6 +87,7 @@
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;")
             .replace(/\n/g, "<br>")
+            .replace(/\t/g, "&nbsp;".repeat(4)) //TODO: make it configurable
             .replace(/ /g, "&nbsp;");
         return markdownText;
     }

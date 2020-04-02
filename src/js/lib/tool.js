@@ -758,6 +758,7 @@
     return {
       dict: {},
       count: function (key) {
+        this.counted = true;
         this.dict[key] = (this.dict[key] || 0) + 1
       },
       get: function(key) {
@@ -959,12 +960,14 @@
     return r.concat(T.toArray(child));
   }
 
-  T.isVersionGteq = function(versionA, versionB) {
-    const [majorA, minorA, patchA] = T.extractVersion(versionA);
-    const [majorB, minorB, patchB] = T.extractVersion(versionB);
+  // Gteq => greater than or equals to
+  T.isVersionGteq = function(vA, vB) {
+    const [majorA, minorA = 0, microA = 0, secureA = 0] = T.extractVersion(vA);
+    const [majorB, minorB = 0, microB = 0, secureB = 0] = T.extractVersion(vB);
     if (majorA != majorB) { return majorA > majorB }
     if (minorA != minorB) { return minorA > minorB }
-    return patchA >= patchB;
+    if (microA != microB) { return microA > microB }
+    return secureA >= secureB;
   }
 
   T.extractVersion = function(version) {

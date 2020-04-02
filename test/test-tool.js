@@ -5,9 +5,13 @@ const T = H.depJs('lib/tool.js');
 describe('Tool', () => {
   it("versionGteq", () => {
     H.assertTrue(T.isVersionGteq('0.0.2', '0.0.1'));
-    H.assertTrue(T.isVersionGteq('0.1.2', '0.1.1'));
     H.assertTrue(T.isVersionGteq('0.2.0', '0.1.9'));
     H.assertTrue(T.isVersionGteq('2.0.0', '1.9.0'));
+    H.assertTrue(T.isVersionGteq('1.9.0', '1.9.0'));
+
+    H.assertTrue(T.isVersionGteq('1.2', '1.0.3'));
+    H.assertTrue(T.isVersionGteq('1.2.2.1', '1.2.2'));
+    H.assertTrue(T.isVersionGteq('1.2.3', '1.2.2.1'));
   })
 
   it("capitalize", () => {

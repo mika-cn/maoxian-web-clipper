@@ -140,13 +140,19 @@
       headerParams.referrerPolicy
     );
 
+    // $REMOVE_ME ? (see web-request.js for more details)
+
     if (referer) {
       headers['Referer'] = referer;
+    } else {
+      headers['Referer'] = '$REMOVE_ME';
     }
 
     const origin = getOriginHeader(refUrl, url);
     if (origin) {
       headers['Origin'] = origin;
+    } else {
+      headers['Origin'] = '$REMOVE_ME';
     }
 
     return headers;

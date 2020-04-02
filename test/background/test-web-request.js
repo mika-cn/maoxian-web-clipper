@@ -1,4 +1,5 @@
 const H = require('../helper.js');
+const BgEnv = H.depJs('background/bg-env.js');
 const WebRequest = H.depJs('background/web-request.js');
 
 describe('WebRequest', () => {
@@ -88,4 +89,84 @@ describe('WebRequest', () => {
     }
 
   });
+
+
+  describe("UnescapeHeader", () => {
+
+    it("shouldn't unescape header, if token invalid", () => {
+      const {UnescapeHeader} = WebRequest;
+
+      function assetDoNothing(details) {
+        const {requestHeaders: headers} = UnescapeHeader.perform(details);
+        H.assertEqual(getHeaderValue(headers, 'Accept'), '*/*');
+        H.assertEqual(getHeaderValue(headers, 'x-mxwc-origin'), "https://a.org");
+        H.assertEqual(getHeaderValue(headers, 'x-mxwc-referer'), "https://a.org/index.html");
+        H.assertEqual(getHeader(headers, 'Origin'), undefined);
+        H.assertEqual(getHeader(headers, 'Referer'), undefined);
+      }
+
+      // without token
+      assetDoNothing(getDetails({
+        "Accept": "*/*",
+        "x-mxwc-origin": "https://a.org",
+        "x-mxwc-referer": "https://a.org/index.html",
+      }));
+
+      // invalid token
+      assetDoNothing(getDetails({
+        "Accept": "*/*",
+        "x-mxwc-origin": "https://a.org",
+        "x-mxwc-referer": "https://a.org/index.html",
+        "x-mxwc-token": "invalid-token",
+      }));
+
+    });
+
+    it("unescapeHeader", () => {
+      const {UnescapeHeader} = WebRequest;
+      const details = getDetails({
+        "Accept": "*/*",
+        "origin": "moz-extension/xxx",
+        "Referer": "https://a.org/index.html",
+        "X-MxWc-Token": BgEnv.requestToken,
+        "X-MxWc-Origin": "$REMOVE_ME",
+        "x-mxwc-referer": "https://a.org",
+      });
+
+      const {requestHeaders: headers} = UnescapeHeader.perform(details);
+      H.assertEqual(getHeader(headers, 'origin'), undefined);
+      H.assertEqual(getHeader(headers, 'Origin'), undefined);
+      H.assertEqual(getHeader(headers, 'x-mxwc-token'), undefined);
+      H.assertEqual(getHeader(headers, 'Token'), undefined);
+      H.assertEqual(getHeaderValue(headers, 'Accept'), '*/*');
+      H.assertEqual(getHeaderValue(headers, 'Referer'), 'https://a.org');
+    });
+
+
+    function getHeaderValue(headers, name) {
+      const header = getHeader(headers,name);
+      if (header) {
+        return header.value;
+      } else {
+        return undefined;
+      }
+    }
+
+    function getHeader(headers, name) {
+      return headers.find((it) => it.name === name);
+    }
+
+    function getDetails(headers) {
+      const requestHeaders = [];
+      for(let key in headers) {
+        requestHeaders.push({
+          name: key,
+          value: headers[key]
+        });
+      }
+      return { requestHeaders: requestHeaders };
+    }
+  });
+
+
 });

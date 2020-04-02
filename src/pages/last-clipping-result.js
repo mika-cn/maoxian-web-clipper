@@ -30,7 +30,7 @@
   }
 
   function renderFailedTasks() {
-    const {failedTaskNum, failedTasks} = state.lastClippingResult;
+    const {originalUrl, failedTaskNum, failedTasks} = state.lastClippingResult;
     if(failedTaskNum > 0) {
       const template = T.findElem('tpl-failed-task').innerHTML;
       const message = I18N.t('lcr.message.failed-task-num').replace('$num', failedTaskNum);
@@ -38,7 +38,12 @@
       failedTasks.forEach((task) => {
         detail += ["<div class='task'>" + I18N.t('lcr.label.file') + task.filename, I18N.t('lcr.label.err-msg') + "<span class='red'>" + task.errMsg + '</span>'].join("</div>");
       });
-      const html = T.renderTemplate(template, {message: message, detail: detail});
+      const html = T.renderTemplate(template, {
+        message: message,
+        originalUrlLabel: I18N.t('lcr.label.original-url'),
+        originalUrl: originalUrl,
+        detail: detail
+      });
       T.setHtml('#failed-task', html);
     }
   }
