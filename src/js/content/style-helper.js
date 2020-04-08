@@ -29,7 +29,7 @@
     if (elem.tagName.toUpperCase() === 'BODY') {
       return {
         htmlIdAttr: renderAttr('id', htmlId),
-        htmlClassAttr: renderAttr('class', htmlKlass),
+        htmlClassAttr: renderAttr('class', htmlClass),
         htmlStyleAttr: renderAttr('style', htmlStyle + htmlAppendStyle),
       }
 
