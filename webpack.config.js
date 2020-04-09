@@ -89,6 +89,9 @@ const config = {
     ]
   },
   plugins: [
+    new webpack.DefinePlugin({
+      PRODUCTION: process.env.NODE_ENV === "production"
+    }),
     new webpack.ProvidePlugin({
       // Workaround for https://github.com/webpack/webpack/issues/5828
       'browser': "imports-loader?browser=>undefined!webextension-polyfill"
