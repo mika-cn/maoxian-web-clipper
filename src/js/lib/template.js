@@ -1,19 +1,7 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('./translation.js'),
-      require('./tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcTemplate = factory(
-      root.MxWcI18N,
-      root.MxWcTool
-    );
-  }
-})(this, function(I18N, T, undefined) {
   "use strict";
+
+  import I18N from './translation.js';
+  import T from './tool.js';
 
   const MxWcTemplate = {}
 
@@ -178,5 +166,4 @@
     }
   }
 
-  return MxWcTemplate;
-});
+  export default MxWcTemplate;

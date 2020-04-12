@@ -1,6 +1,6 @@
 
-const H = require('./helper.js');
-const Asset = H.depJs('lib/asset.js');
+import H from './helper.js';
+import Asset from '../src/js/lib/asset.js';
 
 describe("Asset", () => {
 

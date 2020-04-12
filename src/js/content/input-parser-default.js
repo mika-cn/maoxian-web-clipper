@@ -1,20 +1,7 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('../lib/config.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcInputParser_Default = factory(
-      root.MxWcTool,
-      root.MxWcConfig
-    );
-  }
-})(this, function(T, Config, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
+  import Config from '../lib/config.js';
 
   //==========================================
   // Default Input Parser
@@ -209,5 +196,6 @@
     return s;
   }
 
-  return {parse: parse, Render: Render};
-});
+  const InputParser_Default = {parse: parse, Render: Render};
+
+  export default InputParser_Default;

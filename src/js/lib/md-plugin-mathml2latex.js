@@ -1,13 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcMdPluginMathML2LaTeX = factory();
-  }
-})(this, function(undefined) {
   "use strict";
+
+  const MathML2LaTeX = require('../../vendor/js/mathml2latex.js');
 
   function handle(doc, elem) {
     if(elem.tagName.toUpperCase() === 'MATH') {
@@ -40,5 +33,6 @@
     return markdown.replace(/`LaTeX /mg, '$ ').replace(/ LaTeX`/mg, ' $');
   }
 
-  return { handle, handle, unEscapeLaTex: unEscapeLaTex}
-});
+  const MdPluginMathML2LaTeX = { handle, handle, unEscapeLaTex: unEscapeLaTex}
+
+  export default MdPluginMathML2LaTeX;

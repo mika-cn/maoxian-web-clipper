@@ -1,12 +1,12 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcENV,
-    root.MxWcTool,
-    root.MxWcI18N,
-    root.MxWcStorage,
-  );
-})(this, function(ENV, T, I18N, Storage){
   "use strict";
+
+  import ENV from '../js/env.js';
+  import T from '../js/lib/tool.js';
+  import I18N from '../js/lib/translation.js';
+  import Storage from '../js/lib/storage.js';
+
+  import './_base.css';
+  import './plan-subscription.css';
 
   async function init() {
     const currUrl = new URL(window.location.href);
@@ -53,4 +53,3 @@
 
   init();
   I18N.i18nPage();
-});

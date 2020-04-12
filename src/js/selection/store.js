@@ -1,13 +1,3 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcSelectionStore = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
   function create(treeHash) {
@@ -482,7 +472,7 @@
     }
   }
 
-  return {create: create}
-});
+  const SelectionStore = {create: create}
 
+  export default SelectionStore;
 

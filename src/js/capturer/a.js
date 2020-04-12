@@ -1,17 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcCapturerA = factory(
-      root.MxWcTool
-    );
-  }
-})(this, function(T, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
 
   /*!
    * Capture Element <a>
@@ -54,5 +43,6 @@
     return {node, tasks};
   }
 
-  return {capture: capture}
-});
+  const CapturerA = {capture: capture}
+
+  export default CapturerA;

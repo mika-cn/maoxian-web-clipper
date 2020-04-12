@@ -1,6 +1,7 @@
-const H = require('../helper.js');
-const BgEnv = H.depJs('background/bg-env.js');
-const WebRequest = H.depJs('background/web-request.js');
+import H from '../helper.js';
+import BgEnv from '../../src/js/background/bg-env.js';
+import WebRequest from '../../src/js/background/web-request.js';
+
 
 describe('WebRequest', () => {
 

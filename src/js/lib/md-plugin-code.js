@@ -1,20 +1,3 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('./log.js'),
-      require('./tool.js'),
-      require('./dom-tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcMdPluginCode = factory(
-      root.MxWcLog,
-      root.MxWcTool,
-      root.MxWcDOMTool,
-    );
-  }
-})(this, function(Log, T, DOMTool, undefined) {
   "use strict";
 
   /**!
@@ -36,6 +19,10 @@
   //
   // 4. handle <code>?
   //
+
+  import Log from './log.js';
+  import T from './tool.js';
+  import DOMTool from './dom-tool.js';
 
 
   const KEYWORDS = ['highlight', 'syntax', 'code'];
@@ -861,7 +848,8 @@
   })();
 
 
-  return {
+  const MdPluginCode = {
     handle: handle
   }
-});
+
+  export default MdPluginCode;

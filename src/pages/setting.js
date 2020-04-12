@@ -1,21 +1,18 @@
-
-;(function(root, factory) {
-  factory(
-    root.MxWcLog,
-    root.MxWcTool,
-    root.MxWcI18N,
-    root.MxWcExtMsg,
-    root.MxWcStorage,
-    root.MxWcConfig,
-    root.MxWcLink,
-    root.MxWcTemplate,
-    root.MxWcNotify,
-    root.MxWcHandler
-  );
-
-})(this, function(Log, T, I18N, ExtMsg, MxWcStorage,
-    MxWcConfig, MxWcLink, MxWcTemplate, Notify, MxWcHandler, undefined) {
   "use strict";
+
+  import Log from '../js/lib/log.js';
+  import T from '../js/lib/tool.js';
+  import I18N from '../js/lib/translation.js';
+  import ExtMsg from '../js/lib/ext-msg.js';
+  import MxWcStorage from '../js/lib/storage.js';
+  import MxWcConfig from '../js/lib/config.js';
+  import MxWcLink from '../js/lib/link.js';
+  import MxWcTemplate from '../js/lib/template.js';
+  import Notify from '../js/lib/notify.js';
+  import MxWcHandler from '../js/lib/handler.js';
+
+  import './_base.css';
+  import './setting.css';
 
 // http://kb.mozillazine.org/Firefox_:_Issues_:_Links_to_Local_Pages_Don%27t_Work
 
@@ -921,5 +918,3 @@
   }
 
   init();
-
-});

@@ -1,23 +1,9 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('../lib/asset.js'),
-      require('../lib/task.js'),
-      require('./tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcCapturerImg = factory(
-      root.MxWcTool,
-      root.MxWcAsset,
-      root.MxWcTask,
-      root.MxWcCaptureTool
-    );
-  }
-})(this, function(T, Asset, Task, CaptureTool, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
+  import Asset from '../lib/asset.js';
+  import Task from '../lib/task.js';
+  import CaptureTool from './tool.js';
 
   /*!
    * Capture Element <img>
@@ -65,5 +51,6 @@
     return {node, tasks};
   }
 
-  return {capture: capture}
-});
+  const CapturerImg = {capture: capture}
+
+  export default CapturerImg;

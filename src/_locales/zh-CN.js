@@ -1,18 +1,6 @@
-;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcLocaleZhCN', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcLocaleZhCN = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
-  return {
+  const LocaleZhCN = {
   "values": {
     "name": "MaoXian 网页裁剪",
 
@@ -422,4 +410,5 @@
     "plan-subscription.title.plans": "计划",
 
   }};
-});
+
+  export default LocaleZhCN;

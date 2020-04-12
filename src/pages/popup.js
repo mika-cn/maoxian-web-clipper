@@ -1,18 +1,16 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcTool,
-    root.MxWcIcon,
-    root.MxWcI18N,
-    root.MxWcExtApi,
-    root.MxWcExtMsg,
-    root.MxWcStorage,
-    root.MxWcConfig,
-    root.MxWcLink
-  );
-
-})(this, function(T, MxWcIcon, I18N, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcLink, undefined) {
   "use strict";
+
+  import T from '../js/lib/tool.js';
+  import MxWcIcon from '../js/lib/icon.js';
+  import I18N from '../js/lib/translation.js';
+  import ExtApi from '../js/lib/ext-api.js';
+  import ExtMsg from '../js/lib/ext-msg.js';
+  import MxWcStorage from '../js/lib/storage.js';
+  import MxWcConfig from '../js/lib/config.js'
+  import MxWcLink from '../js/lib/link.js';
+
+  import './popup.css';
+
   const state = {};
 
   function menuClick(e){
@@ -155,5 +153,3 @@
   }
 
   document.addEventListener("DOMContentLoaded", init);
-
-});

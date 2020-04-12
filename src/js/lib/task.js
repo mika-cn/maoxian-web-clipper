@@ -1,13 +1,7 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('./tool.js'));
-  } else {
-    // browser or other
-    root.MxWcTask = factory(root.MxWcTool);
-  }
-})(this, function(T, undefined) {
   "use strict";
+
+  import T from './tool.js';
+
   /*
   * Task:
   * saving task of resource (html, css, font, img, md...)
@@ -135,7 +129,7 @@
     return {mainPath: mainPath, paths: paths};
   }
 
-  return {
+  const Task = {
     createHtmlTask: createHtmlTask,
     createMarkdownTask: createMarkdownTask,
     createFrameTask: createFrameTask,
@@ -150,4 +144,4 @@
     getRelativePath: getRelativePath,
   }
 
-});
+  export default Task;

@@ -1,12 +1,3 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcFrameMsg = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
   /*!
@@ -159,7 +150,7 @@
     return state.ready;
   }
 
-  return {
+  const FrameMsg = {
     init: init,
     isReady: isReady,
     send: send,
@@ -168,4 +159,5 @@
     removeListener: removeListener,
     clearListener: clearListener,
   }
-});
+
+  export default FrameMsg;

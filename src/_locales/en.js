@@ -1,18 +1,6 @@
-;(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define('MxWcLocaleEn', [], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcLocaleEn = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
-  return  {
+  const LocaleEn = {
   "values": {
     "name": "MaoXian web clipper",
 
@@ -427,4 +415,5 @@
     "plan-subscription.title.plans": "Plans",
 
   }};
-});
+
+  export default LocaleEn;

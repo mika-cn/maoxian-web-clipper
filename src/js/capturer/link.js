@@ -1,31 +1,10 @@
-;(function (root, factory) {
-   if (typeof module === 'object' && module.exports) {
-    // CJS
-    const process = require('process');
-    if (process.env.MX_WC_TESTING) {
-      module.exports = factory;
-    } else {
-      module.exports = factory(
-        require('../lib/tool.js'),
-        require('../lib/asset.js'),
-        require('../lib/task.js'),
-        require('./css.js'),
-        require('./tool.js')
-      );
-    }
-  } else {
-    // browser or other
-    root.MxWcCapturerLink = factory(
-      root.MxWcTool,
-      root.MxWcAsset,
-      root.MxWcTask,
-      root.MxWcCapturerCss,
-      root.MxWcCaptureTool
-    );
-  }
-})(this, function(T, Asset, Task, CapturerCss, undefined) {
   "use strict";
 
+  import T from '../lib/tool.js';
+  import Asset from '../lib/asset.js';
+  import Task from '../lib/task.js';
+  import CapturerCss from './css.js';
+  
   /*!
    * Capture Element <link>
    */
@@ -150,5 +129,6 @@
   }
 
 
-  return {capture: capture}
-});
+  const CapturerLink = {capture: capture}
+
+  export default CapturerLink;

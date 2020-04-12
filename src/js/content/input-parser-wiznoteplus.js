@@ -1,13 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('../lib/tool.js'));
-  } else {
-    // browser or other
-    root.MxWcInputParser_WizNotePlus = factory(root.MxWcTool);
-  }
-})(this, function(T, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
 
   //==========================================
   // Input Parser for WizNotePlus
@@ -75,5 +68,6 @@
       return result;
   }
 
-  return {parse: parse}
-});
+  const InputParser_WizNotePlus = {parse: parse};
+
+  export default InputParser_WizNotePlus;

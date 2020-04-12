@@ -1,14 +1,17 @@
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
 
-const H = require('./helper.js');
-const DOMTool = H.depJs('lib/dom-tool.js');
-const CaptureTool = H.depJs('capturer/tool.js');
+import H from './helper.js';
+import DOMTool from '../src/js/lib/dom-tool.js';
+import CaptureTool from '../src/js/capturer/tool.js';
 
 describe('CaptureTool', () => {
 
   describe('captureBackgroundAttr', () => {
 
     function getNode() {
-      const {node} = DOMTool.parseHTML('<div></div>');
+      const {node} = DOMTool.parseHTML(win, '<div></div>');
       return node;
     }
 

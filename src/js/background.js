@@ -1,53 +1,22 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    factory(
-      require('./env.js'),
-      require('./lib/log.js'),
-      require('./lib/tool.js'),
-      require('./lib/ext-api.js'),
-      require('./lib/ext-msg.js'),
-      require('./lib/storage.js'),
-      require('./lib/config.js'),
-      require('./lib/link.js'),
-      require('./lib/icon.js'),
-      require('./assistant/plan-repository.js'),
-      require('./selection/backend.js'),
-      require('./background/fetcher.js'),
-      require('./background/migration.js'),
-      require('./background/web-request.js'),
-      require('./background/cache-service.js'),
-      require('./background/clipping-handler-native-app.js'),
-      require('./background/handler-background.js')
-    );
-  } else {
-    // browser or other
-    factory(
-      root.MxWcEnv,
-      root.MxWcLog,
-      root.MxWcTool,
-      root.MxWcExtApi,
-      root.MxWcExtMsg,
-      root.MxWcStorage,
-      root.MxWcConfig,
-      root.MxWcLink,
-      root.MxWcIcon,
-      root.MxWcPlanRepository,
-      root.MxWcSelectionBackend,
-      root.MxWcFetcher,
-      root.MxWcMigration,
-      root.MxWcWebRequest,
-      root.MxWcCacheService,
-      root.MxWcClippingHandler_NativeApp,
-      root.MxWcHandlerBackground
-    );
-  }
-})(this, function( ENV, Log, T, ExtApi, ExtMsg,
-    MxWcStorage, MxWcConfig, MxWcLink, MxWcIcon, PlanRepository, SelectionBackend, Fetcher, MxWcMigration,
-    WebRequest, CacheService, ClippingHandler_NativeApp, MxWcHandlerBackground, undefined) {
-
   "use strict";
+
+  import ENV from './env.js';
+  import Log from './lib/log.js';
+  import T from './lib/tool.js';
+  import ExtApi from './lib/ext-api.js';
+  import ExtMsg from './lib/ext-msg.js';
+  import MxWcStorage from './lib/storage.js';
+  import MxWcConfig from './lib/config.js';
+  import MxWcLink from './lib/link.js';
+  import MxWcIcon from './lib/icon.js';
+  import PlanRepository from './assistant/plan-repository.js';
+  import SelectionBackend from './selection/backend.js';
+  import Fetcher from './background/fetcher.js';
+  import MxWcMigration from './background/migration.js';
+  import WebRequest from './background/web-request.js';
+  import CacheService from './background/cache-service.js';
+  import ClippingHandler_NativeApp from './background/clipping-handler-native-app.js';
+  import MxWcHandlerBackground from './background/handler-background.js';
 
   const asyncFunQueue = T.createAsyncFnQueue();
 
@@ -404,4 +373,3 @@
   }
 
   init();
-});

@@ -1,19 +1,14 @@
-;(function (root, factory) {
-  root.MxWcUI = factory(
-    root.MxWcLog,
-    root.MxWcTool,
-    root.MxWcExtApi,
-    root.MxWcFrameMsg,
-    root.MxWcEvent,
-    root.MxWcHandler,
-    root.MxWcSave,
-    root.MxWcNotify,
-    root.MxWcSelectionMain
-  );
-})(this, function(Log, T, ExtApi, FrameMsg,
-    MxWcEvent, MxWcHandler, MxWcSave,
-  Notify, MxWcSelectionMain, undefined) {
   "use strict";
+
+  import Log from '../lib/log.js';
+  import T from '../lib/tool.js';
+  import ExtApi from '../lib/ext-api.js';
+  import FrameMsg from '../lib/frame-msg.js';
+  import MxWcEvent from '../lib/event.js';
+  import MxWcHandler from '../lib/handler.js';
+  import MxWcSave from './save.js';
+  import Notify from '../lib/notify.js';
+  import MxWcSelectionMain from '../selection/main.js';
 
   const state = {
     clippingState: 'idle',
@@ -722,7 +717,7 @@
     state.config = config;
   }
 
-  return {
+  const UI = {
     init: init,
     remove: remove,
     entryClick: entryClick,
@@ -738,4 +733,5 @@
     clipElem: clipElem,
     setFormInputs: setFormInputs,
   }
-});
+
+  export default UI;

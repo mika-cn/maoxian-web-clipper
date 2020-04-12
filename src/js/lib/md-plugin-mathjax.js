@@ -1,13 +1,6 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcMdPluginMathjax = factory();
-  }
-})(this, function(undefined) {
   "use strict";
+
+  const MathML2LaTeX = require('../../vendor/js/mathml2latex.js');
 
   function handle(doc, elem) {
     const mathJaxScripts = elem.querySelectorAll('script[id^=MathJax-Element-]');
@@ -56,8 +49,9 @@
     return markdown.replace(/`MathJaxTeX /mg, '$ ').replace(/ MathJaxTeX`/mg, ' $');
   }
 
-  return {
+  const MdPluginMathjax = {
     handle: handle,
     unEscapeMathJax: unEscapeMathJax
   };
-});
+
+  export default MdPluginMathjax;

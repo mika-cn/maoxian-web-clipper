@@ -1,39 +1,34 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcStorage = factory();
-  }
-})(this, function(undefined) {
   "use strict";
+
+  //const browser = require('webextension-polyfill');
+
+  const TYPE = 'local';
 
   function set(k, v){
     const d = {}
     d[k] = v
-    return browser.storage[this.type].set(d)
+    return browser.storage[TYPE].set(d)
   }
 
   // keys: string or Array
   function remove(keys) {
-    return browser.storage[this.type].remove(keys);
+    return browser.storage[TYPE].remove(keys);
   }
 
   function clear() {
-    return browser.storage[this.type].clear();
+    return browser.storage[TYPE].clear();
   }
 
   function get(k, defaultValue){
     return new Promise((resolve, reject) => {
-      browser.storage[this.type].get(k)
+      browser.storage[TYPE].get(k)
         .then((res) => {
           const v = res[k];
           if(defaultValue !== null && (typeof defaultValue !== 'undefined')){
             if(typeof v != 'undefined'){
               resolve(v)
             }else{
-              MxWcStorage.set(k, defaultValue);
+              set(k, defaultValue);
               resolve(defaultValue);
             }
           }else{
@@ -43,11 +38,11 @@
     });
   }
 
-  return {
-    type: 'local',
+  const Storage = {
     get: get,
     set: set,
     remove: remove,
     clear: clear,
   };
-});
+
+  export default Storage;

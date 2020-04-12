@@ -1,17 +1,8 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    const JSDOM = require('jsdom').JSDOM;
-    const jsdom = new JSDOM();
-    module.exports = factory(jsdom.window, require('./tool.js'));
-  } else {
-    // browser or other
-    root.MxWcDOMTool = factory(root, root.MxWcTool);
-  }
-})(this, function(win, T, undefined) {
-  "use strict";
+  "use strict"; 
 
-  function parseHTML(html) {
+  import T from './tool.js';
+
+  function parseHTML(win, html) {
     const parser = new win.DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const rootNode = doc.body.children[0];
@@ -117,7 +108,7 @@
     return xpath;
   }
 
-  return {
+  const DOMTool = {
     parseHTML: parseHTML,
 
     markHiddenNode: markHiddenNode,
@@ -131,5 +122,5 @@
     querySelectorIncludeSelf: querySelectorIncludeSelf,
   }
 
-});
+  export default DOMTool;
 

@@ -1,17 +1,13 @@
-;(function (root, factory) {
-  factory(
-    root.MxWcLog,
-    root.MxWcTool,
-    root.MxWcExtMsg,
-    root.MxWcEvent,
-    root.MxWcConfig,
-    root.MxWcLink,
-    root.MxWcSelectionMain,
-    root.MxWcUI,
-  );
-})(this, function(Log, T, ExtMsg, MxWcEvent,
-    MxWcConfig, MxWcLink, MxWcSelectionMain, UI, undefined) {
   "use strict";
+
+  import Log from './lib/log.js';
+  import T from './lib/tool.js';
+  import ExtMsg from './lib/ext-msg.js';
+  import MxWcEvent from './lib/event.js';
+  import MxWcConfig from './lib/config.js';
+  import MxWcLink from './lib/link.js';
+  import MxWcSelectionMain from './selection/main.js';
+  import UI from './content/ui.js';
 
   const state = {
     config: null
@@ -242,6 +238,7 @@
             MxWcSelectionMain.init(config);
             UI.init(config);
             initialize();
+            ExtMsg.initPage('content');
             listenMessage();
             listenPopState();
             listenInternalMessage();
@@ -259,5 +256,3 @@
   }
 
   run();
-
-});

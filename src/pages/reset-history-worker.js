@@ -1,8 +1,7 @@
 
 "use strict";
 
-(function(workerScope){
-  workerScope.onmessage = function(e){
+  onmessage = function(e){
     postMessage({type: 'resetProcessing' , body: null});
     const r = parseFiles(e.data.files, e.data.rootFolder);
     postMessage({type: 'reset.clips'      , body: r.clips});
@@ -104,4 +103,3 @@
       return json.title && json.created_at && json.link;
     }
   }
-})(this);

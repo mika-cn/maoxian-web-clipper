@@ -1,34 +1,12 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    const process = require('process');
-    if (process.env.MX_WC_TESTING) {
-      module.exports = factory;
-    } else {
-      module.exports = factory(
-        require('strip-css-comments'),
-        require('../lib/log.js'),
-        require('../lib/tool.js'),
-        require('../lib/asset.js'),
-        require('../lib/task.js'),
-        require('../lib/ext-msg.js'),
-        require('./tool.js'),
-      );
-    }
-  } else {
-    // browser or other
-    root.MxWcCapturerCss = factory(
-      root.stripCssComments,
-      root.MxWcLog,
-      root.MxWcTool,
-      root.MxWcAsset,
-      root.MxWcTask,
-      root.MxWcExtMsg,
-      root.MxWcCaptureTool
-    );
-  }
-})(this, function(stripCssComments, Log,  T, Asset, Task, ExtMsg, CaptureTool, undefined) {
   "use strict";
+
+  import stripCssComments from 'strip-css-comments';
+  import Log from '../lib/log.js';
+  import T from '../lib/tool.js';
+  import Asset from '../lib/asset.js';
+  import Task from '../lib/task.js';
+  import ExtMsg from '../lib/ext-msg.js';
+  import CaptureTool from './tool.js';
 
   /**
    * Capture CSS link
@@ -294,8 +272,9 @@
   }
 
 
-  return {
+  const CapturerCss = {
     captureText: captureText,
     captureLink: captureLink
   }
-});
+
+  export default CapturerCss;

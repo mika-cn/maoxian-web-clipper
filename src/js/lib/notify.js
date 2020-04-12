@@ -1,13 +1,3 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcNotify = factory();
-  }
-})(this, function(undefined) {
   "use strict";
 
   const KLASS = 'notify-container';
@@ -226,9 +216,10 @@
     return '' + Math.round(Math.random() * 100000000000);
   }
 
-  return {
+  const Notify = {
     getContainer: getContainer,
     success: success,
     error: danger
   }
-});
+
+  export default Notify;

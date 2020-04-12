@@ -1,21 +1,8 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('../lib/asset.js'),
-      require('../lib/task.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcCaptureTool = factory(
-      root.MxWcTool,
-      root.MxWcAsset,
-      root.MxWcTask
-    );
-  }
-})(this, function(T, Asset, Task, undefined) {
   "use strict";
+
+  import T from '../lib/tool.js';
+  import Asset from '../lib/asset.js';
+  import Task from '../lib/task.js';
 
   function captureBackgroundAttr(node, {baseUrl, storageInfo, config, clipId, mimeTypeDict = {}}) {
     if (node.hasAttribute('background')) {
@@ -206,12 +193,11 @@
 
 
 
-  return {
+  const CaptureTool = {
     captureBackgroundAttr: captureBackgroundAttr,
     captureImageSrcset: captureImageSrcset,
     parseSrcset: parseSrcset,
     getRequestHeaders: getRequestHeaders,
   }
 
-});
-
+  export default CaptureTool;

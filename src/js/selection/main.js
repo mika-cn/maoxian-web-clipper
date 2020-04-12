@@ -1,24 +1,9 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/log.js'),
-      require('../lib/ext-msg.js'),
-      require('../lib/event.js'),
-    );
-  } else {
-    // browser or other
-    root.MxWcSelectionMain = factory(
-      root.MxWcLog,
-      root.MxWcExtMsg,
-      root.MxWcEvent,
-      root.CssSelectorGenerator
-    );
-  }
-})(this, function(Log, ExtMsg, MxWcEvent,
-  CssSelectorGenerator, undefined) {
   "use strict";
+
+  import Log from '../lib/log.js';
+  import ExtMsg from '../lib/ext-msg.js';
+  import MxWcEvent from '../lib/event.js';
+  import CssSelectorGenerator from 'css-selector-generator';
 
   const state = {appliedSelection: null};
 
@@ -224,8 +209,9 @@
     }
   }
 
-  return {
+  const SelectionMain = {
     init: init,
     save: save,
   }
-});
+
+  export default SelectionMain;

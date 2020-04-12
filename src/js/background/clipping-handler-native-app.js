@@ -1,28 +1,13 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../env.js'),
-      require('../lib/tool.js'),
-      require('../lib/log.js'),
-      require('../lib/translation.js'),
-      require('../lib/storage.js'),
-      require('./saving-tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcClippingHandler_NativeApp = factory(
-      root.MxWcENV,
-      root.MxWcTool,
-      root.MxWcLog,
-      root.MxWcI18N,
-      root.MxWcStorage,
-      root.MxWcSavingTool,
-    );
-  }
-})(this, function(ENV, T, Log, I18N, MxWcStorage, SavingTool, undefined) {
   "use strict";
+
+  import ENV from '../env.js';
+  import T from '../lib/tool.js';
+  import Log from '../lib/log.js';
+  import I18N from '../lib/translation.js';
+  import MxWcStorage from '../lib/storage.js';
+  import SavingTool from './saving-tool.js';
+  
+  //const browser = require('webextension-polyfill');
 
   const APP_NAME = 'maoxian_web_clipper_native';
   const state = {port: null, version: null};
@@ -220,7 +205,7 @@
     });
   }
 
-  return {
+  const ClippingHandler_NativeApp = {
     name: 'NativeApp',
     saveClipping: saveClipping,
     saveTextFile: saveTextFile,
@@ -232,4 +217,5 @@
     deleteClipping: deleteClipping,
     refreshHistory: refreshHistory,
   }
-});
+
+  export default ClippingHandler_NativeApp;

@@ -2,7 +2,6 @@
  * FuzzyMatcher
  */
 
-;(function(global) {
   "use strict";
 
   function matchText(str, pattern) {
@@ -133,18 +132,5 @@
   }
 
   const FuzzyMatcher = {matchUrl: matchUrl}
-
-  if (typeof define === 'function' && define.amd) {
-    // AMD
-    define(function () {
-      return FuzzyMatcher;
-    });
-  } else if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = FuzzyMatcher;
-  } else {
-    // browser or other
-    global.FuzzyMatcher = FuzzyMatcher;
-  }
-
-})(this);
+  
+  export default FuzzyMatcher;

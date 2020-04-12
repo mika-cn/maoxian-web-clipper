@@ -1,19 +1,9 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('./tool.js'),
-      require('./ext-api.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcExtMsg = factory(
-      root.MxWcTool,
-      root.MxWcExtApi
-    );
-  }
-})(this, function(T, ExtApi, undefined) {
   "use strict";
+
+  import T from './tool.js';
+  import ExtApi from './ext-api.js';
+
+  //const browser = require('webextension-polyfill');
 
   /*!
    *   All extension page (popup page, background page, option page etc.)
@@ -144,7 +134,7 @@
     })
   }
 
-  return {
+  const ExtMsg = {
     initPage: initPage,
     listen: listen,
     sendToBackground: sendToBackground,
@@ -154,4 +144,4 @@
     broadcastToContent: broadcastToContent,
   }
 
-});
+  export default ExtMsg;

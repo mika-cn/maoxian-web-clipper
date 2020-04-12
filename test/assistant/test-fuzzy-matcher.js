@@ -1,5 +1,5 @@
-const H = require('../helper.js');
-const FuzzyMatcher = H.depJs("assistant/fuzzy-matcher.js")
+import H from '../helper.js';
+import FuzzyMatcher from '../../src/js/assistant/fuzzy-matcher.js';
 
 describe("Assistant fuzzyMatcher", () => {
   const match = function(url, pattern) {

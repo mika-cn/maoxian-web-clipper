@@ -1,14 +1,6 @@
-
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('./frame-msg.js'));
-  } else {
-    // browser or other
-    root.MxWcEvent = factory(root.MxWcFrameMsg);
-  }
-})(this, function(FrameMsg, undefined) {
   "use strict";
+
+  import FrameMsg from './frame-msg.js';
 
   /*!
    *
@@ -35,27 +27,24 @@
    *
    */
 
-  const evTarget_public = document;
-  const evTarget_internal = document.createElement('mx-wc-internal');
-
   function dispatchInternal(name, data) {
     const evType = getType(name, true);
-    dispatch(evTarget_internal, evType, data);
+    dispatch('internal', evType, data);
   }
 
   function dispatchPublic(name, data) {
     const evType = getType(name);
-    dispatch(evTarget_public, evType, data);
+    dispatch('public', evType, data);
   }
 
   function listenInternal(name, listener) {
     const evType = getType(name, true);
-    listen(evTarget_internal, evType, listener);
+    listen('internal', evType, listener);
   }
 
   function listenPublic(name, listener) {
     const evType = getType(name);
-    listen(evTarget_public, evType, listener);
+    listen('public', evType, listener);
   }
 
   function broadcastPublic(name, data) {
@@ -92,26 +81,43 @@
   //=================
 
   function broadcastHandler_public(msg, type) {
-    dispatch(evTarget_public, type, msg);
+    dispatch('public', type, msg);
     // Continue broadcast this message.
     FrameMsg.broadcast({type: type, msg: msg});
   }
 
   function broadcastHandler_internal(msg, type) {
-    dispatch(evTarget_internal, type, msg);
+    dispatch('internal', type, msg);
     // Continue broadcast this message.
     FrameMsg.broadcast({type: type, msg: msg});
   }
 
-  function listen(evTarget, type, listener) {
+  function listen(evTargetName, type, listener) {
+    const evTarget = getEvTarget(evTargetName);
     evTarget.removeEventListener(type, listener);
     evTarget.addEventListener(type, listener);
   }
 
-  function dispatch(evTarget, type, data) {
+  function dispatch(evTargetName, type, data) {
+    const evTarget = getEvTarget(evTargetName);
     const detailJson = JSON.stringify(data || {})
     const e = new CustomEvent(type, {detail: detailJson});
     evTarget.dispatchEvent(e);
+  }
+
+  function getEvTarget(evTargetName) {
+    if (evTargetName === 'public') {
+      return document;
+    }
+
+    if (evTargetName === 'internal') {
+      let target = document.___mx_wc_internal__;
+      if (!target) {
+        target = document.createElement('mx-wc-internal');
+        document.___mx_wc_internal__=target;
+      }
+      return target;
+    }
   }
 
   function getType(name, isInternal) {
@@ -132,7 +138,7 @@
     }
   }
 
-  return {
+  const MxWcEvent = {
     getType: getType,
     getData: getData,
     broadcastPublic: broadcastPublic,
@@ -144,4 +150,5 @@
     listenInternal: listenInternal,
     listenPublic, listenPublic
   }
-});
+
+  export default MxWcEvent;

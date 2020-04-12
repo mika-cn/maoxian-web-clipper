@@ -1,15 +1,15 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcENV,
-    root.MxWcLog,
-    root.MxWcTool,
-    root.MxWcExtApi,
-    root.MxWcConfig,
-    root.MxWcLink
-  );
-
-})(this, function(ENV, Log, T, ExtApi, MxWcConfig, MxWcLink, undefined) {
   "use strict";
+
+  import ENV from '../js/env.js';
+  import Log from '../js/lib/log.js';
+  import T from '../js/lib/tool.js';
+  import ExtApi from '../js/lib/ext-api.js';
+  import MxWcConfig from '../js/lib/config.js';
+  import MxWcLink from '../js/lib/link.js';
+
+  import './_base.css';
+  import './support.css';
+
   function renderBasicInformation() {
     const tpl = T.findElem('basic-information-tpl').innerHTML;
     const html = T.renderTemplate(tpl, {
@@ -58,4 +58,3 @@
   }
 
   init();
-});

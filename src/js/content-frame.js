@@ -1,18 +1,14 @@
-;(function(root, factory) {
-  factory(
-    root.MxWcLog,
-    root.MxWcTool,
-    root.MxWcExtMsg,
-    root.MxWcFrameMsg,
-    root.MxWcEvent,
-    root.MxWcConfig,
-    root.MxWcHtml,
-    root.MxWcMarkdown,
-    root.MxWcAssistantMain
-  );
-})(this, function(Log, T, ExtMsg, FrameMsg, MxWcEvent, Config,
-    MxWcHtml, MxWcMarkdown, MxWcAssistantMain, undefined) {
   "use strict";
+
+  import Log from './lib/log.js';
+  import T from './lib/tool.js';
+  import ExtMsg from './lib/ext-msg.js';
+  import FrameMsg from './lib/frame-msg.js';
+  import MxWcEvent from './lib/event.js';
+  import Config from './lib/config.js';
+  import MxWcHtml from './content/save-as-html.js';
+  import MxWcMarkdown from './content/save-as-markdown.js';
+  import MxWcAssistantMain from './assistant/main.js';
 
   /*
    * @param {Object} message: {
@@ -121,5 +117,3 @@
 
   init();
 
-
-});
