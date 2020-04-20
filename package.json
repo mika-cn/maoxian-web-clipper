@@ -11,7 +11,7 @@
   "devDependencies": {
     "blueimp-md5": "^2.11.0",
     "jsdom": "^15.1.1",
-    "mocha": "^6.2.0"
+    "mocha": "^7.1.0"
   },
   "dependencies": {
     "strip-css-comments": "^4.0.0"
