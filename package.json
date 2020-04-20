@@ -55,7 +55,7 @@
     "css-selector-generator": "^1.2.0",
     "pikaday": "^1.8.0",
     "roddeh-i18n": "^1.2.0",
-    "strip-css-comments": "^4.0.0",
+    "strip-css-comments": "^4.1.0",
     "turndown": "^6.0.0",
     "turndown-plugin-gfm": "^1.0.2",
     "webextension-polyfill": "^0.6.0"
