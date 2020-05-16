@@ -209,11 +209,8 @@
     taskCollection.push(...r.tasks);
     selectedNode = r.node;
 
-    const headInnerHtml = [
-      getNodesHtml(doc.querySelectorAll('link[rel*=icon]')),
-      getNodesHtml(doc.querySelectorAll('link[rel~=stylesheet]')),
-      getNodesHtml(doc.querySelectorAll('style')),
-    ].join("\n");
+    const headInnerHtml = getNodesHtml(
+      doc.querySelectorAll('link[rel*=icon],link[rel~=stylesheet],style'));
 
     let elemHtml = "";
     if(elem.tagName.toUpperCase() === 'BODY') {
