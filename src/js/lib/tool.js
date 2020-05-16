@@ -111,8 +111,9 @@
   }
 
 
+  // If image permission is disabled, style.display is 'inline'.
   T.isElemVisible = function(win, elem) {
-    if(['STYLE', 'IMG', 'PICTURE'].indexOf(elem.tagName.toUpperCase()) > -1) {
+    if(['STYLE'].indexOf(elem.tagName.toUpperCase()) > -1) {
       return true
     }
 
@@ -125,12 +126,6 @@
       return false
     }
 
-    /*
-    const box = elem.getBoundingClientRect();
-    if(box.width === 0 && box.height === 0){
-      return false
-    }
-    */
     return true
   }
 
