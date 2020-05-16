@@ -17,8 +17,8 @@ const pages_folder = path.join(__dirname, "src", "pages");
 const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 
 const pages = [
-  'popup', 'welcome', 'history', 'home', 'last-clipping-result', 
-  'plan-subscription', 'reset-history', 'setting', 'support', 
+  'popup', 'welcome', 'history', 'home', 'last-clipping-result',
+  'plan-subscription', 'reset-history', 'setting', 'support',
   'ui-control', 'ui-selection']
 
 const pageEntires = pages.reduce((entries, pageName) => {
@@ -90,7 +90,7 @@ const config = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      PRODUCTION: process.env.NODE_ENV === "production"
+      COMPILING_VAR_IS_PRODUCTION: process.env.NODE_ENV === "production"
     }),
     new webpack.ProvidePlugin({
       // Workaround for https://github.com/webpack/webpack/issues/5828

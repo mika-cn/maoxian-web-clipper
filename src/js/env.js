@@ -2,7 +2,10 @@
 
   import pkg from '../../package.json';
 
-  const isProd = PRODUCTION;
+  let isProd = false;
+  try {isProd = COMPILING_VAR_IS_PRODUCTION} catch(e) {}
+
+
   const websiteRoot = isProd ? "https://mika-cn.github.io/maoxian-web-clipper" : "http://dev.pc:3000/maoxian-web-clipper";
   const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
   const mxAssistantRoot = [websiteRoot, isProd ? 'assistant' : 'tmp/assistant'].join('/');
