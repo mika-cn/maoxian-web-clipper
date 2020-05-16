@@ -126,6 +126,14 @@
     MxWcHandlerBackground.isReady('config.refreshHistoryHandler').then((r) => {
       const {ok, message, handler, config} = r;
       if(ok) {
+
+        // init Download Folder
+        MxWcStorage.get('downloadFolder').then((root) => {
+          if(!root){
+            handler.initDownloadFolder(config);
+          }
+        });
+
         handler.refreshHistory({
           root_folder: config.rootFolder,
           time: T.currentTime().toString()
