@@ -1,16 +1,16 @@
-  "use strict";
+"use strict";
 
-  import T from '../lib/tool.js';
+import T from '../lib/tool.js';
 
-  /*!
-   * Capture Element $Name
-   */
+/*!
+ * Capture Element $Name
+ */
 
-  function capture(node, opts) {
-    return {node, tasks};
-  }
+function capture(node, opts) {
+  return {node, tasks};
+}
 
 
-  const CapturerTemplate = {capture: capture}
+const CapturerTemplate = {capture: capture}
 
-  export default CapturerTemplate;
+export default CapturerTemplate;
