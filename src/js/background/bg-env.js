@@ -1,8 +1,8 @@
-  "use strict";
-  const env = {};
+"use strict";
+const env = {};
 
-  env.requestToken = ['', Date.now(),
-    Math.round(Math.random() * 10000)
-  ].join('');
+env.requestToken = ['', Date.now(),
+  Math.round(Math.random() * 10000)
+].join('');
 
-  export default env;
+export default env;
