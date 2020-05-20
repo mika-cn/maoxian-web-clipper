@@ -5,6 +5,7 @@ node_modules/
 dist/extension/maoxian-web-clipper
 dist/extension/*.zip
 dist/extension/*.xpi
+dist/extension-src/*.zip
 dist/native-app/*.zip
 dist/native-app/tmp
 dist/offline-pages/*.zip

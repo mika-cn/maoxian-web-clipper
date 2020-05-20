@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #usage ./pack-extension.sh 0.0.1
 
+echo "Use npm build instead."
+exit 0
+
 version=$1
 dir=$(dirname $(realpath "$0"))
 src=$(realpath "$dir/src")
