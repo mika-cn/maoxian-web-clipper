@@ -425,3 +425,5 @@ function QObject(name, data, webChannel)
         object[name] = data.enums[name];
     }
 }
+
+export { QWebChannel, QObject }

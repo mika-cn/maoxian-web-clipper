@@ -1,6 +1,6 @@
 
-const H = require('../helper.js');
-const SelectionStore = H.depJs('selection/store.js');
+import H from '../helper.js';
+import SelectionStore from '../../src/js/selection/store.js';
 
 describe('Selection Store', () => {
 

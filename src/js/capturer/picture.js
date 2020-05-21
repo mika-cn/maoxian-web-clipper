@@ -1,51 +1,40 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(
-      require('../lib/tool.js'),
-      require('./tool.js')
-    );
-  } else {
-    // browser or other
-    root.MxWcCapturerPicture = factory(
-      root.MxWcTool,
-      root.MxWcCaptureTool
-    );
-  }
-})(this, function(T, CaptureTool, undefined) {
-  "use strict";
+"use strict";
 
-  /*!
-   * Capture Element Picture
-   *
-   *
-   * Attributes of Source Element we care about.
-   *   - srcset
-   *   - type : mimeType
-   */
+import T from '../lib/tool.js';
+import CaptureTool from './tool.js';
 
-  /**
-   *
-   * @param {Object} opts
-   *   - {String} baseUrl
-   *   - {String} clipId
-   *   - {Object} storageInfo
-   *   - {Object} mimeTypeDict
-   *
-   */
-  function capture(node, opts) {
-    const {baseUrl, clipId, storageInfo, mimeTypeDict = {}} = opts;
+/*!
+ * Capture Element Picture
+ *
+ *
+ * Attributes of Source Element we care about.
+ *   - srcset
+ *   - type : mimeType
+ */
 
-    const tasks = [];
+/**
+ *
+ * @param {Object} opts
+ *   - {String} baseUrl
+ *   - {String} clipId
+ *   - {Object} storageInfo
+ *   - {Object} mimeTypeDict
+ *
+ */
+function capture(node, opts) {
+  const {baseUrl, clipId, storageInfo, mimeTypeDict = {}} = opts;
 
-    const sourceNodes = node.querySelectorAll('source');
-    [].forEach.call(sourceNodes, (sourceNode) => {
-      const {tasks: sourceTasks} = CaptureTool.captureImageSrcset(sourceNode, opts);
-      tasks.push(...sourceTasks);
-    });
-    return {node, tasks};
-  }
+  const tasks = [];
+
+  const sourceNodes = node.querySelectorAll('source');
+  [].forEach.call(sourceNodes, (sourceNode) => {
+    const {tasks: sourceTasks} = CaptureTool.captureImageSrcset(sourceNode, opts);
+    tasks.push(...sourceTasks);
+  });
+  return {node, tasks};
+}
 
 
-  return {capture: capture}
-});
+const CapturerPicture = {capture: capture}
+
+export default CapturerPicture;

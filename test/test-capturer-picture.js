@@ -1,6 +1,10 @@
-const H = require('./helper.js');
-const DOMTool = H.depJs('lib/dom-tool.js');
-const Capturer = H.depJs('capturer/picture.js');
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
+
+import H from './helper.js';
+import DOMTool from '../src/js/lib/dom-tool.js';
+import Capturer from '../src/js/capturer/picture.js';
 
 function getNode() {
   let html = `
@@ -10,7 +14,7 @@ function getNode() {
       <source srcset="d.png" type="image/jpeg">
       <img src="img.png" title='default image' >
     </picture>`;
-  const {node} = DOMTool.parseHTML(html);
+  const {node} = DOMTool.parseHTML(win, html);
   return node;
 }
 

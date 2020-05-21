@@ -1,79 +1,73 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('../lib/tool.js'));
-  } else {
-    // browser or other
-    root.MxWcInputParser_WizNotePlus = factory(root.MxWcTool);
-  }
-})(this, function(T, undefined) {
-  "use strict";
+"use strict";
 
-  //==========================================
-  // Input Parser for WizNotePlus
-  //==========================================
+import T from '../lib/tool.js';
 
-  function parse(params) {
-      let {format, title, category, tags, domain, link, config} = params;
+//==========================================
+// Input Parser for WizNotePlus
+//==========================================
 
-      // Set default title
-      if(title === ""){ title = 'Untitled' }
+function parse(params) {
+    let {format, title, category, tags, domain, link, config} = params;
 
-      // Add domain as tag
-      const appendTags = []
-      if (config.saveDomainAsTag) {
-          appendTags.push(domain);
-      }
+    // Set default title
+    if(title === ""){ title = 'Untitled' }
 
-      // Set default category
-      if (category === '') {
-          category = (config.defaultCategory === '' ? 'default' : config.defaultCategory);
-      }
+    // Add domain as tag
+    const appendTags = []
+    if (config.saveDomainAsTag) {
+        appendTags.push(domain);
+    }
 
-      // Set main filename, "index" is used to identify the entry point of document
-      const mainFilename = ['index', format].join('.');;
+    // Set default category
+    if (category === '') {
+        category = (config.defaultCategory === '' ? 'default' : config.defaultCategory);
+    }
 
-      // clipId
-      const now = T.currentTime();
-      const clipId = now.str.intSec;
+    // Set main filename, "index" is used to identify the entry point of document
+    const mainFilename = ['index', format].join('.');;
 
-      // Keep all paths relative to $WIZNOTE_TEMP/webclipping
-      const storageInfo =  {
-          /** the path to place index.html and assetFolder */
-          mainFileFolder: clipId,
-          mainFileName: mainFilename,
-          /** the path to place frame files */
-          frameFileFolder: clipId + "/index_files",
-          /** the path to place asset files */
-          assetFolder: clipId + "/index_files",
-          /** the path is relative to index.html */
-          assetRelativePath: "index_files"
-      };
+    // clipId
+    const now = T.currentTime();
+    const clipId = now.str.intSec;
 
-      const info = {
-          clipId     : clipId,
-          format     : format,
-          title      : title,
-          link       : link,
-          category   : category,
-          tags       : tags.concat(appendTags),
-          created_at : now.toString(),
-      }
+    // Keep all paths relative to $WIZNOTE_TEMP/webclipping
+    const storageInfo =  {
+        /** the path to place index.html and assetFolder */
+        mainFileFolder: clipId,
+        mainFileName: mainFilename,
+        /** the path to place frame files */
+        frameFileFolder: clipId + "/index_files",
+        /** the path to place asset files */
+        assetFolder: clipId + "/index_files",
+        /** the path is relative to index.html */
+        assetRelativePath: "index_files"
+    };
 
-      const inputHistory = { title: title, category: category, tags: tags }
+    const info = {
+        clipId     : clipId,
+        format     : format,
+        title      : title,
+        link       : link,
+        category   : category,
+        tags       : tags.concat(appendTags),
+        created_at : now.toString(),
+    }
 
-      const result = {
-          info: info,
-          storageInfo: storageInfo,
-          input: inputHistory,
-          /* We don't need to save index.json, so we don't need infoFileFolder
-             and infoFileName too. */
-          needSaveIndexFile: false,
-          needSaveTitleFile: false
-      }
+    const inputHistory = { title: title, category: category, tags: tags }
 
-      return result;
-  }
+    const result = {
+        info: info,
+        storageInfo: storageInfo,
+        input: inputHistory,
+        /* We don't need to save index.json, so we don't need infoFileFolder
+           and infoFileName too. */
+        needSaveIndexFile: false,
+        needSaveTitleFile: false
+    }
 
-  return {parse: parse}
-});
+    return result;
+}
+
+const InputParser_WizNotePlus = {parse: parse};
+
+export default InputParser_WizNotePlus;

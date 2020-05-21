@@ -1,6 +1,7 @@
-const H = require('./helper.js');
-const T = H.depJs('lib/tool.js');
-const Parser = H.depJs('content/input-parser-default.js');
+
+import H from './helper.js';
+import T from '../src/js/lib/tool.js';
+import Parser from '../src/js/content/input-parser-default.js';
 
 describe('InputParserDefault', () => {
 

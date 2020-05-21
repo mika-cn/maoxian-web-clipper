@@ -1,6 +1,10 @@
-const H = require('./helper.js');
-const DOMTool = H.depJs('lib/dom-tool.js');
-const Capturer = H.depJs('capturer/img.js');
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
+
+import H from './helper.js';
+import DOMTool from '../src/js/lib/dom-tool.js';
+import Capturer from '../src/js/capturer/img.js';
 
 function getNode(src, srcset) {
   let html = `<img src="${src}" $srcset crossorigin="anonymous"/>`;
@@ -9,7 +13,7 @@ function getNode(src, srcset) {
   } else {
     html = html.replace('$srcset', '');
   }
-  const {node} = DOMTool.parseHTML(html);
+  const {node} = DOMTool.parseHTML(win, html);
   return node;
 }
 

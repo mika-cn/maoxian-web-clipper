@@ -1,48 +1,40 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory(require('../env.js'));
-  } else {
-    // browser or other
-    root.MxWcLog = factory(root.MxWcENV);
-  }
-})(this, function(ENV, undefined) {
-  "use strict";
+"use strict";
 
-  const exports = {};
+import ENV from '../env.js';
 
-  let logLevel = 'debug';
-  try {
-    logLevel = (window && window.location && window.location.search.indexOf('debug') > 0 && 'debug') || (ENV && ENV.logLevel || 'debug');
-  } catch(e) {
-    logLevel = 'debug';
-  }
+const Log = {};
 
-  const levels = ["debug", "info", "warn", "error"];
-  if (!levels.includes(logLevel)) {
-    console.warn("Invalid logLevel:", logLevel);
-  }
-  const shouldLog = {};
+let logLevel = 'debug';
+try {
+  logLevel = (window && window.location && window.location.search.indexOf('debug') > 0 && 'debug') || (ENV && ENV.logLevel || 'debug');
+} catch(e) {
+  logLevel = 'debug';
+}
 
-  {
-    let startLogging = false;
-    for (const level of levels) {
-      if (logLevel === level) {
-        startLogging = true;
-      }
-      if (startLogging) {
-        shouldLog[level] = true;
-      }
+const levels = ["debug", "info", "warn", "error"];
+if (!levels.includes(logLevel)) {
+  console.warn("Invalid logLevel:", logLevel);
+}
+const shouldLog = {};
+
+{
+  let startLogging = false;
+  for (const level of levels) {
+    if (logLevel === level) {
+      startLogging = true;
+    }
+    if (startLogging) {
+      shouldLog[level] = true;
     }
   }
+}
 
-  function stub() {}
-  exports.debug = exports.info = exports.warn = exports.error = stub;
+function stub() {}
+Log.debug = Log.info = Log.warn = Log.error = stub;
 
-  if (shouldLog.debug) { exports.debug = console.debug; }
-  if (shouldLog.info) { exports.info = console.info; }
-  if (shouldLog.warn) { exports.warn = console.warn; }
-  if (shouldLog.error) { exports.error = console.error; }
+if (shouldLog.debug) { Log.debug = console.debug; }
+if (shouldLog.info) { Log.info = console.info; }
+if (shouldLog.warn) { Log.warn = console.warn; }
+if (shouldLog.error) { Log.error = console.error; }
 
-  return exports;
-});
+export default Log;

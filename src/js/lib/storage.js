@@ -1,53 +1,48 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcStorage = factory();
-  }
-})(this, function(undefined) {
-  "use strict";
+"use strict";
 
-  function set(k, v){
-    const d = {}
-    d[k] = v
-    return browser.storage[this.type].set(d)
-  }
+//const browser = require('webextension-polyfill');
 
-  // keys: string or Array
-  function remove(keys) {
-    return browser.storage[this.type].remove(keys);
-  }
+const TYPE = 'local';
 
-  function clear() {
-    return browser.storage[this.type].clear();
-  }
+function set(k, v){
+  const d = {}
+  d[k] = v
+  return browser.storage[TYPE].set(d)
+}
 
-  function get(k, defaultValue){
-    return new Promise((resolve, reject) => {
-      browser.storage[this.type].get(k)
-        .then((res) => {
-          const v = res[k];
-          if(defaultValue !== null && (typeof defaultValue !== 'undefined')){
-            if(typeof v != 'undefined'){
-              resolve(v)
-            }else{
-              MxWcStorage.set(k, defaultValue);
-              resolve(defaultValue);
-            }
+// keys: string or Array
+function remove(keys) {
+  return browser.storage[TYPE].remove(keys);
+}
+
+function clear() {
+  return browser.storage[TYPE].clear();
+}
+
+function get(k, defaultValue){
+  return new Promise((resolve, reject) => {
+    browser.storage[TYPE].get(k)
+      .then((res) => {
+        const v = res[k];
+        if(defaultValue !== null && (typeof defaultValue !== 'undefined')){
+          if(typeof v != 'undefined'){
+            resolve(v)
           }else{
-            resolve(v);
+            set(k, defaultValue);
+            resolve(defaultValue);
           }
-        })
-    });
-  }
+        }else{
+          resolve(v);
+        }
+      })
+  });
+}
 
-  return {
-    type: 'local',
-    get: get,
-    set: set,
-    remove: remove,
-    clear: clear,
-  };
-});
+const Storage = {
+  get: get,
+  set: set,
+  remove: remove,
+  clear: clear,
+};
+
+export default Storage;

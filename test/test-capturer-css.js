@@ -1,21 +1,14 @@
+import browser from 'sinon-chrome';
+global.browser = browser;
 
-const H = require('./helper.js');
-const DOMTool = H.depJs('lib/dom-tool.js');
+import H from './helper.js';
 
-const stripCssComment = require('strip-css-comments');
-const Log         = H.depJs('lib/log.js');
-const Tool        = H.depJs('lib/tool.js');
-const Asset       = H.depJs('lib/asset.js');
-const Task        = H.depJs('lib/task.js');
-const CaptureTool = H.depJs('capturer/tool.js');
-const ExtMsg      = H.depMockJs('ext-msg.js');
+import DOMTool from '../src/js/lib/dom-tool.js';
 
-const CapturerFactory = H.depJs('capturer/css.js');
+import Capturer from '../src/js/capturer/css.js';
 
-function getCapturer() {
-  return CapturerFactory( stripCssComment,
-      Log, Tool, Asset, Task, ExtMsg, CaptureTool);
-}
+const ExtMsg = H.depMockJs('ext-msg.js');
+ExtMsg.initBrowser(browser);
 
 function getParams() {
   return {
@@ -55,7 +48,6 @@ describe("Capturer css", () => {
     `;
     const linkText = '.CSSTEXT{}';
     ExtMsg.mockFetchTextStatic(linkText)
-    const Capturer = getCapturer();
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 5);
     tasks.forEach((it) => {
@@ -72,7 +64,6 @@ describe("Capturer css", () => {
     ExtMsg.mockFetchTextUrls({
       "https://a.org/style-A.css": "@import 'style-A.css';"
     });
-    const Capturer = getCapturer();
     const tasks = await Capturer.captureLink(params);
     ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 1);
@@ -88,13 +79,11 @@ describe("Capturer css", () => {
       "https://a.org/style-A.css": "@import 'style-B.css';",
       "https://a.org/style-B.css": "@import 'style-A.css';",
     });
-    const Capturer = getCapturer();
     const tasks = await Capturer.captureLink(params);
     ExtMsg.clearMocks();
-    H.assertEqual(tasks.length, 2);
     const [taskA, taskB] = tasks;
-    taskAFilename = taskA.filename.split('/').pop();
-    taskBFilename = taskB.filename.split('/').pop();
+    const taskAFilename = taskA.filename.split('/').pop();
+    const taskBFilename = taskB.filename.split('/').pop();
     H.assertTrue(taskA.text.indexOf(taskBFilename) > -1)
     H.assertTrue(taskB.text.indexOf(taskAFilename) > -1)
   });
@@ -106,7 +95,6 @@ describe("Capturer css", () => {
   it("capture text (web font) - default config", async () => {
     const params = getParams();
     params.baseUrl = params.docUrl;
-    const Capturer = getCapturer();
     const texts = [
       WEB_FONT_CSS_A,
       WEB_FONT_CSS_B,
@@ -124,7 +112,6 @@ describe("Capturer css", () => {
     const params = getParams();
     params.baseUrl = params.docUrl;
     params.config.saveWebFont = true;
-    const Capturer = getCapturer();
     params.text = WEB_FONT_CSS_A;
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 1);
@@ -137,7 +124,6 @@ describe("Capturer css", () => {
     params.text = WEB_FONT_CSS_A;
     params.config.saveWebFont = true;
     params.baseUrl = 'https://a.org/style.css';
-    const Capturer = getCapturer();
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 1);
     H.assertMatch(cssText, /url\("[^\.\/]+.woff"\)/);
@@ -148,7 +134,6 @@ describe("Capturer css", () => {
     params.text = WEB_FONT_CSS_A;
     params.config.saveWebFont = true;
     params.baseUrl = 'https://cdn.a.org/style.css';
-    const Capturer = getCapturer();
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 1);
     H.assertMatch(cssText, /url\("[^\.\/]+.woff"\)/);
@@ -168,7 +153,6 @@ describe("Capturer css", () => {
     const params = getParams();
     params.baseUrl = params.docUrl;
     params.text = IMG_CSS;
-    const Capturer = getCapturer();
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 0);
     H.assertEqual(cssText.match(/url\(""\)/mg).length, 3);
@@ -179,7 +163,6 @@ describe("Capturer css", () => {
     params.text = IMG_CSS;
     params.baseUrl = 'https://a.org/style.css';
     params.config.saveCssImage = true;
-    const Capturer = getCapturer();
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 3);
     H.assertMatch(cssText, /url\("[^\.\/]+.jpg"\)/);
@@ -192,7 +175,6 @@ describe("Capturer css", () => {
       const params = getParams();
       params.needFixStyle = true;
       params.text = text;
-      const Capturer = getCapturer();
       const {cssText, tasks} = await Capturer.captureText(params);
       const match = cssText.match(/body > \.mx-wc-main >/mg);
       if (n > 0) {

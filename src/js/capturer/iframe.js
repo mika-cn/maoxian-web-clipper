@@ -1,170 +1,150 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    const process = require('process');
-    if (process.env.MX_WC_TESTING) {
-      module.exports = factory;
-    } else {
-      module.exports = factory(
-        require('../lib/log.js'),
-        require('../lib/tool.js'),
-        require('../lib/ext-msg.js'),
-        require('../lib/asset.js'),
-        require('../lib/task.js'),
-        require('../lib/template.js')
-      );
-    }
-  } else {
-    // browser or other
-    root.MxWcCapturerIframe = factory(
-      root.MxWcLog,
-      root.MxWcTool,
-      root.MxWcExtMsg,
-      root.MxWcAsset,
-      root.MxWcTask,
-      root.MxWcTemplate,
-    );
+"use strict";
+
+import Log from '../lib/log.js';
+import T from '../lib/tool.js';
+import ExtMsg from '../lib/ext-msg.js';
+import Asset from '../lib/asset.js';
+import Task from '../lib/task.js';
+import Template from '../lib/template.js';
+
+/*!
+ * Capture Element Iframe
+ */
+
+
+/**
+ * @param {Node} node
+ * @param {Object} opts
+ *   - {String} saveFormat
+ *   - {Integer} parentFrameId
+ *   - {String} baseUrl
+ *   - {String} clipId
+ *   - {Object} storageInfo
+ *   - {Document} doc
+ *   - {Array} frames
+ *   - {Object} mimeTypeDict
+ *   - {Object} config
+ */
+
+async function capture(node, opts) {
+  const {parentFrameId, baseUrl, clipId, saveFormat,
+    storageInfo, doc, frames, mimeTypeDict, config} = opts;
+  const srcdoc = node.getAttribute('srcdoc');
+  const src = node.getAttribute('src');
+  const tasks = [];
+
+  // in content script, frameNode.contentWindow is undefined.
+  // window.frames includes current layer frames.
+  //   firefox: all frames (includes frame outside body node)
+  //   chrome: frames inside body node.
+
+  if (srcdoc) {
+    // inline iframe
+    // assetName = Asset.getNameByContent({content: srcdoc, extension: 'frame.html'});
+    // TODO ?
+    node.setAttribute('data-mx-warn', 'srcdoc attribute was not captured by MaoXian');
+    return {node, tasks};
   }
-})(this, function(Log, T, ExtMsg, Asset, Task, Template, undefined) {
-  "use strict";
 
-  /*!
-   * Capture Element Iframe
-   */
+  const r = T.completeUrl(src, baseUrl);
+  const {isValid, url, message} = r;
 
+  if (!isValid) {
+    const newNode = doc.createElement('div');
+    newNode.setAttribute('data-mx-warn', message);
+    newNode.setAttribute('data-mx-original-src', src);
+    node.parentNode.replaceChild(newNode, node);
+    return {node: newNode, tasks: tasks};
+  }
 
-  /**
-   * @param {Node} node
-   * @param {Object} opts
-   *   - {String} saveFormat
-   *   - {Integer} parentFrameId
-   *   - {String} baseUrl
-   *   - {String} clipId
-   *   - {Object} storageInfo
-   *   - {Document} doc
-   *   - {Array} frames
-   *   - {Object} mimeTypeDict
-   *   - {Object} config
-   */
+  if (T.isExtensionUrl(url)) {
+    const newNode = doc.createElement('div');
+    newNode.setAttribute('data-mx-ignore-me', 'true');
+    node.parentNode.replaceChild(newNode, node);
+    return {node: newNode, tasks: tasks};
+  }
 
-  async function capture(node, opts) {
-    const {parentFrameId, baseUrl, clipId, saveFormat,
-      storageInfo, doc, frames, mimeTypeDict, config} = opts;
-    const srcdoc = node.getAttribute('srcdoc');
-    const src = node.getAttribute('src');
-    const tasks = [];
+  const frame = frames.find((it) => it.url === url && it.parentFrameId === parentFrameId);
+  if (!frame) {
+    Log.debug("What happened");
+    //TODO
+    return {node, tasks}
+  } else if(frame.errorOccurred) {
+    node.setAttribute('data-mx-warn', 'the last navigation in this frame was interrupted by an error');
+    node.setAttribute('data-mx-original-src', src);
+    node.removeAttribute('src');
+    return {node, tasks}
+  }
 
-    // in content script, frameNode.contentWindow is undefined.
-    // window.frames includes current layer frames.
-    //   firefox: all frames (includes frame outside body node)
-    //   chrome: frames inside body node.
+  node.removeAttribute('referrerpolicy');
 
-    if (srcdoc) {
-      // inline iframe
-      // assetName = Asset.getNameByContent({content: srcdoc, extension: 'frame.html'});
-      // TODO ?
-      node.setAttribute('data-mx-warn', 'srcdoc attribute was not captured by MaoXian');
-      return {node, tasks};
-    }
+  const msgType = saveFormat === 'html' ? 'frame.toHtml' : 'frame.toMd';
+  try {
+    const {fromCache, result} = await ExtMsg.sendToBackground({
+      type: msgType,
+      frameId: frame.frameId,
+      frameUrl: frame.url,
+      body: { clipId, frames, storageInfo,
+        mimeTypeDict, config }
+    });
 
-    const r = T.completeUrl(src, baseUrl);
-    const {isValid, url, message} = r;
-
-    if (!isValid) {
-      const newNode = doc.createElement('div');
-      newNode.setAttribute('data-mx-warn', message);
-      newNode.setAttribute('data-mx-original-src', src);
-      node.parentNode.replaceChild(newNode, node);
-      return {node: newNode, tasks: tasks};
-    }
-
-    if (T.isExtensionUrl(url)) {
-      const newNode = doc.createElement('div');
-      newNode.setAttribute('data-mx-ignore-me', 'true');
-      node.parentNode.replaceChild(newNode, node);
-      return {node: newNode, tasks: tasks};
-    }
-
-    const frame = frames.find((it) => it.url === url && it.parentFrameId === parentFrameId);
-    if (!frame) {
-      Log.debug("What happened");
-      //TODO
-      return {node, tasks}
-    } else if(frame.errorOccurred) {
-      node.setAttribute('data-mx-warn', 'the last navigation in this frame was interrupted by an error');
-      node.setAttribute('data-mx-original-src', src);
-      node.removeAttribute('src');
-      return {node, tasks}
-    }
-
-    node.removeAttribute('referrerpolicy');
-
-    const msgType = saveFormat === 'html' ? 'frame.toHtml' : 'frame.toMd';
-    try {
-      const {fromCache, result} = await ExtMsg.sendToBackground({
-        type: msgType,
-        frameId: frame.frameId,
-        frameUrl: frame.url,
-        body: { clipId, frames, storageInfo,
-          mimeTypeDict, config }
-      });
-
-      if (fromCache) {
-        // processed
-        if (saveFormat === 'html') {
-          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
-          const src = T.calcPath(
-            storageInfo.mainFileFolder,
-            T.joinPath(storageInfo.frameFileFolder, assetName)
-          );
-          node.setAttribute('src', src);
-          return {node, tasks};
-        } else {
-          const {elemHtml} = result;
-          const newNode = doc.createElement('div');
-          newNode.innerHTML = elemHtml;
-          node.parentNode.replaceChild(newNode, node);
-          return {node: newNode, tasks: tasks}
-        }
+    if (fromCache) {
+      // processed
+      if (saveFormat === 'html') {
+        const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
+        const src = T.calcPath(
+          storageInfo.mainFileFolder,
+          T.joinPath(storageInfo.frameFileFolder, assetName)
+        );
+        node.setAttribute('src', src);
+        return {node, tasks};
       } else {
-        const {elemHtml, headInnerHtml, title, tasks: _tasks} = result;
-        tasks.push(..._tasks);
-        if (saveFormat === 'html') {
-          const html = Template.framePage.render({
-            originalSrc: frame.url,
-            title: (title || ""),
-            headInnerHtml: headInnerHtml,
-            html: elemHtml
-          });
-          const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
-          const filename = T.joinPath(storageInfo.frameFileFolder, assetName);
-          const src = T.calcPath(
-            storageInfo.mainFileFolder,
-            T.joinPath(storageInfo.frameFileFolder, assetName)
-          );
-          node.setAttribute('src', src);
-          tasks.push(Task.createFrameTask(filename, html, clipId));
-          return {node, tasks};
-        } else {
-          const newNode = doc.createElement('div');
-          newNode.innerHTML = elemHtml;
-          node.parentNode.replaceChild(newNode, node);
-          return {node: newNode, tasks: tasks}
-        }
+        const {elemHtml} = result;
+        const newNode = doc.createElement('div');
+        newNode.innerHTML = elemHtml;
+        node.parentNode.replaceChild(newNode, node);
+        return {node: newNode, tasks: tasks}
       }
-    } catch(e) {
-      Log.error(e);
-      // Frame page failed to load (mainly caused by network problem)
-      // ExtMsg.sendToContentFrame resolve undefined.
-      // (catched by ExtMsg.sendToTab).
-      node.setAttribute('data-mx-warn', 'Frame page failed to load')
-      node.setAttribute('data-mx-original-src', url);
-      node.removeAttribute('src');
-      return {node, tasks};
+    } else {
+      const {elemHtml, headInnerHtml, title, tasks: _tasks} = result;
+      tasks.push(..._tasks);
+      if (saveFormat === 'html') {
+        const html = Template.framePage.render({
+          originalSrc: frame.url,
+          title: (title || ""),
+          headInnerHtml: headInnerHtml,
+          html: elemHtml
+        });
+        const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
+        const filename = T.joinPath(storageInfo.frameFileFolder, assetName);
+        const src = T.calcPath(
+          storageInfo.mainFileFolder,
+          T.joinPath(storageInfo.frameFileFolder, assetName)
+        );
+        node.setAttribute('src', src);
+        tasks.push(Task.createFrameTask(filename, html, clipId));
+        return {node, tasks};
+      } else {
+        const newNode = doc.createElement('div');
+        newNode.innerHTML = elemHtml;
+        node.parentNode.replaceChild(newNode, node);
+        return {node: newNode, tasks: tasks}
+      }
     }
-
+  } catch(e) {
+    Log.error(e);
+    // Frame page failed to load (mainly caused by network problem)
+    // ExtMsg.sendToContentFrame resolve undefined.
+    // (catched by ExtMsg.sendToTab).
+    node.setAttribute('data-mx-warn', 'Frame page failed to load')
+    node.setAttribute('data-mx-original-src', url);
+    node.removeAttribute('src');
+    return {node, tasks};
   }
 
+}
 
-  return {capture: capture}
-});
+
+const CapturerIframe = {capture: capture}
+
+export default CapturerIframe;

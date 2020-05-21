@@ -1,24 +1,22 @@
-;(function (root, factory) {
-  if (typeof module === 'object' && module.exports) {
-    // CJS
-    module.exports = factory();
-  } else {
-    // browser or other
-    root.MxWcENV = factory();
-  }
-})(this, function(undefined) {
 "use strict";
 
-  const websiteRoot = "http://dev.pc:3000/maoxian-web-clipper";
-  const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
-  const mxAssistantRoot = [websiteRoot, 'tmp/assistant'].join('/');
+import pkg from '../../package.json';
 
-  return {
-    logLevel: "debug",
-    version: '0.1.54',
-    minNativeAppVersion: '0.2.2',
-    websiteRoot: websiteRoot,
-    projectRoot: projectRoot,
-    mxAssistantRoot: mxAssistantRoot,
-  };
-});
+let isProd = false;
+try {isProd = COMPILING_VAR_IS_PRODUCTION} catch(e) {}
+
+
+const websiteRoot = isProd ? "https://mika-cn.github.io/maoxian-web-clipper" : "http://dev.pc:3000/maoxian-web-clipper";
+const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
+const mxAssistantRoot = [websiteRoot, isProd ? 'assistant' : 'tmp/assistant'].join('/');
+
+const env = {
+  logLevel: isProd ? "warn" : "debug",
+  version: pkg.version,
+  minNativeAppVersion: '0.2.2',
+  websiteRoot: websiteRoot,
+  projectRoot: projectRoot,
+  mxAssistantRoot: mxAssistantRoot,
+};
+
+export default env;

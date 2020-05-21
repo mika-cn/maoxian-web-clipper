@@ -1,30 +1,20 @@
+import browser from 'sinon-chrome';
+global.browser = browser;
 
-const H = require('./helper.js');
-const DOMTool = H.depJs('lib/dom-tool.js');
+const JSDOM = require('jsdom').JSDOM;
+const jsdom = new JSDOM();
+const win = jsdom.window;
 
-const stripCssComment = require('strip-css-comments');
-const Log         = H.depJs('lib/log.js');
-const Tool        = H.depJs('lib/tool.js');
-const Asset       = H.depJs('lib/asset.js');
-const Task        = H.depJs('lib/task.js');
-const CaptureTool = H.depJs('capturer/tool.js');
-const ExtMsg      = H.depMockJs('ext-msg.js');
+import H from './helper.js';
+import DOMTool from '../src/js/lib/dom-tool.js';
+import Capturer from '../src/js/capturer/link.js';
 
-const CapturerCssFactory = H.depJs('capturer/css.js');
-const CapturerLinkFactory = H.depJs('capturer/link.js');
+const ExtMsg = H.depMockJs('ext-msg.js');
+ExtMsg.initBrowser(browser);
 
-function getCapturerCss() {
-  return CapturerCssFactory( stripCssComment,
-      Log, Tool, Asset, Task, ExtMsg, CaptureTool);
-}
-
-function getCapturer() {
-  return CapturerLinkFactory( Tool, Asset, Task,
-      getCapturerCss(), CaptureTool);
-}
 
 function getNode(html) {
-  const {doc} = DOMTool.parseHTML(html);
+  const {doc} = DOMTool.parseHTML(win, html);
   return doc.head.children[0];
 }
 
@@ -58,28 +48,27 @@ describe('Capture link', () => {
     ExtMsg.mockFetchTextStatic(text);
     return {
       node: getNode(html),
-      params: getParams(),
-      Capturer: getCapturer(),
+      params: getParams()
     }
   }
 
   it('capture link without rel attribute', async () => {
     const html = '<link href="_">';
-    const {node, params, Capturer} = initTest(html);
+    const {node, params} = initTest(html);
     const {tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
   });
 
   it('capture link without href attribute', async () => {
     const html = '<link rel="_">';
-    const {node, params, Capturer} = initTest(html);
+    const {node, params} = initTest(html);
     const {tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
   });
 
   it('capture link rel="icon"', async() => {
     const html = '<link rel="icon" href="a.icon">';
-    const {node, params, Capturer} = initTest(html);
+    const {node, params} = initTest(html);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
     H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.icon/);
@@ -87,7 +76,7 @@ describe('Capture link', () => {
 
   it('capture link rel="shortcut icon"', async() => {
     const html = '<link rel="shortcut icon" href="a.icon">';
-    const {node, params, Capturer} = initTest(html);
+    const {node, params} = initTest(html);
     const {tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 1);
   });
@@ -95,14 +84,14 @@ describe('Capture link', () => {
 
   it('capture link rel="apple-touch-icon-precomposed"', async() => {
     const html = '<link rel="apple-touch-icon-precomposed" href="a" type="image/png">';
-    const {node, params, Capturer} = initTest(html);
+    const {node, params} = initTest(html);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
     H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.png/);
   });
 
   async function testCaptureStylesheet(html) {
-    const {node, params, Capturer} = initTest(html);
+    const {node, params} = initTest(html);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
     H.assertEqual(r.node.getAttribute('referrerpolicy'), 'no-referrer');
@@ -127,7 +116,7 @@ describe('Capture link', () => {
 
   it('capture rel="alternate stylesheet" disabled', async() => {
     const html = '<link rel="alternate stylesheet" href="style-A.css" disabled>';
-    const {node, params, Capturer} = initTest(html);
+    const {node, params} = initTest(html);
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 0);
     H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
