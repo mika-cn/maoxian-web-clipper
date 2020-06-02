@@ -243,7 +243,7 @@ function isOverflowDefault(node) {
 function extractCssAttrs(node) {
   return {
     id: node.getAttribute('id') || "",
-    klass: node.getAttribute('klass') || "",
+    klass: node.getAttribute('class') || "",
     style: node.getAttribute('style') || "",
   }
 }
