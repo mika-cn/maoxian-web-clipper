@@ -3,7 +3,6 @@
 import Log from './lib/log.js';
 import T from './lib/tool.js';
 import ExtMsg from './lib/ext-msg.js';
-import FrameMsg from './lib/frame-msg.js';
 import MxWcEvent from './lib/event.js';
 import Config from './lib/config.js';
 import MxWcHtml from './content/save-as-html.js';
@@ -71,7 +70,7 @@ function getParams(message) {
 }
 
 function listenFrameMessage() {
-  FrameMsg.init({
+  MxWcEvent.initFrameMsg({
     id: window.location.href,
     origin: window.location.origin
   });
