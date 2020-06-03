@@ -23,8 +23,7 @@ import 'pikaday/css/pikaday.css';
 const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
 function listenMessage() {
-  ExtMsg.initPage('history');
-  ExtMsg.listen(function(msg) {
+  ExtMsg.listen('history', function(msg) {
     return new Promise((resolve, reject) => {
       switch(msg.type) {
         case 'history.reseted':
