@@ -29,11 +29,11 @@ import ExtApi from './ext-api.js';
 
 
 /*
- * @param {function} listener
  * @param {string} currPage
+ * @param {function} listener
  *   listener should return a promise.
  */
-function listen(listener, currPage) {
+function listen(currPage, listener) {
   browser.runtime.onMessage.addListener((msg, sender, senderResponse) => {
     // Deprecated: senderResponse
     if(msg.target == currPage) {

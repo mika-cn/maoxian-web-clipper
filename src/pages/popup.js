@@ -148,7 +148,6 @@ function bindListener(){
 
 async function init(){
   await renderMenus();
-  ExtMsg.initPage('popup');
   MxWcIcon.change("default");
 }
 

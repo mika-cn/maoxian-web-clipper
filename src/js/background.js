@@ -371,8 +371,7 @@ function init(){
   Log.debug("background init...");
   MxWcMigration.perform();
   MxWcHandlerBackground.initialize();
-  ExtMsg.initPage('background');
-  ExtMsg.listen(messageHandler);
+  ExtMsg.listen('background', messageHandler);
   WebRequest.listen();
   refreshHistoryIfNeed();
   welcomeNewUser();

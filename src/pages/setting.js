@@ -912,7 +912,6 @@ function activeMenu() {
 function init(){
   I18N.i18nPage();
   initSidebar();
-  ExtMsg.initPage('setting');
   MxWcLink.listen(document.body);
   activeMenu();
 }

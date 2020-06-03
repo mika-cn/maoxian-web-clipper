@@ -99,14 +99,12 @@ function init() {
     if (document.documentElement.tagName.toUpperCase() === 'HTML') {
       if(window === window.top){
         // Main window
-        ExtMsg.initPage('content');
         MxWcAssistantMain.listenInternalEvent();
         initMxWcAssistant();
       }else{
         // Iframe
-        ExtMsg.initPage('content-frame');
         initMxWcAssistant();
-        ExtMsg.listen(backgroundMessageHandler);
+        ExtMsg.listen('content-frame', backgroundMessageHandler);
         listenFrameMessage();
       }
     } else {
