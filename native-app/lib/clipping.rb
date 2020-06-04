@@ -13,7 +13,7 @@ module Clipping
       return { ok: false, message: 'clipping.op-error.path-overflow' }
     else
       if File.exist?(path)
-        json_str = File.open(path, 'r', external_encoding: 'UTF-8').read
+        json_str = File.open(path, 'r').read
         begin
           info = JSON.parse(json_str)
           info_file_folder = File.dirname(path)

@@ -46,7 +46,7 @@ module History
   end
 
   def self.parse_clipping_info_file(path, root_folder)
-    json = File.open(path, 'r', external_encoding: 'UTF-8') {|f| f.read}
+    json = File.open(path) {|f| f.read}
     begin
       info = JSON.parse(json)
       if is_clipping_info_file?(info)

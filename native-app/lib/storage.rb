@@ -18,7 +18,7 @@ module Storage
     begin
       mkdir(filename)
       content = yield blk
-      File.open(filename, 'wb', external_encoding: 'UTF-8') {|f| f.write(content) }
+      File.open(filename, 'wb') {|f| f.write(content) }
       return OpenStruct.new(ok: true)
     rescue => e
       Log.fatal(e.message)
