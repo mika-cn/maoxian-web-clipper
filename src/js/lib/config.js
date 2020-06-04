@@ -40,7 +40,7 @@ function getDefault(){
     // Advanced
     //=====================================
     /* unit: seconds */
-    requestTimeout: 40,
+    requestTimeout: 100,
     /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
     requestReferrerPolicy: 'originWhenCrossOrigin',
     communicateWithThirdParty: false,
