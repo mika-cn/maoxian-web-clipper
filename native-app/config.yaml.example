@@ -1,11 +1,3 @@
 # ATTENTION: restart the browser to apply your changes.
 environment: 'production'
 data_dir: '/home/jack/clipping'
-
-# This Application won't using the proxy info of browser.
-# We only support http/https proxy.
-# UnComment and change below items If you need proxy.
-
-# proxy_url: 'http://127.0.0.1:3000'
-# username: 'jake'
-# password: 'password'

@@ -1,13 +1,11 @@
 
-require 'net/http'
-require 'open-uri'
-require 'fileutils'
-require 'base64'
 require_relative 'app_env'
 require_relative 'log'
 require_relative 'native_message'
 require_relative 'clipping'
 require_relative 'history'
+require_relative 'fetcher'
+require_relative 'storage'
 
 class Application
 
@@ -16,7 +14,6 @@ class Application
   def initialize(config)
     config.data_dir = File.join(config.data_dir, '/')
     @config = config
-    @ruby_version_gteq_2_7_0 = AppEnv.ruby_version_gteq?('2.7.0')
   end
 
   def start
@@ -61,70 +58,73 @@ class Application
 
   def download_text(msg)
     filename = File.join(root, msg['filename'])
-    mkdir(filename)
-    File.open(filename, 'w+') do |f|
-      f.write(msg['text'])
+    r = Storage.save_file(filename, msg['text'])
+    if r.ok
+      respond_save_success(msg, filename)
+    else
+      respond_save_failure(msg, filename, r.message)
     end
-    respond_download_success(msg, filename)
     Log.debug("[Done] #{filename}")
   end
 
   def download_url(msg)
-    begin
-      filename = File.join(root, msg['filename'])
-      mkdir(filename)
-      if msg['url'] =~ /^data:/i
-        content = convert_data_url_to_bin(msg['url'])
-      else
-        default_timeout = 40
-        options = msg['headers'].clone
-        timeout = msg.fetch('timeout', default_timeout)
-        options[:open_timeout] = timeout.to_i
-        options[:read_timeout] = timeout.to_i
-        if config.username
-          options[:proxy_http_basic_authentication] = [
-            config.proxy_url,
-            config.username,
-            config.password
-          ]
-        elsif config.proxy_url
-          options[:proxy] = config.proxy_url
-        end
-        Log.debug(options.inspect)
-        if @ruby_version_gteq_2_7_0
-          content = URI.open(msg['url'], options).read
-        else
-          content = open(msg['url'], options).read
-        end
-      end
-      File.open(filename, 'wb') {|file| file.write content}
-      respond_download_success(msg, filename)
-      Log.debug("[Done] #{filename}")
-    rescue SocketError => e
-      errmsg = "[SocketError] #{msg['url']} #{e.message}"
-      Log.error(errmsg)
-      respond_download_failure(msg, filename, errmsg)
-    rescue Errno::ECONNREFUSED => e
-      errmsg = "[Connect Refused] #{msg['url']} #{e.message}"
-      Log.error(errmsg)
-      respond_download_failure(msg, filename, errmsg)
-    rescue ::Net::OpenTimeout => e
-      errmsg = "[Net openTimeout] #{msg['url']} #{e.message}"
-      Log.error(errmsg)
-      respond_download_failure(msg, filename, errmsg)
-    rescue OpenURI::HTTPError => e
-      errmsg = "[OpenUri HTTPError] #{msg['url']} #{e.message}"
-      Log.error(errmsg)
-      respond_download_failure(msg, filename, errmsg)
-    rescue => e
-      errmsg = "[Uncatch Error: #{e.class}] #{msg['url']} #{e.message}"
-      Log.fatal(errmsg)
-      Log.fatal(e.backtrace.join("\n"))
-      respond_download_failure(msg, filename, errmsg)
+    if msg['encode'] == 'base64' && msg['content']
+      save_base64_encoded_file(msg)
+    else
+      # Compatible with old message
+      fetch_and_save(msg)
     end
   end
 
-  def respond_download_success(msg, filename)
+  def save_base64_encoded_file(msg)
+    filename = File.join(root, msg['filename'])
+    r = Storage.save_base64_encoded_file(filename, msg['content'])
+    if r.ok
+      respond_save_success(msg, filename)
+      Log.debug("[Done] #{filename}")
+    else
+      respond_save_failure(msg, filename, r.message)
+    end
+  end
+
+  #
+  # Deprecated, Do not using it.
+  # We'll download these urls on browser.
+  # So that we can utilize browseri's cache
+  # and network environment.
+  #
+  def fetch_and_save(msg)
+    filename = File.join(root, msg['filename'])
+    default_timeout = 40
+    options = msg['headers'].clone
+    timeout = msg.fetch('timeout', default_timeout)
+    options[:open_timeout] = timeout.to_i
+    options[:read_timeout] = timeout.to_i
+    if config.username
+      options[:proxy_http_basic_authentication] = [
+        config.proxy_url,
+        config.username,
+        config.password
+      ]
+    elsif config.proxy_url
+      options[:proxy] = config.proxy_url
+    end
+
+    r = Fetcher.get(msg['url'], options)
+    if r.ok
+      r = Storage.save_file(filename, r.content)
+      if r.ok
+        Log.debug("[Done] #{filename}")
+        respond_save_success(msg, filename)
+      else
+        respond_save_failure(msg, filename, r.message)
+      end
+    else
+      respond_save_failure(msg, filename, r.message)
+    end
+  end
+
+  def respond_save_success(msg, filename)
     NativeMessage.write({
       type: msg['type'],
       filename: filename,
@@ -133,7 +133,7 @@ class Application
     })
   end
 
-  def respond_download_failure(msg, filename, errmsg)
+  def respond_save_failure(msg, filename, errmsg)
     NativeMessage.write({
       type: msg['type'],
       filename: filename,
@@ -142,26 +142,6 @@ class Application
       errmsg: errmsg
     })
   end
-
-  def mkdir(filename)
-    dir = filename[0, filename.rindex('/')]
-    unless File.exist?(dir)
-      FileUtils.mkdir_p(dir)
-    end
-  end
-
-  def convert_data_url_to_bin(data_url)
-    # FORMAT: data:[<mime type>][;base64],<data>
-    protocol, rest = data_url.split(':')
-    mimeType, rest = rest.split(';')
-    encode, data = rest.split(',')
-    if encode == 'base64'
-      Base64.decode64(data)
-    else
-      throw "ConvertError: unknow encode: #{encode}"
-    end
-  end
-
 
 end
 

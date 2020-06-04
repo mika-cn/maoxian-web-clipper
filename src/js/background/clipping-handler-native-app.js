@@ -6,8 +6,7 @@ import Log from '../lib/log.js';
 import I18N from '../lib/translation.js';
 import MxWcStorage from '../lib/storage.js';
 import SavingTool from './saving-tool.js';
-
-//const browser = require('webextension-polyfill');
+import Fetcher from './fetcher.js';
 
 const APP_NAME = 'maoxian_web_clipper_native';
 const state = {port: null, version: null};
@@ -26,6 +25,7 @@ function saveClipping(clipping, feedback) {
   });
 }
 
+
 function handleClippingResult(it) {
   it.url = T.toFileUrl(it.filename);
   return it;
@@ -37,10 +37,35 @@ function saveTextFile(task) {
   saveTask(task);
 }
 
-
 function saveTask(task) {
-  task.type = ['download', task.type].join('.');
-  state.port.postMessage(task);
+  if (task.type === 'url' && T.isVersionGteq(state.version, '0.2.4')) {
+    // In order to utilize browser's cache
+    // we move download to browser.
+    // since 0.2.4
+    Fetcher.get(task.url, {
+      respType: 'blob',
+      headers: task.headers,
+      timeout: task.timeout,
+    }).then((blob) => {
+      const reader = new FileReader();
+      reader.onload = function() {
+        const binaryString = reader.result;
+        task.encode = 'base64'
+        task.content = btoa(binaryString);
+        task.type = 'download.url'
+        state.port.postMessage(task);
+      }
+
+      reader.readAsBinaryString(blob);
+    },
+      (err) => {
+        SavingTool.taskFailed(task.filename, err.message);
+      }
+    );
+  } else {
+    task.type = ['download', task.type].join('.');
+    state.port.postMessage(task);
+  }
 }
 
 function isMainFile(filename) {
