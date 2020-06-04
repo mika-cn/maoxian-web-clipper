@@ -41,7 +41,7 @@ module T
     dir = File.dirname(filename)
     mkdir(dir)
     if content
-      File.open(filename, 'w') do |f|
+      File.open(filename, 'w', external_encoding: 'UTF-8') do |f|
         f.write content
       end
     else
