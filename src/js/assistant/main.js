@@ -10,8 +10,8 @@ const config = {
   showElem: true,
   changeAttr: true,
 
-  // 'focus' 'confirm' or 'clip'
-  pickAction: 'focus',
+  // 'select' 'confirm' or 'clip'
+  pickAction: 'select',
 
   // These actions will apply to whole document
   hideAllFormElement: true,

@@ -73,7 +73,8 @@ function stopMutationObserver() {
 }
 
 function listenInternalMessage() {
-  MxWcEvent.listenInternal('focus-elem', focusElem);
+  MxWcEvent.listenInternal('focus-elem', selectElem);
+  MxWcEvent.listenInternal('select-elem', selectElem);
   MxWcEvent.listenInternal('confirm-elem', confirmElem);
   MxWcEvent.listenInternal('clip-elem', clipElem);
   Log.debug('listen internal message');
@@ -83,7 +84,8 @@ function listenInternalMessage() {
  * ThirdParty: userScript or other Extension.
  */
 function listenTpMessage(){
-  MxWcEvent.listenPublic('focus-elem', focusElem);
+  MxWcEvent.listenPublic('focus-elem', selectElem);
+  MxWcEvent.listenPublic('select-elem', selectElem);
   MxWcEvent.listenPublic('confirm-elem', confirmElem);
   MxWcEvent.listenPublic('clip-elem', clipElem);
   MxWcEvent.listenPublic('set-form-inputs', setFormInputs);
@@ -120,10 +122,10 @@ function tellTpClipCompleted(detail) {
   }
 }
 
-function focusElem(e) {
+function selectElem(e) {
   const msg = MxWcEvent.getData(e);
   queryElem(msg, (elem) => {
-    UI.focusElem(elem)
+    UI.selectElem(elem)
   });
 }
 

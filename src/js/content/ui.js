@@ -326,15 +326,17 @@ function listenFrameMsg(){
   FrameMsg.addListener('pressRight' , pressRight);
   FrameMsg.addListener('pressDown'  , pressDown);
   FrameMsg.addListener('clickSelectedArea', clickSelectedArea);
-  FrameMsg.addListener('startClip'  , startClip);
   FrameMsg.addListener('entryClick' , entryClick);
+  FrameMsg.addListener('submitForm' , submitForm);
   FrameMsg.addListener('cancelForm' , cancelForm);
   FrameMsg.addListener('frame.control.removeMe', function(msg) { controlIframe.remove(); });
   FrameMsg.addListener('frame.selection.removeMe', function(msg) { selectionIframe.remove(); });
-  console.log('listenFrameMsg');
+  Log.debug('listenFrameMsg');
 }
 
-function startClip(msg){
+function submitForm(msg){
+  // FIXME
+  // mx-wc.submited
   MxWcHandler.isReady('config.clippingHandler')
   .then(function(result) {
     const {ok, config, message} = result;
@@ -653,18 +655,18 @@ function clippingSaveCompleted(msg) {
 /*
  * 3rd party interface
  */
-function focusElem(elem, callback){
+function selectElem(elem, callback){
   if(state.clippingState === 'idle') {
-    Log.debug("[focus] State Idle...");
+    Log.debug("[selectElem] State Idle...");
     entryClick({});
   }
   state.currElem = getOutermostWrapper(elem);
   if(selectionIframe.ready && controlIframe.ready) {
-    Log.debug("[focus] Iframe Ready...");
+    Log.debug("[selectElem] Iframe Ready...");
     selectedTarget(state.currElem);
     if(callback){ callback()}
   } else {
-    Log.debug("[focus] Iframe Loading...");
+    Log.debug("[selectElem] Iframe Loading...");
     const allIframeLoad = function(e){
       selectedTarget(state.currElem);
       if(callback){ callback()}
@@ -679,7 +681,7 @@ function focusElem(elem, callback){
  * options: {:title, :category, :tagstr}
  */
 function confirmElem(elem, options){
-  focusElem(elem, function(){
+  selectElem(elem, function(){
     pressEnter(options);
   });
 }
@@ -689,8 +691,8 @@ function confirmElem(elem, options){
  * options: {:title, :category, :tagstr}
  */
 function clipElem(elem, options){
-  focusElem(elem, function(){
-    startClip(getFormInputs(options));
+  selectElem(elem, function(){
+    submitForm(getFormInputs(options));
   });
 }
 
@@ -728,7 +730,7 @@ const UI = {
   clippingSaveCompleted: clippingSaveCompleted,
 
   // 3rd party interface
-  focusElem: focusElem,
+  selectElem: selectElem,
   confirmElem: confirmElem,
   clipElem: clipElem,
   setFormInputs: setFormInputs,

@@ -17,7 +17,8 @@ import FrameMsg from './frame-msg.js';
  *   mx-wc.completed
  *
  * Events that we listen from public.
- *   mx-wc.focus-elem
+ *   mx-wc.focus-elem (deprecated)
+ *   mx-wc.select-elem
  *   mx-wc.confirm-elem
  *   mx-wc.clip-elem
  *   mx-wc.set-form-input

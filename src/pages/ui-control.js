@@ -72,7 +72,7 @@ function initUIListener() {
       }
     })
 
-  T.bindOnce(saveBtn     , 'click'    , saveForm);
+  T.bindOnce(saveBtn     , 'click'    , submitForm);
   T.bindOnce(cancelBtn   , 'click'    , cancelForm);
   T.bindOnce(saveBtn     , 'keypress' , formEnterKeyHandler);
   T.bindOnce(cancelBtn   , 'keypress' , formEnterKeyHandler);
@@ -313,7 +313,7 @@ function formEnterKeyHandler(e){
       cancelForm();
     } else {
       // tagstr input and save button
-      saveForm();
+      submitForm();
     }
     stopEvent(e);
   }
@@ -409,7 +409,7 @@ async function showForm(params){
   return true;
 }
 
-function saveForm(){
+function submitForm(){
   hideForm();
   unbindListener();
 
@@ -418,7 +418,7 @@ function saveForm(){
   const categoryInput = T.findElem(ID_CATEGORY);
   const tagstrInput = T.findElem(ID_TAGSTR);
 
-  sendFrameMsgToTop('startClip', {
+  sendFrameMsgToTop('submitForm', {
     format: (formatInput.value === '' ? undefined : formatInput.value),
     title: titleInput.value,
     category: categoryInput.value,
