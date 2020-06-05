@@ -4,39 +4,6 @@ import T from '../src/js/lib/tool.js';
 import Parser from '../src/js/content/input-parser-default.js';
 
 describe('InputParserDefault', () => {
-
-  describe("Render", () => {
-    it('should render builtin function', () => {
-      const Render = Parser.Render;
-      const variables = Render.TimeVariables;
-      const str = '$YYYY-$YY-$MM-$DD-$HH-$mm-$SS-$TIME-INTSEC';
-      const now = T.currentTime();
-      const s = now.str;
-      const v = {now: now}
-      const r = Render.exec(str, v, variables)
-      H.assertEqual(r, [s.year, s.sYear, s.month, s.day, s.hour, s.minute, s.second, s.intSec].join('-'));
-    });
-
-    it('should render default function', () => {
-      const Render = Parser.Render;
-      const variables = ['$STORAGE-PATH'];
-      const str = '$STORAGE-PATH/static';
-      const v = {storagePath: 'downloads/root'}
-      const r = Render.exec(str, v, variables)
-      H.assertEqual(r, 'downloads/root/static');
-    });
-
-    it("shouldn't render variable which we haven't specified", () => {
-      const Render = Parser.Render;
-      const variables = ['$A'];
-      const str = '$A-$B-$C';
-      const v = {'a': 'a', 'b': 'b', 'c': 'c'};
-      const r = Render.exec(str, v, variables)
-      H.assertEqual(r, 'a-$B-$C');
-    });
-  });
-
-
   function getParams() {
     return {
       format: 'html',

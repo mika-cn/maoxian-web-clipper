@@ -1,6 +1,7 @@
 "use strict";
 
 import T from '../lib/tool.js';
+import VariableRender from '../lib/variable-render.js'
 import Config from '../lib/config.js';
 
 //==========================================
@@ -25,12 +26,13 @@ function parse(params) {
 
 
   const storagePath = config.rootFolder;
-  const {category, categoryPath} = dealCategoryAndCategoryPath(config, originalCategory, now, domain, storagePath);
+  const category = dealCategory(config, originalCategory, now, domain);
+  const categoryPath = dealCategoryPath(config, originalCategory, now, domain, storagePath);
 
   const filenameValueHash = {now, title, format, domain};
   // folder and path
-  const clippingFolderName = Render.exec(config.clippingFolderName,
-    filenameValueHash, Render.FilenameVariables);
+  const clippingFolderName = VariableRender.exec(config.clippingFolderName,
+    filenameValueHash, VariableRender.FilenameVariables);
   const clippingPath = T.joinPath(categoryPath, clippingFolderName);
 
   const pathValueHash = {storagePath, categoryPath, clippingPath};
@@ -39,19 +41,19 @@ function parse(params) {
 
   const storageInfo = {};
 
-  storageInfo.mainFileFolder = Render.exec(
+  storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
     pathValueHash, pathVariables);
-  storageInfo.mainFileName = Render.exec(config.mainFileName,
-    filenameValueHash, Render.FilenameVariables);
+  storageInfo.mainFileName = VariableRender.exec(config.mainFileName,
+    filenameValueHash, VariableRender.FilenameVariables);
 
-  storageInfo.infoFileFolder = Render.exec(
+  storageInfo.infoFileFolder = VariableRender.exec(
     fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
     pathValueHash, pathVariables);
-  storageInfo.infoFileName = Render.exec(config.infoFileName,
-    filenameValueHash, Render.FilenameVariables);
+  storageInfo.infoFileName = VariableRender.exec(config.infoFileName,
+    filenameValueHash, VariableRender.FilenameVariables);
 
-  storageInfo.assetFolder = Render.exec(
+  storageInfo.assetFolder = VariableRender.exec(
     fixPathVariable(config.assetFolder, 'assetFolder'),
     pathValueHash, pathVariables);
 
@@ -60,7 +62,7 @@ function parse(params) {
   );
 
   if (format === 'html') {
-    storageInfo.frameFileFolder = Render.exec(
+    storageInfo.frameFileFolder = VariableRender.exec(
       fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
       pathValueHash, pathVariables);
   } else {
@@ -69,11 +71,11 @@ function parse(params) {
   }
 
   if (config.saveTitleFile) {
-    storageInfo.titleFileFolder = Render.exec(
+    storageInfo.titleFileFolder = VariableRender.exec(
       fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
       pathValueHash, pathVariables);
-    storageInfo.titleFileName = Render.exec(config.titleFileName,
-      filenameValueHash, Render.FilenameVariables);
+    storageInfo.titleFileName = VariableRender.exec(config.titleFileName,
+      filenameValueHash, VariableRender.FilenameVariables);
   }
 
   //console.debug(storageInfo);
@@ -101,26 +103,43 @@ function parse(params) {
   return result;
 }
 
-function dealCategoryAndCategoryPath(config, category, now, domain, storagePath) {
+function dealCategory(config, category, now, domain) {
+  const v = {now: now, domain: domain};
+  const defaultCategory = VariableRender.exec(config.defaultCategory, v, VariableRender.TimeVariables.concat(['$DOMAIN']));
+  if (category === '') {
+    if (defaultCategory === '$NONE') {
+      // Do nothing
+    } else {
+      category = (defaultCategory === '' ? 'default' : defaultCategory);
+    }
+  } else {
+    if (category === '$NONE') {
+      category = '';
+    } else {
+      // Do nothing
+    }
+  }
+  return category;
+}
+
+function dealCategoryPath(config, category, now, domain, storagePath) {
   let categoryPath;
   const v = {now: now, domain: domain};
-  const defaultCategory = Render.exec(config.defaultCategory, v, Render.TimeVariables.concat(['$DOMAIN']));
+  const defaultCategory = VariableRender.exec(config.defaultCategory, v, VariableRender.TimeVariables.concat(['$DOMAIN']));
   if (category === '') {
     if(defaultCategory === "$NONE"){
       categoryPath = storagePath;
     } else {
-      category = (defaultCategory === '' ? 'default' : defaultCategory);
       categoryPath = T.joinPath(storagePath, category);
     }
   } else {
     if(category === '$NONE'){
-      category = '';
       categoryPath = storagePath;
     } else {
       categoryPath = T.joinPath(storagePath, category);
     }
   }
-  return {category, categoryPath};
+  return categoryPath
 }
 
 function fixPathVariable(value, key) {
@@ -144,58 +163,6 @@ function fixPathVariable(value, key) {
   }
 }
 
-const Render = {}
-Render.TimeVariables = ['$TIME-INTSEC',
-  '$YYYY', '$YY', '$MM', '$DD',
-  '$HH', '$mm', '$SS'
-];
 
-Render.FilenameVariables = Render.TimeVariables.concat([
-  '$TITLE', '$FORMAT', '$DOMAIN']);
-
-
-Render['$TITLE'] = function(str, v) {
-  return str.replace(/\$TITLE/mg, () => {
-    return T.sanitizeFilename(v.title);
-  });
-}
-
-Render.getTimeVariableRender = function(variable) {
-  return function(str, v) {
-    const name = variable.replace('$', '');
-    const re = new RegExp(variable.replace('$', '\\$'), 'mg');
-    return str.replace(re, () => {
-      return v.now.str[name];
-    })
-  }
-}
-
-Render.getDefaultRender = function(variable) {
-  return function(str, v) {
-    const name = T.toJsVariableName(variable.replace('$', ''));
-    const re = new RegExp(variable.replace('$', '\\$'), 'mg');
-    return str.replace(re, () => {
-      return v[name];
-    });
-  }
-}
-
-Render.exec = function(str, v, variables) {
-  let s = str;
-  variables.forEach((variable) => {
-    let renderFn = Render[variable];
-    if(!renderFn) {
-      if (Render.TimeVariables.indexOf(variable) > -1) {
-        renderFn = Render.getTimeVariableRender(variable);
-      } else {
-        renderFn = Render.getDefaultRender(variable);
-      }
-    }
-    s = renderFn(s, v);
-  });
-  return s;
-}
-
-const InputParser_Default = {parse: parse, Render: Render};
-
+const InputParser_Default = {parse: parse};
 export default InputParser_Default;
