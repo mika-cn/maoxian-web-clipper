@@ -319,13 +319,18 @@ function formEnterKeyHandler(e){
   }
 }
 
-async function initSaveFormatOption(config, handlerInfo) {
+/*
+ * TODO: Maybe we should remove "supportFormats"
+ * It's not used.
+ */
+async function initSaveFormatOption(format, config, handlerInfo) {
+  const saveFormat = (format || config.saveFormat);
+  T.findElem(ID_FORMAT).value = saveFormat;
   const inputGroup = T.queryElem('.input-group.save-format');
   if(!config.inputFieldSaveFormatEnabled) {
     inputGroup.classList.remove('active');
     return;
   }
-  T.findElem(ID_FORMAT).value = config.saveFormat;
   inputGroup.classList.add('active');
   const html = MxWcTemplate.options.render({
     type: 'save-format',
@@ -342,7 +347,7 @@ async function initSaveFormatOption(config, handlerInfo) {
       updateOptionsState(formatOption, value)
     }
   });
-  updateOptionsState(formatOption, config.saveFormat);
+  updateOptionsState(formatOption, saveFormat);
 
   function updateOptionsState(elem, value) {
     T.each(elem.children, (option) => {
@@ -357,7 +362,7 @@ async function initSaveFormatOption(config, handlerInfo) {
 
 async function showForm(params){
   Log.debug('showForm');
-  const {title, category, tagstr,
+  const {format, title, category, tagstr,
     handlerInfo, config} = params;
   const form = T.firstElem(CLASS_FORM);
   if(form.style.display == 'block'){ return false}
@@ -367,7 +372,7 @@ async function showForm(params){
   const categoryInput = T.findElem(ID_CATEGORY);
   const tagstrInput = T.findElem(ID_TAGSTR);
 
-  await initSaveFormatOption(config, handlerInfo);
+  await initSaveFormatOption(format, config, handlerInfo);
   titleInput.value = title;
   categoryInput.value= category;
   tagstrInput.value = tagstr;

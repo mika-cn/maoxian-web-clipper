@@ -678,7 +678,7 @@ function selectElem(elem, callback){
 
 /*
  * 3rd party interface
- * options: {:title, :category, :tagstr}
+ * options: {:format, :title, :category, :tagstr}
  */
 function confirmElem(elem, options){
   selectElem(elem, function(){
@@ -688,7 +688,7 @@ function confirmElem(elem, options){
 
 /*
  * 3rd party interface
- * options: {:title, :category, :tagstr}
+ * options: {:format, :title, :category, :tagstr}
  */
 function clipElem(elem, options){
   selectElem(elem, function(){
@@ -698,7 +698,7 @@ function clipElem(elem, options){
 
 /*
  * 3rd party interface
- * options: {:title, :category, :tagstr}
+ * options: {:format, :title, :category, :tagstr}
  */
 state.formInputs = {};
 function setFormInputs(options) {
@@ -707,6 +707,7 @@ function setFormInputs(options) {
 
 function getFormInputs(options) {
   const inputs = {
+    format   : (options.format   || state.formInputs.format   || ""),
     title    : (options.title    || state.formInputs.title    || document.title),
     category : (options.category || state.formInputs.category || ""),
     tagstr   : (options.tagstr   || state.formInputs.tagstr   || "")
