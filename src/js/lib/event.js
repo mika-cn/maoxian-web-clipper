@@ -10,6 +10,7 @@ import FrameMsg from './frame-msg.js';
  * Events that we dispatch to public.
  *   mx-wc.ready
  *   mx-wc.idle
+ *   mx-wc.actived
  *   mx-wc.selecting
  *   mx-wc.selected
  *   mx-wc.confirmed

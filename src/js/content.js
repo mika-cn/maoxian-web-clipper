@@ -22,7 +22,7 @@ function listenMessage(){
       switch(msg.type){
         case 'icon.click':
           window.focus();
-          UI.entryClick({});
+          activeUI({});
           break;
         case 'clipping.save.started':
           UI.clippingSaveStarted(msg.body);
@@ -82,6 +82,10 @@ function listenInternalMessage() {
   Log.debug('listen internal message');
 }
 
+// ======================================
+// ThirdParty message
+// ======================================
+
 /*
  * ThirdParty: userScript or other Extension.
  */
@@ -92,6 +96,9 @@ function listenTpMessage(){
   MxWcEvent.listenPublic('clip-elem', clipElem);
   MxWcEvent.listenPublic('set-form-inputs', setFormInputs);
   MxWcEvent.listenPublic('set-temp-config', setTempConfig);
+  MxWcEvent.listenPublic('register-yield-point', registerYieldPoint);
+  MxWcEvent.listenPublic('deregister-yield-point', deregisterYieldPoint);
+  MxWcEvent.listenPublic('resume-actived', resumeActived);
   Log.debug('listenTpMessage');
 }
 
@@ -156,6 +163,30 @@ function setTempConfig(e) {
   state.tempConfig = (msg.config || {});
 }
 
+const YIELDABLE_POINTS = ['actived', 'clipped'];
+state.yieldPoints = new Set();
+function registerYieldPoint(e) {
+  const msg = MxWcEvent.getData(e);
+  if (YIELDABLE_POINTS.indexOf(msg.name) > -1) {
+    state.yieldPoints.add(msg.name);
+  }
+}
+
+function deregisterYieldPoint(e) {
+  const msg = MxWcEvent.getData(e);
+  if (YIELDABLE_POINTS.indexOf(msg.name) > -1) {
+    state.yieldPoints.delete(msg.name);
+  }
+}
+
+// FIXME rename me :(
+function resumeActived(e) {
+  UI.entryClick(e);
+}
+
+// ======================================
+
+
 function queryElem(msg, callback){
   let elem = null;
   if(msg.qType === 'css'){
@@ -219,6 +250,21 @@ function configChanged(detail) {
   }
 }
 
+function activeUI(e) {
+  const clippingState = UI.getCurrState();
+  if (clippingState === 'idle') {
+    // we're going to active UI
+    MxWcEvent.dispatchPublic('actived');
+    if (state.yieldPoints.has('actived')) {
+      // Do nothing, yield control to 3rd party.
+    } else {
+      UI.entryClick(e)
+    }
+  } else {
+    UI.entryClick(e);
+  }
+}
+
 /*
  * Hotkey `c` listener
  */
@@ -227,7 +273,7 @@ function toggleSwitch(e){
   // 67 keyCode of 'c'
   if(e.keyCode != 67){ return }
   if(e.target.tagName.toUpperCase() === 'BODY'){
-    UI.entryClick(e);
+    activeUI(e);
   }else{
     Log.debug(e.target.tagName);
   }

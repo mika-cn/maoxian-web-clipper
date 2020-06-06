@@ -722,6 +722,10 @@ function setCallback(name, callback) {
   state.callbacks[name] = callback;
 }
 
+function getCurrState() {
+  return state.clippingState;
+}
+
 function init(config) {
   state.config = config;
 }
@@ -732,6 +736,7 @@ const UI = {
   setCallback: setCallback,
   entryClick: entryClick,
   windowSizeChanged: windowSizeChanged,
+  getCurrState: getCurrState,
 
   clippingSaveStarted: clippingSaveStarted,
   clippingSaveProgress: clippingSaveProgress,

@@ -57,7 +57,7 @@ function save(elem, formInputs, config) {
  *   - {Object} storageConfig
  *
  */
-function prepairForClip(formInputs, config, {domain, pageUrl}) {
+function prepaireToClip(formInputs, config, {domain, pageUrl}) {
 
   const userInput = dealFormInputs(formInputs);
   const now = Date.now();
