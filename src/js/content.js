@@ -11,7 +11,8 @@ import MxWcSave from './content/save.js';
 import UI from './content/ui.js';
 
 const state = {
-  config: null
+  config: null,
+  tempConfig: {}
 };
 
 function listenMessage(){
@@ -90,6 +91,7 @@ function listenTpMessage(){
   MxWcEvent.listenPublic('confirm-elem', confirmElem);
   MxWcEvent.listenPublic('clip-elem', clipElem);
   MxWcEvent.listenPublic('set-form-inputs', setFormInputs);
+  MxWcEvent.listenPublic('set-temp-config', setTempConfig);
   Log.debug('listenTpMessage');
 }
 
@@ -149,6 +151,11 @@ function setFormInputs(e) {
   UI.setFormInputs(msg.options || {});
 }
 
+function setTempConfig(e) {
+  const msg = MxWcEvent.getData(e);
+  state.tempConfig = (msg.config || {});
+}
+
 function queryElem(msg, callback){
   let elem = null;
   if(msg.qType === 'css'){
@@ -174,7 +181,8 @@ function queryElem(msg, callback){
 }
 
 function formSubmitted({elem, formInputs, config}) {
-  MxWcSave.save(elem, formInputs, config);
+  const currConfig = Object.assign(config, state.tempConfig)
+  MxWcSave.save(elem, formInputs, currConfig);
 }
 
 
