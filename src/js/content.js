@@ -7,6 +7,7 @@ import MxWcEvent from './lib/event.js';
 import MxWcConfig from './lib/config.js';
 import MxWcLink from './lib/link.js';
 import MxWcSelectionMain from './selection/main.js';
+import MxWcSave from './content/save.js';
 import UI from './content/ui.js';
 
 const state = {
@@ -172,6 +173,10 @@ function queryElem(msg, callback){
   }
 }
 
+function formSubmitted({elem, formInputs, config}) {
+  MxWcSave.save(elem, formInputs, config);
+}
+
 
 // user click browser's back/forword button or website PJAX
 function listenPopState(){
@@ -239,6 +244,7 @@ function run(){
           state.config = config;
           MxWcSelectionMain.init(config);
           UI.init(config);
+          UI.setCallback('submitted', formSubmitted);
           initialize();
           listenMessage();
           listenPopState();

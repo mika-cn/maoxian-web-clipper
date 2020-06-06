@@ -6,7 +6,6 @@ import ExtApi from '../lib/ext-api.js';
 import FrameMsg from '../lib/frame-msg.js';
 import MxWcEvent from '../lib/event.js';
 import MxWcHandler from '../lib/handler.js';
-import MxWcSave from './save.js';
 import Notify from '../lib/notify.js';
 import MxWcSelectionMain from '../selection/main.js';
 
@@ -335,20 +334,22 @@ function listenFrameMsg(){
 }
 
 function submitForm(msg){
-  // FIXME
-  // mx-wc.submited
+  const formInputs = msg;
   MxWcHandler.isReady('config.clippingHandler')
   .then(function(result) {
     const {ok, config, message} = result;
     if(ok) {
-      const formInputs = msg;
       eraseHigtlightStyle();
-      //msg.elem = state.currElem;
       setStateClipping();
       if (config.rememberSelection) {
         MxWcSelectionMain.save(state.currElem, state.deletedElems);
       }
-      MxWcSave.save(state.currElem, formInputs, config);
+     const callback = state.callbacks['submitted'];
+     callback({
+       elem: state.currElem,
+       formInputs: formInputs,
+       config: config,
+     });
     } else {
       Notify.error(message);
       ignoreFrameMsg();
@@ -357,7 +358,6 @@ function submitForm(msg){
     }
   });
 }
-
 
 function ignoreFrameMsg(){
   FrameMsg.clearListener();
@@ -717,6 +717,11 @@ function getFormInputs(options) {
   return inputs;
 }
 
+state.callbacks = {};
+function setCallback(name, callback) {
+  state.callbacks[name] = callback;
+}
+
 function init(config) {
   state.config = config;
 }
@@ -724,6 +729,7 @@ function init(config) {
 const UI = {
   init: init,
   remove: remove,
+  setCallback: setCallback,
   entryClick: entryClick,
   windowSizeChanged: windowSizeChanged,
 
