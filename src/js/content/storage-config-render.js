@@ -7,7 +7,7 @@ import VariableRender from '../lib/variable-render.js'
  * Render storage config
  * @params {Object} params
  *   - {Object} storageConfig
- *   - {WrappedDate} now
+ *   - {Integer} now - Date.now()
  *   - {String} domain
  *   - {String} format
  *   - {String} title

@@ -8,8 +8,8 @@ describe("VariableRender", () => {
   it('should render builtin function', () => {
     const variables = VariableRender.TimeVariables;
     const str = '$YYYY-$YY-$MM-$DD-$HH-$mm-$SS-$TIME-INTSEC';
-    const now = T.currentTime();
-    const s = now.str;
+    const now = Date.now();
+    const s = T.wrapNow(now).str;
     const v = {now: now}
     const r = VariableRender.exec(str, v, variables)
     H.assertEqual(r, [s.year, s.sYear, s.month, s.day, s.hour, s.minute, s.second, s.intSec].join('-'));

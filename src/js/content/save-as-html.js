@@ -16,13 +16,9 @@ import CapturerLink from '../capturer/link.js';
 import CapturerIframe from '../capturer/iframe.js';
 import StyleHelper from './style-helper.js';
 
-/*
- * @param {Object} params
- */
-async function parse(params){
-  Log.debug("html parser");
-  const {storageInfo, elem, info, config} = params;
 
+async function clip(elem, {info, storageInfo, config}){
+  Log.debug("html parser");
   const [mimeTypeDict, frames] = await Promise.all([
     ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
     ExtMsg.sendToBackground({type: 'get.allFrames'}),
@@ -278,7 +274,7 @@ function getNodesHtml(nodes) {
 }
 
 const Html = {
-  parse: parse,
+  clip: clip,
   getElemHtml: getElemHtml
 }
 

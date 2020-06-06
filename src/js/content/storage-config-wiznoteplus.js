@@ -1,6 +1,3 @@
-"use strict";
-
-import T from '../lib/tool.js';
 
 //==========================================
 // Storage Config for WizNotePlus
@@ -8,9 +5,12 @@ import T from '../lib/tool.js';
 
 function get(params) {
   const {config, now} = params;
-  const currSec = now.str.intSec;
+  const currSec = Math.floor(now/1000);
 
-  const defaultConfig = T.sliceObj(config, ['rootFolder', 'defaultCategory']);
+  const defaultConfig = {
+    rootFolder: config.rootFilder,
+    defaultCategory: config.defaultCategory,
+  }
 
   const storageConfig = Object.assign(defaultConfig,
   // Keep all paths relative to $WIZNOTE_TEMP/webclipping
@@ -19,7 +19,7 @@ function get(params) {
     saveTitleFile: false,
     /** the path to place index.html or index.md */
     mainFileFolder: currSec,
-    mainFilename = "index.$FORMAT",
+    mainFilename: "index.$FORMAT",
     /** the path to place frame files */
     frameFileFolder: currSec + "/index_files",
     /** the path to place asset files */
@@ -28,5 +28,5 @@ function get(params) {
   return storageConfig;
 }
 
-const StorageConfig_Wiznoteplus = {get};
-export default StorageConfig_Wiznoteplus;
+const StorageConfig_WizNotePlus = {get};
+export default StorageConfig_WizNotePlus;

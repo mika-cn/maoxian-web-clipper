@@ -341,13 +341,14 @@ function submitForm(msg){
   .then(function(result) {
     const {ok, config, message} = result;
     if(ok) {
+      const formInputs = msg;
       eraseHigtlightStyle();
-      msg.elem = state.currElem;
+      //msg.elem = state.currElem;
       setStateClipping();
       if (config.rememberSelection) {
         MxWcSelectionMain.save(state.currElem, state.deletedElems);
       }
-      MxWcSave.save(msg, config);
+      MxWcSave.save(state.currElem, formInputs, config);
     } else {
       Notify.error(message);
       ignoreFrameMsg();

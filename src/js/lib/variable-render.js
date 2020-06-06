@@ -39,10 +39,15 @@ Render.getDefaultRender = function(variable) {
 
 Render.exec = function(str, v, variables) {
   let s = str;
+  let nowWrapped = false;
   variables.forEach((variable) => {
     let renderFn = Render[variable];
     if(!renderFn) {
       if (Render.TimeVariables.indexOf(variable) > -1) {
+        if (!nowWrapped) {
+          v.now = T.wrapNow(v.now);
+          nowWrapped = true;
+        }
         renderFn = Render.getTimeVariableRender(variable);
       } else {
         renderFn = Render.getDefaultRender(variable);

@@ -463,6 +463,11 @@ T.currentTime = function(){
   return T.wrapDate(new Date());
 }
 
+// now is an interger return by Date.now().
+T.wrapNow = function(now) {
+  return T.wrapDate(new Date(now));
+}
+
 T.wrapDate = function(date) {
   const tObj = {
     value  : date,
