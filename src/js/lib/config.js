@@ -97,6 +97,7 @@ function getDefault(){
      * ======== Info File ========
      *   A json file which stores clipping information.
      */
+    saveInfoFile: true,
     infoFileFolder: '$CLIPPING-PATH',
     infoFileName: 'index.json',
 

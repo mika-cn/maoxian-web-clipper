@@ -76,6 +76,17 @@ T.createId = function() {
 }
 
 // ===============================
+// Object
+// ===============================
+T.sliceObj = function(obj, keys) {
+  const r = {};
+  for (let i = 0; i < keys.length; i++) {
+    r[keys[i]] = obj[keys[i]];
+  }
+  return r;
+}
+
+// ===============================
 // DOM relative
 // ===============================
 

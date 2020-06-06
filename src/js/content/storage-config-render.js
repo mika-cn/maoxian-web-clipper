@@ -1,66 +1,70 @@
-"use strict";
 
 import T from '../lib/tool.js';
-import VariableRender from '../lib/variable-render.js'
 import Config from '../lib/config.js';
+import VariableRender from '../lib/variable-render.js'
 
-//==========================================
-// Default Input Parser
-//==========================================
+/*
+ * Render storage config
+ * @params {Object} params
+ *   - {Object} storageConfig
+ *   - {WrappedDate} now
+ *   - {String} domain
+ *   - {String} format
+ *   - {String} title
+ *   - {String} category
+ *
+ * @return storageInfo
+ */
+function exec({storageConfig: config, now, domain,
+  format, title, category: originalCategory}) {
 
-function parse(params) {
-  let {format, title, category: originalCategory, tags, domain, link, config} = params;
+  const filenameValueHash = {now, title, format, domain};
 
-  // Set default title
-  if(title === ""){ title = 'Untitled' }
-
-  // Add domain as tag
-  const appendTags = []
-  if (config.saveDomainAsTag) {
-    appendTags.push(domain);
-  }
-
-  // clipId
-  const now = T.currentTime();
-  const clipId = now.str.intSec;
-
-
+  // folder and path
   const storagePath = config.rootFolder;
   const category = dealCategory(config, originalCategory, now, domain);
   const categoryPath = dealCategoryPath(config, originalCategory, now, domain, storagePath);
 
-  const filenameValueHash = {now, title, format, domain};
-  // folder and path
-  const clippingFolderName = VariableRender.exec(config.clippingFolderName,
-    filenameValueHash, VariableRender.FilenameVariables);
-  const clippingPath = T.joinPath(categoryPath, clippingFolderName);
+  let clippingPath = "clippingFolderName-not-specified";
+  if (config.clippingFolderName) {
+    const clippingFolderName = VariableRender.exec(config.clippingFolderName,
+      filenameValueHash, VariableRender.FilenameVariables);
+    clippingPath = T.joinPath(categoryPath, clippingFolderName);
+  } else {
+    // 3rd party don't need clippingPath
+  }
 
   const pathValueHash = {storagePath, categoryPath, clippingPath};
   const pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH', '$CLIPPING-PATH'];
 
+  // FIXME category should be here?
+  const storageInfo = {category: category};
 
-  const storageInfo = {};
-
+  // Main file
   storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
     pathValueHash, pathVariables);
   storageInfo.mainFileName = VariableRender.exec(config.mainFileName,
     filenameValueHash, VariableRender.FilenameVariables);
 
-  storageInfo.infoFileFolder = VariableRender.exec(
-    fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
-    pathValueHash, pathVariables);
-  storageInfo.infoFileName = VariableRender.exec(config.infoFileName,
-    filenameValueHash, VariableRender.FilenameVariables);
+  // Info file
+  if (config.saveInfoFile) {
+    storageInfo.infoFileFolder = VariableRender.exec(
+      fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
+      pathValueHash, pathVariables);
+    storageInfo.infoFileName = VariableRender.exec(config.infoFileName,
+      filenameValueHash, VariableRender.FilenameVariables);
+  }
 
+  // asset file
   storageInfo.assetFolder = VariableRender.exec(
     fixPathVariable(config.assetFolder, 'assetFolder'),
     pathValueHash, pathVariables);
-
   storageInfo.assetRelativePath = T.calcPath(
     storageInfo.mainFileFolder, storageInfo.assetFolder
   );
 
+  // frame file
   if (format === 'html') {
     storageInfo.frameFileFolder = VariableRender.exec(
       fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
@@ -70,6 +74,7 @@ function parse(params) {
     storageInfo.frameFileFolder = storageInfo.mainFileFolder;
   }
 
+  // title file
   if (config.saveTitleFile) {
     storageInfo.titleFileFolder = VariableRender.exec(
       fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
@@ -78,29 +83,7 @@ function parse(params) {
       filenameValueHash, VariableRender.FilenameVariables);
   }
 
-  //console.debug(storageInfo);
-
-  const info = {
-    clipId     : clipId,
-    format     : format,
-    title      : title,
-    link       : link,
-    category   : category,
-    tags       : tags.concat(appendTags),
-    created_at : now.toString(),
-  }
-
-  const inputHistory = { title: title, category: category, tags: tags }
-
-  const result = {
-    info: info,
-    storageInfo: storageInfo,
-    input: inputHistory,
-    needSaveIndexFile: true,
-    needSaveTitleFile: config.saveTitleFile
-  }
-
-  return result;
+  return storageInfo;
 }
 
 function dealCategory(config, category, now, domain) {
@@ -163,6 +146,5 @@ function fixPathVariable(value, key) {
   }
 }
 
-
-const InputParser_Default = {parse: parse};
-export default InputParser_Default;
+const StorageConfigRender = {exec};
+export default StorageConfigRender;
