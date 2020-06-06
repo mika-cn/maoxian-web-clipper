@@ -9,8 +9,8 @@ import StorageConfig_Default from './storage-config-default.js';
 import StorageConfig_WizNotePlus from './storage-config-wiznoteplus.js';
 import StorageConfigRender from './storage-config-render.js';
 
-import MxWcHtml from './save-as-html.js';
-import MxWcMarkdown from './save-as-markdown.js';
+import MxHtmlClipper from './clip-as-html.js';
+import MxMarkdownClipper from './clip-as-markdown.js';
 
 
 // FIXME
@@ -112,8 +112,8 @@ function prepairForClip(formInputs, config, {domain, pageUrl}) {
 async function clip(elem, {info, storageInfo, config, storageConfig}) {
   let Clipper = null;
   switch(info.format){
-    case 'html' : Clipper = MxWcHtml; break;
-    case 'md'   : Clipper = MxWcMarkdown; break;
+    case 'html' : Clipper = MxHtmlClipper; break;
+    case 'md'   : Clipper = MxMarkdownClipper; break;
   }
 
   let tasks = await Clipper.clip(elem, {info, storageInfo, config});
