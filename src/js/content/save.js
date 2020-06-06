@@ -12,40 +12,6 @@ import StorageConfigRender from './storage-config-render.js';
 import MxHtmlClipper from './clip-as-html.js';
 import MxMarkdownClipper from './clip-as-markdown.js';
 
-
-// FIXME
-function save(elem, formInputs, config) {
-  const domain = window.location.host.split(':')[0];
-  const pageUrl = window.location.href;
-  const {userInput, info, storageInfo, storageConfig} = prepairForClip(formInputs, config, {domain, pageUrl})
-
-  if (userInput.category != '') {
-    saveInputHistory('category', userInput.category);
-  }
-  if (userInput.tags.length > 0) {
-    saveInputHistory('tags', userInput.tags);
-  }
-
-  clip(elem, {info, storageInfo, config, storageConfig})
-    .then((clipping) => {
-
-      // Yeilding point.
-      // FIXME We should emit clipped Event here
-      Log.debug(clipping);
-
-      // save clipping
-      ExtMsg.sendToBackground({
-        type: 'clipping.save',
-        body: clipping
-      });
-
-      if (storageConfig.saveIndexFile) {
-        saveClippingHistory(info, storageInfo);
-      }
-    });
-}
-
-
 /**
  *
  * @param {Object} formInputs: {:format, :title, :category, :tagstr}
@@ -57,7 +23,7 @@ function save(elem, formInputs, config) {
  *   - {Object} storageConfig
  *
  */
-function prepaireToClip(formInputs, config, {domain, pageUrl}) {
+function getReadyToClip(formInputs, config, {domain, pageUrl}) {
 
   const userInput = dealFormInputs(formInputs);
   const now = Date.now();
@@ -127,7 +93,7 @@ async function clip(elem, {info, storageInfo, config, storageConfig}) {
 
   // info.paths is used to delete files.
   info.paths = [];
-  if (storageConfig.saveIndexFile) {
+  if (storageConfig.saveInfoFile) {
 
     // calculate path
     info.paths.push(storageInfo.infoFileName);
@@ -170,29 +136,5 @@ function dealFormInputs({format = config.saveFormat, title, category, tagstr}) {
   return {format, title, category, tags}
 }
 
-//private
-function saveInputHistory(k, v){
-  const body = {}
-  body[k] = v;
-  ExtMsg.sendToBackground({
-    type: `save.${k}`,
-    body: body
-  });
-}
-
-//private
-function saveClippingHistory(info, storageInfo){
-  const path = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
-  const clippingHistory = Object.assign({path: path}, info);
-  ExtMsg.sendToBackground({
-    type: 'save.clippingHistory',
-    body: {clippingHistory: clippingHistory}
-  })
-}
-
-
-const Save = {
-  save: save
-}
-
-export default Save;
+const Api = { getReadyToClip, clip }
+export default Api;

@@ -212,8 +212,55 @@ function queryElem(msg, callback){
 }
 
 function formSubmitted({elem, formInputs, config}) {
+
   const currConfig = Object.assign(config, state.tempConfig)
-  MxWcSave.save(elem, formInputs, currConfig);
+  const domain = window.location.host.split(':')[0];
+  const pageUrl = window.location.href;
+
+  const {userInput, info, storageInfo, storageConfig} = MxWcSave.getReadyToClip(formInputs, currConfig, {domain, pageUrl})
+
+  if (userInput.category != '') {
+    saveInputHistory('category', userInput.category);
+  }
+  if (userInput.tags.length > 0) {
+    saveInputHistory('tags', userInput.tags);
+  }
+
+  MxWcSave.clip(elem, {info, storageInfo, config, storageConfig})
+    .then((clipping) => {
+      Log.debug(clipping);
+      if (state.yieldPoints.has('clipped')) {
+        Log.debug("clipped: yield to 3rd party");
+        MxWcEvent.dispatchPublic('clipped', {clipping});
+      } else {
+        // save clipping
+        ExtMsg.sendToBackground({
+          type: 'clipping.save',
+          body: clipping
+        });
+      }
+      if (storageConfig.saveInfoFile) {
+        saveClippingHistory(info, storageInfo);
+      }
+    });
+}
+
+function saveInputHistory(k, v){
+  const body = {}
+  body[k] = v;
+  ExtMsg.sendToBackground({
+    type: `save.${k}`,
+    body: body
+  });
+}
+
+function saveClippingHistory(info, storageInfo){
+  const path = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
+  const clippingHistory = Object.assign({path: path}, info);
+  ExtMsg.sendToBackground({
+    type: 'save.clippingHistory',
+    body: {clippingHistory: clippingHistory}
+  })
 }
 
 
@@ -254,11 +301,15 @@ function activeUI(e) {
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
     // we're going to active UI
-    MxWcEvent.dispatchPublic('actived');
-    if (state.yieldPoints.has('actived')) {
-      // Do nothing, yield control to 3rd party.
+    if (state.config && state.config.communicateWithThirdParty) {
+      MxWcEvent.dispatchPublic('actived');
+      if (state.yieldPoints.has('actived')) {
+        // Do nothing, yield control to 3rd party.
+      } else {
+        UI.entryClick(e);
+      }
     } else {
-      UI.entryClick(e)
+      UI.entryClick(e);
     }
   } else {
     UI.entryClick(e);
