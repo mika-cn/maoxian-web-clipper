@@ -25,6 +25,12 @@ import T from './tool.js';
 import DOMTool from './dom-tool.js';
 
 
+// TODO FIXME
+// import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
+
+// TODO REMOVEME
+import {sanitizeSelectorItem} from '../../vendor/js/utilities-selector.js';
+
 const KEYWORDS = ['highlight', 'syntax', 'code'];
 const DEFAULT_LANGUAGE = 'plain';
 
@@ -285,13 +291,14 @@ function node2Str(node) {
   arr.push(node.tagName.toLowerCase());
   const klass = node.getAttribute('class');
   if (klass) {
-    klass.split(/\s+/).forEach((it) => {
+    klass.trim().split(/\s+/).forEach((it) => {
       if (it.match(/\d+$/) || it === '') {
         // ends with number
       } else if (it.match(/^[,\.:\*"']/)) {
         // invalid klass
       } else {
-        arr.push(it);
+        // sanitize it
+        arr.push(sanitizeSelectorItem(it));
       }
     });
   }
