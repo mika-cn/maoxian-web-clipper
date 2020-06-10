@@ -91,7 +91,6 @@ function init(){
   initUI();
   I18N.i18nPage();
   bindListener();
-  ExtMsg.initPage('reset-history');
   MxWcLink.listen(document.body);
   state.worker = new Worker();
   state.worker.onmessage = handlerWorkerMessage;

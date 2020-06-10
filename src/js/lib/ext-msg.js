@@ -22,34 +22,24 @@ import ExtApi from './ext-api.js';
  * Message Structure
  *
  *   target : target page name (required)
- *   from   : from page name (required)
  *   type   : message type (required)
  *   body   : message body (optional)
  *
  */
 
-/*
- * Must invoke initPage before using this module.
- */
-const state = {page: null}
-function initPage(page) {
-  if(state.page) { throw new Error("Page has already initialized."); }
-  state.page = page;
-}
 
 /*
- * @param {string} page
+ * @param {string} currPage
  * @param {function} listener
  *   listener should return a promise.
  */
-function listen(listener) {
+function listen(currPage, listener) {
   browser.runtime.onMessage.addListener((msg, sender, senderResponse) => {
     // Deprecated: senderResponse
-    if(msg.target == state.page) {
-      //console.debug("[ExtMsg]"," Im: ", state.page, " From: ", msg.from, " Target:", msg.target, msg);
+    if(msg.target == currPage) {
       return listener(msg, sender);
     } else {
-      console.debug("[OtherPageMsg]"," Im: ", state.page, " From: ", msg.from, " To:", msg.target, msg);
+      console.debug("[OtherPageMsg]"," Im: ", currPage, "Msg Target:", msg.target, msg);
       // ignore msg
     }
   });
@@ -71,8 +61,7 @@ function sendToContentFrame(msg, tabId, frameId) {
 }
 
 function sendToPage(msg, pageUrl) {
-  if(!msg.target) { throw new Error("target page is requred.")}
-  msg.from = state.page;
+  if(!msg.target) { throw new Error("Message invalid: target page is requred.")}
   eachTab((tab) => {
     if(tab.url.startsWith(pageUrl)) {
       sendToTab(msg, tab.id);
@@ -97,9 +86,8 @@ function eachTab(callback) {
 }
 
 // private
-// If msg contains 'target' or 'from' attribute, it will be overwritten.
 function addPage(targetPage, msg) {
-  return Object.assign({}, msg, {target: targetPage, from: state.page});
+  return Object.assign(msg, {target: targetPage});
 }
 
 // private
@@ -135,7 +123,6 @@ function sendToTab(msg, tabId, frameId) {
 }
 
 const ExtMsg = {
-  initPage: initPage,
   listen: listen,
   sendToBackground: sendToBackground,
   sendToContent: sendToContent,

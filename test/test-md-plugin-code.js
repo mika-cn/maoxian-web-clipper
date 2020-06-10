@@ -380,6 +380,7 @@ describe('MdPluginCode', () => {
     </div>
   `;
 
+
   // https://www.jianshu.com/p/5ec142a5fd8c
   const codeDiv_B = (
     `<div><pre class="line-numbers  language-bash">`
@@ -613,6 +614,9 @@ describe('MdPluginCode', () => {
 
 
 
+  //
+  //  `<div><pre class="brush:java;toolbar: true; auto-links: false;">`
+  //
 
 
 });

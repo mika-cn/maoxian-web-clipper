@@ -9,6 +9,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ExtensionReloader  = require('webpack-extension-reloader');
 
 const ENVIRONMENT = process.env.NODE_ENV || "development";
+const IS_PRODUCTION = (ENVIRONMENT === "production");
 // chrome or firefox
 const PLATFORM = process.env.MX_PLATFORM || 'chrome';
 
@@ -35,12 +36,27 @@ const pageEntires = pages.reduce((entries, pageName) => {
   return entries;
 }, {})
 
+// https://github.com/jantimon/html-webpack-plugin/issues/1396
+// https://github.com/DanielRuf/html-minifier-terser#options-quick-reference
+let minify = false;
+if (IS_PRODUCTION) {
+  minify = {
+    collapseWhitespace: true,
+    removeComments: true,
+    removeRedundantAttributes: false,
+    removeScriptTypeAttributes: true,
+    removeStyleLinkTypeAttributes: true,
+    useShortDoctype: true
+  }
+}
+
 const pageHtmls = pages.reduce((htmls, pageName) => {
   htmls.push(
     new HtmlWebpackPlugin({
       template: path.join(pages_folder, pageName + ".html"),
       filename: `pages/${pageName}.html`,
-      chunks: [pageName]
+      chunks: [pageName],
+      minify: minify
     })
   )
   return htmls;
@@ -99,7 +115,7 @@ const config = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      COMPILING_VAR_IS_PRODUCTION: ENVIRONMENT === "production"
+      COMPILING_VAR_IS_PRODUCTION: IS_PRODUCTION
     }),
     new webpack.ProvidePlugin({
       // Workaround for https://github.com/webpack/webpack/issues/5828
@@ -156,7 +172,7 @@ function assignMetaInfoFromPkg(manifest, pkg) {
 }
 
 
-if (ENVIRONMENT == "production") {
+if (IS_PRODUCTION) {
   config.plugins.push(new CopyWebpackPlugin([
     { from: "src/manifest.json", transform: renderManifestWithPlatformMsg }
   ], { copyUnmodified: true }));

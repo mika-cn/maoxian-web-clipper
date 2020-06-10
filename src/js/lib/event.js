@@ -62,7 +62,11 @@ const BROADCAST_EVENT_NAMES = [
   'confirmed', 'clipping'
 ];
 
-// you should call FrameMsg.init before call this function
+function initFrameMsg(params) {
+  FrameMsg.init(params);
+}
+
+// you should call initFrameMsg before calling this function
 function handleBroadcastPublic() {
   BROADCAST_EVENT_NAMES.forEach(function(name) {
     const evType   = getType(name);
@@ -70,7 +74,7 @@ function handleBroadcastPublic() {
   });
 }
 
-// you should call FrameMsg.init before call this function
+// you should call initFrameMsg before calling this function
 function handleBroadcastInternal() {
   BROADCAST_EVENT_NAMES.forEach(function(name) {
     const evType   = getType(name, true);
@@ -139,16 +143,17 @@ function getData(e) {
 }
 
 const MxWcEvent = {
-  getType: getType,
-  getData: getData,
-  broadcastPublic: broadcastPublic,
-  broadcastInternal: broadcastInternal,
-  handleBroadcastPublic: handleBroadcastPublic,
-  handleBroadcastInternal: handleBroadcastInternal,
-  dispatchInternal: dispatchInternal,
-  dispatchPublic, dispatchPublic,
-  listenInternal: listenInternal,
-  listenPublic, listenPublic
+  getType,
+  getData,
+  broadcastPublic,
+  broadcastInternal,
+  initFrameMsg,
+  handleBroadcastPublic,
+  handleBroadcastInternal,
+  dispatchInternal,
+  dispatchPublic,
+  listenInternal,
+  listenPublic,
 }
 
 export default MxWcEvent;

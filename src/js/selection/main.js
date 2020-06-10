@@ -3,14 +3,15 @@
 import Log from '../lib/log.js';
 import ExtMsg from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
-import CssSelectorGenerator from 'css-selector-generator';
+
+import getCssSelector from 'css-selector-generator/src/index.js';
+import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
 
 const state = {appliedSelection: null};
 
 function save(elem, deletedElems) {
   try {
-    const generator = new CssSelectorGenerator();
-    const selector = generator.getSelector(elem);
+    const selector = getCssSelector(elem);
     if ( deletedElems.length == 0
       && state.appliedSelection
       && state.appliedSelection.selector == selector
@@ -157,12 +158,11 @@ function getAncestors(node) {
 }
 
 function node2Str(node) {
-  const generator = new CssSelectorGenerator();
   const arr = [];
   arr.push(node.tagName.toLowerCase());
   const id = node.getAttribute('id');
   if (id != null && id != '' && !id.match(/^\s+$/) && !id.match(/\d+$/)) {
-    const sanitized_id = generator.sanitizeItem(id);
+    const sanitized_id = sanitizeSelectorItem(id);
     arr.push(sanitized_id);
     return arr.join('#');
   }
@@ -186,7 +186,7 @@ function node2Str(node) {
       } else if (blackList.indexOf(it) > -1) {
         // in blacklist
       } else {
-        klasses.push(generator.sanitizeItem(it));
+        klasses.push(sanitizeSelectorItem(it));
       }
     });
     arr.push(...klasses.sort());

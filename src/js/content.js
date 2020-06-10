@@ -15,7 +15,7 @@ const state = {
 
 function listenMessage(){
   // ExtMsg has initialized in content-frame.js
-  ExtMsg.listen(function(msg){
+  ExtMsg.listen('content', function(msg){
     return new Promise(function(resolve, reject){
       switch(msg.type){
         case 'icon.click':
@@ -238,7 +238,6 @@ function run(){
           MxWcSelectionMain.init(config);
           UI.init(config);
           initialize();
-          ExtMsg.initPage('content');
           listenMessage();
           listenPopState();
           listenInternalMessage();
