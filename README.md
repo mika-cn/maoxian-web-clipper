@@ -92,6 +92,7 @@ Thanks to these awesome libraries for making MaoXian's development become easier
 * [turndown-plugin-gfw](https://github.com/domchristie/turndown-plugin-gfm)
 * [mathml2latex](https://github.com/mika-cn/mathml2latex)
 * [strip-css-comments](https://github.com/sindresorhus/strip-css-comments)
+* [css-selector-generator](https://github.com/fczbkk/css-selector-generator)
 * [awesomplete](https://github.com/LeaVerou/awesomplete)
 * [pikaday](https://github.com/Pikaday/Pikaday)
 
