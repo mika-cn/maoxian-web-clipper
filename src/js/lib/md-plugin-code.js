@@ -23,13 +23,7 @@
 import Log from './log.js';
 import T from './tool.js';
 import DOMTool from './dom-tool.js';
-
-
-// TODO FIXME
-// import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
-
-// TODO REMOVEME
-import {sanitizeSelectorItem} from '../../vendor/js/utilities-selector.js';
+import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
 
 const KEYWORDS = ['highlight', 'syntax', 'code'];
 const DEFAULT_LANGUAGE = 'plain';
