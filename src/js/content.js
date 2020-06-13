@@ -141,9 +141,11 @@ function tellTpWeAreReady(){
 function tellTpClipCompleted(detail) {
   if (state.config.communicateWithThirdParty) {
     MxWcEvent.dispatchPublic('completed', {
+      clipId: detail.clipId,
       handler: detail.handler,
       filename: detail.filename,
       url: detail.url,
+      originalUrl: detail.originalUrl,
       completedAt: T.currentTime().toString()
     });
   }
@@ -228,12 +230,12 @@ function exitClipping(msg) {
   resetState();
 }
 
-// FIXME see background.js
 function completeClipping(msg) {
-
-  UI.clippingSaveCompleted(msg);
-  tellTpClipCompleted(msg);
-  resetState();
+  const {result} = msg;
+  ExtMsg.sendToBackground({
+    type: 'clipping.complete',
+    body: result
+  });
 }
 
 
