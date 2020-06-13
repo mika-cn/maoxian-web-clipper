@@ -4,6 +4,27 @@ import MxWcStorage from './storage.js';
 
 const state = {};
 
+export const API_SETTABLE_KEYS = [
+  'rootFolder',
+
+  'defaultCategory',
+  'clippingFolderName',
+
+  'mainFileFolder',
+  'mainFileName',
+
+  'saveInfoFile',
+  'infoFileFolder',
+  'infoFileName',
+
+  'saveTitleFile',
+  'titleFileFolder',
+  'titleFileName',
+
+  'frameFileFolder',
+  'assetFolder',
+];
+
 function getDefault(){
   return {
 
@@ -199,7 +220,7 @@ const Config = {
   load: load,
   update: update,
   reset: reset,
-  getDefault: getDefault
+  getDefault: getDefault,
 }
 
 export default Config;

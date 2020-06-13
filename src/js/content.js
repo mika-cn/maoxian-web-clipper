@@ -10,10 +10,21 @@ import MxWcSelectionMain from './selection/main.js';
 import MxWcSave from './content/save.js';
 import UI from './content/ui.js';
 
-const state = {
-  config: null,
-  tempConfig: {}
-};
+import {API_SETTABLE_KEYS} from './lib/config.js';
+
+let state = {};
+function resetState() {
+  state = {
+    config: null,
+    /* only avariable in current clipping */
+    tempConfig: {},
+    yieldPoints: new Set(),
+    /* information of current clipping */
+    storageConfig: null,
+    storageInfo: null,
+    clipping: null,
+  }
+}
 
 function listenMessage(){
   // ExtMsg has initialized in content-frame.js
@@ -33,6 +44,7 @@ function listenMessage(){
         case 'clipping.save.completed':
           UI.clippingSaveCompleted(msg.body);
           tellTpClipCompleted(msg.body);
+          resetState();
           break;
         case 'page_content.changed':
           pageContentChanged();
@@ -75,10 +87,10 @@ function stopMutationObserver() {
 }
 
 function listenInternalMessage() {
-  MxWcEvent.listenInternal('focus-elem', selectElem);
-  MxWcEvent.listenInternal('select-elem', selectElem);
-  MxWcEvent.listenInternal('confirm-elem', confirmElem);
-  MxWcEvent.listenInternal('clip-elem', clipElem);
+  MxWcEvent.listenInternal('focus-elem'   , wrapToEventHandler(selectElem));
+  MxWcEvent.listenInternal('select-elem'  , wrapToEventHandler(selectElem));
+  MxWcEvent.listenInternal('confirm-elem' , wrapToEventHandler(confirmElem));
+  MxWcEvent.listenInternal('clip-elem'    , wrapToEventHandler(clipElem));
   Log.debug('listen internal message');
 }
 
@@ -90,15 +102,20 @@ function listenInternalMessage() {
  * ThirdParty: userScript or other Extension.
  */
 function listenTpMessage(){
-  MxWcEvent.listenPublic('focus-elem', selectElem);
-  MxWcEvent.listenPublic('select-elem', selectElem);
-  MxWcEvent.listenPublic('confirm-elem', confirmElem);
-  MxWcEvent.listenPublic('clip-elem', clipElem);
-  MxWcEvent.listenPublic('set-form-inputs', setFormInputs);
-  MxWcEvent.listenPublic('set-temp-config', setTempConfig);
-  MxWcEvent.listenPublic('register-yield-point', registerYieldPoint);
-  MxWcEvent.listenPublic('deregister-yield-point', deregisterYieldPoint);
-  MxWcEvent.listenPublic('resume-actived', resumeActived);
+  MxWcEvent.listenPublic('focus-elem'        , wrapToEventHandler(selectElem));
+  MxWcEvent.listenPublic('select-elem'       , wrapToEventHandler(selectElem));
+  MxWcEvent.listenPublic('confirm-elem'      , wrapToEventHandler(confirmElem));
+  MxWcEvent.listenPublic('clip-elem'         , wrapToEventHandler(clipElem));
+  MxWcEvent.listenPublic('set-form-inputs'   , wrapToEventHandler(setFormInputs));
+  MxWcEvent.listenPublic('overwrite-config'  , wrapToEventHandler(overwriteConfig));
+  MxWcEvent.listenPublic('set-yielding'      , wrapToEventHandler(setYielding));
+  MxWcEvent.listenPublic('unset-yielding'    , wrapToEventHandler(unsetYielding));
+
+  MxWcEvent.listenPublic('resume-actived'    , wrapToEventHandler(resumeActived));
+  MxWcEvent.listenPublic('set-saving-hint'   , wrapToEventHandler(setSavingHint));
+  MxWcEvent.listenPublic('save-clipping'     , wrapToEventHandler(saveClipping));
+  MxWcEvent.listenPublic('exit-clipping'     , wrapToEventHandler(exitClipping));
+  MxWcEvent.listenPublic('complete-clipping' , wrapToEventHandler(completeClipping));
   Log.debug('listenTpMessage');
 }
 
@@ -132,60 +149,95 @@ function tellTpClipCompleted(detail) {
   }
 }
 
-function selectElem(e) {
-  const msg = MxWcEvent.getData(e);
+function wrapToEventHandler(action) {
+  return function(e) {
+    const msg = MxWcEvent.getData(e);
+    action(msg);
+  }
+}
+
+function selectElem(msg) {
   queryElem(msg, (elem) => {
     UI.selectElem(elem)
   });
 }
 
-function confirmElem(e) {
-  const msg = MxWcEvent.getData(e);
+function confirmElem(msg) {
   queryElem(msg, (elem) => {
-    UI.confirmElem(elem, (msg.options || {}));
+    // deprecated: msg.options
+    UI.confirmElem(elem, (msg.formInputs || msg.options || {}));
   });
 }
 
-function clipElem(e) {
-  const msg = MxWcEvent.getData(e);
+function clipElem(msg) {
   queryElem(msg, (elem) => {
-    UI.clipElem(elem, (msg.options || {}));
+    // deprecated: msg.options
+    UI.clipElem(elem, (msg.formInputs || msg.options || {}));
   });
 }
 
-function setFormInputs(e) {
-  const msg = MxWcEvent.getData(e);
-  UI.setFormInputs(msg.options || {});
+function setFormInputs(msg) {
+  // deprecated: msg.options
+  UI.setFormInputs(msg.formInputs || msg.options || {});
 }
 
-function setTempConfig(e) {
-  const msg = MxWcEvent.getData(e);
-  state.tempConfig = (msg.config || {});
+function overwriteConfig(msg) {
+  const config = (msg.config || {});
+  state.tempConfig = {};
+  for (let key in config) {
+    if (API_SETTABLE_KEYS.indexOf(key) > -1) {
+      state.tempConfig[key] = config[key];
+    }
+  }
 }
 
 const YIELDABLE_POINTS = ['actived', 'clipped'];
-state.yieldPoints = new Set();
-function registerYieldPoint(e) {
-  const msg = MxWcEvent.getData(e);
+function setYielding(msg) {
   if (YIELDABLE_POINTS.indexOf(msg.name) > -1) {
     state.yieldPoints.add(msg.name);
   }
 }
 
-function deregisterYieldPoint(e) {
-  const msg = MxWcEvent.getData(e);
+function unsetYielding(msg) {
   if (YIELDABLE_POINTS.indexOf(msg.name) > -1) {
     state.yieldPoints.delete(msg.name);
   }
 }
 
 // FIXME rename me :(
-function resumeActived(e) {
-  UI.entryClick(e);
+function resumeActived(msg) {
+  UI.entryClick(msg);
 }
 
-// ======================================
+function setSavingHint(msg) {
+  UI.setSavingHint(msg.hint);
+}
 
+function saveClipping(msg) {
+  const {clipping} = msg;
+  ExtMsg.sendToBackground({
+    type: 'clipping.save',
+    body: clipping
+  });
+  saveClippingHistory(clipping);
+}
+
+function exitClipping(msg) {
+  const timeout = 500;
+  UI.friendlyExit(timeout);
+  resetState();
+}
+
+// FIXME see background.js
+function completeClipping(msg) {
+
+  UI.clippingSaveCompleted(msg);
+  tellTpClipCompleted(msg);
+  resetState();
+}
+
+
+// ======================================
 
 function queryElem(msg, callback){
   let elem = null;
@@ -208,41 +260,35 @@ function queryElem(msg, callback){
     Log.warn("[MaoXian] Can't find elem according to q");
     Log.warn("qType:", msg.qType);
     Log.warn("q:", msg.q);
+    console.trace();
   }
 }
 
-function formSubmitted({elem, formInputs, config}) {
+async function formSubmitted({elem, formInputs, config}) {
 
   const currConfig = Object.assign(config, state.tempConfig)
   const domain = window.location.host.split(':')[0];
   const pageUrl = window.location.href;
 
   const {userInput, info, storageInfo, storageConfig} = MxWcSave.getReadyToClip(formInputs, currConfig, {domain, pageUrl})
+  state.storageConfig = storageConfig;
+  state.storageInfo = storageInfo;
 
-  if (userInput.category != '') {
-    saveInputHistory('category', userInput.category);
-  }
-  if (userInput.tags.length > 0) {
-    saveInputHistory('tags', userInput.tags);
-  }
+  if (userInput.category != '')  { saveInputHistory('category', userInput.category); }
+  if (userInput.tags.length > 0) { saveInputHistory('tags', userInput.tags); }
 
-  MxWcSave.clip(elem, {info, storageInfo, config, storageConfig})
-    .then((clipping) => {
-      Log.debug(clipping);
-      if (state.yieldPoints.has('clipped')) {
-        Log.debug("clipped: yield to 3rd party");
-        MxWcEvent.dispatchPublic('clipped', {clipping});
-      } else {
-        // save clipping
-        ExtMsg.sendToBackground({
-          type: 'clipping.save',
-          body: clipping
-        });
-      }
-      if (storageConfig.saveInfoFile) {
-        saveClippingHistory(info, storageInfo);
-      }
-    });
+  const params = Object.assign({info, storageInfo, storageConfig}, {config: currConfig});
+  const clipping = await MxWcSave.clip(elem, params);
+  Log.debug(clipping);
+
+  UI.setStateClipped({clipping})
+
+  if (state.yieldPoints.has('clipped')) {
+    Log.debug("clipped: yield to 3rd party");
+    saveClippingHistory(clipping);
+  } else {
+    saveClipping({clipping});
+  }
 }
 
 function saveInputHistory(k, v){
@@ -254,13 +300,16 @@ function saveInputHistory(k, v){
   });
 }
 
-function saveClippingHistory(info, storageInfo){
-  const path = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
-  const clippingHistory = Object.assign({path: path}, info);
-  ExtMsg.sendToBackground({
-    type: 'save.clippingHistory',
-    body: {clippingHistory: clippingHistory}
-  })
+function saveClippingHistory(clipping){
+  const {storageConfig, storageInfo} = state;
+  if (storageConfig.saveInfoFile) {
+    const path = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
+    const clippingHistory = Object.assign({path: path}, clipping.info);
+    ExtMsg.sendToBackground({
+      type: 'save.clippingHistory',
+      body: {clippingHistory: clippingHistory}
+    })
+  }
 }
 
 
@@ -345,6 +394,7 @@ function run(){
     if (document.documentElement.tagName.toUpperCase() === 'HTML') {
       // html xhm etc.
       setTimeout(() => {
+        resetState();
         MxWcConfig.load().then((config) => {
           state.config = config;
           MxWcSelectionMain.init(config);

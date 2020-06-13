@@ -225,6 +225,7 @@ body {
   .gbox.selected  #switch-btn { background-color: green; }
   .gbox.confirmed #switch-btn { display: none}
   .gbox.clipping  #switch-btn { display: none}
+  .gbox.clipped   #switch-btn { display: none}
   .gbox.saving    #switch-btn { display: none}
 
   /* hint state */
@@ -233,6 +234,7 @@ body {
   .gbox.selected  .hint {display: inline-block}
   .gbox.confirmed .hint {display: none}
   .gbox.clipping  .hint {display: inline-block}
+  .gbox.clipped   .hint {display: inline-block}
   .gbox.saving    .hint {display: inline-block}
 
 
@@ -290,6 +292,7 @@ body {
   .gbox.selected  .hint {display: block}
   .gbox.confirmed .hint {display: none}
   .gbox.clipping  .hint {display: block}
+  .gbox.clipped   .hint {display: block}
   .gbox.saving    .hint {display: block}
 
 

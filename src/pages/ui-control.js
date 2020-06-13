@@ -138,6 +138,8 @@ function listenFrameMsg(){
   FrameMsg.addListener('setStateSelected', setStateSelected);
   FrameMsg.addListener('setStateConfirmed', setStateConfirmed);
   FrameMsg.addListener('setStateClipping', setStateClipping);
+  FrameMsg.addListener('setStateClipped', setStateClipped);
+  FrameMsg.addListener('setSavingHint', setSavingHint);
   FrameMsg.addListener('setSavingStateStarted', setSavingStateStarted);
   FrameMsg.addListener('setSavingStateProgress', setSavingStateProgress);
   FrameMsg.addListener('setSavingStateCompleted', setSavingStateCompleted);
@@ -260,9 +262,21 @@ function setStateClipping(msg){
   gbox.classList.add('clipping');
   setHint(I18N.t('hint.clipping'));
 }
+function setStateClipped(msg) {
+  const gbox = getGbox();
+  gbox.classList.remove('clipping');
+  gbox.classList.add('clipped');
+  setHint(I18N.t('hint.clipped'));
+}
 
 /************** change saving state ****************/
 
+function setSavingHint(hint) {
+  const gbox = getGbox();
+  gbox.classList.remove('clipping');
+  gbox.classList.add('saving');
+  setHint(hint);
+}
 
 function setSavingStateStarted(msg) {
   const gbox = getGbox();

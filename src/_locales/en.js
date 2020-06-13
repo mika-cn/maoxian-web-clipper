@@ -371,6 +371,7 @@
     "hint.selecting": "Click or press 'Enter' to select.",
     "hint.selected": "Press 'Enter' to Confirm, Use arrow key to adjust",
     "hint.clipping": "Clipping...",
+    "hint.clipped": "Clipped...",
 
     "hint.saving.started": "Start Save clipping...",
     "hint.saving.progress": "Progress...($finished/$total)",

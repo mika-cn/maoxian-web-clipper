@@ -133,10 +133,16 @@ function getType(name, isInternal) {
 }
 
 function getData(e) {
-  if(typeof e.detail === 'string') {
+  if (typeof e.detail === 'string') {
     // Firefox(Gecko) restict (for secure reason) e.detail when it is a custom object.
     // We use json string to walk around.
-    return JSON.parse(e.detail);
+    try {
+      return JSON.parse(e.detail);
+    } catch(e) {
+      return {};
+    }
+  } else if (typeof e.detail === 'undefined'){
+    return {};
   } else {
     // Ensure compatible with old version(mx-wc-tool.js)
     // e.detail is a custom object.
