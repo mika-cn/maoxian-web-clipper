@@ -36,7 +36,7 @@ async function saveToWizNotePlus(clipping, feedback) {
   const info = clipping.info;
   const indexFileName = [state.tempPath, info.clipId, "index.html"].join('/');
   // Embed markdown into index.html
-  if (info.mainPath.endsWith('.md')) {
+  if (info.format === 'md') {
     info.title = info.title + ".md";
     const markdownText = getMarkdownText(clipping.tasks);
     const html = embedMarkdownIntoHtml(markdownText, info.title, info.link);

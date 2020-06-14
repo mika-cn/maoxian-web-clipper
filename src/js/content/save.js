@@ -105,15 +105,10 @@ async function clip(elem, {info, storageInfo, config, storageConfig}) {
     const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
     tasks.unshift(Task.createInfoTask(filename, info))
   } else {
-    const mainFileTask = tasks.find(it => it.taskType === 'mainFileTask')
-    if (mainFileTask) {
-      // FIXME why should we set infoFileFolder ?
-      // We assume infoFileFolder is same as mainFileFolder.
-      const infoFileFolder = storageInfo.mainFileFolder;
-      info.mainPath = T.calcPath(infoFileFolder, mainFileTask.filename);
-    } else {
-      throw Error("Can not find mainFileTask");
-    }
+    // In this condition.
+    // We don't save info file and this clipping record.
+    // So we don't need info.paths(No deletion) and info.mainPath(No history to open)
+    delete info['paths'];
   }
 
   const clipping = {

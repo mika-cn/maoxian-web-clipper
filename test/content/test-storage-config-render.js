@@ -115,7 +115,7 @@ describe("StorageConfigRender", () => {
 
     return {
       storageConfig: storageConfig,
-      now: T.currentTime(),
+      now: Date.now(),
       domain: 'example.org',
       format: 'html',
       title: 'A awesome title',
