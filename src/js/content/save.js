@@ -126,7 +126,7 @@ async function clip(elem, {info, storageInfo, config, storageConfig}) {
 
 
 //private
-function dealFormInputs({format = config.saveFormat, title, category, tagstr}) {
+function dealFormInputs({format, title, category, tagstr}) {
   title = title.trim();
   category = category.trim();
 
