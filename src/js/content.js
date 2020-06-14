@@ -7,7 +7,7 @@ import MxWcEvent from './lib/event.js';
 import MxWcConfig from './lib/config.js';
 import MxWcLink from './lib/link.js';
 import MxWcSelectionMain from './selection/main.js';
-import MxWcSave from './content/save.js';
+import Clipper from './content/clipper.js';
 import UI from './content/ui.js';
 
 import {API_SETTABLE_KEYS} from './lib/config.js';
@@ -272,7 +272,7 @@ async function formSubmitted({elem, formInputs, config}) {
   const domain = window.location.host.split(':')[0];
   const pageUrl = window.location.href;
 
-  const {userInput, info, storageInfo, storageConfig} = MxWcSave.getReadyToClip(formInputs, currConfig, {domain, pageUrl})
+  const {userInput, info, storageInfo, storageConfig} = Clipper.getReadyToClip(formInputs, currConfig, {domain, pageUrl})
   state.storageConfig = storageConfig;
   state.storageInfo = storageInfo;
 
@@ -280,7 +280,7 @@ async function formSubmitted({elem, formInputs, config}) {
   if (userInput.tags.length > 0) { saveInputHistory('tags', userInput.tags); }
 
   const params = Object.assign({info, storageInfo, storageConfig}, {config: currConfig});
-  const clipping = await MxWcSave.clip(elem, params);
+  const clipping = await Clipper.clip(elem, params);
   Log.debug(clipping);
 
   UI.setStateClipped({clipping})
