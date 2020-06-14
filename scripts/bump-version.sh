@@ -42,12 +42,17 @@ git checkout -b $new_branch || exit 1
 
 
 echo "Bump version from $old_version to $new_version"
-cat package.json | sed -E "s/\"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+\"/\"version\": \"${new_version}\"/" > new-package.json
+
+cat package.json | sed -E "s/^  \"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+\"/  \"version\": \"${new_version}\"/" > new-package.json
 mv new-package.json package.json
 
+cat package-lock.json | sed -E "s/^  \"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+\"/  \"version\": \"${new_version}\"/" > new-package-lock.json
+mv new-package-lock.json package-lock.json
+
+
 echo "Commit"
-git add package.json
-git commit -m "RELEASE bump version ${new_version}"
+git add package.json package-lock.json
+git commit -m "RELEASE bump version to ${new_version}"
 
 echo "Done! bump version to ${new_version}."
 exit 0
