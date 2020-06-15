@@ -4,7 +4,7 @@
  *   plan: {
  *     hideElem: [Selector, Selector..]
  *     pickElem: [Selector, Selector..]
- *     pickAction: 'focus' or 'confirm' or 'clip'
+ *     pickAction: 'select' or 'confirm' or 'clip'
  *   }
  */
 
@@ -302,9 +302,9 @@ function createPickedElemAction(params) {
   }
 }
 
-Action.focusElem = createPickedElemAction({
-  name: 'focusElem',
-  eventName: 'focus-elem'
+Action.selectElem = createPickedElemAction({
+  name: 'selectElem',
+  eventName: 'select-elem'
 });
 
 Action.confirmElem = createPickedElemAction({
@@ -449,7 +449,7 @@ function isTopWindow() {
 /*
  * plan{
  *   pickElem: $SelectorInput,
- *   pickAction: 'focus' or 'confirm', or 'clip'
+ *   pickAction: 'select' or 'confirm', or 'clip'
  *   hideElem: $SelectorInput,
  *   hideElemOnce: $SelectorInput,
  *   showElem: $SelectorInput,
@@ -458,7 +458,7 @@ function isTopWindow() {
  * Selector: $type||$q
  */
 function apply(plan) {
-  const {pickElem, pickAction = 'focus'} = plan;
+  const {pickElem, pickAction = 'select'} = plan;
   if(isTopWindow()) {
     if(hasSelector(pickElem)) {
       const selectorInput = pickElem;
@@ -468,8 +468,8 @@ function apply(plan) {
         switch(pickAction) {
           case 'confirm' : listen('selecting', Action.confirmElem(selectorInput)); break;
           default:
-            /* 'focus' or other */
-            listen('selecting', Action.focusElem(selectorInput));
+            /* 'select' or other */
+            listen('selecting', Action.selectElem(selectorInput));
             break;
         }
       } else {

@@ -76,6 +76,17 @@ T.createId = function() {
 }
 
 // ===============================
+// Object
+// ===============================
+T.sliceObj = function(obj, keys) {
+  const r = {};
+  for (let i = 0; i < keys.length; i++) {
+    r[keys[i]] = obj[keys[i]];
+  }
+  return r;
+}
+
+// ===============================
 // DOM relative
 // ===============================
 
@@ -450,6 +461,11 @@ T.rjustNum = function(num, length){
 
 T.currentTime = function(){
   return T.wrapDate(new Date());
+}
+
+// now is an interger return by Date.now().
+T.wrapNow = function(now) {
+  return T.wrapDate(new Date(now));
 }
 
 T.wrapDate = function(date) {

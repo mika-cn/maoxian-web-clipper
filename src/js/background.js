@@ -86,6 +86,9 @@ function messageHandler(message, sender){
       case 'clipping.delete':
         deleteClipping(message.body, resolve);
         break;
+      case 'clipping.complete':
+        completeClipping(sender.tab.id, message.body);
+        break;
       case 'generate.clipping.js':
         generateClippingJs(resolve);
         break;
@@ -222,6 +225,10 @@ function clippingSaveCompleted(tabId, result, handler){
   result.handler = handler.name;
   result = handler.handleClippingResult(result);
   Log.debug(result);
+  completeClipping(tabId, result);
+}
+
+function completeClipping(tabId, result) {
   updateClippingHistory(result);
   ExtMsg.sendToContent({
     type: 'clipping.save.completed',

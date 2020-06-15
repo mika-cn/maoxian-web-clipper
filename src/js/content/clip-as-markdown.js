@@ -18,12 +18,9 @@ import CapturerIframe from '../capturer/iframe.js';
 import TurndownService from 'turndown';
 const turndownPluginGfm = require('turndown-plugin-gfm');
 
-/*
- * @param {Object} params
- */
-async function parse(params){
+
+async function clip(elem, {info, storageInfo, config}){
   Log.debug("markdown parser");
-  const {storageInfo, elem, info, config} = params;
   const [mimeTypeDict, frames] = await Promise.all([
     ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
     ExtMsg.sendToBackground({type: 'get.allFrames'}),
@@ -226,7 +223,7 @@ function getTurndownService(){
 }
 
 const Markdown = {
-  parse: parse,
+  clip: clip,
   getElemHtml: getElemHtml
 }
 

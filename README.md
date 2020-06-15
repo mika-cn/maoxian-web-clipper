@@ -14,7 +14,7 @@ That's it, Not bored registration, Not charged.
 
 * Local Storage - All file will save in local hard disk, you can control your data totally (e.g. Use dropbox to sync files)
 * Free Selection - You can select which area you want to clip.
-* Adjust Focus - After you focus a area, you can adjust your selection use hotkeys.
+* Adjust selection - After you select a area, you can adjust your selection use hotkeys.
 * Category And Tag - Before your clipping, you can change title, input category and some tags.
 * Clipping History - Extension will record clipping history, and support search history (through title/category/tag).
 * Reset History - When you install this extension in new computer, you can reset your clipping history

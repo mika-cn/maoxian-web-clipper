@@ -6,7 +6,6 @@ import ExtApi from '../lib/ext-api.js';
 import FrameMsg from '../lib/frame-msg.js';
 import MxWcEvent from '../lib/event.js';
 import MxWcHandler from '../lib/handler.js';
-import MxWcSave from './save.js';
 import Notify from '../lib/notify.js';
 import MxWcSelectionMain from '../selection/main.js';
 
@@ -242,6 +241,11 @@ function cancelForm(msg){
 function hideForm(){
   sendFrameMsgToControl('hideForm');
 }
+
+// ===========================================
+// state setter
+// ===========================================
+
 function setStateIdle(){
   state.clippingState = 'idle';
   sendFrameMsgToControl('setStateIdle');
@@ -267,6 +271,30 @@ function setStateClipping(){
   sendFrameMsgToControl('setStateClipping');
   dispatchMxEvent('clipping');
 }
+// msg: {:clipping}
+function setStateClipped(msg) {
+  state.clippingState = 'clipped';
+  sendFrameMsgToControl('setStateClipped');
+  dispatchMxEvent('clipped', msg);
+}
+
+function setStateSaving() {
+  state.clippingState = 'saving';
+  dispatchMxEvent('saving');
+}
+
+function dispatchMxEvent(name, data) {
+  MxWcEvent.dispatchInternal(name, data);
+  MxWcEvent.broadcastInternal(name, data);
+  if (state.config.communicateWithThirdParty) {
+    MxWcEvent.dispatchPublic(name, data);
+    MxWcEvent.broadcastPublic(name, data);
+  }
+}
+
+// ===========================================
+// communiate with UI layer
+// ===========================================
 function drawSelectingStyle(elem){
   sendFrameMsgToSelection('drawRect', {box: getBox(elem), color: 'red'});
 }
@@ -283,15 +311,6 @@ function sendFrameMsgToControl(type, msg) {
 
 function sendFrameMsgToSelection(type, msg) {
   FrameMsg.send({to: selectionIframe.id, type: type, msg: (msg || {})});
-}
-
-function dispatchMxEvent(name, data) {
-  MxWcEvent.dispatchInternal(name, data);
-  MxWcEvent.broadcastInternal(name, data);
-  if (state.config.communicateWithThirdParty) {
-    MxWcEvent.dispatchPublic(name, data);
-    MxWcEvent.broadcastPublic(name, data);
-  }
 }
 
 // ----------------------------
@@ -326,26 +345,31 @@ function listenFrameMsg(){
   FrameMsg.addListener('pressRight' , pressRight);
   FrameMsg.addListener('pressDown'  , pressDown);
   FrameMsg.addListener('clickSelectedArea', clickSelectedArea);
-  FrameMsg.addListener('startClip'  , startClip);
   FrameMsg.addListener('entryClick' , entryClick);
+  FrameMsg.addListener('submitForm' , submitForm);
   FrameMsg.addListener('cancelForm' , cancelForm);
   FrameMsg.addListener('frame.control.removeMe', function(msg) { controlIframe.remove(); });
   FrameMsg.addListener('frame.selection.removeMe', function(msg) { selectionIframe.remove(); });
-  console.log('listenFrameMsg');
+  Log.debug('listenFrameMsg');
 }
 
-function startClip(msg){
+function submitForm(msg){
+  const formInputs = msg;
   MxWcHandler.isReady('config.clippingHandler')
   .then(function(result) {
     const {ok, config, message} = result;
     if(ok) {
       eraseHigtlightStyle();
-      msg.elem = state.currElem;
       setStateClipping();
       if (config.rememberSelection) {
         MxWcSelectionMain.save(state.currElem, state.deletedElems);
       }
-      MxWcSave.save(msg, config);
+     const callback = state.callbacks['submitted'];
+     callback({
+       elem: state.currElem,
+       formInputs: formInputs,
+       config: config,
+     });
     } else {
       Notify.error(message);
       ignoreFrameMsg();
@@ -354,7 +378,6 @@ function startClip(msg){
     }
   });
 }
-
 
 function ignoreFrameMsg(){
   FrameMsg.clearListener();
@@ -483,6 +506,7 @@ function pressEnter(msg){
     .then((result) => {
       const {ok, message, handlerInfo, config} = result;
       if(ok) {
+        setStateConfirmed();
         const params = Object.assign({
           handlerInfo: handlerInfo, config: config
         }, getFormInputs(msg));
@@ -631,8 +655,10 @@ const selectedTarget = function(target){
   setStateSelected();
 }
 
+
 // msg: {:clipId}
 function clippingSaveStarted(msg) {
+  setStateSaving();
   sendFrameMsgToControl('setSavingStateStarted', msg);
 }
 
@@ -644,30 +670,45 @@ function clippingSaveProgress(msg) {
 // msg: clippingResult
 function clippingSaveCompleted(msg) {
   sendFrameMsgToControl('setSavingStateCompleted', msg);
+  friendlyExit(500);
+}
+
+function setSavingHint(hint) {
+  if (state.clippingState === 'clipped' && hint) {
+    sendFrameMsgToControl('setSavingHint', hint);
+  }
+}
+
+function friendlyExit(timeout) {
   setTimeout(function(){
     disable();
     removeFriendly();
-  }, 500);
+  }, timeout);
 }
 
 /*
  * 3rd party interface
  */
-function focusElem(elem, callback){
+function selectElem(elem, callback){
   if(state.clippingState === 'idle') {
-    Log.debug("[focus] State Idle...");
+    Log.debug("[selectElem] State Idle...");
     entryClick({});
   }
   state.currElem = getOutermostWrapper(elem);
   if(selectionIframe.ready && controlIframe.ready) {
-    Log.debug("[focus] Iframe Ready...");
-    selectedTarget(state.currElem);
-    if(callback){ callback()}
-  } else {
-    Log.debug("[focus] Iframe Loading...");
-    const allIframeLoad = function(e){
+    Log.debug("[selectElem] Iframe Ready...");
+    setTimeout(() => {
       selectedTarget(state.currElem);
       if(callback){ callback()}
+    }, 0);
+  } else {
+    Log.debug("[selectElem] Iframe Loading...");
+    const allIframeLoad = function(e){
+      // when all iframe loaded, there's some initialization should finish.
+      setTimeout(() => {
+        selectedTarget(state.currElem);
+        if(callback){ callback()}
+      }, 0)
       T.unbind(document, 'all-iframe-loaded', allIframeLoad);
     }
     T.bind(document, 'all-iframe-loaded', allIframeLoad);
@@ -676,41 +717,52 @@ function focusElem(elem, callback){
 
 /*
  * 3rd party interface
- * options: {:title, :category, :tagstr}
+ * formInputs: {:format, :title, :category, :tagstr}
  */
-function confirmElem(elem, options){
-  focusElem(elem, function(){
-    pressEnter(options);
+function confirmElem(elem, formInputs){
+  selectElem(elem, function(){
+    pressEnter(formInputs);
   });
 }
 
 /*
  * 3rd party interface
- * options: {:title, :category, :tagstr}
+ * formInputs: {:format, :title, :category, :tagstr}
  */
-function clipElem(elem, options){
-  focusElem(elem, function(){
-    startClip(getFormInputs(options));
+function clipElem(elem, formInputs){
+  selectElem(elem, function(){
+    submitForm(getFormInputs(formInputs));
   });
 }
 
 /*
  * 3rd party interface
- * options: {:title, :category, :tagstr}
+ * formInputs: {:format, :title, :category, :tagstr}
  */
 state.formInputs = {};
-function setFormInputs(options) {
-  state.formInputs = options;
+function setFormInputs(formInputs) {
+  state.formInputs = formInputs;
 }
 
-function getFormInputs(options) {
+function getFormInputs(formInputs) {
   const inputs = {
-    title    : (options.title    || state.formInputs.title    || document.title),
-    category : (options.category || state.formInputs.category || ""),
-    tagstr   : (options.tagstr   || state.formInputs.tagstr   || "")
+    format   : (formInputs.format   || state.formInputs.format   || ""),
+    title    : (formInputs.title    || state.formInputs.title    || document.title),
+    category : (formInputs.category || state.formInputs.category || ""),
+    tagstr   : (formInputs.tagstr   || state.formInputs.tagstr   || "")
   };
-  setFormInputs({});
+
+  setFormInputs({}); // reset it.
   return inputs;
+}
+
+state.callbacks = {};
+function setCallback(name, callback) {
+  state.callbacks[name] = callback;
+}
+
+function getCurrState() {
+  return state.clippingState;
 }
 
 function init(config) {
@@ -720,18 +772,24 @@ function init(config) {
 const UI = {
   init: init,
   remove: remove,
+  setCallback: setCallback,
   entryClick: entryClick,
   windowSizeChanged: windowSizeChanged,
+  getCurrState: getCurrState,
+
+  setStateClipped: setStateClipped,
 
   clippingSaveStarted: clippingSaveStarted,
   clippingSaveProgress: clippingSaveProgress,
   clippingSaveCompleted: clippingSaveCompleted,
 
   // 3rd party interface
-  focusElem: focusElem,
+  selectElem: selectElem,
   confirmElem: confirmElem,
   clipElem: clipElem,
   setFormInputs: setFormInputs,
+  setSavingHint: setSavingHint,
+  friendlyExit: friendlyExit,
 }
 
 export default UI;

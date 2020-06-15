@@ -5,8 +5,10 @@ import T from './lib/tool.js';
 import ExtMsg from './lib/ext-msg.js';
 import MxWcEvent from './lib/event.js';
 import Config from './lib/config.js';
-import MxWcHtml from './content/save-as-html.js';
-import MxWcMarkdown from './content/save-as-markdown.js';
+
+import MxHtmlClipper from './content/clip-as-html.js';
+import MxMarkdownClipper from './content/clip-as-markdown.js';
+
 import MxWcAssistantMain from './assistant/main.js';
 
 /*
@@ -28,13 +30,13 @@ function backgroundMessageHandler(message) {
     if (message.frameUrl === window.location.href) {
       switch (message.type) {
         case 'frame.toHtml':
-          MxWcHtml.getElemHtml(getParams(message)).then((result) => {
+          MxHtmlClipper.getElemHtml(getParams(message)).then((result) => {
             result.title = window.document.title;
             resolve(result);
           });
           break;
         case 'frame.toMd':
-          MxWcMarkdown.getElemHtml(getParams(message)).then(resolve);
+          MxMarkdownClipper.getElemHtml(getParams(message)).then(resolve);
           break;
       }
     }
