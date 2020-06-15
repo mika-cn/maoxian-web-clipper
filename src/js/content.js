@@ -279,7 +279,7 @@ async function formSubmitted({elem, formInputs, config}) {
   if (userInput.category != '')  { saveInputHistory('category', userInput.category); }
   if (userInput.tags.length > 0) { saveInputHistory('tags', userInput.tags); }
 
-  const params = Object.assign({info, storageInfo, storageConfig}, {config: currConfig});
+  const params = Object.assign({info, storageInfo, storageConfig}, {config: currConfig, win: window});
   const clipping = await Clipper.clip(elem, params);
   Log.debug(clipping);
 

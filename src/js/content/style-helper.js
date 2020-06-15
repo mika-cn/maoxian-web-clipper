@@ -3,14 +3,14 @@
 import Log from '../lib/log.js';
 import T from '../lib/tool.js';
 
-function getRenderParams(elem){
+function getRenderParams(elem, win){
   const {
        id: htmlId,
     klass: htmlClass,
     style: htmlStyle
-  } = extractCssAttrs(document.documentElement);
+  } = extractCssAttrs(win.document.documentElement);
   let htmlAppendStyle = '';
-  if (!isOverflowDefault(document.documentElement)) {
+  if (!isOverflowDefault(win.document.documentElement, win)) {
     htmlAppendStyle = 'overflow: auto !important;';
   }
 
@@ -22,12 +22,12 @@ function getRenderParams(elem){
     }
 
   } else {
-    const {id: bodyId, klass: bodyClass} = extractCssAttrs(document.body);
-    let bodyBgCss = getBgCss(document.body);
-    const elemWrappers = getWrappers(elem, []);
+    const {id: bodyId, klass: bodyClass} = extractCssAttrs(win.document.body);
+    let bodyBgCss = getBgCss(win.document.body, win);
+    const elemWrappers = getWrappers(elem, [], win);
     const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
-    const outerElemBgCss = getBgCss(outerElem);
-    const elemBgCss = getBgCss(elem);
+    const outerElemBgCss = getBgCss(outerElem, win);
+    const elemBgCss = getBgCss(elem, win);
     Log.debug('elemBgCss:', elemBgCss);
     Log.debug('outerElemBgCss:', outerElemBgCss);
     Log.debug('bodyBgCss:', bodyBgCss);
@@ -45,7 +45,7 @@ function getRenderParams(elem){
         bodyBgCss = '#464646';
       }
     }
-    const elemWidth = getFitWidth(elem);
+    const elemWidth = getFitWidth(elem, win);
     return {
       elemWidth      : elemWidth,
       bodyBgCss      : bodyBgCss,
@@ -61,26 +61,26 @@ function getRenderParams(elem){
 
 // calculate selected elem backgroundColor
 // TODO check other browser represent background as 'rgb(x,x,x,)' format
-function getBgCss(elem){
+function getBgCss(elem, win){
   if(!elem){
     return "rgb(255, 255, 255)";
   }//  default white;
-  const bgCss = window.getComputedStyle(elem, null).getPropertyValue('background-color');
+  const bgCss = win.getComputedStyle(elem, null).getPropertyValue('background-color');
   if(bgCss == "rgba(0, 0, 0, 0)"){ // transparent
-    return getBgCss(elem.parentElement);
+    return getBgCss(elem.parentElement, win);
   }else{
     return bgCss;
   }
 }
 
 
-function getWrappers(elem, wrapperList){
+function getWrappers(elem, wrapperList, win){
   const pElem = elem.parentElement;
   if(pElem && ['HTML', 'BODY'].indexOf(pElem.tagName.toUpperCase()) == -1){
-    if(pElemHasNearWidth(pElem, elem) || siblingHasSameStructure(elem)){
+    if(pElemHasNearWidth(pElem, elem, win) || siblingHasSameStructure(elem)){
       // probably is a wrapper
       wrapperList.push(pElem);
-      return getWrappers(pElem, wrapperList);
+      return getWrappers(pElem, wrapperList, win);
     }else{
       return wrapperList;
     }
@@ -111,21 +111,21 @@ function hasSameStructure(elemA, elemB){
 }
 
 
-function pElemHasNearWidth(pElem, elem){
+function pElemHasNearWidth(pElem, elem, win){
   const threshold = 10; //10px
   const box = elem.getBoundingClientRect();
   const pBox = pElem.getBoundingClientRect();
-  return pBox.width - 2 * getElemPaddingLeft(pElem) - box.width < threshold
+  return pBox.width - 2 * getElemPaddingLeft(pElem, win) - box.width < threshold
 }
 
-function getElemPaddingLeft(elem){
-  return getCssSize(elem, 'padding-left')
+function getElemPaddingLeft(elem, win){
+  return getCssSize(elem, 'padding-left', win)
 }
 
 
-function getFitWidth(elem){
+function getFitWidth(elem, win){
   const width = elem.getBoundingClientRect().width;
-  const widthText = getStyleText(elem, 'width')
+  const widthText = getStyleText(elem, 'width', win)
   if(widthText.match(/\d+px/)){
     // absolate width
     return width;
@@ -142,8 +142,8 @@ function getFitWidth(elem){
 
 // get original style text. e.g. '100px' , '50%'
 // See: https://stackoverflow.com/questions/30250918/how-to-know-if-a-div-width-is-set-in-percentage-or-pixel-using-jquery#30251040
-function getStyleText(elem, cssKey){
-  const style = window.getComputedStyle(elem, null);
+function getStyleText(elem, cssKey, win){
+  const style = win.getComputedStyle(elem, null);
   const display = style.getPropertyValue("display");
   elem.style.display = "none";
   const value = style.getPropertyValue(cssKey);
@@ -151,8 +151,8 @@ function getStyleText(elem, cssKey){
   return value;
 }
 
-function getCssSize(elem, cssKey){
-  const style = window.getComputedStyle(elem, null);
+function getCssSize(elem, cssKey, win){
+  const style = win.getComputedStyle(elem, null);
   let size = style.getPropertyValue(cssKey);
   size.replace('px', '');
   if(size === ''){
@@ -188,7 +188,7 @@ function getWrapperStyle(node) {
   return (node.style.cssText || '') + toCssText(cssObj);
 }
 
-function getSelectedNodeStyle(node) {
+function getSelectedNodeStyle(node, win) {
   const cssObj = {
     'float'      : 'none',
     'position'   : 'relative',
@@ -200,14 +200,14 @@ function getSelectedNodeStyle(node) {
     'max-width'  : '100%',
   };
 
-  if (getStyleText(node, 'box-sizing') !== 'border-box') {
+  if (getStyleText(node, 'box-sizing', win) !== 'border-box') {
     cssObj['box-sizing'] = 'border-box';
   }
 
-  const marginLeft  = getCssSize(node, 'margin-left');
-  const paddingLeft = getCssSize(node, 'padding-left');
-  const marginTop   = getCssSize(node, 'margin-top');
-  const paddingTop  = getCssSize(node, 'padding-top');
+  const marginLeft  = getCssSize(node, 'margin-left', win);
+  const paddingLeft = getCssSize(node, 'padding-left', win);
+  const marginTop   = getCssSize(node, 'margin-top', win);
+  const paddingTop  = getCssSize(node, 'padding-top', win);
 
   if (marginLeft !== 0 && (marginLeft + paddingLeft) == 0) {
     // Some programers write code like this :(
@@ -229,10 +229,10 @@ function toCssText(cssObj) {
   return r;
 }
 
-function isOverflowDefault(node) {
-  const overflow  = getStyleText(node, 'overflow'),
-        overflowX = getStyleText(node, 'overflow-x'),
-        overflowY = getStyleText(node, 'overflow-y');
+function isOverflowDefault(node, win) {
+  const overflow  = getStyleText(node, 'overflow', win),
+        overflowX = getStyleText(node, 'overflow-x', win),
+        overflowY = getStyleText(node, 'overflow-y', win);
   return (
     overflow === overflowX &&
     overflow === overflowY &&

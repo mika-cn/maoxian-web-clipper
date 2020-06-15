@@ -17,7 +17,7 @@ import CapturerIframe from '../capturer/iframe.js';
 import StyleHelper from './style-helper.js';
 
 
-async function clip(elem, {info, storageInfo, config}){
+async function clip(elem, {info, storageInfo, config, win}){
   Log.debug("html parser");
   const [mimeTypeDict, frames] = await Promise.all([
     ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
@@ -25,8 +25,8 @@ async function clip(elem, {info, storageInfo, config}){
   ])
 
   const headerParams = {
-    refUrl: window.location.href,
-    userAgent: window.navigator.userAgent,
+    refUrl: win.location.href,
+    userAgent: win.navigator.userAgent,
     referrerPolicy: config.requestReferrerPolicy,
   }
 
@@ -39,16 +39,17 @@ async function clip(elem, {info, storageInfo, config}){
     frames: frames,
     storageInfo: storageInfo,
     elem: elem,
-    docUrl: window.location.href,
-    baseUrl: window.document.baseURI,
+    docUrl: win.location.href,
+    baseUrl: win.document.baseURI,
     mimeTypeDict: mimeTypeDict,
     config: config,
     headerParams: headerParams,
     needFixStyle: !isBodyElem,
+    win: win,
   });
 
   // 将elemHtml 渲染进模板里，渲染成完整网页。
-  const v = StyleHelper.getRenderParams(elem);
+  const v = StyleHelper.getRenderParams(elem, win);
   const page = (isBodyElem ? 'bodyPage' : 'elemPage');
   v.info = info;
   v.headInnerHtml = headInnerHtml;
@@ -81,19 +82,20 @@ async function getElemHtml(params){
     config,
     headerParams,
     needFixStyle,
+    win,
   } = params;
   Log.debug('getElemHtml', baseUrl);
 
   const KLASS = ['mx-wc', clipId].join('-');
   elem.classList.add('mx-wc-selected-elem');
   elem.classList.add(KLASS);
-  DOMTool.markHiddenNode(window, elem);
-  const docHtml = document.documentElement.outerHTML;
+  DOMTool.markHiddenNode(win, elem);
+  const docHtml = win.document.documentElement.outerHTML;
   elem.classList.remove('mx-wc-selected-elem');
   elem.classList.remove(KLASS);
   DOMTool.clearHiddenMark(elem);
 
-  const {doc} = DOMTool.parseHTML(window, docHtml);
+  const {doc} = DOMTool.parseHTML(win, docHtml);
   let selectedNode = doc.querySelector('.' + KLASS);
   selectedNode.classList.remove(KLASS);
   Log.debug(selectedNode);
@@ -212,7 +214,7 @@ async function getElemHtml(params){
   if(elem.tagName.toUpperCase() === 'BODY') {
     elemHtml = dealBodyElem(selectedNode, elem);
   } else {
-    elemHtml = dealNormalElem(selectedNode, elem);
+    elemHtml = dealNormalElem(selectedNode, elem, win);
   }
   return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection};
 }
@@ -223,8 +225,8 @@ function dealBodyElem(node, originalNode) {
   return node.outerHTML;
 }
 
-function dealNormalElem(node, originalNode){
-  node.style = StyleHelper.getSelectedNodeStyle(originalNode);
+function dealNormalElem(node, originalNode, win){
+  node.style = StyleHelper.getSelectedNodeStyle(originalNode, win);
   node = removeUselessNode(node);
   return wrapToBody(originalNode, node.outerHTML);
 }

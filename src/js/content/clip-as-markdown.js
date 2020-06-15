@@ -14,12 +14,11 @@ import CapturerA from '../capturer/a.js';
 import CapturerImg from '../capturer/img.js';
 import CapturerIframe from '../capturer/iframe.js';
 
-// require turndownservice
 import TurndownService from 'turndown';
 const turndownPluginGfm = require('turndown-plugin-gfm');
 
 
-async function clip(elem, {info, storageInfo, config}){
+async function clip(elem, {info, storageInfo, config, win}){
   Log.debug("markdown parser");
   const [mimeTypeDict, frames] = await Promise.all([
     ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
@@ -27,8 +26,8 @@ async function clip(elem, {info, storageInfo, config}){
   ]);
 
   const headerParams = {
-    refUrl: window.location.href,
-    userAgent: window.navigator.userAgent,
+    refUrl: win.location.href,
+    userAgent: win.navigator.userAgent,
     referrerPolicy: config.requestReferrerPolicy,
   }
 
@@ -38,10 +37,11 @@ async function clip(elem, {info, storageInfo, config}){
     frames: frames,
     storageInfo: storageInfo,
     elem: elem,
-    docUrl: window.location.href,
-    baseUrl: window.document.baseURI,
+    docUrl: win.location.href,
+    baseUrl: win.document.baseURI,
     mimeTypeDict: mimeTypeDict,
     config: config,
+    win: win,
   })
   let markdown = generateMarkDown(elemHtml, info);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
@@ -78,6 +78,7 @@ async function getElemHtml(params){
     mimeTypeDict,
     parentFrameId = topFrameId,
     config,
+    win,
   } = params;
   Log.debug("getElemHtml", docUrl);
 
@@ -85,14 +86,14 @@ async function getElemHtml(params){
   const KLASS = ['mx-wc', clipId].join('-');
   elem.classList.add('mx-wc-selected-elem');
   elem.classList.add(KLASS);
-  DOMTool.markHiddenNode(window, elem);
-  const docHtml = document.documentElement.outerHTML;
+  DOMTool.markHiddenNode(win, elem);
+  const docHtml = win.document.documentElement.outerHTML;
   elem.classList.remove('mx-wc-selected-elem');
   elem.classList.remove(KLASS);
   DOMTool.clearHiddenMark(elem);
 
 
-  const {doc} = DOMTool.parseHTML(window, docHtml);
+  const {doc} = DOMTool.parseHTML(win, docHtml);
   let selectedNode = doc.querySelector('.' + KLASS);
   selectedNode.classList.remove(KLASS);
   selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);

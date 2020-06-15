@@ -15,6 +15,10 @@ import MxMarkdownClipper from './clip-as-markdown.js';
 /**
  *
  * @param {Object} formInputs: {:format, :title, :category, :tagstr}
+ * @param {Object} config
+ * @param {Object} params
+ *   - {String} domain
+ *   - {String} pageUrl
  *
  * @return {Object}
  *   - {Object} userInput {:format, :title, :category, :tags}
@@ -72,17 +76,27 @@ function getReadyToClip(formInputs, config, {domain, pageUrl}) {
 }
 
 
-/*
- * @return a Promise that will resolve with clipping
+/**
+ * Clip element
+ *
+ *
+ * @param {Element} elem
+ * @param {Object} params
+ *   - {Object} info - meta information
+ *   - {Object} storageInfo
+ *   - {Object} storageconfig
+ *   - {Window} window object
+ *
+ * @return {Promise} a Promise that will resolve with clipping
  */
-async function clip(elem, {info, storageInfo, config, storageConfig}) {
+async function clip(elem, {info, storageInfo, config, storageConfig, win}) {
   let Clipper = null;
   switch(info.format){
     case 'html' : Clipper = MxHtmlClipper; break;
     case 'md'   : Clipper = MxMarkdownClipper; break;
   }
 
-  let tasks = await Clipper.clip(elem, {info, storageInfo, config});
+  let tasks = await Clipper.clip(elem, {info, storageInfo, config, win});
 
   if (storageConfig.saveTitleFile) {
     const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);

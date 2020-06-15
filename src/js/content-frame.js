@@ -68,6 +68,7 @@ function getParams(message) {
     config: config,
     headerParams: headerParams,
     needFixStyle: false,
+    win: window,
   }
 }
 
