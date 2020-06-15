@@ -123,8 +123,8 @@ T.findParentById = function(elem, id) {
 
 
 // If image permission is disabled, style.display is 'inline'.
-T.isElemVisible = function(win, elem) {
-  if(['LINK','STYLE'].indexOf(elem.tagName.toUpperCase()) > -1) {
+T.isElemVisible = function(win, elem, whiteList = []) {
+  if(whiteList.indexOf(elem.tagName.toUpperCase()) > -1) {
     return true
   }
 
