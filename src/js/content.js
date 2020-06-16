@@ -7,7 +7,7 @@ import MxWcEvent from './lib/event.js';
 import MxWcConfig from './lib/config.js';
 import MxWcLink from './lib/link.js';
 import MxWcSelectionMain from './selection/main.js';
-import Clipper from './content/clipper.js';
+import Clipper from './clipping/clipper.js';
 import UI from './content/ui.js';
 
 import {API_SETTABLE_KEYS} from './lib/config.js';
