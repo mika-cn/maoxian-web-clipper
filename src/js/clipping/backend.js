@@ -2,7 +2,7 @@
 import ExtApi from '../lib/ext-api.js';
 import ExtMsg from '../lib/ext-msg.js';
 import ActionCache from '../lib/action-cache.js';
-import Fetcher from '../background/fetcher.js';
+import Fetcher from '../lib/fetcher.js';
 
 
 function messageHandler(message, sender) {
@@ -42,12 +42,14 @@ function messageHandler(message, sender) {
   });
 }
 
-let Global = null;
 /*
  * @param {Object} global
  *   - {Module} WebRequest
+ *   - {String} requestToken
  */
+let Global = null;
 export default function init(global) {
   Global = global;
+  Fetcher.setRequestToken(global.requestToken);
   ExtMsg.listen('background', messageHandler);
 }

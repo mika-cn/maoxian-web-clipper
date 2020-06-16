@@ -328,15 +328,21 @@ function refreshHistoryIfNeed(){
   });
 }
 
+const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
+
 function init(){
   Log.debug("background init...");
   MxWcMigration.perform();
   MxWcHandlerBackground.initialize();
+
+  WebRequest.setRequestToken(REQUEST_TOKEN);
   WebRequest.listen();
+
   ExtMsg.listen('background', messageHandler);
   refreshHistoryIfNeed();
 
-  initBackend_Clipping({WebRequest: WebRequest});
+  initBackend_Clipping({requestToken: REQUEST_TOKEN,
+    WebRequest: WebRequest});
   initBackend_Assistant();
   initBackend_Selection();
 

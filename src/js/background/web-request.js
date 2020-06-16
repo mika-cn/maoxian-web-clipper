@@ -3,7 +3,6 @@
 import Log from '../lib/log.js';
 import T from '../lib/tool.js';
 import ExtMsg from '../lib/ext-msg.js';
-import BgEnv from './bg-env.js';
 
 //const browser = require('webextension-polyfill');
 
@@ -288,16 +287,26 @@ const UnescapeHeader = (function(){
   function isSentByUs(requestHeaders) {
     return T.any(requestHeaders, (header) => {
       return (header.name.toLowerCase() === 'x-mxwc-token'
-        && header.value === BgEnv.requestToken);
+        && header.value === state.requestToken);
     })
   }
 
+  const state = {}
+  function setRequestToken(token) {
+    state.requestToken = token;
+  }
+
   return {
+    setRequestToken: setRequestToken,
     listen: listen,
     // test only
     perform: listener,
   }
 })();
+
+function setRequestToken(token) {
+  UnescapeHeader.setRequestToken(token);
+}
 
 function listen() {
   StoreMimeType.listen();
@@ -310,6 +319,7 @@ function getMimeTypeDict() {
 
 
 const WebRequest = {
+  setRequestToken: setRequestToken,
   listen: listen,
   getMimeTypeDict: getMimeTypeDict,
   // test only

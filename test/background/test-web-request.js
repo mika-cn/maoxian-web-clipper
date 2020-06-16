@@ -1,6 +1,8 @@
 import H from '../helper.js';
-import BgEnv from '../../src/js/background/bg-env.js';
 import WebRequest from '../../src/js/background/web-request.js';
+
+const REQUEST_TOKEN = 'abcd';
+WebRequest.setRequestToken(REQUEST_TOKEN);
 
 
 describe('WebRequest', () => {
@@ -129,7 +131,7 @@ describe('WebRequest', () => {
         "Accept": "*/*",
         "origin": "moz-extension/xxx",
         "Referer": "https://a.org/index.html",
-        "X-MxWc-Token": BgEnv.requestToken,
+        "X-MxWc-Token": REQUEST_TOKEN,
         "X-MxWc-Origin": "$REMOVE_ME",
         "x-mxwc-referer": "https://a.org",
       });
