@@ -9,7 +9,7 @@ import MxWcStorage from './lib/storage.js';
 import MxWcConfig from './lib/config.js';
 import MxWcLink from './lib/link.js';
 import MxWcIcon from './lib/icon.js';
-import PlanRepository from './assistant/plan-repository.js';
+import initBackend_Assistant from './assistant/backend.js';
 import SelectionBackend from './selection/backend.js';
 import Fetcher from './background/fetcher.js';
 import MxWcMigration from './background/migration.js';
@@ -18,23 +18,9 @@ import CacheService from './background/cache-service.js';
 import ClippingHandler_NativeApp from './background/clipping-handler-native-app.js';
 import MxWcHandlerBackground from './background/handler-background.js';
 
-const asyncFunQueue = T.createAsyncFnQueue();
-
-
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
-      case 'get.plan':
-        asyncFunQueue.enqueue(async () => {
-          PlanRepository.get(message.body.url).then(resolve);
-        });
-        break;
-      case 'update.public-plan':
-        PlanRepository.updatePublicPlans(message.body.urls).then(resolve);
-        break;
-      case 'save.custom-plan':
-        PlanRepository.updateCustomPlans(message.body.planText).then(resolve);
-        break;
       case 'query.selection':
         SelectionBackend.query(message.body).then(resolve);
         break;
@@ -106,7 +92,6 @@ function messageHandler(message, sender){
         ExtApi.createTab(message.body.link).then(resolve);
         break;
       default:
-        throw new Error("Unknown message" + message.type);
         break;
     }
   });
@@ -382,7 +367,7 @@ function init(){
   WebRequest.listen();
   refreshHistoryIfNeed();
   welcomeNewUser();
-  PlanRepository.init();
+  initBackend_Assistant();
   Log.debug("background init finish...");
 }
 
