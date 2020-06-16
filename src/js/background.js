@@ -10,7 +10,7 @@ import MxWcConfig from './lib/config.js';
 import MxWcLink from './lib/link.js';
 import MxWcIcon from './lib/icon.js';
 import initBackend_Assistant from './assistant/backend.js';
-import SelectionBackend from './selection/backend.js';
+import initBackend_Selection from './selection/backend.js';
 import Fetcher from './background/fetcher.js';
 import MxWcMigration from './background/migration.js';
 import WebRequest from './background/web-request.js';
@@ -21,12 +21,6 @@ import MxWcHandlerBackground from './background/handler-background.js';
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
-      case 'query.selection':
-        SelectionBackend.query(message.body).then(resolve);
-        break;
-      case 'save.selection':
-        SelectionBackend.save(message.body).then(resolve);
-        break;
       case 'get.mimeTypeDict' : resolve(WebRequest.getMimeTypeDict())   ; break;
       case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
@@ -368,6 +362,7 @@ function init(){
   refreshHistoryIfNeed();
   welcomeNewUser();
   initBackend_Assistant();
+  initBackend_Selection();
   Log.debug("background init finish...");
 }
 
