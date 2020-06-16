@@ -9,19 +9,19 @@ import MxWcStorage from './lib/storage.js';
 import MxWcConfig from './lib/config.js';
 import MxWcLink from './lib/link.js';
 import MxWcIcon from './lib/icon.js';
+
+import initBackend_Clipping  from './clipping/backend.js';
 import initBackend_Assistant from './assistant/backend.js';
 import initBackend_Selection from './selection/backend.js';
-import Fetcher from './background/fetcher.js';
+
 import MxWcMigration from './background/migration.js';
 import WebRequest from './background/web-request.js';
-import CacheService from './background/cache-service.js';
 import ClippingHandler_NativeApp from './background/clipping-handler-native-app.js';
 import MxWcHandlerBackground from './background/handler-background.js';
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
-      case 'get.mimeTypeDict' : resolve(WebRequest.getMimeTypeDict())   ; break;
       case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
@@ -30,36 +30,11 @@ function messageHandler(message, sender){
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
       case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
-      case 'fetch.text':
-        CacheService.findOrCache(
-          [message.body.clipId, message.body.url].join('.'),
-          () => {
-          return Fetcher.get(message.body.url, {
-            respType: 'text',
-            headers: message.body.headers,
-            timeout: message.body.timeout,
-          });
-        }).then(resolve, reject);
-        break;
-      case 'get.allFrames':
-        ExtApi.getAllFrames(sender.tab.id)
-          .then(resolve);
-        break;
-      case 'frame.toHtml':
-      case 'frame.toMd':
-        CacheService.findOrCache(
-          [message.body.clipId, message.frameUrl].join('.'),
-          () => {
-          // Redirect message to content frame.
-          return ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId);
-        }).then(resolve);
-        break;
       case 'export.history':
         exportHistory(message.body.content);
         resolve();
         break;
       case 'clipping.save':
-        CacheService.removeByKeyPrefix(message.body.info.clipId);
         saveClipping(sender.tab.id, message.body);
         resolve();
         break;
@@ -357,12 +332,16 @@ function init(){
   Log.debug("background init...");
   MxWcMigration.perform();
   MxWcHandlerBackground.initialize();
-  ExtMsg.listen('background', messageHandler);
   WebRequest.listen();
+  ExtMsg.listen('background', messageHandler);
   refreshHistoryIfNeed();
-  welcomeNewUser();
+
+  initBackend_Clipping({WebRequest: WebRequest});
   initBackend_Assistant();
   initBackend_Selection();
+
+  welcomeNewUser();
+
   Log.debug("background init finish...");
 }
 

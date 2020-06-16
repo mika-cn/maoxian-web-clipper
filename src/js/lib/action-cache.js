@@ -1,6 +1,5 @@
-"use strict";
 
-import T from '../lib/tool.js';
+import T from './tool.js';
 
 const cache = T.createDict();
 
@@ -36,9 +35,4 @@ function removeByKeyPrefix(keyPrefix) {
   cache.removeByKeyPrefix(keyPrefix);
 }
 
-const CacheService = {
-  findOrCache: findOrCache,
-  removeByKeyPrefix: removeByKeyPrefix,
-}
-
-export default CacheService;
+export default {findOrCache, removeByKeyPrefix}
