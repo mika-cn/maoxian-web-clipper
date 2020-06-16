@@ -2,9 +2,9 @@ const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
 
-import H from './helper.js';
-import DOMTool from '../src/js/lib/dom-tool.js';
-import CaptureTool from '../src/js/capturer/tool.js';
+import H from '../helper.js';
+import DOMTool from '../../src/js/lib/dom-tool.js';
+import CaptureTool from '../../src/js/capturer/tool.js';
 
 describe('CaptureTool', () => {
 

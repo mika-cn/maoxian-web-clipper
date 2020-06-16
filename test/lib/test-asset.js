@@ -1,6 +1,6 @@
 
-import H from './helper.js';
-import Asset from '../src/js/lib/asset.js';
+import H from '../helper.js';
+import Asset from '../../src/js/lib/asset.js';
 
 describe("Asset", () => {
 
