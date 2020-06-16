@@ -1,7 +1,5 @@
 "use strict";
 
-import BgEnv from './bg-env.js';
-
 /*
  * @param {String} url request url
  * @param {Object} options

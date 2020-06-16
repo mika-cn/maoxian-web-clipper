@@ -6,7 +6,7 @@ import Log from '../lib/log.js';
 import T from '../lib/tool.js';
 import Config from '../lib/config.js';
 import Storage from '../lib/storage.js';
-import Fetcher from '../background/fetcher.js';
+import Fetcher from '../lib/fetcher.js';
 
 /**!
  * Storage keys:
