@@ -243,18 +243,25 @@ function completeClipping(msg) {
 
 function queryElem(msg, callback){
   let elem = null;
-  if(msg.qType === 'css'){
-    elem =  T.queryElem(msg.q);
-  } else {
-    const xpath = msg.q;
-    const xpathResult = document.evaluate(
-      xpath,
-      document,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null
-    )
-    elem = xpathResult.singleNodeValue;
+  try {
+    if(msg.qType === 'css'){
+      elem =  T.queryElem(msg.q);
+    } else {
+      const xpath = msg.q;
+      const xpathResult = document.evaluate(
+        xpath,
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      )
+      elem = xpathResult.singleNodeValue;
+    }
+  } catch(e) {
+    // illegle selector
+    Log.error(e.message)
+    Log.error(e)
+    console.trace();
   }
   if(elem){
     callback(elem)
