@@ -657,18 +657,18 @@ const selectedTarget = function(target){
 
 
 // msg: {:clipId}
-function clippingSaveStarted(msg) {
+function savingStarted(msg) {
   setStateSaving();
   sendFrameMsgToControl('setSavingStateStarted', msg);
 }
 
 // msg: {:clipId, :finished, :total}
-function clippingSaveProgress(msg) {
+function savingProgress(msg) {
   sendFrameMsgToControl('setSavingStateProgress', msg);
 }
 
-// msg: clippingResult
-function clippingSaveCompleted(msg) {
+// msg: savingResult
+function savingCompleted(msg) {
   sendFrameMsgToControl('setSavingStateCompleted', msg);
   friendlyExit(500);
 }
@@ -779,9 +779,9 @@ const UI = {
 
   setStateClipped: setStateClipped,
 
-  clippingSaveStarted: clippingSaveStarted,
-  clippingSaveProgress: clippingSaveProgress,
-  clippingSaveCompleted: clippingSaveCompleted,
+  savingStarted: savingStarted,
+  savingProgress: savingProgress,
+  savingCompleted: savingCompleted,
 
   // 3rd party interface
   selectElem: selectElem,

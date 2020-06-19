@@ -35,15 +35,15 @@ function listenMessage(){
           window.focus();
           activeUI({});
           break;
-        case 'clipping.save.started':
-          UI.clippingSaveStarted(msg.body);
+        case 'saving.started':
+          UI.savingStarted(msg.body);
           break;
-        case 'clipping.save.progress':
-          UI.clippingSaveProgress(msg.body);
+        case 'saving.progress':
+          UI.savingProgress(msg.body);
           break;
-        case 'clipping.save.completed':
-          UI.clippingSaveCompleted(msg.body);
-          tellTpClipCompleted(msg.body);
+        case 'saving.completed':
+          UI.savingCompleted(msg.body);
+          tellTpCompleted(msg.body);
           resetState();
           break;
         case 'page_content.changed':
@@ -138,7 +138,7 @@ function tellTpWeAreReady(){
   emitEvent();
 }
 
-function tellTpClipCompleted(detail) {
+function tellTpCompleted(detail) {
   if (state.config.communicateWithThirdParty) {
     MxWcEvent.dispatchPublic('completed', {
       clipId: detail.clipId,
@@ -217,8 +217,8 @@ function setSavingHint(msg) {
 
 function saveClipping(msg) {
   const {clipping} = msg;
-  ExtMsg.sendToBackground({
-    type: 'clipping.save',
+  ExtMsg.sendToBackend('saving',{
+    type: 'save',
     body: clipping
   });
   saveClippingHistory(clipping);
@@ -232,8 +232,8 @@ function exitClipping(msg) {
 
 function completeClipping(msg) {
   const {result} = msg;
-  ExtMsg.sendToBackground({
-    type: 'clipping.complete',
+  ExtMsg.sendToBackend('saving', {
+    type: 'complete',
     body: result
   });
 }

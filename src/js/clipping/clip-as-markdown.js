@@ -21,8 +21,8 @@ const turndownPluginGfm = require('turndown-plugin-gfm');
 async function clip(elem, {info, storageInfo, config, win}){
   Log.debug("markdown parser");
   const [mimeTypeDict, frames] = await Promise.all([
-    ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
-    ExtMsg.sendToBackground({type: 'get.allFrames'}),
+    ExtMsg.sendToBackend('clipping', {type: 'get.mimeTypeDict'}),
+    ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'}),
   ]);
 
   const headerParams = {

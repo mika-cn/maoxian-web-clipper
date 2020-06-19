@@ -25,7 +25,7 @@ function messageHandler(message, sender) {
 }
 
 export default function init() {
-  ExtMsg.listen('background', messageHandler);
+  ExtMsg.listen('backend.assistant', messageHandler);
   PlanRepository.init();
   Log.debug("MX backend: Assistant initialized");
 }

@@ -21,7 +21,7 @@ const config = {
 }
 
 function getPlan() {
-  return ExtMsg.sendToBackground({
+  return ExtMsg.sendToBackend('assistant', {
     type: 'get.plan',
     body: {url: window.location.href}
   })

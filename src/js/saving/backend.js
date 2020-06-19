@@ -8,12 +8,12 @@ import MxWcIcon from '../lib/icon.js';
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type) {
-      case 'clipping.save':
+      case 'save':
         saveClipping(sender.tab.id, message.body);
         resolve();
         break;
-      case 'clipping.complete':
-        completeClipping(sender.tab.id, message.body);
+      case 'complete':
+        completeSaving(sender.tab.id, message.body);
         break;
     }
   });
@@ -24,13 +24,13 @@ async function saveClipping(tabId, clipping) {
   const feedback = function(msg) {
     switch(msg.type) {
       case 'started':
-        clippingSaveStarted(tabId, msg);
+        started(tabId, msg);
         break;
       case 'progress':
-        clippingSaveProgress(tabId, msg);
+        progress(tabId, msg);
         break;
       case 'completed':
-        clippingSaveCompleted(tabId, msg.clippingResult, handler);
+        completed(tabId, msg.clippingResult, handler);
         break;
       default: break;
     }
@@ -39,21 +39,21 @@ async function saveClipping(tabId, clipping) {
 }
 
 
-function clippingSaveStarted(tabId, msg) {
+function started(tabId, msg) {
   Log.debug('started');
   ExtMsg.sendToContent({
-    type: 'clipping.save.started',
+    type: 'saving.started',
     body: {
       clipId: msg.clipId
     }
   }, tabId);
 }
 
-function clippingSaveProgress(tabId, msg) {
+function progress(tabId, msg) {
   const progress = [msg.finished, msg.total].join('/');
   Log.debug('progress', progress);
   ExtMsg.sendToContent({
-    type: 'clipping.save.progress',
+    type: 'saving.progress',
     body: {
       clipId: msg.clipId,
       finished: msg.finished,
@@ -62,19 +62,21 @@ function clippingSaveProgress(tabId, msg) {
   }, tabId);
 }
 
-function clippingSaveCompleted(tabId, result, handler){
+function completed(tabId, result, handler){
   Log.debug('completed');
   // compatible with old message
   result.handler = handler.name;
   result = handler.handleClippingResult(result);
   Log.debug(result);
-  completeClipping(tabId, result);
+  completeSaving(tabId, result);
 }
 
-function completeClipping(tabId, result) {
+// ========================================
+
+function completeSaving(tabId, result) {
   updateClippingHistory(result);
   ExtMsg.sendToContent({
-    type: 'clipping.save.completed',
+    type: 'saving.completed',
     body: result
   }, tabId);
   MxWcStorage.set('lastClippingResult', result);
@@ -114,6 +116,6 @@ async function getClippingHandler() {
 let Global = null;
 export default function init(global) {
   Global = global;
-  ExtMsg.listen('background', messageHandler);
+  ExtMsg.listen('backend.saving', messageHandler);
   Log.debug("MX backend: Saving initialized");
 }

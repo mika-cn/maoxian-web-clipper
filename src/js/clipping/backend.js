@@ -8,10 +8,11 @@ import Fetcher from '../lib/fetcher.js';
 function messageHandler(message, sender) {
   return new Promise(function(resolve, reject){
     switch(message.type){
-      case 'get.mimeTypeDict' : resolve(Global.WebRequest.getMimeTypeDict())   ; break;
+      case 'get.mimeTypeDict':
+        resolve(Global.WebRequest.getMimeTypeDict());
+        break;
       case 'get.allFrames':
-        ExtApi.getAllFrames(sender.tab.id)
-          .then(resolve);
+        ExtApi.getAllFrames(sender.tab.id).then(resolve);
         break;
       case 'fetch.text':
         ActionCache.findOrCache(
@@ -51,5 +52,5 @@ let Global = null;
 export default function init(global) {
   Global = global;
   Fetcher.setRequestToken(global.requestToken);
-  ExtMsg.listen('background', messageHandler);
+  ExtMsg.listen('backend.clipping', messageHandler);
 }

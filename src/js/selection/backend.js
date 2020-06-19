@@ -9,12 +9,8 @@ import SelectionStore from './store.js';
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
-      case 'query.selection':
-        query(message.body).then(resolve);
-        break;
-      case 'save.selection':
-        save(message.body).then(resolve);
-        break;
+      case 'query': query(message.body).then(resolve); break;
+      case 'save': save(message.body).then(resolve); break;
     }
   });
 }
@@ -53,6 +49,6 @@ function getKey(host) {
 }
 
 export default function init() {
-  ExtMsg.listen('background', messageHandler);
+  ExtMsg.listen('backend.selection', messageHandler);
   Log.debug("MX backend: Selection initialized");
 }
