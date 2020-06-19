@@ -291,6 +291,10 @@ async function formSubmitted({elem, formInputs, config}) {
   Log.debug(clipping);
 
   UI.setStateClipped({clipping})
+  ExtMsg.sendToBackend('clippibng', {
+    type: 'clipped',
+    body: clipping,
+  });
 
   if (state.yieldPoints.has('clipped')) {
     Log.debug("clipped: yield to 3rd party");
@@ -379,8 +383,8 @@ function activeUI(e) {
  */
 function toggleSwitch(e){
   if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey){ return }
-  // 67 keyCode of 'c'
-  if(e.keyCode != 67){ return }
+  const KEYCODE_c = 67;
+  if(e.keyCode != KEYCODE_c){ return }
   if(e.target.tagName.toUpperCase() === 'BODY'){
     activeUI(e);
   }else{

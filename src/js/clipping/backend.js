@@ -35,9 +35,8 @@ function messageHandler(message, sender) {
         }).then(resolve);
         break;
       case 'clipped':
-        //FIXME
-        // page clipped, remove cache
-        ActionCache.removeByKeyPrefix(message.body.info.clipId);
+        const clipping = message.body;
+        ActionCache.removeByKeyPrefix(clipping.info.clipId);
         break;
     }
   });
