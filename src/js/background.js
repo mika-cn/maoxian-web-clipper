@@ -7,6 +7,7 @@ import MxWcStorage from './lib/storage.js';
 import MxWcConfig  from './lib/config.js';
 import MxWcLink    from './lib/link.js';
 import MxWcHandler from './lib/handler.js';
+import MxEvTarget  from './lib/event-target.js';
 
 import initBackend_Clipping  from './clipping/backend.js';
 import initBackend_Saving    from './saving/backend.js';
@@ -19,6 +20,8 @@ import Handler_WizNotePlus from './handler/wiznoteplus.js';
 
 import MxWcMigration from './background/migration.js';
 import WebRequest from './background/web-request.js';
+
+const Global = { evTarget: new MxEvTarget() };
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
@@ -34,10 +37,11 @@ function messageHandler(message, sender){
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
       case 'save.clippingHistory' : saveClippingHistory(message.body)   ; resolve() ; break ;
 
-      /* history / reset / refres / delete */
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
       case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
+
+      /* history */
       case 'export.history':
         exportHistory(message.body.content);
         resolve();
@@ -72,7 +76,11 @@ function messageHandler(message, sender){
 function deleteClipping(msg, resolve) {
   const handler = Handler_NativeApp;
   handler.deleteClipping(msg, (result) => {
-    if(result.ok){ generateClippingJsIfNeed() }
+    if(result.ok){
+      Global.evTarget.dispatchEvent({
+        type: 'clipping.deleted'
+      })
+    }
     resolve(result);
   })
 }
@@ -115,7 +123,9 @@ function refreshHistory(resolve) {
           resetStates('categories', result.categories);
           const time = T.currentTime().toString();
           MxWcStorage.set('lastRefreshHistoryTime', time);
-          generateClippingJsIfNeed()
+          Global.evTarget.dispatchEvent({
+            type: 'history.refreshed'
+          });
         }
         resolve(result);
       })
@@ -137,7 +147,6 @@ function exportHistory(content) {
     url: url
   })
 }
-
 
 function generateClippingJsIfNeed(){
   MxWcConfig.load().then((config) => {
@@ -250,7 +259,7 @@ function welcomeNewUser(){
 // ========================================
 
 /*
- * @param {string} express - see js/lib/handler.js
+ * @param {string} expression - see js/lib/handler.js
  */
 function isHandlerReady(expression) {
   const getHandlerInfo = (name, callback) => {
@@ -280,10 +289,15 @@ async function updateNativeAppConfig() {
 }
 
 
+
 // ========================================
 
-
 const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
+
+Global.evTarget.addEventListener('saving.completed', generateClippingJsIfNeed);
+Global.evTarget.addEventListener('history.refreshed', generateClippingJsIfNeed);
+Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
+
 
 function init(){
   Log.debug("background init...");
@@ -300,7 +314,11 @@ function init(){
   initBackend_Assistant();
   initBackend_Selection();
   initBackend_Clipping({WebRequest: WebRequest, requestToken: REQUEST_TOKEN});
-  initBackend_Saving({Handler_Browser, Handler_NativeApp, Handler_WizNotePlus});
+  initBackend_Saving(Object.assign({
+    Handler_Browser,
+    Handler_NativeApp,
+    Handler_WizNotePlus
+  }, {evTarget: Global.evTarget}));
 
   welcomeNewUser();
   Log.debug("background init finish...");

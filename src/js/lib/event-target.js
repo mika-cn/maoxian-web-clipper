@@ -27,6 +27,7 @@ _.prototype.removeEventListener = function(type, listener) {
   }
 }
 
+// event {:type}
 _.prototype.dispatchEvent = function(event) {
   if (!(event.type in this.listeners)) {
     return;

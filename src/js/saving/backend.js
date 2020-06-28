@@ -74,26 +74,26 @@ function completed(tabId, result, handler){
 // ========================================
 
 function completeSaving(tabId, result) {
+  const type = 'saving.completed';
   updateClippingHistory(result);
   ExtMsg.sendToContent({
-    type: 'saving.completed',
+    type: type,
     body: result
   }, tabId);
   MxWcStorage.set('lastClippingResult', result);
   MxWcIcon.flicker(3);
-  // FIXME
-  // generateClippingJsIfNeed();
+  Global.evTarget.dispatchEvent({type: type, result: result})
 }
 
-function updateClippingHistory(clippingResult) {
+function updateClippingHistory(result) {
   MxWcStorage.get('clips', [])
     .then((v) => {
       const idx = v.findIndex((it) => {
-        return it.clipId == clippingResult.clipId;
+        return it.clipId == result.clipId;
       });
       if(idx > -1) {
-        Log.debug("UpdateClippingHistory", clippingResult.url);
-        v[idx]['url'] = clippingResult.url;
+        Log.debug("UpdateClippingHistory", result.url);
+        v[idx]['url'] = result.url;
         MxWcStorage.set('clips', v);
       }
     });
@@ -108,6 +108,7 @@ async function getClippingHandler() {
 /*
  *
  * @param {Object} global {
+ *   :evTarget,
  *   :Handler_Browser,
  *   :Handler_NativeApp,
  *   :Handler_WizNotePlus
