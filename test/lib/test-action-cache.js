@@ -1,12 +1,12 @@
 
-import H from './helper.js';
-import CacheService from '../src/js/background/cache-service.js';
+import H from '../helper.js';
+import ActionCache from '../../src/js/lib/action-cache.js';
 
 describe('CacheService', () => {
   it('cache action - resolve', async () => {
     const action = () => Promise.resolve(1);
     await H.assertResolve(
-      CacheService.findOrCache('key', action),
+      ActionCache.findOrCache('key', action),
       (v) => {
         H.assertFalse(v.fromCache);
         H.assertEqual(v.result, 1);
@@ -14,7 +14,7 @@ describe('CacheService', () => {
     );
 
     await H.assertResolve(
-      CacheService.findOrCache('key', action),
+      ActionCache.findOrCache('key', action),
       (v) => {
         H.assertTrue(v.fromCache);
         H.assertEqual(v.result, 1);
@@ -23,10 +23,10 @@ describe('CacheService', () => {
   })
 
   it('cache action - reject', async () => {
-    CacheService.removeByKeyPrefix('k');
+    ActionCache.removeByKeyPrefix('k');
     const action = () => Promise.reject(0);
     await H.assertReject(
-      CacheService.findOrCache('key', action),
+      ActionCache.findOrCache('key', action),
       (v) => {
         H.assertFalse(v.fromCache);
         H.assertEqual(v.result, 0);
@@ -34,7 +34,7 @@ describe('CacheService', () => {
     );
 
     await H.assertReject(
-      CacheService.findOrCache('key', action),
+      ActionCache.findOrCache('key', action),
       (v) => {
         H.assertTrue(v.fromCache);
         H.assertEqual(v.result, 0);

@@ -15,13 +15,13 @@ import ExtApi from './ext-api.js';
  * It also can receive this message.
  *
  *   Things can get very confused, especially when we send message between
- * extention page. We put page name in each message, so we can know what
- * page did each message is sent to.
+ * extention page. We put target name in each message, so we can know
+ * where each message is sent to.
  *
  *
  * Message Structure
  *
- *   target : target page name (required)
+ *   target : target name (required) - A page may have more than one target.
  *   type   : message type (required)
  *   body   : message body (optional)
  *
@@ -29,17 +29,17 @@ import ExtApi from './ext-api.js';
 
 
 /*
- * @param {string} currPage
+ * @param {string} target
  * @param {function} listener
  *   listener should return a promise.
  */
-function listen(currPage, listener) {
+function listen(target, listener) {
   browser.runtime.onMessage.addListener((msg, sender, senderResponse) => {
     // Deprecated: senderResponse
-    if(msg.target == currPage) {
+    if(msg.target == target) {
       return listener(msg, sender);
     } else {
-      console.debug("[OtherPageMsg]"," Im: ", currPage, "Msg Target:", msg.target, msg);
+      // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
       // ignore msg
     }
   });
@@ -47,21 +47,26 @@ function listen(currPage, listener) {
 
 function sendToBackground(msg) {
   return browser.runtime.sendMessage(
-    addPage('background', msg));
+    addTarget('background', msg));
+}
+
+function sendToBackend(name, msg) {
+  return browser.runtime.sendMessage(
+    addTarget(['backend', name].join('.'), msg));
 }
 
 function sendToContent(msg, tabId, frameId) {
-  return sendToTab(addPage('content', msg),
+  return sendToTab(addTarget('content', msg),
     tabId, frameId);
 }
 
 function sendToContentFrame(msg, tabId, frameId) {
-  return sendToTab(addPage('content-frame', msg),
+  return sendToTab(addTarget('content-frame', msg),
     tabId, frameId);
 }
 
 function sendToPage(msg, pageUrl) {
-  if(!msg.target) { throw new Error("Message invalid: target page is requred.")}
+  if(!msg.target) { throw new Error("Message invalid: target page is required.")}
   eachTab((tab) => {
     if(tab.url.startsWith(pageUrl)) {
       sendToTab(msg, tab.id);
@@ -72,7 +77,7 @@ function sendToPage(msg, pageUrl) {
 function broadcastToContent(msg) {
   eachTab((tab) => {
     if(!T.isExtensionUrl(tab.url)) {
-      sendToTab(addPage('content', msg), tab.id)
+      sendToTab(addTarget('content', msg), tab.id)
     }
   });
 }
@@ -86,8 +91,8 @@ function eachTab(callback) {
 }
 
 // private
-function addPage(targetPage, msg) {
-  return Object.assign(msg, {target: targetPage});
+function addTarget(target, msg) {
+  return Object.assign(msg, {target});
 }
 
 // private
@@ -123,12 +128,13 @@ function sendToTab(msg, tabId, frameId) {
 }
 
 const ExtMsg = {
-  listen: listen,
-  sendToBackground: sendToBackground,
-  sendToContent: sendToContent,
-  sendToContentFrame: sendToContentFrame,
-  sendToPage: sendToPage,
-  broadcastToContent: broadcastToContent,
+  listen,
+  sendToBackend,
+  sendToBackground,
+  sendToContent,
+  sendToContentFrame,
+  sendToPage,
+  broadcastToContent,
 }
 
 export default ExtMsg;

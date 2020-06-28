@@ -14,7 +14,7 @@ import I18N from './translation.js';
  *   {
  *     ok          => Handler is avariable or not (Only enabled and ready make it's value true).
  *     enabled     => Handler is enabled or not.
- *     handlerInfo => Handler information (if it's disabled, then it's value is an empty object {}.
+ *     handlerInfo => Handler information (if it's disabled, then it's value is an empty object {}).
  *     message     => Describe why handler is not ok.
  *     config      => MxWcConfig,
  *     handler     => Handler object (if ok is true and env is background)
@@ -89,8 +89,4 @@ function errResp(msg, name) {
   return { ok: false, message: message }
 }
 
-const Handler = {
-  isReady: isReady,
-}
-
-export default Handler;
+export default {isReady};

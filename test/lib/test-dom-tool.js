@@ -2,8 +2,8 @@ const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
 
-import H from './helper.js';
-import T from '../src/js/lib/dom-tool.js';
+import H from '../helper.js';
+import T from '../../src/js/lib/dom-tool.js';
 
 
 function getHtml() {

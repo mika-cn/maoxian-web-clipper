@@ -2,7 +2,7 @@
 import H from '../helper.js';
 import T from '../../src/js/lib/tool.js';
 import Config from '../../src/js/lib/config.js';
-import Render from '../../src/js/content/storage-config-render.js';
+import Render from '../../src/js/clipping/storage-config-render.js';
 
 describe("StorageConfigRender", () => {
 

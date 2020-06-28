@@ -1,6 +1,6 @@
 
-import H from './helper.js'
-import T from '../src/js/lib/tool.js';
+import H from '../helper.js'
+import T from '../../src/js/lib/tool.js';
 
 describe('Tool', () => {
   it("versionGteq", () => {

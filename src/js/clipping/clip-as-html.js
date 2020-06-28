@@ -20,8 +20,8 @@ import StyleHelper from './style-helper.js';
 async function clip(elem, {info, storageInfo, config, win}){
   Log.debug("html parser");
   const [mimeTypeDict, frames] = await Promise.all([
-    ExtMsg.sendToBackground({type: 'get.mimeTypeDict'}),
-    ExtMsg.sendToBackground({type: 'get.allFrames'}),
+    ExtMsg.sendToBackend('clipping', {type: 'get.mimeTypeDict'}),
+    ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'}),
   ])
 
   const headerParams = {

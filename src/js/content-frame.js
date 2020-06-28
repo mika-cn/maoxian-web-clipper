@@ -6,8 +6,8 @@ import ExtMsg from './lib/ext-msg.js';
 import MxWcEvent from './lib/event.js';
 import Config from './lib/config.js';
 
-import MxHtmlClipper from './content/clip-as-html.js';
-import MxMarkdownClipper from './content/clip-as-markdown.js';
+import MxHtmlClipper from './clipping/clip-as-html.js';
+import MxMarkdownClipper from './clipping/clip-as-markdown.js';
 
 import MxWcAssistantMain from './assistant/main.js';
 

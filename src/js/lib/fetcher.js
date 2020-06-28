@@ -1,7 +1,5 @@
 "use strict";
 
-import BgEnv from './bg-env.js';
-
 /*
  * @param {String} url request url
  * @param {Object} options
@@ -105,9 +103,13 @@ function escapeHeaders(headers) {
 }
 
 function appendToken(headers) {
-  return Object.assign({"X-MxWc-Token": BgEnv.requestToken}, headers)
+  return Object.assign({"X-MxWc-Token": state.requestToken}, headers)
 }
 
-const Fetcher = {get: get}
+// We should set request token first.
+const state = {};
+function setRequestToken(token) {
+  state.requestToken = token;
+}
 
-export default Fetcher;
+export default {get, setRequestToken};

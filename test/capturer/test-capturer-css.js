@@ -1,11 +1,11 @@
 import browser from 'sinon-chrome';
 global.browser = browser;
 
-import H from './helper.js';
+import H from '../helper.js';
 
-import DOMTool from '../src/js/lib/dom-tool.js';
+import DOMTool from '../../src/js/lib/dom-tool.js';
 
-import Capturer from '../src/js/capturer/css.js';
+import Capturer from '../../src/js/capturer/css.js';
 
 const ExtMsg = H.depMockJs('ext-msg.js');
 ExtMsg.initBrowser(browser);

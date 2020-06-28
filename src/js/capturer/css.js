@@ -35,7 +35,7 @@ async function captureLink(params) {
   }
 
   try {
-    const {fromCache, result: text} = await ExtMsg.sendToBackground({
+    const {fromCache, result: text} = await ExtMsg.sendToBackend( 'clipping', {
       type: 'fetch.text',
       body: {
         clipId: clipId,

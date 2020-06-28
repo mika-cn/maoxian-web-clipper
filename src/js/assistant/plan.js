@@ -388,20 +388,33 @@ function queryElemsBySelector(selectorStr, contextNode) {
 
 function queryElemsByCss(cssSelector, contextNode = document) {
   const elems = [];
-  [].forEach.call(contextNode.querySelectorAll(cssSelector), function(elem) {
-    elems.push(elem)
-  });
+  try {
+    [].forEach.call(contextNode.querySelectorAll(cssSelector), function(elem) {
+      elems.push(elem)
+    });
+  } catch(e) {
+    console.warn("[Mx assistant] invalid selector: ", cssSelector);
+    console.warn(e.message);
+    console.warn(e);
+  }
   return elems;
 }
 
 function queryElemsByXpath(xpath, contextNode = document) {
-  const xpathResult = document.evaluate(
-    xpath,
-    contextNode,
-    null,
-    XPathResult.ORDERED_NODE_ITERATOR_TYPE,
-    null
-  )
+  try {
+    const xpathResult = document.evaluate(
+      xpath,
+      contextNode,
+      null,
+      XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      null
+    )
+  } catch(e) {
+    console.warn("[MX assistant] invalid xpath: ", xpath);
+    console.warn(e.message);
+    console.warn(e);
+    return [];
+  }
   const elems = [];
   let elem = xpathResult.iterateNext();
   while(elem){

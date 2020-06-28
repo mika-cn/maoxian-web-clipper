@@ -30,8 +30,8 @@ function save(elem, deletedElems) {
         }
       }
       Log.debug(selection);
-      ExtMsg.sendToBackground({
-        type: 'save.selection',
+      ExtMsg.sendToBackend('selection', {
+        type: 'save',
         body: {
           host: window.location.host,
           path: window.location.pathname,
@@ -48,8 +48,8 @@ function save(elem, deletedElems) {
 
 function apply() {
   try {
-    ExtMsg.sendToBackground({
-      type: 'query.selection',
+    ExtMsg.sendToBackend('selection', {
+      type: 'query',
       body: {
         host: window.location.host,
         path: window.location.pathname

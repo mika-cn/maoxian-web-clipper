@@ -5,9 +5,9 @@ const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
 
-import H from './helper.js';
-import DOMTool from '../src/js/lib/dom-tool.js';
-import Capturer from '../src/js/capturer/link.js';
+import H from '../helper.js';
+import DOMTool from '../../src/js/lib/dom-tool.js';
+import Capturer from '../../src/js/capturer/link.js';
 
 const ExtMsg = H.depMockJs('ext-msg.js');
 ExtMsg.initBrowser(browser);

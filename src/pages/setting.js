@@ -701,8 +701,10 @@ function savePlanSubscription(e) {
 
 function updatePublicPlans(e) {
   MxWcStorage.get('assistant.public-plan.subscription-urls', []).then((urls) => {
-    ExtMsg.sendToBackground({type: 'update.public-plan', body: {urls: urls}})
-      .then((result) => {
+    ExtMsg.sendToBackend('assistant', {
+      type: 'update.public-plan',
+      body: {urls: urls}
+    }).then((result) => {
         const logs = [];
         result.forEach((it) => {
           if (it.ok) {
@@ -744,7 +746,7 @@ function saveCustomPlan(e) {
   try {
     const plans = JSON.parse(elem.value);
     if (plans instanceof Array) {
-      ExtMsg.sendToBackground({
+      ExtMsg.sendToBackend('assistant', {
         type: 'save.custom-plan',
         body: {planText: elem.value}
       }).then((result) => {

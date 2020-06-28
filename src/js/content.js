@@ -7,7 +7,7 @@ import MxWcEvent from './lib/event.js';
 import MxWcConfig from './lib/config.js';
 import MxWcLink from './lib/link.js';
 import MxWcSelectionMain from './selection/main.js';
-import Clipper from './content/clipper.js';
+import Clipper from './clipping/clipper.js';
 import UI from './content/ui.js';
 
 import {API_SETTABLE_KEYS} from './lib/config.js';
@@ -35,15 +35,15 @@ function listenMessage(){
           window.focus();
           activeUI({});
           break;
-        case 'clipping.save.started':
-          UI.clippingSaveStarted(msg.body);
+        case 'saving.started':
+          UI.savingStarted(msg.body);
           break;
-        case 'clipping.save.progress':
-          UI.clippingSaveProgress(msg.body);
+        case 'saving.progress':
+          UI.savingProgress(msg.body);
           break;
-        case 'clipping.save.completed':
-          UI.clippingSaveCompleted(msg.body);
-          tellTpClipCompleted(msg.body);
+        case 'saving.completed':
+          UI.savingCompleted(msg.body);
+          tellTpCompleted(msg.body);
           resetState();
           break;
         case 'page_content.changed':
@@ -138,7 +138,7 @@ function tellTpWeAreReady(){
   emitEvent();
 }
 
-function tellTpClipCompleted(detail) {
+function tellTpCompleted(detail) {
   if (state.config.communicateWithThirdParty) {
     MxWcEvent.dispatchPublic('completed', {
       clipId: detail.clipId,
@@ -217,8 +217,8 @@ function setSavingHint(msg) {
 
 function saveClipping(msg) {
   const {clipping} = msg;
-  ExtMsg.sendToBackground({
-    type: 'clipping.save',
+  ExtMsg.sendToBackend('saving',{
+    type: 'save',
     body: clipping
   });
   saveClippingHistory(clipping);
@@ -232,8 +232,8 @@ function exitClipping(msg) {
 
 function completeClipping(msg) {
   const {result} = msg;
-  ExtMsg.sendToBackground({
-    type: 'clipping.complete',
+  ExtMsg.sendToBackend('saving', {
+    type: 'complete',
     body: result
   });
 }
@@ -243,18 +243,25 @@ function completeClipping(msg) {
 
 function queryElem(msg, callback){
   let elem = null;
-  if(msg.qType === 'css'){
-    elem =  T.queryElem(msg.q);
-  } else {
-    const xpath = msg.q;
-    const xpathResult = document.evaluate(
-      xpath,
-      document,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null
-    )
-    elem = xpathResult.singleNodeValue;
+  try {
+    if(msg.qType === 'css'){
+      elem =  T.queryElem(msg.q);
+    } else {
+      const xpath = msg.q;
+      const xpathResult = document.evaluate(
+        xpath,
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      )
+      elem = xpathResult.singleNodeValue;
+    }
+  } catch(e) {
+    // illegle selector
+    Log.error(e.message)
+    Log.error(e)
+    console.trace();
   }
   if(elem){
     callback(elem)
@@ -284,6 +291,10 @@ async function formSubmitted({elem, formInputs, config}) {
   Log.debug(clipping);
 
   UI.setStateClipped({clipping})
+  ExtMsg.sendToBackend('clippibng', {
+    type: 'clipped',
+    body: clipping,
+  });
 
   if (state.yieldPoints.has('clipped')) {
     Log.debug("clipped: yield to 3rd party");
@@ -372,8 +383,8 @@ function activeUI(e) {
  */
 function toggleSwitch(e){
   if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey){ return }
-  // 67 keyCode of 'c'
-  if(e.keyCode != 67){ return }
+  const KEYCODE_c = 67;
+  if(e.keyCode != KEYCODE_c){ return }
   if(e.target.tagName.toUpperCase() === 'BODY'){
     activeUI(e);
   }else{

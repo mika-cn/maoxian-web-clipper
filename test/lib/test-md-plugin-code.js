@@ -2,9 +2,9 @@ const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
 
-import H from './helper.js';
-import DOMTool from '../src/js/lib/dom-tool.js';
-import mdPlugin from '../src/js/lib/md-plugin-code.js';
+import H from '../helper.js';
+import DOMTool from '../../src/js/lib/dom-tool.js';
+import mdPlugin from '../../src/js/lib/md-plugin-code.js';
 
 describe('MdPluginCode', () => {
 
