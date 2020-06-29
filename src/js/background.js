@@ -8,6 +8,7 @@ import MxWcConfig  from './lib/config.js';
 import MxWcLink    from './lib/link.js';
 import MxWcHandler from './lib/handler.js';
 import MxEvTarget  from './lib/event-target.js';
+import Fetcher     from './lib/fetcher.js';
 
 import initBackend_Clipping  from './clipping/backend.js';
 import initBackend_Saving    from './saving/backend.js';
@@ -305,15 +306,20 @@ function init(){
 
   updateNativeAppConfig();
 
+  Fetcher.setRequestToken(REQUEST_TOKEN);
   WebRequest.setRequestToken(REQUEST_TOKEN);
   WebRequest.listen();
+
+
+  Handler_Browser.init({Fetcher});
+  Handler_NativeApp.init({Fetcher});
 
   ExtMsg.listen('background', messageHandler);
   refreshHistoryIfNeed();
 
-  initBackend_Assistant();
+  initBackend_Assistant({Fetcher});
   initBackend_Selection();
-  initBackend_Clipping({WebRequest: WebRequest, requestToken: REQUEST_TOKEN});
+  initBackend_Clipping({WebRequest, Fetcher});
   initBackend_Saving(Object.assign({
     Handler_Browser,
     Handler_NativeApp,

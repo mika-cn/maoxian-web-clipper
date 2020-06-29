@@ -4,7 +4,6 @@ import T from '../lib/tool.js';
 import Log from '../lib/log.js';
 import ExtApi from '../lib/ext-api.js';
 import MxWcStorage from '../lib/storage.js';
-import Fetcher from '../lib/fetcher.js';
 import SavingTool from '../saving/saving-tool.js';
 
 const state = {
@@ -14,7 +13,7 @@ const state = {
 };
 
 function saveClipping(clipping, feedback) {
-  init();
+  listen();
   SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenAllTaskFinished'});
   T.each(clipping.tasks, (task) => {
     saveTask(task);
@@ -165,7 +164,7 @@ function downloadChanged(e){
 }
 
 function initDownloadFolder(config){
-  init();
+  listen();
   downloadText({
     mimeType: 'text/plain',
     text: "useless file, delete me :)",
@@ -174,7 +173,7 @@ function initDownloadFolder(config){
 }
 
 function saveTextFile(task) {
-  init();
+  listen();
   task.type = 'text';
   saveTask(task);
 }
@@ -191,7 +190,7 @@ function saveTask(task) {
 
 function fetchAndDownload(task) {
   Log.debug('fetch', task.url);
-  Fetcher.get(task.url, {
+  Global.Fetcher.get(task.url, {
     respType: 'blob',
     headers: task.headers,
     timeout: task.timeout,
@@ -214,14 +213,6 @@ function revokeObjectUrl(url) {
   }
 }
 
-function init(){
-  if(!state.isListening){
-    ExtApi.bindDownloadCreatedListener(downloadCreated);
-    ExtApi.bindDownloadChangedListener(downloadChanged);
-    state.isListening = true;
-  }
-}
-
 function getInfo(callback) {
   callback({
     ready: true,
@@ -229,9 +220,27 @@ function getInfo(callback) {
   });
 }
 
+/*
+ * @param {Object} global
+ *   - {Fetcher} Fetcher
+ */
+let Global = null;
+function init(global) {
+  Global = global;
+}
+
+function listen() {
+  if(!state.isListening){
+    ExtApi.bindDownloadCreatedListener(downloadCreated);
+    ExtApi.bindDownloadChangedListener(downloadChanged);
+    state.isListening = true;
+  }
+}
+
 
 const ClippingHandler_Browser = {
   name: 'Browser',
+  init: init,
   getInfo: getInfo,
   saveClipping: saveClipping,
   saveTextFile: saveTextFile,

@@ -5,7 +5,6 @@ import T from '../lib/tool.js';
 import Log from '../lib/log.js';
 import I18N from '../lib/translation.js';
 import MxWcStorage from '../lib/storage.js';
-import Fetcher from '../lib/fetcher.js';
 import SavingTool from '../saving/saving-tool.js';
 
 const APP_NAME = 'maoxian_web_clipper_native';
@@ -32,7 +31,7 @@ function handleClippingResult(it) {
 }
 
 function saveTextFile(task) {
-  init();
+  listen();
   task.type = 'text';
   saveTask(task);
 }
@@ -42,7 +41,7 @@ function saveTask(task) {
     // In order to utilize browser's cache
     // we move download to browser.
     // since 0.2.4
-    Fetcher.get(task.url, {
+    Global.Fetcher.get(task.url, {
       respType: 'blob',
       headers: task.headers,
       timeout: task.timeout,
@@ -142,12 +141,12 @@ function updateDownloadFolder(downloadFolder) {
 }
 
 function initDownloadFolder(config){
-  init();
+  listen();
   state.port.postMessage({type: 'get.downloadFolder'})
 }
 
 function getVersion(callback) {
-  init();
+  listen();
   if (state.version) {
     callback({ok: true, version: state.version, rubyVersion: state.rubyVersion});
   } else {
@@ -165,8 +164,8 @@ function getVersion(callback) {
 }
 
 function deleteClipping(msg, callback) {
-  init();
-  try{
+  listen();
+  try {
     state.deleteClippingCallback = callback;
     state.disconnectCallback = function(message) {
       callback({ok: false, message: message})
@@ -180,8 +179,8 @@ function deleteClipping(msg, callback) {
 }
 
 function refreshHistory(msg, callback) {
-  init();
-  try{
+  listen();
+  try {
     state.refreshHistoryCallback = callback;
     state.disconnectCallback = function(message) {
       callback({ok: false, message: message})
@@ -195,7 +194,16 @@ function refreshHistory(msg, callback) {
 }
 
 
-function init(){
+/*
+ * @param {Object} global
+ *   - {Fetcher} Fetcher
+ */
+let Global = null;
+function init(global) {
+  Global = global;
+}
+
+function listen() {
   if(!state.port){
     state.port = browser.runtime.connectNative(APP_NAME);
     state.port.onMessage.addListener(responseHandler);
@@ -232,6 +240,7 @@ function getInfo(callback) {
 
 const ClippingHandler_NativeApp = {
   name: 'NativeApp',
+  init: init,
   saveClipping: saveClipping,
   saveTextFile: saveTextFile,
   handleClippingResult: handleClippingResult,
