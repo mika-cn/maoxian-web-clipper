@@ -43,11 +43,13 @@ function getReadyToClip(formInputs, config, {domain, pageUrl}) {
       storageConfig = StorageConfig_WizNotePlus.get({
         now: now, config: config
       });
+      break;
     default:
       // Browser or NativeApp
       storageConfig = StorageConfig_Default.get({
         config: config
       })
+      break;
   }
 
   const storageInfo = StorageConfigRender.exec(Object.assign(

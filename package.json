@@ -7,6 +7,7 @@
     "build-chrome": "cross-env NODE_ENV=production MX_PLATFORM=chrome MX_PLATFORM_ID=$MX_CHROME_ID webpack --mode=production --progress",
     "build-firefox": "cross-env NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID webpack --mode=production --progress",
     "build-all": "npm run build-chrome && npm run build-firefox",
+    "build-test":"cross-env NODE_ENV=production webpack --mode=production --progress",
     "watch": "cross-env NODE_ENV=development webpack --mode=development --watch --progress",
     "test": "mocha --recursive --require esm"
   },
