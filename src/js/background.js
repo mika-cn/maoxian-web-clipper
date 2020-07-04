@@ -18,6 +18,7 @@ import initBackend_Selection from './selection/backend.js';
 import Handler_Browser     from './handler/browser.js';
 import Handler_NativeApp   from './handler/native-app.js';
 import Handler_WizNotePlus from './handler/wiznoteplus.js';
+import Handler_Zip         from './handler/zip.js';
 
 import MxWcMigration from './background/migration.js';
 import WebRequest from './background/web-request.js';
@@ -278,6 +279,7 @@ function getHandlerByName(name) {
     case 'Browser':     return Handler_Browser;
     case 'NativeApp':   return Handler_NativeApp;
     case 'WizNotePlus': return Handler_WizNotePlus;
+    case 'Zip':         return Handler_Zip;
     default:            return Handler_Browser;
   }
 }
@@ -322,6 +324,7 @@ function init(){
   Handler_Browser.init({Fetcher});
   Handler_NativeApp.init({Fetcher});
   Handler_WizNotePlus.init({Fetcher});
+  Handler_Zip.init({Fetcher});
 
   ExtMsg.listen('background', messageHandler);
   refreshHistoryIfNeed();
@@ -332,7 +335,8 @@ function init(){
   initBackend_Saving(Object.assign({
     Handler_Browser,
     Handler_NativeApp,
-    Handler_WizNotePlus
+    Handler_WizNotePlus,
+    Handler_Zip
   }, {evTarget: Global.evTarget}));
 
   welcomeNewUser();

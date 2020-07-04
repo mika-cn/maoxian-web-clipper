@@ -114,6 +114,7 @@
     "setting.title.handler": "处理程序",
     "setting.title.handler-browser": "浏览器",
     "setting.title.handler-native-app": "本地程序",
+    "setting.title.handler-zip": "压缩文档",
     "setting.title.handler-wiz-note-plus" :"为知笔记",
 
     "setting.title.save-format": "保存格式",
@@ -180,7 +181,7 @@
 
     // handler
     "handler.browser.name": "浏览器",
-    "handler.browser.intro": "浏览器是默认的处理程序。是你安装完扩展后，唯一一个不用额外对接就可使用的处理程序",
+    "handler.browser.intro": "浏览器是默认的处理程序，不用额外对接就可使用",
     "handler.browser.feature.a": "下载裁剪结果到本地硬盘",
     "handler.browser.feature.b": "同步「离线索引页面」的裁剪记录",
 
@@ -192,6 +193,10 @@
     "handler.native-app.warning": "<strong> 警告! </strong><br /> 如果你启用「本地程序」, 你必须先 <a href='go.page:native-app' target='_blank'>安装它</a>，否则该处理程序无法正常工作",
     "handler.native-app.error.version": "当前扩展依赖的「本地程序」的版本必须大于或等于 $requiredVersion, 但是当前安装的版本为 $currentVersion，请<a href='go-page:native-app#upgrade' target='_blank'>更新你的本地程序</a>",
     "handler.native-app.error.install": "可能是由于你的「本地程序」还没有安装或者安装未成功导致的 (<a href='go.page:native-app' target='_blank'>查看如何安装</a>)",
+
+    "handler.zip.name": "压缩文档",
+    "handler.zip.intro": "压缩文档是一个内建的处理程序，不用额外对接就可使用",
+    "handler.zip.feature.a": "将剪裁剪结果打包成一个压缩文档，使用浏览器下载到本地",
 
     "handler.wiz-note-plus.name": "为知笔记",
     "handler.wiz-note-plus.intro": "为知笔记一个款跨平台云笔记客户端",
@@ -207,6 +212,7 @@
 
     "setting.notice.info.storage.browser": "使用浏览器来下载裁剪结果",
     "setting.notice.info.storage.native-app": "通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过扩展互相冲突的问题）<br /><a href='go.page:native-app' target='_blank'>选择本选项需先安装「本地程序」</a>",
+    "setting.notice.info.storage.zip": "将裁剪结果打包成压缩文档，然后使用浏览器下载到本地",
     "setting.notice.info.storage.wiz-note-plus": "使用为知笔记保存剪裁结果<br />",
 
     "setting.notice.info.offline-page.browser": "$BLANK",
@@ -215,6 +221,7 @@
 
     "setting.notice.warning.storage.browser": "$BLANK",
     "setting.notice.warning.storage.native-app": "$BLANK",
+    "setting.notice.warning.storage.zip": "$BLANK",
     "setting.notice.warning.storage.wiz-note-plus": "$BLANK",
     "setting.notice.warning.offline-page.browser": "$BLANK",
     "setting.notice.warning.offline-page.native-app": "$BLANK",
