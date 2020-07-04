@@ -151,5 +151,20 @@ describe('Tool', () => {
     H.assertEqual(T.sanitizeFilename('x`c++`x-'), 'x-c++-x')
   });
 
+  it('parseContentType', () => {
+    let r;
+    r = T.parseContentType('text/html');
+    H.assertEqual(r.mimeType, 'text/html');
+    r = T.parseContentType('text/Html');
+    H.assertEqual(r.mimeType, 'text/html');
+    r = T.parseContentType('text/Html;Charset=UTF-8');
+    H.assertEqual(r.parameters.charset, 'utf-8');
+    r = T.parseContentType('text/html; charset="utf-8"');
+    H.assertEqual(r.parameters.charset, 'utf-8');
+    r = T.parseContentType('text/html; foo=Bar;charset="utf-8"');
+    H.assertEqual(r.parameters.charset, 'utf-8');
+    H.assertEqual(r.parameters.foo, 'Bar');
+  });
+
 
 })

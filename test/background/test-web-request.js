@@ -2,7 +2,7 @@ import H from '../helper.js';
 import WebRequest from '../../src/js/background/web-request.js';
 
 const REQUEST_TOKEN = 'abcd';
-WebRequest.setRequestToken(REQUEST_TOKEN);
+WebRequest.init({requestToken: REQUEST_TOKEN});
 
 
 describe('WebRequest', () => {

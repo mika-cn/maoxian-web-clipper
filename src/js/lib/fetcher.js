@@ -1,5 +1,7 @@
 "use strict";
 
+import T from './tool.js';
+
 /*
  * @param {String} url request url
  * @param {Object} options
@@ -10,6 +12,20 @@
  * @return {Promise} resolve with text or blob.
  */
 function get(url, {respType = 'text', headers = {}, timeout = 40}) {
+  const cache = state.Cache.get(url);
+  if (cache) {
+    const resp = cache.readAsResponse();
+    return resp[respType]();
+
+    /*
+    switch (respType) {
+      case 'text': return Promise.resolve(cache.readAsText());
+      case 'blob': return Promise.resolve(cache.readAsBlob());
+      default:
+        return Promise.reject(new Error('Illegle respType: ' + respType));
+    }
+    */
+  }
   return new Promise((resolve, reject) => {
     // how to ensure mode is right
     const {extraFetchOpts, timeoutPromise} = getTimeoutParams(timeout);
@@ -108,8 +124,9 @@ function appendToken(headers) {
 
 // We should set request token first.
 const state = {};
-function setRequestToken(token) {
+function init({token, cache}) {
   state.requestToken = token;
+  state.Cache = cache
 }
 
-export default {get, setRequestToken};
+export default {get, init};
