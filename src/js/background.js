@@ -313,6 +313,7 @@ function init(){
 
   Handler_Browser.init({Fetcher});
   Handler_NativeApp.init({Fetcher});
+  Handler_WizNotePlus.init({Fetcher});
 
   ExtMsg.listen('background', messageHandler);
   refreshHistoryIfNeed();

@@ -22,7 +22,7 @@ const state = {
  * @param {*} feedback
  */
 async function saveClipping(clipping, feedback) {
-  await init();
+  await setup();
   SavingTool.startSaving(clipping, feedback, { mode: 'completeWhenAllTaskFinished' });
   // Save all tasks.
   await createDocTempDir(clipping);
@@ -101,7 +101,7 @@ function embedMarkdownIntoHtml(markdownText, title, link) {
  */
 async function getInfo(callback) {
   try {
-    await init();
+    await setup();
     //TODO: send database username
     callback({
       ready: true,
@@ -119,7 +119,7 @@ async function getInfo(callback) {
 /**
  * Initialize the whole clipping handler.
  */
-async function init() {
+async function setup() {
   // Connect to WizNotePlus
   if (!state.isConnected) {
     state.isConnected = !!(await createWebChannel());
@@ -210,9 +210,19 @@ function handleClippingResult(it) {
  * @param {Object} clipping
  */
 async function handle(task, clipping) {
-  switch (task.type) {
-    case 'text': await downloadTextToFile(task, clipping); break;
-    case 'url': await downloadUrlToFile(task, clipping); break;
+  if (typeof state.objCom.Base64ToFile !== "undefined") {
+    Log.debug("Use browser network.");
+    switch (task.type) {
+      case 'text': await downloadTextToFile(task, clipping); break;
+      case 'url' : await fetchAndDownload(task, clipping); break;
+      case 'blob': await downloadBlobToFile(task, clipping); break;
+    }
+  } else {
+    Log.debug("Use WizNotePlus network.");
+    switch(task.type){
+      case 'text': await downloadTextToFile(task, clipping); break;
+      case 'url': await downloadUrlToFile(task, clipping); break;
+    }
   }
 }
 
@@ -242,6 +252,48 @@ async function downloadUrlToFile(task, clipping) {
 }
 
 /**
+ * Save blob to file
+ */
+async function downloadBlobToFile(task, clipping){
+  const objCom = state.objCom;
+  const blob = task.blob;
+  const filename = [state.tempPath, task.filename].join('/');
+  const blobBase64 = await blobToBase64(blob);
+  const isDownloaded = await objCom.Base64ToFile(blobBase64, filename);
+  downloadCompleted(task, isDownloaded, clipping);
+  return isDownloaded;
+}
+
+async function blobToBase64(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onloadend = function () {
+      resolve(reader.result.replace(/^data:.+;base64,/, ''));
+    }
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function fetchAndDownload(task, clipping) {
+  Log.debug('fetch', task.url);
+  try {
+    const blob = await Global.Fetcher.get(task.url, {
+      respType: 'blob',
+      headers: task.headers,
+      timeout: task.timeout,
+    });
+    await downloadBlobToFile({
+      blob: blob,
+      filename: task.filename
+    }, clipping);
+  } catch (err) {
+    Log.error(err);
+    SavingTool.taskFailed(task.filename, err.message);
+  }
+}
+
+
+/**
  * Notify download state.
  * @param {Object} task
  * @param {boolean} isDownloaded
@@ -267,8 +319,14 @@ async function createDocTempDir(clipping) {
   return docPath;
 }
 
+let Global = null;
+function init(global) {
+  Global = global;
+}
+
 const ClippingHandler_WizNotePlus = {
   name: 'WizNotePlus',
+  init: init,
   getInfo: getInfo,
   saveClipping: saveClipping,
   handleClippingResult: handleClippingResult

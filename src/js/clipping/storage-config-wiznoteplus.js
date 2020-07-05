@@ -8,7 +8,7 @@ function get(params) {
   const currSec = Math.floor(now/1000);
 
   const defaultConfig = {
-    rootFolder: config.rootFilder,
+    rootFolder: config.rootFolder,
     defaultCategory: config.defaultCategory,
   }
 
@@ -18,8 +18,8 @@ function get(params) {
     saveInfoFile: false,
     saveTitleFile: false,
     /** the path to place index.html or index.md */
-    mainFileFolder: currSec,
-    mainFilename: "index.$FORMAT",
+    mainFileFolder: currSec.toString(),
+    mainFileName: "index.$FORMAT",
     /** the path to place frame files */
     frameFileFolder: currSec + "/index_files",
     /** the path to place asset files */

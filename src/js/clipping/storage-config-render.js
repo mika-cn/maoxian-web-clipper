@@ -25,17 +25,20 @@ function exec({storageConfig: config, now, domain,
   const category = dealCategory(config, originalCategory, now, domain);
   const categoryPath = dealCategoryPath(config, originalCategory, now, domain, storagePath);
 
+  let pathValueHash = {storagePath, categoryPath};
+  let pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH'];
+
   let clippingPath = "clippingFolderName-not-specified";
   if (config.clippingFolderName) {
     const clippingFolderName = VariableRender.exec(config.clippingFolderName,
       filenameValueHash, VariableRender.FilenameVariables);
     clippingPath = T.joinPath(categoryPath, clippingFolderName);
+
+    pathValueHash['clippingPath'] = clippingPath;
+    pathVariables.push('$CLIPPING-PATH');
   } else {
     // 3rd party don't need clippingPath
   }
-
-  const pathValueHash = {storagePath, categoryPath, clippingPath};
-  const pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH', '$CLIPPING-PATH'];
 
   // FIXME category should be here?
   const storageInfo = {category: category};
@@ -131,18 +134,7 @@ function fixPathVariable(value, key) {
     // user didn't specify any path, then we use default
     return DefaultConfig[key];
   } else {
-    const startsWithVariable = [
-      '$STORAGE-PATH',
-      '$CATEGORY-PATH',
-      '$CLIPPING-PATH'
-    ].some((it) => {
-      return value.startsWith(it);
-    });
-    if (startsWithVariable) {
-      return value;
-    } else {
-      return ['$CLIPPING-PATH', value].join('/');
-    }
+    return value;
   }
 }
 
