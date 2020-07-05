@@ -1,29 +1,25 @@
-"use strict";
 
-import Log from './lib/log.js';
-import T from './lib/tool.js';
-import ExtMsg from './lib/ext-msg.js';
-import MxWcEvent from './lib/event.js';
-import MxWcConfig from './lib/config.js';
-import MxWcLink from './lib/link.js';
+import Log               from './lib/log.js';
+import T                 from './lib/tool.js';
+import ExtMsg            from './lib/ext-msg.js';
+import MxWcEvent         from './lib/event.js';
+import MxWcConfig        from './lib/config.js';
+import MxWcLink          from './lib/link.js';
 import MxWcSelectionMain from './selection/main.js';
-import Clipper from './clipping/clipper.js';
-import UI from './content/ui.js';
+import Clipper           from './clipping/clipper.js';
+import UI                from './content/ui.js';
 
 import {API_SETTABLE_KEYS} from './lib/config.js';
 
-let state = {};
-function resetState() {
-  state = {
-    config: null,
-    /* only avariable in current clipping */
-    tempConfig: {},
-    yieldPoints: new Set(),
-    /* information of current clipping */
-    storageConfig: null,
-    storageInfo: null,
-    clipping: null,
-  }
+let state = {state: null};
+function resetClippingState() {
+  /* only avariable in current clipping */
+  state.tempConfig = {};
+  state.yieldPoints = new Set();
+  /* information of current clipping */
+  state.storageConfig = null;
+  state.storageInfo = null;
+  state.clipping = null;
 }
 
 function listenMessage(){
@@ -44,7 +40,7 @@ function listenMessage(){
         case 'saving.completed':
           UI.savingCompleted(msg.body);
           tellTpCompleted(msg.body);
-          resetState();
+          resetClippingState();
           break;
         case 'page_content.changed':
           pageContentChanged();
@@ -227,7 +223,7 @@ function saveClipping(msg) {
 function exitClipping(msg) {
   const timeout = 500;
   UI.friendlyExit(timeout);
-  resetState();
+  resetClippingState();
 }
 
 function completeClipping(msg) {
@@ -407,7 +403,7 @@ function run(){
     if (document.documentElement.tagName.toUpperCase() === 'HTML') {
       // html xhm etc.
       setTimeout(() => {
-        resetState();
+        resetClippingState();
         MxWcConfig.load().then((config) => {
           state.config = config;
           MxWcSelectionMain.init(config);

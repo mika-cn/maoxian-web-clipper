@@ -299,6 +299,14 @@ Global.evTarget.addEventListener('saving.completed', generateClippingJsIfNeed);
 Global.evTarget.addEventListener('history.refreshed', generateClippingJsIfNeed);
 Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
 
+Global.assetCache = T.createResourceCache({size: 80});
+Global.evTarget.addEventListener('resource.loaded', (ev) => {
+  const {resourceType, url, data, responseHeaders} = ev;
+  Log.debug("resource.loaded", url);
+  // data is an Uint8Array
+  Global.assetCache.add(url, {resourceType, data, responseHeaders});
+})
+
 
 function init(){
   Log.debug("background init...");
@@ -306,8 +314,8 @@ function init(){
 
   updateNativeAppConfig();
 
-  Fetcher.setRequestToken(REQUEST_TOKEN);
-  WebRequest.setRequestToken(REQUEST_TOKEN);
+  Fetcher.init({token: REQUEST_TOKEN, cache: Global.assetCache});
+  WebRequest.init({evTarget: Global.evTarget, requestToken: REQUEST_TOKEN});
   WebRequest.listen();
 
 
