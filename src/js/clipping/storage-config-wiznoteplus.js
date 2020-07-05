@@ -5,7 +5,7 @@
 
 function get(params) {
   const {config, now} = params;
-  const currSec = Math.floor(now/1000);
+  const saveFolder = Math.floor(now/1000).toString();
 
   const defaultConfig = {
     rootFolder: config.rootFolder,
@@ -18,12 +18,12 @@ function get(params) {
     saveInfoFile: false,
     saveTitleFile: false,
     /** the path to place index.html or index.md */
-    mainFileFolder: currSec.toString(),
+    mainFileFolder: saveFolder,
     mainFileName: "index.$FORMAT",
     /** the path to place frame files */
-    frameFileFolder: currSec + "/index_files",
+    frameFileFolder: saveFolder + "/index_files",
     /** the path to place asset files */
-    assetFolder: currSec + "/index_files",
+    assetFolder: saveFolder + "/index_files",
   })
   return storageConfig;
 }

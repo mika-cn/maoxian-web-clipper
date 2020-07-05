@@ -86,14 +86,26 @@ describe("StorageConfigRender", () => {
     H.assertEqual(assetRelativePath, 'assets');
   });
 
-  it('config.assetFolder: static', () => {
-    const params = getParams();
-    params.storageConfig.assetFolder = "static";
+  it('3rd handler', () => {
+    const inputs = getInputs();
+    const saveFolder = Math.floor(inputs.now/1000).toString();
+
+    const storageConfig = {
+      rootFolder: 'mx-wc',
+      defaultCategory: 'default',
+      saveInfoFile: false,
+      saveTitleFile: false,
+      mainFileFolder: saveFolder,
+      mainFileName: "index.$FORMAT",
+      frameFileFolder: saveFolder + "/index_files",
+      assetFolder: saveFolder + "/index_files",
+    }
+    const params = Object.assign(inputs, {storageConfig});
     const {assetFolder, assetRelativePath} = Render.exec(params);
-    H.assertEqual(clearPath(assetFolder),
-      'mx-wc/test/CLIPPING-FOLDER/static');
-    H.assertEqual(assetRelativePath, 'static');
+    H.assertEqual(assetFolder, saveFolder + "/index_files");
+    H.assertEqual(assetRelativePath, 'index_files');
   });
+
 
   function getParams() {
     const config = Config.getDefault();
@@ -113,14 +125,17 @@ describe("StorageConfigRender", () => {
       'titleFileName',
     ]);
 
+    return Object.assign({storageConfig}, getInputs());
+  }
+
+  function getInputs() {
     return {
-      storageConfig: storageConfig,
       now: Date.now(),
       domain: 'example.org',
       format: 'html',
       title: 'A awesome title',
       category: 'test',
-    }
+    };
   }
 });
 
