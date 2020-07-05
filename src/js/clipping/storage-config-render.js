@@ -27,7 +27,6 @@ function exec({storageConfig: config, now, domain,
 
   let pathValueHash = {storagePath, categoryPath};
   let pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH'];
-  let needClippingPath = true;
 
   let clippingPath = "clippingFolderName-not-specified";
   if (config.clippingFolderName) {
@@ -37,10 +36,8 @@ function exec({storageConfig: config, now, domain,
 
     pathValueHash['clippingPath'] = clippingPath;
     pathVariables.push('$CLIPPING-PATH');
-    needClippingPath = true;
   } else {
     // 3rd party don't need clippingPath
-    needClippingPath = false;
   }
 
   // FIXME category should be here?
@@ -48,7 +45,7 @@ function exec({storageConfig: config, now, domain,
 
   // Main file
   storageInfo.mainFileFolder = VariableRender.exec(
-    fixPathVariable(config.mainFileFolder, 'mainFileFolder', needClippingPath),
+    fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
     pathValueHash, pathVariables);
   storageInfo.mainFileName = VariableRender.exec(config.mainFileName,
     filenameValueHash, VariableRender.FilenameVariables);
@@ -56,7 +53,7 @@ function exec({storageConfig: config, now, domain,
   // Info file
   if (config.saveInfoFile) {
     storageInfo.infoFileFolder = VariableRender.exec(
-      fixPathVariable(config.infoFileFolder, 'infoFileFolder', needClippingPath),
+      fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
       pathValueHash, pathVariables);
     storageInfo.infoFileName = VariableRender.exec(config.infoFileName,
       filenameValueHash, VariableRender.FilenameVariables);
@@ -64,7 +61,7 @@ function exec({storageConfig: config, now, domain,
 
   // asset file
   storageInfo.assetFolder = VariableRender.exec(
-    fixPathVariable(config.assetFolder, 'assetFolder', needClippingPath),
+    fixPathVariable(config.assetFolder, 'assetFolder'),
     pathValueHash, pathVariables);
   storageInfo.assetRelativePath = T.calcPath(
     storageInfo.mainFileFolder, storageInfo.assetFolder
@@ -73,7 +70,7 @@ function exec({storageConfig: config, now, domain,
   // frame file
   if (format === 'html') {
     storageInfo.frameFileFolder = VariableRender.exec(
-      fixPathVariable(config.frameFileFolder, 'frameFileFolder', needClippingPath),
+      fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
       pathValueHash, pathVariables);
   } else {
     // md
@@ -83,7 +80,7 @@ function exec({storageConfig: config, now, domain,
   // title file
   if (config.saveTitleFile) {
     storageInfo.titleFileFolder = VariableRender.exec(
-      fixPathVariable(config.titleFileFolder, 'titleFileFolder', needClippingPath),
+      fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
       pathValueHash, pathVariables);
     storageInfo.titleFileName = VariableRender.exec(config.titleFileName,
       filenameValueHash, VariableRender.FilenameVariables);
@@ -131,24 +128,13 @@ function dealCategoryPath(config, category, now, domain, storagePath) {
   return categoryPath
 }
 
-function fixPathVariable(value, key, needClippingPath = true) {
+function fixPathVariable(value, key) {
   const DefaultConfig = Config.getDefault();
   if (value === '') {
     // user didn't specify any path, then we use default
     return DefaultConfig[key];
   } else {
-    const startsWithVariable = [
-      '$STORAGE-PATH',
-      '$CATEGORY-PATH',
-      '$CLIPPING-PATH'
-    ].some((it) => {
-      return value.startsWith(it);
-    });
-    if (startsWithVariable) {
-      return value;
-    } else {
-      return needClippingPath ? ['$CLIPPING-PATH', value].join('/') : value;
-    }
+    return value;
   }
 }
 
