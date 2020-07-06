@@ -3,7 +3,6 @@
 import Log from '../lib/log.js';
 import T from '../lib/tool.js';
 import ExtMsg from '../lib/ext-msg.js';
-import BgEnv from './bg-env.js';
 
 //const browser = require('webextension-polyfill');
 
@@ -58,26 +57,20 @@ const StoreMimeType = (function() {
   }
 
   function getMimeType(headers){
-    const header = getHeader(headers, 'content-type');
+    const header = T.getHeader(headers, 'content-type');
     // [firefox]
     //  will trigger two times sameUrl(notAll);
     //  one with Content-Type head, anotherOne is not
     // [Strange] attension or bug...
     // fixit.
     if(header){
-      return header.value.split(';')[0];
+      return T.parseContentType(header.value).mimeType;
     }else{
       return null;
     }
   }
 
-  // WARNING: name should be lowercase
-  function getHeader(headers, name) {
-    return [].find.call(headers, function(header){
-      // some server's header name is lower case ... (fixit)
-      return header.name.toLowerCase() === name;
-    })
-  }
+
 
   function initMimeTypeStore(){
     return {
@@ -103,7 +96,7 @@ const StoreMimeType = (function() {
       dict: {}, // url => targetUrl
       redirectStatus: {}, // targetUrl => status
       add(url, responseHeaders) {
-        const header = getHeader(responseHeaders, 'location')
+        const header = T.getHeader(responseHeaders, 'location')
         if (header) {
           const targetUrl = header.value;
           this.dict[url] = targetUrl;
@@ -194,6 +187,79 @@ const StoreMimeType = (function() {
 })();
 
 
+const StoreResource = (function() {
+
+  function listen() {
+    if (browser.webRequest.filterResponseData) {
+      const filter = {
+        urls: ["http://*/*", "https://*/*"],
+        types: ["stylesheet", "image", "font" ]
+      };
+
+      browser.webRequest.onHeadersReceived.removeListener(listener);
+      browser.webRequest.onHeadersReceived.addListener(
+        listener,
+        filter,
+        ["blocking", "responseHeaders"]
+      );
+    } else {
+      Log.debug("WebRequest.filterResponseData is not supported");
+    }
+  }
+
+  function listener(details) {
+    const filter = browser.webRequest.filterResponseData(details.requestId);
+    const data = [];
+
+    // when the filter is about to start receiving response data.
+    filter.onstart = (event) => {
+      // Log.debug("start...", details.url);
+    }
+
+    // when some response data has been received by the filter and is available to be examined or modified.
+    filter.ondata = (event) => {
+      Log.debug("data...", details.url);
+      // event.data is a ArrayBuffer
+      data.push(new Uint8Array(event.data));
+      filter.write(event.data);
+    }
+
+    // when the filter has finished receiving response data.
+    filter.onstop = (event) => {
+      // Log.debug("stop...", details.url);
+      let totalLength = 0;
+      for (let buffer of data) {
+        totalLength += buffer.length;
+      }
+      const combinedArray = new Uint8Array(totalLength);
+      let writeOffset = 0;
+      while (writeOffset < totalLength) {
+        const buffer = data.shift();
+        combinedArray.set(buffer, writeOffset);
+        writeOffset += buffer.length;
+      }
+
+      Global.evTarget.dispatchEvent({
+        type: "resource.loaded",
+        resourceType: details.type,
+        url: details.url,
+        responseHeaders: [...details.responseHeaders],
+        data: combinedArray,
+      });
+
+      filter.disconnect();
+    }
+
+    // if an error has occurred in initializing and operating the filter.
+    filter.onerror = (event) => {
+      Log.debug("error...");
+      Log.error(filter.error);
+      filter.disconnect();
+    };
+  }
+
+  return { listen };
+})();
 
 /**
  * This could be very dangerous,
@@ -288,7 +354,7 @@ const UnescapeHeader = (function(){
   function isSentByUs(requestHeaders) {
     return T.any(requestHeaders, (header) => {
       return (header.name.toLowerCase() === 'x-mxwc-token'
-        && header.value === BgEnv.requestToken);
+        && header.value === Global.requestToken);
     })
   }
 
@@ -299,9 +365,11 @@ const UnescapeHeader = (function(){
   }
 })();
 
+
 function listen() {
   StoreMimeType.listen();
   UnescapeHeader.listen();
+  StoreResource.listen();
 }
 
 function getMimeTypeDict() {
@@ -309,7 +377,20 @@ function getMimeTypeDict() {
 }
 
 
+
+/*
+ * @param {Object} global
+ *   - {String} requestToken
+ *   - {EventTarget} evTarget
+ */
+let Global = null;
+function init(global) {
+  Global = global;
+}
+
+
 const WebRequest = {
+  init: init,
   listen: listen,
   getMimeTypeDict: getMimeTypeDict,
   // test only

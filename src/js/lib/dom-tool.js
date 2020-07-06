@@ -10,11 +10,13 @@ function parseHTML(win, html) {
 }
 
 function markHiddenNode(win, node) {
+  // some awesome website use hidden input to avoid js, We keep them.
+  const whiteList = ['LINK', 'STYLE', 'INPUT'];
   const nodeIterator = win.document.createNodeIterator(
     node, win.NodeFilter.SHOW_ELEMENT,
     {
       acceptNode: (it) => {
-        if (T.isElemVisible(win, it)) {
+        if (T.isElemVisible(win, it, whiteList)) {
           return win.NodeFilter.FILTER_REJECT;
         } else {
           return win.NodeFilter.FILTER_ACCEPT;

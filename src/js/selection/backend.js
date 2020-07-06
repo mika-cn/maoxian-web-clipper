@@ -1,7 +1,19 @@
 "use strict";
 
+import Log from '../lib/log.js';
+import ExtMsg from '../lib/ext-msg.js';
 import MxWcStorage from '../lib/storage.js';
 import SelectionStore from './store.js';
+
+
+function messageHandler(message, sender){
+  return new Promise(function(resolve, reject){
+    switch(message.type){
+      case 'query': query(message.body).then(resolve); break;
+      case 'save': save(message.body).then(resolve); break;
+    }
+  });
+}
 
 // host => store
 const StoreDict = {};
@@ -36,9 +48,7 @@ function getKey(host) {
   return ['selectionStore', host].join('.');
 }
 
-const SelectionBackend = {
-  save: save,
-  query: query
+export default function init() {
+  ExtMsg.listen('backend.selection', messageHandler);
+  Log.debug("MX backend: Selection initialized");
 }
-
-export default SelectionBackend;

@@ -10,6 +10,7 @@ import FrameMsg from './frame-msg.js';
  * Events that we dispatch to public.
  *   mx-wc.ready
  *   mx-wc.idle
+ *   mx-wc.actived
  *   mx-wc.selecting
  *   mx-wc.selected
  *   mx-wc.confirmed
@@ -17,7 +18,8 @@ import FrameMsg from './frame-msg.js';
  *   mx-wc.completed
  *
  * Events that we listen from public.
- *   mx-wc.focus-elem
+ *   mx-wc.focus-elem (deprecated)
+ *   mx-wc.select-elem
  *   mx-wc.confirm-elem
  *   mx-wc.clip-elem
  *   mx-wc.set-form-input
@@ -131,10 +133,16 @@ function getType(name, isInternal) {
 }
 
 function getData(e) {
-  if(typeof e.detail === 'string') {
+  if (typeof e.detail === 'string') {
     // Firefox(Gecko) restict (for secure reason) e.detail when it is a custom object.
     // We use json string to walk around.
-    return JSON.parse(e.detail);
+    try {
+      return JSON.parse(e.detail);
+    } catch(e) {
+      return {};
+    }
+  } else if (typeof e.detail === 'undefined'){
+    return {};
   } else {
     // Ensure compatible with old version(mx-wc-tool.js)
     // e.detail is a custom object.

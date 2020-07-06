@@ -366,6 +366,7 @@
     "hint.selecting": "请点击或按 'Enter' 进行选中",
     "hint.selected": "按 'Enter' 确认, 方向键调整当前选中区域",
     "hint.clipping": "裁剪中...",
+    "hint.clipped": "裁剪结束...",
 
     "hint.saving.started": "开始保存...",
     "hint.saving.progress": "保存中...($finished/$total)",

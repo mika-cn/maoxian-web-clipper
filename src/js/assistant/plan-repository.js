@@ -6,7 +6,6 @@ import Log from '../lib/log.js';
 import T from '../lib/tool.js';
 import Config from '../lib/config.js';
 import Storage from '../lib/storage.js';
-import Fetcher from '../background/fetcher.js';
 
 /**!
  * Storage keys:
@@ -101,7 +100,7 @@ async function updatePublicPlans(urls) {
       // browser might cache the request.
       url.searchParams.append('t', now.str.intSec);
       Log.debug(url.toString());
-      const jsonText = await Fetcher.get(url.toString(), {});
+      const jsonText = await Global.Fetcher.get(url.toString(), {});
       const subscription = JSON.parse(jsonText);
       const pointerKey = [keyPrefix, subscription.name, 'latest'].join('.');
       let pointer = await Storage.get(pointerKey);
@@ -112,7 +111,7 @@ async function updatePublicPlans(urls) {
 
       if (subscription.latestVersion > currVersion) {
         Log.debug(`Start update ${subscription.name} from ${currVersion} to ${subscription.latestVersion}`);
-        const text = await Fetcher.get(subscription.updateUrl, {});
+        const text = await Global.Fetcher.get(subscription.updateUrl, {});
         const plans = JSON.parse(text);
 
         const oldKey = [keyPrefix, subscription.name, currVersion].join('.');
@@ -197,7 +196,13 @@ async function updateCustomPlans(planText) {
   }
 }
 
-function init() {
+/*
+ * @param {Object} global
+ *   - {Fetcher} Fetcher
+ */
+let Global = null;
+function init(global) {
+  Global = global;
   initPublicPlanPointers();
   Config.load().then((config) => {
     if (config.autoUpdatePublicPlan) {

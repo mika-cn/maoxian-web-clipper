@@ -72,7 +72,7 @@ function initUIListener() {
       }
     })
 
-  T.bindOnce(saveBtn     , 'click'    , saveForm);
+  T.bindOnce(saveBtn     , 'click'    , submitForm);
   T.bindOnce(cancelBtn   , 'click'    , cancelForm);
   T.bindOnce(saveBtn     , 'keypress' , formEnterKeyHandler);
   T.bindOnce(cancelBtn   , 'keypress' , formEnterKeyHandler);
@@ -138,6 +138,8 @@ function listenFrameMsg(){
   FrameMsg.addListener('setStateSelected', setStateSelected);
   FrameMsg.addListener('setStateConfirmed', setStateConfirmed);
   FrameMsg.addListener('setStateClipping', setStateClipping);
+  FrameMsg.addListener('setStateClipped', setStateClipped);
+  FrameMsg.addListener('setSavingHint', setSavingHint);
   FrameMsg.addListener('setSavingStateStarted', setSavingStateStarted);
   FrameMsg.addListener('setSavingStateProgress', setSavingStateProgress);
   FrameMsg.addListener('setSavingStateCompleted', setSavingStateCompleted);
@@ -260,9 +262,21 @@ function setStateClipping(msg){
   gbox.classList.add('clipping');
   setHint(I18N.t('hint.clipping'));
 }
+function setStateClipped(msg) {
+  const gbox = getGbox();
+  gbox.classList.remove('clipping');
+  gbox.classList.add('clipped');
+  setHint(I18N.t('hint.clipped'));
+}
 
 /************** change saving state ****************/
 
+function setSavingHint(hint) {
+  const gbox = getGbox();
+  gbox.classList.remove('clipping');
+  gbox.classList.add('saving');
+  setHint(hint);
+}
 
 function setSavingStateStarted(msg) {
   const gbox = getGbox();
@@ -313,19 +327,24 @@ function formEnterKeyHandler(e){
       cancelForm();
     } else {
       // tagstr input and save button
-      saveForm();
+      submitForm();
     }
     stopEvent(e);
   }
 }
 
-async function initSaveFormatOption(config, handlerInfo) {
+/*
+ * TODO: Maybe we should remove "supportFormats"
+ * It's not used.
+ */
+async function initSaveFormatOption(format, config, handlerInfo) {
+  const saveFormat = (format || config.saveFormat);
+  T.findElem(ID_FORMAT).value = saveFormat;
   const inputGroup = T.queryElem('.input-group.save-format');
   if(!config.inputFieldSaveFormatEnabled) {
     inputGroup.classList.remove('active');
     return;
   }
-  T.findElem(ID_FORMAT).value = config.saveFormat;
   inputGroup.classList.add('active');
   const html = MxWcTemplate.options.render({
     type: 'save-format',
@@ -342,7 +361,7 @@ async function initSaveFormatOption(config, handlerInfo) {
       updateOptionsState(formatOption, value)
     }
   });
-  updateOptionsState(formatOption, config.saveFormat);
+  updateOptionsState(formatOption, saveFormat);
 
   function updateOptionsState(elem, value) {
     T.each(elem.children, (option) => {
@@ -357,7 +376,7 @@ async function initSaveFormatOption(config, handlerInfo) {
 
 async function showForm(params){
   Log.debug('showForm');
-  const {title, category, tagstr,
+  const {format, title, category, tagstr,
     handlerInfo, config} = params;
   const form = T.firstElem(CLASS_FORM);
   if(form.style.display == 'block'){ return false}
@@ -367,7 +386,7 @@ async function showForm(params){
   const categoryInput = T.findElem(ID_CATEGORY);
   const tagstrInput = T.findElem(ID_TAGSTR);
 
-  await initSaveFormatOption(config, handlerInfo);
+  await initSaveFormatOption(format, config, handlerInfo);
   titleInput.value = title;
   categoryInput.value= category;
   tagstrInput.value = tagstr;
@@ -409,7 +428,7 @@ async function showForm(params){
   return true;
 }
 
-function saveForm(){
+function submitForm(){
   hideForm();
   unbindListener();
 
@@ -418,7 +437,7 @@ function saveForm(){
   const categoryInput = T.findElem(ID_CATEGORY);
   const tagstrInput = T.findElem(ID_TAGSTR);
 
-  sendFrameMsgToTop('startClip', {
+  sendFrameMsgToTop('submitForm', {
     format: (formatInput.value === '' ? undefined : formatInput.value),
     title: titleInput.value,
     category: categoryInput.value,

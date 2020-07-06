@@ -1,47 +1,38 @@
-"use strict";
 
-import ENV from './env.js';
-import Log from './lib/log.js';
-import T from './lib/tool.js';
-import ExtApi from './lib/ext-api.js';
-import ExtMsg from './lib/ext-msg.js';
+import Log         from './lib/log.js';
+import T           from './lib/tool.js';
+import ExtApi      from './lib/ext-api.js';
+import ExtMsg      from './lib/ext-msg.js';
 import MxWcStorage from './lib/storage.js';
-import MxWcConfig from './lib/config.js';
-import MxWcLink from './lib/link.js';
-import MxWcIcon from './lib/icon.js';
-import PlanRepository from './assistant/plan-repository.js';
-import SelectionBackend from './selection/backend.js';
-import Fetcher from './background/fetcher.js';
+import MxWcConfig  from './lib/config.js';
+import MxWcLink    from './lib/link.js';
+import MxWcHandler from './lib/handler.js';
+import MxEvTarget  from './lib/event-target.js';
+import Fetcher     from './lib/fetcher.js';
+
+import initBackend_Clipping  from './clipping/backend.js';
+import initBackend_Saving    from './saving/backend.js';
+import initBackend_Assistant from './assistant/backend.js';
+import initBackend_Selection from './selection/backend.js';
+
+import Handler_Browser     from './handler/browser.js';
+import Handler_NativeApp   from './handler/native-app.js';
+import Handler_WizNotePlus from './handler/wiznoteplus.js';
+
 import MxWcMigration from './background/migration.js';
 import WebRequest from './background/web-request.js';
-import CacheService from './background/cache-service.js';
-import ClippingHandler_NativeApp from './background/clipping-handler-native-app.js';
-import MxWcHandlerBackground from './background/handler-background.js';
 
-const asyncFunQueue = T.createAsyncFnQueue();
-
+const Global = { evTarget: new MxEvTarget() };
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
-      case 'get.plan':
-        asyncFunQueue.enqueue(async () => {
-          PlanRepository.get(message.body.url).then(resolve);
-        });
+
+      case 'handler.get-info':
+        const handler = getHandlerByName(message.body.name);
+        handler.getInfo(resolve);
         break;
-      case 'update.public-plan':
-        PlanRepository.updatePublicPlans(message.body.urls).then(resolve);
-        break;
-      case 'save.custom-plan':
-        PlanRepository.updateCustomPlans(message.body.planText).then(resolve);
-        break;
-      case 'query.selection':
-        SelectionBackend.query(message.body).then(resolve);
-        break;
-      case 'save.selection':
-        SelectionBackend.save(message.body).then(resolve);
-        break;
-      case 'get.mimeTypeDict' : resolve(WebRequest.getMimeTypeDict())   ; break;
+
       case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
@@ -50,42 +41,20 @@ function messageHandler(message, sender){
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
       case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
-      case 'fetch.text':
-        CacheService.findOrCache(
-          [message.body.clipId, message.body.url].join('.'),
-          () => {
-          return Fetcher.get(message.body.url, {
-            respType: 'text',
-            headers: message.body.headers,
-            timeout: message.body.timeout,
-          });
-        }).then(resolve, reject);
-        break;
-      case 'get.allFrames':
-        ExtApi.getAllFrames(sender.tab.id)
-          .then(resolve);
-        break;
-      case 'frame.toHtml':
-      case 'frame.toMd':
-        CacheService.findOrCache(
-          [message.body.clipId, message.frameUrl].join('.'),
-          () => {
-          // Redirect message to content frame.
-          return ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId);
-        }).then(resolve);
-        break;
+
+      /* history */
       case 'export.history':
         exportHistory(message.body.content);
-        resolve();
-        break;
-      case 'clipping.save':
-        CacheService.removeByKeyPrefix(message.body.info.clipId);
-        saveClipping(sender.tab.id, message.body);
         resolve();
         break;
       case 'clipping.delete':
         deleteClipping(message.body, resolve);
         break;
+      case 'history.refresh':
+        refreshHistory(resolve);
+        break;
+
+      /* offline index page */
       case 'generate.clipping.js':
         generateClippingJs(resolve);
         break;
@@ -93,37 +62,48 @@ function messageHandler(message, sender){
         generateClippingJsIfNeed();
         resolve();
         break;
-      case 'history.refresh':
-        refreshHistory(resolve);
-        break;
-      case 'handler.get-info':
-        getHandlerInfo(message.body, resolve);
-        break;
+
+      /* open link */
       case 'create-tab':
         ExtApi.createTab(message.body.link).then(resolve);
         break;
       default:
-        throw new Error("Unknown message" + message.type);
         break;
     }
   });
 }
 
-function getHandlerInfo(msg, resolve) {
-  const handler = MxWcHandlerBackground.get(msg.name);
-  handler.getInfo(resolve);
-}
 
 function deleteClipping(msg, resolve) {
-  const handler = ClippingHandler_NativeApp;
+  const handler = Handler_NativeApp;
   handler.deleteClipping(msg, (result) => {
-    if(result.ok){ generateClippingJsIfNeed() }
+    if(result.ok){
+      Global.evTarget.dispatchEvent({
+        type: 'clipping.deleted'
+      })
+    }
     resolve(result);
   })
 }
 
+function refreshHistoryIfNeed(){
+  MxWcConfig.load().then((config) => {
+    if(config.autoRefreshHistory){
+      refreshHistory((result) => {
+        if(!result.ok) {
+          Log.error("AutoRefreshHistory: ");
+          Log.error(result.message)
+        } else {
+          Log.debug("History refreshed");
+        }
+      });
+    }
+  });
+}
+
+
 function refreshHistory(resolve) {
-  MxWcHandlerBackground.isReady('config.refreshHistoryHandler').then((r) => {
+  isHandlerReady('config.refreshHistoryHandler').then((r) => {
     const {ok, message, handler, config} = r;
     if(ok) {
 
@@ -144,7 +124,9 @@ function refreshHistory(resolve) {
           resetStates('categories', result.categories);
           const time = T.currentTime().toString();
           MxWcStorage.set('lastRefreshHistoryTime', time);
-          generateClippingJsIfNeed()
+          Global.evTarget.dispatchEvent({
+            type: 'history.refreshed'
+          });
         }
         resolve(result);
       })
@@ -167,72 +149,6 @@ function exportHistory(content) {
   })
 }
 
-/*
- * saveTasks
- */
-
-function saveClipping(tabId, clipping) {
-  getClippingHandler((handler) => {
-
-    const feedback = function(msg) {
-      switch(msg.type) {
-        case 'started':
-          clippingSaveStarted(tabId, msg);
-          break;
-        case 'progress':
-          clippingSaveProgress(tabId, msg);
-          break;
-        case 'completed':
-          clippingSaveCompleted(tabId, msg.clippingResult, handler);
-          break;
-        default: break;
-      }
-    }
-
-    handler.saveClipping(clipping, feedback);
-  });
-}
-
-function clippingSaveStarted(tabId, msg) {
-  Log.debug('started');
-  ExtMsg.sendToContent({
-    type: 'clipping.save.started',
-    body: {
-      clipId: msg.clipId
-    }
-  }, tabId);
-}
-
-function clippingSaveProgress(tabId, msg) {
-  const progress = [msg.finished, msg.total].join('/');
-  Log.debug('progress', progress);
-  ExtMsg.sendToContent({
-    type: 'clipping.save.progress',
-    body: {
-      clipId: msg.clipId,
-      finished: msg.finished,
-      total: msg.total
-    }
-  }, tabId);
-}
-
-function clippingSaveCompleted(tabId, result, handler){
-  Log.debug('completed');
-  // compatible with old message
-  result.handler = handler.name;
-  result = handler.handleClippingResult(result);
-  Log.debug(result);
-  updateClippingHistory(result);
-  ExtMsg.sendToContent({
-    type: 'clipping.save.completed',
-    body: result
-  }, tabId);
-  MxWcStorage.set('lastClippingResult', result);
-  MxWcIcon.flicker(3);
-  generateClippingJsIfNeed();
-}
-
-
 function generateClippingJsIfNeed(){
   MxWcConfig.load().then((config) => {
     if(config.autogenerateClippingJs){
@@ -242,7 +158,7 @@ function generateClippingJsIfNeed(){
 }
 
 function generateClippingJs(callback) {
-  MxWcHandlerBackground.isReady('config.offlinePageHandler').then((result) => {
+  isHandlerReady('config.offlinePageHandler').then((result) => {
     const {ok, message, handler, config} = result;
     if(ok) {
       let pathConfig = MxWcConfig.getDefault().clippingJsPath;
@@ -274,11 +190,6 @@ function generateClippingJs(callback) {
   });
 }
 
-function getClippingHandler(callback) {
-  MxWcConfig.load().then((config) => {
-    callback(MxWcHandlerBackground.get(config.clippingHandler), config);
-  })
-}
 
 function initDownloadFolder(){
   MxWcStorage.get('downloadFolder').then((root) => {
@@ -290,23 +201,16 @@ function initDownloadFolder(){
   });
 }
 
+function getClippingHandler(callback) {
+  MxWcConfig.load().then((config) => {
+    callback(getHandlerByName(config.clippingHandler), config);
+  })
+}
+
 function resetStates(key, states){
   MxWcStorage.set(key, states);
 }
 
-function updateClippingHistory(clippingResult) {
-  MxWcStorage.get('clips', [])
-    .then((v) => {
-      const idx = v.findIndex((it) => {
-        return it.clipId == clippingResult.clipId;
-      });
-      if(idx > -1) {
-        Log.debug("UpdateClippingHistory", clippingResult.url);
-        v[idx]['url'] = clippingResult.url;
-        MxWcStorage.set('clips', v);
-      }
-    });
-}
 
 function saveClippingHistory(msg){
   const it = msg.clippingHistory;
@@ -351,31 +255,87 @@ function welcomeNewUser(){
     })
 }
 
+// ========================================
+// handler
+// ========================================
 
-function refreshHistoryIfNeed(){
-  MxWcConfig.load().then((config) => {
-    if(config.autoRefreshHistory){
-      refreshHistory((result) => {
-        if(!result.ok) {
-          Log.error("AutoRefreshHistory: ");
-          Log.error(result.message)
-        } else {
-          Log.debug("History refreshed");
-        }
-      });
-    }
-  });
+/*
+ * @param {string} expression - see js/lib/handler.js
+ */
+function isHandlerReady(expression) {
+  const getHandlerInfo = (name, callback) => {
+    const handler = getHandlerByName(name);
+    handler.getInfo((handlerInfo) => {
+      callback(handlerInfo, handler);
+    });
+  }
+  return MxWcHandler.isReady(expression, getHandlerInfo)
 }
+
+
+function getHandlerByName(name) {
+  switch(name){
+    case 'Browser':     return Handler_Browser;
+    case 'NativeApp':   return Handler_NativeApp;
+    case 'WizNotePlus': return Handler_WizNotePlus;
+    default:            return Handler_Browser;
+  }
+}
+
+async function updateNativeAppConfig() {
+  const config = await MxWcConfig.load();
+  if (config.clippingHandler === 'NativeApp') {
+    Handler_NativeApp.initDownloadFolder();
+  }
+}
+
+
+
+// ========================================
+
+const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
+
+Global.evTarget.addEventListener('saving.completed', generateClippingJsIfNeed);
+Global.evTarget.addEventListener('history.refreshed', generateClippingJsIfNeed);
+Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
+
+Global.assetCache = T.createResourceCache({size: 80});
+Global.evTarget.addEventListener('resource.loaded', (ev) => {
+  const {resourceType, url, data, responseHeaders} = ev;
+  Log.debug("resource.loaded", url);
+  // data is an Uint8Array
+  Global.assetCache.add(url, {resourceType, data, responseHeaders});
+})
+
 
 function init(){
   Log.debug("background init...");
   MxWcMigration.perform();
-  MxWcHandlerBackground.initialize();
-  ExtMsg.listen('background', messageHandler);
+
+  updateNativeAppConfig();
+
+  Fetcher.init({token: REQUEST_TOKEN, cache: Global.assetCache});
+  WebRequest.init({evTarget: Global.evTarget, requestToken: REQUEST_TOKEN});
   WebRequest.listen();
+
+
+  Handler_Browser.init({Fetcher});
+  Handler_NativeApp.init({Fetcher});
+  Handler_WizNotePlus.init({Fetcher});
+
+  ExtMsg.listen('background', messageHandler);
   refreshHistoryIfNeed();
+
+  initBackend_Assistant({Fetcher});
+  initBackend_Selection();
+  initBackend_Clipping({WebRequest, Fetcher});
+  initBackend_Saving(Object.assign({
+    Handler_Browser,
+    Handler_NativeApp,
+    Handler_WizNotePlus
+  }, {evTarget: Global.evTarget}));
+
   welcomeNewUser();
-  PlanRepository.init();
   Log.debug("background init finish...");
 }
 

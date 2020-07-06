@@ -79,6 +79,23 @@ table {
   border: 1px solid #ccc;
   padding: 2px 5px 2px 5px;
 }
+.list > table td > .format {
+  font-size: 12px;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: lightgray;
+  color: #f0f0f0;
+  text-align: center;
+  line-height: 16px;
+  margin-right: 10px;
+}
+.list > table td.html > .format:before {
+  content: 'H';
+}
+.list > table td.md > .format:before {
+  content: 'M';
+}
 
 .modal {
   position: fixed;

@@ -4,7 +4,7 @@
  *   plan: {
  *     hideElem: [Selector, Selector..]
  *     pickElem: [Selector, Selector..]
- *     pickAction: 'focus' or 'confirm' or 'clip'
+ *     pickAction: 'select' or 'confirm' or 'clip'
  *   }
  */
 
@@ -302,9 +302,9 @@ function createPickedElemAction(params) {
   }
 }
 
-Action.focusElem = createPickedElemAction({
-  name: 'focusElem',
-  eventName: 'focus-elem'
+Action.selectElem = createPickedElemAction({
+  name: 'selectElem',
+  eventName: 'select-elem'
 });
 
 Action.confirmElem = createPickedElemAction({
@@ -388,20 +388,33 @@ function queryElemsBySelector(selectorStr, contextNode) {
 
 function queryElemsByCss(cssSelector, contextNode = document) {
   const elems = [];
-  [].forEach.call(contextNode.querySelectorAll(cssSelector), function(elem) {
-    elems.push(elem)
-  });
+  try {
+    [].forEach.call(contextNode.querySelectorAll(cssSelector), function(elem) {
+      elems.push(elem)
+    });
+  } catch(e) {
+    console.warn("[Mx assistant] invalid selector: ", cssSelector);
+    console.warn(e.message);
+    console.warn(e);
+  }
   return elems;
 }
 
 function queryElemsByXpath(xpath, contextNode = document) {
-  const xpathResult = document.evaluate(
-    xpath,
-    contextNode,
-    null,
-    XPathResult.ORDERED_NODE_ITERATOR_TYPE,
-    null
-  )
+  try {
+    const xpathResult = document.evaluate(
+      xpath,
+      contextNode,
+      null,
+      XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      null
+    )
+  } catch(e) {
+    console.warn("[MX assistant] invalid xpath: ", xpath);
+    console.warn(e.message);
+    console.warn(e);
+    return [];
+  }
   const elems = [];
   let elem = xpathResult.iterateNext();
   while(elem){
@@ -449,7 +462,7 @@ function isTopWindow() {
 /*
  * plan{
  *   pickElem: $SelectorInput,
- *   pickAction: 'focus' or 'confirm', or 'clip'
+ *   pickAction: 'select' or 'confirm', or 'clip'
  *   hideElem: $SelectorInput,
  *   hideElemOnce: $SelectorInput,
  *   showElem: $SelectorInput,
@@ -458,7 +471,7 @@ function isTopWindow() {
  * Selector: $type||$q
  */
 function apply(plan) {
-  const {pickElem, pickAction = 'focus'} = plan;
+  const {pickElem, pickAction = 'select'} = plan;
   if(isTopWindow()) {
     if(hasSelector(pickElem)) {
       const selectorInput = pickElem;
@@ -468,8 +481,8 @@ function apply(plan) {
         switch(pickAction) {
           case 'confirm' : listen('selecting', Action.confirmElem(selectorInput)); break;
           default:
-            /* 'focus' or other */
-            listen('selecting', Action.focusElem(selectorInput));
+            /* 'select' or other */
+            listen('selecting', Action.selectElem(selectorInput));
             break;
         }
       } else {

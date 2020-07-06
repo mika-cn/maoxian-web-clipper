@@ -76,6 +76,17 @@ T.createId = function() {
 }
 
 // ===============================
+// Object
+// ===============================
+T.sliceObj = function(obj, keys) {
+  const r = {};
+  for (let i = 0; i < keys.length; i++) {
+    r[keys[i]] = obj[keys[i]];
+  }
+  return r;
+}
+
+// ===============================
 // DOM relative
 // ===============================
 
@@ -112,8 +123,8 @@ T.findParentById = function(elem, id) {
 
 
 // If image permission is disabled, style.display is 'inline'.
-T.isElemVisible = function(win, elem) {
-  if(['LINK','STYLE'].indexOf(elem.tagName.toUpperCase()) > -1) {
+T.isElemVisible = function(win, elem, whiteList = []) {
+  if(whiteList.indexOf(elem.tagName.toUpperCase()) > -1) {
     return true
   }
 
@@ -450,6 +461,11 @@ T.rjustNum = function(num, length){
 
 T.currentTime = function(){
   return T.wrapDate(new Date());
+}
+
+// now is an interger return by Date.now().
+T.wrapNow = function(now) {
+  return T.wrapDate(new Date(now));
 }
 
 T.wrapDate = function(date) {
@@ -811,6 +827,46 @@ T.createDict = function(){
   }
 }
 
+T.createMRUCache = function(size) {
+  return {
+    size: size,
+    array: [],
+    map: new Map(),
+    add(key, value) {
+      const found = this.map.has(key);
+      this.map.set(key, value);
+      if ( !found ) {
+        if ( this.array.length === this.size ) {
+          this.map.delete(this.array.pop());
+        }
+        this.array.unshift(key);
+      }
+    },
+    remove(key) {
+      if ( this.map.has(key) ) {
+        this.array.splice(this.array.indexOf(key), 1);
+      }
+    },
+    get(key) {
+      const value = this.map.get(key);
+      if ( value !== undefined && this.array[0] !== key ) {
+        let i = this.array.indexOf(key);
+        do {
+          this.array[i] = this.array[i-1];
+        } while ( --i );
+        this.array[0] = key;
+      }
+      return value;
+    },
+    reset() {
+      this.array = [];
+      this.map.clear();
+    }
+  };
+};
+
+
+
 T.createStack = function(){
   return {
     stack: [],
@@ -920,8 +976,137 @@ T.createArrayCache = function(reverselySeek = 'noReverselySeek') {
   }
 }
 
+
+// ====================================
+// HTTP relative
 // ====================================
 
+T.createResourceCache = function({size = 80}) {
+
+  function addCacheDataReaders(cache) {
+    const readers = {
+      readAsText: function() {
+        let charset = 'utf-8';
+        const header = T.getHeader(this.responseHeaders, 'content-type');
+        if (header) {
+          const r = T.parseContentType(header.value);
+          if (r && r.parameters.charset) {
+            charset = r.parameters.charset;
+          }
+        }
+        const decoder = new TextDecoder(charset);
+        return decoder.decode(this.data);
+      },
+      readAsBlob: function() {
+        const mimeType = T.resourceType2MimeType(this.resourceType);
+        return new Blob([this.data], {type: mimeType});
+      },
+      readAsResponse: function() {
+        // forbidden response header name
+        const blackList = ['set-cookie', 'set-cookie2'];
+        const headers = new Headers();
+        this.responseHeaders.forEach(({name, value}) => {
+          if (blackList.indexOf(name.toLowerCase()) == -1) {
+            headers.append(name, value);
+          }
+        });
+        const init = {"status": 200, "statusText": "OK", "headers": headers};
+        return new Response(this.data, init);
+      },
+    };
+    return Object.assign({}, cache, readers);
+  }
+
+  return {
+    cache: T.createMRUCache(size),
+
+    /*
+     * @param {String} url - request url
+     * @param {Object} details
+     *      - {String} resourceType
+     *      - {Uint8Array} data
+     *      - {Array} responseHeaders
+     *          - {Object} Header {:name, :value}
+     */
+    add(url, details) {
+      this.cache.add(url, details)
+    },
+    get(url) {
+      const it = this.cache.get(url);
+      if (it) {
+        return addCacheDataReaders(it);
+      } else {
+        return null;
+      }
+    },
+  }
+}
+
+
+/**
+ * Get header
+ *
+ * @param {Array} headers
+ *      - {Object} header {:name, :value}
+ * @param {String} name(should be lowercase)
+ * @return {Object} header
+ *
+ */
+T.getHeader = function(headers, name) {
+  return [].find.call(headers, function(header){
+    // some server's header name is lower case ... (fixit)
+    return header.name.toLowerCase() === name;
+  })
+}
+
+/**
+ * Parse Content-Type
+ *
+ * type/subtype[;parameterName=parameterValue]*
+ * example:
+ *   - text/html
+ *   - text/html;charset=utf-8
+ *   - text/html;charset=UTF-8
+ *   - Text/HTML;Charset="utf-8"
+ *   - text/html; charset="utf-8"
+ *
+ * The type, subtype, and parameter name tokens are case-insensitive.
+ * Parameter values might or might not be case-sensitive, depending on
+ * the semantics of the parameter name [RFC7231 p8-p9].
+ *
+ * @param {String} value
+ * @return {Object}
+ *   - {String} mimeType
+ *   - {Object} parameters(name -> value)
+ */
+T.parseContentType = function(value) {
+  const [mimeType, ...rests] = value.split(';').map(it => it.trim());
+  const parameters = {};
+  const caseInsensitiveParameters = ['charset'];
+  rests.forEach((it) => {
+    const [k, v] = it.split('=');
+    const name = k.toLowerCase();
+    let value = v.replace(/"/g, '');
+    if (caseInsensitiveParameters.indexOf(name) > -1) {
+      value = value.toLowerCase();
+    }
+    parameters[name] = value;
+  });
+  return {mimeType: mimeType.toLowerCase(), parameters}
+}
+
+
+T.resourceType2MimeType = function(type) {
+  switch(type) {
+    case 'stylesheet': return 'text/css';
+    case 'image':
+    case 'font':
+      return 'application/octet-binary';
+  }
+}
+
+
+// ====================================
 
 T.escapeHtml = function(string) {
   return String(string).replace(/[&<>"'`=\/]/g, function (s) {
