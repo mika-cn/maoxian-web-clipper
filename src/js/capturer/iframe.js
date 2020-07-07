@@ -80,7 +80,7 @@ async function capture(node, opts) {
 
   const msgType = saveFormat === 'html' ? 'frame.toHtml' : 'frame.toMd';
   try {
-    const {fromCache, result} = await ExtMsg.sendToBackend('clippibng', {
+    const {fromCache, result} = await ExtMsg.sendToBackend('clipping', {
       type: msgType,
       frameId: frame.frameId,
       frameUrl: frame.url,
