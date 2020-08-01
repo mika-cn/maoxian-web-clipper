@@ -143,6 +143,14 @@ function initSettingHandlerWizNotePlus(config) {
   );
 }
 
+// section: handler-zip
+function initSettingHandlerZip(config) {
+  initCheckboxInput(config,
+    'handler-zip-enabled',
+    'handlerZipEnabled'
+  );
+}
+
 function initSettingSaveFormat(config){
   initOptionsInput(config,
     'save-format',
@@ -572,6 +580,9 @@ function renderSection(id) {
     case 'setting-handler-native-app':
       render = renderSectionHandlerNativeApp;
       break;
+    case 'setting-handler-zip':
+      render = renderSectionHandlerZip;
+      break;
     case 'setting-handler-wiz-note-plus':
       render = renderSectionHandlerWizNotePlus;
       break;
@@ -838,6 +849,14 @@ async function renderSectionHandlerWizNotePlus(id, container, template) {
     msg = msg.replace('$MESSAGE', info.message);
     renderNoticeBox(section, 'danger', msg);
   }
+}
+
+function renderSectionHandlerZip(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  MxWcConfig.load().then((config) => {
+    initSettingHandlerZip(config);
+  });
 }
 
 function renderSectionOfflinePage(id, container, template) {

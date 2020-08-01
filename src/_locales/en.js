@@ -113,6 +113,7 @@
     "setting.title.handler": "Handler",
     "setting.title.handler-browser": "Browser",
     "setting.title.handler-native-app": "Native App",
+    "setting.title.handler-zip": "Zip",
     "setting.title.handler-wiz-note-plus" :"WizNotePlus",
 
     "setting.title.save-format": "Save Format",
@@ -193,6 +194,10 @@
     "handler.native-app.error.version": "Extension require the version of Native Application bigger than or equal to $requiredVersion, But current version is $currentVersion, please <a href='go.page:native-app#upgrade' target='_blank'>upgrade your native application</a>",
     "handler.native-app.error.install": "It seems like you haven't installed it correctly. (<a href='go.page:native-app' target='_blank'>How to install it</a>)",
 
+    "handler.zip.name": "Zip",
+    "handler.zip.intro": "Zip is a built-in handler.",
+    "handler.zip.feature.a": "Bundle your clipping page with all associated assets.",
+
     "handler.wiz-note-plus.name": "WizNotePlus",
     "handler.wiz-note-plus.intro": "WizNotePlus is a cross-platform cloud based note-taking client.",
     "handler.wiz-note-plus.feature.a": "Save clipping file to WizNotePlus database.",
@@ -209,6 +214,7 @@
 
     "setting.notice.info.storage.browser": "Use browser to download clipping result.<br />",
     "setting.notice.info.storage.native-app": "Use a native application to save clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to <a href='go.page:native-app' target='_blank'>install a native application</a>.",
+    "setting.notice.info.storage.zip": "Bundle clipping and use browser to download zip file.",
     "setting.notice.info.storage.wiz-note-plus": "Use WizNotePlus to save clipping result.<br />",
 
     "setting.notice.info.offline-page.browser": "$BLANK",
@@ -217,6 +223,7 @@
 
     "setting.notice.warning.storage.browser": "$BLANK",
     "setting.notice.warning.storage.native-app": "$BLANK",
+    "setting.notice.warning.storage.zip": "$BLANK",
     "setting.notice.warning.storage.wiz-note-plus": "$BLANK",
     "setting.notice.warning.offline-page.browser": "$BLANK",
     "setting.notice.warning.offline-page.native-app": "$BLANK",
