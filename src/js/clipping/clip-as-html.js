@@ -1,20 +1,21 @@
 "use strict";
 
-import T from '../lib/tool.js';
-import DOMTool from '../lib/dom-tool.js';
-import Log from '../lib/log.js';
-import ExtMsg from '../lib/ext-msg.js';
-import Task from '../lib/task.js';
-import Template from '../lib/template.js';
-import CaptureTool from '../capturer/tool.js';
-import CapturerA from '../capturer/a.js';
-import CapturerPicture from '../capturer/picture.js';
-import CapturerImg from '../capturer/img.js';
-import CapturerCss from '../capturer/css.js';
-import CapturerStyle from '../capturer/style.js';
-import CapturerLink from '../capturer/link.js';
-import CapturerIframe from '../capturer/iframe.js';
-import StyleHelper from './style-helper.js';
+import T                     from '../lib/tool.js';
+import DOMTool               from '../lib/dom-tool.js';
+import Log                   from '../lib/log.js';
+import ExtMsg                from '../lib/ext-msg.js';
+import Task                  from '../lib/task.js';
+import Template              from '../lib/template.js';
+import CaptureTool           from '../capturer/tool.js';
+import CapturerA             from '../capturer/a.js';
+import CapturerPicture       from '../capturer/picture.js';
+import CapturerImg           from '../capturer/img.js';
+import CapturerCss           from '../capturer/css.js';
+import CapturerStyle         from '../capturer/style.js';
+import CapturerLink          from '../capturer/link.js';
+import CapturerIframe        from '../capturer/iframe.js';
+import CapturerCustomElement from '../capturer/custom-element.js';
+import StyleHelper           from './style-helper.js';
 
 
 async function clip(elem, {info, storageInfo, config, win}){
@@ -32,8 +33,6 @@ async function clip(elem, {info, storageInfo, config, win}){
 
   const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
 
-
-  // 获取选中元素的html
   const {elemHtml, headInnerHtml, tasks} = await getElemHtml({
     clipId: info.clipId,
     frames: frames,
@@ -48,7 +47,7 @@ async function clip(elem, {info, storageInfo, config, win}){
     win: win,
   });
 
-  // 将elemHtml 渲染进模板里，渲染成完整网页。
+  // render elemHtml into template
   const v = StyleHelper.getRenderParams(elem, win);
   const page = (isBodyElem ? 'bodyPage' : 'elemPage');
   v.info = info;
@@ -68,6 +67,7 @@ async function clip(elem, {info, storageInfo, config, win}){
   });
 }
 
+
 async function getElemHtml(params){
   const topFrameId = 0, saveFormat = 'html';
   const {
@@ -86,6 +86,8 @@ async function getElemHtml(params){
   } = params;
   Log.debug('getElemHtml', baseUrl);
 
+  const {customElementHtmlDict, customElementStyleDict, customElementTasks} = await captureCustomElements(params);
+
   const KLASS = ['mx-wc', clipId].join('-');
   elem.classList.add('mx-wc-selected-elem');
   elem.classList.add(KLASS);
@@ -101,112 +103,23 @@ async function getElemHtml(params){
   Log.debug(selectedNode);
   selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
-  /**
-   * @return {:node, :tasks}
-   */
-  const captureNode = async function (node) {
-    let opts = {};
-    let r = {node: node, tasks: []}
-    switch (node.tagName.toUpperCase()) {
-      case 'LINK':
-        opts = {baseUrl, docUrl, storageInfo, clipId,
-          mimeTypeDict, config, headerParams, needFixStyle};
-        r = await CapturerLink.capture(node, opts);
-        break;
-      case 'STYLE':
-        opts = {baseUrl, docUrl, storageInfo, clipId,
-          mimeTypeDict, config, headerParams, needFixStyle};
-        r = await CapturerStyle.capture(node, opts);
-        break;
-      case 'PICTURE':
-        opts = {baseUrl, storageInfo, clipId, mimeTypeDict};
-        r = await CapturerPicture.capture(node, opts);
-        break;
-      case 'IMG':
-        opts = {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict};
-        r = await CapturerImg.capture(node, opts);
-        break;
-      case 'A':
-        opts = {baseUrl, docUrl};
-        r = await CapturerA.capture(node, opts);
-        break;
-      case 'BODY':
-      case 'TABLE':
-      case 'TH':
-      case 'TD':
-        // background attribute (deprecated since HTML5)
-        opts = {baseUrl, storageInfo, config, clipId, mimeTypeDict};
-        r = CaptureTool.captureBackgroundAttr(node, opts);
-        break;
-      case 'AUDIO':
-      case 'VEDIO':
-      case 'EMBED':
-      case 'OBJECT':
-      case 'APPLET':
-      case 'CANVAS':
-        // Don't capture media nodes.
-        node.setAttribute('data-mx-ignore-me', 'true');
-        r.node = node;
-        break;
-      case 'IFRAME':
-      case 'FRAME':
-        opts = {saveFormat, baseUrl, doc, storageInfo,
-          clipId, mimeTypeDict, config, parentFrameId, frames};
-        r = await CapturerIframe.capture(node, opts);
-        break;
-      default: break;
-    }
+  const {node, taskCollection} = await captureContainerNode(selectedNode,
+    Object.assign({}, params, {doc, customElementHtmlDict, customElementStyleDict}));
+  selectedNode = node;
 
-    // handle global attributes
-    [].forEach.call(r.node.attributes, async (attr) => {
-      const attrName = attr.name.toLowerCase();
+  taskCollection.push(...customElementTasks);
 
-      // remove event listener
-      if (attrName.startsWith('on')) {
-        r.node.removeAttribute(attrName);
-      }
-
-      // inline style
-      if (attrName === 'style') {
-        const {cssText, tasks} = await CapturerCss.captureText(
-          Object.assign({
-            text: attr.value
-          }, {
-            baseUrl, docUrl, storageInfo, clipId,
-            mimeTypeDict, config, headerParams,
-            needFixStyle
-          })
-        );
-        r.node.setAttribute('style', cssText);
-        r.tasks.push(...tasks);
-      }
-
-    })
-    return r;
-  }
-
-  const taskCollection = [];
+  // capture head nodes that haven't processed.
   const headNodes = doc.querySelectorAll('style, link');
-  for (let i = 0; i < headNodes.length; i++) {
-    const r = await captureNode(headNodes[i]);
-    taskCollection.push(...r.tasks);
-  }
+  const processedNodes = selectedNode.querySelectorAll('style, link');
 
-  const childNodes = selectedNode.querySelectorAll('*');
-  for (let i = 0; i < childNodes.length; i++) {
-    const node = childNodes[i];
-    if (['STYLE', 'LINK'].indexOf(node.tagName.toUpperCase()) > -1) {
-      // processed
-    } else {
-      const r = await captureNode(node);
+  for (let i = 0; i < headNodes.length; i++) {
+    const currNode = headNodes[i];
+    if ([].indexOf.call(processedNodes, currNode) == -1) {
+      const r = await captureNode(currNode, params);
       taskCollection.push(...r.tasks);
     }
   }
-
-  const r = await captureNode(selectedNode);
-  taskCollection.push(...r.tasks);
-  selectedNode = r.node;
-
   const headInnerHtml = getNodesHtml(
     doc.querySelectorAll('link[rel*=icon],link[rel~=stylesheet],style'));
 
@@ -216,7 +129,177 @@ async function getElemHtml(params){
   } else {
     elemHtml = dealNormalElem(selectedNode, elem, win);
   }
-  return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection};
+  return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection };
+}
+
+async function captureCustomElements(params) {
+  const {elem, win} = params;
+  const customElementHtmlDict = {};
+  const customElementStyleDict = {};
+  const customElementTasks = [];
+
+  const nodeIterator = win.document.createNodeIterator(
+    elem, win.NodeFilter.SHOW_ELEMENT,
+    {
+      acceptNode: (it) => {
+        if (it.shadowRoot) {
+          return win.NodeFilter.FILTER_ACCEPT;
+        } else {
+          return win.NodeFilter.FILTER_REJECT;
+        }
+      }
+    }
+  );
+
+  let it;
+  while(it = nodeIterator.nextNode()) {
+
+    const box = it.getBoundingClientRect();
+    DOMTool.markHiddenNode(win, it.shadowRoot);
+    const docHtml = `<mx-tmp-root>${it.shadowRoot.innerHTML}</mx-tmp-root>`;
+    DOMTool.clearHiddenMark(it);
+    const {doc, node: rootNode} = DOMTool.parseHTML(win, docHtml);
+    let node = DOMTool.removeNodeByHiddenMark(rootNode);
+    const storageInfo = Object.assign({}, params.storageInfo, {
+      assetRelativePath: T.calcPath(
+        params.storageInfo.frameFileFolder,
+        params.storageInfo.assetFolder
+      )
+    });
+    const r = await captureContainerNode(node, Object.assign({}, params, {storageInfo, doc}));
+
+    const id = T.createId();
+    it.setAttribute('data-mx-custom-element-id', id);
+    customElementHtmlDict[id] = r.node.innerHTML;
+    customElementStyleDict[id] = {width: box.width, height: box.height};
+    customElementTasks.push(...r.taskCollection);
+  }
+  return {customElementHtmlDict, customElementStyleDict, customElementTasks};
+}
+
+
+async function captureContainerNode(containerNode, params) {
+
+  const taskCollection = [];
+  const childNodes = containerNode.querySelectorAll('*');
+  for (let i = 0; i < childNodes.length; i++) {
+    const r = await captureNode(childNodes[i], params);
+    taskCollection.push(...r.tasks);
+  }
+
+  const r = await captureNode(containerNode, params);
+  taskCollection.push(...r.tasks);
+  containerNode = r.node;
+
+  return {node: containerNode, taskCollection: taskCollection};
+}
+
+/**
+ * @return {:node, :tasks}
+ */
+async function captureNode(node, params) {
+  const topFrameId = 0, saveFormat = 'html';
+  const {
+    clipId,
+    frames,
+    storageInfo,
+    elem,
+    baseUrl,
+    docUrl,
+    mimeTypeDict,
+    customElementHtmlDict = {},
+    customElementStyleDict = {},
+    parentFrameId = topFrameId,
+    config,
+    headerParams,
+    needFixStyle,
+    win,
+    doc,
+  } = params;
+
+  let opts = {};
+  let r = {node: node, tasks: []}
+  switch (node.tagName.toUpperCase()) {
+    case 'LINK':
+      opts = {baseUrl, docUrl, storageInfo, clipId,
+        mimeTypeDict, config, headerParams, needFixStyle};
+      r = await CapturerLink.capture(node, opts);
+      break;
+    case 'STYLE':
+      opts = {baseUrl, docUrl, storageInfo, clipId,
+        mimeTypeDict, config, headerParams, needFixStyle};
+      r = await CapturerStyle.capture(node, opts);
+      break;
+    case 'PICTURE':
+      opts = {baseUrl, storageInfo, clipId, mimeTypeDict};
+      r = await CapturerPicture.capture(node, opts);
+      break;
+    case 'IMG':
+      opts = {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict};
+      r = await CapturerImg.capture(node, opts);
+      break;
+    case 'A':
+      opts = {baseUrl, docUrl};
+      r = await CapturerA.capture(node, opts);
+      break;
+    case 'BODY':
+    case 'TABLE':
+    case 'TH':
+    case 'TD':
+      // background attribute (deprecated since HTML5)
+      opts = {baseUrl, storageInfo, config, clipId, mimeTypeDict};
+      r = CaptureTool.captureBackgroundAttr(node, opts);
+      break;
+    case 'AUDIO':
+    case 'VEDIO':
+    case 'EMBED':
+    case 'OBJECT':
+    case 'APPLET':
+    case 'CANVAS':
+      // Don't capture media nodes.
+      node.setAttribute('data-mx-ignore-me', 'true');
+      r.node = node;
+      break;
+    case 'IFRAME':
+    case 'FRAME':
+      opts = {saveFormat, baseUrl, doc, storageInfo,
+        clipId, mimeTypeDict, config, parentFrameId, frames};
+      r = await CapturerIframe.capture(node, opts);
+      break;
+    default:
+      if (node.hasAttribute('data-mx-custom-element-id')) {
+        opts = {saveFormat, clipId, storageInfo, doc, customElementHtmlDict, customElementStyleDict};
+        r = CapturerCustomElement.capture(node, opts);
+      }
+      break;
+  }
+
+  // handle global attributes
+  [].forEach.call(r.node.attributes, async (attr) => {
+    const attrName = attr.name.toLowerCase();
+
+    // remove event listener
+    if (attrName.startsWith('on')) {
+      r.node.removeAttribute(attrName);
+    }
+
+    // inline style
+    if (attrName === 'style') {
+      const {cssText, tasks} = await CapturerCss.captureText(
+        Object.assign({
+          text: attr.value
+        }, {
+          baseUrl, docUrl, storageInfo, clipId,
+          mimeTypeDict, config, headerParams,
+          needFixStyle
+        })
+      );
+      r.node.setAttribute('style', cssText);
+      r.tasks.push(...tasks);
+    }
+
+  })
+  return r;
 }
 
 

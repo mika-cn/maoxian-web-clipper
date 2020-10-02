@@ -36,6 +36,25 @@ MxWcTemplate.framePage = {
   }
 }
 
+MxWcTemplate.customElemPage = {
+  render: function(v){
+    return `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Custom Element Page</title>
+    <style>html,body {padding: 0px; margin: 0px;}</style>
+  </head>
+  <body>
+  ${v.html}
+  </body>
+</html>`;
+  }
+}
+
 MxWcTemplate.elemPage = {
   render: function(v){
   return `
