@@ -74,17 +74,17 @@ function perform(msgType, detail) {
 const Action = {};
 
 function createSetDisplayAction(params) {
-  return function(selectorInput, contextNode) {
+  return function(selectorInput, contextSelectorInput = 'document') {
     return {
       name: params.name,
       isPerformOnce: (params.performOnce || false),
       selectorInput: selectorInput,
-      contextNode: contextNode,
+      contextSelectorInput: contextSelectorInput,
       perform: function(detail={}) {
-        const This = this;
         const selectorStrs = toSelectorStrs(this.selectorInput);
+        const contextElem = getContextElem(this.contextSelectorInput);
         selectorStrs.forEach(function(it) {
-          queryElemsBySelector(it, (This.contextNode || document))
+          queryElemsBySelector(it, contextElem)
             .forEach(function(elem) {
               const style = window.getComputedStyle(elem);
               if(style.display != params.display) {
@@ -118,17 +118,17 @@ Action.hideElemOnce = createSetDisplayAction({
   performOnce: true
 });
 
-Action.undoDisplay = function(selectorInput, contextNode) {
+Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') {
   return {
     name: 'undoDisplay',
     isPerformOnce: false,
     selectorInput: selectorInput,
-    contextNode: contextNode,
+    contextSelectorInput: contextSelectorInput,
     perform: function(detail={}) {
-      const This = this;
       const selectorStrs = toSelectorStrs(this.selectorInput);
+      const contextElem = getContextElem(this.contextSelectorInput);
       selectorStrs.forEach(function(it) {
-        queryElemsBySelector(it, (This.contextNode || document))
+        queryElemsBySelector(it, contextElem)
           .forEach(function(elem) {
             const attrNameOfValue = "data-mx-original-display-value";
             const attrNameOfPriority = "data-mx-original-display-priority";
@@ -175,13 +175,13 @@ function initChAttrActions(params) {
 }
 
 
-Action.chAttr = function(params, contextNode) {
+Action.chAttr = function(params, contextSelectorInput = 'document') {
   const actions = initChAttrActions(params);
   return {
     name: 'chAttr',
     isPerformOnce: false,
     actions: actions,
-    contextNode: contextNode,
+    contextSelectorInput: contextSelectorInput,
     perform: function(detail={}) {
       const This = this;
       this.actions.forEach(function(action) {
@@ -192,8 +192,9 @@ Action.chAttr = function(params, contextNode) {
     changeAttr: function(action) {
       const This = this;
       const selectorStrs = toSelectorStrs(action.pick);
+      const contextElem = getContextElem(this.contextSelectorInput);
       selectorStrs.forEach(function(it) {
-        queryElemsBySelector(it, (This.contextNode || document))
+        queryElemsBySelector(it, contextElem)
           .forEach(function(elem) {
             const value = This.getValue(elem, action);
             if(value) {
@@ -250,19 +251,19 @@ Action.chAttr = function(params, contextNode) {
   }
 }
 
-Action.undoChAttr = function(params, contextNode) {
+Action.undoChAttr = function(params, contextSelectorInput = 'document') {
   const actions = initChAttrActions(params);
   return {
     name: 'undoChAttr',
     isPerformOnce: false,
     actions: actions,
-    contextNode: contextNode,
+    contextSelectorInput: contextSelectorInput,
     perform: function(detail={}) {
-      const This = this;
+      const contextElem = getContextElem(this.contextSelectorInput);
       this.actions.forEach(function(action) {
         const selectorStrs = toSelectorStrs(action.pick);
         selectorStrs.forEach(function(it) {
-          queryElemsBySelector(it, (This.contextNode || document))
+          queryElemsBySelector(it, contextElem)
             .forEach(function(elem) {
               const attrName = ['data-mx-original-attr', action.attr].join('-');
               const originalValue = elem.getAttribute(attrName);
@@ -296,6 +297,8 @@ function createPickedElemAction(params) {
             msg.options = params.options
           }
           MxWcEvent.dispatchInternal(params.eventName, msg);
+        } else {
+          console.warn("[MxAssistant]", "Can't find Elem to pick, selectorInput: ", this.selectorInput);
         }
       }
     }
@@ -347,7 +350,6 @@ Action.completed = function(fn) {
 // query element relative
 //=========================================
 
-
 function toSelectorStrs(selectorInput) {
   if(typeof selectorInput === 'string') {
     return [selectorInput];
@@ -356,13 +358,21 @@ function toSelectorStrs(selectorInput) {
   }
 }
 
-function queryFirstElem(selectorInput, contextNode) {
+function getContextElem(selectorInput) {
+  if (selectorInput === 'document') {
+    return document;
+  } else {
+    return queryFirstElem(selectorInput, document);
+  }
+}
+
+function queryFirstElem(selectorInput, contextElem) {
   const selectorStrs = toSelectorStrs(selectorInput);
   let elem = undefined;
   let selector = undefined;
   for(let i = 0; i < selectorStrs.length; i++) {
     const selectorStr = selectorStrs[i];
-    const elems = queryElemsBySelector(selectorStr, contextNode);
+    const elems = queryElemsBySelector(selectorStr, contextElem);
     const first = elems[0];
     if(first) {
       elem = first;
@@ -373,23 +383,23 @@ function queryFirstElem(selectorInput, contextNode) {
   return [elem, selector];
 }
 
-function queryElemsBySelector(selectorStr, contextNode) {
+function queryElemsBySelector(selectorStr, contextElem) {
   const selector = Selector.parse(selectorStr);
   if(selector) {
     if(selector.type === 'C') {
-      return queryElemsByCss(selector.q, contextNode);
+      return queryElemsByCss(selector.q, contextElem);
     } else {
-      return queryElemsByXpath(selector.q, contextNode);
+      return queryElemsByXpath(selector.q, contextElem);
     }
   } else {
     return [];
   }
 }
 
-function queryElemsByCss(cssSelector, contextNode = document) {
+function queryElemsByCss(cssSelector, contextElem = document) {
   const elems = [];
   try {
-    [].forEach.call(contextNode.querySelectorAll(cssSelector), function(elem) {
+    [].forEach.call(contextElem.querySelectorAll(cssSelector), function(elem) {
       elems.push(elem)
     });
   } catch(e) {
@@ -400,11 +410,11 @@ function queryElemsByCss(cssSelector, contextNode = document) {
   return elems;
 }
 
-function queryElemsByXpath(xpath, contextNode = document) {
+function queryElemsByXpath(xpath, contextElem = document) {
   try {
     const xpathResult = document.evaluate(
       xpath,
-      contextNode,
+      contextElem,
       null,
       XPathResult.ORDERED_NODE_ITERATOR_TYPE,
       null
@@ -475,23 +485,22 @@ function apply(plan) {
   if(isTopWindow()) {
     if(hasSelector(pickElem)) {
       const selectorInput = pickElem;
-      const [pickedElem, selector] = queryFirstElem(selectorInput, document)
-      if(pickedElem) {
-        handleNormalAttr(plan, pickedElem);
-        switch(pickAction) {
-          case 'confirm' : listen('selecting', Action.confirmElem(selectorInput)); break;
-          default:
-            /* 'select' or other */
-            listen('selecting', Action.selectElem(selectorInput));
-            break;
-        }
-      } else {
-        // plan invalid, do nothing
-        console.debug("Can't find Elem to pick");
+      handleNormalAttr(plan, selectorInput);
+      switch(pickAction) {
+        case 'select':
+          listen('selecting', Action.selectElem(selectorInput));
+          break;
+        case 'confirm':
+          listen('selecting', Action.confirmElem(selectorInput));
+          break;
+        case 'clip':
+          break;
+        default: break;
+
       }
     } else {
       // plan invalid, do nothing
-      console.debug("Selector invalid");
+      console.warn("[Mx assistant] 'pick' attribute is required");
     }
   } else {
     applyGlobal(plan);
@@ -504,32 +513,32 @@ function apply(plan) {
  * "pickElem" and "pickAction" attribute will be ignored.
  */
 function applyGlobal(plan) {
-  handleNormalAttr(plan, document);
+  handleNormalAttr(plan, 'document');
 }
 
-function handleNormalAttr(plan, contextNode) {
+function handleNormalAttr(plan, contextSelectorInput) {
   const {hideElem, hideElemOnce, showElem, chAttr} = plan;
   if(hasSelector(hideElem)) {
     const selectorInput = hideElem;
-    listen('selecting', Action.hideElem(selectorInput, contextNode));
-    listen('idle', Action.undoDisplay(selectorInput, contextNode));
+    listen('selecting', Action.hideElem(selectorInput, contextSelectorInput));
+    listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
   }
 
   if(hasSelector(hideElemOnce)) {
     const selectorInput = hideElemOnce;
-    listen('selecting', Action.hideElemOnce(selectorInput, contextNode));
-    listen('idle', Action.undoDisplay(selectorInput, contextNode));
+    listen('selecting', Action.hideElemOnce(selectorInput, contextSelectorInput));
+    listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
   }
 
   if(hasSelector(showElem)) {
     const selectorInput = showElem;
-    listen('selecting', Action.showElem(selectorInput, contextNode));
-    listen('idle', Action.undoDisplay(selectorInput, contextNode));
+    listen('selecting', Action.showElem(selectorInput, contextSelectorInput));
+    listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
   }
 
   if(chAttr) {
-    listen('selecting', Action.chAttr(chAttr, contextNode));
-    listen('idle', Action.undoChAttr(chAttr, contextNode));
+    listen('selecting', Action.chAttr(chAttr, contextSelectorInput));
+    listen('idle', Action.undoChAttr(chAttr, contextSelectorInput));
   }
 }
 
