@@ -231,21 +231,29 @@ const StoreResource = (function() {
       for (let buffer of data) {
         totalLength += buffer.length;
       }
-      const combinedArray = new Uint8Array(totalLength);
-      let writeOffset = 0;
-      while (writeOffset < totalLength) {
-        const buffer = data.shift();
-        combinedArray.set(buffer, writeOffset);
-        writeOffset += buffer.length;
-      }
 
-      Global.evTarget.dispatchEvent({
-        type: "resource.loaded",
-        resourceType: details.type,
-        url: details.url,
-        responseHeaders: [...details.responseHeaders],
-        data: combinedArray,
-      });
+      if (totalLength > 0) {
+        const combinedArray = new Uint8Array(totalLength);
+        let writeOffset = 0;
+        while (writeOffset < totalLength) {
+          const buffer = data.shift();
+          combinedArray.set(buffer, writeOffset);
+          writeOffset += buffer.length;
+        }
+
+        Global.evTarget.dispatchEvent({
+          type: "resource.loaded",
+          resourceType: details.type,
+          url: details.url,
+          responseHeaders: [...details.responseHeaders],
+          data: combinedArray,
+        });
+      } else {
+        // There are some weird cases that
+        // ondata events are not emitted.
+        // I guess it will happen when
+        // the response is cached.
+      }
 
       filter.disconnect();
     }

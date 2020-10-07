@@ -1029,13 +1029,16 @@ T.createResourceCache = function({size = 80}) {
      *          - {Object} Header {:name, :value}
      */
     add(url, details) {
-      this.cache.add(url, details)
+      if (details.data && details.data.length > 0) {
+        this.cache.add(url, details)
+      }
     },
     get(url) {
       const it = this.cache.get(url);
-      if (it) {
+      if (it && it.data && it.data.length > 0) {
         return addCacheDataReaders(it);
       } else {
+        // empty cache or bad cache
         return null;
       }
     },
