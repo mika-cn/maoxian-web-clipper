@@ -67,6 +67,9 @@ function messageHandler(message, sender){
       case 'create-tab':
         ExtApi.createTab(message.body.link).then(resolve);
         break;
+      case 'asset-cache.peek':
+        resolve(Global.assetCache.peek());
+        break;
       default:
         break;
     }

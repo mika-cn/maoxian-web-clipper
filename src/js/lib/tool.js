@@ -1039,6 +1039,19 @@ T.createResourceCache = function({size = 80}) {
         return null;
       }
     },
+    peek() {
+      const result = [];
+      // link, headers, byteSize
+      this.cache.array.forEach((key) => {
+        const value = this.cache.map.get(key);
+        result.push({
+          link: key,
+          headers: value.responseHeaders,
+          byteSize: value.data.length,
+        });
+      });
+      return result;
+    }
   }
 }
 
