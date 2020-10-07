@@ -1,12 +1,12 @@
 "use strict";
 
-import Log from './lib/log.js';
-import T from './lib/tool.js';
-import ExtMsg from './lib/ext-msg.js';
-import MxWcEvent from './lib/event.js';
-import Config from './lib/config.js';
+import Log       from  './lib/log.js';
+import T         from  './lib/tool.js';
+import ExtMsg    from  './lib/ext-msg.js';
+import MxWcEvent from  './lib/event.js';
+import Config    from  './lib/config.js';
 
-import MxHtmlClipper from './clipping/clip-as-html.js';
+import MxHtmlClipper     from './clipping/clip-as-html.js';
 import MxMarkdownClipper from './clipping/clip-as-markdown.js';
 
 import MxWcAssistantMain from './assistant/main.js';

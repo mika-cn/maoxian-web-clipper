@@ -20,8 +20,8 @@
 // 4. handle <code>?
 //
 
-import Log from './log.js';
-import T from './tool.js';
+import Log     from './log.js';
+import T       from './tool.js';
 import DOMTool from './dom-tool.js';
 import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
 

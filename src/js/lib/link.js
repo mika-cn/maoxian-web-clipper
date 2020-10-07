@@ -1,6 +1,6 @@
 "use strict";
 
-import ENV from '../env.js';
+import ENV    from '../env.js';
 import ExtApi from './ext-api.js';
 import ExtMsg from './ext-msg.js';
 

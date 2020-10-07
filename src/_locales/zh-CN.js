@@ -66,6 +66,7 @@
     "popup.menu.setting": "设置",
     "popup.menu.home": "主页",
     "popup.menu.last-result": "查看结果",
+    "popup.menu.debug": "调试",
 
     //=====================================
     // welcome page

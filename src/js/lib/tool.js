@@ -1029,16 +1029,32 @@ T.createResourceCache = function({size = 80}) {
      *          - {Object} Header {:name, :value}
      */
     add(url, details) {
-      this.cache.add(url, details)
+      if (details.data && details.data.length > 0) {
+        this.cache.add(url, details)
+      }
     },
     get(url) {
       const it = this.cache.get(url);
-      if (it) {
+      if (it && it.data && it.data.length > 0) {
         return addCacheDataReaders(it);
       } else {
+        // empty cache or bad cache
         return null;
       }
     },
+    peek() {
+      const result = [];
+      // link, headers, byteSize
+      this.cache.array.forEach((key) => {
+        const value = this.cache.map.get(key);
+        result.push({
+          link: key,
+          headers: value.responseHeaders,
+          byteSize: value.data.length,
+        });
+      });
+      return result;
+    }
   }
 }
 

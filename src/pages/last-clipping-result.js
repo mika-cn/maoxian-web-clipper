@@ -1,10 +1,10 @@
 "use strict";
 
-import I18N from '../js/lib/translation.js';
-import T from '../js/lib/tool.js';
-import ExtApi from '../js/lib/ext-api';
+import I18N        from '../js/lib/translation.js';
+import T           from '../js/lib/tool.js';
+import ExtApi      from '../js/lib/ext-api';
 import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig from '../js/lib/config.js';
+import MxWcConfig  from '../js/lib/config.js';
 
 import './_base.css';
 import './last-clipping-result.css';

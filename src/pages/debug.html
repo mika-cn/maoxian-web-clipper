@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debugging</title>
+  </head>
+  <body>
+
+    <div class="main">
+      <section class="asset-cache">
+        <h2>Asset Cache</h2>
+        <div >There are <strong class="num"></strong> records</div>
+        <div class="content"></div>
+      </section>
+    </div>
+
+    <template id="asset-cache-tpl">
+      <div>
+        <div>${link}</div>
+        <div>
+          <details>
+            <summary title="click me to show response headers"> Response Headers </summary>
+            <div>${headersHtml}</div>
+          </details>
+        </div>
+        <div>Size: ${byteSize} Bytes</div>
+      </div>
+    </template>
+
+  </body>
+</html>

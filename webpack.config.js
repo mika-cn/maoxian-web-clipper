@@ -29,7 +29,7 @@ const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipp
 const pages = [
   'popup', 'welcome', 'history', 'home', 'last-clipping-result',
   'plan-subscription', 'reset-history', 'setting', 'support',
-  'ui-control', 'ui-selection']
+  'ui-control', 'ui-selection', 'debug']
 
 const pageEntires = pages.reduce((entries, pageName) => {
   entries[pageName] = path.join(pages_folder, pageName + ".js")

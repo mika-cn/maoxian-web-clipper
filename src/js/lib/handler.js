@@ -1,9 +1,9 @@
 "use strict";
 
-import T from './tool.js';
-import ExtMsg from './ext-msg.js';
+import T          from './tool.js';
+import ExtMsg     from './ext-msg.js';
 import MxWcConfig from './config.js';
-import I18N from './translation.js';
+import I18N       from './translation.js';
 
 /*
  * @param {string} exp: expression

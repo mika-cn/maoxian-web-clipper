@@ -65,6 +65,7 @@
     "popup.menu.setting": "Setting",
     "popup.menu.home": "Home",
     "popup.menu.last-result": "Show result",
+    "popup.menu.debug": "Debug",
 
     //=====================================
     // welcome page

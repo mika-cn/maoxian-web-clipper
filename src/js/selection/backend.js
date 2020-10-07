@@ -1,8 +1,8 @@
 "use strict";
 
-import Log from '../lib/log.js';
-import ExtMsg from '../lib/ext-msg.js';
-import MxWcStorage from '../lib/storage.js';
+import Log            from '../lib/log.js';
+import ExtMsg         from '../lib/ext-msg.js';
+import MxWcStorage    from '../lib/storage.js';
 import SelectionStore from './store.js';
 
 

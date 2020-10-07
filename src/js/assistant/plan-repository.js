@@ -1,11 +1,11 @@
 "use strict";
 
 import FuzzyMatcher from './fuzzy-matcher.js';
-import ENV from '../env.js';
-import Log from '../lib/log.js';
-import T from '../lib/tool.js';
-import Config from '../lib/config.js';
-import Storage from '../lib/storage.js';
+import ENV          from '../env.js';
+import Log          from '../lib/log.js';
+import T            from '../lib/tool.js';
+import Config       from '../lib/config.js';
+import Storage      from '../lib/storage.js';
 
 /**!
  * Storage keys:

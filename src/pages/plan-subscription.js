@@ -1,8 +1,8 @@
 "use strict";
 
-import ENV from '../js/env.js';
-import T from '../js/lib/tool.js';
-import I18N from '../js/lib/translation.js';
+import ENV     from '../js/env.js';
+import T       from '../js/lib/tool.js';
+import I18N    from '../js/lib/translation.js';
 import Storage from '../js/lib/storage.js';
 
 import './_base.css';

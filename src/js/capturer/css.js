@@ -1,12 +1,12 @@
 "use strict";
 
 import stripCssComments from 'strip-css-comments';
-import Log from '../lib/log.js';
-import T from '../lib/tool.js';
-import Asset from '../lib/asset.js';
-import Task from '../lib/task.js';
-import ExtMsg from '../lib/ext-msg.js';
-import CaptureTool from './tool.js';
+import Log              from '../lib/log.js';
+import T                from '../lib/tool.js';
+import Asset            from '../lib/asset.js';
+import Task             from '../lib/task.js';
+import ExtMsg           from '../lib/ext-msg.js';
+import CaptureTool      from './tool.js';
 
 /**
  * Capture CSS link

@@ -1,11 +1,11 @@
 "use strict";
 
-import ENV from '../js/env.js';
-import Log from '../js/lib/log.js';
-import T from '../js/lib/tool.js';
-import ExtApi from '../js/lib/ext-api.js';
+import ENV        from '../js/env.js';
+import Log        from '../js/lib/log.js';
+import T          from '../js/lib/tool.js';
+import ExtApi     from '../js/lib/ext-api.js';
 import MxWcConfig from '../js/lib/config.js';
-import MxWcLink from '../js/lib/link.js';
+import MxWcLink   from '../js/lib/link.js';
 
 import './_base.css';
 import './support.css';

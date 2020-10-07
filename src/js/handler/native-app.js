@@ -1,11 +1,11 @@
 "use strict";
 
-import ENV from '../env.js';
-import T from '../lib/tool.js';
-import Log from '../lib/log.js';
-import I18N from '../lib/translation.js';
+import ENV         from '../env.js';
+import T           from '../lib/tool.js';
+import Log         from '../lib/log.js';
+import I18N        from '../lib/translation.js';
 import MxWcStorage from '../lib/storage.js';
-import SavingTool from '../saving/saving-tool.js';
+import SavingTool  from '../saving/saving-tool.js';
 
 const APP_NAME = 'maoxian_web_clipper_native';
 const state = {port: null, version: null};

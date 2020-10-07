@@ -1,8 +1,8 @@
 "use strict";
 
-import T from '../lib/tool.js';
-import Asset from '../lib/asset.js';
-import Task from '../lib/task.js';
+import T           from '../lib/tool.js';
+import Asset       from '../lib/asset.js';
+import Task        from '../lib/task.js';
 import CapturerCss from './css.js';
 
 /*!

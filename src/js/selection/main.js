@@ -1,10 +1,10 @@
 "use strict";
 
-import Log from '../lib/log.js';
-import ExtMsg from '../lib/ext-msg.js';
+import Log       from '../lib/log.js';
+import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 
-import getCssSelector from 'css-selector-generator/src/index.js';
+import getCssSelector         from 'css-selector-generator/src/index.js';
 import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
 
 const state = {appliedSelection: null};

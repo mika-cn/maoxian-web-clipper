@@ -1,6 +1,6 @@
 "use strict";
 
-import T from './tool.js';
+import T   from './tool.js';
 import md5 from 'blueimp-md5';
 
 // link http:, https: or data:

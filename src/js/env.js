@@ -11,6 +11,7 @@ const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
 const mxAssistantRoot = [websiteRoot, isProd ? 'assistant' : 'tmp/assistant'].join('/');
 
 const env = {
+  isDev: !isProd,
   logLevel: isProd ? "warn" : "debug",
   version: pkg.version,
   minNativeAppVersion: '0.2.2',

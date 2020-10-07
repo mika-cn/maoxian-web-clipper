@@ -1,13 +1,14 @@
 "use strict";
 
-import T from '../js/lib/tool.js';
-import MxWcIcon from '../js/lib/icon.js';
-import I18N from '../js/lib/translation.js';
-import ExtApi from '../js/lib/ext-api.js';
-import ExtMsg from '../js/lib/ext-msg.js';
+import ENV         from '../js/env.js';
+import T           from '../js/lib/tool.js';
+import MxWcIcon    from '../js/lib/icon.js';
+import I18N        from '../js/lib/translation.js';
+import ExtApi      from '../js/lib/ext-api.js';
+import ExtMsg      from '../js/lib/ext-msg.js';
 import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig from '../js/lib/config.js'
-import MxWcLink from '../js/lib/link.js';
+import MxWcConfig  from '../js/lib/config.js'
+import MxWcLink    from '../js/lib/link.js';
 
 import './popup.css';
 
@@ -20,6 +21,7 @@ function menuClick(e){
     case 'history': jumpToPage('extPage.history'); break;
     case 'setting': jumpToPage('extPage.setting'); break;
     case 'home'   : jumpToPage('extPage.home'); break;
+    case 'debug'  : jumpToPage('extPage.debug'); break;
     case 'last-result':viewLastResult(); break;
     default: break;
   }
@@ -95,6 +97,10 @@ async function renderMenus(){
   }
   menuIds.push('home');
 
+  if (ENV.isDev) {
+    menuIds.push('debug');
+  }
+
   const config = await MxWcConfig.load();
   const allowFileSchemeAccess = await ExtApi.isAllowedFileSchemeAccess();
   const lastClippingResult = await MxWcStorage.get('lastClippingResult');
@@ -125,6 +131,7 @@ async function renderMenus(){
     "history"     : 'history',
     "setting"     : 'setting',
     "home"        : 'home',
+    "debug"       : "history",
   }
 
   let html = "";

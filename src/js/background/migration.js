@@ -1,9 +1,9 @@
 "use strict";
 
-import ENV from '../env.js';
-import T from '../lib/tool.js';
+import ENV         from '../env.js';
+import T           from '../lib/tool.js';
 import MxWcStorage from '../lib/storage.js';
-import MxWcConfig from '../lib/config.js';
+import MxWcConfig  from '../lib/config.js';
 
 function perform() {
   migrateV0134();

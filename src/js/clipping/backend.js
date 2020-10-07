@@ -1,6 +1,6 @@
 
-import ExtApi from '../lib/ext-api.js';
-import ExtMsg from '../lib/ext-msg.js';
+import ExtApi      from '../lib/ext-api.js';
+import ExtMsg      from '../lib/ext-msg.js';
 import ActionCache from '../lib/action-cache.js';
 
 
