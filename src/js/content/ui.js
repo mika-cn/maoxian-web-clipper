@@ -1,12 +1,12 @@
 "use strict";
 
-import Log from '../lib/log.js';
-import T from '../lib/tool.js';
-import ExtApi from '../lib/ext-api.js';
-import FrameMsg from '../lib/frame-msg.js';
-import MxWcEvent from '../lib/event.js';
-import MxWcHandler from '../lib/handler.js';
-import Notify from '../lib/notify.js';
+import Log               from '../lib/log.js';
+import T                 from '../lib/tool.js';
+import ExtApi            from '../lib/ext-api.js';
+import FrameMsg          from '../lib/frame-msg.js';
+import MxWcEvent         from '../lib/event.js';
+import MxWcHandler       from '../lib/handler.js';
+import Notify            from '../lib/notify.js';
 import MxWcSelectionMain from '../selection/main.js';
 
 const state = {

@@ -1,6 +1,6 @@
 "use strict";
 
-import Log from '../js/lib/log.js';
+import Log      from '../js/lib/log.js';
 import FrameMsg from '../js/lib/frame-msg.js';
 
 const ID = 'mx-wc-iframe-selection';

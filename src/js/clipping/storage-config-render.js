@@ -1,6 +1,6 @@
 
-import T from '../lib/tool.js';
-import Config from '../lib/config.js';
+import T              from '../lib/tool.js';
+import Config         from '../lib/config.js';
 import VariableRender from '../lib/variable-render.js'
 
 /*

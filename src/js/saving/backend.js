@@ -1,9 +1,9 @@
 
-import Log from '../lib/log.js';
-import ExtMsg from '../lib/ext-msg.js';
-import MxWcConfig from '../lib/config.js';
+import Log         from '../lib/log.js';
+import ExtMsg      from '../lib/ext-msg.js';
+import MxWcConfig  from '../lib/config.js';
 import MxWcStorage from '../lib/storage.js';
-import MxWcIcon from '../lib/icon.js';
+import MxWcIcon    from '../lib/icon.js';
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){

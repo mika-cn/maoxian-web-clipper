@@ -1,7 +1,7 @@
 
-import Log from '../lib/log.js';
-import T from '../lib/tool.js';
-import ExtMsg from '../lib/ext-msg.js';
+import Log            from '../lib/log.js';
+import T              from '../lib/tool.js';
+import ExtMsg         from '../lib/ext-msg.js';
 import PlanRepository from './plan-repository.js';
 
 const asyncFunQueue = T.createAsyncFnQueue();

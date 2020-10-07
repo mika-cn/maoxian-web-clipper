@@ -1,15 +1,15 @@
 "use strict";
 
-import Log from '../js/lib/log.js';
-import T from '../js/lib/tool.js';
-import I18N from '../js/lib/translation.js';
-import ExtMsg from '../js/lib/ext-msg.js';
-import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig from '../js/lib/config.js';
-import MxWcLink from '../js/lib/link.js';
+import Log          from '../js/lib/log.js';
+import T            from '../js/lib/tool.js';
+import I18N         from '../js/lib/translation.js';
+import ExtMsg       from '../js/lib/ext-msg.js';
+import MxWcStorage  from '../js/lib/storage.js';
+import MxWcConfig   from '../js/lib/config.js';
+import MxWcLink     from '../js/lib/link.js';
 import MxWcTemplate from '../js/lib/template.js';
-import Notify from '../js/lib/notify.js';
-import MxWcHandler from '../js/lib/handler.js';
+import Notify       from '../js/lib/notify.js';
+import MxWcHandler  from '../js/lib/handler.js';
 
 import './_base.css';
 import './setting.css';

@@ -1,16 +1,16 @@
 "use strict";
 
-import T from '../js/lib/tool.js';
-import Log from '../js/lib/log.js';
-import I18N from '../js/lib/translation.js';
-import ExtApi from '../js/lib/ext-api.js';
-import ExtMsg from '../js/lib/ext-msg.js';
-import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig from '../js/lib/config.js';
-import MxWcLink from '../js/lib/link.js';
-import Query from '../js/lib/query.js';
-import Notify from '../js/lib/notify.js';
-import MxWcHandler from '../js/lib/handler.js';
+import T              from '../js/lib/tool.js';
+import Log            from '../js/lib/log.js';
+import I18N           from '../js/lib/translation.js';
+import ExtApi         from '../js/lib/ext-api.js';
+import ExtMsg         from '../js/lib/ext-msg.js';
+import MxWcStorage    from '../js/lib/storage.js';
+import MxWcConfig     from '../js/lib/config.js';
+import MxWcLink       from '../js/lib/link.js';
+import Query          from '../js/lib/query.js';
+import Notify         from '../js/lib/notify.js';
+import MxWcHandler    from '../js/lib/handler.js';
 import getPikadayI18n from '../_locales/pikaday.i18n.js';
 
 import './history.css';

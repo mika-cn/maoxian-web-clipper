@@ -1,13 +1,13 @@
 "use strict";
 
-import I18N from '../js/lib/translation.js';
-import Log from '../js/lib/log.js';
-import T from '../js/lib/tool.js';
+import I18N         from '../js/lib/translation.js';
+import Log          from '../js/lib/log.js';
+import T            from '../js/lib/tool.js';
 import MxWcTemplate from '../js/lib/template.js';
-import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig from '../js/lib/config.js';
-import FrameMsg from '../js/lib/frame-msg.js';
-import Awesomplete from 'awesomplete';
+import MxWcStorage  from '../js/lib/storage.js';
+import MxWcConfig   from '../js/lib/config.js';
+import FrameMsg     from '../js/lib/frame-msg.js';
+import Awesomplete  from 'awesomplete';
 import 'awesomplete/awesomplete.css';
 
 import './ui-control.css';

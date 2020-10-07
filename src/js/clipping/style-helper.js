@@ -1,7 +1,7 @@
 "use strict";
 
 import Log from '../lib/log.js';
-import T from '../lib/tool.js';
+import T   from '../lib/tool.js';
 
 function getRenderParams(elem, win){
   const {

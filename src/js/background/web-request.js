@@ -1,7 +1,7 @@
 "use strict";
 
-import Log from '../lib/log.js';
-import T from '../lib/tool.js';
+import Log    from '../lib/log.js';
+import T      from '../lib/tool.js';
 import ExtMsg from '../lib/ext-msg.js';
 
 //const browser = require('webextension-polyfill');

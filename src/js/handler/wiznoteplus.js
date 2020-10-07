@@ -1,8 +1,8 @@
 "use strict";
 
-import Log from '../lib/log.js';
-import MxWcStorage from '../lib/storage.js';
-import SavingTool from '../saving/saving-tool.js';
+import Log             from '../lib/log.js';
+import MxWcStorage     from '../lib/storage.js';
+import SavingTool      from '../saving/saving-tool.js';
 import { QWebChannel } from '../lib/qwebchannel.js';
 
 const state = {

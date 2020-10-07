@@ -1,15 +1,15 @@
 "use strict";
 
-import T from '../lib/tool.js';
-import Log from '../lib/log.js';
+import T      from '../lib/tool.js';
+import Log    from '../lib/log.js';
 import ExtMsg from '../lib/ext-msg.js';
-import Task from '../lib/task.js';
+import Task   from '../lib/task.js';
 
-import StorageConfig_Default from './storage-config-default.js';
+import StorageConfig_Default     from './storage-config-default.js';
 import StorageConfig_WizNotePlus from './storage-config-wiznoteplus.js';
-import StorageConfigRender from './storage-config-render.js';
+import StorageConfigRender       from './storage-config-render.js';
 
-import MxHtmlClipper from './clip-as-html.js';
+import MxHtmlClipper     from './clip-as-html.js';
 import MxMarkdownClipper from './clip-as-markdown.js';
 
 /**

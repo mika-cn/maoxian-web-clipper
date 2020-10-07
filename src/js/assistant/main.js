@@ -1,9 +1,9 @@
 "use strict";
 
-import Log from '../lib/log.js';
-import ExtMsg from '../lib/ext-msg.js';
+import Log       from '../lib/log.js';
+import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
-import Plan from './plan.js';
+import Plan      from './plan.js';
 
 const config = {
   hideElem: true,

@@ -1,10 +1,10 @@
 "use strict";
 
-import T from '../lib/tool.js';
-import Log from '../lib/log.js';
-import ExtApi from '../lib/ext-api.js';
+import T           from '../lib/tool.js';
+import Log         from '../lib/log.js';
+import ExtApi      from '../lib/ext-api.js';
 import MxWcStorage from '../lib/storage.js';
-import SavingTool from '../saving/saving-tool.js';
+import SavingTool  from '../saving/saving-tool.js';
 
 const state = {
   isListening: false,

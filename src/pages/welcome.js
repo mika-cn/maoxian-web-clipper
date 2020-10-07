@@ -1,9 +1,9 @@
 "use strict";
 
-import ENV from '../js/env.js';
-import T from '../js/lib/tool.js';
-import I18N from '../js/lib/translation.js';
-import ExtApi from '../js/lib/ext-api.js';
+import ENV      from '../js/env.js';
+import T        from '../js/lib/tool.js';
+import I18N     from '../js/lib/translation.js';
+import ExtApi   from '../js/lib/ext-api.js';
 import MxWcLink from '../js/lib/link.js';
 
 import './_base.css';

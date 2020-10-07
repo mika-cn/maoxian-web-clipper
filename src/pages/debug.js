@@ -13,17 +13,11 @@ function renderAssetCache() {
   ExtMsg.sendToBackground({
     type: 'asset-cache.peek'
   }).then((items) => {
-    console.log(items);
     const tpl = T.findElem('asset-cache-tpl').innerHTML;
-    console.log(tpl);
     const html = items.map((it) => {
-      console.log(it);
       const headersHtml = it.headers.map((header) => {
         return `<strong>${header.name}:</strong> <span>${header.value}</span>`;
       }).join("<br />");
-
-      console.log(it);
-      console.log(headersHtml);
 
       return T.renderTemplate(tpl, {
         link: it.link,

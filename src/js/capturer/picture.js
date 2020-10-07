@@ -1,6 +1,6 @@
 "use strict";
 
-import T from '../lib/tool.js';
+import T           from '../lib/tool.js';
 import CaptureTool from './tool.js';
 
 /*!
