@@ -7,58 +7,59 @@
   </head>
   <body>
     <div class="main">
-      <div class="links"></div>
+      <ul class="links nav justify-content-end bg-primary">
+        <h3>Clipping Hisotry</h3>
+        <button id="export-history" i18n="history.btn.export-history" class="btn btn-outline-light btn-sm mr-2"></button>
+        <button id="clear-history" i18n="history.btn.clear-history" class="btn btn-secondary btn-sm mr-2"></button>
+      </ul>
+        
       <div class="clearfix"></div>
 
       <div class="search-box advanced-search-mode">
-        <form>
-          <input id="created-at-from" type="text" i18n-attr="placeholder:history.placeholder.created-at-from"/>
-          <input id="created-at-to" type="text" i18n-attr="placeholder:history.placeholder.created-at-to"/>
-          <input id="category" type="text" i18n-attr="placeholder:history.placeholder.category"/>
-          <input id="tag" type="text" i18n-attr="placeholder:history.placeholder.tag"/>
-          <button type="reset" i18n="history.btn.reset"></button>
+        <form class="form-inline">
+          <input id="created-at-from" type="text" i18n-attr="placeholder:history.placeholder.created-at-from" class="form-control form-control-sm mr-2"/>
+          <input id="created-at-to" type="text" i18n-attr="placeholder:history.placeholder.created-at-to" class="form-control form-control-sm mr-2"/>
+          <input id="category" type="text" i18n-attr="placeholder:history.placeholder.category" class="form-control form-control-sm mr-2"/>
+          <input id="tag" type="text" i18n-attr="placeholder:history.placeholder.tag" class="form-control form-control-sm mr-2"/>
+          <button type="reset" i18n="history.btn.reset" class="btn btn-secondary btn-sm"></button>
         </form>
       </div>
 
-      <div class="search-box">
-        <form>
-          <input id="search" type="text" i18n-attr="placeholder:history.placeholder.search"/>
-          <button id="search-btn" i18n="history.btn.search"></button>
-          <button type="reset" i18n="history.btn.reset"></button>
-        </form>
-      </div>
-
-      <div class="actions">
-        <button id="export-history" i18n="history.btn.export-history"></button>
-        <button id="clear-history" i18n="history.btn.clear-history"></button>
-      </div>
       <div class="clearfix"></div>
 
-      <br />
+      <div class="search-box">
+        <form class="form-inline">
+          <input id="search" type="text" i18n-attr="placeholder:history.placeholder.search" class="form-control mr-2"/>
+          <button id="search-btn" i18n="history.btn.search" class="btn btn-primary mr-2"></button>
+          <button type="reset" i18n="history.btn.reset" class="btn btn-secondary"></button>
+        </form>
+      </div>
+
       <div class="actions">
         <input id="advanced-search-mode" type="checkbox" />
         <label for="advanced-search-mode" i18n="history.label.advanced-search-mode"></label>
         <input id="confirm-mode" type="checkbox" />
         <label for="confirm-mode" i18n="history.label.confirm-mode"></label>
       </div>
+
       <div class="clearfix"></div>
 
       <div class="notices">
-        <div class="notice-warning" i18n="history.notice.delete"></div>
+        <div class="alert alert-warning" i18n="history.notice.delete"></div>
       </div>
 
 
       <div class="history">
         <div class="no-record" style="display: none" i18n="history.no-record"></div>
         <div class="list" style="display: none;">
-          <table class="clippings">
-            <thead>
+          <table class="clippings table table-hover">
+            <thead class="">
               <tr>
-                <th width="4%" i18n="history.th.time"></th>
-                <th width="8%" i18n="history.th.category"></th>
-                <th width="8%" i18n="history.th.tag"></th>
-                <th widtn="68%" i18n="history.th.title"></th>
-                <th width="8%"> - </th>
+                <th width="100px" i18n="history.th.time"></th>
+                <th width="160px" i18n="history.th.category"></th>
+                <th i18n="history.th.title"></th>
+                <th width="160px" i18n="history.th.tag"></th>
+                <th width="100px"> - </th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -79,25 +80,25 @@
       <tr data-id="${clipId}">
         <td>${time}</td>
         <td>${category}</td>
-        <td>${tags}</td>
         <td class="${format}">
           <span class="format"></span>
           ${title}
         </td>
+        <td>${tags}</td>
         <td class="operation">
-          <a href="history.delete:${clipId}" i18n="history.op.delete"></a>
+          <a href="history.delete:${clipId}" i18n="history.op.delete" class="btn btn-outline-danger btn-sm" role="button"></a>
         </td>
       </tr>
     </template>
 
     <template id="modal-content-tpl">
-      <table>
+      <table class="table table-bordered">
         <tbody>
           <tr><th i18n="history.th.title"></th><td>${title}</td></tr>
           <tr><th i18n='history.th.path'></th><td>${clipPath}</td></tr>
         </tbody>
       </table>
-      <table>
+      <table class="table table-bordered">
         <tbody>
           <tr>
             <th i18n="history.th.time"></th><td>${createdAt}</td>

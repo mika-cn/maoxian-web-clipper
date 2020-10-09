@@ -13,6 +13,7 @@ import Notify         from '../js/lib/notify.js';
 import MxWcHandler    from '../js/lib/handler.js';
 import getPikadayI18n from '../_locales/pikaday.i18n.js';
 
+import './_base.css';
 import './history.css';
 
 import Awesomplete from 'awesomplete';
@@ -495,6 +496,7 @@ function initLinks(){
     const a = document.createElement("a");
     a.href = MxWcLink.get(link.pageName);
     a.target = '_blank';
+    a.className = 'btn btn-secondary btn-sm';
     a.innerText = link.name;
     elem.appendChild(a);
   })

@@ -8,26 +8,30 @@
   <body>
 
     <div class="main">
-      <h1 class="green">MaoXian Web Clipper</h1>
-      <div>
-        <label i18n="home.label.version"></label>:
-        <label class="version"></label>
-      </div>
-      <div class="nav" id="extension-pages">
-        <h2 i18n="home.nav.extension-pages"></h2>
+      <h1 class="text-success my-4">MaoXian Web Clipper</h1>
+      <p class="text-primary">
+        <span i18n="home.label.version"></span>
+        <span class="version"></span>
+      </p>
+
+      <div class="naviagtor" id="extension-pages">
+        <h3 class="mb-3" i18n="home.nav.extension-pages"></h3>
         <div class="links"></div>
       </div>
-      <div class="nav" id="remote-pages">
-        <h2 i18n="home.nav.remote-pages"></h2>
+
+      <div class="naviagtor" id="remote-pages">
+        <!-- <h3 class="mb-3" i18n="home.nav.remote-pages"></h3> -->
         <div class="links"></div>
       </div>
     </div>
 
     <template id="link-tpl">
-      <div class="link">
-        <a target="_blank" href="${href}" i18n="${linkI18n}"></a>
-        <br />
-        <label i18n="${descI18n}"></label>
+      <div class="link card mb-3">
+        <div class="card-body">
+          <h5 class="card-title" i18n="${linkI18n}"></h5>
+          <p class="card-text"  i18n="${descI18n}"></p>
+          <a href="${href}" class="card-link stretched-link" target="_blank" i18n="access"></a>
+        </div>
       </div>
     </template>
 

@@ -61,7 +61,7 @@ function renderLinks(selector, links) {
 function init(){
   renderVersion();
   renderExtensionLinks();
-  renderRemoteLinks();
+  // renderRemoteLinks();
   I18N.i18nPage();
 }
 

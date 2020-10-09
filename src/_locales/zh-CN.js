@@ -71,14 +71,14 @@
     //=====================================
     // welcome page
     //=====================================
-    "welcome.installation-hint": "MaoXian Web Clipper $version 已经安装成功",
-    "welcome.sayhi": "欢迎!",
+    "welcome.installation-hint": "MaoXian Web Clipper $version 已经成功安装",
+    "welcome.sayhi": "欢迎！",
     "welcome.extra-intro": "在你开始裁剪之前，请把下面这两个额外步骤走完，以便拥有最佳体验",
-    "welcome.extra-1-chrome": "1. 关闭谷歌的 ‘每次下载都询问保存位置’ 这个选项<br />这个可以通过取消复选框 <strong><a href='' link='chrome://settings/downloads' class='tab-link'>chrome://settings</a></strong> &gt; <i>下载</i> &gt; <i>每次下载都询问保存位置</i>",
-    "welcome.extra-1-firefox": "1. 关闭火狐的 ‘每次下载都询问保存位置’ 这个选项<br /> 从浏览器地址栏输入 <strong>about:preferences</strong> &gt; 回车 &gt; <i>下载</i> &gt; <i>取消选中「每次下载都询问保存位置」</i>",
-    "welcome.extra-2-chrome": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 勾选复选框<i>「允许扩展访问本地文件」</i> 通过 <strong>$extensionLink</strong>.",
-    "welcome.extra-2-firefox": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 详见 <strong><a href='go.page:faq-allow-access-file-urls' target='_blank'>允许访问本地网址</a></strong>",
-    "welcome.notice": "<strong class='green'>注意:</strong> 如果你要裁剪的页面是在安装本扩展之前打开的，请先刷新那个页面",
+    "welcome.extra-1-chrome": "1. 关闭谷歌的 ‘每次下载都询问保存位置’ 这个选项<br />这个可以通过取消复选框 <a href='' link='chrome://settings/downloads' class='tab-link'>chrome://settings</a>< &gt; <i>下载</i> &gt; <i>每次下载都询问保存位置</i>",
+    "welcome.extra-1-firefox": "1. 关闭火狐的 ‘每次下载都询问保存位置’ 这个选项<br /> 从浏览器地址栏输入 about:preferences< &gt; 回车 &gt; <i>下载</i> &gt; <i>取消选中「每次下载都询问保存位置」</i>",
+    "welcome.extra-2-chrome": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 勾选复选框<i>「允许扩展访问本地文件」</i> 通过 $extensionLink<.",
+    "welcome.extra-2-firefox": "2. 允许 MaoXian 访问本地网址来获得更好的预览体验, 详见 <a href='go.page:faq-allow-access-file-urls' target='_blank'>允许访问本地网址</a><",
+    "welcome.notice": "<strong class='green'>注意：</strong> 如果你要裁剪的页面是在安装本扩展之前打开的，请先刷新那个页面",
     "welcome.last-hint": "如果你还有其他的问题，请访问我们的 <a href='go.page:faq' target='_blank'>FAQ</a> 页面</p>",
 
     //=====================================
@@ -158,18 +158,18 @@
     "setting.variable.clipping-path": '$CLIPPING-PATH 等同于： <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code> / <code> 裁剪目录</code>',
 
 
-    "setting.variable.none": "<pre>$NONE => 表示空值（即无目录）</pre>",
+    "setting.variable.none": "<pre>$NONE   => 表示空值 （即无目录）</pre>",
     "setting.variable.title": "<pre>$TITLE  => 网页标题 </pre>",
     "setting.variable.domain": "<pre>$DOMAIN => 当前网站的域名 （例： blog.example.org） </pre>",
     "setting.variable.format": "<pre>$FORMAT => 'html' 或者 'md' （取决于保存格式） </pre>",
 
-    "setting.variable.year"                : "<pre>$YYYY => 年 （4 位数字, 例： 2018）</pre>",
-    "setting.variable.short-year"          : "<pre>$YY   => 年 （2 位数字, 例： 18）</pre>",
-    "setting.variable.month"               : "<pre>$MM   => 月 （2 位数字, 01 ~ 12）</pre>",
-    "setting.variable.day"                 : "<pre>$DD   => 日 （2 位数字, 01 ~ 31）</pre>",
-    "setting.variable.hour"                : "<pre>$HH   => 时 （2 位数字, 00 ~ 23）</pre>",
-    "setting.variable.minute"              : "<pre>$mm   => 分 （2 位数字, 00 ~ 59）</pre>",
-    "setting.variable.second"              : "<pre>$SS   => 秒 （2 位数字, 00 ~ 59）</pre>",
+    "setting.variable.year"                : "<pre>$YYYY   => 年 （4 位数字, 例： 2018）</pre>",
+    "setting.variable.short-year"          : "<pre>$YY     => 年 （2 位数字, 例： 18）</pre>",
+    "setting.variable.month"               : "<pre>$MM     => 月 （2 位数字, 01 ~ 12）</pre>",
+    "setting.variable.day"                 : "<pre>$DD     => 日 （2 位数字, 01 ~ 31）</pre>",
+    "setting.variable.hour"                : "<pre>$HH     => 时 （2 位数字, 00 ~ 23）</pre>",
+    "setting.variable.minute"              : "<pre>$mm     => 分 （2 位数字, 00 ~ 59）</pre>",
+    "setting.variable.second"              : "<pre>$SS     => 秒 （2 位数字, 00 ~ 59）</pre>",
     "setting.variable.time-integer-second" : "<pre>$TIME-INTSEC => 以秒表示的裁剪时间（例：1578712781）.</pre>",
 
 
@@ -187,12 +187,12 @@
 
     "handler.native-app.name": "本地程序",
     "handler.native-app.intro": "这是一个很小的本地程序，我们开发这个程序来增强 Maoxian 的能力。",
-    "handler.native-app.feature.a": "保存裁剪结果 （用于绕过浏览器的下载功能，从而避免与下载管理扩展发生冲突）, 其存储位置也为本地硬盘",
-    "handler.native-app.feature.b": "删除裁剪信息 （让我们可以删除裁剪历史的同时，删除其对应的文件）",
-    "handler.native-app.feature.c": "刷新裁剪历史 （当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。）",
+    "handler.native-app.feature.a": "保存裁剪结果（用于绕过浏览器的下载功能，从而避免与下载管理扩展发生冲突）, 其存储位置也为本地硬盘",
+    "handler.native-app.feature.b": "删除裁剪信息（让我们可以删除裁剪历史的同时，删除其对应的文件）",
+    "handler.native-app.feature.c": "刷新裁剪历史（当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。）",
     "handler.native-app.warning": "<strong> 警告! </strong><br /> 如果你启用「本地程序」, 你必须先 <a href='go.page:native-app' target='_blank'>安装它</a>，否则该处理程序无法正常工作",
     "handler.native-app.error.version": "当前扩展依赖的「本地程序」的版本必须大于或等于 $requiredVersion, 但是当前安装的版本为 $currentVersion，请<a href='go-page:native-app#upgrade' target='_blank'>更新你的本地程序</a>",
-    "handler.native-app.error.install": "可能是由于你的「本地程序」还没有安装或者安装未成功导致的 (<a href='go.page:native-app' target='_blank'>查看如何安装</a>)",
+    "handler.native-app.error.install": "可能是由于你的「本地程序」还没有安装或者安装未成功导致的（<a href='go.page:native-app' target='_blank'>查看如何安装</a>）",
 
     "handler.wiz-note-plus.name": "为知笔记",
     "handler.wiz-note-plus.intro": "为知笔记一个款跨平台云笔记客户端",
@@ -245,7 +245,7 @@
     "setting.notice.file-url.ext-id": "扩展标识",
     "setting.notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
     "setting.notice.front-matter": "YAML Front Matter 是一段位于 Markdown 文件开头的 YAML 文本，常用于保存文档本身的元信息，你可以使用它来保存裁剪信息。",
-    "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags、createdAt、sYear、month、day、hour、minute、second、intSec</strong>。",
+    "setting.notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<code>title, url, category, tags, createdAt, sYear, month, day, hour, minute, second, intSec</code>。",
     "setting.notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "setting.notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
     "setting.notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />",
@@ -342,7 +342,7 @@
     "init.download-folder": '加载浏览器下载目录...',
     "reset.hint": "请从下方选择存储目录, 扩展将读取该目录并重置裁剪历史。<br /> 如果你想自动重置历史的话，请使用刷新历史功能，具体查看： <a href='go.page:extPage.setting#setting-refresh-history' target='_blank'>设置 &gt; 刷新历史</a>",
     "reset.current-storage-path": "当前存储目录为 ：",
-    "reset.current-storage-path-value": "<code>下载目录</code> / <code>$ROOT-FOLDER</code><br />其中<code>$ROOT-FOLDER</code> 为根目录，如果该值和你要选择的目录名字不一致，请到 <a href='go.page:extPage.setting#setting-storage' target='_blank'>设置 &gt; 存储 </a>修改根目录的值，再进行重置。",
+    "reset.current-storage-path-value": "<code>下载目录</code> / <code>$ROOT-FOLDER</code><br />其中 <code>$ROOT-FOLDER</code> 为根目录，如果该值和你要选择的目录名字不一致，请到 <a href='go.page:extPage.setting#setting-storage' target='_blank'>设置 &gt; 存储</a> 修改根目录的值，再进行重置。",
     "reset.processing": "正在重置...",
     "reset.completed": "重置完成, 网页关闭中...",
     "reset.clip-history-success": "裁剪历史重置成功, 共载入 $n 条记录",

@@ -6,16 +6,18 @@
   </head>
   <body>
     <div class="main">
-      <h1 i18n="reset.page-name"> Reset History </h1>
+      <h1 class="my-4" i18n="reset.page-name">Reset History</h1>
       <div class="hint"></div>
       <div class="selector">
-        <div class="notice-info">
+        <div class="alert alert-info">
           <span i18n="reset.hint"></span><br />
           <span i18n="reset.current-storage-path"></span>
           <span id="current-storage-path-value"></span>
+            </p>
+          </div>
         </div>
         <input id="myInput" type="file" accept="application/json" webkitdirectory directory/>
-        <button id="reset-btn" i18n="btn.confirm"></button>
+        <button id="reset-btn" i18n="btn.confirm" class="btn btn-primary"></button>
       </div>
     </div>
   </body>

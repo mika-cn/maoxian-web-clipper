@@ -34,7 +34,8 @@ function render(){
 
 
 function installationHint(){
-  return I18N.t('welcome.installation-hint').replace('$version', "V" + ENV.version);
+  // return I18N.t('welcome.installation-hint').replace('$version', '<small>v' + ENV.version + '</small>');
+  return I18N.t('welcome.installation-hint').replace('$version', '');
 }
 
 function extraStep1(){
