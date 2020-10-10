@@ -1,19 +1,25 @@
 "use strict";
 
-import i18n   from 'roddeh-i18n';
-import en     from '../../_locales/en.js';
-import zhCN   from '../../_locales/zh-CN.js';
-import ExtApi from './ext-api.js';
+import I18nLib from 'roddeh-i18n';
+import en      from '../../_locales/en.js';
+import zhCN    from '../../_locales/zh-CN.js';
+import ExtApi  from './ext-api.js';
 
+const DEFAULT_LOCALE = 'en';
+let locale = DEFAULT_LOCALE;
 const I18N_DICT = {'en': en, 'zh-CN': zhCN};
 
 function initTranslator(locale){
   const dict = I18N_DICT[locale]
   if(dict){
-    i18n.translator.add(dict);
+    I18nLib.translator.add(dict);
   }else{
-    initTranslator('en');
+    initTranslator(DEFAULT_LOCALE);
   }
+}
+
+function append(values) {
+  I18nLib.translator.add({values});
 }
 
 //
@@ -23,7 +29,7 @@ function initTranslator(locale){
 //   t(key)
 //   t(keyPart1, keyPart2, ..keyPartN)
 function translate(...parts) {
-  return i18n(parts.join('.'));
+  return I18nLib.translator.translate(parts.join('.'));
 }
 
 function i18nPage(contextNode){
@@ -61,17 +67,17 @@ function listen() {
 }
 
 function init() {
-  const locale = ExtApi.getLocale();
+  locale = ExtApi.getLocale();
   initTranslator(locale);
   listen();
 }
 
 init();
 
-
-const I18N = {
+export default {
+  DEFAULT_LOCALE: DEFAULT_LOCALE,
+  locale: locale,
+  append: append,
   t: translate,
-  i18nPage: i18nPage
-};
-
-export default I18N;
+  i18nPage: i18nPage,
+}
