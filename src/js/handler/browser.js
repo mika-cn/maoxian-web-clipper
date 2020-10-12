@@ -13,6 +13,7 @@ const state = {
 };
 
 function saveClipping(clipping, feedback) {
+  Log.debug('clipping', clipping);
   listen();
   SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenAllTaskFinished'});
   T.each(clipping.tasks, (task) => {

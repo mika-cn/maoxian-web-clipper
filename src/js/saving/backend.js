@@ -40,7 +40,7 @@ async function saveClipping(tabId, clipping) {
 
 
 function started(tabId, msg) {
-  Log.debug('started');
+  Log.debug('started', msg);
   ExtMsg.sendToContent({
     type: 'saving.started',
     body: {
