@@ -1,16 +1,11 @@
 .main {
-  max-width: 800px;
+  max-width: 1000px;
   min-height: 800px;
   margin: 0 auto;
-  border: 1px solid #ccc;
-  padding: 50px 20px 200px 20px;
-  background-color: #fefefe;
-}
-
-h1 {
-  border-bottom: solid 1px #ccc;
-  padding: 5px 5px 5px 5px;
-  line-height: 30px;
+  padding: 24px;
+  /*
+  border: 1px solid #ccc;*/
+  background-color: #fff;
 }
 
 #reset-btn {

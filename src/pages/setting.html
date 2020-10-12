@@ -33,9 +33,10 @@
         <div>
           <h3 i18n="setting.title.request"></h3>
           <h4 i18n="setting.title.request-timeout"></h4>
-          <input type="number" id="request-timeout-input" min="5" max="240" value="20" required/>
-          <label for="request-timeout-input" i18n="setting.request-timeout-input.label"></label>
-          <br />
+          <div class="form-group">
+            <label for="request-timeout-input" i18n="setting.request-timeout-input.label"></label>
+            <input type="number" id="request-timeout-input" class="form-control" min="5" max="240" value="20" required/>
+          </div>
           <h4 i18n="setting.title.request-referrer-policy"></h4>
           <div id="request-referrer-policy">
             <div>
@@ -69,21 +70,26 @@
         <h2 class="center" i18n="setting.title.general"></h2>
         <div>
           <h3 i18n="setting.title.control"></h3>
-          <input type="checkbox" id="hotkey-switch-enabled" />
-          <label for="hotkey-switch-enabled" i18n="setting.hotkey-switch-enabled-input.label"></label>
-          <br />
-          <input type="checkbox" id="mouse-mode-enabled" />
-          <label for="mouse-mode-enabled" i18n="setting.mouse-mode-enabled-input.label"></label>
-          <br />
-          <input type="checkbox" id="input-field-save-format-enabled" />
-          <label for="input-field-save-format-enabled" i18n="setting.input-field-save-format-enabled.label"></label>
-          <br />
-          <input type="checkbox" id="remember-selection" />
-          <label for="remember-selection" i18n="setting.remember-selection-input.label"></label>
+          <div>
+            <input type="checkbox" id="hotkey-switch-enabled" />
+            <label for="hotkey-switch-enabled" i18n="setting.hotkey-switch-enabled-input.label"></label>
+          </div>
+          <div>
+            <input type="checkbox" id="mouse-mode-enabled" />
+            <label for="mouse-mode-enabled" i18n="setting.mouse-mode-enabled-input.label"></label>
+          </div>
+          <div>
+            <input type="checkbox" id="input-field-save-format-enabled" />
+            <label for="input-field-save-format-enabled" i18n="setting.input-field-save-format-enabled.label"></label>
+          </div>
+          <div>
+            <input type="checkbox" id="remember-selection" />
+            <label for="remember-selection" i18n="setting.remember-selection-input.label"></label>
+          </div>
         </div>
         <div>
           <h3 i18n="setting.title.file-url"></h3>
-          <div class="notice-info">
+          <div class="alert alert-info">
             <label i18n="setting.notice.file-url.intro"></label>
             <br />
             <a href="go.page:faq-allow-access-file-urls" i18n="setting.notice.file-url.link-label" target="_blank"></a>
@@ -93,7 +99,7 @@
             <label i18n="setting.notice.file-url.ext-id"></label>
             <label>=&gt; ${host}</label>
           </div>
-          <div class="notice-warning">
+          <div class="alert alert-warning">
             <strong i18n="setting.warning"></strong>:<br />
             <label i18n="setting.notice.file-url-warning"></label>
           </div>
@@ -127,11 +133,13 @@
             <br />
             <input type="checkbox" id="md-front-matter-enabled" />
             <label for="md-front-matter-enabled" i18n="setting.md-front-matter-enabled-input.label"></label>
-            <div class="notice-info">
+            <div class="alert alert-info">
               <span i18n="setting.notice.front-matter"></span><br /><br />
               <span i18n="setting.notice.front-matter-template"></span>
             </div>
-            <textarea id="md-front-matter-template"></textarea>
+            <p>
+              <textarea id="md-front-matter-template" rows="5" class="form-control"></textarea>
+            </p>
           </div>
         </div>
       </section>
@@ -142,23 +150,28 @@
         <h2 class="center" i18n="setting.title.assistant"></h2>
         <div class="intro">
           <h3 i18n="setting.title.intro"></h3>
-          <div class="notice-info" i18n="setting.notice.assistant-intro"></div>
-          <input type="checkbox" id="assistant-enabled"/>
-          <label for="assistant-enabled" i18n="setting.assistant-enabled-input.label"></label>
+          <div class="alert alert-info" i18n="setting.notice.assistant-intro"></div>
+          <div>
+            <input type="checkbox" id="assistant-enabled"/>
+            <label for="assistant-enabled" i18n="setting.assistant-enabled-input.label"></label>
+          </div>
         </div>
         <div class="custom-plan">
           <h3 i18n="setting.title.custom-plan"></h3>
-          <div class="notice-info" i18n="setting.notice.custom-plan-intro"></div>
-          <textarea id="custom-plans"></textarea>
-          <br />
-          <button id="save-custom-plan" i18n="setting.button.save"></button>
+          <div class="alert alert-info" i18n="setting.notice.custom-plan-intro"></div>
+          <p>
+            <textarea id="custom-plans" class="form-control" rows="5"></textarea>
+          </p>
+          <p>
+            <button id="save-custom-plan" i18n="setting.button.save" class="btn btn-primary"></button>
+          </p>
         </div>
         <div class="public-plan">
           <h3 i18n="setting.title.public-plan"></h3>
-          <div class="notice-info" i18n="setting.notice.public-plan-intro"></div>
+          <div class="alert alert-info" i18n="setting.notice.public-plan-intro"></div>
           <div class="subscriptions">
             <h4 i18n="setting.title.subscriptions"></h4>
-            <table>
+            <table class="table table-bordered">
               <thead>
                 <tr>
                   <th i18n="setting.title.subscription.name"></th>
@@ -170,17 +183,18 @@
               <tbody class="subscription-list"></tbody>
             </table>
           </div>
-          <br /><br />
           <div class="edit-subscription">
-            <div class="notice-info" i18n="setting.notice.edit-subscription"></div>
-            <textarea id="plan-subscription"></textarea>
+            <div class="alert alert-info" i18n="setting.notice.edit-subscription"></div>
+            <p>
+              <textarea id="plan-subscription" class="form-control" rows="5"></textarea>
+            </p>
             <div class="logs" id="update-public-plan-log"></div>
-            <br>
-            <button id="save-plan-subscription" i18n="setting.button.save"></button>
-            <button id="update-public-plan-now" i18n="setting.button.update-now"></button>
+            <p>
+              <button id="save-plan-subscription" i18n="setting.button.save" class="btn btn-primary"></button>
+              <button id="update-public-plan-now" i18n="setting.button.update-now" class="btn btn-secondary"></button>
+            </p>
           </div>
           <div class="switches">
-            <br />
             <input type="checkbox" id="auto-update-public-plan"/>
             <label for="auto-update-public-plan" i18n="setting.auto-update-public-plan-input.label"></label>
           </div>
@@ -216,14 +230,15 @@
         </div>
         <div class="local-path">
           <h3 i18n="setting.title.path"></h3>
-          <div class="notice-light">
-            <span i18n="setting.path-intro.format"></span>
-            <code i18n="setting.path.download"></code> /
-            <code i18n="setting.folder.root"></code> /
-            <code i18n="setting.folder.category"></code> /
-            <code i18n="setting.folder.clipping"></code> /
-            <code i18n="setting.path.filename"></code>
-            <br />
+          <div class="alert alert-info">
+            <p>
+              <span i18n="setting.path-intro.format"></span>
+              <mark i18n="setting.path.download"></mark> /
+              <mark i18n="setting.folder.root"></mark> /
+              <mark i18n="setting.folder.category"></mark> /
+              <mark i18n="setting.folder.clipping"></mark> /
+              <mark i18n="setting.path.filename"></mark>
+            </p>
             <ul>
               <li i18n="setting.path.download.intro"></li>
               <li i18n="setting.folder.root.intro"></li>
@@ -236,13 +251,15 @@
 
             <div>
               <h4 i18n="setting.title.root-folder"></h4>
-              <div class="notice-warning" i18n="setting.notice.root-folder"></div>
-              <input type="text" id="root-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+              <div class="alert alert-warning" i18n="setting.notice.root-folder"></div>
+              <p>
+                <input type="text" id="root-folder" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
+              </p>
             </div>
 
             <div>
               <h4 i18n="setting.title.default-category"></h4>
-              <div class="notice-info">
+              <div class="alert alert-info">
                 <p i18n="setting.notice.default-category"></p>
                 <details>
                   <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
@@ -260,12 +277,14 @@
                   </div>
                 </details>
               </div>
-              <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
+              <p>
+                <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
+              </p>
             </div>
 
             <div>
               <h4 i18n="setting.title.clipping-folder-name"></h4>
-              <div class="notice-info">
+              <div class="alert alert-info">
                 <p i18n="setting.notice.clipping-folder-name"></p>
                 <details>
                   <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
@@ -283,12 +302,14 @@
                   </div>
                 </details>
               </div>
-              <input type="text" id="clipping-folder-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+              <p>
+                <input type="text" id="clipping-folder-name" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
+              </p>
             </div>
 
             <div>
               <h4 i18n="setting.title.main-file"></h4>
-              <div class="notice-info">
+              <div class="alert alert-info">
                 <p i18n="setting.notice.main-file-intro"></p>
                 <details>
                   <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary><br />
@@ -315,19 +336,19 @@
                   </div>
                 </details>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="main-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="main-file-folder" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-filename.label"></label>
-                <input type="text" id="main-file-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="main-file-name" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
             </div>
 
             <div>
               <h4 i18n="setting.title.asset-file"></h4>
-              <div class="notice-info">
+              <div class="alert alert-info">
                 <p i18n="setting.notice.asset-file-intro"></p>
                 <details>
                   <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
@@ -338,15 +359,15 @@
                   </div>
                 </details>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="asset-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="asset-folder" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
             </div>
 
             <div>
               <h4 i18n="setting.title.frame-file"></h4>
-              <div class="notice-info">
+              <div class="alert alert-info">
                 <p i18n="setting.notice.frame-file-intro"></p>
                 <details>
                   <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
@@ -357,15 +378,15 @@
                   </div>
                 </details>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="frame-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="frame-file-folder" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
             </div>
 
             <div>
               <h4 i18n="setting.title.info-file"></h4>
-              <div class="notice-info">
+              <div class="alert alert-info">
                 <p i18n="setting.notice.info-file-intro"></p>
                 <details>
                   <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary><br />
@@ -391,21 +412,19 @@
                   </div>
                 </details>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="info-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="info-file-folder" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-filename.label"></label>
-                <input type="text" id="info-file-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="info-file-name" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
             </div>
 
             <div>
               <h4 i18n="setting.title.title-file"></h4>
-              <input type="checkbox" id="save-title-file" />
-              <label for="save-title-file" i18n="setting.save-title-file-input.label"></label>
-              <div class="notice-info">
+              <div class="alert alert-info">
                 <p i18n="setting.notice.title-file-intro"></p>
                 <details>
                   <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary><br />
@@ -431,16 +450,20 @@
                   </div>
                 </details>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="title-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="title-file-folder" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
-              <div class="input-group">
+              <div class="form-group">
                 <label i18n="setting.storage-filename.label"></label>
-                <input type="text" id="title-file-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <input type="text" id="title-file-name" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
               </div>
-            </div>
+              <div>
+                <input type="checkbox" id="save-title-file"/>
+                <label for="save-title-file" i18n="setting.save-title-file-input.label"></label>
+              </div>
 
+            </div>
           </div>
         </div>
       </section>
@@ -451,7 +474,7 @@
         <h2 class="center" i18n="setting.title.offline-page"></h2>
         <div class="intro">
           <h3 i18n="setting.title.intro"></h3>
-          <div class="notice-info">
+          <div class="alert alert-info">
             <label  i18n="setting.notice.offline-page"></label>
             <br />
             <a href="go.page:offline-page" target="_blank" i18n="setting.notice.offline-page.link-label"></a>
@@ -469,16 +492,20 @@
         </div>
         <div class="detail">
           <h3 i18n="setting.title.detail"></h3>
-          <div class="notice-info" i18n="setting.notice.clipping-js-path"></div>
-          <input type="text" id="clipping-js-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
+          <div class="alert alert-info" i18n="setting.notice.clipping-js-path"></div>
+          <input type="text" id="clipping-js-path" i18n-attr="placeholder:setting.placeholder.notblank" class="form-control"/>
           <br />
-          <div class="notice-info" i18n="setting.notice.autogenerate-clipping-js"></div>
+          <div class="alert alert-info" i18n="setting.notice.autogenerate-clipping-js"></div>
           <div>
             <input type="checkbox" id="autogenerate-clipping-js" />
-            <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label><br /><br />
-            <label i18n="setting.last-generate-time.label"></label>:
-            <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>&nbsp;
-            <button id="generate-clipping-js-now" i18n="setting.button.generate-now"></button>
+            <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label>
+          </div>
+          <div>
+            <p>
+              <button id="generate-clipping-js-now" i18n="setting.button.generate-now" class="btn btn-primary"></button>
+              <label i18n="setting.last-generate-time.label"></label>：
+              <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>
+            </p>
           </div>
         </div>
       </section>
@@ -489,7 +516,7 @@
         <h2 class="center" i18n="setting.title.refresh-history"></h2>
         <div class="intro">
           <h3 i18n="setting.title.intro"></h3>
-          <div class="notice-info" i18n="setting.notice.refresh-history"></div>
+          <div class="alert alert-info" i18n="setting.notice.refresh-history"></div>
         </div>
         <div class="handler">
           <h3 i18n="setting.title.handler"></h3>
@@ -561,8 +588,8 @@
             <li i18n="handler.native-app.feature.c"></li>
           </ul>
         </div>
-        <div class="notice-warning">
-          <p><label i18n="handler.native-app.warning"></label></p>
+        <div class="alert alert-warning">
+          <span i18n="handler.native-app.warning"></span>
         </div>
         <div class="switch">
           <input type="checkbox" id="handler-native-app-enabled" />
@@ -589,8 +616,8 @@
             <li i18n="handler.wiz-note-plus.feature.a"></li>
           </ul>
         </div>
-        <div class="notice-warning">
-          <p><label i18n="handler.wiz-note-plus.warning"></label></p>
+        <div class="alert alert-warning">
+          <span i18n="handler.wiz-note-plus.warning"></span>
         </div>
         <div class="switch">
           <input type="checkbox" id="handler-wiz-note-plus-enabled" />
@@ -600,8 +627,8 @@
     </template>
 
     <template id="notice-tpl">
-      <div class="notice-${type}">
-        <p><label>${message}</label></p>
+      <div class="alert alert-${type}">
+        <span>${message}</span>
       </div>
     </template>
 

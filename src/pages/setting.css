@@ -15,8 +15,6 @@ ul > li {
 .content {
   display: block;
   padding: 10px 10px 180px 10px;
-  font-size: 14px;
-  line-height: 23px;
 }
 
 /* Desktop screen style */
@@ -51,9 +49,8 @@ ul > li {
   .sidebar-content > .menu {
     display: block;
     background-color: #e0e0e0;
-    height: 30px;
-    line-height: 30px;
-    padding: 5px 15px;
+    border-left: solid 3px #e0e0e0;
+    padding: 10px 20px;
     text-decoration: none;
     color: #333;
   }
@@ -134,7 +131,7 @@ h2 {
 }
 
 h3 {
-  padding: 5px 10px 5px 10px;
+  padding: 10px 0;
   border-bottom: solid 1px #ccc;
 }
 
@@ -175,17 +172,13 @@ section {
   margin-bottom: 20px;
 }
 
-details {
-  font-size: 12px;
-}
 details > summary {
-  font-size: 14px;
   cursor: pointer;
 }
 
 .help-content {
   width: 90%;
-  padding: 5px 5px 25px 25px;
+  padding: 10px 20px;
 }
 
 .help-content > span > pre {
@@ -194,33 +187,7 @@ details > summary {
 }
 
 
-input[type=text] {
-  display: block;
-  font-size: 12px;
-  box-sizing: border-box;
-  height: 30px;
-  width: 75%;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 0px 5px 0px 5px;
-}
 
-input[type=text]:focus {
-  border: 2px solid pink;
-}
-
-input[type=number] {
-  width: 50px;
-}
-
-textarea {
-  width: 85%;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  min-height: 100px;
-  padding: 10px;
-  line-height: 18px;
-}
 
 /********** table *********/
 

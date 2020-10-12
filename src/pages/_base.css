@@ -1,23 +1,20 @@
+@import url('../../node_modules/bootstrap/dist/css/bootstrap.min.css');
+
 body {
   margin: 0px;
   padding: 0px;
   background-color: #464646;
-  color: #333;
-  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-  font-size: 14px;
+  color: #000;
+}
+
+code, pre {
+  font-size: 100%;
 }
 
 .center {text-align: center}
 
 .green { color: #4caf50; }
 .red { color: red; }
-
-code {
-  background-color: #efefef;
-  padding: 1px 4px;
-  border: solid 1px #ccc;
-  border-radius: 3px;
-}
 
 /********** notice ***********/
 .notice-success {

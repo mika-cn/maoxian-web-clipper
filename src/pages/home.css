@@ -1,25 +1,9 @@
 .main {
-  max-width: 800px;
+  max-width: 1000px;
   min-height: 800px;
   margin: 0 auto;
-  padding: 50px 20px 200px 20px;
+  padding: 24px;
   /*
   border: 1px solid #ccc;*/
-  background-color: #fefefe;
-}
-
-.installation-hint {
-  border-top: 1px dashed #4caf50;
-  border-bottom: 1px dashed #4caf50;
-  margin-bottom: 40px;
-}
-
-.main a {
-  color: #5a84b3;
-  text-decoration: underline;
-}
-
-.link {
-  margin-bottom: 10px;
-  line-height: 20px;
+  background-color: #fff;
 }

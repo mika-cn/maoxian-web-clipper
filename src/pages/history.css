@@ -1,17 +1,21 @@
 
 body {
-  margin: 0px;
-  padding: 0px;
-  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  background-color: #f2f2f2;
 }
 
 .main {
-  padding: 40px 10px 200px 10px;
-  border: solid 1px #ccc;
+  padding: 24px;
 }
 
 .links {
-  float: right;
+  margin: -24px -24px 12px -24px;
+  padding: 12px 24px;
+}
+.links h3 {
+  position: absolute;
+  left: 24px;
+  margin: 0;
+  line-height: 100%;
 }
 .actions {
   float: right;
@@ -25,16 +29,6 @@ body {
 /********** text input ***********/
 input[type=text] {
   display: inline-block;
-  font-size: 12px;
-  box-sizing: border-box;
-  height: 30px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 0px 5px 0px 5px;
-}
-
-input[type=text]:focus{
-  border: 2px solid pink;
 }
 
 .search-box{
@@ -52,35 +46,12 @@ input[type=text]:focus{
   margin-top: 10px;
 }
 
-table {
-  width: 100%;
-  padding: 5px;
-  border-radius: 3px;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.list > table {
-  background-color: #f8f8f8;
-  margin-bottom: 15px;
-}
-
-.list > table > thead {
-  background-color: #e8e8e8;
-}
 
 .list > table > tbody > tr:hover {
-  background-color: #e5e5e5;
   cursor: pointer;
 }
 
-.list > table th,td {
-  line-height: 25px;
-  border: 1px solid #ccc;
-  padding: 2px 5px 2px 5px;
-}
 .list > table td > .format {
-  font-size: 12px;
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -116,11 +87,11 @@ table {
 .modal > .mask > .content{
   display: inline-block;
   margin-top: 120px;
-  width: 600px;
+  width: 900px;
   height: auto;
   background-color: white;
   border-radius: 3px;
-  padding: 30px 15px 15px 15px;
+  padding: 24px;
 }
 
 .modal > .mask > .content > table {
@@ -129,19 +100,11 @@ table {
 }
 
 .modal > .mask > .content > table td{
-  line-height: 25px;
-  border: 1px solid #ccc;
-  padding: 2px 5px 2px 5px;
   overflow: hidden;
   word-break: break-word;
 }
 .modal > .mask > .content > table th{
-  text-align: center;
-  background-color: #f5f5f5;
-  font-weight: normal;
-  width: 40px;
-  border: 1px solid #ccc;
-  padding: 2px 5px 2px 5px;
+  width: 64px;
 }
 
 .modal > .mask > .content .path {
@@ -152,14 +115,4 @@ table {
 }
 .modal > .mask > .content .path:focus{
   border: 0px;
-}
-
-.notice-warning {
-  background: #f5f5f5;
-  color: #666;
-  line-height: 20px;
-  font-size: 13px;
-  padding: 10px 20px 10px 20px;
-  border-radius: 5px;
-  margin-top: 15px;
 }

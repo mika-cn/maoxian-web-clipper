@@ -10,17 +10,20 @@
     <div class="main">
     </div>
     <template id="welcome-page-tpl">
-      <div class="installation-hint green">
-        <center><h1>${installationHint}</h1></center>
-        <div class="notice-info">
-          <h2 class="green" i18n="welcome.sayhi"></h2>
-          <p i18n="welcome.extra-intro"></p>
-          <p>${extraStep1}</p>
-          <p>${extraStep2}</p>
+      <div class="installation-hint">
+        <h1 class="text-success text-center my-4">${installationHint}</h1>
+        
+        <div class="card alert-info mb-3">
+          <div class="card-body">
+            <h4 class="text-success" i18n="welcome.sayhi"></h4>
+            <p class="card-text" i18n="welcome.extra-intro"></p>
+            <p class="card-text">${extraStep1}</p>
+            <p class="card-text">${extraStep2}</p>
+          </div>
         </div>
 
-        <div class="notice-info">
-          <p i18n="welcome.notice"></p>
+        <div class="alert alert-info" role="alert">
+          <span i18n="welcome.notice"></span>
         </div>
         <div>
           <p i18n="welcome.last-hint"></p>

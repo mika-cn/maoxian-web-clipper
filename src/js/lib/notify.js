@@ -31,13 +31,13 @@ function style(){
     .notify > .notify-btn {
       cursor: pointer;
       display: inline-block;
-      width: 20px;
+      width: 10px;
       height: 20px;
-      position: relative;
-      top: 4px;
-      margin-right: 5px;
+      margin: 0 5px;
       padding: 0px !important;
       background-color: #333;
+      font-family: monospace;
+      font-size: 16px;
     }
 
     .notify > .notify-btn .r1,
@@ -72,7 +72,6 @@ function style(){
       height: 20px;
       line-height: 20px;
       position: relative;
-      top: 1px;
       padding: 0px 10px !important;
     }
     .notify > .notify-content > a{
@@ -181,14 +180,10 @@ function getBtnTarget(evTarget) {
 function renderNotify(content, behavior, type) {
   const html = content.replace(/\n/g, '<br />');
   return `
-    <div class="notify-btn" title="Dismiss me">
-      <div class="r1"><span class="c11"></span><span class="c12"></span><span class="c13"></span><span class="c14"></span><span class="c15"></span></div>
-      <div class="r2"><span class="c21"></span><span class="c22"></span><span class="c23"></span><span class="c24"></span><span class="c25"></span></div>
-      <div class="r3"><span class="c31"></span><span class="c32"></span><span class="c33"></span><span class="c34"></span><span class="c35"></span></div>
-      <div class="r4"><span class="c41"></span><span class="c42"></span><span class="c43"></span><span class="c44"></span><span class="c45"></span></div>
-      <div class="r5"><span class="c51"></span><span class="c52"></span><span class="c53"></span><span class="c54"></span><span class="c55"></span></div>
-    </div>
     <div class="notify-content">${html}</div>
+    <div class="notify-btn" title="Dismiss me">
+      &times;
+    </div>
   `;
 }
 

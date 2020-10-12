@@ -118,7 +118,7 @@ function sendToTab(msg, tabId, frameId) {
           .catch((err) => {
             console.log(tabId, options.frameId);
             console.log(msg);
-            console.error(err);
+            // console.error(err);
             console.trace();
             resolve(undefined);
           })

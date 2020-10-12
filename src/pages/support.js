@@ -35,7 +35,7 @@ function renderRuntimeInformation() {
 }
 
 function renderConfig() {
-  const tpl = "<table><tbody>${config}</tbody></table>";
+  const tpl = '<table class="table table-bordered"><tbody>${config}</tbody></table>';
   MxWcConfig.load().then((config) => {
     let k = null;
     const rows = []
