@@ -281,6 +281,7 @@ async function fetchAndDownload(task, clipping) {
       respType: 'blob',
       headers: task.headers,
       timeout: task.timeout,
+      tries: task.tries,
     });
     await downloadBlobToFile({
       blob: blob,

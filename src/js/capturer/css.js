@@ -42,6 +42,7 @@ async function captureLink(params) {
         url: url,
         headers: CaptureTool.getRequestHeaders(url, headerParams),
         timeout: config.requestTimeout,
+        tries: config.requestMaxTries,
       }
     });
 

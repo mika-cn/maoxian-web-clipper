@@ -64,6 +64,7 @@ async function clip(elem, {info, storageInfo, config, win}){
     task['headers'] = CaptureTool.getRequestHeaders(
       task.url, headerParams);
     task['timeout'] = config.requestTimeout;
+    task['tries'] = config.requestMaxTries;
   });
 }
 
