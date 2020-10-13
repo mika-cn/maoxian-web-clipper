@@ -338,6 +338,14 @@ function init(){
     Handler_WizNotePlus
   }, {evTarget: Global.evTarget}));
 
+  // commands are keyboard shortcuts
+  ExtApi.bindOnCommandListener((command) => {
+    ExtMsg.sendToContent({
+      type: "command",
+      body: {command: command}
+    });
+  });
+
   welcomeNewUser();
   Log.debug("background init finish...");
 }

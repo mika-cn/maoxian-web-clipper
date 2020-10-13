@@ -31,6 +31,13 @@ function listenMessage(){
           window.focus();
           activeUI({});
           break;
+        case 'command':
+          const {command} = msg.body;
+          if (command === 'toggle-clip')  {
+            window.focus();
+            activeUI({});
+          }
+          break;
         case 'saving.started':
           UI.savingStarted(msg.body);
           break;

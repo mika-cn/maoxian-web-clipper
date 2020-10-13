@@ -49,6 +49,14 @@
       "all_frames": false
     }
   ],
+  "commands": {
+    "toggle-clip": {
+      "suggested_key": {
+        "default": "Alt+Shift+C"
+      },
+      "description": "Send a toggle-clip event"
+    }
+  },
   "icons": {
     "16": "icons/mx-wc-16.png",
     "32": "icons/mx-wc-32.png",
