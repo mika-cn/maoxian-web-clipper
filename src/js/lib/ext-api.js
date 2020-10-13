@@ -161,4 +161,9 @@ ExtApi.bindDownloadChangedListener = (listener) => {
   browser.downloads.onChanged.addListener(listener);
 }
 
+ExtApi.bindOnCommandListener = (listener) => {
+  browser.commands.onCommand.removeListener(listener);
+  browser.commands.onCommand.addListener(listener);
+}
+
 export default ExtApi;

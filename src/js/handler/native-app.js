@@ -45,6 +45,7 @@ function saveTask(task) {
       respType: 'blob',
       headers: task.headers,
       timeout: task.timeout,
+      tries: task.tries,
     }).then((blob) => {
       const reader = new FileReader();
       reader.onload = function() {

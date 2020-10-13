@@ -32,10 +32,16 @@
         <h2 class="center" i18n="setting.title.advanced"></h2>
         <div>
           <h3 i18n="setting.title.request"></h3>
+
           <h4 i18n="setting.title.request-timeout"></h4>
-          <input type="number" id="request-timeout-input" min="5" max="240" value="20" required/>
           <label for="request-timeout-input" i18n="setting.request-timeout-input.label"></label>
           <br />
+          <input type="number" id="request-timeout-input" min="5" max="240" value="20" required/>
+
+          <h4 i18n="setting.title.request-max-tries"></h4>
+          <label for="request-max-tries" i18n="setting.request-max-tries-input.label"></label>
+          <br />
+          <input type="number" id="request-max-tries-input" min="1" max="99" value="3" required/>
           <h4 i18n="setting.title.request-referrer-policy"></h4>
           <div id="request-referrer-policy">
             <div>

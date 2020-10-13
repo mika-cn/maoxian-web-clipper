@@ -8,7 +8,7 @@ import MxWcConfig  from './lib/config.js';
 import MxWcLink    from './lib/link.js';
 import MxWcHandler from './lib/handler.js';
 import MxEvTarget  from './lib/event-target.js';
-import Fetcher     from './lib/fetcher.js';
+import Fetcher     from './lib/fetcher-using-xhr.js';
 
 import initBackend_Clipping  from './clipping/backend.js';
 import initBackend_Saving    from './saving/backend.js';
@@ -337,6 +337,14 @@ function init(){
     Handler_NativeApp,
     Handler_WizNotePlus
   }, {evTarget: Global.evTarget}));
+
+  // commands are keyboard shortcuts
+  ExtApi.bindOnCommandListener((command) => {
+    ExtMsg.sendToContent({
+      type: "command",
+      body: {command: command}
+    });
+  });
 
   welcomeNewUser();
   Log.debug("background init finish...");

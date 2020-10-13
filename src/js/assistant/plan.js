@@ -362,7 +362,8 @@ function getContextElem(selectorInput) {
   if (selectorInput === 'document') {
     return document;
   } else {
-    return queryFirstElem(selectorInput, document);
+    const [elem, selector] = queryFirstElem(selectorInput, document);
+    return elem;
   }
 }
 

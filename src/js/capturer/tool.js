@@ -120,6 +120,10 @@ function parseSrcset(srcset) {
 
 function getRequestHeaders(url, headerParams) {
   const {refUrl, userAgent, referrerPolicy} = headerParams;
+  // Although browser will automatically set User-Agent
+  // but NativeApp won't.
+  // NativeApp needs to fake itself as a browser so
+  // that it won't be banned by server.
   const headers = { 'User-Agent' : userAgent };
 
   const referer = getReferrerHeader(
