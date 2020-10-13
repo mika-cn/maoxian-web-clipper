@@ -21,6 +21,7 @@ function messageHandler(message, sender) {
             respType: 'text',
             headers: message.body.headers,
             timeout: message.body.timeout,
+            tries: message.body.tries,
           });
         }).then(resolve, reject);
         break;
