@@ -34,7 +34,8 @@ function renderFailedTasks() {
     const message = I18N.t('lcr.message.failed-task-num').replace('$num', failedTaskNum);
     let detail = "";
     failedTasks.forEach((task) => {
-      detail += ["<div class='task'>" + I18N.t('lcr.label.file') + task.filename, I18N.t('lcr.label.err-msg') + "<span class='red'>" + task.errMsg + '</span>'].join("</div>");
+      const errMsg = "<br />" + task.errMsg.replace(/\n/g, '<br />');
+      detail += ["<div class='task'>" + I18N.t('lcr.label.file') + task.filename, I18N.t('lcr.label.err-msg') + "<span class='red'>" + errMsg + '</span>'].join("</div>");
     });
     const html = T.renderTemplate(template, {
       message: message,

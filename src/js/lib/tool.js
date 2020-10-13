@@ -976,6 +976,37 @@ T.createArrayCache = function(reverselySeek = 'noReverselySeek') {
   }
 }
 
+/*
+ * @param {Function} action - this function should return a promise that
+ *                          resolve with result
+ *                          or reject with a object {:message, :retry}
+ * @param {Integer} n - How many times we'll try.
+ *
+ * @return {Promise} doing
+ */
+T.retryAction = function(action, n = 3, errObjs = []) {
+  if (n == 0) {
+    const errMsg = errObjs.map((it, idx) => `[${idx + 1}] ${it.message}`).join("\n");
+    return Promise.reject(new Error(errMsg));
+  } else {
+    return new Promise((resolve, reject) => {
+      action().then(
+        (result) => {
+          resolve(result);
+        }, (errObj) => {
+          errObjs.push(errObj);
+          if (errObj.retry) {
+            T.retryAction(action, n-1, errObjs).then(resolve, reject);
+          } else {
+            const errMsg = errObjs.map((it, idx) => `[${idx + 1}] ${it.message}`).join("\n");
+            reject(new Error(errMsg));
+          }
+        }
+      );
+    });
+  }
+}
+
 
 // ====================================
 // HTTP relative
