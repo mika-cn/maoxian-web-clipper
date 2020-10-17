@@ -1,3 +1,5 @@
 # ATTENTION: restart the browser to apply your changes.
 environment: 'production'
-data_dir: '/home/jack/clipping'
+data_dir: '/home/ghost/clipping'
+# avariable handler: 'default', 'vnote_v1'
+msg_handler: 'default'

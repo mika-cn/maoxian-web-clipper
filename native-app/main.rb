@@ -35,6 +35,7 @@ def run
     Log.info("App Start")
     Log.info("Version: #{AppEnv::APP_VERSION}")
     Log.info("Ruby Version: #{AppEnv::RUBY_VERSION}")
+    Log.info("Msg handler: #{config.msg_handler}")
     Log.debug("pid: #{Process.pid}")
     Log.debug("args: #{ARGV}")
 
