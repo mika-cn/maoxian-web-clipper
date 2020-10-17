@@ -8,10 +8,20 @@ module Config
   end
 
   class Configuration
-    attr_accessor :environment, :data_dir, :proxy_url, :username, :password
+
+    attr_accessor(
+      :environment,
+      :data_dir,
+      :msg_handler,
+      :proxy_url,
+      :username,
+      :password
+    )
+
     def initialize(params)
       @environment = params['environment']
       @data_dir = params['data_dir']
+      @msg_handler = params['msg_handler'] || 'default'
       @proxy_url = params['proxy_url']
       @username = params['username']
       @password = params['password']

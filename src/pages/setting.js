@@ -536,7 +536,7 @@ function generateClippingJsNow(e) {
       T.setHtml(label, result.time);
       Notify.success(I18N.t('setting.generate-now-success.label'));
     } else {
-      Notify.error(t(result.message))
+      Notify.error(I18N.t(result.message))
     }
   });
   Notify.success(I18N.t('setting.generate-now-msg-sent.label'));
@@ -551,7 +551,7 @@ function refreshHistoryNow(e) {
       T.setHtml(label, result.time);
       Notify.success(I18N.t('setting.refresh-now-success.label'));
     } else {
-      Notify.error(t(result.message))
+      Notify.error(I18N.t(result.message))
     }
   });
   Notify.success(I18N.t('setting.refresh-now-msg-sent.label'));
