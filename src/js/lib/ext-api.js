@@ -33,6 +33,13 @@ ExtApi.getEnvironment = () => {
   });
 }
 
+// url must have a http or https scheme
+ExtApi.setUninstallURL = (url) => {
+  if (browser.runtime.setUninstallURL) {
+    return browser.runtime.setUninstallURL(url);
+  }
+}
+
 /*****************************
  * extension
  *****************************/

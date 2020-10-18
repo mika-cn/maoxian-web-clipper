@@ -353,6 +353,7 @@ Global.evTarget.addEventListener('resource.loaded', (ev) => {
 
 function init(){
   Log.debug("background init...");
+  ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
   MxWcMigration.perform();
 
   updateNativeAppConfig();
