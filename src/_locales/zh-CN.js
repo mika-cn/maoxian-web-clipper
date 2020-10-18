@@ -23,6 +23,16 @@
     "error.not-a-number": "输入值不是数字",
     "error.not-in-allowed-range": "输入值不在允许范围之内",
 
+    // clipping attributes
+    "attr.title": "标题",
+    "attr.path": "路径",
+    "attr.time": "时间",
+    "attr.category": "目录",
+    "attr.tag": "标签",
+    "attr.tags": "标签",
+    "attr.format": "格式",
+    "attr.original-url": "裁自",
+
 
     //=====================================
     // home page
@@ -311,13 +321,7 @@
     "history.btn.clear-history": "清除历史",
     "history.btn.export-history": "导出历史",
     "history.a.reset-history": "重置历史",
-    "history.th.title": "标题",
-    "history.th.path": "路径",
-    "history.th.original-url": "裁自",
-    "history.th.time": "时间",
-    "history.th.category": "目录",
-    "history.th.tag": "标签",
-    "history.th.format": "格式",
+
     "history.no-record": "找不到记录",
     "history.export.no-record": "没有记录",
     "history.op.delete": "删除",
@@ -360,6 +364,7 @@
     "lcr.notice.not-clipping-result": "无内容可查看",
     "lcr.notice.openable-url": "你可点击下方链接查看该裁剪结果.",
     "lcr.notice.can-not-open-file-url": "你无法直接打开该链接. 因为扩展不被允许打开该类型的链接, 查看 <strong>设置页 > 本地网址</strong> 获取关于此的更多信息",
+    "lcr.notice.copy-url": "如果你无法打开上方网址，则用下面的输入框帮你复制它",
     "lcr.message.failed-task-num": "本次裁剪过程中，有 $num 个资源保存失败.",
 
     //=====================================

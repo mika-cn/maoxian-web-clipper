@@ -258,6 +258,48 @@ function welcomeNewUser(){
     })
 }
 
+function commandListener(command) {
+  switch (command) {
+    case 'open-clipping':
+      openClipping();
+      break;
+    default:
+      // toggle-clip
+      ExtMsg.sendToContent({
+        type: "command",
+        body: {command: command}
+      });
+      break;
+  }
+}
+
+async function openClipping() {
+  const lastClippingResult = await MxWcStorage.get('lastClippingResult');
+  if (!lastClippingResult) { return; }
+  const {url, failedTaskNum} = lastClippingResult;
+  const pageUrl = MxWcLink.get('extPage.last-clipping-result');
+  if (failedTaskNum > 0 ||
+    !(url.endsWith('.md') || url.endsWith('.html'))
+  ) {
+    ExtApi.createTab(pageUrl);
+    return;
+  }
+
+  const config = await MxWcConfig.load();
+  const allowFileSchemeAccess = await ExtApi.isAllowedFileSchemeAccess();
+  const allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+
+  if (url.startsWith('http') || allowFileUrlAccess) {
+    MxWcStorage.set('lastClippingResult', null);
+    ExtApi.createTab(url);
+  } else {
+    // We don't use download.open API to open it,
+    // because it has weired behavior on background script.
+    ExtApi.createTab(pageUrl);
+  }
+}
+
+
 // ========================================
 // handler
 // ========================================
@@ -291,8 +333,6 @@ async function updateNativeAppConfig() {
     Handler_NativeApp.initDownloadFolder();
   }
 }
-
-
 
 // ========================================
 
@@ -339,12 +379,7 @@ function init(){
   }, {evTarget: Global.evTarget}));
 
   // commands are keyboard shortcuts
-  ExtApi.bindOnCommandListener((command) => {
-    ExtMsg.sendToContent({
-      type: "command",
-      body: {command: command}
-    });
-  });
+  ExtApi.bindOnCommandListener(commandListener)
 
   welcomeNewUser();
   Log.debug("background init finish...");

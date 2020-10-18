@@ -20,8 +20,15 @@
       <div class="detail">${detail}</div>
     </template>
     <template id="tpl-clipping-url">
-      <div class="notice-info">${notice}</div>
-      <a href="${url}">${url}</a>
+      <div>
+        <div class="notice-info">${notice}</div>
+        <a href="${url}" id="target-url" data-method="${openMethod}">${url}</a>
+      </div>
+      <hr />
+      <div class="copy-box">
+        <div class="notice-info" i18n="lcr.notice.copy-url"></div>
+        <input class="copy" type='text' value="${url}" readonly="true" />
+      </div>
     </template>
 
   </body>

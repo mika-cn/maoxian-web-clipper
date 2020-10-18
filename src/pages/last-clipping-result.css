@@ -25,3 +25,10 @@
   margin-top: 40px;
 }
 
+.copy {
+  width: 75%;
+  height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0px 5px 0px 5px;
+}

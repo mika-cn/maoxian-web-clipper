@@ -23,6 +23,16 @@
     "error.not-a-number": "Input value is not a number",
     "error.not-in-allowed-range": "Input value is not in allowed range",
 
+    // clipping attributes
+    "attr.title": "Title",
+    "attr.path": "Path",
+    "attr.time": "Time",
+    "attr.category": "Category",
+    "attr.tag": "Tag",
+    "attr.tags": "Tags",
+    "attr.format": "Format",
+    "attr.original-url": "From",
+
 
     //=====================================
     // home page
@@ -315,13 +325,7 @@
     "history.btn.clear-history": "Clear History",
     "history.btn.export-history": "Export History",
     "history.a.reset-history": "Reset history",
-    "history.th.title": "Title",
-    "history.th.path": "Path",
-    "history.th.original-url": "From",
-    "history.th.time": "Time",
-    "history.th.category": "Category",
-    "history.th.tag": "Tag",
-    "history.th.format": "Format",
+
     "history.no-record": "No record.",
     "history.export.no-record": "No record",
     "history.op.delete": "Delete",
@@ -363,6 +367,7 @@
     "lcr.notice.not-clipping-result": "Last clipping result is empty",
     "lcr.notice.openable-url": "You can click url below to see this clipping.",
     "lcr.notice.can-not-open-file-url": "You can not open this url directly. Becase extension is not allowed to open it, see <strong>Setting Page > File Url</strong> for more detail",
+    "lcr.notice.copy-url": "If you can't open the url above, using the following input box to copy it",
     "lcr.message.failed-task-num": "There are $num failures occured in this clipping.",
 
 

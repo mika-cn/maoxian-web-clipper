@@ -17,6 +17,7 @@ function renderNotClippingResult() {
   T.setHtml('.main', html);
 }
 
+
 function renderLastClippingResult() {
   const {failedTaskNum} = state.lastClippingResult;
   if(failedTaskNum > 0) {
@@ -47,15 +48,52 @@ function renderFailedTasks() {
   }
 }
 
-function renderClippingUrl() {
-  const {url, failedTaskNum, failedTasks} = state.lastClippingResult;
-  const template = T.findElem('tpl-clipping-url').innerHTML;
+async function renderClippingUrl() {
+  const {url, failedTaskNum, failedTasks, downloadItemId} = state.lastClippingResult;
   let notice = I18N.t('lcr.notice.openable-url');
-  if(url.startsWith('file') && !(state.allowFileUrlAccess)) {
+  let openMethod = 'open.link';
+
+  if (downloadItemId) {
+    const downloadItem = await ExtApi.findDownloadItem(downloadItemId)
+    if (downloadItem) {
+      openMethod = 'open.downloadItem'
+    }
+  }
+
+  if(openMethod != 'open.downloadItem'
+    && url.startsWith('file')
+    && !(state.allowFileUrlAccess)
+  ) {
     notice = I18N.t('lcr.notice.can-not-open-file-url');
   }
-  let html = T.renderTemplate(template, {notice: notice, url: url});
+
+  const template = T.findElem('tpl-clipping-url').innerHTML;
+  let html = T.renderTemplate(template, {notice, url, openMethod});
   T.setHtml('#clipping-url', html);
+
+  const link = T.findElem('target-url');
+  if (link) {
+    T.bindOnce(link, 'click', function(e) {
+      switch(link.getAttribute('data-method')) {
+        case 'open.link': break;
+        case 'open.downloadItem':
+          ExtApi.openDownloadItem(downloadItemId);
+          e.preventDefault();
+          e.stopPropagation();
+          break;
+        case 'open.illegle':
+          e.preventDefault();
+          e.stopPropagation();
+          break
+      }
+    })
+  }
+
+  const input = T.queryElem('.copy-box > input')
+  if (input) {
+    T.bindOnce(input, 'mouseover', function(e){ this.select() });
+    input.select();
+  }
 }
 
 function render() {
