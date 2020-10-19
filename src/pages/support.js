@@ -7,6 +7,8 @@ import ExtApi     from '../js/lib/ext-api.js';
 import MxWcConfig from '../js/lib/config.js';
 import MxWcLink   from '../js/lib/link.js';
 
+import {CONFIG_KEYS} from '../js/lib/config.js';
+
 import './_base.css';
 import './support.css';
 
@@ -39,9 +41,9 @@ function renderConfig() {
   MxWcConfig.load().then((config) => {
     let k = null;
     const rows = []
-    for(k in config) {
+    CONFIG_KEYS.forEach((k) => {
       rows.push(`<tr><th>${k}</th><td>${config[k]}</td></tr>`);
-    }
+    });
     const html = T.renderTemplate(tpl, {
       config: rows.join('')
     });
