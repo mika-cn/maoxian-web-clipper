@@ -1,8 +1,7 @@
-"use strict";
 
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.0';
+const VERSION = '1.1';
 const state = {};
 
 /** WARNING
@@ -148,6 +147,14 @@ function getDefault(){
     //=====================================
     assistantEnabled: false,
     autoUpdatePublicPlan: false,
+
+    //=====================================
+    // Backup
+    //=====================================
+    backupSettingPageConfig: true,
+    backupHistoryPageConfig: true,
+    backupAssistantData: true,
+    backupSelectionData: true,
   };
 }
 

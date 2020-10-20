@@ -30,6 +30,17 @@ function migrateConfig(config) {
 
 const ConfigMigration = {};
 
+// 1.0 => 1.1
+ConfigMigration['1.0'] = function(config) {
+  console.info("Migrating config from 1.0 to 1.1")
+  config.version = '1.1';
+  config.backupSettingPageConfig = true;
+  config.backupHistoryPageConfig = true;
+  config.backupAssistantData = true;
+  config.backupSelectionData = true;
+  return config;
+}
+
 // 0.0 => 1.0
 ConfigMigration['0.0'] = function(config) {
   console.info("Migrating config from 0.0 to 1.0")
