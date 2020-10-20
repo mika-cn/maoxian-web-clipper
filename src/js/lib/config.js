@@ -4,6 +4,12 @@ import MxWcStorage from './storage.js';
 
 const state = {};
 
+/** WARNING
+ * Be careful here! If we add or modify any config item here,
+ * we should apply these changes to migration.js too.
+ * Because user's config is still the old one.
+ */
+
 const DEFAULT_CONFIG = {
   /* Is handler enabled? */
   handlerBrowserEnabled: true,
@@ -171,25 +177,13 @@ function getDefault(){
 }
 
 /*
- * Fix config's keys if we add new item.
- */
-function fixKeys(config){
-  for(const k in DEFAULT_CONFIG){
-    if(!config.hasOwnProperty(k)){
-      config[k] = DEFAULT_CONFIG[k];
-    }
-  }
-  return config;
-}
-
-/*
  * @returns a promise
  */
 function load() {
   return new Promise(function(resolv, _) {
     MxWcStorage.get('config', getDefault())
       .then((config) => {
-        state.config = fixKeys(config);
+        state.config = config;
         resolv(state.config);
       });
   });
