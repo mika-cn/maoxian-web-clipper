@@ -169,8 +169,11 @@ ExtApi.bindDownloadChangedListener = (listener) => {
 }
 
 ExtApi.bindOnCommandListener = (listener) => {
-  browser.commands.onCommand.removeListener(listener);
-  browser.commands.onCommand.addListener(listener);
+  // Firefox Android does not support Command
+  if (browser.commands && browser.commands.onCommand) {
+    browser.commands.onCommand.removeListener(listener);
+    browser.commands.onCommand.addListener(listener);
+  }
 }
 
 export default ExtApi;

@@ -351,12 +351,12 @@ Global.evTarget.addEventListener('resource.loaded', (ev) => {
 })
 
 
-function init(){
+async function init(){
   Log.debug("background init...");
   ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
-  MxWcMigration.perform();
+  await MxWcMigration.perform();
 
-  updateNativeAppConfig();
+  await updateNativeAppConfig();
 
   Fetcher.init({token: REQUEST_TOKEN, cache: Global.assetCache});
   WebRequest.init({evTarget: Global.evTarget, requestToken: REQUEST_TOKEN});
