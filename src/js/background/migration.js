@@ -7,7 +7,37 @@ import MxWcConfig  from '../lib/config.js';
 
 async function perform() {
   await migrateOldVersion();
+  await migrate();
 }
+
+async function migrate() {
+  // config
+  let config = await MxWcConfig.load();
+  config = migrateConfig(config);
+  await MxWcStorage.set('config', config);
+
+}
+
+function migrateConfig(config) {
+  const version = (config.version || MxWcConfig.defaultVersion);
+  const migration = ConfigMigration[version];
+  if (migration) {
+    return migrateConfig(migration(config));
+  } else {
+    return config;
+  }
+}
+
+const ConfigMigration = {};
+
+// 0.0 => 1.0
+ConfigMigration['0.0'] = function(config) {
+  console.info("Migrating config from 0.0 to 1.0")
+  config.version = '1.0';
+  return config;
+}
+
+// =====================================================
 
 async function migrateOldVersion() {
   await migrateV0134();

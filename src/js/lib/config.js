@@ -2,146 +2,156 @@
 
 import MxWcStorage from './storage.js';
 
+const VERSION = '1.0';
 const state = {};
 
-const DEFAULT_CONFIG = {
-  /* Is handler enabled? */
-  handlerBrowserEnabled: true,
-  handlerNativeAppEnabled: false,
-  handlerWizNotePlusEnabled: false,
+/** WARNING
+ * Be careful here! If we add or modify any config item here,
+ * we should apply these changes to migration.js too.
+ * Because user's config is still the old one.
+ */
 
-  //=====================================
-  // General
-  //=====================================
+function getDefault(){
+  return {
+    version: VERSION,
+    /* Is handler enabled? */
+    handlerBrowserEnabled: true,
+    handlerNativeAppEnabled: false,
+    handlerWizNotePlusEnabled: false,
 
-  // content relative
-  saveDomainAsTag: false,
+    //=====================================
+    // General
+    //=====================================
 
-  saveIcon: false,
-  saveWebFont: false,
-  saveCssImage: false,
-  htmlSaveClippingInformation: false,
+    // content relative
+    saveDomainAsTag: false,
 
-  mdSaveClippingInformation: false,
-  mdFrontMatterEnabled: false,
-  mdFrontMatterTemplate: "---\ntitle: ${title}\ncategory: ${category}\ntags: ${tags}\ncreated_at: ${createdAt}\noriginal_url: ${url}\n---",
+    saveIcon: false,
+    saveWebFont: false,
+    saveCssImage: false,
+    htmlSaveClippingInformation: false,
 
-  // control
-  hotkeySwitchEnabled: false,
-  mouseModeEnabled: false,
-  inputFieldSaveFormatEnabled: false,
-  rememberSelection: false,
+    mdSaveClippingInformation: false,
+    mdFrontMatterEnabled: false,
+    mdFrontMatterTemplate: "---\ntitle: ${title}\ncategory: ${category}\ntags: ${tags}\ncreated_at: ${createdAt}\noriginal_url: ${url}\n---",
 
-  allowFileSchemeAccess: false,
+    // control
+    hotkeySwitchEnabled: false,
+    mouseModeEnabled: false,
+    inputFieldSaveFormatEnabled: false,
+    rememberSelection: false,
 
-  //=====================================
-  // Advanced
-  //=====================================
-  /* unit: seconds */
-  requestTimeout: 60,
-  requestMaxTries: 3,
-  /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
-  requestReferrerPolicy: 'originWhenCrossOrigin',
-  communicateWithThirdParty: false,
+    allowFileSchemeAccess: false,
 
-  //=====================================
-  // Storage
-  //=====================================
+    //=====================================
+    // Advanced
+    //=====================================
+    /* unit: seconds */
+    requestTimeout: 60,
+    requestMaxTries: 3,
+    /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
+    requestReferrerPolicy: 'originWhenCrossOrigin',
+    communicateWithThirdParty: false,
 
-  // "clippingHandlerName" is the old key
-  // and it's not be used anymore.
-  clippingHandler: 'Browser',
+    //=====================================
+    // Storage
+    //=====================================
 
-  saveFormat: 'html',
+    // "clippingHandlerName" is the old key
+    // and it's not be used anymore.
+    clippingHandler: 'Browser',
 
-  // ======== Local path ==========
-  rootFolder: 'mx-wc',
+    saveFormat: 'html',
 
-  /**
-   * ======== Variables ========
-   *
-   * $STORAGE-PATH  => downloadPath + rootFolder
-   * $CATEGORY-PATH => downloadPath + rootFolder + categoryFolder
-   * $CLIPPING-PATH => downloadPath + rootFolder + categoryFolder + clippingFolder
-   *
-   * $TITLE
-   * $DOMAIN
-   *
-   * $YYYY => year (4 digits, e.g. 2018)
-   * $YY   => year (2 digits, e.g. 18)
-   * $MM   => month (2 digits, 01 ~ 12)
-   * $DD   => day (2 digits, 01 ~ 31)
-   * $HH   => hour (2 digits, 00 ~ 23)
-   * $mm   => minute (2 digits, 00 ~ 59)
-   * $SS   => second (2 digits, 00 ~ 59)
-   * $TIME-INTSEC => time in seconds.
-   *
-   */
+    // ======== Local path ==========
+    rootFolder: 'mx-wc',
 
-  /**
-   * ======== Main File ========
-   *   HTML file or Markdown file.
-   */
-  mainFileFolder: '$CLIPPING-PATH',
-  /* $TITLE */
-  mainFileName: 'index.$FORMAT',
+    /**
+     * ======== Variables ========
+     *
+     * $STORAGE-PATH  => downloadPath + rootFolder
+     * $CATEGORY-PATH => downloadPath + rootFolder + categoryFolder
+     * $CLIPPING-PATH => downloadPath + rootFolder + categoryFolder + clippingFolder
+     *
+     * $TITLE
+     * $DOMAIN
+     *
+     * $YYYY => year (4 digits, e.g. 2018)
+     * $YY   => year (2 digits, e.g. 18)
+     * $MM   => month (2 digits, 01 ~ 12)
+     * $DD   => day (2 digits, 01 ~ 31)
+     * $HH   => hour (2 digits, 00 ~ 23)
+     * $mm   => minute (2 digits, 00 ~ 59)
+     * $SS   => second (2 digits, 00 ~ 59)
+     * $TIME-INTSEC => time in seconds.
+     *
+     */
 
-  /**
-   * ======== Frame File ========
-   *   embed HTML file
-   */
-  frameFileFolder: '$CLIPPING-PATH/frames',
+    /**
+     * ======== Main File ========
+     *   HTML file or Markdown file.
+     */
+    mainFileFolder: '$CLIPPING-PATH',
+    /* $TITLE */
+    mainFileName: 'index.$FORMAT',
 
-  /**
-   * ======== Info File ========
-   *   A json file which stores clipping information.
-   */
-  saveInfoFile: true,
-  infoFileFolder: '$CLIPPING-PATH',
-  infoFileName: 'index.json',
+    /**
+     * ======== Frame File ========
+     *   embed HTML file
+     */
+    frameFileFolder: '$CLIPPING-PATH/frames',
+
+    /**
+     * ======== Info File ========
+     *   A json file which stores clipping information.
+     */
+    saveInfoFile: true,
+    infoFileFolder: '$CLIPPING-PATH',
+    infoFileName: 'index.json',
 
 
-  /**
-   * ======== Title File ========
-   *   A Empty file which contains title in it's name.
-   */
-  saveTitleFile: true,
-  titleFileFolder: '$CLIPPING-PATH',
-  titleFileName: 'a-title_$TITLE',
+    /**
+     * ======== Title File ========
+     *   A Empty file which contains title in it's name.
+     */
+    saveTitleFile: true,
+    titleFileFolder: '$CLIPPING-PATH',
+    titleFileName: 'a-title_$TITLE',
 
-  /**
-   * ======== Asset Files ========
-   *   picture, icon, webfont, style
-   */
-  assetFolder: '$CLIPPING-PATH/assets',
+    /**
+     * ======== Asset Files ========
+     *   picture, icon, webfont, style
+     */
+    assetFolder: '$CLIPPING-PATH/assets',
 
-  /* $NONE */
-  /* $DOMAIN */
-  defaultCategory: 'default',
+    /* $NONE */
+    /* $DOMAIN */
+    defaultCategory: 'default',
 
-  clippingFolderName: '$YYYY-$MM-$DD-$TIME-INTSEC',
+    clippingFolderName: '$YYYY-$MM-$DD-$TIME-INTSEC',
 
-  //=====================================
-  // Offine pages
-  //=====================================
-  offlinePageHandler: 'Browser',
-  autogenerateClippingJs: false,
-  clippingJsPath: '$STORAGE-PATH/history/clippings.js',
+    //=====================================
+    // Offine pages
+    //=====================================
+    offlinePageHandler: 'Browser',
+    autogenerateClippingJs: false,
+    clippingJsPath: '$STORAGE-PATH/history/clippings.js',
 
-  //=====================================
-  // Auto refresh history
-  //=====================================
-  refreshHistoryHandler: 'NativeApp',
-  autoRefreshHistory: false,
+    //=====================================
+    // Auto refresh history
+    //=====================================
+    refreshHistoryHandler: 'NativeApp',
+    autoRefreshHistory: false,
 
-  //=====================================
-  // MxWc Assistant
-  //=====================================
-  assistantEnabled: false,
-  autoUpdatePublicPlan: false,
-};
+    //=====================================
+    // MxWc Assistant
+    //=====================================
+    assistantEnabled: false,
+    autoUpdatePublicPlan: false,
+  };
+}
 
-export const CONFIG_KEYS = Object.keys(DEFAULT_CONFIG)
+export const CONFIG_KEYS = Object.keys(getDefault())
 
 export const API_SETTABLE_KEYS = [
   'rootFolder',
@@ -166,22 +176,6 @@ export const API_SETTABLE_KEYS = [
 
 
 
-function getDefault(){
-  return Object.create(DEFAULT_CONFIG);
-}
-
-/*
- * Fix config's keys if we add new item.
- */
-function fixKeys(config){
-  for(const k in DEFAULT_CONFIG){
-    if(!config.hasOwnProperty(k)){
-      config[k] = DEFAULT_CONFIG[k];
-    }
-  }
-  return config;
-}
-
 /*
  * @returns a promise
  */
@@ -189,7 +183,7 @@ function load() {
   return new Promise(function(resolv, _) {
     MxWcStorage.get('config', getDefault())
       .then((config) => {
-        state.config = fixKeys(config);
+        state.config = config;
         resolv(state.config);
       });
   });
@@ -222,6 +216,8 @@ function reset() {
 }
 
 const Config = {
+  defaultVersion: '0.0',
+  version: VERSION,
   load: load,
   update: update,
   reset: reset,
