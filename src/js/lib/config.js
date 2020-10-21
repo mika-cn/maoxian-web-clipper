@@ -215,7 +215,7 @@ function update(k, v) {
 
 function reset() {
   return new Promise(function(resolve, _) {
-    const deafultConfig = getDefault();
+    const defaultConfig = getDefault();
     state.config = defaultConfig;
     MxWcStorage.set('config', state.config);
     resolve(state.config);

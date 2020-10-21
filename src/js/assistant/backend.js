@@ -20,6 +20,10 @@ function messageHandler(message, sender) {
       case 'save.custom-plan':
         PlanRepository.updateCustomPlans(message.body.planText).then(resolve);
         break;
+      case 'restart':
+        PlanRepository.restart();
+        resolve();
+        break;
     }
   });
 }

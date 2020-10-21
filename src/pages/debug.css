@@ -16,6 +16,21 @@ section {
   margin-bottom: 40px;
 }
 
+details > summary {
+  cursor: pointer;
+}
+
 .num {
   color: #3af555;
+}
+
+pre {
+  width: 100%;
+  overflow-x: auto;
+}
+
+pre > code {
+  background-color: black;
+  border: 0px;
+  line-height: 18px;
 }

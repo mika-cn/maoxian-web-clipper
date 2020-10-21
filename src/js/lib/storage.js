@@ -1,13 +1,18 @@
 "use strict";
 
 //const browser = require('webextension-polyfill');
+import T from './tool.js';
 
 const TYPE = 'local';
 
-function set(k, v){
+function set(k, v) {
   const d = {}
   d[k] = v
   return browser.storage[TYPE].set(d)
+}
+
+function setMultiItem(dict) {
+  return browser.storage[TYPE].set(dict);
 }
 
 // keys: string or Array
@@ -38,11 +43,38 @@ function get(k, defaultValue){
   });
 }
 
+function getAll() {
+  return browser.storage[TYPE].get(null);
+}
+
+/*
+ * query all storaged data. according to filters
+ *
+ * @param {Function} filter
+ *                   @see T.sliceObjByFilter for details
+ *
+ * @return {Promise} quering
+ *                   A promise that resolve with a object.
+ *
+ */
+function query(...filters) {
+  if (filters.length === 0) {
+    return Promise.reject("Not filter are provided.");
+  }
+  return new Promise((resolve, reject) => {
+    getAll().then((data) => {
+      resolve(T.sliceObjByFilter(data, ...filters));
+    })
+  })
+}
+
 const Storage = {
-  get: get,
-  set: set,
-  remove: remove,
-  clear: clear,
+  set, setMultiItem,
+  get, getAll,
+  remove,
+  clear,
+  query,
 };
 
 export default Storage;
+

@@ -231,6 +231,4 @@ async function migrateConfigToV0147() {
   console.debug("0.1.47 migrate");
 }
 
-const Migration = { perform: perform }
-
-export default Migration;
+export default {perform, migrateConfig}
