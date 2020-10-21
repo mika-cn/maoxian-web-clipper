@@ -7,5 +7,16 @@
   "extensionDescription": {
     "message": "Clip information from web page. save to your local machine to avoid information invalidation.",
     "description": "Description of the extension."
+  },
+
+  "commandToggleClip": {
+    "message": "Start clip",
+    "description": "Send a toggle clip event"
+  },
+
+  "commandOpenClipping": {
+    "message": "Open current clipping",
+    "description": "Open current clipping result"
   }
+
 }

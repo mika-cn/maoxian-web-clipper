@@ -281,13 +281,13 @@ function deleteHistoryAndFile(config, id) {
           if(result.ok) {
             deleteHistoryOnly(result.clip_id, true);
             if(result.message){
-              Notify.error(t(result.message));
+              Notify.error(I18N.t(result.message));
             } else {
               Notify.success(I18N.t('history.notice.delete-history-success'));
             }
           } else {
             console.error(result)
-            Notify.error(t(result.message));
+            Notify.error(I18N.t(result.message));
           }
         });
       });

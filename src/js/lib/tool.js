@@ -86,6 +86,49 @@ T.sliceObj = function(obj, keys) {
   return r;
 }
 
+/**
+ * A filter can return:
+ *   true   => this item will be selected
+ *   false  => this item won't be selected
+ *   'NEXT' => try next filter
+ */
+T.sliceObjByFilter = function(obj, ...filters) {
+  const r = {};
+  if (filters.length == 0) { return r }
+  for (let key in obj) {
+    const value = obj[key];
+    for (let i = 0; i < filters.length; i++) {
+      const answer = filters[i](key, value);
+      let breakCurrRound = false;
+      switch (answer) {
+        case true:
+          r[key] = value;
+          breakCurrRound = true;
+          break;
+        case false:
+          breakCurrRound = true;
+          break;
+        case 'NEXT':
+          ; // I don't care, try next filter
+      }
+      if (breakCurrRound) { break }
+    }
+  }
+  return r;
+}
+
+T.attributeFilter = function(attrName, answer) {
+  return function(key) {
+    return key === attrName ? answer : 'NEXT';
+  }
+}
+
+T.prefixFilter = function(keyPrefix, answer) {
+  return function(key) {
+    return key.startsWith(keyPrefix) ? answer : 'NEXT';
+  }
+}
+
 // ===============================
 // DOM relative
 // ===============================
@@ -261,7 +304,9 @@ T.any = function(collection, fn) {
 }
 
 
-T.toJson = function(hash) { return JSON.stringify(hash);}
+T.toJson = function(hash, replacer = null, space = 2) {
+  return JSON.stringify(hash, replacer, space);
+}
 
 //========== Url ===================
 
@@ -416,7 +461,6 @@ T.getUrlFileName = function(url){
   return new URL(decodeURI(url)).pathname.split('/').pop();
 }
 
-
 T.getFileExtension = function(filename){
   if(filename.indexOf('.') > -1){
     return filename.split('.').pop();
@@ -510,6 +554,10 @@ T.wrapDate = function(date) {
   tObj.toString = function(){
     // YYYY-MM-dd HH:mm:ss
     return `${s.year}-${s.month}-${s.day} ${s.hour}:${s.minute}:${s.second}`;
+  }
+
+  tObj.date = function() {
+    return `${s.year}-${s.month}-${s.day}`;
   }
 
   tObj.time = function() {

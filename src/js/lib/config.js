@@ -1,33 +1,18 @@
-"use strict";
 
 import MxWcStorage from './storage.js';
 
+const VERSION = '1.1';
 const state = {};
 
-export const API_SETTABLE_KEYS = [
-  'rootFolder',
-
-  'defaultCategory',
-  'clippingFolderName',
-
-  'mainFileFolder',
-  'mainFileName',
-
-  'saveInfoFile',
-  'infoFileFolder',
-  'infoFileName',
-
-  'saveTitleFile',
-  'titleFileFolder',
-  'titleFileName',
-
-  'frameFileFolder',
-  'assetFolder',
-];
+/** WARNING
+ * Be careful here! If we add or modify any config item here,
+ * we should apply these changes to migration.js too.
+ * Because user's config is still the old one.
+ */
 
 function getDefault(){
   return {
-
+    version: VERSION,
     /* Is handler enabled? */
     handlerBrowserEnabled: true,
     handlerNativeAppEnabled: false,
@@ -162,21 +147,41 @@ function getDefault(){
     //=====================================
     assistantEnabled: false,
     autoUpdatePublicPlan: false,
-  }
+
+    //=====================================
+    // Backup
+    //=====================================
+    backupSettingPageConfig: true,
+    backupHistoryPageConfig: true,
+    backupAssistantData: true,
+    backupSelectionData: true,
+  };
 }
 
-/*
- * Fix config's keys if we add new item.
- */
-function fixKeys(config){
-  const defaultConfig = getDefault();
-  for(const k in defaultConfig){
-    if(!config.hasOwnProperty(k)){
-      config[k] = defaultConfig[k];
-    }
-  }
-  return config;
-}
+export const CONFIG_KEYS = Object.keys(getDefault())
+
+export const API_SETTABLE_KEYS = [
+  'rootFolder',
+
+  'defaultCategory',
+  'clippingFolderName',
+
+  'mainFileFolder',
+  'mainFileName',
+
+  'saveInfoFile',
+  'infoFileFolder',
+  'infoFileName',
+
+  'saveTitleFile',
+  'titleFileFolder',
+  'titleFileName',
+
+  'frameFileFolder',
+  'assetFolder',
+];
+
+
 
 /*
  * @returns a promise
@@ -185,7 +190,7 @@ function load() {
   return new Promise(function(resolv, _) {
     MxWcStorage.get('config', getDefault())
       .then((config) => {
-        state.config = fixKeys(config);
+        state.config = config;
         resolv(state.config);
       });
   });
@@ -210,7 +215,7 @@ function update(k, v) {
 
 function reset() {
   return new Promise(function(resolve, _) {
-    const deafultConfig = getDefault();
+    const defaultConfig = getDefault();
     state.config = defaultConfig;
     MxWcStorage.set('config', state.config);
     resolve(state.config);
@@ -218,6 +223,8 @@ function reset() {
 }
 
 const Config = {
+  defaultVersion: '0.0',
+  version: VERSION,
   load: load,
   update: update,
   reset: reset,

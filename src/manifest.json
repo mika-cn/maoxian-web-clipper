@@ -54,7 +54,13 @@
       "suggested_key": {
         "default": "Alt+Shift+C"
       },
-      "description": "Send a toggle-clip event"
+      "description": "__MSG_commandToggleClip__"
+    },
+    "open-clipping": {
+      "suggested_key": {
+        "default": "Alt+Shift+O"
+      },
+      "description": "__MSG_commandOpenClipping__"
     }
   },
   "icons": {

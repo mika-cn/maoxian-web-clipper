@@ -21,11 +21,53 @@
           <a class="menu" href="#setting-handler-browser" i18n="setting.title.handler-browser"></a>
           <a class="menu" href="#setting-handler-native-app" i18n="setting.title.handler-native-app"></a>
           <a class="menu" href="#setting-handler-wiz-note-plus" i18n="setting.title.handler-wiz-note-plus"></a>
+          <hr />
+          <a class="menu" href="#setting-reset-and-backup" i18n="setting.title.reset-and-backup"></a>
+
         </div>
       </div>
       <div class="content">
       </div>
     </div>
+
+    <template id="section-setting-reset-and-backup-tpl">
+      <section id="setting-reset-and-backup">
+        <h2 class="center" i18n="setting.title.reset-and-backup"></h2>
+        <div>
+          <h3 i18n="setting.title.reset"></h3>
+          <span i18n="setting.reset-to-default-intro.label"></span>
+          <ul>
+            <li i18n="setting.backup-setting-page-config-input.label"></li>
+            <li i18n="setting.backup-assistant-data-input.label"></li>
+            <li i18n="setting.backup-selection-data-input.label"></li>
+          </ul>
+
+          <button id="reset-to-default" i18n="setting.button.reset-to-default"></button>
+        </div>
+        <div>
+          <h3 i18n="setting.title.backup"></h3>
+          <input type="checkbox" id="backup-setting-page-config" />
+          <label for="backup-setting-page-config" i18n="setting.backup-setting-page-config-input.label"></label>
+          <br />
+          <input type="checkbox" id="backup-history-page-config" />
+          <label for="backup-history-page-config" i18n="setting.backup-history-page-config-input.label"></label>
+          <br />
+          <input type="checkbox" id="backup-assistant-data" />
+          <label for="backup-assistant-data" i18n="setting.backup-assistant-data-input.label"></label>
+          <br />
+          <input type="checkbox" id="backup-selection-data" />
+          <label for="backup-selection-data" i18n="setting.backup-selection-data-input.label"></label>
+          <br /><br />
+          <button id="backup-to-file" i18n="setting.button.backup-to-file"></button>
+        </div>
+        <h3 i18n="setting.title.restore"></h3>
+        <button id="restore-from-file" i18n="setting.button.restore-from-file"></button>
+        <div class="hidden">
+          <input id="restore-file-picker" type="file" accept="application/json" />
+        </div>
+        <div>
+      </section>
+    </template>
 
     <template id="section-setting-advanced-tpl">
       <section id="setting-advanced">

@@ -6,6 +6,19 @@ require_relative 'log'
 
 module Storage
 
+  def self.rm_prefix(path, prefix:)
+    if path.start_with? prefix
+      rest = path[prefix.length..-1]
+      if rest.start_with?('/')
+        return rest[1..-1]
+      else
+        return rest
+      end
+    else
+      throw Exception.new("'#{prefix}' is not a prefix of #{path}")
+    end
+  end
+
   def self.save_base64_encoded_file(filename, content)
     return persist(filename) { Base64.decode64(content) }
   end

@@ -1,4 +1,3 @@
-
 import Log         from './lib/log.js';
 import T           from './lib/tool.js';
 import ExtApi      from './lib/ext-api.js';
@@ -23,6 +22,7 @@ import MxWcMigration from './background/migration.js';
 import WebRequest from './background/web-request.js';
 
 const Global = { evTarget: new MxEvTarget() };
+
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
@@ -70,6 +70,13 @@ function messageHandler(message, sender){
       case 'asset-cache.peek':
         resolve(Global.assetCache.peek());
         break;
+
+      /* backup and restore */
+      case 'backup-to-file':
+        backupToFile(resolve);
+        break;
+      case 'migrate-config':
+        resolve(migrateConfig(message.body))
       default:
         break;
     }
@@ -258,6 +265,92 @@ function welcomeNewUser(){
     })
 }
 
+function commandListener(command) {
+  switch (command) {
+    case 'open-clipping':
+      openClipping();
+      break;
+    default:
+      // toggle-clip
+      ExtMsg.sendToContent({
+        type: "command",
+        body: {command: command}
+      });
+      break;
+  }
+}
+
+async function openClipping() {
+  const lastClippingResult = await MxWcStorage.get('lastClippingResult');
+  if (!lastClippingResult) { return; }
+  const {url, failedTaskNum} = lastClippingResult;
+  const pageUrl = MxWcLink.get('extPage.last-clipping-result');
+  if (failedTaskNum > 0 ||
+    !(url.endsWith('.md') || url.endsWith('.html'))
+  ) {
+    ExtApi.createTab(pageUrl);
+    return;
+  }
+
+  const config = await MxWcConfig.load();
+  const allowFileSchemeAccess = await ExtApi.isAllowedFileSchemeAccess();
+  const allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
+
+  if (url.startsWith('http') || allowFileUrlAccess) {
+    MxWcStorage.set('lastClippingResult', null);
+    ExtApi.createTab(url);
+  } else {
+    // We don't use download.open API to open it,
+    // because it has weired behavior on background script.
+    ExtApi.createTab(pageUrl);
+  }
+}
+
+
+function backupToFile(callback) {
+  MxWcConfig.load().then((config) => {
+    const filters = [];
+
+    filters.push(T.attributeFilter('config'          , config.backupSettingPageConfig));
+    filters.push(T.prefixFilter('history.page.cache' , config.backupHistoryPageConfig));
+    filters.push(T.prefixFilter('assistant'          , config.backupAssistantData));
+    filters.push(T.prefixFilter('selectionStore'     , config.backupSelectionData));
+
+    /*
+     * ----- These data won't be backuped -----
+     * categories
+     * tags
+     * clips
+     * downloadFolder
+     * lastClippingResult
+     * firstRunning
+     * mx-wc-config-migrated*
+     *
+     */
+
+    MxWcStorage.query(...filters).then((data) => {
+      const now = T.currentTime();
+      const s = now.str
+      const t = [s.hour, s.minute, s.second].join('.');
+      const content = {data: data, backupAt: now.toString()}
+      const arr = [T.toJson(content)];
+      const blob = new Blob(arr, {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const filename = `mx-wc-backup_${now.date()}_${t}.json`;
+      ExtApi.download({
+        saveAs: true,
+        filename: filename,
+        url: url
+      }).then(callback);
+    });
+
+  });
+}
+
+function migrateConfig(config) {
+  return MxWcMigration.migrateConfig(config);
+}
+
 // ========================================
 // handler
 // ========================================
@@ -292,8 +385,6 @@ async function updateNativeAppConfig() {
   }
 }
 
-
-
 // ========================================
 
 const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
@@ -311,11 +402,12 @@ Global.evTarget.addEventListener('resource.loaded', (ev) => {
 })
 
 
-function init(){
+async function init(){
   Log.debug("background init...");
-  MxWcMigration.perform();
+  ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
+  await MxWcMigration.perform();
 
-  updateNativeAppConfig();
+  await updateNativeAppConfig();
 
   Fetcher.init({token: REQUEST_TOKEN, cache: Global.assetCache});
   WebRequest.init({evTarget: Global.evTarget, requestToken: REQUEST_TOKEN});
@@ -339,12 +431,7 @@ function init(){
   }, {evTarget: Global.evTarget}));
 
   // commands are keyboard shortcuts
-  ExtApi.bindOnCommandListener((command) => {
-    ExtMsg.sendToContent({
-      type: "command",
-      body: {command: command}
-    });
-  });
+  ExtApi.bindOnCommandListener(commandListener)
 
   welcomeNewUser();
   Log.debug("background init finish...");

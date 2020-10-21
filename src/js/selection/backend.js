@@ -5,12 +5,22 @@ import ExtMsg         from '../lib/ext-msg.js';
 import MxWcStorage    from '../lib/storage.js';
 import SelectionStore from './store.js';
 
-
-function messageHandler(message, sender){
-  return new Promise(function(resolve, reject){
-    switch(message.type){
-      case 'query': query(message.body).then(resolve); break;
-      case 'save': save(message.body).then(resolve); break;
+function messageHandler(message, sender) {
+  return new Promise(function(resolve, reject) {
+    switch (message.type) {
+      case 'query':
+        query(message.body).then(resolve);
+        break;
+      case 'save':
+        save(message.body).then(resolve);
+        break;
+      case 'reset':
+        reset().then(resolve);
+        break;
+      case 'restart':
+        restart();
+        resolve();
+        break;
     }
   });
 }
@@ -27,6 +37,27 @@ async function save({host, path, selection}) {
 async function query({host, path}) {
   const Store = await getStore(host);
   return Store.get(path)
+}
+
+// all data storage in MxWcStorage will be removed
+async function reset() {
+  const data = await MxWcStorage.getAll();
+  const keys = [];
+  for (let k in data) {
+    if (k.startsWith('selectionStore')) {
+      keys.push(k);
+    }
+  }
+  await MxWcStorage.remove(keys)
+  restart();
+}
+
+// just clear StoreDict
+// force it to refetch from Storage
+function restart() {
+  for (let key in StoreDict) {
+    delete StoreDict[key];
+  }
 }
 
 async function getStore(host) {

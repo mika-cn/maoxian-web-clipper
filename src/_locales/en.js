@@ -23,6 +23,16 @@
     "error.not-a-number": "Input value is not a number",
     "error.not-in-allowed-range": "Input value is not in allowed range",
 
+    // clipping attributes
+    "attr.title": "Title",
+    "attr.path": "Path",
+    "attr.time": "Time",
+    "attr.category": "Category",
+    "attr.tag": "Tag",
+    "attr.tags": "Tags",
+    "attr.format": "Format",
+    "attr.original-url": "From",
+
 
     //=====================================
     // home page
@@ -115,6 +125,10 @@
     "setting.title.handler-browser": "Browser",
     "setting.title.handler-native-app": "Native App",
     "setting.title.handler-wiz-note-plus" :"WizNotePlus",
+    "setting.title.reset-and-backup": "Reset / Backup",
+    "setting.title.reset": "Reset",
+    "setting.title.backup": "Backup",
+    "setting.title.restore": "Restore",
 
     "setting.title.save-format": "Save Format",
     "setting.title.control": "Control",
@@ -234,6 +248,9 @@
     "setting.button.refresh-now": "Refresh Now",
     "setting.button.update-now": "Update Now",
     "setting.button.save": "Save",
+    "setting.button.reset-to-default": "Reset to default settings",
+    "setting.button.backup-to-file": "Backup to file",
+    "setting.button.restore-from-file": "Restore from file",
 
     // notice
     "setting.notice.main-file-intro": "Main file is the HTML file or the Markdown file (depends on which format that you configure to save) that you clip",
@@ -295,8 +312,19 @@
     "setting.communicate-with-third-party-input.label": "Communicate with third party",
     "setting.assistant-enabled-input.label": "Enable assistant",
     "setting.auto-update-public-plan-input.label": "Auto update public plan (when you open the browser)",
+
+    "setting.backup-setting-page-config-input.label": "Setting page's configuration",
+    "setting.backup-history-page-config-input.label": "History page's configuration",
+    "setting.backup-assistant-data-input.label": "Assistant data (subscriptions and plans)",
+    "setting.backup-selection-data-input.label": "Remembered selection",
+
+
     "setting.last-update-time.label": "Last updated time",
     "setting.update-now-success.label": "Update success",
+    "setting.reset-to-default-intro.label": "Reset All items below",
+    "setting.reset-to-default-warning.label": "All your settings will be reset to default, are you sure?",
+    "setting.reset-to-default-success.label": "Reset success",
+    "setting.restore-from-file-success.label": "Restore success",
 
     // placeholder
     "setting.placeholder.notblank": "This value can not be blank!",
@@ -315,13 +343,7 @@
     "history.btn.clear-history": "Clear History",
     "history.btn.export-history": "Export History",
     "history.a.reset-history": "Reset history",
-    "history.th.title": "Title",
-    "history.th.path": "Path",
-    "history.th.original-url": "From",
-    "history.th.time": "Time",
-    "history.th.category": "Category",
-    "history.th.tag": "Tag",
-    "history.th.format": "Format",
+
     "history.no-record": "No record.",
     "history.export.no-record": "No record",
     "history.op.delete": "Delete",
@@ -363,6 +385,7 @@
     "lcr.notice.not-clipping-result": "Last clipping result is empty",
     "lcr.notice.openable-url": "You can click url below to see this clipping.",
     "lcr.notice.can-not-open-file-url": "You can not open this url directly. Becase extension is not allowed to open it, see <strong>Setting Page > File Url</strong> for more detail",
+    "lcr.notice.copy-url": "If you can't open the url above, using the following input box to copy it",
     "lcr.message.failed-task-num": "There are $num failures occured in this clipping.",
 
 
