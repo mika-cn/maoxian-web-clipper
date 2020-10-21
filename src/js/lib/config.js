@@ -1,8 +1,7 @@
-"use strict";
 
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.0';
+const VERSION = '1.1';
 const state = {};
 
 /** WARNING
@@ -148,6 +147,14 @@ function getDefault(){
     //=====================================
     assistantEnabled: false,
     autoUpdatePublicPlan: false,
+
+    //=====================================
+    // Backup
+    //=====================================
+    backupSettingPageConfig: true,
+    backupHistoryPageConfig: true,
+    backupAssistantData: true,
+    backupSelectionData: true,
   };
 }
 
@@ -208,7 +215,7 @@ function update(k, v) {
 
 function reset() {
   return new Promise(function(resolve, _) {
-    const deafultConfig = getDefault();
+    const defaultConfig = getDefault();
     state.config = defaultConfig;
     MxWcStorage.set('config', state.config);
     resolve(state.config);

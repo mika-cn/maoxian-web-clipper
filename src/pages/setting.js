@@ -268,6 +268,29 @@ function initSettingAdvanced(config) {
 
 }
 
+function initSettingResetAndBackup(config) {
+  initCheckboxInput(config,
+    'backup-setting-page-config',
+    'backupSettingPageConfig'
+  );
+
+  initCheckboxInput(config,
+    'backup-history-page-config',
+    'backupHistoryPageConfig'
+  );
+
+  initCheckboxInput(config,
+    'backup-assistant-data',
+    'backupAssistantData'
+  );
+
+  initCheckboxInput(config,
+    'backup-selection-data',
+    'backupSelectionData'
+  );
+
+}
+
 // ======================================
 // init form input END
 // ======================================
@@ -557,6 +580,97 @@ function refreshHistoryNow(e) {
   Notify.success(I18N.t('setting.refresh-now-msg-sent.label'));
 }
 
+async function resetToDefault(e) {
+  const confirmed = window.confirm(I18N.t('setting.reset-to-default-warning.label'));
+  if (confirmed) {
+    try {
+      // reset config
+      await MxWcConfig.reset();
+      await resetAssistant();
+      // reset selection's backend
+      await ExtMsg.sendToBackend('selection', {type: 'reset'});
+      Notify.success(I18N.t('setting.reset-to-default-success.label'));
+      renderSection('setting-reset-and-backup');
+    } catch(e) {
+      Notify.error(e.message);
+    }
+  }
+}
+
+function restoreFromFile(e) {
+  const input = T.findElem('restore-file-picker');
+  input.value = '';
+  input.click();
+}
+
+function backupToFile(e) {
+  ExtMsg.sendToBackground({type: 'backup-to-file'})
+}
+
+function handleRestoreFilePicker(e) {
+  const input = e.target;
+  const file = input.files[0];
+  if ( file === undefined || file.name === '' ) { return; }
+  if ( file.type.indexOf('json') == -1 ) { return; }
+  const filename = file.name;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const text = ev.target.result
+    try {
+      const {data} = JSON.parse(text);
+      restoreData(data).then(
+        () => {
+          Notify.success(I18N.t('setting.restore-from-file-success.label'));
+          renderSection('setting-reset-and-backup');
+        },
+        (e) => {
+          Notify.error(e.message);
+        }
+      ).catch((e) => {
+        Notify.error(e.message);
+      });
+    } catch(e) {
+      Notify.error(e.message);
+    }
+  }
+  reader.readAsText(file);
+}
+
+async function restoreData(data) {
+  const restoredData = {};
+  let assistantData = false;
+  let selectionData = false;
+  for (let key in data) {
+    if (key == 'config') {
+      const migratedConfig = await ExtMsg.sendToBackground({
+        type: 'migrate-config',
+        body: data.config
+      });
+      restoredData[key] = migratedConfig;
+    } else if (key.startsWith('history.page.cache')) {
+      restoredData[key] = data[key];
+    } else if (key.startsWith('assistant')) {
+      restoredData[key] = data[key];
+      assistantData = true;
+    } else if (key.startsWith('selectionStore')) {
+      restoredData[key] = data[key];
+      selectionData = true;
+    }
+  }
+  data = null;
+  await MxWcStorage.setMultiItem(restoredData);
+
+  // restart storage relative services
+  const promises = [];
+  if (assistantData) {
+    promises.push(ExtMsg.sendToBackend('assistant', {type: 'restart'}));
+  }
+  if (selectionData) {
+    promises.push(ExtMsg.sendToBackend('selection', {type: 'restart'}));
+  }
+  await Promise.all(promises);
+}
+
 function renderSection(id) {
   const container = T.queryElem('.content');
   const template = getSectionTemplate(id);
@@ -589,6 +703,9 @@ function renderSection(id) {
     case 'setting-advanced':
       render = renderSectionAdvanced;
       break;
+    case 'setting-reset-and-backup':
+      render = renderSectionResetAndBackup;
+      break;
     default:
       throw new Error("Unknown section " + id)
   }
@@ -619,6 +736,18 @@ function renderSectionAdvanced(id, container, template) {
   });
 }
 
+function renderSectionResetAndBackup(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  MxWcConfig.load().then((config) => {
+    initSettingResetAndBackup(config);
+  });
+  bindClickListener('backup-to-file', backupToFile);
+  bindClickListener('restore-from-file', restoreFromFile);
+  bindClickListener('reset-to-default', resetToDefault);
+  bindChangeListener('restore-file-picker', handleRestoreFilePicker);
+}
+
 function renderSectionStorage(id, container, template) {
   const html = template;
   T.setHtml(container, html);
@@ -627,34 +756,40 @@ function renderSectionStorage(id, container, template) {
   });
 }
 
-function renderSectionAssistant(id, container, template) {
-  const examplePlan = `  {
-  "name" : "A example plan",
-  "pattern" : "https://example.org/posts/**/*.html",
-  "pick" : ".post",
-  "hide" : [".post-btns", "div.comments"]
-}`;
-  const defaultIndexUrl = MxWcLink.get('assistant.subscription.default.index');
 
+// ======================================
+// Assistant begin
+// ======================================
+const AssistantDefault = {
+  examplePlanText: "[\n  {"
+    + '\n    "name" : "A example plan",'
+    + '\n    "pattern" : "https://example.org/posts/**/*.html",'
+    + '\n    "pick" : ".post",'
+    + '\n    "hide" : [".post-btns", "div.comments"]'
+    + '\n  }\n]',
+  defaultIndexUrl: MxWcLink.get('assistant.subscription.default.index'),
+}
+
+function renderSectionAssistant(id, container, template) {
   const html = T.renderTemplate(template, {});
   T.setHtml(container, html);
   renderSubscriptions();
-  MxWcStorage.get('assistant.custom-plan.text', `[\n${examplePlan}\n]`).then((value) => {
+  MxWcStorage.get('assistant.custom-plan.text', AssistantDefault.examplePlanText).then((value) => {
     T.setElemValue('#custom-plans', value);
   });
   MxWcStorage.get('assistant.public-plan.subscription-text').then((value) => {
-    const subscription = (value || defaultIndexUrl);
+    const subscription = (value || AssistantDefault.defaultIndexUrl);
     T.setElemValue('#plan-subscription', subscription);
     if (!value) {
-      MxWcStorage.set('assistant.public-plan.subscription-urls', [defaultIndexUrl]);
+      MxWcStorage.set('assistant.public-plan.subscription-urls', [AssistantDefault.defaultIndexUrl]);
     }
   });
   MxWcConfig.load().then((config) => {
     initSettingAssistant(config);
   });
-  bindButtonListener('update-public-plan-now', updatePublicPlans);
-  bindButtonListener('save-plan-subscription', savePlanSubscription);
-  bindButtonListener('save-custom-plan', saveCustomPlan);
+  bindClickListener('update-public-plan-now', updatePublicPlans);
+  bindClickListener('save-plan-subscription', savePlanSubscription);
+  bindClickListener('save-custom-plan', saveCustomPlan);
 }
 
 function renderSubscriptions() {
@@ -769,6 +904,34 @@ function saveCustomPlan(e) {
   }
 }
 
+async function resetAssistant() {
+  await resetCustomPlan();
+  await resetPublicPlan();
+}
+
+function resetCustomPlan() {
+  return ExtMsg.sendToBackend('assistant', {
+    type: 'save.custom-plan',
+    body: {planText: AssistantDefault.examplePlanText}
+  });
+}
+
+function resetPublicPlan() {
+  return MxWcStorage.remove([
+    'assistant.public-plan.subscription-text',
+    'assistant.public-plan.subscription-urls',
+  ]).then(() => {
+    ExtMsg.sendToBackend('assistant', {
+      type: 'update.public-plan',
+      body: {urls: []}
+    });
+  });
+}
+
+// ======================================
+// Assistant end
+// ======================================
+
 function renderSectionHandlerBrowser(id, container, template) {
   const html = template;
   T.setHtml(container, html);
@@ -787,7 +950,6 @@ function renderSectionHandlerNativeApp(id, container, template) {
     type: 'handler.get-info',
     body: {name: 'NativeApp'}
   }).then((info) => {
-
     const section = T.findElem(id);
     if(info.ready) {
       showVersion(
@@ -855,7 +1017,7 @@ function renderSectionOfflinePage(id, container, template) {
     MxWcConfig.load().then((config) => {
       initOfflinePage(config)
     });
-    bindButtonListener('generate-clipping-js-now', generateClippingJsNow);
+    bindClickListener('generate-clipping-js-now', generateClippingJsNow);
   });
 }
 
@@ -869,15 +1031,19 @@ function renderSectionRefreshHistory(id, container, template) {
     MxWcConfig.load().then((config) => {
       initRefreshHistory(config)
     });
-    bindButtonListener('refresh-history-now', refreshHistoryNow);
+    bindClickListener('refresh-history-now', refreshHistoryNow);
   });
 }
 
-function bindButtonListener(id, handler){
-  const btn = T.findElem(id);
-  T.bindOnce(btn, 'click', handler);
+function bindClickListener(id, handler) {
+  const elem = T.findElem(id);
+  T.bindOnce(elem, 'click', handler);
 }
 
+function bindChangeListener(id, handler) {
+  const elem = T.findElem(id);
+  T.bindOnce(elem, 'change', handler);
+}
 
 function menuClicked(elem) {
   T.each(elem.parentNode.children, (menu) => {

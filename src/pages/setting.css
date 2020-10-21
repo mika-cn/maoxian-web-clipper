@@ -142,6 +142,10 @@ section {
   display: block;
 }
 
+.hidden {
+  display: none;
+}
+
 #setting-handler-native-app .version {
   display: none
 }
@@ -240,6 +244,10 @@ table th, td {
   line-height: 25px;
   border: 1px solid #ccc;
   padding: 2px 5px 2px 5px;
+}
+
+button {
+  padding: 4px 8px;
 }
 
 

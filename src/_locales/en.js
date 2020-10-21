@@ -125,6 +125,10 @@
     "setting.title.handler-browser": "Browser",
     "setting.title.handler-native-app": "Native App",
     "setting.title.handler-wiz-note-plus" :"WizNotePlus",
+    "setting.title.reset-and-backup": "Reset / Backup",
+    "setting.title.reset": "Reset",
+    "setting.title.backup": "Backup",
+    "setting.title.restore": "Restore",
 
     "setting.title.save-format": "Save Format",
     "setting.title.control": "Control",
@@ -244,6 +248,9 @@
     "setting.button.refresh-now": "Refresh Now",
     "setting.button.update-now": "Update Now",
     "setting.button.save": "Save",
+    "setting.button.reset-to-default": "Reset to default settings",
+    "setting.button.backup-to-file": "Backup to file",
+    "setting.button.restore-from-file": "Restore from file",
 
     // notice
     "setting.notice.main-file-intro": "Main file is the HTML file or the Markdown file (depends on which format that you configure to save) that you clip",
@@ -305,8 +312,19 @@
     "setting.communicate-with-third-party-input.label": "Communicate with third party",
     "setting.assistant-enabled-input.label": "Enable assistant",
     "setting.auto-update-public-plan-input.label": "Auto update public plan (when you open the browser)",
+
+    "setting.backup-setting-page-config-input.label": "Setting page's configuration",
+    "setting.backup-history-page-config-input.label": "History page's configuration",
+    "setting.backup-assistant-data-input.label": "Assistant data (subscriptions and plans)",
+    "setting.backup-selection-data-input.label": "Remembered selection",
+
+
     "setting.last-update-time.label": "Last updated time",
     "setting.update-now-success.label": "Update success",
+    "setting.reset-to-default-intro.label": "Reset All items below",
+    "setting.reset-to-default-warning.label": "All your settings will be reset to default, are you sure?",
+    "setting.reset-to-default-success.label": "Reset success",
+    "setting.restore-from-file-success.label": "Restore success",
 
     // placeholder
     "setting.placeholder.notblank": "This value can not be blank!",
