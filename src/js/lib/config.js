@@ -1,7 +1,7 @@
 
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.1';
+const VERSION = '1.2';
 const state = {};
 
 /** WARNING
@@ -222,6 +222,19 @@ function reset() {
   });
 }
 
+/*
+ * Fix config's keys
+ */
+function fixKeys(config){
+  const defaultConfig = getDefault();
+  for(const k in defaultConfig){
+    if(!config.hasOwnProperty(k)){
+      config[k] = defaultConfig[k];
+    }
+  }
+  return config;
+}
+
 const Config = {
   defaultVersion: '0.0',
   version: VERSION,
@@ -229,6 +242,7 @@ const Config = {
   update: update,
   reset: reset,
   getDefault: getDefault,
+  fixKeys: fixKeys,
 }
 
 export default Config;
