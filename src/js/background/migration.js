@@ -30,6 +30,12 @@ function migrateConfig(config) {
 
 const ConfigMigration = {};
 
+ConfigMigration['1.1'] = function(config) {
+  console.info("Migrating config from 1.1 to 1.2")
+  config.version = '1.2';
+  return MxWcConfig.fixKeys(config);
+}
+
 // 1.0 => 1.1
 ConfigMigration['1.0'] = function(config) {
   console.info("Migrating config from 1.0 to 1.1")
