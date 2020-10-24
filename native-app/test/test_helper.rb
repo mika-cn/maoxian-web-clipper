@@ -28,7 +28,8 @@ module T
   end
 
   def self.file_root
-    @tmp_root ||= File.expand_path('../files', __FILE__)
+    dir = "/tmp/mx-wc-test-#{Time.now.strftime('%F')}"
+    return dir
   end
 
   def self.create_files(filenames)
