@@ -106,6 +106,7 @@ function responseHandler(resp){
       }
       break;
     case 'history.refresh':
+    case 'history.refresh_v2':
       if(state.refreshHistoryCallback){
         state.refreshHistoryCallback(resp);
       }
@@ -180,18 +181,23 @@ function deleteClipping(msg, callback) {
 }
 
 function refreshHistory(msg, callback) {
-  listen();
-  try {
-    state.refreshHistoryCallback = callback;
-    state.disconnectCallback = function(message) {
-      callback({ok: false, message: message})
+  getVersion((r) => {
+    try {
+      let type = 'history.refresh';
+      if (r.ok && T.isVersionGteq(r.version, '0.2.6')) {
+        type = 'history.refresh_v2';
+      }
+      state.refreshHistoryCallback = callback;
+      state.disconnectCallback = function(message) {
+        callback({ok: false, message: message})
+      }
+      msg.type = type;
+      state.port.postMessage(msg);
+    } catch(e) {
+      // avoid other exception
+      callback({ ok: false, message: e.message })
     }
-    msg.type = 'history.refresh';
-    state.port.postMessage(msg);
-  } catch(e) {
-    // avoid other exception
-    callback({ ok: false, message: e.message })
-  }
+  });
 }
 
 

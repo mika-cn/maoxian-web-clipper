@@ -6,19 +6,74 @@ module History
     data_dir = sanitize(data_dir)
     storage_dir = File.join(data_dir, root_folder)
     items = []
+
     Dir.glob("#{storage_dir}/**/*.json") do |path|
       clip = parse_clipping_info_file(path, root_folder)
       if !clip.nil?
         items << {t: clip.clipId.to_i, clip: clip}
       end
     end
+
     result = parse_items(items.sort {|a,b| b[:t] - a[:t]})
     result[:ok] = true
     result
   end
 
+  def self.refresh_v2(data_dir, root_folder, batch_size: 100, &blk)
+    data_dir = sanitize(data_dir)
+    storage_dir = File.join(data_dir, root_folder)
+    items = []
+
+    # get each index.json's created_at and sort them
+    Dir.glob("#{storage_dir}/**/*.json") do |path|
+      item = parse_created_at(path)
+      items.push(item) if item
+    end
+    sorted_items = items.sort {|a,b| b[:t] - a[:t]}
+
+    # parse each file
+    clippings = []
+    categories = []
+    tags = []
+    i = 0
+    sorted_items.each do |it|
+      clipping = parse_clipping_info_file(it[:path], root_folder)
+      if !clipping.nil?
+        clippings << clipping.to_h
+        clipping.tags.each do |tag|
+          if tags.index(tag).nil?
+            tags << tag
+          end
+        end
+        if categories.index(clipping.category).nil?
+          categories << clipping.category
+        end
+        i += 1
+        if i % batch_size == 0
+          blk.call({clips: clippings, categories: [], tags: [], ok: true, completed: false})
+          clippings = []
+          i = 0
+        end
+      end
+    end
+    blk.call({clips: clippings, categories: categories, tags: tags, ok: true, completed: true})
+  end
+
   private
 
+
+  def self.parse_created_at(path)
+    json = File.open(path) {|f| f.read}
+    result = json.match(/\"created_at\":\"([0-9\-: ]+)\"/)
+    if result && result[1]
+      created_at = result[1]
+      time = Time.new(*created_at.split(/[\-: ]+/).map(&:to_i))
+      return {t: time.to_i, path: path}
+    else
+      # This is not a json file that contains created_at
+      return nil
+    end
+  end
 
 
   def self.parse_items(items)
@@ -44,6 +99,7 @@ module History
   def self.sanitize(path)
     path.gsub("\\", '/')
   end
+
 
   def self.parse_clipping_info_file(path, root_folder)
     json = File.open(path) {|f| f.read}

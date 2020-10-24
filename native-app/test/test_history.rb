@@ -123,6 +123,44 @@ class HistoryTest < Minitest::Test
     T.remove_dir data_dir
   end
 
+  def test_history_refresh_v2
+    data_dir = File.join(T.file_root, 'test_history_refresh')
+    now = Time.now
+    31.times do |i|
+      t = now - i * 60
+      T.create_file(
+        File.join(data_dir, "clippings/catA/catB/title-#{i}/index.json"),
+        JSON.generate({
+          version: '2.0',
+          clipId: now.to_i,
+          format: 'html',
+          title: 'awesome title',
+          category: 'catA/catB',
+          tags: ['tagA'],
+          created_at: t.strftime('%F %T'),
+        })
+      )
+    end
+
+    x = y = z = 0
+    History.refresh_v2(data_dir, 'clippings', batch_size: 10) do |r|
+      case r[:clips].size
+      when 10
+        x += 1
+      when 1
+        y += 1
+      else
+        z += 1
+      end
+    end
+
+    assert_equal 3, x
+    assert_equal 1, y
+    assert_equal 0, z
+
+    T.remove_dir data_dir
+  end
+
   def teardown
     data_dir = File.join(T.file_root, 'test_history_refresh')
     T.remove_dir data_dir
