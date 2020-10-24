@@ -13,7 +13,12 @@ module MsgHandler
       @default_handler = MsgHandler::Default.new(config)
     end
 
-    def handle(msg)
+    def handle(msg, &send_msg)
+      result = handle_normal_msg(msg)
+      send_msg.call(result)
+    end
+
+    def handle_normal_msg(msg)
       case msg['type']
       when 'download.text' then
         download_text(msg)
@@ -23,7 +28,7 @@ module MsgHandler
           ok: false,
           message: 'Deleting clipping is not supported'
         }
-      when 'history.refresh' then
+      when 'history.refresh', 'history.refresh_v2' then
         return {
           type: msg['type'],
           ok: false,

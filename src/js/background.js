@@ -124,21 +124,40 @@ function refreshHistory(resolve) {
         }
       });
 
+      // FIXME
+      // This clips variable may take lots of memory here.
+      let clips = [];
+      let tags = [];
+      let categories = [];
       handler.refreshHistory({
         root_folder: config.rootFolder,
         time: T.currentTime().toString()
       }, (result) => {
         if(result.ok){
-          resetStates('clips', result.clips);
-          resetStates('tags', result.tags);
-          resetStates('categories', result.categories);
-          const time = T.currentTime().toString();
-          MxWcStorage.set('lastRefreshHistoryTime', time);
-          Global.evTarget.dispatchEvent({
-            type: 'history.refreshed'
-          });
+          clips = clips.concat(result.clips);
+          tags = tags.concat(result.tags);
+          categories = categories.concat(result.categories);
+
+          // Only new messages has 'completed' property
+          if (!result.hasOwnProperty('completed') || result.completed) {
+            resetStates('clips', clips);
+            resetStates('tags', tags);
+            resetStates('categories', categories);
+            const time = T.currentTime().toString();
+            MxWcStorage.set('lastRefreshHistoryTime', time);
+            Global.evTarget.dispatchEvent({
+              type: 'history.refreshed'
+            });
+            clips = null;
+            tags = null;
+            categories = null;
+            resolve({ok: true, time: result.time});
+          } else {
+            // not completed
+          }
+        } else {
+          resolve(result);
         }
-        resolve(result);
       })
     } else {
       resolve({ ok: false, message: message});

@@ -15,8 +15,23 @@ module MsgHandler
       @config = config
     end
 
-    def handle(msg)
+    def handle(msg, &send_msg)
       Log.debug("[save] #{msg['clipId']} #{msg['type']} - #{msg['filename']}")
+
+      if msg['type'] == 'history.refresh'
+        result = History.refresh(root, msg['root_folder'])
+        send_msg.call(msg.merge(result))
+      elsif msg['type'] == 'history.refresh_v2'
+        History.refresh_v2(root, msg['root_folder'], batch_size: 300) do |result|
+          send_msg.call(msg.merge(result))
+        end
+      else
+        result = handle_normal_msg(msg)
+        send_msg.call(result)
+      end
+    end
+
+    def handle_normal_msg(msg)
       case msg['type']
       when 'download.text' then
         download_text(msg)
@@ -42,9 +57,6 @@ module MsgHandler
           result = Clipping.delete(root, msg)
           return {type: msg['type']}.merge(result)
         end
-      when 'history.refresh' then
-        result = History.refresh(root, msg['root_folder'])
-        return msg.merge(result)
       else
         Log.error("unknow message: #{msg['type']}")
         return {type: msg['type'], ok: false, message: 'unknow-message' }

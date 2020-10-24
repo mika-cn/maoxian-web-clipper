@@ -18,8 +18,10 @@ class Application
   def start
     while true do
       msg = NativeMessage.read
-      result = @msg_handler.handle(msg)
-      NativeMessage.write(result)
+      @msg_handler.handle(msg) do |result|
+        NativeMessage.write(result)
+      end
     end
   end
+
 end
