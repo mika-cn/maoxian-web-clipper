@@ -148,9 +148,6 @@ function refreshHistory(resolve) {
             Global.evTarget.dispatchEvent({
               type: 'history.refreshed'
             });
-            clips = null;
-            tags = null;
-            categories = null;
             resolve({ok: true, time: result.time});
           } else {
             // not completed
