@@ -15,13 +15,29 @@ function setMultiItem(dict) {
   return browser.storage[TYPE].set(dict);
 }
 
-// keys: string or Array
+// @param {String/Array} keys
 function remove(keys) {
   return browser.storage[TYPE].remove(keys);
 }
 
 function clear() {
   return browser.storage[TYPE].clear();
+}
+
+function getTotalBytes() {
+  return getBytesInUse();
+}
+
+// @param {String/Array} keys
+// @return {Promise} resolve with n
+//                   or reject with an error message
+function getBytesInUse(keys) {
+  if (browser.storage[TYPE].getBytesInUse) {
+    return browser.storage[TYPE].getBytesInUse(keys);
+  } else {
+    // getBytesInUse() is not supported
+    return Promise.reject("getBytesInUser() is not supported");
+  }
 }
 
 function get(k, defaultValue){
@@ -71,6 +87,8 @@ function query(...filters) {
 const Storage = {
   set, setMultiItem,
   get, getAll,
+  getBytesInUse,
+  getTotalBytes,
   remove,
   clear,
   query,

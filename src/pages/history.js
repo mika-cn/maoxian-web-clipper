@@ -308,7 +308,7 @@ function deleteHistoryOnly(id, noConfirm=false) {
         // state.currClips and state.allClips may be the same object.
         state.allClips.splice(state.allClips.indexOf(clip), 1);
       }
-      MxWcStorage.set('clips', state.allClips)
+      saveClips(state.allClips);
       removeTrByClipId(id)
     }
     if(noConfirm) {
@@ -317,6 +317,19 @@ function deleteHistoryOnly(id, noConfirm=false) {
       confirmIfNeed(I18N.t('history.confirm-msg.delete-history'), action);
     }
   }
+}
+
+function saveClips(clips) {
+  const r = [];
+  clips.forEach((it) => {
+    r.push(rmExtraAttribute(it));
+  })
+  MxWcStorage.set('clips', r);
+}
+
+// WARNING return a new Object
+function rmExtraAttribute(clip) {
+  return T.sliceObjByFilter(clip, T.rmAttributeFilter('created_at_date', 'created_at_time'))
 }
 
 function removeTrByClipId(id) {
@@ -478,7 +491,7 @@ function clearHistory(e){
 function exportHistory(e){
   let content = T.toJson({error: I18N.t('history.export.no-record')});
   if(state.currClips.length > 0){
-    content = T.toJson(state.currClips)
+    content = T.toJson(state.currClips.map((it) => rmExtraAttribute(it)))
   }
   ExtMsg.sendToBackground({
     type: 'export.history',

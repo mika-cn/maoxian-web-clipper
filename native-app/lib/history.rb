@@ -1,6 +1,7 @@
 
 module History
   require 'json'
+  require 'time'
 
   def self.refresh(data_dir, root_folder)
     data_dir = sanitize(data_dir)
@@ -63,12 +64,12 @@ module History
 
 
   def self.parse_created_at(path)
-    json = File.open(path) {|f| f.read}
-    result = json.match(/\"created_at\":\"([0-9\-: ]+)\"/)
+    json = File.open(path, 'rb') {|f| f.read}
+    # created_at default(YYYY-MM-dd hh:mm:ss) or iso8601
+    result = json.match(/\"created_at\"\s*:\s*\"([0-9\+\-: TZ]+)\"/)
     if result && result[1]
       created_at = result[1]
-      time = Time.new(*created_at.split(/[\-: ]+/).map(&:to_i))
-      return {t: time.to_i, path: path}
+      return {t: Time.parse(created_at).to_i, path: path}
     else
       # This is not a json file that contains created_at
       return nil
@@ -126,14 +127,44 @@ module History
 
     def initialize(h, path, root_folder)
       store_path = to_store_path(path, root_folder)
+      # compatible with browser
       h[:path] = File.join(root_folder, store_path)
       super(h)
       if self.version === '2.0'
       else
+        fix_version
         fix_format
         fix_filename
         fix_category(store_path)
         fix_clip_id
+      end
+    end
+
+    def to_h
+      # WARNING:
+      # if we change info's structure,
+      # we should change here too
+      r = super.slice(
+        :version,
+        :clipId,
+        :format,
+        :title,
+        :link,
+        :path,
+        :category,
+        :tags,
+        :created_at,
+      )
+      if self.mainPath
+        # version 1.0 don't have mainPath attribute
+        r[:mainPath] = self.mainPath
+      end
+      r
+    end
+
+    def fix_version
+      if !self.version
+        self.version = '1.0'
       end
     end
 

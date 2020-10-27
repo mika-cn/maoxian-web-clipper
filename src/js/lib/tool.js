@@ -117,6 +117,12 @@ T.sliceObjByFilter = function(obj, ...filters) {
   return r;
 }
 
+T.rmAttributeFilter = function(...attrNames) {
+  return function(key) {
+    return !(attrNames.indexOf(key) > -1)
+  }
+}
+
 T.attributeFilter = function(attrName, answer) {
   return function(key) {
     return key === attrName ? answer : 'NEXT';
