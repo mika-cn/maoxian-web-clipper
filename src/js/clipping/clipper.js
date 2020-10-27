@@ -107,24 +107,22 @@ async function clip(elem, {info, storageInfo, config, storageConfig, win}) {
 
   tasks = Task.rmReduplicate(tasks);
 
-  // info.paths is used to delete files.
-  info.paths = [];
   if (storageConfig.saveInfoFile) {
-
     // calculate path
-    info.paths.push(storageInfo.infoFileName);
     const {mainPath, paths} = Task.getRelativePath(
       tasks, storageInfo.infoFileFolder);
     info.mainPath = mainPath;
-    info.paths.push(...paths);
+
+    // "paths" is used to delete clipping file
+    // We save it in infoFile, but not in the browser.
+    paths.unshift(storageInfo.infoFileName);
 
     const filename = T.joinPath(storageInfo.infoFileFolder, storageInfo.infoFileName);
-    tasks.unshift(Task.createInfoTask(filename, info))
+    tasks.unshift(Task.createInfoTask(filename, Object.assign({}, info, {paths})))
   } else {
-    // In this condition.
+    // Do nothing in this condition.
     // We don't save info file and this clipping record.
-    // So we don't need info.paths(No deletion) and info.mainPath(No history to open)
-    delete info['paths'];
+    // So we don't need paths(No deletion) and mainPath(No history to open)
   }
 
   const clipping = {
