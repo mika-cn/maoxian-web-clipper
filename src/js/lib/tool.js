@@ -464,7 +464,15 @@ T.replaceAll = function(str, subStr, newSubStr){
 
 
 T.getUrlFileName = function(url){
-  return new URL(decodeURI(url)).pathname.split('/').pop();
+  const lastPart = new URL(decodeURI(url)).pathname.split('/').pop();
+  const idxA = lastPart.lastIndexOf('.');
+  const idxB = lastPart.lastIndexOf('!');
+  if (idxA > -1 && idxB > -1 && idxA < idxB) {
+    // remove "!large" of "name.ext!large"
+    return lastPart.substring(0, idxB);
+  } else {
+    return lastPart
+  }
 }
 
 T.getFileExtension = function(filename){

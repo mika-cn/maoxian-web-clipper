@@ -166,5 +166,12 @@ describe('Tool', () => {
     H.assertEqual(r.parameters.foo, 'Bar');
   });
 
+  it('getUrlFileName', () => {
+    let url = 'https://a.org/example.jpeg';
+    H.assertEqual(T.getUrlFileName(url), 'example.jpeg')
+    url = 'https://a.org/example.jpeg!large?a=1&b=2#h';
+    H.assertEqual(T.getUrlFileName(url), 'example.jpeg')
+  });
+
 
 })
