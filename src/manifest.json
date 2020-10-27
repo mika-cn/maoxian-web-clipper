@@ -17,6 +17,7 @@
     "webRequest",
     "webRequestBlocking",
     "storage",
+    "unlimitedStorage",
     "tabs",
     "downloads",
     "downloads.open",

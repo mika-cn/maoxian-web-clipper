@@ -11,10 +11,13 @@ async function perform() {
 }
 
 async function migrate() {
-  // config
+  // migrate config
   let config = await MxWcConfig.load();
   config = migrateConfig(config);
   await MxWcStorage.set('config', config);
+
+  // migrate clippings
+  await migrateClippings();
 
 }
 
@@ -52,6 +55,28 @@ ConfigMigration['0.0'] = function(config) {
   console.info("Migrating config from 0.0 to 1.0")
   config.version = '1.0';
   return config;
+}
+
+
+// =====================================================
+
+async function migrateClippings() {
+  await deleteClippingPaths();
+}
+
+async function deleteClippingPaths() {
+  const key = 'mx-wc-clipping-migrated-delete-paths'
+  const isMigrated = await MxWcStorage.get(key, false);
+  if (isMigrated) {
+    console.info(key);
+  } else {
+    const clippings = await MxWcStorage.get('clips', []);
+    clippings.forEach((it) => {
+      delete it.paths;
+    })
+    await MxWcStorage.set('clips', clippings);
+    await MxWcStorage.set(key, true);
+  }
 }
 
 // =====================================================

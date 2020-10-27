@@ -14,11 +14,11 @@ module MsgHandler
     end
 
     def handle(msg, &send_msg)
-      result = handle_normal_msg(msg)
+      result = handle_normal_msg(msg, &send_msg)
       send_msg.call(result)
     end
 
-    def handle_normal_msg(msg)
+    def handle_normal_msg(msg, &send_msg)
       case msg['type']
       when 'download.text' then
         download_text(msg)
@@ -36,7 +36,7 @@ module MsgHandler
         }
       else
         # other messages are delegated to default handler
-        @default_handler.handle(msg)
+        @default_handler.handle(msg, &send_msg)
       end
     end
 

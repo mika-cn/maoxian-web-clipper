@@ -235,6 +235,22 @@ function fixKeys(config){
   return config;
 }
 
+/**
+ * When config is saved into storage,
+ * their keys became ordered. which
+ * is not a expected behavior when
+ * you show them.
+ *
+ * WARNING: it'll return a new Object
+ */
+function unsort(config) {
+  const r = {};
+  CONFIG_KEYS.forEach((k) => {
+    r[k] = config[k];
+  })
+  return r;
+}
+
 const Config = {
   defaultVersion: '0.0',
   version: VERSION,
@@ -243,6 +259,7 @@ const Config = {
   reset: reset,
   getDefault: getDefault,
   fixKeys: fixKeys,
+  unsort: unsort,
 }
 
 export default Config;

@@ -1,4 +1,5 @@
 
+require 'time'
 require 'json'
 require 'ostruct'
 require_relative '../storage'
@@ -59,7 +60,8 @@ module Vnote
         {
           'attachment_folder' => '',
           'attachments'       => [],
-          'created_time'      => Util.toISO8601(mxinfo['created_at']),
+
+          'created_time'      => Time.parse(mxinfo['created_at']).utc.iso8601,
           'name'              => mxinfo['mainPath'].split('/').pop,
           'tags'              => mxinfo['tags'],
         }
@@ -70,7 +72,7 @@ module Vnote
       def self.default
         {
           'version'         => '1',
-          'created_time'    => Util.now,
+          'created_time'    => Time.now.utc.iso8601,
           'files'           => [],
           'sub_directories' => []
         }
@@ -96,7 +98,7 @@ module Vnote
           "files"              => [],
           "sub_directories"    => [ { "name" => mx_root_folder } ],
           "tags"               => [],
-          "created_time"       => Util.now
+          "created_time"       => Time.now.utc.iso8601
         }
       end
 
@@ -109,19 +111,6 @@ module Vnote
       end
     end
 
-    module Util
-
-      def self.now
-        Time.now.utc.strftime('%FT%TZ')
-      end
-
-      # timestr: '2010-03-07 15:05:55'
-      # return '2010-03-07T07:05:55Z'
-      def self.toISO8601(timestr)
-        params = timestr.split(/[\-:\s]/).map(&:to_i)
-        Time.new(*params).utc.strftime('%FT%TZ')
-      end
-    end
   end
 
 end

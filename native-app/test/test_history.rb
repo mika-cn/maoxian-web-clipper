@@ -35,10 +35,12 @@ class HistoryTest < Minitest::Test
     info_path = 'clippings/article/js/2019-01-01-1122334455/index.json'
     path = File.join(@root_dir, info_path)
     r = History::ClippingInfo.new(info, path, 'clippings')
+    assert_equal '1.0', r.version
     assert_equal '001', r.clipId
     assert_equal 'md', r.format
     assert_equal 'awesome.html', r.filename
     assert_equal 'article/js', r.category
+    assert_nil r.to_h[:id]
   end
 
   def test_clippings_info_v2
@@ -76,7 +78,7 @@ class HistoryTest < Minitest::Test
         category: 'foo/bar',
         tags: ['awesome'],
         title: 'awesome title',
-        created_at: '2019-01-01',
+        created_at: '2019-01-01 00:00:00',
       })
     )
 
@@ -88,7 +90,7 @@ class HistoryTest < Minitest::Test
         category: 'foo/bar',
         tags: ['nice-article', 'too-old'],
         title: 'awesome title',
-        created_at: '2019-01-01',
+        created_at: '2019-01-01T00:00:00Z',
       })
     )
 
@@ -114,7 +116,7 @@ class HistoryTest < Minitest::Test
         category: 'foo/bar',
         tags: ['awesome'],
         title: 'awesome title',
-        created_at: '2019-01-01',
+        created_at: '2019-01-01 00:00:00',
       })
     )
 
