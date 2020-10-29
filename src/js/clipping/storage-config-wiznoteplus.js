@@ -3,8 +3,7 @@
 // Storage Config for WizNotePlus
 //==========================================
 
-function get(params) {
-  const {config, now} = params;
+function get({config, now}) {
   const saveFolder = Math.floor(now/1000).toString();
 
   const defaultConfig = {
