@@ -895,6 +895,7 @@ T.createMRUCache = function(size) {
     array: [],
     map: new Map(),
     add(key, value) {
+      if (this.size < 1) {return}
       const found = this.map.has(key);
       this.map.set(key, value);
       if ( !found ) {
@@ -910,6 +911,7 @@ T.createMRUCache = function(size) {
       }
     },
     get(key) {
+      if (this.size < 1) {return undefined}
       const value = this.map.get(key);
       if ( value !== undefined && this.array[0] !== key ) {
         let i = this.array.indexOf(key);

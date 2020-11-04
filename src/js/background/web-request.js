@@ -190,11 +190,24 @@ const StoreMimeType = (function() {
 const StoreResource = (function() {
 
   function listen() {
+    if (Global.requestCacheSize < 1 || !(
+      Global.requestCacheCss ||
+      Global.requestCacheImage ||
+      Global.requestCacheWebFont
+    )) {
+      // size is zero or three switches are off.
+      Log.debug("Request Cache disabled");
+      return;
+    }
+
     if (browser.webRequest.filterResponseData) {
-      const filter = {
-        urls: ["http://*/*", "https://*/*"],
-        types: ["stylesheet", "image", "font" ]
-      };
+
+      const cacheTypes = [];
+      if (Global.requestCacheCss)     { cacheTypes.push('stylesheet') }
+      if (Global.requestCacheImage)   { cacheTypes.push('image') }
+      if (Global.requestCacheWebFont) { cacheTypes.push('font') }
+
+      const filter = {types: cacheTypes, urls: ["http://*/*", "https://*/*"]};
 
       browser.webRequest.onHeadersReceived.removeListener(listener);
       browser.webRequest.onHeadersReceived.addListener(
@@ -390,6 +403,10 @@ function getMimeTypeDict() {
  * @param {Object} global
  *   - {String} requestToken
  *   - {EventTarget} evTarget
+ *   - {Integer} requestCacheSize
+ *   - {Boolean} requestCacheCss
+ *   - {Boolean} requestCacheImage
+ *   - {Boolean} requestCacheWebFont
  */
 let Global = null;
 function init(global) {
