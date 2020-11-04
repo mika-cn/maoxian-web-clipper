@@ -40,6 +40,17 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+// 1.2 => 1.3
+ConfigMigration['1.2'] = function(config) {
+  config.version = '1.3';
+  config.requestCacheSize = 80;
+  config.requestCacheCss = true;
+  config.requestCacheImage = true;
+  config.requestCacheWebFont = false;
+  return config;
+}
+
+
 // 1.1 => 1.2
 ConfigMigration['1.1'] = function(config) {
   //console.info("Migrating config from 1.1 to 1.2")

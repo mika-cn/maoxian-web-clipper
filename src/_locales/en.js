@@ -138,6 +138,7 @@
     "setting.title.request-timeout": "Timeout",
     "setting.title.request-max-tries": "Maximum tries",
     "setting.title.request-referrer-policy": "Referrer Policy",
+    "setting.title.request-cache": "Cache",
     "setting.title.misc": "Misc",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.html-content": "HTML",
@@ -279,6 +280,8 @@
     "setting.notice.public-plan-intro": "Public Plans are contributed by every MaoXian user. so that more people can use it.",
     "setting.notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it<br /><br />See <a href='go.page:public-subscriptions' target='_blank'>this page</a> for more subscriptions.",
     "setting.notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
+    "setting.notice.request-cache": 'Currently, only Firefox supports request cache.',
+    "setting.notice.request-cache-applying": "<strong>Warning:</strong><br />The settings of cache will only be applied after you restart the browser.",
 
 
     // label
@@ -289,7 +292,11 @@
     "setting.enable-handler.label": "Enable this handler",
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.request-timeout-input.label": "Timeout for performing a request (secs, 5~240)",
-    "setting.request-max-tries-input.label": "Maximum tries to perform a request, If this value is bigger than one, that means we'll resend the reqeust if it fail",
+    "setting.request-max-tries-input.label": "Maximum tries to perform a request, If this value is bigger than one, that means we'll resend the reqeust if it fails",
+    "setting.request-cache-size-input.label": "Cache size (how many requests we'll cache, 0 ~ 500)",
+    "setting.request-cache-css-input.label": "Cache stylesheets (CSS)",
+    "setting.request-cache-image-input.label": "Cache images",
+    "setting.request-cache-web-font-input.label": "Cache web fonts",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags) in main file",
     "setting.md-front-matter-enabled-input.label": "Enable YAML Front Matter",
     "setting.save-icon-input.label": "Save website icons",

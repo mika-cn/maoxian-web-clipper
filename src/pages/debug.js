@@ -33,7 +33,7 @@ function renderAssetCache() {
 }
 
 async function renderStorage() {
-  const logErrMsg = function() { console.log(errMsg) }
+  const logErrMsg = function(errMsg) { console.log(errMsg) }
   MxWcStorage.getTotalBytes().then((n) => {
       const html = `<h4>total used: <em>${n}</em> Bytes</h4>`;
       T.setHtml('.storage .usedBytes', html);
