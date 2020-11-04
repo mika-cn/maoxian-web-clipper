@@ -139,6 +139,7 @@
     "setting.title.request-timeout": "超时设置",
     "setting.title.request-max-tries": "最大尝试次数",
     "setting.title.request-referrer-policy": "設置 Referrer",
+    "setting.title.request-cache": "缓存",
     "setting.title.misc": "杂项",
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.html-content": "HTML",
@@ -277,6 +278,8 @@
     "setting.notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
     "setting.notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。<br /><br /><a href='go.page:public-subscriptions' target='_blank'>查看可订阅列表</a>",
     "setting.notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
+    "setting.notice.request-cache": '目前，只有 Firefox 支持缓存 HTTP 请求。',
+    "setting.notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 
     // label
     "setting.storage-folder.label": "存储目录",
@@ -287,6 +290,10 @@
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.request-timeout-input.label": "请求的超时时长 (秒, 5~240)",
     "setting.request-max-tries-input.label": "请求的最大尝试次数，当该值大于 1 时，会在请求失败时进行重试，比如该值为 3，则会在失败时，最多重试 2 次。",
+    "setting.request-cache-size-input.label": "缓存容量（缓存多少个请求，0 ~ 500）",
+    "setting.request-cache-css-input.label": "缓存网页样式 （CSS）",
+    "setting.request-cache-image-input.label": "缓存图片",
+    "setting.request-cache-web-font-input.label": "缓存字体",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
     "setting.md-front-matter-enabled-input.label": "启用 YAML Front Matter",
     "setting.save-icon-input.label": "保存网站图标",

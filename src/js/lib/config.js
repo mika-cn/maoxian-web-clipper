@@ -51,6 +51,13 @@ function getDefault(){
     requestMaxTries: 3,
     /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
     requestReferrerPolicy: 'originWhenCrossOrigin',
+    /* cache */
+    requestCacheSize: 80,
+    requestCacheCss: true,
+    requestCacheImage: true,
+    requestCacheWebFont: false,
+
+    /* misc */
     communicateWithThirdParty: false,
 
     //=====================================

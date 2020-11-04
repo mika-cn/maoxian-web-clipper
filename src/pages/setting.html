@@ -76,14 +76,32 @@
           <h3 i18n="setting.title.request"></h3>
 
           <h4 i18n="setting.title.request-timeout"></h4>
-          <label for="request-timeout-input" i18n="setting.request-timeout-input.label"></label>
-          <br />
-          <input type="number" id="request-timeout-input" min="5" max="240" value="20" required/>
+          <input type="number" id="request-timeout" min="5" max="240" value="20" required/>
+          <label for="request-timeout" i18n="setting.request-timeout-input.label"></label>
 
           <h4 i18n="setting.title.request-max-tries"></h4>
+          <input type="number" id="request-max-tries" min="1" max="99" value="3" required/>
           <label for="request-max-tries" i18n="setting.request-max-tries-input.label"></label>
+
+          <h4 i18n="setting.title.request-cache"></h4>
+          <div class="notice-info" i18n="setting.notice.request-cache"></div>
+          <div class="notice-warning" i18n="setting.notice.request-cache-applying"></div>
+          <div>
+            <input type="number" id="request-cache-size" min="0" max="500" value="80" required/>
+            <label for="request-cache-size" i18n="setting.request-cache-size-input.label"></label>
+          </div>
           <br />
-          <input type="number" id="request-max-tries-input" min="1" max="99" value="3" required/>
+          <div id="cache-switchers">
+            <input type="checkbox" id="request-cache-css" />
+            <label for="request-cache-css" i18n="setting.request-cache-css-input.label"></label>
+            <br />
+            <input type="checkbox" id="request-cache-image" />
+            <label for="request-cache-image" i18n="setting.request-cache-image-input.label"></label>
+            <br />
+            <input type="checkbox" id="request-cache-web-font" />
+            <label for="request-cache-web-font" i18n="setting.request-cache-web-font-input.label"></label>
+          </div>
+
           <h4 i18n="setting.title.request-referrer-policy"></h4>
           <div id="request-referrer-policy">
             <div>
@@ -103,6 +121,7 @@
               <label for="request-referrer-policy-d" i18n="setting.option.request-referrer-policy.unsafe-url"></label>
             </div>
           </div>
+
         </div>
         <div>
           <h3 i18n="setting.title.misc"></h3>
