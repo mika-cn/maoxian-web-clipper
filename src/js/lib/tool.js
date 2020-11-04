@@ -1253,6 +1253,16 @@ T.isVersionGteq = function(vA, vB) {
   return secureA >= secureB;
 }
 
+// Lteq => less than or equals to
+T.isVersionLteq = function(vA, vB) {
+  const [majorA, minorA = 0, microA = 0, secureA = 0] = T.extractVersion(vA);
+  const [majorB, minorB = 0, microB = 0, secureB = 0] = T.extractVersion(vB);
+  if (majorA != majorB) { return majorA < majorB }
+  if (minorA != minorB) { return minorA < minorB }
+  if (microA != microB) { return microA < microB }
+  return secureA <= secureB;
+}
+
 T.extractVersion = function(version) {
   return version.split('.').map((it) => parseInt(it));
 }

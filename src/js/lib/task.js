@@ -16,6 +16,7 @@ import T from './tool.js';
 *   text     : resource's content (if type is 'text')
 *   headers  : http headers (Referer, UserAgent etc. if type is 'url')
 *   timeout  : http request timeout (seconds, if type is 'url')
+*   tries    : how many times we request this resource (if type is 'url')
 *   clipId   : clipping id
 *   createdMs: created time (millisecond)
 * }

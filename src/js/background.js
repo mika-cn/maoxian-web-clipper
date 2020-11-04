@@ -76,7 +76,7 @@ function messageHandler(message, sender){
         backupToFile(resolve);
         break;
       case 'migrate-config':
-        resolve(migrateConfig(message.body))
+        migrateConfig(message.body).then(resolve, reject);
       default:
         break;
     }
@@ -363,8 +363,14 @@ function backupToFile(callback) {
   });
 }
 
-function migrateConfig(config) {
-  return MxWcMigration.migrateConfig(config);
+async function migrateConfig(config) {
+  const {ok, errMsg} = MxWcConfig.isMigratable(config);
+  if (ok) {
+    const currConfig = await MxWcConfig.load();
+    return MxWcMigration.migrateConfig(config, currConfig);
+  } else {
+    throw new Error(errMsg);
+  }
 }
 
 // ========================================
