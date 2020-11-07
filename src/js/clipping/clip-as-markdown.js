@@ -21,28 +21,29 @@ const turndownPluginGfm = require('turndown-plugin-gfm');
 
 async function clip(elem, {info, storageInfo, config, win}){
   Log.debug("markdown parser");
+
   const [mimeTypeDict, frames] = await Promise.all([
     ExtMsg.sendToBackend('clipping', {type: 'get.mimeTypeDict'}),
     ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'}),
   ]);
 
   const headerParams = {
-    refUrl: win.location.href,
-    userAgent: win.navigator.userAgent,
-    referrerPolicy: config.requestReferrerPolicy,
+    refUrl         : win.location.href,
+    userAgent      : win.navigator.userAgent,
+    referrerPolicy : config.requestReferrerPolicy,
   }
 
 
   const {elemHtml, tasks} = await getElemHtml({
-    clipId: info.clipId,
-    frames: frames,
-    storageInfo: storageInfo,
-    elem: elem,
-    docUrl: win.location.href,
-    baseUrl: win.document.baseURI,
-    mimeTypeDict: mimeTypeDict,
-    config: config,
-    win: win,
+    clipId       : info.clipId,
+    frames       : frames,
+    storageInfo  : storageInfo,
+    elem         : elem,
+    docUrl       : win.location.href,
+    baseUrl      : win.document.baseURI,
+    mimeTypeDict : mimeTypeDict,
+    config       : config,
+    win          : win,
   })
   let markdown = generateMarkDown(elemHtml, info);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
@@ -61,10 +62,9 @@ async function clip(elem, {info, storageInfo, config, win}){
   tasks.push(mainFileTask);
 
   return Task.changeUrlTask(tasks, (task) => {
-    task['headers'] = CaptureTool.getRequestHeaders(
-      task.url, headerParams);
-    task['timeout'] = config.requestTimeout;
-    task['tries'] = config.requestMaxTries;
+    task.headers = CaptureTool.getRequestHeaders(task.url, headerParams);
+    task.timeout = config.requestTimeout;
+    task.tries = config.requestMaxTries;
   });
 }
 
@@ -283,9 +283,4 @@ function getTurndownService(){
   return service;
 }
 
-const Markdown = {
-  clip: clip,
-  getElemHtml: getElemHtml
-}
-
-export default Markdown;
+export default {clip, getElemHtml};

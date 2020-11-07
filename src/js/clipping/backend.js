@@ -32,11 +32,12 @@ function messageHandler(message, sender) {
           () => {
           // Redirect message to content frame.
           return ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId);
-        }).then(resolve);
+        }).then(resolve, reject);
         break;
       case 'clipped':
         const clipping = message.body;
         ActionCache.removeByKeyPrefix(clipping.info.clipId);
+        resolve();
         break;
     }
   });
