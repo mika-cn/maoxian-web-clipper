@@ -1,0 +1,46 @@
+.main {
+  max-width: 90%;
+  min-height: 800px;
+  margin: 0 auto;
+  padding: 50px 20px 200px 20px;
+  background-color: #fefefe;
+}
+
+
+
+.logs {
+  margin-top: 20px;
+  padding: 20px;
+  border: solid 1px #ccc;
+  background-color: black;
+  color: #a0a0a0;
+  overflow: auto;
+  line-height: 20px;
+}
+
+.log > .started {}
+.log > .failed {color: red;}
+.log > .completed {color: #3af555;}
+
+
+table {
+  width: 100%;
+  padding: 5px;
+  border-radius: 3px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table th,td {
+  line-height: 25px;
+  border: 1px solid #ccc;
+  padding: 2px 5px 2px 5px;
+}
+
+thead {
+  background-color: #e8e8e8;
+}
+
+tbody > tr:hover {
+  background-color: #e5e5e5;
+}

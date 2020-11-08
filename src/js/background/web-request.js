@@ -266,6 +266,8 @@ const StoreResource = (function() {
         // ondata events are not emitted.
         // I guess it will happen when
         // the response is cached.
+        //
+        // Maybe these are preflight requests (NOT confirmed)
       }
 
       filter.disconnect();

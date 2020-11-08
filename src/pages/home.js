@@ -17,6 +17,7 @@ function renderExtensionLinks(){
   const names = [
     'setting',
     'history',
+    'failed-tasks',
     'reset-history',
     'support'
   ]

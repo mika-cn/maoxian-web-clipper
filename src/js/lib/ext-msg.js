@@ -46,13 +46,11 @@ function listen(target, listener) {
 }
 
 function sendToBackground(msg) {
-  return browser.runtime.sendMessage(
-    addTarget('background', msg));
+  return sendToExtPage('background', msg);
 }
 
 function sendToBackend(name, msg) {
-  return browser.runtime.sendMessage(
-    addTarget(['backend', name].join('.'), msg));
+  return sendToExtPage(['backend', name].join('.'), msg);
 }
 
 function sendToContent(msg, tabId, frameId) {
@@ -63,6 +61,10 @@ function sendToContent(msg, tabId, frameId) {
 function sendToContentFrame(msg, tabId, frameId) {
   return sendToTab(addTarget('content-frame', msg),
     tabId, frameId);
+}
+
+function sendToExtPage(target, msg) {
+  return browser.runtime.sendMessage(addTarget(target, msg));
 }
 
 function sendToPage(msg, pageUrl) {
@@ -134,6 +136,7 @@ const ExtMsg = {
   sendToContent,
   sendToContentFrame,
   sendToPage,
+  sendToExtPage,
   broadcastToContent,
 }
 

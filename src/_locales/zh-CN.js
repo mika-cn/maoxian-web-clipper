@@ -8,8 +8,10 @@
     // global
     //=====================================
     "none": "无",
-    "no.record": "无信息",
     "btn.confirm": "确认",
+    "btn.remove": "移除",
+
+    "hint.no-record": "没有记录",
 
     "op.saved": "已保存",
     "op.update-success": "更新成功!",
@@ -34,6 +36,15 @@
     "attr.original-url": "裁自",
 
 
+    // task attributes
+    "task.clipId": "Clipping ID",
+    "task.filename": "文件名",
+    "task.timeout": "超时时长",
+    "task.tries": "最大尝试次数",
+    "task.createdAt": "创建时间",
+    "task.filenameAndUrl": "文件名和网址",
+
+
     //=====================================
     // home page
     //=====================================
@@ -46,11 +57,13 @@
     "page.history": "历史",
     "page.reset-history": "重置历史",
     "page.support": "支持页",
+    "page.failed-tasks": "失败的存储任务",
 
     "desc.setting": "设置：存储格式、存储路径等等",
     "desc.history": "查看、检索你已裁剪的信息",
     "desc.reset-history": "重置裁剪历史，当你在一个新设备上安装 MaoXian 时使用",
     "desc.support": "这个页面包含了 MaoXian 的运行信息、当前配置信息，这些信息有利于找出问题或者反馈bug",
+    "desc.failed-tasks": "这个页面收集了所有保存失败的存储任务，你可以对这些存储任务进行重新保存",
 
     // remote pages
     "page.remote.home": "主页",
@@ -388,6 +401,7 @@
     "lcr.notice.can-not-open-file-url": "你无法直接打开该链接. 因为扩展不被允许打开该类型的链接, 查看 <strong>设置页 > 本地网址</strong> 获取关于此的更多信息",
     "lcr.notice.copy-url": "如果你无法打开上方网址，则用下面的输入框帮你复制它",
     "lcr.message.failed-task-num": "本次裁剪过程中，有 $num 个资源保存失败.",
+    "lcr.message.help": "你可以在「<a href='go.page:extPage.failed-tasks' target='_blank'>失败的存储任务</a>」页面重试保存这些文件。",
 
     //=====================================
     // entry(btn & hint)
@@ -439,6 +453,18 @@
     "plan-subscription.page-title": "订阅详情",
     "plan-subscription.title.subscription": "基本信息",
     "plan-subscription.title.plans": "计划",
+
+    //=====================================
+    // failed tasks page
+    //=====================================
+    "failed-tasks.btn.retry-all": '重试所有',
+    "failed-tasks.btn.edit-all": '编辑所有',
+    "failed-tasks.btn.remove": '移除',
+
+    "failed-tasks.label.timeout": '超时时长：',
+    "failed-tasks.label.tries": '最大尝试次数：',
+
+    "failed-tasks.notice.intro": "这个页面收集了所有保存失败的存储任务（每个存储任务表示一个需要保存的文件）。这些任务可能由于网络问题或请求超时而失败，你可以在该页面对这些任务进行重新保存。请使用下方的表单增大「超时时长」和「最大尝试次数」，再点击「重试所有」按钮。",
 
   }};
 

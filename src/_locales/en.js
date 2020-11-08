@@ -8,8 +8,11 @@
     // global
     //=====================================
     "none": "None",
-    "no.record": "No records",
+
     "btn.confirm": "Confirm",
+    "btn.remove": "Remove",
+
+    "hint.no-record": "No records",
 
     "op.saved": "Saved!",
     "op.update-success": "Update Success!",
@@ -33,6 +36,14 @@
     "attr.format": "Format",
     "attr.original-url": "From",
 
+    // task attributes
+    "task.clipId": "Clipping ID",
+    "task.filename": "Filename",
+    "task.timeout": "Timeout",
+    "task.tries": "Maximum Tries",
+    "task.createdAt": "Created Time",
+    "task.filenameAndUrl": "Filename and Url",
+
 
     //=====================================
     // home page
@@ -46,11 +57,13 @@
     "page.history": "History",
     "page.reset-history": "Reset history",
     "page.support": "Support",
+    "page.failed-tasks": "Failed tasks",
 
     "desc.setting": "Setting: save format, save path etc.",
     "desc.history": "Where to see what you have clipped.",
     "desc.reset-history": "Where you reset your clipping history when you install MaoXian in a new device.",
     "desc.support": "This page contains technical information that might be useful when you’re trying to solve a problem or report a bug",
+    "desc.failed-tasks": "This page collect all failed tasks (files that failed to save), you can retry saving these tasks on this page.",
 
     // remote pages
     "page.remote.home": "Home",
@@ -394,6 +407,7 @@
     "lcr.notice.can-not-open-file-url": "You can not open this url directly. Becase extension is not allowed to open it, see <strong>Setting Page > File Url</strong> for more detail",
     "lcr.notice.copy-url": "If you can't open the url above, using the following input box to copy it",
     "lcr.message.failed-task-num": "There are $num failures occured in this clipping.",
+    "lcr.message.help": "You can retry saving these files on <a href='go.page:extPage.failed-tasks' target='_blank'>Failed Tasks</a> page",
 
 
 
@@ -447,6 +461,18 @@
     "plan-subscription.page-title": "Subscription detail",
     "plan-subscription.title.subscription": "Base Information",
     "plan-subscription.title.plans": "Plans",
+
+    //=====================================
+    // failed tasks page
+    //=====================================
+    "failed-tasks.btn.retry-all": 'Retry All',
+    "failed-tasks.btn.edit-all": 'Edit All',
+    "failed-tasks.btn.remove": 'Remove',
+
+    "failed-tasks.label.timeout": 'Timeout: ',
+    "failed-tasks.label.tries": 'Maximum Tries: ',
+
+    "failed-tasks.notice.intro": 'This page collects all failed tasks (files that failed to save). These failures may cause by nework problems or timeout of HTTP requests, you can use this page to retry saving these tasks. Try increase "Timeout" and "Maximum Tries" using the folowing form. after that, click the "Retry All" button',
 
   }};
 

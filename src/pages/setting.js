@@ -829,7 +829,7 @@ function renderSubscriptions() {
         }).join('');
         T.setHtml(elem,  html);
       } else {
-        T.setHtml(elem, '<tr><td colspan="4" i18n="no.record" align="center"></td></tr>');
+        T.setHtml(elem, '<tr><td colspan="4" i18n="hint.no-record" align="center"></td></tr>');
       }
     });
 }

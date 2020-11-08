@@ -70,6 +70,10 @@ function messageHandler(message, sender){
       case 'asset-cache.peek':
         resolve(Global.assetCache.peek());
         break;
+      case 'asset-cache.reset':
+        Global.assetCache.reset();
+        resolve();
+        break;
 
       /* backup and restore */
       case 'backup-to-file':
