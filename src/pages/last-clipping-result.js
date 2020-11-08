@@ -2,7 +2,8 @@
 
 import I18N        from '../js/lib/translation.js';
 import T           from '../js/lib/tool.js';
-import ExtApi      from '../js/lib/ext-api';
+import ExtApi      from '../js/lib/ext-api.js';
+import MxWcLink    from '../js/lib/link.js'
 import MxWcStorage from '../js/lib/storage.js';
 import MxWcConfig  from '../js/lib/config.js';
 
@@ -32,14 +33,16 @@ function renderFailedTasks() {
   const {originalUrl, failedTaskNum, failedTasks} = state.lastClippingResult;
   if(failedTaskNum > 0) {
     const template = T.findElem('tpl-failed-task').innerHTML;
-    const message = I18N.t('lcr.message.failed-task-num').replace('$num', failedTaskNum);
+    const failureMessage = I18N.t('lcr.message.failed-task-num').replace('$num', failedTaskNum);
+    const helpMessage = I18N.t('lcr.message.help');
     let detail = "";
     failedTasks.forEach((task) => {
       const errMsg = "<br />" + task.errMsg.replace(/\n/g, '<br />');
       detail += ["<div class='task'>" + I18N.t('lcr.label.file') + task.filename, I18N.t('lcr.label.err-msg') + "<span class='red'>" + errMsg + '</span>'].join("</div>");
     });
     const html = T.renderTemplate(template, {
-      message: message,
+      failureMessage: failureMessage,
+      helpMessage: helpMessage,
       originalUrlLabel: I18N.t('lcr.label.original-url'),
       originalUrl: originalUrl,
       detail: detail
@@ -97,6 +100,7 @@ async function renderClippingUrl() {
 }
 
 function render() {
+  MxWcLink.listen(document.body);
   Promise.all([
     MxWcConfig.load(),
     ExtApi.isAllowedFileSchemeAccess(),

@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.2';
+const VERSION = '1.3';
 const state = {};
 
 /** WARNING

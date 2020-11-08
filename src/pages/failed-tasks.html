@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Failed tasks - MaoXian</title>
+  </head>
+  <body>
+
+    <div class="main">
+
+      <h1> Failed tasks </h1>
+
+      <div class="operations">
+        <button id="retry-all" i18n="failed-tasks.btn.retry-all"></button>
+      </div>
+
+      <div class="logs"></div>
+
+      <br />
+      <div class="notice-info" i18n="failed-tasks.notice.intro"></div>
+      <div class="batch-editor">
+        <form>
+          <label for="timeout" i18n="failed-tasks.label.timeout"></label>
+          <input type="number" id="timeout" min="5" max="240" value="20" required/>
+          <label for="tries" i18n="failed-tasks.label.tries"></label>
+          <input type="number" id="tries" min="1" max="99" value="3" required/>
+          <button type="submit" id="adit-all" i18n="failed-tasks.btn.edit-all"></button>
+        </form>
+      </div>
+      <br />
+      <br />
+      <div class="tasks">
+        <div class="details">
+          <table>
+            <thead>
+              <tr>
+                <td i18n="task.clipId"></td>
+                <td i18n="task.filenameAndUrl"></td>
+                <td i18n="task.timeout"></td>
+                <td i18n="task.tries"></td>
+                <td i18n="task.createdAt"></td>
+                <td> - </td>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <template id="log-tpl">
+      <div class="log">[<span class="${type}">${type}</span>]: ${taskFilename} <br />${errMsg}<div>
+    </template>
+
+    <template id="task-tpl">
+      <tr>
+        <td>${clipId}</td>
+        <td>${filename}<br />${url}</td>
+        <td>${timeout}</td>
+        <td>${tries}</td>
+        <td>${createdAt}</td>
+        <td>
+          <button class="remove" i18n="failed-tasks.btn.remove"></button>
+        </td>
+      </tr>
+    </template>
+    <template id="no-record-tpl">
+      <tr><td colspan="20" i18n="hint.no-record" align="center"></td></tr>
+    </template>
+  </body>
+</html>

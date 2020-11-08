@@ -1149,6 +1149,9 @@ T.createResourceCache = function({size = 80}) {
         });
       });
       return result;
+    },
+    reset() {
+      this.cache.reset();
     }
   }
 }
