@@ -49,6 +49,7 @@ function parseFiles(files, rootFolder){
           }
         }
 
+        delete clip['paths'];
         items.push({t: parseInt(clip.clipId), clip: clip});
       }
 
