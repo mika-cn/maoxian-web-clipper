@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const RemovePlugin = require('remove-files-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ExtensionReloader  = require('webpack-extension-reloader');
 
 const ENVIRONMENT = process.env.NODE_ENV || "development";
@@ -22,9 +22,10 @@ const pkg = require('./package.json');
 
 const ASSET_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'eot', 'otf', 'svg', 'ttf', 'woff', 'woff2'];
 
-const manifest_filename = path.join(__dirname, "src", "manifest.json");
 const pages_folder = path.join(__dirname, "src", "pages");
-const dist_folder = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
+const dist_folder  = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
+const npm_folder   = path.join(__dirname, "node_modules");
+const manifest_filename = path.join(__dirname, "src", "manifest.json");
 
 const pages = [
   'popup', 'welcome', 'history', 'home', 'last-clipping-result',
@@ -49,6 +50,40 @@ if (IS_PRODUCTION) {
     useShortDoctype: true
   }
 }
+
+
+
+function getCopyItems() {
+  const collection = [
+    { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
+    { from: 'src/_locales/zh_CN', to: path.join(dist_folder, '_locales/zh_CN') },
+    { from: 'src/icons',          to: path.join(dist_folder, 'icons')},
+  ];
+
+  // 3rd party css
+  [
+    ['awesomplete/awesomplete.css', 'vendor/css/awesomplete.css'],
+    ['pikaday/css/pikaday.css'    , 'vendor/css/pikaday.css'],
+  ].forEach((pair) => {
+    const sourceFilename = path.join(npm_folder, pair[0]);
+    const targetFilename = path.join(dist_folder, pair[1]);
+    collection.push({from: sourceFilename, to: targetFilename});
+  });
+
+  // maoxian css
+  const cssBlackList = ['ui-selection'];
+  const cssNames = ['_base', ].concat(pages);
+  cssNames.forEach((name) => {
+    if (cssBlackList.indexOf(name) == -1) {
+      collection.push({
+        from: `src/pages/${name}.css`,
+        to: path.join(dist_folder, `pages/${name}.css`),
+      });
+    }
+  });
+  return collection;
+}
+
 
 const pageHtmls = pages.reduce((htmls, pageName) => {
   htmls.push(
@@ -99,13 +134,6 @@ const config = {
         ]
       },
       {
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-        ]
-      },
-      {
         test: new RegExp('\.(' + ASSET_EXTENSIONS.join('|') + ')$'),
         use: [
           'file-loader?outputPath=assets'
@@ -121,14 +149,7 @@ const config = {
       // Workaround for https://github.com/webpack/webpack/issues/5828
       'browser': "imports-loader?browser=>undefined!webextension-polyfill"
     }),
-    new CopyWebpackPlugin([
-      { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
-      { from: 'src/_locales/zh_CN', to: path.join(dist_folder, '_locales/zh_CN') },
-      { from: 'src/icons',          to: path.join(dist_folder, 'icons')}
-    ], { copyUnmodified: true }),
-    new MiniCssExtractPlugin({
-      filename: 'css/[name].[hash].css'
-    }),
+    new CopyWebpackPlugin(getCopyItems(), { copyUnmodified: true }),
     new HtmlWebpackPlugin({
       template: path.join(pages_folder, "background.html"),
       filename: "pages/background.html",

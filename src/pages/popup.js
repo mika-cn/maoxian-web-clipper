@@ -10,8 +10,6 @@ import MxWcStorage from '../js/lib/storage.js';
 import MxWcConfig  from '../js/lib/config.js'
 import MxWcLink    from '../js/lib/link.js';
 
-import './popup.css';
-
 const state = {};
 
 function menuClick(e){

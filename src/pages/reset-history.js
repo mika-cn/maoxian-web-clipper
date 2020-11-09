@@ -7,9 +7,6 @@ import MxWcConfig from '../js/lib/config.js';
 import MxWcLink   from '../js/lib/link.js';
 import Worker     from 'worker-loader?publicPath=/&name=js/[hash].worker.js!./reset-history-worker.js';
 
-import './_base.css';
-import './reset-history.css';
-
 const state = {};
 
 function initUI() {

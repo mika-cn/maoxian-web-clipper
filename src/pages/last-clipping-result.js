@@ -7,9 +7,6 @@ import MxWcLink    from '../js/lib/link.js'
 import MxWcStorage from '../js/lib/storage.js';
 import MxWcConfig  from '../js/lib/config.js';
 
-import './_base.css';
-import './last-clipping-result.css';
-
 const state = {};
 
 function renderNotClippingResult() {

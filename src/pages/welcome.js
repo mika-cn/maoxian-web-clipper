@@ -6,9 +6,6 @@ import I18N     from '../js/lib/translation.js';
 import ExtApi   from '../js/lib/ext-api.js';
 import MxWcLink from '../js/lib/link.js';
 
-import './_base.css';
-import './welcome.css';
-
 function initListener(){
   const elems = T.queryElems('.tab-link');
   T.each(elems, (elem) => {
@@ -19,8 +16,6 @@ function initListener(){
     });
   });
 }
-
-
 
 function render(){
   const template = T.findElem('welcome-page-tpl').innerHTML;

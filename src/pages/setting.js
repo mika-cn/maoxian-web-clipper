@@ -11,9 +11,6 @@ import MxWcTemplate from '../js/lib/template.js';
 import Notify       from '../js/lib/notify.js';
 import MxWcHandler  from '../js/lib/handler.js';
 
-import './_base.css';
-import './setting.css';
-
 // http://kb.mozillazine.org/Firefox_:_Issues_:_Links_to_Local_Pages_Don%27t_Work
 
 function updateConfig(key, value) {
