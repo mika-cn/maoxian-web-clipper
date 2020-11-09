@@ -123,7 +123,7 @@ const config = {
     }),
     new CopyWebpackPlugin([
       { from: 'src/_locales/en',    to: path.join(dist_folder, '_locales/en') },
-      { from: 'src/_locales/zh-CN', to: path.join(dist_folder, '_locales/zh-CN') },
+      { from: 'src/_locales/zh_CN', to: path.join(dist_folder, '_locales/zh_CN') },
       { from: 'src/icons',          to: path.join(dist_folder, 'icons')}
     ], { copyUnmodified: true }),
     new MiniCssExtractPlugin({

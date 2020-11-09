@@ -236,7 +236,7 @@ function deleteHistory(id) {
         deleteHistoryAndFile(r.config, id);
       } else {
         Notify.error(
-          I18N.t('history.error.native-app-version-too-small')
+          I18N.t('error.native-app-version-too-small')
           .replace('$VERSION', r.handlerInfo.version)
         );
       }
@@ -249,7 +249,7 @@ function deleteHistory(id) {
 function deleteHistoryAndFile(config, id) {
   MxWcStorage.get('downloadFolder').then((downloadFolder) => {
     if(downloadFolder) {
-      confirmIfNeed(I18N.t('history.confirm-msg.delete-history-and-file'), () => {
+      confirmIfNeed(I18N.t('confirm-msg.delete-history-and-file'), () => {
         const clip =  T.detect(state.currClips, (clip) => { return clip.clipId == id });
         const {version = '1.0'} = clip;
         const path = [downloadFolder, clip.path].join('');
@@ -283,7 +283,7 @@ function deleteHistoryAndFile(config, id) {
             if(result.message){
               Notify.error(I18N.t(result.message));
             } else {
-              Notify.success(I18N.t('history.notice.delete-history-success'));
+              Notify.success(I18N.t('notice.delete-history-success'));
             }
           } else {
             console.error(result)
@@ -314,7 +314,7 @@ function deleteHistoryOnly(id, noConfirm=false) {
     if(noConfirm) {
       action();
     } else {
-      confirmIfNeed(I18N.t('history.confirm-msg.delete-history'), action);
+      confirmIfNeed(I18N.t('confirm-msg.delete-history'), action);
     }
   }
 }
@@ -480,16 +480,16 @@ function resetHistory() {
 
 
 function clearHistory(e){
-  confirmIfNeed(I18N.t('history.confirm-msg.clear-history'), () => {
+  confirmIfNeed(I18N.t('confirm-msg.clear-history'), () => {
     MxWcStorage.set('clips', [])
     initState([]);
     renderClips([]);
-    Notify.success(I18N.t('history.notice.clear-history-success'));
+    Notify.success(I18N.t('notice.clear-history-success'));
   })
 }
 
 function exportHistory(e){
-  let content = T.toJson({error: I18N.t('history.export.no-record')});
+  let content = T.toJson({error: I18N.t('g.hint.no-record')});
   if(state.currClips.length > 0){
     content = T.toJson(state.currClips.map((it) => rmExtraAttribute(it)))
   }
@@ -502,7 +502,7 @@ function exportHistory(e){
 function initLinks(){
   const elem = T.queryElem(".links");
   const links = [
-    {name: I18N.t('history.a.reset-history'), pageName: "extPage.reset-history" }
+    {name: I18N.t('btn.reset-history'), pageName: "extPage.reset-history" }
   ]
   links.forEach((link) => {
     const a = document.createElement("a");

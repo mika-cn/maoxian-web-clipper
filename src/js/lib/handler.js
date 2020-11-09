@@ -32,7 +32,7 @@ function isReady(exp, getHandlerInfoFn = getHandlerInfoThroughBG) {
       }
 
       if(!config[`handler${name}Enabled`]) {
-        const resp = errResp('error.handler.not-enabled', name);
+        const resp = errResp('g.error.handler.not-enabled', name);
         resolve(Object.assign({
           enabled: false,
           handlerInfo: {},
@@ -51,7 +51,7 @@ function isReady(exp, getHandlerInfoFn = getHandlerInfoThroughBG) {
             handler: handler
           });
         } else {
-          const resp = errResp('error.handler.not-ready', name);
+          const resp = errResp('g.error.handler.not-ready', name);
           if(handlerInfo.message) {
             handlerInfo.message = resp.message + `(${handlerInfo.message})`;
           }

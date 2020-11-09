@@ -139,7 +139,7 @@ async function renderMenus(){
     html += T.renderTemplate(template, {
       icon: icons[menuId],
       menuId: menuId,
-      menuContent: I18N.t("popup.menu." + menuId),
+      menuContent: I18N.t("menu." + menuId),
     });
   });
   T.setHtml('.menus', html);

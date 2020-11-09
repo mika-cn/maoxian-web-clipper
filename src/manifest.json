@@ -29,6 +29,8 @@
   "content_scripts": [
     {
       "js": [
+        "_locales/en/common.js",
+        "_locales/zh_CN/common.js",
         "js/content-frame.js"
       ],
       "matches": [
@@ -40,6 +42,8 @@
     },
     {
       "js": [
+        "_locales/en/common.js",
+        "_locales/zh_CN/common.js",
         "js/content.js"
       ],
       "matches": [

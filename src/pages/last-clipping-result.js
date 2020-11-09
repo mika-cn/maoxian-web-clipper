@@ -14,7 +14,7 @@ const state = {};
 
 function renderNotClippingResult() {
   const template = T.findElem('tpl-not-clipping-result').innerHTML;
-  const html = T.renderTemplate(template, {content: I18N.t('lcr.notice.not-clipping-result')});
+  const html = T.renderTemplate(template, {content: I18N.t('notice.not-clipping-result')});
   T.setHtml('.main', html);
 }
 
@@ -33,17 +33,17 @@ function renderFailedTasks() {
   const {originalUrl, failedTaskNum, failedTasks} = state.lastClippingResult;
   if(failedTaskNum > 0) {
     const template = T.findElem('tpl-failed-task').innerHTML;
-    const failureMessage = I18N.t('lcr.message.failed-task-num').replace('$num', failedTaskNum);
-    const helpMessage = I18N.t('lcr.message.help');
+    const failureMessage = I18N.t('message.failed-task-num').replace('$num', failedTaskNum);
+    const helpMessage = I18N.t('message.help');
     let detail = "";
     failedTasks.forEach((task) => {
       const errMsg = "<br />" + task.errMsg.replace(/\n/g, '<br />');
-      detail += ["<div class='task'>" + I18N.t('lcr.label.file') + task.filename, I18N.t('lcr.label.err-msg') + "<span class='red'>" + errMsg + '</span>'].join("</div>");
+      detail += ["<div class='task'>" + I18N.t('label.file') + task.filename, I18N.t('label.err-msg') + "<span class='red'>" + errMsg + '</span>'].join("</div>");
     });
     const html = T.renderTemplate(template, {
       failureMessage: failureMessage,
       helpMessage: helpMessage,
-      originalUrlLabel: I18N.t('lcr.label.original-url'),
+      originalUrlLabel: I18N.t('label.original-url'),
       originalUrl: originalUrl,
       detail: detail
     });
@@ -53,7 +53,7 @@ function renderFailedTasks() {
 
 async function renderClippingUrl() {
   const {url, failedTaskNum, failedTasks, downloadItemId} = state.lastClippingResult;
-  let notice = I18N.t('lcr.notice.openable-url');
+  let notice = I18N.t('notice.openable-url');
   let openMethod = 'open.link';
 
   if (downloadItemId) {
@@ -67,7 +67,7 @@ async function renderClippingUrl() {
     && url.startsWith('file')
     && !(state.allowFileUrlAccess)
   ) {
-    notice = I18N.t('lcr.notice.can-not-open-file-url');
+    notice = I18N.t('notice.can-not-open-file-url');
   }
 
   const template = T.findElem('tpl-clipping-url').innerHTML;

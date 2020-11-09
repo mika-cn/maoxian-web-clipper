@@ -227,10 +227,10 @@ function generateMdClippingInfo(info) {
   Log.debug('generateMdClippingInfo');
   let md = ""
   md += "\n\n---------------------------------------------------\n"
-  md += `\n\n${I18N.t('original-url')}: [${I18N.t('access')}](${info.link})`;
-  md += `\n\n${I18N.t('created-at')}: ${info.created_at}`;
-  let categoryStr = I18N.t('none');
-  let tagStr = I18N.t('none');
+  md += `\n\n${I18N.t('g.clipping.original-url')}: [${I18N.t('g.label.access')}](${info.link})`;
+  md += `\n\n${I18N.t('g.clipping.created-at')}: ${info.created_at}`;
+  let categoryStr = I18N.t('g.label.none');
+  let tagStr = I18N.t('g.label.none');
   if(info.category){
     categoryStr = info.category
   }
@@ -239,15 +239,15 @@ function generateMdClippingInfo(info) {
       return "`" + tag + "`";
     }).join(", ");
   }
-  md += `\n\n${I18N.t('category')}: ${categoryStr}`;
-  md += `\n\n${I18N.t('tags')}: ${tagStr}`;
+  md += `\n\n${I18N.t('g.clipping.category')}: ${categoryStr}`;
+  md += `\n\n${I18N.t('g.clipping.tags')}: ${tagStr}`;
   md += "\n\n";
   return md
 }
 
 function generateMdFrontMatter(info, template) {
-  let category = I18N.t('none');
-  let tags = "\n- " + I18N.t('none');
+  let category = I18N.t('g.label.none');
+  let tags = "\n- " + I18N.t('g.label.none');
   if(info.category){
     category = info.category
   }

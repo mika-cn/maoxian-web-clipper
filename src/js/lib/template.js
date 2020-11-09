@@ -9,7 +9,7 @@ MxWcTemplate.options = {
   render: function(v) {
     const tpl = '<a data-value="${value}" i18n="${i18nKey}"></a>';
     return v.options.map((it) => {
-      const i18nKey = ['option', v.type, it, 'name'].join('.');
+      const i18nKey = ['g.option-value', it].join('.');
       return T.renderTemplate(tpl, {
         value: it,
         i18nKey: i18nKey
@@ -160,13 +160,13 @@ MxWcTemplate.clippingInformationStyle = {
 MxWcTemplate.clippingInformation = {
   render: function(v) {
     if(v.config.htmlSaveClippingInformation){
-      let tagHtml = I18N.t('none');
+      let tagHtml = I18N.t('g.label.none');
       if(v.info.tags.length > 0) {
         tagHtml = T.map(v.info.tags, function(tag) {
           return "<code>" + tag + "</code>";
         }).join(", ");
       }
-      let categoryHtml = I18N.t('none');
+      let categoryHtml = I18N.t('g.label.none');
       if(v.info.category){
         categoryHtml = v.info.category;
       }
@@ -174,10 +174,10 @@ MxWcTemplate.clippingInformation = {
         <hr />
         <!-- clipping information -->
         <div class="clipping-information">
-          <label>${I18N.t('original-url')}: <a href="${v.info.link}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${I18N.t('access')}</a></label><br />
-          <label>${I18N.t('created-at')}: ${v.info.created_at}</label><br />
-          <label>${I18N.t('category')}: ${categoryHtml}</label><br />
-          <label>${I18N.t('tags')}: ${tagHtml}</label>
+          <label>${I18N.t('g.clipping.original-url')}: <a href="${v.info.link}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${I18N.t('g.label.access')}</a></label><br />
+          <label>${I18N.t('g.clipping.created-at')}: ${v.info.created_at}</label><br />
+          <label>${I18N.t('g.clipping.category')}: ${categoryHtml}</label><br />
+          <label>${I18N.t('g.clipping.tags')}: ${tagHtml}</label>
         </div>`;
     } else {
       return '';
