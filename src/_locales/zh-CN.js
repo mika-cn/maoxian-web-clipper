@@ -8,8 +8,10 @@
     // global
     //=====================================
     "none": "无",
-    "no.record": "无信息",
     "btn.confirm": "确认",
+    "btn.remove": "移除",
+
+    "hint.no-record": "没有记录",
 
     "op.saved": "已保存",
     "op.update-success": "更新成功!",
@@ -34,6 +36,15 @@
     "attr.original-url": "裁自",
 
 
+    // task attributes
+    "task.clipId": "Clipping ID",
+    "task.filename": "文件名",
+    "task.timeout": "超时时长",
+    "task.tries": "最大尝试次数",
+    "task.createdAt": "创建时间",
+    "task.filenameAndUrl": "文件名和网址",
+
+
     //=====================================
     // home page
     //=====================================
@@ -46,11 +57,13 @@
     "page.history": "历史",
     "page.reset-history": "重置历史",
     "page.support": "支持页",
+    "page.failed-tasks": "失败的存储任务",
 
     "desc.setting": "设置：存储格式、存储路径等等",
     "desc.history": "查看、检索你已裁剪的信息",
     "desc.reset-history": "重置裁剪历史，当你在一个新设备上安装 MaoXian 时使用",
     "desc.support": "这个页面包含了 MaoXian 的运行信息、当前配置信息，这些信息有利于找出问题或者反馈bug",
+    "desc.failed-tasks": "这个页面收集了所有保存失败的存储任务，你可以对这些存储任务进行重新保存",
 
     // remote pages
     "page.remote.home": "主页",
@@ -139,6 +152,7 @@
     "setting.title.request-timeout": "超时设置",
     "setting.title.request-max-tries": "最大尝试次数",
     "setting.title.request-referrer-policy": "設置 Referrer",
+    "setting.title.request-cache": "缓存",
     "setting.title.misc": "杂项",
     "setting.title.clipping-content": "裁剪内容",
     "setting.title.html-content": "HTML",
@@ -277,6 +291,8 @@
     "setting.notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
     "setting.notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。<br /><br /><a href='go.page:public-subscriptions' target='_blank'>查看可订阅列表</a>",
     "setting.notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
+    "setting.notice.request-cache": '目前，只有 Firefox 支持缓存 HTTP 请求。',
+    "setting.notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 
     // label
     "setting.storage-folder.label": "存储目录",
@@ -287,6 +303,10 @@
     "setting.file-url-input.label": "我设置好了 ‘允许插件访问文件路径’",
     "setting.request-timeout-input.label": "请求的超时时长 (秒, 5~240)",
     "setting.request-max-tries-input.label": "请求的最大尝试次数，当该值大于 1 时，会在请求失败时进行重试，比如该值为 3，则会在失败时，最多重试 2 次。",
+    "setting.request-cache-size-input.label": "缓存容量（缓存多少个请求，0 ~ 500）",
+    "setting.request-cache-css-input.label": "缓存网页样式 （CSS）",
+    "setting.request-cache-image-input.label": "缓存图片",
+    "setting.request-cache-web-font-input.label": "缓存字体",
     "setting.clip-information-input.label": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
     "setting.md-front-matter-enabled-input.label": "启用 YAML Front Matter",
     "setting.save-icon-input.label": "保存网站图标",
@@ -381,6 +401,7 @@
     "lcr.notice.can-not-open-file-url": "你无法直接打开该链接. 因为扩展不被允许打开该类型的链接, 查看 <strong>设置页 > 本地网址</strong> 获取关于此的更多信息",
     "lcr.notice.copy-url": "如果你无法打开上方网址，则用下面的输入框帮你复制它",
     "lcr.message.failed-task-num": "本次裁剪过程中，有 $num 个资源保存失败.",
+    "lcr.message.help": "你可以在「<a href='go.page:extPage.failed-tasks' target='_blank'>失败的存储任务</a>」页面重试保存这些文件。",
 
     //=====================================
     // entry(btn & hint)
@@ -432,6 +453,18 @@
     "plan-subscription.page-title": "订阅详情",
     "plan-subscription.title.subscription": "基本信息",
     "plan-subscription.title.plans": "计划",
+
+    //=====================================
+    // failed tasks page
+    //=====================================
+    "failed-tasks.btn.retry-all": '重试所有',
+    "failed-tasks.btn.edit-all": '编辑所有',
+    "failed-tasks.btn.remove": '移除',
+
+    "failed-tasks.label.timeout": '超时时长：',
+    "failed-tasks.label.tries": '最大尝试次数：',
+
+    "failed-tasks.notice.intro": "这个页面收集了所有保存失败的存储任务（每个存储任务表示一个需要保存的文件）。这些任务可能由于网络问题或请求超时而失败，你可以在该页面对这些任务进行重新保存。请使用下方的表单增大「超时时长」和「最大尝试次数」，再点击「重试所有」按钮。",
 
   }};
 

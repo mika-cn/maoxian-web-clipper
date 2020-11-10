@@ -8,8 +8,11 @@
     // global
     //=====================================
     "none": "None",
-    "no.record": "No records",
+
     "btn.confirm": "Confirm",
+    "btn.remove": "Remove",
+
+    "hint.no-record": "No records",
 
     "op.saved": "Saved!",
     "op.update-success": "Update Success!",
@@ -33,6 +36,14 @@
     "attr.format": "Format",
     "attr.original-url": "From",
 
+    // task attributes
+    "task.clipId": "Clipping ID",
+    "task.filename": "Filename",
+    "task.timeout": "Timeout",
+    "task.tries": "Maximum Tries",
+    "task.createdAt": "Created Time",
+    "task.filenameAndUrl": "Filename and Url",
+
 
     //=====================================
     // home page
@@ -46,11 +57,13 @@
     "page.history": "History",
     "page.reset-history": "Reset history",
     "page.support": "Support",
+    "page.failed-tasks": "Failed tasks",
 
     "desc.setting": "Setting: save format, save path etc.",
     "desc.history": "Where to see what you have clipped.",
     "desc.reset-history": "Where you reset your clipping history when you install MaoXian in a new device.",
     "desc.support": "This page contains technical information that might be useful when you’re trying to solve a problem or report a bug",
+    "desc.failed-tasks": "This page collect all failed tasks (files that failed to save), you can retry saving these tasks on this page.",
 
     // remote pages
     "page.remote.home": "Home",
@@ -138,6 +151,7 @@
     "setting.title.request-timeout": "Timeout",
     "setting.title.request-max-tries": "Maximum tries",
     "setting.title.request-referrer-policy": "Referrer Policy",
+    "setting.title.request-cache": "Cache",
     "setting.title.misc": "Misc",
     "setting.title.clipping-content": "Clipping Content",
     "setting.title.html-content": "HTML",
@@ -279,6 +293,8 @@
     "setting.notice.public-plan-intro": "Public Plans are contributed by every MaoXian user. so that more people can use it.",
     "setting.notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it<br /><br />See <a href='go.page:public-subscriptions' target='_blank'>this page</a> for more subscriptions.",
     "setting.notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
+    "setting.notice.request-cache": 'Currently, only Firefox supports request cache.',
+    "setting.notice.request-cache-applying": "<strong>Warning:</strong><br />The settings of cache will only be applied after you restart the browser.",
 
 
     // label
@@ -289,7 +305,11 @@
     "setting.enable-handler.label": "Enable this handler",
     "setting.file-url-input.label": "I enabled 'allow file scheme access' ",
     "setting.request-timeout-input.label": "Timeout for performing a request (secs, 5~240)",
-    "setting.request-max-tries-input.label": "Maximum tries to perform a request, If this value is bigger than one, that means we'll resend the reqeust if it fail",
+    "setting.request-max-tries-input.label": "Maximum tries to perform a request, If this value is bigger than one, that means we'll resend the reqeust if it fails",
+    "setting.request-cache-size-input.label": "Cache size (how many requests we'll cache, 0 ~ 500)",
+    "setting.request-cache-css-input.label": "Cache stylesheets (CSS)",
+    "setting.request-cache-image-input.label": "Cache images",
+    "setting.request-cache-web-font-input.label": "Cache web fonts",
     "setting.clip-information-input.label": "Include clipping information (original url, time, category and tags) in main file",
     "setting.md-front-matter-enabled-input.label": "Enable YAML Front Matter",
     "setting.save-icon-input.label": "Save website icons",
@@ -387,6 +407,7 @@
     "lcr.notice.can-not-open-file-url": "You can not open this url directly. Becase extension is not allowed to open it, see <strong>Setting Page > File Url</strong> for more detail",
     "lcr.notice.copy-url": "If you can't open the url above, using the following input box to copy it",
     "lcr.message.failed-task-num": "There are $num failures occured in this clipping.",
+    "lcr.message.help": "You can retry saving these files on <a href='go.page:extPage.failed-tasks' target='_blank'>Failed Tasks</a> page",
 
 
 
@@ -440,6 +461,18 @@
     "plan-subscription.page-title": "Subscription detail",
     "plan-subscription.title.subscription": "Base Information",
     "plan-subscription.title.plans": "Plans",
+
+    //=====================================
+    // failed tasks page
+    //=====================================
+    "failed-tasks.btn.retry-all": 'Retry All',
+    "failed-tasks.btn.edit-all": 'Edit All',
+    "failed-tasks.btn.remove": 'Remove',
+
+    "failed-tasks.label.timeout": 'Timeout: ',
+    "failed-tasks.label.tries": 'Maximum Tries: ',
+
+    "failed-tasks.notice.intro": 'This page collects all failed tasks (files that failed to save). These failures may cause by nework problems or timeout of HTTP requests, you can use this page to retry saving these tasks. Try increase "Timeout" and "Maximum Tries" using the folowing form. after that, click the "Retry All" button',
 
   }};
 

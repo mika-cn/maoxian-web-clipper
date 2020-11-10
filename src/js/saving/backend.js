@@ -15,8 +15,35 @@ function messageHandler(message, sender){
       case 'complete':
         completeSaving(sender.tab.id, message.body);
         break;
+      case 'retry.task':
+        retryTask(sender.tab.id, message.body)
+        resolve();
+        break;
     }
   });
+}
+
+async function retryTask(tabId, task) {
+  const handler = await getClippingHandler();
+  if (handler.retryTask) {
+    const feedback = function(msg) {
+      ExtMsg.sendToExtPage('failed-tasks', {
+        type: 'retry.task.feedback',
+        body: msg
+      });
+    }
+    handler.retryTask(task, feedback)
+  } else {
+    ExtMsg.sendToExtPage('failed-tasks', {
+      type: 'retry.task.feedback',
+      body: {
+        type: 'failed',
+        clipId: task.clipId,
+        taskFilename: task.filename,
+        errMsg: `Handler: ${handler.name} doesn't support retryTask`,
+      }
+    });
+  }
 }
 
 async function saveClipping(tabId, clipping) {
@@ -81,6 +108,13 @@ function completeSaving(tabId, result) {
     body: result
   }, tabId);
   MxWcStorage.set('lastClippingResult', result);
+  if (result.failedTaskNum > 0) {
+    // save failed tasks
+    MxWcStorage.get('failedTasks', [])
+      .then((tasks) => {
+        MxWcStorage.set('failedTasks', result.failedTasks.concat(tasks));
+      });
+  }
   MxWcIcon.flicker(3);
   Global.evTarget.dispatchEvent({type: type, result: result})
 }

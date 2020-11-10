@@ -33,6 +33,10 @@ ExtApi.getEnvironment = () => {
   });
 }
 
+ExtApi.getManifest = () => {
+  return browser.runtime.getManifest();
+}
+
 // url must have a http or https scheme
 ExtApi.setUninstallURL = (url) => {
   if (browser.runtime.setUninstallURL) {

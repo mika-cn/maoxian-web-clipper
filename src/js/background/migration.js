@@ -21,27 +21,46 @@ async function migrate() {
 
 }
 
-function migrateConfig(config) {
+/*
+ * WARNING:
+ *   "config" may don't have all configuration keys.
+ */
+function migrateConfig(config, fromConfig = {}) {
   const version = (config.version || MxWcConfig.defaultVersion);
   const migration = ConfigMigration[version];
   if (migration) {
-    return migrateConfig(migration(config));
+    return migrateConfig(migration(config), fromConfig);
   } else {
-    return config;
+    // Just in case we add new key and forget to do migration.
+    // But we should not account to this.
+    // Do migration everytime you change config's structure.
+    return MxWcConfig.fixKeys(config, fromConfig);
   }
 }
 
 const ConfigMigration = {};
 
+// 1.2 => 1.3
+ConfigMigration['1.2'] = function(config) {
+  config.version = '1.3';
+  config.requestCacheSize = 80;
+  config.requestCacheCss = true;
+  config.requestCacheImage = true;
+  config.requestCacheWebFont = false;
+  return config;
+}
+
+
+// 1.1 => 1.2
 ConfigMigration['1.1'] = function(config) {
-  console.info("Migrating config from 1.1 to 1.2")
+  //console.info("Migrating config from 1.1 to 1.2")
   config.version = '1.2';
-  return MxWcConfig.fixKeys(config);
+  return config;
 }
 
 // 1.0 => 1.1
 ConfigMigration['1.0'] = function(config) {
-  console.info("Migrating config from 1.0 to 1.1")
+  //console.info("Migrating config from 1.0 to 1.1")
   config.version = '1.1';
   config.backupSettingPageConfig = true;
   config.backupHistoryPageConfig = true;
@@ -52,7 +71,7 @@ ConfigMigration['1.0'] = function(config) {
 
 // 0.0 => 1.0
 ConfigMigration['0.0'] = function(config) {
-  console.info("Migrating config from 0.0 to 1.0")
+  //console.info("Migrating config from 0.0 to 1.0")
   config.version = '1.0';
   return config;
 }

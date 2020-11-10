@@ -78,7 +78,6 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
     //
 
     const generateErrMsg = function(prefix, xhr, e) {
-      console.log(xhr);
       const arr = [
         `[${prefix}]`, url,
         `readyState: ${xhr.readyState}`,

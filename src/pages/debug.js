@@ -10,6 +10,18 @@ import './_base.css';
 import './debug.css';
 
 
+function initListener() {
+  const btn = T.findElem('clear-asset-cache');
+  T.bindOnce(btn, 'click', clearAssetCache);
+}
+
+function clearAssetCache() {
+  ExtMsg.sendToBackground({
+    type: 'asset-cache.reset'
+  }).then(() => {
+    renderAssetCache();
+  });
+}
 
 function renderAssetCache() {
   ExtMsg.sendToBackground({
@@ -33,7 +45,7 @@ function renderAssetCache() {
 }
 
 async function renderStorage() {
-  const logErrMsg = function() { console.log(errMsg) }
+  const logErrMsg = function(errMsg) { console.log(errMsg) }
   MxWcStorage.getTotalBytes().then((n) => {
       const html = `<h4>total used: <em>${n}</em> Bytes</h4>`;
       T.setHtml('.storage .usedBytes', html);
@@ -62,6 +74,7 @@ async function renderStorage() {
   const categories = (data.categories || []);
   const clippings = (data.clips || []);
   const tags = (data.tags || []);
+  const failedTasks = (data.failedTasks || []);
 
   T.setHtml('.storage .config code', T.toJson(MxWcConfig.unsort(config)));
   T.setHtml('.storage .assistant code', T.toJson(assistantData));
@@ -73,10 +86,13 @@ async function renderStorage() {
   T.setHtml('.storage .categories .num', categories.length);
   T.setHtml('.storage .tags code', T.toJson(tags));
   T.setHtml('.storage .tags .num', tags.length);
+  T.setHtml('.storage .failed-tasks code', T.toJson(failedTasks));
+  T.setHtml('.storage .failed-tasks .num', failedTasks.length);
 }
 
 
 function init() {
+  initListener();
   renderAssetCache();
   renderStorage();
 }

@@ -70,13 +70,17 @@ function messageHandler(message, sender){
       case 'asset-cache.peek':
         resolve(Global.assetCache.peek());
         break;
+      case 'asset-cache.reset':
+        Global.assetCache.reset();
+        resolve();
+        break;
 
       /* backup and restore */
       case 'backup-to-file':
         backupToFile(resolve);
         break;
       case 'migrate-config':
-        resolve(migrateConfig(message.body))
+        migrateConfig(message.body).then(resolve, reject);
       default:
         break;
     }
@@ -363,8 +367,14 @@ function backupToFile(callback) {
   });
 }
 
-function migrateConfig(config) {
-  return MxWcMigration.migrateConfig(config);
+async function migrateConfig(config) {
+  const {ok, errMsg} = MxWcConfig.isMigratable(config);
+  if (ok) {
+    const currConfig = await MxWcConfig.load();
+    return MxWcMigration.migrateConfig(config, currConfig);
+  } else {
+    throw new Error(errMsg);
+  }
 }
 
 // ========================================
@@ -394,39 +404,49 @@ function getHandlerByName(name) {
   }
 }
 
-async function updateNativeAppConfig() {
-  const config = await MxWcConfig.load();
+async function updateNativeAppConfig(config) {
   if (config.clippingHandler === 'NativeApp') {
     Handler_NativeApp.initDownloadFolder();
   }
 }
 
+function initListeners() {
+  Global.evTarget.addEventListener('saving.completed', generateClippingJsIfNeed);
+  Global.evTarget.addEventListener('history.refreshed', generateClippingJsIfNeed);
+  Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
+
+  Global.evTarget.addEventListener('resource.loaded', (ev) => {
+    const {resourceType, url, data, responseHeaders} = ev;
+    Log.debug("resource.loaded", url);
+    // data is an Uint8Array
+    Global.assetCache.add(url, {resourceType, data, responseHeaders});
+  })
+}
+
 // ========================================
-
-const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
-
-Global.evTarget.addEventListener('saving.completed', generateClippingJsIfNeed);
-Global.evTarget.addEventListener('history.refreshed', generateClippingJsIfNeed);
-Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
-
-Global.assetCache = T.createResourceCache({size: 80});
-Global.evTarget.addEventListener('resource.loaded', (ev) => {
-  const {resourceType, url, data, responseHeaders} = ev;
-  Log.debug("resource.loaded", url);
-  // data is an Uint8Array
-  Global.assetCache.add(url, {resourceType, data, responseHeaders});
-})
-
 
 async function init(){
   Log.debug("background init...");
+  initListeners();
   ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
   await MxWcMigration.perform();
 
-  await updateNativeAppConfig();
+  const config = await MxWcConfig.load();
+  await updateNativeAppConfig(config);
 
+  const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
+  Global.assetCache = T.createResourceCache({size: config.requestCacheSize});
   Fetcher.init({token: REQUEST_TOKEN, cache: Global.assetCache});
-  WebRequest.init({evTarget: Global.evTarget, requestToken: REQUEST_TOKEN});
+  WebRequest.init(Object.assign({
+    evTarget: Global.evTarget,
+    requestToken: REQUEST_TOKEN
+  }, T.sliceObj(config, [
+    'requestCacheSize',
+    'requestCacheCss',
+    'requestCacheImage',
+    'requestCacheWebFont',
+    ])
+  ));
   WebRequest.listen();
 
 

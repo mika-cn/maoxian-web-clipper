@@ -20,31 +20,32 @@ import StyleHelper           from './style-helper.js';
 
 async function clip(elem, {info, storageInfo, config, win}){
   Log.debug("html parser");
+
   const [mimeTypeDict, frames] = await Promise.all([
     ExtMsg.sendToBackend('clipping', {type: 'get.mimeTypeDict'}),
     ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'}),
   ])
 
   const headerParams = {
-    refUrl: win.location.href,
-    userAgent: win.navigator.userAgent,
-    referrerPolicy: config.requestReferrerPolicy,
+    refUrl         : win.location.href,
+    userAgent      : win.navigator.userAgent,
+    referrerPolicy : config.requestReferrerPolicy,
   }
 
   const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
 
   const {elemHtml, headInnerHtml, tasks} = await getElemHtml({
-    clipId: info.clipId,
-    frames: frames,
-    storageInfo: storageInfo,
-    elem: elem,
-    docUrl: win.location.href,
-    baseUrl: win.document.baseURI,
-    mimeTypeDict: mimeTypeDict,
-    config: config,
-    headerParams: headerParams,
-    needFixStyle: !isBodyElem,
-    win: win,
+    clipId       : info.clipId,
+    frames       : frames,
+    storageInfo  : storageInfo,
+    elem         : elem,
+    docUrl       : win.location.href,
+    baseUrl      : win.document.baseURI,
+    mimeTypeDict : mimeTypeDict,
+    config       : config,
+    headerParams : headerParams,
+    needFixStyle : !isBodyElem,
+    win          : win,
   });
 
   // render elemHtml into template
@@ -61,10 +62,9 @@ async function clip(elem, {info, storageInfo, config, win}){
   tasks.push(mainFileTask);
 
   return Task.changeUrlTask(tasks, (task) => {
-    task['headers'] = CaptureTool.getRequestHeaders(
-      task.url, headerParams);
-    task['timeout'] = config.requestTimeout;
-    task['tries'] = config.requestMaxTries;
+    task.headers = CaptureTool.getRequestHeaders(task.url, headerParams);
+    task.timeout = config.requestTimeout;
+    task.tries = config.requestMaxTries;
   });
 }
 
@@ -101,7 +101,6 @@ async function getElemHtml(params){
   const {doc} = DOMTool.parseHTML(win, docHtml);
   let selectedNode = doc.querySelector('.' + KLASS);
   selectedNode.classList.remove(KLASS);
-  Log.debug(selectedNode);
   selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
   const {node, taskCollection} = await captureContainerNode(selectedNode,
@@ -117,7 +116,7 @@ async function getElemHtml(params){
   for (let i = 0; i < headNodes.length; i++) {
     const currNode = headNodes[i];
     if ([].indexOf.call(processedNodes, currNode) == -1) {
-      const r = await captureNode(currNode, params);
+      const r = await captureNode(currNode, Object.assign({}, params, {doc}));
       taskCollection.push(...r.tasks);
     }
   }
@@ -359,9 +358,5 @@ function getNodesHtml(nodes) {
   return outerHtmls.length === 0 ? '' : ['', ...outerHtmls, ''].join('\n');
 }
 
-const Html = {
-  clip: clip,
-  getElemHtml: getElemHtml
-}
 
-export default Html;
+export default {clip, getElemHtml};

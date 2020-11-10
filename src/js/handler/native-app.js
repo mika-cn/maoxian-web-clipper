@@ -24,6 +24,12 @@ function saveClipping(clipping, feedback) {
   });
 }
 
+function retryTask(task, feedback) {
+  listen();
+  SavingTool.retryTask(task, feedback);
+  saveTask(task);
+}
+
 
 function handleClippingResult(it) {
   it.url = T.toFileUrl(it.filename);
@@ -245,18 +251,18 @@ function getInfo(callback) {
   });
 }
 
-const ClippingHandler_NativeApp = {
-  name: 'NativeApp',
-  init: init,
-  saveClipping: saveClipping,
-  saveTextFile: saveTextFile,
-  handleClippingResult: handleClippingResult,
-  initDownloadFolder: initDownloadFolder,
+const ClippingHandler_NativeApp = Object.assign({name: 'NativeApp'}, {
+  init,
+  saveClipping,
+  saveTextFile,
+  retryTask,
+  handleClippingResult,
+  initDownloadFolder,
 
-  getInfo: getInfo,
-  getVersion: getVersion,
-  deleteClipping: deleteClipping,
-  refreshHistory: refreshHistory,
-}
+  getInfo,
+  getVersion,
+  deleteClipping,
+  refreshHistory,
+});
 
 export default ClippingHandler_NativeApp;
