@@ -1,9 +1,10 @@
 
 
-import T      from '../js/lib/tool.js';
-import ExtMsg from '../js/lib/ext-msg.js';
+import T           from '../js/lib/tool.js';
+import ExtMsg      from '../js/lib/ext-msg.js';
 import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig from '../js/lib/config.js';
+import MxWcConfig  from '../js/lib/config.js';
+import MxWcLink    from '../js/lib/link.js';
 
 
 import './_base.css';
@@ -92,6 +93,7 @@ async function renderStorage() {
 
 
 function init() {
+  MxWcLink.listen();
   initListener();
   renderAssetCache();
   renderStorage();
