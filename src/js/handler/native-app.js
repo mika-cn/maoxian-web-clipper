@@ -43,35 +43,37 @@ function saveTextFile(task) {
 }
 
 function saveTask(task) {
-  if (task.type === 'url' && T.isVersionGteq(state.version, '0.2.4')) {
-    // In order to utilize browser's cache
-    // we move download to browser.
-    // since 0.2.4
-    Global.Fetcher.get(task.url, {
-      respType: 'blob',
-      headers: task.headers,
-      timeout: task.timeout,
-      tries: task.tries,
-    }).then((blob) => {
-      const reader = new FileReader();
-      reader.onload = function() {
-        const binaryString = reader.result;
-        task.encode = 'base64'
-        task.content = btoa(binaryString);
-        task.type = 'download.url'
-        state.port.postMessage(task);
-      }
+  getVersion((r) => {
+    if (task.type === 'url' && T.isVersionGteq(r.version, '0.2.4')) {
+      // In order to utilize browser's cache
+      // we move download to browser.
+      // since 0.2.4
+      Global.Fetcher.get(task.url, {
+        respType: 'blob',
+        headers: task.headers,
+        timeout: task.timeout,
+        tries: task.tries,
+      }).then((blob) => {
+        const reader = new FileReader();
+        reader.onload = function() {
+          const binaryString = reader.result;
+          task.encode = 'base64'
+          task.content = btoa(binaryString);
+          task.type = 'download.url'
+          state.port.postMessage(task);
+        }
 
-      reader.readAsBinaryString(blob);
-    },
-      (err) => {
-        SavingTool.taskFailed(task.filename, err.message);
-      }
-    );
-  } else {
-    task.type = ['download', task.type].join('.');
-    state.port.postMessage(task);
-  }
+        reader.readAsBinaryString(blob);
+      },
+        (err) => {
+          SavingTool.taskFailed(task.filename, err.message);
+        }
+      );
+    } else {
+      task.type = ['download', task.type].join('.');
+      state.port.postMessage(task);
+    }
+  });
 }
 
 function isMainFile(filename) {
