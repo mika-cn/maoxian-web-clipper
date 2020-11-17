@@ -5,7 +5,6 @@ import T          from '../js/lib/tool.js';
 import ExtMsg     from '../js/lib/ext-msg.js';
 import MxWcConfig from '../js/lib/config.js';
 import MxWcLink   from '../js/lib/link.js';
-import Worker     from 'worker-loader?publicPath=/&name=js/[hash].worker.js!./reset-history-worker.js';
 
 const state = {};
 
@@ -89,7 +88,7 @@ function init(){
   I18N.i18nPage();
   bindListener();
   MxWcLink.listen(document.body);
-  state.worker = new Worker();
+  state.worker = new Worker('reset-history-worker.js');
   state.worker.onmessage = handlerWorkerMessage;
 }
 

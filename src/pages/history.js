@@ -13,9 +13,6 @@ import Notify         from '../js/lib/notify.js';
 import MxWcHandler    from '../js/lib/handler.js';
 import getPikadayI18n from '../_locales/pikaday.i18n.js';
 
-import Awesomplete from 'awesomplete';
-import Pikaday     from 'pikaday';
-
 const state = { allClips: [], currClips: [], categories: [], tags: [] };
 
 function listenMessage() {

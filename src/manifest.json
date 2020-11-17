@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "author": "",
-  "version": "",
+  "author": "Mika",
+  "version": "0.1.66",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*",
@@ -29,6 +29,8 @@
   "content_scripts": [
     {
       "js": [
+        "vendor/js/browser-polyfill.js",
+        "vendor/js/i18n.js",
         "_locales/en/common.js",
         "_locales/zh_CN/common.js",
         "js/content-frame.js"
@@ -42,6 +44,8 @@
     },
     {
       "js": [
+        "vendor/js/browser-polyfill.js",
+        "vendor/js/i18n.js",
         "_locales/en/common.js",
         "_locales/zh_CN/common.js",
         "js/content.js"
@@ -76,7 +80,7 @@
   },
   "browser_action": {
     "browser_style": true,
-    "default_title": "",
+    "default_title": "__MSG_extensionDefaultTooltip__",
     "default_popup": "pages/popup.html",
     "default_icon": {
       "16": "icons/mx-wc-16.png",

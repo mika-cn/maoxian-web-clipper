@@ -3,8 +3,8 @@
 })(this, function(root, undefined) {
   const currValues = (root.MxWcI18N_en || {}).values || {};
   const values = {
-    "home.nav.extension-pages": "Extension Pages",
-    "home.nav.remote-pages": "Remote Pages",
+    "nav.extension-pages": "Extension Pages",
+    "nav.remote-pages": "Remote Pages",
     "version": "Current Version",
     // extension pages
     "page.home": "Extension Home Page",

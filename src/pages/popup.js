@@ -1,4 +1,3 @@
-"use strict";
 
 import ENV         from '../js/env.js';
 import T           from '../js/lib/tool.js';

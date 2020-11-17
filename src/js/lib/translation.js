@@ -1,8 +1,8 @@
 "use strict";
 
-import I18nLib from 'roddeh-i18n';
 import ExtApi  from './ext-api.js';
 
+const I18nLib = i18n;
 const DEFAULT_LOCALE = 'en';
 let locale = DEFAULT_LOCALE;
 const I18N_DICT = {'en': MxWcI18N_en, 'zh-CN': MxWcI18N_zh_CN};

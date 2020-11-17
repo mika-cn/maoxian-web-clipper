@@ -3,7 +3,6 @@
 import T          from './tool.js';
 import ExtMsg     from './ext-msg.js';
 import MxWcConfig from './config.js';
-import I18N       from './translation.js';
 
 /*
  * @param {string} exp: expression
@@ -79,12 +78,13 @@ function getHandlerInfoThroughBG(name, callback) {
 
 function getHandlerLink(name) {
   const link =  `go.page:extPage.setting?t=${Date.now()}#setting-handler-${T.deCapitalize(name)}`;
-  return [`<a href='${link}' target='_blank'>`, I18N.t(`handler.${T.deCapitalize(name)}.name`), "</a>"].join('');
+  return `<a href='${link}' target='_blank' i18n="handler.${T.deCapitalize(name)}.name"></a>`;
 }
 
 function errResp(msg, name) {
-  const message = [ I18N.t(msg),
-    " [ "+ getHandlerLink(name) +" ]"
+  const message = [
+    `<span i18n="${msg}"></span>`,
+    "<span>[ "+ getHandlerLink(name) +" ]</span>"
   ].join("")
   return { ok: false, message: message }
 }

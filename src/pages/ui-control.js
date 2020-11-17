@@ -7,7 +7,6 @@ import MxWcTemplate from '../js/lib/template.js';
 import MxWcStorage  from '../js/lib/storage.js';
 import MxWcConfig   from '../js/lib/config.js';
 import FrameMsg     from '../js/lib/frame-msg.js';
-import Awesomplete  from 'awesomplete';
 
 const ID = 'mx-wc-iframe-control';
 

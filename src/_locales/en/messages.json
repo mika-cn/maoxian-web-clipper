@@ -1,12 +1,17 @@
 {
   "extensionName": {
-    "message": "MaoXian web clipper",
+    "message": "MaoXian Web Clipper",
     "description": "Name of the extension."
   },
 
   "extensionDescription": {
     "message": "Clip information from web page. save to your local machine to avoid information invalidation.",
     "description": "Description of the extension."
+  },
+
+  "extensionDefaultTooltip": {
+    "message": "MaoXian Web Clipper",
+    "description": "Tooltip for the icon, displayed when the user moves their mouse over it."
   },
 
   "commandToggleClip": {

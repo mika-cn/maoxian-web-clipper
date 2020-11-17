@@ -1,12 +1,12 @@
 
 
-const websiteRoot = "http://dev.pc:3000/maoxian-web-clipper";
+const websiteRoot = "https://mika-cn.github.io/maoxian-web-clipper";
 const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
-const mxAssistantRoot = [websiteRoot, 'tmp/assistant'].join('/');
+const mxAssistantRoot = [websiteRoot, 'assistant'].join('/');
 
 const env = {
-  isDev: true,
-  logLevel: "debug",
+  isDev: false,
+  logLevel: "warn",
   version: '0.1.66',
   minNativeAppVersion: '0.2.2',
   websiteRoot: websiteRoot,

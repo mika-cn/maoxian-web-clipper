@@ -1,4 +1,3 @@
-"use strict";
 
 import ENV        from '../js/env.js';
 import Log        from '../js/lib/log.js';
