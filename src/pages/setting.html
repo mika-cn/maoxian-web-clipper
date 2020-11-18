@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Setting - MaoXian</title>
+    <link href="_base.css" rel="stylesheet"/>
+    <link href="setting.css" rel="stylesheet"/>
   </head>
   <body>
 
@@ -11,18 +13,18 @@
       <div class="sidebar">
         <div class="sidebar-folder">&#9776;</div>
         <div class="sidebar-content">
-          <a class="menu" href="#setting-general" i18n="setting.title.general"></a>
-          <a class="menu" href="#setting-storage" i18n="setting.title.storage"></a>
-          <a class="menu" href="#setting-offline-page" i18n="setting.title.offline-page"></a>
-          <a class="menu" href="#setting-refresh-history" i18n="setting.title.refresh-history"></a>
-          <a class="menu" href="#setting-assistant" i18n="setting.title.assistant"></a>
-          <a class="menu" href="#setting-advanced" i18n="setting.title.advanced"></a>
+          <a class="menu" href="#setting-general" i18n="title.general"></a>
+          <a class="menu" href="#setting-storage" i18n="title.storage"></a>
+          <a class="menu" href="#setting-offline-page" i18n="title.offline-page"></a>
+          <a class="menu" href="#setting-refresh-history" i18n="title.refresh-history"></a>
+          <a class="menu" href="#setting-assistant" i18n="title.assistant"></a>
+          <a class="menu" href="#setting-advanced" i18n="title.advanced"></a>
           <hr />
-          <a class="menu" href="#setting-handler-browser" i18n="setting.title.handler-browser"></a>
-          <a class="menu" href="#setting-handler-native-app" i18n="setting.title.handler-native-app"></a>
-          <a class="menu" href="#setting-handler-wiz-note-plus" i18n="setting.title.handler-wiz-note-plus"></a>
+          <a class="menu" href="#setting-handler-browser" i18n="title.handler-browser"></a>
+          <a class="menu" href="#setting-handler-native-app" i18n="title.handler-native-app"></a>
+          <a class="menu" href="#setting-handler-wiz-note-plus" i18n="title.handler-wiz-note-plus"></a>
           <hr />
-          <a class="menu" href="#setting-reset-and-backup" i18n="setting.title.reset-and-backup"></a>
+          <a class="menu" href="#setting-reset-and-backup" i18n="title.reset-and-backup"></a>
 
         </div>
       </div>
@@ -32,36 +34,36 @@
 
     <template id="section-setting-reset-and-backup-tpl">
       <section id="setting-reset-and-backup">
-        <h2 class="center" i18n="setting.title.reset-and-backup"></h2>
+        <h2 class="center" i18n="title.reset-and-backup"></h2>
         <div>
-          <h3 i18n="setting.title.reset"></h3>
-          <span i18n="setting.reset-to-default-intro.label"></span>
+          <h3 i18n="title.reset"></h3>
+          <span i18n="label.reset-to-default-intro"></span>
           <ul>
-            <li i18n="setting.backup-setting-page-config-input.label"></li>
-            <li i18n="setting.backup-assistant-data-input.label"></li>
-            <li i18n="setting.backup-selection-data-input.label"></li>
+            <li i18n="label.backup-setting-page-config-input"></li>
+            <li i18n="label.backup-assistant-data-input"></li>
+            <li i18n="label.backup-selection-data-input"></li>
           </ul>
 
-          <button id="reset-to-default" i18n="setting.button.reset-to-default"></button>
+          <button id="reset-to-default" i18n="button.reset-to-default"></button>
         </div>
         <div>
-          <h3 i18n="setting.title.backup"></h3>
+          <h3 i18n="title.backup"></h3>
           <input type="checkbox" id="backup-setting-page-config" />
-          <label for="backup-setting-page-config" i18n="setting.backup-setting-page-config-input.label"></label>
+          <label for="backup-setting-page-config" i18n="label.backup-setting-page-config-input"></label>
           <br />
           <input type="checkbox" id="backup-history-page-config" />
-          <label for="backup-history-page-config" i18n="setting.backup-history-page-config-input.label"></label>
+          <label for="backup-history-page-config" i18n="label.backup-history-page-config-input"></label>
           <br />
           <input type="checkbox" id="backup-assistant-data" />
-          <label for="backup-assistant-data" i18n="setting.backup-assistant-data-input.label"></label>
+          <label for="backup-assistant-data" i18n="label.backup-assistant-data-input"></label>
           <br />
           <input type="checkbox" id="backup-selection-data" />
-          <label for="backup-selection-data" i18n="setting.backup-selection-data-input.label"></label>
+          <label for="backup-selection-data" i18n="label.backup-selection-data-input"></label>
           <br /><br />
-          <button id="backup-to-file" i18n="setting.button.backup-to-file"></button>
+          <button id="backup-to-file" i18n="button.backup-to-file"></button>
         </div>
-        <h3 i18n="setting.title.restore"></h3>
-        <button id="restore-from-file" i18n="setting.button.restore-from-file"></button>
+        <h3 i18n="title.restore"></h3>
+        <button id="restore-from-file" i18n="button.restore-from-file"></button>
         <div class="hidden">
           <input id="restore-file-picker" type="file" accept="application/json" />
         </div>
@@ -71,132 +73,132 @@
 
     <template id="section-setting-advanced-tpl">
       <section id="setting-advanced">
-        <h2 class="center" i18n="setting.title.advanced"></h2>
+        <h2 class="center" i18n="title.advanced"></h2>
         <div>
-          <h3 i18n="setting.title.request"></h3>
+          <h3 i18n="title.request"></h3>
 
-          <h4 i18n="setting.title.request-timeout"></h4>
+          <h4 i18n="title.request-timeout"></h4>
           <input type="number" id="request-timeout" min="5" max="240" value="20" required/>
-          <label for="request-timeout" i18n="setting.request-timeout-input.label"></label>
+          <label for="request-timeout" i18n="label.request-timeout-input"></label>
 
-          <h4 i18n="setting.title.request-max-tries"></h4>
+          <h4 i18n="title.request-max-tries"></h4>
           <input type="number" id="request-max-tries" min="1" max="99" value="3" required/>
-          <label for="request-max-tries" i18n="setting.request-max-tries-input.label"></label>
+          <label for="request-max-tries" i18n="label.request-max-tries-input"></label>
 
-          <h4 i18n="setting.title.request-cache"></h4>
-          <div class="notice-info" i18n="setting.notice.request-cache"></div>
-          <div class="notice-warning" i18n="setting.notice.request-cache-applying"></div>
+          <h4 i18n="title.request-cache"></h4>
+          <div class="notice-info" i18n="notice.request-cache"></div>
+          <div class="notice-warning" i18n="notice.request-cache-applying"></div>
           <div>
             <input type="number" id="request-cache-size" min="0" max="500" value="80" required/>
-            <label for="request-cache-size" i18n="setting.request-cache-size-input.label"></label>
+            <label for="request-cache-size" i18n="label.request-cache-size-input"></label>
           </div>
           <br />
           <div id="cache-switchers">
             <input type="checkbox" id="request-cache-css" />
-            <label for="request-cache-css" i18n="setting.request-cache-css-input.label"></label>
+            <label for="request-cache-css" i18n="label.request-cache-css-input"></label>
             <br />
             <input type="checkbox" id="request-cache-image" />
-            <label for="request-cache-image" i18n="setting.request-cache-image-input.label"></label>
+            <label for="request-cache-image" i18n="label.request-cache-image-input"></label>
             <br />
             <input type="checkbox" id="request-cache-web-font" />
-            <label for="request-cache-web-font" i18n="setting.request-cache-web-font-input.label"></label>
+            <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
           </div>
 
-          <h4 i18n="setting.title.request-referrer-policy"></h4>
+          <h4 i18n="title.request-referrer-policy"></h4>
           <div id="request-referrer-policy">
             <div>
               <input type="radio" value="originWhenCrossOrigin" id="request-referrer-policy-a" name="request-referrer-policy" />
-              <label for="request-referrer-policy-a" i18n="setting.option.request-referrer-policy.origin-when-cross-origin"></label>
+              <label for="request-referrer-policy-a" i18n="option.request-referrer-policy.origin-when-cross-origin"></label>
             </div>
             <div>
               <input type="radio" value="origin" id="request-referrer-policy-b" name="request-referrer-policy" />
-              <label for="request-referrer-policy-b" i18n="setting.option.request-referrer-policy.origin"></label>
+              <label for="request-referrer-policy-b" i18n="option.request-referrer-policy.origin"></label>
             </div>
             <div>
               <input type="radio" value="noReferrer" id="request-referrer-policy-c" name="request-referrer-policy" />
-              <label for="request-referrer-policy-c" i18n="setting.option.request-referrer-policy.no-referrer"></label>
+              <label for="request-referrer-policy-c" i18n="option.request-referrer-policy.no-referrer"></label>
             </div>
             <div>
               <input type="radio" value="unsafeUrl" id="request-referrer-policy-d" name="request-referrer-policy" />
-              <label for="request-referrer-policy-d" i18n="setting.option.request-referrer-policy.unsafe-url"></label>
+              <label for="request-referrer-policy-d" i18n="option.request-referrer-policy.unsafe-url"></label>
             </div>
           </div>
 
         </div>
         <div>
-          <h3 i18n="setting.title.misc"></h3>
+          <h3 i18n="title.misc"></h3>
           <input type="checkbox" id="communicate-with-third-party" />
-          <label for="communicate-with-third-party" i18n="setting.communicate-with-third-party-input.label"></label>
+          <label for="communicate-with-third-party" i18n="label.communicate-with-third-party-input"></label>
         </div>
       </section>
     </template>
 
     <template id="section-setting-general-tpl">
       <section id="setting-general">
-        <h2 class="center" i18n="setting.title.general"></h2>
+        <h2 class="center" i18n="title.general"></h2>
         <div>
-          <h3 i18n="setting.title.control"></h3>
+          <h3 i18n="title.control"></h3>
           <input type="checkbox" id="hotkey-switch-enabled" />
-          <label for="hotkey-switch-enabled" i18n="setting.hotkey-switch-enabled-input.label"></label>
+          <label for="hotkey-switch-enabled" i18n="label.hotkey-switch-enabled-input"></label>
           <br />
           <input type="checkbox" id="mouse-mode-enabled" />
-          <label for="mouse-mode-enabled" i18n="setting.mouse-mode-enabled-input.label"></label>
+          <label for="mouse-mode-enabled" i18n="label.mouse-mode-enabled-input"></label>
           <br />
           <input type="checkbox" id="input-field-save-format-enabled" />
-          <label for="input-field-save-format-enabled" i18n="setting.input-field-save-format-enabled.label"></label>
+          <label for="input-field-save-format-enabled" i18n="label.input-field-save-format-enabled"></label>
           <br />
           <input type="checkbox" id="remember-selection" />
-          <label for="remember-selection" i18n="setting.remember-selection-input.label"></label>
+          <label for="remember-selection" i18n="label.remember-selection-input"></label>
         </div>
         <div>
-          <h3 i18n="setting.title.file-url"></h3>
+          <h3 i18n="title.file-url"></h3>
           <div class="notice-info">
-            <label i18n="setting.notice.file-url.intro"></label>
+            <label i18n="notice.file-url.intro"></label>
             <br />
-            <a href="go.page:faq-allow-access-file-urls" i18n="setting.notice.file-url.link-label" target="_blank"></a>
+            <a href="go.page:faq-allow-access-file-urls" i18n="notice.file-url.link-label" target="_blank"></a>
             <br />
-            <label i18n="setting.notice.file-url.help-msg"></label>
+            <label i18n="notice.file-url.help-msg"></label>
             <br />
-            <label i18n="setting.notice.file-url.ext-id"></label>
+            <label i18n="notice.file-url.ext-id"></label>
             <label>=&gt; ${host}</label>
           </div>
           <div class="notice-warning">
-            <strong i18n="setting.warning"></strong>:<br />
-            <label i18n="setting.notice.file-url-warning"></label>
+            <strong i18n="g.label.warning"></strong>:<br />
+            <label i18n="notice.file-url-warning"></label>
           </div>
           <input type="checkbox" id="file-scheme-access-input"/>
-          <label for="file-scheme-access-input" i18n="setting.file-url-input.label"></label>
+          <label for="file-scheme-access-input" i18n="label.file-url-input"></label>
         </div>
         <div>
-          <h3 i18n="setting.title.clipping-content"></h3>
+          <h3 i18n="title.clipping-content"></h3>
 
           <input type="checkbox" id="save-domain-as-tag" />
-          <label for="save-domain-as-tag" i18n="setting.save-domain-tag-input.label"></label>
+          <label for="save-domain-as-tag" i18n="label.save-domain-tag-input"></label>
           <div>
-            <h4 i18n="setting.title.html-content"></h4>
+            <h4 i18n="title.html-content"></h4>
             <input type="checkbox" id="html-save-clipping-information" />
-            <label for="html-save-clipping-information" i18n="setting.clip-information-input.label"></label>
+            <label for="html-save-clipping-information" i18n="label.clip-information-input"></label>
             <br />
             <input type="checkbox" id="save-icon" />
-            <label for="save-icon" i18n="setting.save-icon-input.label"></label>
+            <label for="save-icon" i18n="label.save-icon-input"></label>
             <br />
             <input type="checkbox" id="save-web-font" />
-            <label for="save-web-font" i18n="setting.save-web-font-input.label"></label>
+            <label for="save-web-font" i18n="label.save-web-font-input"></label>
             <br />
             <input type="checkbox" id="save-css-image" />
-            <label for="save-css-image" i18n="setting.save-css-image-input.label"></label>
+            <label for="save-css-image" i18n="label.save-css-image-input"></label>
             <br />
           </div>
           <div>
-            <h4 i18n="setting.title.markdown-content"></h4>
+            <h4 i18n="title.markdown-content"></h4>
             <input type="checkbox" id="md-save-clipping-information" />
-            <label for="md-save-clipping-information" i18n="setting.clip-information-input.label"></label>
+            <label for="md-save-clipping-information" i18n="label.clip-information-input"></label>
             <br />
             <input type="checkbox" id="md-front-matter-enabled" />
-            <label for="md-front-matter-enabled" i18n="setting.md-front-matter-enabled-input.label"></label>
+            <label for="md-front-matter-enabled" i18n="label.md-front-matter-enabled-input"></label>
             <div class="notice-info">
-              <span i18n="setting.notice.front-matter"></span><br /><br />
-              <span i18n="setting.notice.front-matter-template"></span>
+              <span i18n="notice.front-matter"></span><br /><br />
+              <span i18n="notice.front-matter-template"></span>
             </div>
             <textarea id="md-front-matter-template"></textarea>
           </div>
@@ -206,32 +208,32 @@
 
     <template id="section-setting-assistant-tpl">
       <section id="setting-assistant">
-        <h2 class="center" i18n="setting.title.assistant"></h2>
+        <h2 class="center" i18n="title.assistant"></h2>
         <div class="intro">
-          <h3 i18n="setting.title.intro"></h3>
-          <div class="notice-info" i18n="setting.notice.assistant-intro"></div>
+          <h3 i18n="title.intro"></h3>
+          <div class="notice-info" i18n="notice.assistant-intro"></div>
           <input type="checkbox" id="assistant-enabled"/>
-          <label for="assistant-enabled" i18n="setting.assistant-enabled-input.label"></label>
+          <label for="assistant-enabled" i18n="label.assistant-enabled-input"></label>
         </div>
         <div class="custom-plan">
-          <h3 i18n="setting.title.custom-plan"></h3>
-          <div class="notice-info" i18n="setting.notice.custom-plan-intro"></div>
+          <h3 i18n="title.custom-plan"></h3>
+          <div class="notice-info" i18n="notice.custom-plan-intro"></div>
           <textarea id="custom-plans"></textarea>
           <br />
-          <button id="save-custom-plan" i18n="setting.button.save"></button>
+          <button id="save-custom-plan" i18n="button.save"></button>
         </div>
         <div class="public-plan">
-          <h3 i18n="setting.title.public-plan"></h3>
-          <div class="notice-info" i18n="setting.notice.public-plan-intro"></div>
+          <h3 i18n="title.public-plan"></h3>
+          <div class="notice-info" i18n="notice.public-plan-intro"></div>
           <div class="subscriptions">
-            <h4 i18n="setting.title.subscriptions"></h4>
+            <h4 i18n="title.subscriptions"></h4>
             <table>
               <thead>
                 <tr>
-                  <th i18n="setting.title.subscription.name"></th>
-                  <th i18n="setting.title.subscription.version"></th>
-                  <th i18n="setting.title.subscription.size"></th>
-                  <th i18n="setting.title.subscription.detail"></th>
+                  <th i18n="title.subscription.name"></th>
+                  <th i18n="title.subscription.version"></th>
+                  <th i18n="title.subscription.size"></th>
+                  <th i18n="title.subscription.detail"></th>
                 </tr>
               <thead>
               <tbody class="subscription-list"></tbody>
@@ -239,17 +241,17 @@
           </div>
           <br /><br />
           <div class="edit-subscription">
-            <div class="notice-info" i18n="setting.notice.edit-subscription"></div>
+            <div class="notice-info" i18n="notice.edit-subscription"></div>
             <textarea id="plan-subscription"></textarea>
             <div class="logs" id="update-public-plan-log"></div>
             <br>
-            <button id="save-plan-subscription" i18n="setting.button.save"></button>
-            <button id="update-public-plan-now" i18n="setting.button.update-now"></button>
+            <button id="save-plan-subscription" i18n="button.save"></button>
+            <button id="update-public-plan-now" i18n="button.update-now"></button>
           </div>
           <div class="switches">
             <br />
             <input type="checkbox" id="auto-update-public-plan"/>
-            <label for="auto-update-public-plan" i18n="setting.auto-update-public-plan-input.label"></label>
+            <label for="auto-update-public-plan" i18n="label.auto-update-public-plan-input"></label>
           </div>
         </div>
       </section>
@@ -259,15 +261,15 @@
         <td>${name}</td>
         <td>${version}</td>
         <td>${size}</td>
-        <td><a href="go.page:extPage.plan-subscription?t=${t}" target="_blank" i18n="setting.title.subscription.detail"></a></td>
+        <td><a href="go.page:extPage.plan-subscription?t=${t}" target="_blank" i18n="title.subscription.detail"></a></td>
       </tr>
     </template>
 
     <template id="section-setting-storage-tpl">
       <section id="setting-storage">
-        <h2 class="center" i18n="setting.title.storage"></h2>
+        <h2 class="center" i18n="title.storage"></h2>
         <div class="control">
-          <h3 i18n="setting.title.handler"></h3>
+          <h3 i18n="title.handler"></h3>
           <div class="options" id="storage-handler">
             <a data-value="Browser" i18n="handler.browser.name"></a>
             <a data-value="NativeApp" i18n="handler.native-app.name"></a>
@@ -278,233 +280,233 @@
           <div class="warning-box"></div>
         </div>
         <div class="save-format">
-          <h3 i18n="setting.title.save-format"></h3>
+          <h3 i18n="title.save-format"></h3>
           <div class="options" id="save-format"></div>
         </div>
         <div class="local-path">
-          <h3 i18n="setting.title.path"></h3>
+          <h3 i18n="title.path"></h3>
           <div class="notice-light">
-            <span i18n="setting.path-intro.format"></span>
-            <code i18n="setting.path.download"></code> /
-            <code i18n="setting.folder.root"></code> /
-            <code i18n="setting.folder.category"></code> /
-            <code i18n="setting.folder.clipping"></code> /
-            <code i18n="setting.path.filename"></code>
+            <span i18n="path-intro.format"></span>
+            <code i18n="path.download"></code> /
+            <code i18n="folder.root"></code> /
+            <code i18n="folder.category"></code> /
+            <code i18n="folder.clipping"></code> /
+            <code i18n="path.filename"></code>
             <br />
             <ul>
-              <li i18n="setting.path.download.intro"></li>
-              <li i18n="setting.folder.root.intro"></li>
-              <li i18n="setting.folder.category.intro"></li>
-              <li i18n="setting.folder.clipping.intro"></li>
-              <li i18n="setting.path.filename.intro"></li>
+              <li i18n="path.download.intro"></li>
+              <li i18n="folder.root.intro"></li>
+              <li i18n="folder.category.intro"></li>
+              <li i18n="folder.clipping.intro"></li>
+              <li i18n="path.filename.intro"></li>
             </ul>
           </div>
           <div>
 
             <div>
-              <h4 i18n="setting.title.root-folder"></h4>
-              <div class="notice-warning" i18n="setting.notice.root-folder"></div>
-              <input type="text" id="root-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+              <h4 i18n="title.root-folder"></h4>
+              <div class="notice-warning" i18n="notice.root-folder"></div>
+              <input type="text" id="root-folder" i18n-attr="placeholder:placeholder.notblank"/>
             </div>
 
             <div>
-              <h4 i18n="setting.title.default-category"></h4>
+              <h4 i18n="title.default-category"></h4>
               <div class="notice-info">
-                <p i18n="setting.notice.default-category"></p>
+                <p i18n="notice.default-category"></p>
                 <details>
-                  <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
                   <div class="help-content">
-                    <span i18n="setting.variable.none"></span>
-                    <span i18n="setting.variable.domain"></span>
-                    <span i18n="setting.variable.year"></span>
-                    <span i18n="setting.variable.short-year"></span>
-                    <span i18n="setting.variable.month"></span>
-                    <span i18n="setting.variable.day"></span>
-                    <span i18n="setting.variable.hour"></span>
-                    <span i18n="setting.variable.minute"></span>
-                    <span i18n="setting.variable.second"></span>
-                    <span i18n="setting.variable.time-integer-second"></span>
+                    <span i18n="variable.none"></span>
+                    <span i18n="variable.domain"></span>
+                    <span i18n="variable.year"></span>
+                    <span i18n="variable.short-year"></span>
+                    <span i18n="variable.month"></span>
+                    <span i18n="variable.day"></span>
+                    <span i18n="variable.hour"></span>
+                    <span i18n="variable.minute"></span>
+                    <span i18n="variable.second"></span>
+                    <span i18n="variable.time-integer-second"></span>
                   </div>
                 </details>
               </div>
-              <input type="text" id="default-category" i18n-attr="placeholder:setting.placeholder.notblank"/>
+              <input type="text" id="default-category" i18n-attr="placeholder:placeholder.notblank"/>
             </div>
 
             <div>
-              <h4 i18n="setting.title.clipping-folder-name"></h4>
+              <h4 i18n="title.clipping-folder-name"></h4>
               <div class="notice-info">
-                <p i18n="setting.notice.clipping-folder-name"></p>
+                <p i18n="notice.clipping-folder-name"></p>
                 <details>
-                  <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
                   <div class="help-content">
-                    <span i18n="setting.variable.title"></span>
-                    <span i18n="setting.variable.domain"></span>
-                    <span i18n="setting.variable.year"></span>
-                    <span i18n="setting.variable.short-year"></span>
-                    <span i18n="setting.variable.month"></span>
-                    <span i18n="setting.variable.day"></span>
-                    <span i18n="setting.variable.hour"></span>
-                    <span i18n="setting.variable.minute"></span>
-                    <span i18n="setting.variable.second"></span>
-                    <span i18n="setting.variable.time-integer-second"></span>
+                    <span i18n="variable.title"></span>
+                    <span i18n="variable.domain"></span>
+                    <span i18n="variable.year"></span>
+                    <span i18n="variable.short-year"></span>
+                    <span i18n="variable.month"></span>
+                    <span i18n="variable.day"></span>
+                    <span i18n="variable.hour"></span>
+                    <span i18n="variable.minute"></span>
+                    <span i18n="variable.second"></span>
+                    <span i18n="variable.time-integer-second"></span>
                   </div>
                 </details>
               </div>
-              <input type="text" id="clipping-folder-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+              <input type="text" id="clipping-folder-name" i18n-attr="placeholder:placeholder.notblank"/>
             </div>
 
             <div>
-              <h4 i18n="setting.title.main-file"></h4>
+              <h4 i18n="title.main-file"></h4>
               <div class="notice-info">
-                <p i18n="setting.notice.main-file-intro"></p>
+                <p i18n="notice.main-file-intro"></p>
                 <details>
-                  <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary><br />
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary><br />
                   <div>
-                    <strong i18n="setting.variable-in-folder"></strong>
+                    <strong i18n="variable-in-folder"></strong>
                     <div class="help-content">
-                      <span i18n="setting.variable.clipping-path"></span><br />
-                      <span i18n="setting.variable.category-path"></span><br />
-                      <span i18n="setting.variable.storage-path"></span><br />
+                      <span i18n="variable.clipping-path"></span><br />
+                      <span i18n="variable.category-path"></span><br />
+                      <span i18n="variable.storage-path"></span><br />
                     </div>
-                    <strong i18n="setting.variable-in-filename"></strong>
+                    <strong i18n="variable-in-filename"></strong>
                     <div class="help-content">
-                      <span i18n="setting.variable.title"></span>
-                      <span i18n="setting.variable.format"></span>
-                      <span i18n="setting.variable.year"></span>
-                      <span i18n="setting.variable.short-year"></span>
-                      <span i18n="setting.variable.month"></span>
-                      <span i18n="setting.variable.day"></span>
-                      <span i18n="setting.variable.hour"></span>
-                      <span i18n="setting.variable.minute"></span>
-                      <span i18n="setting.variable.second"></span>
-                      <span i18n="setting.variable.time-integer-second"></span>
+                      <span i18n="variable.title"></span>
+                      <span i18n="variable.format"></span>
+                      <span i18n="variable.year"></span>
+                      <span i18n="variable.short-year"></span>
+                      <span i18n="variable.month"></span>
+                      <span i18n="variable.day"></span>
+                      <span i18n="variable.hour"></span>
+                      <span i18n="variable.minute"></span>
+                      <span i18n="variable.second"></span>
+                      <span i18n="variable.time-integer-second"></span>
                     </div>
                   </div>
                 </details>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="main-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-folder"></label>
+                <input type="text" id="main-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-filename.label"></label>
-                <input type="text" id="main-file-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-filename"></label>
+                <input type="text" id="main-file-name" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
             </div>
 
             <div>
-              <h4 i18n="setting.title.asset-file"></h4>
+              <h4 i18n="title.asset-file"></h4>
               <div class="notice-info">
-                <p i18n="setting.notice.asset-file-intro"></p>
+                <p i18n="notice.asset-file-intro"></p>
                 <details>
-                  <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
                   <div class="help-content">
-                    <span i18n="setting.variable.clipping-path"></span><br />
-                    <span i18n="setting.variable.category-path"></span><br />
-                    <span i18n="setting.variable.storage-path"></span><br />
+                    <span i18n="variable.clipping-path"></span><br />
+                    <span i18n="variable.category-path"></span><br />
+                    <span i18n="variable.storage-path"></span><br />
                   </div>
                 </details>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="asset-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-folder"></label>
+                <input type="text" id="asset-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
             </div>
 
             <div>
-              <h4 i18n="setting.title.frame-file"></h4>
+              <h4 i18n="title.frame-file"></h4>
               <div class="notice-info">
-                <p i18n="setting.notice.frame-file-intro"></p>
+                <p i18n="notice.frame-file-intro"></p>
                 <details>
-                  <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary>
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
                   <div class="help-content">
-                    <span i18n="setting.variable.clipping-path"></span><br />
-                    <span i18n="setting.variable.category-path"></span><br />
-                    <span i18n="setting.variable.storage-path"></span><br />
+                    <span i18n="variable.clipping-path"></span><br />
+                    <span i18n="variable.category-path"></span><br />
+                    <span i18n="variable.storage-path"></span><br />
                   </div>
                 </details>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="frame-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-folder"></label>
+                <input type="text" id="frame-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
             </div>
 
             <div>
-              <h4 i18n="setting.title.info-file"></h4>
+              <h4 i18n="title.info-file"></h4>
               <div class="notice-info">
-                <p i18n="setting.notice.info-file-intro"></p>
+                <p i18n="notice.info-file-intro"></p>
                 <details>
-                  <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary><br />
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary><br />
                   <div>
-                    <strong i18n="setting.variable-in-folder"></strong>
+                    <strong i18n="variable-in-folder"></strong>
                     <div class="help-content">
-                      <span i18n="setting.variable.clipping-path"></span><br />
-                      <span i18n="setting.variable.category-path"></span><br />
-                      <span i18n="setting.variable.storage-path"></span><br />
+                      <span i18n="variable.clipping-path"></span><br />
+                      <span i18n="variable.category-path"></span><br />
+                      <span i18n="variable.storage-path"></span><br />
                     </div>
-                    <strong i18n="setting.variable-in-filename"></strong>
+                    <strong i18n="variable-in-filename"></strong>
                     <div class="help-content">
-                      <span i18n="setting.variable.title"></span>
-                      <span i18n="setting.variable.year"></span>
-                      <span i18n="setting.variable.short-year"></span>
-                      <span i18n="setting.variable.month"></span>
-                      <span i18n="setting.variable.day"></span>
-                      <span i18n="setting.variable.hour"></span>
-                      <span i18n="setting.variable.minute"></span>
-                      <span i18n="setting.variable.second"></span>
-                      <span i18n="setting.variable.time-integer-second"></span>
+                      <span i18n="variable.title"></span>
+                      <span i18n="variable.year"></span>
+                      <span i18n="variable.short-year"></span>
+                      <span i18n="variable.month"></span>
+                      <span i18n="variable.day"></span>
+                      <span i18n="variable.hour"></span>
+                      <span i18n="variable.minute"></span>
+                      <span i18n="variable.second"></span>
+                      <span i18n="variable.time-integer-second"></span>
                     </div>
                   </div>
                 </details>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="info-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-folder"></label>
+                <input type="text" id="info-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-filename.label"></label>
-                <input type="text" id="info-file-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-filename"></label>
+                <input type="text" id="info-file-name" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
             </div>
 
             <div>
-              <h4 i18n="setting.title.title-file"></h4>
+              <h4 i18n="title.title-file"></h4>
               <input type="checkbox" id="save-title-file" />
-              <label for="save-title-file" i18n="setting.save-title-file-input.label"></label>
+              <label for="save-title-file" i18n="label.save-title-file-input"></label>
               <div class="notice-info">
-                <p i18n="setting.notice.title-file-intro"></p>
+                <p i18n="notice.title-file-intro"></p>
                 <details>
-                  <summary i18n="setting.help.avariable-variable" i18n-attr="title:setting.help.label"></summary><br />
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary><br />
                   <div>
-                    <strong i18n="setting.variable-in-folder"></strong>
+                    <strong i18n="variable-in-folder"></strong>
                     <div class="help-content">
-                      <span i18n="setting.variable.clipping-path"></span><br />
-                      <span i18n="setting.variable.category-path"></span><br />
-                      <span i18n="setting.variable.storage-path"></span><br />
+                      <span i18n="variable.clipping-path"></span><br />
+                      <span i18n="variable.category-path"></span><br />
+                      <span i18n="variable.storage-path"></span><br />
                     </div>
-                    <strong i18n="setting.variable-in-filename"></strong>
+                    <strong i18n="variable-in-filename"></strong>
                     <div class="help-content">
-                      <span i18n="setting.variable.title"></span>
-                      <span i18n="setting.variable.year"></span>
-                      <span i18n="setting.variable.short-year"></span>
-                      <span i18n="setting.variable.month"></span>
-                      <span i18n="setting.variable.day"></span>
-                      <span i18n="setting.variable.hour"></span>
-                      <span i18n="setting.variable.minute"></span>
-                      <span i18n="setting.variable.second"></span>
-                      <span i18n="setting.variable.time-integer-second"></span>
+                      <span i18n="variable.title"></span>
+                      <span i18n="variable.year"></span>
+                      <span i18n="variable.short-year"></span>
+                      <span i18n="variable.month"></span>
+                      <span i18n="variable.day"></span>
+                      <span i18n="variable.hour"></span>
+                      <span i18n="variable.minute"></span>
+                      <span i18n="variable.second"></span>
+                      <span i18n="variable.time-integer-second"></span>
                     </div>
                   </div>
                 </details>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-folder.label"></label>
-                <input type="text" id="title-file-folder" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-folder"></label>
+                <input type="text" id="title-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">
-                <label i18n="setting.storage-filename.label"></label>
-                <input type="text" id="title-file-name" i18n-attr="placeholder:setting.placeholder.notblank"/>
+                <label i18n="label.storage-filename"></label>
+                <input type="text" id="title-file-name" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
             </div>
 
@@ -515,17 +517,17 @@
 
     <template id="section-setting-offline-page-tpl">
       <section id="setting-offline-page">
-        <h2 class="center" i18n="setting.title.offline-page"></h2>
+        <h2 class="center" i18n="title.offline-page"></h2>
         <div class="intro">
-          <h3 i18n="setting.title.intro"></h3>
+          <h3 i18n="title.intro"></h3>
           <div class="notice-info">
-            <label  i18n="setting.notice.offline-page"></label>
+            <label  i18n="notice.offline-page"></label>
             <br />
-            <a href="go.page:offline-page" target="_blank" i18n="setting.notice.offline-page.link-label"></a>
+            <a href="go.page:offline-page" target="_blank" i18n="notice.offline-page.link-label"></a>
           </div>
         </div>
         <div class="handler">
-          <h3 i18n="setting.title.handler"></h3>
+          <h3 i18n="title.handler"></h3>
           <div class="options" id="offline-page-handler">
             <a data-value="Browser" i18n="handler.browser.name"></a>
             <a data-value="NativeApp" i18n="handler.native-app.name"></a>
@@ -535,17 +537,17 @@
           <div class="warning-box"></div>
         </div>
         <div class="detail">
-          <h3 i18n="setting.title.detail"></h3>
-          <div class="notice-info" i18n="setting.notice.clipping-js-path"></div>
-          <input type="text" id="clipping-js-path" i18n-attr="placeholder:setting.placeholder.notblank"/>
+          <h3 i18n="title.detail"></h3>
+          <div class="notice-info" i18n="notice.clipping-js-path"></div>
+          <input type="text" id="clipping-js-path" i18n-attr="placeholder:placeholder.notblank"/>
           <br />
-          <div class="notice-info" i18n="setting.notice.autogenerate-clipping-js"></div>
+          <div class="notice-info" i18n="notice.autogenerate-clipping-js"></div>
           <div>
             <input type="checkbox" id="autogenerate-clipping-js" />
-            <label for="autogenerate-clipping-js" i18n="setting.autogenerate-clipping-js-input.label"></label><br /><br />
-            <label i18n="setting.last-generate-time.label"></label>:
+            <label for="autogenerate-clipping-js" i18n="label.autogenerate-clipping-js-input"></label><br /><br />
+            <label i18n="label.last-generate-time"></label>:
             <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>&nbsp;
-            <button id="generate-clipping-js-now" i18n="setting.button.generate-now"></button>
+            <button id="generate-clipping-js-now" i18n="button.generate-now"></button>
           </div>
         </div>
       </section>
@@ -553,13 +555,13 @@
 
     <template id="section-setting-refresh-history-tpl">
       <section id="setting-refresh-history">
-        <h2 class="center" i18n="setting.title.refresh-history"></h2>
+        <h2 class="center" i18n="title.refresh-history"></h2>
         <div class="intro">
-          <h3 i18n="setting.title.intro"></h3>
-          <div class="notice-info" i18n="setting.notice.refresh-history"></div>
+          <h3 i18n="title.intro"></h3>
+          <div class="notice-info" i18n="notice.refresh-history"></div>
         </div>
         <div class="handler">
-          <h3 i18n="setting.title.handler"></h3>
+          <h3 i18n="title.handler"></h3>
           <div class="options" id="refresh-history-handler">
             <a data-value="NativeApp" i18n="handler.native-app.name"></a>
           </div>
@@ -568,13 +570,13 @@
           <div class="warning-box"></div>
         </div>
         <div class="detail">
-          <h3 i18n="setting.title.detail"></h3>
+          <h3 i18n="title.detail"></h3>
           <div>
             <input type="checkbox" id="auto-refresh-history" />
-            <label for="auto-refresh-history" i18n="setting.auto-refresh-history-input.label"></label><br /><br />
-            <label i18n="setting.last-refresh-time.label"></label>:
+            <label for="auto-refresh-history" i18n="label.auto-refresh-history-input"></label><br /><br />
+            <label i18n="label.last-refresh-time"></label>:
             <label id="last-refresh-history-time">${lastRefreshHistoryTime}</label>&nbsp;
-            <button id="refresh-history-now" i18n="setting.button.refresh-now"></button>
+            <button id="refresh-history-now" i18n="button.refresh-now"></button>
           </div>
         </div>
       </section>
@@ -582,13 +584,13 @@
 
     <template id="section-setting-handler-browser-tpl">
       <section id="setting-handler-browser">
-        <h2 class="center" i18n="setting.title.handler-browser"></h2>
+        <h2 class="center" i18n="title.handler-browser"></h2>
         <div class="intro">
-          <h3 i18n="setting.title.intro"></h3>
+          <h3 i18n="title.intro"></h3>
           <p i18n="handler.browser.intro"></p>
         </div>
         <div class="features">
-          <h3 i18n="setting.title.feature"></h3>
+          <h3 i18n="title.feature"></h3>
           <ul>
             <li i18n="handler.browser.feature.a"></li>
             <li i18n="handler.browser.feature.b"></li>
@@ -596,32 +598,32 @@
         </div>
         <div class="switch">
           <input type="checkbox" id="handler-browser-enabled" disabled/>
-          <label for="handler-browser-enabled" i18n="setting.enable-handler.label"></label>
+          <label for="handler-browser-enabled" i18n="label.enable-handler"></label>
         </div>
       </section>
     </template>
 
     <template id="section-setting-handler-native-app-tpl">
       <section id="setting-handler-native-app">
-        <h2 class="center" i18n="setting.title.handler-native-app"></h2>
+        <h2 class="center" i18n="title.handler-native-app"></h2>
         <div class="intro">
-          <h3 i18n="setting.title.intro"></h3>
+          <h3 i18n="title.intro"></h3>
           <p i18n="handler.native-app.intro"></p>
         </div>
         <div class="status">
-          <h3 i18n="setting.title.status"></h3>
+          <h3 i18n="title.status"></h3>
           <div class="version app-version">
-            <span i18n="setting.version"></span>
+            <span i18n="label.version"></span>
             <span class="version-value"></span>
           </div>
           <div class="version ruby-version">
-            <span i18n="setting.ruby-version"></span>
+            <span i18n="label.ruby-version"></span>
             <span class="version-value"></span>
           </div>
           <div class="danger-box"></div>
         </div>
         <div class="features">
-          <h3 i18n="setting.title.feature"></h3>
+          <h3 i18n="title.feature"></h3>
           <ul>
             <li i18n="handler.native-app.feature.a"></li>
             <li i18n="handler.native-app.feature.b"></li>
@@ -633,25 +635,25 @@
         </div>
         <div class="switch">
           <input type="checkbox" id="handler-native-app-enabled" />
-          <label for="handler-native-app-enabled" i18n="setting.enable-handler.label"></label>
+          <label for="handler-native-app-enabled" i18n="label.enable-handler"></label>
         </div>
       </section>
     </template>
 
     <template id="section-setting-handler-wiz-note-plus-tpl">
       <section id="setting-handler-wiz-note-plus">
-        <h2 class="center" i18n="setting.title.handler-wiz-note-plus"></h2>
+        <h2 class="center" i18n="title.handler-wiz-note-plus"></h2>
         <div class="intro">
-          <h3 i18n="setting.title.intro"></h3>
+          <h3 i18n="title.intro"></h3>
           <p i18n="handler.wiz-note-plus.intro"></p>
         </div>
         <div class="status">
-          <h3 i18n="setting.title.status"></h3>
+          <h3 i18n="title.status"></h3>
           <div class="info-box"></div>
           <div class="danger-box"></div>
         </div>
         <div class="features">
-          <h3 i18n="setting.title.feature"></h3>
+          <h3 i18n="title.feature"></h3>
           <ul>
             <li i18n="handler.wiz-note-plus.feature.a"></li>
           </ul>
@@ -661,7 +663,7 @@
         </div>
         <div class="switch">
           <input type="checkbox" id="handler-wiz-note-plus-enabled" />
-          <label for="handler-wiz-note-plus-enabled" i18n="setting.enable-handler.label"></label>
+          <label for="handler-wiz-note-plus-enabled" i18n="label.enable-handler"></label>
         </div>
       </section>
     </template>
@@ -672,5 +674,13 @@
       </div>
     </template>
 
+    <!-- scripts -->
+    <script src="../vendor/js/browser-polyfill.js"></script>
+    <script src="../vendor/js/i18n.js"></script>
+    <script src="../_locales/en/common.js"></script>
+    <script src="../_locales/en/setting.js"></script>
+    <script src="../_locales/zh_CN/common.js"></script>
+    <script src="../_locales/zh_CN/setting.js"></script>
+    <script src="setting.js" type="module"></script>
   </body>
 </html>

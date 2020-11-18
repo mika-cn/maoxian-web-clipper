@@ -9,6 +9,11 @@
     "description": "Description of the extension."
   },
 
+  "extensionDefaultTooltip": {
+    "message": "MaoXian Web Clipper",
+    "description": "Tooltip for the icon, displayed when the user moves their mouse over it."
+  },
+
   "commandToggleClip": {
     "message": "开始裁剪",
     "description": "Send a toggle clip event"

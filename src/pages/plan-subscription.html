@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Plan Subscription - MaoXian</title>
+    <link href="_base.css" rel="stylesheet"/>
+    <link href="plan-subscription.css" rel="stylesheet"/>
   </head>
   <body>
 
     <div class="main">
-      <h1 class="page-title" i18n="plan-subscription.page-title"></h1>
+      <h1 class="page-title" i18n="page-title"></h1>
       <div class="subscription">
-        <h2 i18n="plan-subscription.title.subscription"></h2>
+        <h2 i18n="title.subscription"></h2>
         <div id="subscription">
         </div>
       </div>
       <div class="plans">
-        <h2 i18n="plan-subscription.title.plans"></h2>
+        <h2 i18n="title.plans"></h2>
         <pre><code class="language-json" id="plans-text"></code></pre>
       </div>
     </div>
@@ -23,13 +25,21 @@
     <template id="subscription-tpl">
       <table>
         <tbody>
-          <tr><th i18n="setting.title.subscription.name"></th><td> ${name}</td></tr>
-          <tr><th i18n="setting.title.subscription.version"></th><td> ${version}</td></tr>
-          <tr><th i18n="setting.title.subscription.size"></th><td> ${size}</td></tr>
-          <tr><th i18n="setting.title.subscription.url"></th><td> ${url}</td></tr>
+          <tr><th i18n="subscription.name"></th><td> ${name}</td></tr>
+          <tr><th i18n="subscription.version"></th><td> ${version}</td></tr>
+          <tr><th i18n="subscription.size"></th><td> ${size}</td></tr>
+          <tr><th i18n="subscription.url"></th><td> ${url}</td></tr>
         </tbody>
       </table>
     </template>
 
+    <!-- scripts -->
+    <script src="../vendor/js/browser-polyfill.js"></script>
+    <script src="../vendor/js/i18n.js"></script>
+    <script src="../_locales/en/common.js"></script>
+    <script src="../_locales/en/plan-subscription.js"></script>
+    <script src="../_locales/zh_CN/common.js"></script>
+    <script src="../_locales/zh_CN/plan-subscription.js"></script>
+    <script src="plan-subscription.js" type="module"></script>
   </body>
 </html>

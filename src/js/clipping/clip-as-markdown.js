@@ -1,6 +1,5 @@
 "use strict";
 
-import I18N                  from '../lib/translation.js';
 import T                     from '../lib/tool.js';
 import DOMTool               from '../lib/dom-tool.js';
 import Log                   from '../lib/log.js';
@@ -19,7 +18,7 @@ import TurndownService from 'turndown';
 const turndownPluginGfm = require('turndown-plugin-gfm');
 
 
-async function clip(elem, {info, storageInfo, config, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, win}){
   Log.debug("markdown parser");
 
   const [mimeTypeDict, frames] = await Promise.all([
@@ -49,13 +48,15 @@ async function clip(elem, {info, storageInfo, config, win}){
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
   if (config.mdFrontMatterEnabled) {
+    const v = Object.assign({}, info, i18nLabel);
     markdown = [
-      generateMdFrontMatter(info, config.mdFrontMatterTemplate),
+      generateMdFrontMatter(config.mdFrontMatterTemplate, v),
       markdown
     ].join("\n\n");
   }
   if (config.mdSaveClippingInformation){
-    markdown += generateMdClippingInfo(info);
+    const v = Object.assign({}, info, i18nLabel);
+    markdown += generateMdClippingInfo(v);
   }
   const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName);
   const mainFileTask = Task.createMarkdownTask(filename, markdown, info.clipId);
@@ -223,48 +224,47 @@ function generateMarkDown(elemHtml, info){
   return md;
 }
 
-function generateMdClippingInfo(info) {
+function generateMdClippingInfo(v) {
   Log.debug('generateMdClippingInfo');
   let md = ""
   md += "\n\n---------------------------------------------------\n"
-  md += `\n\n${I18N.t('original-url')}: [${I18N.t('access')}](${info.link})`;
-  md += `\n\n${I18N.t('created-at')}: ${info.created_at}`;
-  let categoryStr = I18N.t('none');
-  let tagStr = I18N.t('none');
-  if(info.category){
-    categoryStr = info.category
+  md += `\n\n${v.i18n_original_url}: [${v.i18n_access}](${v.link})`;
+  md += `\n\n${v.i18n_created_at}: ${v.created_at}`;
+  let categoryStr = v.i18n_none;
+  let tagStr = v.i18n_none
+  if(v.category){
+    categoryStr = v.category
   }
-  if(info.tags.length > 0){
-    tagStr = T.map(info.tags, function(tag){
+  if(v.tags.length > 0){
+    tagStr = T.map(v.tags, function(tag){
       return "`" + tag + "`";
     }).join(", ");
   }
-  md += `\n\n${I18N.t('category')}: ${categoryStr}`;
-  md += `\n\n${I18N.t('tags')}: ${tagStr}`;
+  md += `\n\n${v.i18n_category}: ${categoryStr}`;
+  md += `\n\n${v.i18n_tags}: ${tagStr}`;
   md += "\n\n";
   return md
 }
 
-function generateMdFrontMatter(info, template) {
-  let category = I18N.t('none');
-  let tags = "\n- " + I18N.t('none');
-  if(info.category){
-    category = info.category
+function generateMdFrontMatter(template, v) {
+  let category = v.i18n_none;
+  let tags = "\n- " + v.i18n_none;
+  if(v.category){
+    category = v.category
   }
-  if(info.tags.length > 0){
-    tags = "\n" + T.map(info.tags, function(tag){
+  if(v.tags.length > 0){
+    tags = "\n" + T.map(v.tags, function(tag){
       return `  - ${tag}`
     }).join("\n");
   }
-  const tObj = T.wrapDate(new Date(info.created_at));
-  const v = Object.assign({
-    title: (info.title || "-"),
-    url: info.link,
-    createdAt: info.created_at,
+  const tObj = T.wrapDate(new Date(v.created_at));
+  return T.renderTemplate(template, Object.assign({
+    title: (v.title || "-"),
+    url: v.link,
+    createdAt: v.created_at,
     category: category,
     tags: tags
-  }, tObj.str);
-  return T.renderTemplate(template, v);
+  }, tObj.str));
 }
 
 function getTurndownService(){

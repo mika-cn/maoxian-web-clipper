@@ -1,7 +1,5 @@
 "use strict";
 
-import md5 from 'blueimp-md5';
-
 // Tool
 const T = {};
 
@@ -499,16 +497,6 @@ T.splitFilename = function(filename) {
 // not support data protocol URLs
 T.getUrlExtension = function(url){
   return T.getFileExtension(T.getUrlFileName(url));
-}
-
-// require md5 library
-T.calcAssetName = function(url, ext){
-  const extension = (ext || T.getUrlExtension(url));
-  if(extension){
-    return [md5(url), extension].join('.');
-  }else{
-    return md5(url);
-  }
 }
 
 T.rjustNum = function(num, length){

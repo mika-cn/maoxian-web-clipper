@@ -9,9 +9,6 @@ import MxWcLink   from '../js/lib/link.js';
 
 import {CONFIG_KEYS} from '../js/lib/config.js';
 
-import './_base.css';
-import './support.css';
-
 function renderBasicInformation() {
   const tpl = T.findElem('basic-information-tpl').innerHTML;
   const html = T.renderTemplate(tpl, {

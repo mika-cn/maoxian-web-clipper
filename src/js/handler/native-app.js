@@ -231,7 +231,7 @@ function getInfo(callback) {
     let ready = false, message = '';
     if(r.ok) {
       if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
-        message = I18N.t('handler.native-app.error.version')
+        message = I18N.t('g.error.handler.native-app.version')
           .replace('$requiredVersion', ENV.minNativeAppVersion)
           .replace('$currentVersion', r.version);
       } else {
@@ -240,7 +240,7 @@ function getInfo(callback) {
     } else {
       message = [
         r.message,
-        I18N.t('handler.native-app.error.install'),
+        I18N.t('g.error.handler.native-app.install'),
       ].join('<br />');
     }
     callback({

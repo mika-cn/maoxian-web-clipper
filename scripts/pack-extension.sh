@@ -5,7 +5,7 @@
 #   MX_CHROME_ID (public key of MaoXian)
 #   MX_FIREFOX_ID (extension id of MaoXian)
 #
-# Usage: ./scripts/bump-version.sh new_version
+# Usage: ./scripts/pack-extension.sh
 
 file_dir=$(dirname $(realpath "$0"))
 root_dir=$(dirname $file_dir)
