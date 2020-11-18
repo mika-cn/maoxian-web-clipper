@@ -43,15 +43,33 @@ git checkout -b $new_branch || exit 1
 
 echo "Bump version from $old_version to $new_version"
 
-cat package.json | sed -E "s/^  \"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+\"/  \"version\": \"${new_version}\"/" > new-package.json
-mv new-package.json package.json
+function bump_version_json() {
+  file_path=$1
+  new_version=$2
+  full_path=$(realpath $file_path)
+  tmp_path="$(dirname $full_path)/__new_version_tmp_file__"
+  cat $full_path | sed -E "s/^  \"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+(.[[:digit:]])?\"/  \"version\": \"${new_version}\"/" > $tmp_path
+  mv $tmp_path $full_path
+}
 
-cat package-lock.json | sed -E "s/^  \"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+\"/  \"version\": \"${new_version}\"/" > new-package-lock.json
-mv new-package-lock.json package-lock.json
+function bump_version_js() {
+  file_path=$1
+  new_version=$2
+  full_path=$(realpath $file_path)
+  tmp_path="$(dirname $full_path)/__new_version_tmp_file__"
+  cat $full_path | sed -E "s/^  version: '[[:digit:]]+.[[:digit:]]+.[[:digit:]]+(.[[:digit:]])?'/  version: '${new_version}'/" > $tmp_path
+  mv $tmp_path $full_path
+}
 
+
+bump_version_json package.json             $new_version
+bump_version_json package-lock.json        $new_version
+bump_version_json src/manifest.json        $new_version
+bump_version_js   src/js/env.js            $new_version
+bump_version_js   src/js/env.production.js $new_version
 
 echo "Commit"
-git add package.json package-lock.json
+git add package.json package-lock.json src/manifest.json src/js/env.js src/js/env.production.js
 git commit -m "RELEASE bump version to ${new_version}"
 
 echo "Done! bump version to ${new_version}."
