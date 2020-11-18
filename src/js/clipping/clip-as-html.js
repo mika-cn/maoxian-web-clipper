@@ -18,7 +18,7 @@ import CapturerCustomElement from '../capturer/custom-element.js';
 import StyleHelper           from './style-helper.js';
 
 
-async function clip(elem, {info, storageInfo, config, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, win}){
   Log.debug("html parser");
 
   const [mimeTypeDict, frames] = await Promise.all([
@@ -55,7 +55,7 @@ async function clip(elem, {info, storageInfo, config, win}){
   v.headInnerHtml = headInnerHtml;
   v.elemHtml = elemHtml;
   v.config = config;
-  const html = Template[page].render(v);
+  const html = Template[page].render(Object.assign({}, v, i18nLabel));
   const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName)
 
   const mainFileTask = Task.createHtmlTask(filename, html, info.clipId);

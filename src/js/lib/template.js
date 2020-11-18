@@ -1,6 +1,5 @@
 "use strict";
 
-import I18N from './translation.js';
 import T from './tool.js';
 
 const MxWcTemplate = {}
@@ -160,13 +159,13 @@ MxWcTemplate.clippingInformationStyle = {
 MxWcTemplate.clippingInformation = {
   render: function(v) {
     if(v.config.htmlSaveClippingInformation){
-      let tagHtml = I18N.t('g.label.none');
+      let tagHtml = v.i18n_none;
       if(v.info.tags.length > 0) {
         tagHtml = T.map(v.info.tags, function(tag) {
           return "<code>" + tag + "</code>";
         }).join(", ");
       }
-      let categoryHtml = I18N.t('g.label.none');
+      let categoryHtml = v.i18n_none;
       if(v.info.category){
         categoryHtml = v.info.category;
       }
@@ -174,10 +173,10 @@ MxWcTemplate.clippingInformation = {
         <hr />
         <!-- clipping information -->
         <div class="clipping-information">
-          <label>${I18N.t('g.clipping.original-url')}: <a href="${v.info.link}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${I18N.t('g.label.access')}</a></label><br />
-          <label>${I18N.t('g.clipping.created-at')}: ${v.info.created_at}</label><br />
-          <label>${I18N.t('g.clipping.category')}: ${categoryHtml}</label><br />
-          <label>${I18N.t('g.clipping.tags')}: ${tagHtml}</label>
+          <label>${v.i18n_original_url}: <a href="${v.info.link}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${v.i18n_access}</a></label><br />
+          <label>${v.i18n_created_at}: ${v.info.created_at}</label><br />
+          <label>${v.i18n_category}: ${categoryHtml}</label><br />
+          <label>${v.i18n_tags}: ${tagHtml}</label>
         </div>`;
     } else {
       return '';
