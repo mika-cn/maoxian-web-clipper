@@ -50,7 +50,7 @@ const selectionIframe = {
   },
   append: appendIframe,
   appendExtraStyle: function(){
-    this.element.style.zIndex = "2147483646";
+    this.element.style.setProperty("z-index", "2147483646", "important");
     this.element.style.setProperty("position", "absolute", "important");
     this.element = updateFrameSize(this.element);
   },
@@ -71,8 +71,8 @@ const controlIframe = {
   },
   append: appendIframe,
   appendExtraStyle: function(){
-    this.element.style.height = '100%';
-    this.element.style.zIndex = "2147483647";
+    this.element.style.setProperty("height", "100%", "important");
+    this.element.style.setProperty("z-index", "2147483647", "important");
     this.element.style.setProperty("position", "fixed", "important");
   },
   remove: removeIframe,
@@ -96,15 +96,19 @@ function dispatchFrameLoadedEvent(frameId) {
 function initializeIframe(src) {
   let el = document.createElement("iframe");
   el.src = src;
-  el.style.zIndex = "99999999999";
-  el.style.border = "none";
-  el.style.top = "0";
-  el.style.left = "0";
-  el.style.margin = "0";
-  el.style.width = '100%';
-  el.style.clip = "auto";
+  [
+    ["display" , 'block'] ,
+    ["border"  , "none"]  ,
+    ["top"     , "0"]     ,
+    ["left"    , "0"]     ,
+    ["margin"  , "0"]     ,
+    ["width"   , '100%']  ,
+    ["clip"    , "auto"]  ,
+    ["background-color", "transparent"],
+  ].forEach((pair) => {
+    el.style.setProperty(pair[0], pair[1], 'important');
+  });
   el.scrolling = "no";
-  el.style.setProperty("background-color", "transparent");
   return el;
 }
 
