@@ -169,6 +169,10 @@ const config = {
   },
   plugins: [
     new CopyWebpackPlugin(getCopyItems(), { copyUnmodified: true }),
+    new webpack.NormalModuleReplacementPlugin(
+      /js\/env\.js/,
+      (IS_PRODUCTION ? 'env.production.js' : 'env.js')
+    ),
   ],
 }
 
