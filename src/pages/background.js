@@ -1,25 +1,25 @@
-import Log         from './lib/log.js';
-import T           from './lib/tool.js';
-import ExtApi      from './lib/ext-api.js';
-import ExtMsg      from './lib/ext-msg.js';
-import MxWcStorage from './lib/storage.js';
-import MxWcConfig  from './lib/config.js';
-import MxWcLink    from './lib/link.js';
-import MxWcHandler from './lib/handler.js';
-import MxEvTarget  from './lib/event-target.js';
-import Fetcher     from './lib/fetcher-using-xhr.js';
+import Log         from '../js/lib/log.js';
+import T           from '../js/lib/tool.js';
+import ExtApi      from '../js/lib/ext-api.js';
+import ExtMsg      from '../js/lib/ext-msg.js';
+import MxWcStorage from '../js/lib/storage.js';
+import MxWcConfig  from '../js/lib/config.js';
+import MxWcLink    from '../js/lib/link.js';
+import MxWcHandler from '../js/lib/handler.js';
+import MxEvTarget  from '../js/lib/event-target.js';
+import Fetcher     from '../js/lib/fetcher-using-xhr.js';
 
-import initBackend_Clipping  from './clipping/backend.js';
-import initBackend_Saving    from './saving/backend.js';
-import initBackend_Assistant from './assistant/backend.js';
-import initBackend_Selection from './selection/backend.js';
+import initBackend_Clipping  from '../js/clipping/backend.js';
+import initBackend_Saving    from '../js/saving/backend.js';
+import initBackend_Assistant from '../js/assistant/backend.js';
+import initBackend_Selection from '../js/selection/backend.js';
 
-import Handler_Browser     from './handler/browser.js';
-import Handler_NativeApp   from './handler/native-app.js';
-import Handler_WizNotePlus from './handler/wiznoteplus.js';
+import Handler_Browser     from '../js/handler/browser.js';
+import Handler_NativeApp   from '../js/handler/native-app.js';
+import Handler_WizNotePlus from '../js/handler/wiznoteplus.js';
 
-import MxWcMigration from './background/migration.js';
-import WebRequest from './background/web-request.js';
+import MxWcMigration from '../js/background/migration.js';
+import WebRequest    from '../js/background/web-request.js';
 
 const Global = { evTarget: new MxEvTarget() };
 

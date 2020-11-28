@@ -11,9 +11,6 @@ import MxWcTemplate from '../js/lib/template.js';
 import Notify       from '../js/lib/notify.js';
 import MxWcHandler  from '../js/lib/handler.js';
 
-import './_base.css';
-import './setting.css';
-
 // http://kb.mozillazine.org/Firefox_:_Issues_:_Links_to_Local_Pages_Don%27t_Work
 
 function updateConfig(key, value) {
@@ -370,7 +367,7 @@ function textInputBlured(e) {
   const value = e.target.value.trim();
   e.target.value = value;
   if(updateConfig(configKey, value)){
-    Notify.success(I18N.t('op.update-success'));
+    Notify.success(I18N.t('g.hint.update-success'));
   }
 }
 
@@ -386,18 +383,18 @@ function NumberInputChanged(e) {
   const configKey = getConfigKey(elem);
   const value = parseInt(elem.value.trim());
   if (isNaN(value)) {
-    Notify.error(I18N.t('error.not-a-number'));
+    Notify.error(I18N.t('g.error.not-a-number'));
     return;
   }
   const min = parseInt(elem.min);
   const max = parseInt(elem.max);
   if (value < min || value > max) {
-    Notify.error(I18N.t('error.not-in-allowed-range'));
+    Notify.error(I18N.t('g.error.not-in-allowed-range'));
     return;
   }
   elem.value = value.toString();
   if(updateConfig(configKey, value)){
-    Notify.success(I18N.t('op.update-success'));
+    Notify.success(I18N.t('g.hint.update-success'));
   }
 }
 
@@ -545,7 +542,7 @@ function renderSaveFormat(section, formats) {
 
 
 function getNoticeMsg(type, names) {
-  return I18N.t('setting', 'notice', type, ...names);
+  return I18N.t('notice', type, ...names);
 }
 
 function renderNoticeBox(section, type, msg) {
@@ -578,12 +575,12 @@ function generateClippingJsNow(e) {
     if(result.ok) {
       const label = T.findElem('last-generate-clipping-js-time');
       T.setHtml(label, result.time);
-      Notify.success(I18N.t('setting.generate-now-success.label'));
+      Notify.success(I18N.t('label.generate-now-success'));
     } else {
       Notify.error(I18N.t(result.message))
     }
   });
-  Notify.success(I18N.t('setting.generate-now-msg-sent.label'));
+  Notify.success(I18N.t('label.generate-now-msg-sent'));
 }
 
 function refreshHistoryNow(e) {
@@ -593,16 +590,16 @@ function refreshHistoryNow(e) {
     if(result.ok) {
       const label = T.findElem('last-refresh-history-time');
       T.setHtml(label, result.time);
-      Notify.success(I18N.t('setting.refresh-now-success.label'));
+      Notify.success(I18N.t('label.refresh-now-success'));
     } else {
       Notify.error(I18N.t(result.message))
     }
   });
-  Notify.success(I18N.t('setting.refresh-now-msg-sent.label'));
+  Notify.success(I18N.t('label.refresh-now-msg-sent'));
 }
 
 async function resetToDefault(e) {
-  const confirmed = window.confirm(I18N.t('setting.reset-to-default-warning.label'));
+  const confirmed = window.confirm(I18N.t('label.reset-to-default-warning'));
   if (confirmed) {
     try {
       // reset config
@@ -610,7 +607,7 @@ async function resetToDefault(e) {
       await resetAssistant();
       // reset selection's backend
       await ExtMsg.sendToBackend('selection', {type: 'reset'});
-      Notify.success(I18N.t('setting.reset-to-default-success.label'));
+      Notify.success(I18N.t('label.reset-to-default-success'));
       renderSection('setting-reset-and-backup');
     } catch(e) {
       Notify.error(e.message);
@@ -641,7 +638,7 @@ function handleRestoreFilePicker(e) {
       const {data} = JSON.parse(text);
       restoreData(data).then(
         () => {
-          Notify.success(I18N.t('setting.restore-from-file-success.label'));
+          Notify.success(I18N.t('label.restore-from-file-success'));
           renderSection('setting-reset-and-backup');
         },
         (e) => {
@@ -829,7 +826,7 @@ function renderSubscriptions() {
         }).join('');
         T.setHtml(elem,  html);
       } else {
-        T.setHtml(elem, '<tr><td colspan="4" i18n="hint.no-record" align="center"></td></tr>');
+        T.setHtml(elem, '<tr><td colspan="4" i18n="g.hint.no-record" align="center"></td></tr>');
       }
     });
 }
@@ -856,7 +853,7 @@ function savePlanSubscription(e) {
   } else {
     MxWcStorage.set('assistant.public-plan.subscription-text', text);
     MxWcStorage.set('assistant.public-plan.subscription-urls', urls);
-    Notify.success(I18N.t('op.saved'));
+    Notify.success(I18N.t('g.hint.saved'));
   }
 }
 
@@ -912,16 +909,16 @@ function saveCustomPlan(e) {
         body: {planText: elem.value}
       }).then((result) => {
         if (result.ok) {
-          Notify.success(I18N.t('op.saved'));
+          Notify.success(I18N.t('g.hint.saved'));
         } else {
           Notify.error(result.message);
         }
       })
     } else {
-      Notify.error(I18N.t('error.value-invalid'));
+      Notify.error(I18N.t('g.error.value-invalid'));
     }
   } catch(e) {
-    Notify.error(I18N.t('error.value-invalid'));
+    Notify.error(I18N.t('g.error.value-invalid'));
   }
 }
 
@@ -986,7 +983,7 @@ function renderSectionHandlerNativeApp(id, container, template) {
       }
     } else {
       // render errors
-      let msg = I18N.t('setting.notice.danger.native-app-not-ready');
+      let msg = I18N.t('notice.danger.native-app-not-ready');
       msg = msg.replace('$MESSAGE', info.message);
       renderNoticeBox(section, 'danger', msg);
     }
@@ -1019,10 +1016,10 @@ async function renderSectionHandlerWizNotePlus(id, container, template) {
   // Notify the user
   const section = T.findElem(id);
   if(info.ready) {
-    const msg = I18N.t("setting.notice.danger.wiz-note-plus-ready");
+    const msg = I18N.t("notice.danger.wiz-note-plus-ready");
     renderNoticeBox(section, 'info', msg);
   } else {
-    let msg = I18N.t('setting.notice.danger.wiz-note-plus-not-ready');
+    let msg = I18N.t('notice.danger.wiz-note-plus-not-ready');
     msg = msg.replace('$MESSAGE', info.message);
     renderNoticeBox(section, 'danger', msg);
   }

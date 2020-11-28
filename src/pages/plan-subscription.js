@@ -5,9 +5,6 @@ import T       from '../js/lib/tool.js';
 import I18N    from '../js/lib/translation.js';
 import Storage from '../js/lib/storage.js';
 
-import './_base.css';
-import './plan-subscription.css';
-
 async function init() {
   const currUrl = new URL(window.location.href);
   const t = currUrl.searchParams.get('t');

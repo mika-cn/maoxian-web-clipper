@@ -2,6 +2,7 @@
 
 import T      from '../lib/tool.js';
 import Log    from '../lib/log.js';
+import I18N   from '../lib/translation.js';
 import ExtMsg from '../lib/ext-msg.js';
 import Task   from '../lib/task.js';
 
@@ -25,11 +26,13 @@ import MxMarkdownClipper from './clip-as-markdown.js';
  *   - {Object} info  - meta information
  *   - {Object} storageInfo
  *   - {Object} storageConfig
+ *   - {Object} i18nLabel : some translated labels
  *
  */
 function getReadyToClip(formInputs, config, {domain, pageUrl}) {
 
   const userInput = dealFormInputs(formInputs);
+  const i18nLabel = getI18nLabel();
   const now = Date.now();
 
   const appendTags = [];
@@ -74,7 +77,7 @@ function getReadyToClip(formInputs, config, {domain, pageUrl}) {
     created_at : tObj.toString(),
   }
 
-  return {userInput, info, storageInfo, storageConfig};
+  return {userInput, info, storageInfo, storageConfig, i18nLabel};
 }
 
 
@@ -87,18 +90,19 @@ function getReadyToClip(formInputs, config, {domain, pageUrl}) {
  *   - {Object} info - meta information
  *   - {Object} storageInfo
  *   - {Object} storageconfig
+ *   - {Object} i18nLabel : some translated labels
  *   - {Window} window object
  *
  * @return {Promise} a Promise that will resolve with clipping
  */
-async function clip(elem, {info, storageInfo, config, storageConfig, win}) {
+async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, win}) {
   let Clipper = null;
   switch(info.format){
     case 'html' : Clipper = MxHtmlClipper; break;
     case 'md'   : Clipper = MxMarkdownClipper; break;
   }
 
-  let tasks = await Clipper.clip(elem, {info, storageInfo, config, win});
+  let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, win});
 
   if (storageConfig.saveTitleFile) {
     const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);
@@ -143,6 +147,22 @@ function dealFormInputs({format, title, category, tagstr}) {
   const tags = T.splitTagstr(tagstr);
 
   return {format, title, category, tags}
+}
+
+// These labels will be used in generating clipping information.
+function getI18nLabel() {
+  const dict = {};
+  [
+    ['i18n_none'         , 'g.label.none']            ,
+    ['i18n_access'       , 'g.label.access']          ,
+    ['i18n_original_url' , 'g.clipping.original-url'] ,
+    ['i18n_category'     , 'g.clipping.category']     ,
+    ['i18n_tags'         , 'g.clipping.tags']         ,
+    ['i18n_created_at'   , 'g.clipping.created-at']   ,
+  ].forEach((pair) => {
+    dict[pair[0]] = I18N.t(pair[1]);
+  });
+  return dict;
 }
 
 const Api = { getReadyToClip, clip }

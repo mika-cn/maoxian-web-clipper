@@ -4,9 +4,6 @@ import I18N     from '../js/lib/translation.js';
 import ExtMsg   from '../js/lib/ext-msg.js';
 import MxWcStorage from '../js/lib/storage.js';
 
-import './_base.css';
-import './failed-tasks.css';
-
 function listenMessage() {
   ExtMsg.listen('failed-tasks', function(msg) {
     return new Promise((resolve, reject) => {

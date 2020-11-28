@@ -25,25 +25,35 @@ function messageHandler(message, sender){
 
 async function retryTask(tabId, task) {
   const handler = await getClippingHandler();
-  if (handler.retryTask) {
-    const feedback = function(msg) {
-      ExtMsg.sendToExtPage('failed-tasks', {
-        type: 'retry.task.feedback',
-        body: msg
-      });
-    }
-    handler.retryTask(task, feedback)
-  } else {
+  const sendErrorFeedback = function(errMsg) {
     ExtMsg.sendToExtPage('failed-tasks', {
       type: 'retry.task.feedback',
       body: {
         type: 'failed',
         clipId: task.clipId,
         taskFilename: task.filename,
-        errMsg: `Handler: ${handler.name} doesn't support retryTask`,
+        errMsg: errMsg,
       }
     });
   }
+
+  handler.getInfo((info) => {
+    if (info.ready) {
+      if (handler.retryTask) {
+        const feedback = function(msg) {
+          ExtMsg.sendToExtPage('failed-tasks', {
+            type: 'retry.task.feedback',
+            body: msg
+          });
+        }
+        handler.retryTask(task, feedback)
+      } else {
+        sendErrorFeedback(`Handler: ${handler.name} doesn't support retryTask`);
+      }
+    } else {
+      sendErrorFeedback(`Handler: ${handler.name} not ready`);
+    }
+  });
 }
 
 async function saveClipping(tabId, clipping) {

@@ -282,14 +282,14 @@ async function formSubmitted({elem, formInputs, config}) {
   const domain = window.location.host.split(':')[0];
   const pageUrl = window.location.href;
 
-  const {userInput, info, storageInfo, storageConfig} = Clipper.getReadyToClip(formInputs, currConfig, {domain, pageUrl})
+  const {userInput, info, storageInfo, storageConfig, i18nLabel} = Clipper.getReadyToClip(formInputs, currConfig, {domain, pageUrl})
   state.storageConfig = storageConfig;
   state.storageInfo = storageInfo;
 
   if (userInput.category != '')  { saveInputHistory('category', userInput.category); }
   if (userInput.tags.length > 0) { saveInputHistory('tags', userInput.tags); }
 
-  const params = Object.assign({info, storageInfo, storageConfig}, {config: currConfig, win: window});
+  const params = Object.assign({info, storageInfo, storageConfig, i18nLabel}, {config: currConfig, win: window});
   const clipping = await Clipper.clip(elem, params);
   Log.debug(clipping);
 

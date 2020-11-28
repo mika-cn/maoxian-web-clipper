@@ -1,4 +1,3 @@
-"use strict";
 
 import ENV         from '../js/env.js';
 import T           from '../js/lib/tool.js';
@@ -9,8 +8,6 @@ import ExtMsg      from '../js/lib/ext-msg.js';
 import MxWcStorage from '../js/lib/storage.js';
 import MxWcConfig  from '../js/lib/config.js'
 import MxWcLink    from '../js/lib/link.js';
-
-import './popup.css';
 
 const state = {};
 
@@ -139,7 +136,7 @@ async function renderMenus(){
     html += T.renderTemplate(template, {
       icon: icons[menuId],
       menuId: menuId,
-      menuContent: I18N.t("popup.menu." + menuId),
+      menuContent: I18N.t("menu." + menuId),
     });
   });
   T.setHtml('.menus', html);

@@ -4,10 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Debugging</title>
+    <link href="_base.css" rel="stylesheet"/>
+    <link href="debug.css" rel="stylesheet"/>
   </head>
   <body>
 
     <div class="main">
+      <section class="links">
+        <a href="go.page:extPage.background?debug=1" target="_blank">Open Background Page</a>
+      </section>
       <section class="storage">
         <h2>Storage</h2>
         <div class="content">
@@ -79,5 +84,8 @@
       </div>
     </template>
 
+    <!-- scripts -->
+    <script src="../vendor/js/browser-polyfill.js"></script>
+    <script src="debug.js" type="module"></script>
   </body>
 </html>

@@ -1,4 +1,4 @@
 
 # File intro
 * $locale/message  => extension i18n
-* $locale.json     => i18n.js
+* $locale/$page.js => i18n.js
