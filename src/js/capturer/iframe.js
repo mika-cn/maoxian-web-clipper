@@ -144,7 +144,4 @@ async function capture(node, opts) {
 
 }
 
-
-const CapturerIframe = {capture: capture}
-
-export default CapturerIframe;
+export default {capture};

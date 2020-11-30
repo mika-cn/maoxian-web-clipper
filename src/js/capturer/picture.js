@@ -34,7 +34,4 @@ function capture(node, opts) {
   return {node, tasks};
 }
 
-
-const CapturerPicture = {capture: capture}
-
-export default CapturerPicture;
+export default {capture};

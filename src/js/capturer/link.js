@@ -129,6 +129,4 @@ function handleOtherAttrs(node) {
 }
 
 
-const CapturerLink = {capture: capture}
-
-export default CapturerLink;
+export default {capture};

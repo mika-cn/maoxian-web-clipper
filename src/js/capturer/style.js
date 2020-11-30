@@ -24,7 +24,4 @@ async function capture(node, opts) {
   return {node, tasks};
 }
 
-
-const CapturerStyle = {capture: capture}
-
-export default CapturerStyle;
+export default {capture};
