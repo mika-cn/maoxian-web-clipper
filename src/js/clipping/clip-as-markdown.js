@@ -18,20 +18,8 @@ import TurndownService from 'turndown';
 const turndownPluginGfm = require('turndown-plugin-gfm');
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, mimeTypeDict, frames, win}){
   Log.debug("markdown parser");
-
-  const [mimeTypeDict, frames] = await Promise.all([
-    ExtMsg.sendToBackend('clipping', {type: 'get.mimeTypeDict'}),
-    ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'}),
-  ]);
-
-  const headerParams = {
-    refUrl         : win.location.href,
-    userAgent      : win.navigator.userAgent,
-    referrerPolicy : config.requestReferrerPolicy,
-  }
-
 
   const {elemHtml, tasks} = await getElemHtml({
     clipId       : info.clipId,

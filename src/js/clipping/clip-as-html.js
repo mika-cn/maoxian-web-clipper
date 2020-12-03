@@ -18,19 +18,8 @@ import CapturerCustomElement from '../capturer/custom-element.js';
 import StyleHelper           from './style-helper.js';
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, mimeTypeDict, frames, win}){
   Log.debug("html parser");
-
-  const [mimeTypeDict, frames] = await Promise.all([
-    ExtMsg.sendToBackend('clipping', {type: 'get.mimeTypeDict'}),
-    ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'}),
-  ])
-
-  const headerParams = {
-    refUrl         : win.location.href,
-    userAgent      : win.navigator.userAgent,
-    referrerPolicy : config.requestReferrerPolicy,
-  }
 
   const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
 
