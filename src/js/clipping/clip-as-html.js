@@ -264,12 +264,15 @@ async function captureNode(node, params) {
   }
 
   // handle global attributes
-  [].forEach.call(r.node.attributes, async (attr) => {
+  const evAttrNames = [];
+  const len = r.node.attributes.length;
+  for (let i=0; i < len; i++) {
+    const attr = r.node.attributes[i];
     const attrName = attr.name.toLowerCase();
 
     // remove event listener
     if (attrName.startsWith('on')) {
-      r.node.removeAttribute(attrName);
+      evAttrNames.push(attrName);
     }
 
     // inline style
@@ -286,8 +289,11 @@ async function captureNode(node, params) {
       r.node.setAttribute('style', cssText);
       r.tasks.push(...tasks);
     }
-
+  }
+  evAttrNames.forEach((attrName) => {
+    r.node.removeAttribute(attrName);
   })
+
   return r;
 }
 
