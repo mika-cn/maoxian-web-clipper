@@ -13,12 +13,24 @@ import CapturerCss from './css.js';
  *   - {Object} storageInfo
  *   - {String} clipId
  *   - {Object} mimeTypeDict
+ *   - {Object} cssRulesDict
  *   - {Object} config
  *
  */
 async function capture(node, opts) {
   node.removeAttribute('nonce');
-  const text = node.textContent;
+  let text = '';
+  if (node.getAttribute('data-mx-marker') === 'css-rules') {
+    const cssRules = opts.cssRulesDict[node.getAttribute('data-mx-id')];
+    const cssText = [].map.call(cssRules, (it) => {
+      return it.cssText
+    }).join("\n");
+    text = `\n${cssText}\n`;
+    node.removeAttribute('data-mx-marker');
+    node.removeAttribute('data-mx-id');
+  } else {
+    text = node.textContent;
+  }
   const {cssText, tasks} = await CapturerCss.captureText(Object.assign({ text: text }, opts));
   node.textContent = cssText;
   return {node, tasks};

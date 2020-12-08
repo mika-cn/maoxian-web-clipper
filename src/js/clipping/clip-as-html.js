@@ -77,6 +77,7 @@ async function getElemHtml(params){
   Log.debug('getElemHtml', baseUrl);
 
   const {customElementHtmlDict, customElementStyleDict, customElementTasks} = await captureCustomElements(params);
+  const cssRulesDict = collectCssRules(win.document.documentElement);
 
   const KLASS = ['mx-wc', clipId].join('-');
   elem.classList.add('mx-wc-selected-elem');
@@ -93,9 +94,14 @@ async function getElemHtml(params){
   selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
   const {node, taskCollection} = await captureContainerNode(selectedNode,
-    Object.assign({}, params, {doc, customElementHtmlDict, customElementStyleDict}));
-  selectedNode = node;
+    Object.assign({}, params, {
+      doc,
+      customElementHtmlDict, customElementStyleDict,
+      cssRulesDict,
+    })
+  );
 
+  selectedNode = node;
   taskCollection.push(...customElementTasks);
 
   // capture head nodes that haven't processed.
@@ -105,7 +111,7 @@ async function getElemHtml(params){
   for (let i = 0; i < headNodes.length; i++) {
     const currNode = headNodes[i];
     if ([].indexOf.call(processedNodes, currNode) == -1) {
-      const r = await captureNode(currNode, Object.assign({}, params, {doc}));
+      const r = await captureNode(currNode, Object.assign({}, params, {doc, cssRulesDict}));
       taskCollection.push(...r.tasks);
     }
   }
@@ -119,6 +125,32 @@ async function getElemHtml(params){
     elemHtml = dealNormalElem(selectedNode, elem, win);
   }
   return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection };
+}
+
+
+/**
+ * There are some rules that generage by javascript (using CSSOM)
+ * These rules are weired, you can find them in devTool as inline style,
+ * but you can't find them in the html source...
+ *
+ * In order to obtain these rules, we collect them.
+ *
+ * @param {Element} contextNode
+ *
+ * @return {Object} dict (id => cssRules)
+ */
+function collectCssRules(contextNode) {
+  const nodes = contextNode.querySelectorAll('style');
+  const dict = {};
+  [].forEach.call(nodes, (it) => {
+    try {
+      const id = T.createId();
+      it.setAttribute('data-mx-id', id);
+      it.setAttribute('data-mx-marker', 'css-rules');
+      dict[id] = it.sheet.cssRules
+    } catch(e) {}
+  });
+  return dict;
 }
 
 async function captureCustomElements(params) {
@@ -144,6 +176,7 @@ async function captureCustomElements(params) {
   while(it = nodeIterator.nextNode()) {
 
     const box = it.getBoundingClientRect();
+    const cssRulesDict = collectCssRules(it.shadowRoot);
     DOMTool.markHiddenNode(win, it.shadowRoot);
     const docHtml = `<mx-tmp-root>${it.shadowRoot.innerHTML}</mx-tmp-root>`;
     DOMTool.clearHiddenMark(it);
@@ -155,7 +188,7 @@ async function captureCustomElements(params) {
         params.storageInfo.assetFolder
       )
     });
-    const r = await captureContainerNode(node, Object.assign({}, params, {storageInfo, doc}));
+    const r = await captureContainerNode(node, Object.assign({}, params, {storageInfo, doc, cssRulesDict}));
 
     const id = T.createId();
     it.setAttribute('data-mx-custom-element-id', id);
@@ -196,6 +229,7 @@ async function captureNode(node, params) {
     baseUrl,
     docUrl,
     mimeTypeDict,
+    cssRulesDict,
     customElementHtmlDict = {},
     customElementStyleDict = {},
     parentFrameId = topFrameId,
@@ -216,7 +250,7 @@ async function captureNode(node, params) {
       break;
     case 'STYLE':
       opts = {baseUrl, docUrl, storageInfo, clipId,
-        mimeTypeDict, config, headerParams, needFixStyle};
+        mimeTypeDict, cssRulesDict, config, headerParams, needFixStyle};
       r = await CapturerStyle.capture(node, opts);
       break;
     case 'PICTURE':
