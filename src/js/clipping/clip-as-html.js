@@ -87,6 +87,7 @@ async function getElemHtml(params){
   elem.classList.remove('mx-wc-selected-elem');
   elem.classList.remove(KLASS);
   DOMTool.clearHiddenMark(elem);
+  DOMTool.removeMxMarker(win.document.documentElement);
 
   const {doc} = DOMTool.parseHTML(win, docHtml);
   let selectedNode = doc.querySelector('.' + KLASS);

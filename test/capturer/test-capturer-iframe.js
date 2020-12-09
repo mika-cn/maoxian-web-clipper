@@ -26,7 +26,10 @@ describe("Capture iframe", async () => {
         frameFileFolder: 'category-a/clipping-001',
       },
       frames: [
-        {parentFrameId: 0, frameId: 1, url: 'https://a.org/frame-A.html'}
+        { parentFrameId: 0, frameId: 1,
+          url: 'https://a.org/frame-A.html',
+          originalUrl: 'https://a.org/frame-A.html'
+        }
       ],
       mimeTypeDict: {},
       config: {},

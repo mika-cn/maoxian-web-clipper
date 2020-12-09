@@ -7,6 +7,47 @@ WebRequest.init({requestToken: REQUEST_TOKEN});
 
 describe('WebRequest', () => {
 
+  describe('StoreRedirection', () => {
+
+    it('should store redirection', () => {
+      const {StoreRedirection} = WebRequest;
+      StoreRedirection.init();
+      const originalUrl = 'http://a.org/image';
+      const targetUrl = 'https://a.org/image.jpg';
+
+      const evDetails = getEvDetails('image', originalUrl, targetUrl);
+      StoreRedirection.perform(evDetails);
+
+      const dict = StoreRedirection.getRedirectionDict();
+      H.assertEqual(dict[originalUrl], targetUrl);
+    });
+
+    it('should store redirection that has multiply hops', () => {
+      const {StoreRedirection} = WebRequest;
+      StoreRedirection.init();
+      const originalUrl = 'http://a.org/origin';
+      const middleUrl = 'https://a.org/middle';
+      const targetUrl = 'https://a.org/final';
+
+      const evDetailsA = getEvDetails('sub_frame', originalUrl, middleUrl);
+      const evDetailsB = getEvDetails('sub_frame', middleUrl, targetUrl);
+
+      StoreRedirection.perform(evDetailsA);
+      StoreRedirection.perform(evDetailsB);
+
+      const dict = StoreRedirection.getRedirectionDict();
+      H.assertEqual(dict[originalUrl], targetUrl);
+    });
+
+    function getEvDetails(resourceType, url, targetUrl) {
+      return {
+        type: resourceType,
+        url: url,
+        redirectUrl: targetUrl,
+      }
+    }
+  });
+
   describe('StoreMimeType', () => {
 
     it('should store mimeType if request url has not file extension', () => {
@@ -33,47 +74,6 @@ describe('WebRequest', () => {
       H.assertEqual(dict[url], undefined);
     });
 
-    it('should store redirection', () => {
-      const {StoreMimeType} = WebRequest;
-      StoreMimeType.init();
-      const originalUrl = 'http://a.org/image';
-      const targetUrl = 'https://a.org/image.jpg';
-      const detailsA = getDetails('301', originalUrl,
-        { 'Content-Type': 'text/html', 'Location': targetUrl }
-      );
-      const detailsB = getDetails('200', targetUrl,
-        { 'Content-Type': 'image/jpeg' }
-      );
-      StoreMimeType.emit(detailsA);
-      StoreMimeType.emit(detailsB);
-
-      const dict = StoreMimeType.getMimeTypeDict();
-      H.assertEqual(dict[originalUrl], 'image/jpeg');
-    });
-
-    it('should store redirection that has multiply hops', () => {
-      const {StoreMimeType} = WebRequest;
-      StoreMimeType.init();
-      const originalUrl = 'http://a.org/origin';
-      const middleUrl = 'https://a.org/middle';
-      const targetUrl = 'https://a.org/final';
-      const detailsA = getDetails('301', originalUrl,
-        { 'Content-Type': 'text/html', 'Location': middleUrl }
-      );
-      const detailsB = getDetails('301', middleUrl,
-        { 'Content-Type': 'text/html', 'Location': targetUrl }
-      );
-      const detailsC = getDetails('200', targetUrl,
-        {'Content-Type': 'image/jpeg'}
-      );
-      StoreMimeType.emit(detailsA);
-      StoreMimeType.emit(detailsB);
-      StoreMimeType.emit(detailsC);
-
-      const dict = StoreMimeType.getMimeTypeDict();
-      H.assertEqual(dict[originalUrl], 'image/jpeg');
-      H.assertEqual(dict[middleUrl], undefined);
-    });
 
     function getDetails(statusCode, requestUrl, headers) {
       const responseHeaders = [];
