@@ -43,6 +43,4 @@ function capture(node, opts) {
   return {node, tasks};
 }
 
-const CapturerA = {capture: capture}
-
-export default CapturerA;
+export default {capture};

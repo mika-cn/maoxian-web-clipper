@@ -195,13 +195,9 @@ function isDowngradeHttpRequest(fromUrl, toUrl) {
   return fromUrl.match(/^https:/i) && toUrl.match(/^http:/i)
 }
 
-
-
-const CaptureTool = {
-  captureBackgroundAttr: captureBackgroundAttr,
-  captureImageSrcset: captureImageSrcset,
-  parseSrcset: parseSrcset,
-  getRequestHeaders: getRequestHeaders,
-}
-
-export default CaptureTool;
+export default {
+  captureBackgroundAttr,
+  captureImageSrcset,
+  parseSrcset,
+  getRequestHeaders,
+};

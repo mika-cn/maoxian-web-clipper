@@ -62,4 +62,4 @@ function capture(node, opts) {
   }
 }
 
-export default {capture: capture};
+export default {capture};

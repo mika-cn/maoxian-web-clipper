@@ -279,18 +279,26 @@ function queryElem(msg, callback){
 async function formSubmitted({elem, formInputs, config}) {
 
   const currConfig = Object.assign(config, state.tempConfig)
-  const domain = window.location.host.split(':')[0];
-  const pageUrl = window.location.href;
+  const domain    = window.location.host.split(':')[0];
+  const pageUrl   = window.location.href;
+  const userAgent = window.navigator.userAgent;
 
-  const {userInput, info, storageInfo, storageConfig, i18nLabel} = Clipper.getReadyToClip(formInputs, currConfig, {domain, pageUrl})
+  const [mimeTypeDict, frames] = await Promise.all([
+    ExtMsg.sendToBackend('clipping', {type: 'get.mimeTypeDict'}),
+    ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'}),
+  ]);
+
+  const {userInput, info, storageInfo, storageConfig, i18nLabel, headerParams} = Clipper.getReadyToClip(formInputs, currConfig, {domain, pageUrl, userAgent})
+
   state.storageConfig = storageConfig;
   state.storageInfo = storageInfo;
 
   if (userInput.category != '')  { saveInputHistory('category', userInput.category); }
   if (userInput.tags.length > 0) { saveInputHistory('tags', userInput.tags); }
 
-  const params = Object.assign({info, storageInfo, storageConfig, i18nLabel}, {config: currConfig, win: window});
+  const params = Object.assign({info, storageInfo, storageConfig, i18nLabel, headerParams, mimeTypeDict, frames}, {config: currConfig, win: window});
   const clipping = await Clipper.clip(elem, params);
+
   Log.debug(clipping);
 
   UI.setStateClipped({clipping})
@@ -306,6 +314,7 @@ async function formSubmitted({elem, formInputs, config}) {
     saveClipping({clipping});
   }
 }
+
 
 function saveInputHistory(k, v){
   const body = {}

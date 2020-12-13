@@ -30,6 +30,15 @@ function markHiddenNode(win, node) {
   }
 }
 
+function removeMxMarker(contextNode) {
+  const selector = '[data-mx-marker]';
+  const nodes = contextNode.querySelectorAll(selector);
+  [].forEach.call(nodes, (it) => {
+    it.removeAttribute('data-mx-marker');
+    it.removeAttribute('data-mx-id');
+  })
+}
+
 function clearHiddenMark(contextNode) {
   const selector = '[data-mx-hidden-node="1"]';
   const nodes = contextNode.querySelectorAll(selector);
@@ -111,17 +120,17 @@ function calcXpath(contextNode, targetNode) {
 }
 
 const DOMTool = {
-  parseHTML: parseHTML,
+  parseHTML,
+  markHiddenNode,
+  removeNodeByHiddenMark,
+  clearHiddenMark,
+  removeMxMarker,
 
-  markHiddenNode: markHiddenNode,
-  removeNodeByHiddenMark: removeNodeByHiddenMark,
-  clearHiddenMark: clearHiddenMark,
-
-  removeNodeByXpaths: removeNodeByXpaths,
-  removeNodeBySelectors: removeNodeBySelectors,
-  calcXpath: calcXpath,
-  findNodeByXpath: findNodeByXpath,
-  querySelectorIncludeSelf: querySelectorIncludeSelf,
+  removeNodeByXpaths,
+  removeNodeBySelectors,
+  calcXpath,
+  findNodeByXpath,
+  querySelectorIncludeSelf,
 }
 
 export default DOMTool;

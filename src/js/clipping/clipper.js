@@ -20,6 +20,7 @@ import MxMarkdownClipper from './clip-as-markdown.js';
  * @param {Object} params
  *   - {String} domain
  *   - {String} pageUrl
+ *   - {String} userAgent
  *
  * @return {Object}
  *   - {Object} userInput {:format, :title, :category, :tags}
@@ -27,12 +28,20 @@ import MxMarkdownClipper from './clip-as-markdown.js';
  *   - {Object} storageInfo
  *   - {Object} storageConfig
  *   - {Object} i18nLabel : some translated labels
+ *   - {Object} headerParams {:refUrl, :userAgent, :referrerPolicy}
  *
  */
-function getReadyToClip(formInputs, config, {domain, pageUrl}) {
+function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
 
   const userInput = dealFormInputs(formInputs);
   const i18nLabel = getI18nLabel();
+
+  const headerParams = {
+    refUrl         : pageUrl,
+    userAgent      : userAgent,
+    referrerPolicy : config.requestReferrerPolicy,
+  }
+
   const now = Date.now();
 
   const appendTags = [];
@@ -77,7 +86,7 @@ function getReadyToClip(formInputs, config, {domain, pageUrl}) {
     created_at : tObj.toString(),
   }
 
-  return {userInput, info, storageInfo, storageConfig, i18nLabel};
+  return {userInput, info, storageInfo, storageConfig, i18nLabel, headerParams};
 }
 
 
@@ -91,18 +100,19 @@ function getReadyToClip(formInputs, config, {domain, pageUrl}) {
  *   - {Object} storageInfo
  *   - {Object} storageconfig
  *   - {Object} i18nLabel : some translated labels
+ *   - {Object} headerParams
  *   - {Window} window object
  *
  * @return {Promise} a Promise that will resolve with clipping
  */
-async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, win}) {
+async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, headerParams, mimeTypeDict, frames, win}) {
   let Clipper = null;
   switch(info.format){
     case 'html' : Clipper = MxHtmlClipper; break;
     case 'md'   : Clipper = MxMarkdownClipper; break;
   }
 
-  let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, win});
+  let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, headerParams, mimeTypeDict, frames, win});
 
   if (storageConfig.saveTitleFile) {
     const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);
@@ -126,7 +136,7 @@ async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, 
   } else {
     // Do nothing in this condition.
     // We don't save info file and this clipping record.
-    // So we don't need paths(No deletion) and mainPath(No history to open)
+    // So we don't need "paths" (No deletion) and "mainPath" (No history to open)
   }
 
   const clipping = {

@@ -272,10 +272,4 @@ function fixBodyChildrenStyle(css) {
   });
 }
 
-
-const CapturerCss = {
-  captureText: captureText,
-  captureLink: captureLink
-}
-
-export default CapturerCss;
+export default {captureText, captureLink};

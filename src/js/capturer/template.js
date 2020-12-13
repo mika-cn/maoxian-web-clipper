@@ -10,7 +10,4 @@ function capture(node, opts) {
   return {node, tasks};
 }
 
-
-const CapturerTemplate = {capture: capture}
-
-export default CapturerTemplate;
+export default {capture};

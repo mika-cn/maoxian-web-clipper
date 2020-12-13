@@ -64,14 +64,23 @@ async function capture(node, opts) {
     return {node: newNode, tasks: tasks};
   }
 
-  const frame = frames.find((it) => it.url === url && it.parentFrameId === parentFrameId);
+  const frame = frames.find((it) => it.originalUrl === url && it.parentFrameId === parentFrameId);
   if (!frame) {
-    Log.debug("What happened");
-    //TODO
+    Log.error("Could not find frame with url: ", url);
+    Log.error("Frames: ");
+    frames.forEach((it) => {
+      Log.error(it);
+    });
+    node.setAttribute('data-mx-original-src', src);
+    node.setAttribute('data-mx-original-url', url);
+    node.removeAttribute('src');
     return {node, tasks}
+
   } else if(frame.errorOccurred) {
+
     node.setAttribute('data-mx-warn', 'the last navigation in this frame was interrupted by an error');
     node.setAttribute('data-mx-original-src', src);
+    node.setAttribute('data-mx-original-url', url);
     node.removeAttribute('src');
     return {node, tasks}
   }
@@ -144,7 +153,4 @@ async function capture(node, opts) {
 
 }
 
-
-const CapturerIframe = {capture: capture}
-
-export default CapturerIframe;
+export default {capture};

@@ -11,7 +11,7 @@ function messageHandler(message, sender) {
         resolve(Global.WebRequest.getMimeTypeDict());
         break;
       case 'get.allFrames':
-        ExtApi.getAllFrames(sender.tab.id).then(resolve);
+        getAllFrames(sender.tab.id).then(resolve);
         break;
       case 'fetch.text':
         ActionCache.findOrCache(
@@ -41,6 +41,21 @@ function messageHandler(message, sender) {
         break;
     }
   });
+}
+
+async function getAllFrames(tabId) {
+  // get frame redirections
+  const dict = Global.WebRequest.getRedirectionDict('sub_frame');
+  const redirectFrom = {};
+  for (let url in dict) {
+    const targetUrl = dict[url];
+    redirectFrom[targetUrl] = url;
+  }
+  const frames = await ExtApi.getAllFrames(tabId);
+  frames.forEach((it) => {
+    it.originalUrl = (redirectFrom[it.url] || it.url);
+  });
+  return frames;
 }
 
 /*

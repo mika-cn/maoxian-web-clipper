@@ -4,7 +4,117 @@ import Log    from '../lib/log.js';
 import T      from '../lib/tool.js';
 import ExtMsg from '../lib/ext-msg.js';
 
-//const browser = require('webextension-polyfill');
+
+const StoreRedirection = (function() {
+  const state = {};
+
+  function listener(details) {
+    const {type, url, redirectUrl} = details;
+    state.redirectionStore.add(type, url, redirectUrl);
+  }
+
+  function initRedirectionStore() {
+    const MIDDLE = 1, FINAL = 2;
+    return {
+      dict: {}, // url => {resourceType, targetUrl}
+      redirectStatus: {}, // targetUrl => status
+      add(resourceType, url, targetUrl) {
+        if (url && targetUrl) {
+          Log.info("Store Redirection", url, " => ", targetUrl);
+          this.dict[url] = {resourceType, targetUrl};
+          this.redirectStatus[targetUrl] = FINAL;
+          if (this.redirectStatus[url] === FINAL) {
+            this.redirectStatus[url] = MIDDLE;
+          }
+        } else {
+          Log.warn("Invalid Redirection", url, targetUrl);
+        }
+      },
+      isTarget(url) {
+        return this.redirectStatus[url];
+      },
+      isMiddleTarget(url) {
+        return this.redirectStatus[url] === MIDDLE;
+      },
+      isFinalTarget(url) {
+        return this.redirectStatus[url] === FINAL;
+      },
+      getFinalDetail(url) {
+        const detail = this.dict[url];
+        if (detail) {
+          if (this.isFinalTarget(detail.targetUrl)) {
+            return detail;
+          } else {
+            return this.getFinalDetail(detail.targetUrl);
+          }
+        } else {
+          return null;
+        }
+      },
+      /**
+       * @param {String} resourceType: 'image' or 'sub_frame'
+       * @return {Object} dict : {url => targetUrl}
+       */
+      getRedirectionDict(resourceType = 'all') {
+        const r = {};
+        for (let url in this.dict) {
+          if (this.isMiddleTarget(url)) {
+            // Do nothing
+          } else {
+            const detail = this.getFinalDetail(url);
+            if (resourceType === 'all' || detail.resourceType === resourceType ) {
+              r[url] = detail.targetUrl;
+            }
+          }
+        }
+        return r;
+      }
+    }
+  }
+
+  function listen() {
+    init();
+    const filter = {
+      urls: ["http://*/*", "https://*/*"],
+      types: ["image", "sub_frame"]
+    };
+
+    browser.webRequest.onBeforeRedirect.removeListener(listener);
+    browser.webRequest.onBeforeRedirect.addListener(listener, filter);
+  }
+
+  function init() {
+    state.redirectionStore = initRedirectionStore();
+  }
+
+  function isTarget(url) {
+    if (state.redirectionStore) {
+      return state.redirectionStore.isTarget(url);
+    } else {
+      return false;
+    }
+  }
+
+  function getRedirectionDict(resourceType = 'all') {
+    if (state.redirectionStore) {
+      return state.redirectionStore.getRedirectionDict(resourceType);
+    } else {
+      return {};
+    }
+  }
+
+  return {
+    listen: listen,
+    isTarget: isTarget,
+    getRedirectionDict: getRedirectionDict,
+    // test only
+    init: init,
+    perform: listener,
+  }
+})();
+
+
+
 
 const StoreMimeType = (function() {
   let state = {};
@@ -32,17 +142,10 @@ const StoreMimeType = (function() {
 
   function handleNormalRequest(details) {
     const {statusCode} = parseResponseStatusLine(details.statusLine);
-    switch (statusCode) {
-      case '200':
-        state.mimeTypeStore.add(details.url, details.responseHeaders);
-        break;
-      case '301': // Move Permanently
-      case '302': // Found
-      case '303': // See Other
-      case '307': // Temporary Redirect
-        state.redirectionStore.add(details.url, details.responseHeaders);
-        break;
-      default: break;
+    if (statusCode === '200') {
+      state.mimeTypeStore.add(details.url, details.responseHeaders);
+    } else {
+      // 302 etc.
     }
   }
 
@@ -54,6 +157,25 @@ const StoreMimeType = (function() {
       statusCode: strs.shift(),
       statusText: strs.join(' ')
     }
+  }
+
+
+  function initMimeTypeStore(){
+    return {
+      dict: {},
+      add(url, responseHeaders) {
+        if (StoreRedirection.isTarget(url)
+          || !T.isUrlHasFileExtension(url)
+        ) {
+          const mimeType = getMimeType(responseHeaders);
+          if(mimeType){
+            this.dict[url] = mimeType;
+          }else{
+            Log.warn("MimeType empty: ", url)
+          }
+        }
+      }
+    };
   }
 
   function getMimeType(headers){
@@ -71,82 +193,8 @@ const StoreMimeType = (function() {
   }
 
 
-
-  function initMimeTypeStore(){
-    return {
-      dict: {},
-      add(url, responseHeaders) {
-        if (state.redirectionStore.isTarget(url)
-          || !T.isUrlHasFileExtension(url)
-        ) {
-          const mimeType = getMimeType(responseHeaders);
-          if(mimeType){
-            this.dict[url] = mimeType;
-          }else{
-            Log.warn("MimeType empty: ", url)
-          }
-        }
-      }
-    };
-  }
-
-  function initRedirectionStore() {
-    const MIDDLE = 1, FINAL = 2;
-    return {
-      dict: {}, // url => targetUrl
-      redirectStatus: {}, // targetUrl => status
-      add(url, responseHeaders) {
-        const header = T.getHeader(responseHeaders, 'location')
-        if (header) {
-          const targetUrl = header.value;
-          this.dict[url] = targetUrl;
-          this.redirectStatus[targetUrl] = FINAL;
-          if (this.redirectStatus[url] === FINAL) {
-            this.redirectStatus[url] = MIDDLE;
-          }
-        } else {
-          // empty location
-          Log.warn("Redirection (empty location): ", url);
-        }
-      },
-      isTarget(url) {
-        return this.redirectStatus[url];
-      },
-      isMiddleTarget(url) {
-        return this.redirectStatus[url] === MIDDLE;
-      },
-      isFinalTarget(url) {
-        return this.redirectStatus[url] === FINAL;
-      },
-      getFinalTarget(url) {
-        const targetUrl = this.dict[url];
-        if (targetUrl) {
-          if (this.isFinalTarget(targetUrl)) {
-            return targetUrl;
-          } else {
-            return this.getFinalTarget(targetUrl);
-          }
-        } else {
-          return null;
-        }
-      },
-      getRedirectionDict() {
-        const r = {};
-        for (let url in this.dict) {
-          if (this.isMiddleTarget(url)) {
-            // Do nothing
-          } else {
-            r[url] = this.getFinalTarget(url);
-          }
-        }
-        return r;
-      }
-    }
-  }
-
   function init() {
     state.mimeTypeStore = initMimeTypeStore();
-    state.redirectionStore = initRedirectionStore();
   }
 
   function listen() {
@@ -168,14 +216,13 @@ const StoreMimeType = (function() {
 
   function getMimeTypeDict() {
     const mimeTypeDict = Object.assign({}, state.mimeTypeStore.dict);
-    const redirectionDict = state.redirectionStore.getRedirectionDict();
+    const redirectionDict = StoreRedirection.getRedirectionDict('image');
     for (let url in redirectionDict) {
       const targetUrl = redirectionDict[url];
       mimeTypeDict[url] = mimeTypeDict[targetUrl];
     }
     return mimeTypeDict;
   }
-
 
   return {
     listen: listen,
@@ -185,6 +232,8 @@ const StoreMimeType = (function() {
     emit: listener,
   }
 })();
+
+
 
 
 const StoreResource = (function() {
@@ -283,6 +332,10 @@ const StoreResource = (function() {
 
   return { listen };
 })();
+
+
+
+
 
 /**
  * This could be very dangerous,
@@ -389,7 +442,9 @@ const UnescapeHeader = (function(){
 })();
 
 
+
 function listen() {
+  StoreRedirection.listen();
   StoreMimeType.listen();
   UnescapeHeader.listen();
   StoreResource.listen();
@@ -397,6 +452,10 @@ function listen() {
 
 function getMimeTypeDict() {
   return StoreMimeType.getMimeTypeDict();
+}
+
+function getRedirectionDict(resourceType = 'all') {
+  return StoreRedirection.getRedirectionDict(resourceType);
 }
 
 
@@ -415,14 +474,15 @@ function init(global) {
   Global = global;
 }
 
-
 const WebRequest = {
-  init: init,
-  listen: listen,
-  getMimeTypeDict: getMimeTypeDict,
+  init,
+  listen,
+  getMimeTypeDict,
+  getRedirectionDict,
   // test only
-  StoreMimeType: StoreMimeType,
-  UnescapeHeader: UnescapeHeader,
+  StoreRedirection,
+  StoreMimeType,
+  UnescapeHeader,
 }
 
 export default WebRequest;
