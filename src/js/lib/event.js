@@ -1,10 +1,8 @@
 "use strict";
 
-import FrameMsg from './frame-msg.js';
-
 /*!
  *
- * We use FrameMsg to broadcast event
+ * We use ExtMsg to broadcast event
  * from top window to iframes.
  *
  * Events that we dispatch to public.
@@ -51,51 +49,97 @@ function listenPublic(name, listener) {
 
 function broadcastPublic(name, data) {
   const evType   = getType(name);
-  FrameMsg.broadcast({type: evType, msg: (data || {})});
+  const topFrameId = 0;
+  performBroadcast({
+    type: evType,
+    msg: (data || {}),
+    evTargetName: 'public',
+    extMsgType: 'broadcast-event.public',
+    frameId: topFrameId,
+  })
 }
 
 function broadcastInternal(name, data) {
   const evType = getType(name, true);
-  FrameMsg.broadcast({type: evType, msg: (data || {})});
+  const topFrameId = 0;
+  performBroadcast({
+    type: evType,
+    msg: (data || {}),
+    evTargetName: 'internal',
+    extMsgType: 'broadcast-event.internal',
+    frameId: topFrameId,
+  })
 }
 
-const BROADCAST_EVENT_NAMES = [
-  'idle', 'selecting', 'selected',
-  'confirmed', 'clipping'
+const BROADCASTABLE_PUBLIC_EVENTS = [
+  getType('idle'),
+  getType('selecting'),
+  getType('selected'),
+  getType('confirmed'),
+  getType('clipping'),
 ];
 
-function initFrameMsg(params) {
-  FrameMsg.init(params);
+const BROADCASTABLE_INTERNAL_EVENTS = [
+  getType('idle'      , true) ,
+  getType('selecting' , true) ,
+  getType('selected'  , true) ,
+  getType('confirmed' , true) ,
+  getType('clipping'  , true) ,
+];
+
+const state = {};
+function init(ExtMsg) {
+  state.ExtMsg = ExtMsg;
 }
 
-// you should call initFrameMsg before calling this function
-function handleBroadcastPublic() {
-  BROADCAST_EVENT_NAMES.forEach(function(name) {
-    const evType   = getType(name);
-    FrameMsg.addListener(evType, broadcastHandler_public);
-  });
+function extMsgReceived(msgBody, {isInternal}) {
+  if (isInternal) {
+    handleBroadcastInternal(msgBody);
+  } else {
+    handleBroadcastPublic(msgBody);
+  }
 }
 
-// you should call initFrameMsg before calling this function
-function handleBroadcastInternal() {
-  BROADCAST_EVENT_NAMES.forEach(function(name) {
-    const evType   = getType(name, true);
-    FrameMsg.addListener(evType, broadcastHandler_internal);
-  });
+function handleBroadcastInternal(msgBody) {
+  if (BROADCASTABLE_INTERNAL_EVENTS.indexOf(msgBody.evType) > -1) {
+    dispatch('internal', msgBody.evType, msgBody.message);
+    performBroadcast({
+      msg: msgBody.message,
+      type: msgBody.evType,
+      evTargetName: 'internal',
+      extMsgType: 'broadcast-event.internal',
+      frameId: (msgBody.frameId || 0),
+    })
+  }
 }
+
+function handleBroadcastPublic(msgBody) {
+  if (BROADCASTABLE_PUBLIC_EVENTS.indexOf(msgBody.evType) > -1) {
+    dispatch('public', msgBody.evType, msgBody.message);
+    performBroadcast({
+      msg: msgBody.message,
+      type: msgBody.evType,
+      evTargetName: 'public',
+      extMsgType: 'broadcast-event.public',
+      frameId: (msgBody.frameId || 0),
+    })
+  }
+}
+
+
 
 //=================
 
-function broadcastHandler_public(msg, type) {
-  dispatch('public', type, msg);
+function performBroadcast({msg, type, evTargetName, extMsgType, frameId = 0}) {
   // Continue broadcast this message.
-  FrameMsg.broadcast({type: type, msg: msg});
-}
-
-function broadcastHandler_internal(msg, type) {
-  dispatch('internal', type, msg);
-  // Continue broadcast this message.
-  FrameMsg.broadcast({type: type, msg: msg});
+  state.ExtMsg.sendToBackend('clipping', {
+    type: extMsgType,
+    body: {
+      frameId: frameId,
+      evType: type,
+      message: msg
+    }
+  });
 }
 
 function listen(evTargetName, type, listener) {
@@ -151,13 +195,12 @@ function getData(e) {
 }
 
 const MxWcEvent = {
+  init,
   getType,
   getData,
+  extMsgReceived,
   broadcastPublic,
   broadcastInternal,
-  initFrameMsg,
-  handleBroadcastPublic,
-  handleBroadcastInternal,
   dispatchInternal,
   dispatchPublic,
   listenInternal,

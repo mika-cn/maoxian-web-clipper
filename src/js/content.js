@@ -419,6 +419,7 @@ function run(){
     if (document.documentElement.tagName.toUpperCase() === 'HTML') {
       // html xhm etc.
       setTimeout(() => {
+        MxWcEvent.init(ExtMsg);
         resetClippingState();
         MxWcConfig.load().then((config) => {
           state.config = config;

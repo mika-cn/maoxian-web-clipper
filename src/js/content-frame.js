@@ -23,22 +23,24 @@ function backgroundMessageHandler(message) {
     // what if the frame src atribute is not exist
     // it's content set by srcdoc attribute
     //
-    // Actually, this message is sent to this frame
-    // by background.js
-    // Maybe it's safe to remove this "if".
-    //
-    if (message.frameUrl === window.location.href) {
-      switch (message.type) {
-        case 'frame.toHtml':
-          MxHtmlClipper.getElemHtml(getParams(message)).then((result) => {
-            result.title = window.document.title;
-            resolve(result);
-          });
-          break;
-        case 'frame.toMd':
-          MxMarkdownClipper.getElemHtml(getParams(message)).then(resolve);
-          break;
-      }
+    switch (message.type) {
+      case 'broadcast-event.public':
+        MxWcEvent.extMsgReceived(message.body, {isInternal: false});
+        resolve();
+        break;
+      case 'broadcast-event.internal':
+        MxWcEvent.extMsgReceived(message.body, {isInternal: true});
+        resolve();
+        break;
+      case 'frame.toHtml':
+        MxHtmlClipper.getElemHtml(getParams(message)).then((result) => {
+          result.title = window.document.title;
+          resolve(result);
+        });
+        break;
+      case 'frame.toMd':
+        MxMarkdownClipper.getElemHtml(getParams(message)).then(resolve);
+        break;
     }
   });
 }
@@ -72,19 +74,6 @@ function getParams(message) {
   }
 }
 
-function listenFrameMessage() {
-  MxWcEvent.initFrameMsg({
-    id: window.location.href,
-    origin: window.location.origin
-  });
-  MxWcEvent.handleBroadcastInternal();
-  Config.load().then((config) => {
-    if (config.communicateWithThirdParty) {
-      MxWcEvent.handleBroadcastPublic();
-    }
-  });
-}
-
 function initMxWcAssistant() {
   Config.load().then((config) => {
     if (config.assistantEnabled) {
@@ -107,7 +96,7 @@ function init() {
         // Iframe
         initMxWcAssistant();
         ExtMsg.listen('content-frame', backgroundMessageHandler);
-        listenFrameMessage();
+        MxWcEvent.init(ExtMsg);
       }
     } else {
       // feed or others

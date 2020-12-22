@@ -7,6 +7,17 @@ import ActionCache from '../lib/action-cache.js';
 function messageHandler(message, sender) {
   return new Promise(function(resolve, reject){
     switch(message.type){
+      case 'broadcast-event.internal':
+      case 'broadcast-event.public':
+        getCurrentLayerFrames(sender.tab.id, message.body.frameId).then((frames) => {
+          frames.forEach((frame) => {
+            const body = Object.assign({}, message.body, {frameId: frame.frameId});
+            const msg = {type: message.type, body: body}
+            ExtMsg.sendToContentFrame(msg, sender.tab.id, frame.frameId);
+          });
+          resolve();
+        });
+        break;
       case 'get.mimeTypeDict':
         resolve(Global.WebRequest.getMimeTypeDict());
         break;
@@ -41,6 +52,17 @@ function messageHandler(message, sender) {
         break;
     }
   });
+}
+
+async function getCurrentLayerFrames(tabId, parentFrameId) {
+  const frames = await ExtApi.getAllFrames(tabId);
+  const result = [];
+  frames.forEach((it) => {
+    if (it.parentFrameId === parentFrameId) {
+      result.push(it);
+    }
+  });
+  return result;
 }
 
 async function getAllFrames(tabId) {
