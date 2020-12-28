@@ -28,32 +28,58 @@ function logFeedback(msg) {
 }
 
 function updateTask({type, clipId, taskFilename, errMsg = undefined}) {
-  const task = state.tasks.find((it) => {
-    return it.clipId === clipId && taskFilename === it.filename;
-  });
+  const task = findTask(state.tasks, clipId, taskFilename);
   if (task) {
     switch(type) {
       case 'failed':
         task.errMsg = errMsg;
         break;
       case 'completed':
-        const idx = state.tasks.indexOf(task);
-        state.tasks.splice(idx, 1);
-        console.log(state.tasks.length);
-        // This may invoke many times in a short period of time.
-        // should we avoid it.
-        MxWcStorage.set('failedTasks', state.tasks);
-        renderTasks(state.tasks);
+        removeTaskAndRefresh(task);
         break;
     }
   }
 }
+
 
 function bindListener() {
   const btn = T.findElem('retry-all');
   T.bindOnce(btn, 'click', retryAll);
   const form = T.queryElem('.batch-editor > form');
   T.bindOnce(form, 'submit', editAll);
+  const tbody = T.queryElem('.tasks tbody');
+  T.bindOnce(tbody, 'click', tbodyClicked);
+}
+
+function tbodyClicked(e) {
+  if (e.target.tagName.toUpperCase() == 'BUTTON') {
+    const clipId = e.target.getAttribute('data-clip-id');
+    const taskFilename = e.target.getAttribute('data-filename');
+    const task = findTask(state.tasks, clipId, taskFilename);
+    if (task) { confirmDeletion(task); }
+  }
+}
+
+function confirmDeletion(task) {
+  const message = I18N.t('confirm-msg.remove-task');
+  if (window.confirm(message)) {
+    removeTaskAndRefresh(task);
+  }
+}
+
+function removeTaskAndRefresh(task) {
+  const idx = state.tasks.indexOf(task);
+  state.tasks.splice(idx, 1);
+  // This may invoke many times in a short period of time.
+  // should we avoid it.
+  MxWcStorage.set('failedTasks', state.tasks);
+  renderTasks(state.tasks);
+}
+
+function findTask(tasks, clipId, taskFilename) {
+  return tasks.find((it) => {
+    return it.clipId === clipId && taskFilename === it.filename;
+  });
 }
 
 async function retryAll() {
