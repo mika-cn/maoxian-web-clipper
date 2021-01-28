@@ -338,7 +338,7 @@ async function initSearch(){
   search.value = await cacheGet('search.keyword', '');
 
   //created_at
-  const i18n = getPikadayI18n(ExtApi.locale);
+  const i18n = getPikadayI18n(ExtApi.getLocale());
   const pickerA = new Pikaday({
     field: T.findElem('created-at-from'),
     i18n: i18n,

@@ -185,6 +185,11 @@ function initSettingPath(config) {
     'frameFileFolder'
   );
 
+  initCheckboxInput(config,
+    'save-info-file',
+    'saveInfoFile'
+  );
+
   initTextInput(config,
     'info-file-folder',
     'infoFileFolder',

@@ -12,6 +12,7 @@ const remotePaths = {
     "home": "/index.html",
     "faq": "/faq.html",
     "faq-allow-access-file-urls": "/faq.html#allow-access-file-urls",
+    "faq-dont-save-index-file": "/faq.html#dont-save-index-file",
     "uninstalled": "/uninstalled.html",
     "native-app": "/native-app/index.html",
     "offline-page": "/offline-page/index.html",
@@ -25,6 +26,7 @@ const remotePaths = {
     "home": "/index-zh-CN.html",
     "faq": "/faq-zh-CN.html",
     "faq-allow-access-file-urls": "/faq-zh-CN.html#allow-access-file-urls",
+    "faq-dont-save-index-file": "/faq-zh-CN.html#dont-save-index-file",
     "uninstalled": "/uninstalled-zh-CN.html",
     "native-app": "/native-app/index-zh-CN.html",
     "offline-page": "/offline-page/index-zh-CN.html",
@@ -60,7 +62,7 @@ function get(exp) {
  *   website => $name
  */
 function getRemoteLink(pageName){
-  let dict = remotePaths[ExtApi.locale];
+  let dict = remotePaths[ExtApi.getLocale()];
   if (!dict) { dict = remotePaths['en'] }
   const path = dict[pageName];
   if(path) {

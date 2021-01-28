@@ -184,6 +184,8 @@
     // label
     "label.storage-folder": "存储目录",
     "label.storage-filename": "文件名",
+    "label.save-info-file-input": "保存元信息文件",
+    "label.save-info-file-link": "（如何修改?）",
     "label.save-title-file-input": "保存标题文件",
 
     "label.enable-handler": "启用该处理程序",
