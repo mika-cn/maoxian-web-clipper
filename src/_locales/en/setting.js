@@ -188,6 +188,8 @@
     // label
     "label.storage-folder": "Saving Folder",
     "label.storage-filename": "Filename",
+    "label.save-info-file-input": "Save Information File",
+    "label.save-info-file-link": "(How to change it?)",
     "label.save-title-file-input": "Save Title File",
 
     "label.enable-handler": "Enable this handler",
