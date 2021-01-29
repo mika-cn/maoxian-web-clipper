@@ -203,10 +203,21 @@ function fetchAndDownload(task) {
     tries: task.tries,
   }).then(
       (blob) => {
-        downloadBlob({
-          blob: blob,
-          filename: task.filename
-        })
+        if (Global.isChrome) {
+          // Maybe we should add the version to condition too?
+          //
+          // There is a disgussting bug that Chrome gives Content-Type more priority than provided filename.
+          // Which cause the `browser.downloads.download` API overwrites the provided filename's extension.
+          //
+          // In order to walk around this bug, we change blob's type.
+          const fileExtension = T.getFileExtension(task.filename);
+          const contentType = T.extension2MimeType(fileExtension);
+          const newBlob = blob.slice(0, blob.size, contentType);
+          downloadBlob({filename: task.filename, blob: newBlob});
+        } else {
+          downloadBlob({filename: task.filename, blob: blob});
+        }
+
       },
       (err) => {
         SavingTool.taskFailed(task.filename, err.message);

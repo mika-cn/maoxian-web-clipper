@@ -74,19 +74,19 @@ function getFileExtension(link, extension, mimeTypeData) {
     if (url.protocol === 'data:') {
       //data:[<mediatype>][;base64],<data>
       const mimeType = url.pathname.split(';')[0];
-      return mimeType2Extension(mimeType);
+      return T.mimeType2Extension(mimeType);
     } else {
       // http OR https
       if (extension) { return extension }
       if (httpMimeType) {
-        return mimeType2Extension(httpMimeType);
+        return T.mimeType2Extension(httpMimeType);
       } else {
         const ext = T.getUrlExtension(url.href)
         if(ext) {
           return ext;
         } else {
           if(attrMimeType) {
-            return mimeType2Extension(attrMimeType);
+            return T.mimeType2Extension(attrMimeType);
           } else {
             return null;
           }
@@ -98,38 +98,6 @@ function getFileExtension(link, extension, mimeTypeData) {
     console.warn('mx-wc', e);
     return null;
   }
-}
-
-/*
- *
- * FIXME
- * The image formats supported by Firefox are:
- *
- * - JPEG
- * - GIF, including animated GIFs
- * - PNG
- * - APNG
- * - SVG
- * - BMP
- * BMP ICO
- * - PNG ICO
- * - WebP
- */
-function mimeType2Extension(mimeType) {
-  const ext = {
-    'text/plain'    : 'txt',
-    'text/css'      : 'css',
-    'image/gif'     : 'gif',
-    'image/apng'    : 'apng',
-    'image/png'     : 'png',
-    'image/bmp'     : 'bmp',
-    'image/x-ms-bmp': 'bmp',
-    'image/jpeg'    : 'jpg',
-    'image/svg+xml' : 'svg',
-    'image/x-icon'  : 'ico',
-    'image/webp'    : 'webp',
-  }[mimeType]
-  return ext;
 }
 
 const Asset = {

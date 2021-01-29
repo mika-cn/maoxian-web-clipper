@@ -1064,6 +1064,41 @@ T.retryAction = function(action, n = 3, errObjs = []) {
 // HTTP relative
 // ====================================
 
+// FIXME
+const MimeExtTable = [
+  ['text/plain'    , 'txt'],
+  ['text/css'      , 'css'],
+  ['image/png'     , 'png'],
+  ['image/jpeg'    , 'jpg'],
+  ['image/x-icon'  , 'ico'],
+  ['image/gif'     , 'gif'],
+  ['image/webp'    , 'webp'],
+  ['image/apng'    , 'apng'],
+  ['image/bmp'     , 'bmp'],
+  ['image/x-ms-bmp', 'bmp'],
+  ['image/svg+xml' , 'svg'],
+];
+
+T.mimeType2Extension = function(mimeType) {
+  if (!mimeType) return '';
+  for (let i = 0; i < MimeExtTable.length; i++) {
+    if (MimeExtTable[i][0] == mimeType) {
+      return MimeExtTable[i][1];
+    }
+  }
+  return '';
+}
+
+T.extension2MimeType = function(extension) {
+  if (!extension) return '';
+  for (let i = 0; i < MimeExtTable.length; i++) {
+    if (MimeExtTable[i][1] == extension) {
+      return MimeExtTable[i][0];
+    }
+  }
+  return '';
+}
+
 T.createResourceCache = function({size = 80}) {
 
   function addCacheDataReaders(cache) {

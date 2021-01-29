@@ -450,7 +450,7 @@ async function init(){
   WebRequest.listen();
 
 
-  Handler_Browser.init({Fetcher});
+  Handler_Browser.init(Object.assign({Fetcher}, {isChrome: MxWcLink.isChrome()}));
   Handler_NativeApp.init({Fetcher});
   Handler_WizNotePlus.init({Fetcher});
 
