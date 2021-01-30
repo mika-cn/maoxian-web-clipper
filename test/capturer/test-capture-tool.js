@@ -5,6 +5,7 @@ const win = jsdom.window;
 import H from '../helper.js';
 import DOMTool from '../../src/js/lib/dom-tool.js';
 import CaptureTool from '../../src/js/capturer/tool.js';
+import RequestParams from '../../src/js/lib/request-params.js';
 
 describe('CaptureTool', () => {
 
@@ -16,38 +17,40 @@ describe('CaptureTool', () => {
     }
 
     function getParams() {
+      const url = 'https://a.org/index.html';
       return {
-        baseUrl: 'https://a.org/index.html',
+        baseUrl: url,
         storageInfo: {
           assetFolder: 'category-a/clippings/assets',
           assetRelativePath: 'assets'
         },
         clipId: '001',
-        config: { saveCssImage: true }
+        config: { saveCssImage: true },
+        requestParams: RequestParams.createExample({refUrl: url}),
       }
     }
 
-    it('it should capture empty background', () => {
+    it('it should capture empty background', async () => {
       const node = getNode();
       const params = getParams();
-      const r = CaptureTool.captureBackgroundAttr(node, params);
+      const r = await CaptureTool.captureBackgroundAttr(node, params);
       H.assertEqual(r.tasks.length, 0);
     });
 
-    it('it should capture background', () => {
+    it('it should capture background', async () => {
       const node = getNode();
       node.setAttribute('background', 'assets/a.jpg');
       const params = getParams();
-      const r = CaptureTool.captureBackgroundAttr(node, params);
+      const r = await CaptureTool.captureBackgroundAttr(node, params);
       H.assertEqual(r.tasks.length, 1);
     });
 
-    it('it should not capture background if config is not true', () => {
+    it('it should not capture background if config is not true', async () => {
       const node = getNode();
       node.setAttribute('background', 'assets/a.jpg');
       const params = getParams();
       params.config.saveCssImage = false;
-      const r = CaptureTool.captureBackgroundAttr(node, params);
+      const r = await CaptureTool.captureBackgroundAttr(node, params);
       H.assertEqual(r.tasks.length, 0);
     });
 

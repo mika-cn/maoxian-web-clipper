@@ -12,9 +12,10 @@ import CapturerCss from './css.js';
  *   - {String} docUrl
  *   - {Object} storageInfo
  *   - {String} clipId
- *   - {Object} mimeTypeDict
  *   - {Object} cssRulesDict
  *   - {Object} config
+ *   - {Object} requestParams
+ *   - {Boolean} needFixStyle
  *
  */
 async function capture(node, opts) {

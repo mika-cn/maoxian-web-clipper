@@ -18,36 +18,82 @@ import T from './tool.js';
  * @see doGet()
  * @param {integer} tries - How many times we'll try (default 3)
  */
-
 function get(url, {respType = 'text', headers = {}, timeout = 40, tries = 3}) {
-  const action = function() {
-    return doGet(url, {respType, headers, timeout});
-  };
+  const action = function() { return doGet(url, {respType, headers, timeout}) };
   return T.retryAction(action, tries);
 }
 
 /*
+ * @see doHead()
+ * @param {integer} tries - How many times we'll try (default 3)
+ */
+function head(url, {headers = {}, timeout = 40, tries = 3}) {
+  const action = function() { return doHead(url, {headers, timeout}) };
+  return T.retryAction(action, tries);
+}
+
+/**
  * @param {String} url request url
- * @param {Object} options
- *   - {String} respType "text" or "blob"
- *   - {Object} headers http headers
- *   - {Integer} timeout (seconds)
+ * @param {Object} options (@see doXhr)
  *
- * @return {Promise} resolve with text or blob.
+ * @return {Promise} requesting : resolve with text or blob.
  */
 function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
-  const cache = state.Cache.get(url);
-  if (cache) {
-    const resp = cache.readAsResponse();
-    return resp[respType]();
-  }
+  return new Promise((resolve, reject) => {
+    const cache = state.Cache.get(url);
+    if (cache) {
+      const resp = cache.readAsResponse();
+      resp[respType]().then(resolve);
+    } else {
+      doXhr('GET', url, {respType, headers, timeout}).then((resp) => {
+        resp[respType]().then(resolve);
+      }, reject);
+    }
+  });
+}
+
+/**
+ * @param {String} url request url
+ * @param {Object} options (@see doXhr)
+ *
+ * @return {Promise} requesting : resolve with headers
+ */
+function doHead(url, {headers = {}, timeout = 40}) {
+  return new Promise((resolve, reject) => {
+    const cache = state.Cache.get(url);
+    if (cache) {
+      const resp = cache.readAsResponse({headersOnly: true});
+      resolve(resp.headers);
+    } else {
+      doXhr('HEAD', url, {headers, timeout}).then((resp) => {
+        resolve(resp.headers);
+      }, reject);
+    }
+    return
+  });
+}
+
+/**
+ * @param {String} method : 'GET' or 'HEAD'.
+ * @param {String} url request url
+ * @param {Object} options
+ *   - {Object} headers request headers
+ *   - {Integer} timeout (seconds)
+ *
+ * @return {Promise} resolve with a Response object.
+ *
+ */
+function doXhr(method, url, {headers = {}, timeout = 40}) {
+
   const requestHeaders = appendToken(escapeHeaders(headers));
 
   return new Promise((resolve, reject) => {
 
     const xhr = new XMLHttpRequest();
-    xhr.responseType = respType;
+    xhr.responseType = 'arraybuffer';
     xhr.timeout = timeout * 1000;
+    xhr.__loadedBytes = -1;
+    xhr.__totalBytes = -1;
 
     //
     // Ready State:
@@ -77,14 +123,16 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
     //    total              0           How many bytes total, Don't use it if lengthComputable is false.
     //
 
-    const generateErrMsg = function(prefix, xhr, e) {
+    const generateErrMsg = function(prefix, xhr) {
       const arr = [
         `[${prefix}]`, url,
         `readyState: ${xhr.readyState}`,
-        `loaded: ${e.loaded}`,
       ];
-      if (e.lengthComputable) {
-        arr.push(`total: ${e.total}`);
+      if (xhr.__loadedBytes > -1) {
+        arr.push(`loaded: ${xhr.__loadedBytes}`);
+      }
+      if (xhr.__totalBytes > -1) {
+        arr.push(`total: ${xhr.__totalBytes}`);
       }
       return arr.join(', ');
     }
@@ -94,8 +142,14 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
     // };
 
     // Progess event will be dispatched >= 1 times.
-    // xhr.onprogress = function(e) {
-    // };
+    xhr.onprogress = function(e) {
+      if (e.loaded && e.loaded > this.__loadedBytes) {
+        this.__loadedBytes = e.loaded;
+      }
+      if (e.lengthComputable && e.total && e.total > this.__totalBytes) {
+        this.__totalBytes = e.total;
+      }
+    };
 
     // After the last progress has been dispatched,
     // one of error, abort, timeout or load will be dispatched.
@@ -103,24 +157,27 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
 
     // fires when there is a failure on the network level.
     xhr.onerror = function(e) {
-      const msg = generateErrMsg('NetworkError', this, e);
+      const msg = generateErrMsg('NetworkError', this);
       console.warn('mx-wc', msg);
       reject({message: msg, retry: true});
     };
     xhr.onabort = function(e) {
-      const msg = generateErrMsg('Abort', this, e);
+      const msg = generateErrMsg('Abort', this);
       console.warn('mx-wc', msg);
       reject({message: msg, retry: false});
     };
     xhr.ontimeout = function(e) {
-      const msg = generateErrMsg('Timeout', this, e);
+      const msg = generateErrMsg('Timeout', this);
       console.warn('mx-wc', msg);
       reject({message: msg, retry: true});
     };
     xhr.onload = function(e) {
       if (this.status >= 200 && this.status < 300) {
         // 2xx
-        resolve(this.response);
+        const body = this.response;
+        const respHeaders = T.headerText2HeadersObj(this.getAllResponseHeaders())
+        const init = {status: this.status, statusText: this.statusText, headers: respHeaders};
+        resolve(new Response(body, init));
       } else {
         // XMLHttpRequest handles redirects automatically in the background,
         // So We don't need to handle it.
@@ -136,7 +193,7 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
     //  // After one of error, abort, timeout or load has been dispatched.
     //};
 
-    xhr.open('GET', url);
+    xhr.open(method, url);
     for (let name in requestHeaders) {
       xhr.setRequestHeader(name, requestHeaders[name]);
     }
@@ -144,6 +201,7 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
 
   });
 }
+
 
 // Forbidden header name (cannot be modified programmatically)
 // see https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name.html
@@ -174,4 +232,4 @@ function init({token, cache}) {
   state.Cache = cache;
 }
 
-export default {get, init};
+export default {init, get, head};

@@ -1,10 +1,11 @@
 "use strict";
 
-import Log       from  './lib/log.js';
-import T         from  './lib/tool.js';
-import ExtMsg    from  './lib/ext-msg.js';
-import MxWcEvent from  './lib/event.js';
-import Config    from  './lib/config.js';
+import Log           from './lib/log.js';
+import T             from './lib/tool.js';
+import ExtMsg        from './lib/ext-msg.js';
+import MxWcEvent     from './lib/event.js';
+import Config        from './lib/config.js';
+import RequestParams from './lib/request-params.js'
 
 import MxHtmlClipper     from './clipping/clip-as-html.js';
 import MxMarkdownClipper from './clipping/clip-as-markdown.js';
@@ -13,7 +14,7 @@ import MxWcAssistantMain from './assistant/main.js';
 
 /*
  * @param {Object} message: {
- *   fold, mimeTypeDict
+ *   type, body
  * }
  */
 function backgroundMessageHandler(message) {
@@ -46,13 +47,15 @@ function backgroundMessageHandler(message) {
 }
 
 function getParams(message) {
-  const {clipId, frames, storageInfo, mimeTypeDict, config} = message.body;
+  const {clipId, frames, storageInfo, config} = message.body;
 
-  const headerParams = {
-    refUrl: window.location.href,
-    userAgent: window.navigator.userAgent,
-    referrerPolicy: config.requestReferrerPolicy,
-  }
+  const requestParams = new RequestParams({
+    refUrl         : window.location.href,
+    userAgent      : window.navigator.userAgent,
+    referrerPolicy : config.requestReferrerPolicy,
+    timeout        : config.requestTimeout,
+    tries          : config.requestMaxTries,
+  });
 
   storageInfo.assetRelativePath = T.calcPath(
     storageInfo.frameFileFolder, storageInfo.assetFolder
@@ -65,10 +68,9 @@ function getParams(message) {
     elem: window.document.body,
     docUrl: window.location.href,
     baseUrl: window.document.baseURI,
-    mimeTypeDict: mimeTypeDict,
     parentFrameId: message.frameId,
     config: config,
-    headerParams: headerParams,
+    requestParams: requestParams,
     needFixStyle: false,
     win: window,
   }

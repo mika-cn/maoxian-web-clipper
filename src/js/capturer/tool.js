@@ -4,7 +4,7 @@ import T     from '../lib/tool.js';
 import Asset from '../lib/asset.js';
 import Task  from '../lib/task.js';
 
-function captureBackgroundAttr(node, {baseUrl, storageInfo, config, clipId, mimeTypeDict = {}}) {
+async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, requestParams, clipId}) {
   if (node.hasAttribute('background')) {
     const bg = node.getAttribute('background');
 
@@ -15,7 +15,8 @@ function captureBackgroundAttr(node, {baseUrl, storageInfo, config, clipId, mime
     }
     const {isValid, url, message} = T.completeUrl(bg, baseUrl);
     if (isValid) {
-      const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: mimeTypeDict[url]}, clipId);
+      const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
+      const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: httpMimeType}, clipId);
       const task = Task.createImageTask(filename, url, clipId);
       node.setAttribute('background', path);
       return {node: node, tasks: [task]};
@@ -33,7 +34,7 @@ function captureBackgroundAttr(node, {baseUrl, storageInfo, config, clipId, mime
  * and <source> element in <picture>
  * @return {Array} imagetasks
  */
-function captureImageSrcset(node, {baseUrl, storageInfo, clipId, mimeTypeDict = {}}) {
+async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, clipId }) {
   const srcset = node.getAttribute('srcset');
   const tasks = [];
   if (srcset) {
@@ -42,12 +43,15 @@ function captureImageSrcset(node, {baseUrl, storageInfo, clipId, mimeTypeDict = 
     if (node.tagName.toUpperCase() === 'SOURCE') {
       attrMimeType = node.getAttribute('type');
     }
-    const newSrcset = arr.map((item) => {
+    const newArr = [];
+    for (let i = 0; i < arr.length; i++) {
+      const item = arr[i];
       const [itemSrc] = item;
       const {isValid, url, message} = T.completeUrl(itemSrc, baseUrl);
       if (isValid) {
+        const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
         const {filename, path} = Asset.calcInfo(url, storageInfo, {
-          httpMimeType: mimeTypeDict[url],
+          httpMimeType: httpMimeType,
           attrMimeType: attrMimeType
         }, clipId);
         const task = Task.createImageTask(filename, url, clipId);
@@ -56,9 +60,9 @@ function captureImageSrcset(node, {baseUrl, storageInfo, clipId, mimeTypeDict = 
       } else {
         item[0] = 'invalid-url.png';
       }
-      return item.join(' ');
-    }).join(',');
-    node.setAttribute('srcset', newSrcset);
+      newArr.push(item.join(' '));
+    }
+    node.setAttribute('srcset', newArr.join(','));
   }
   return {node, tasks};
 }
@@ -118,86 +122,8 @@ function parseSrcset(srcset) {
   return result;
 }
 
-function getRequestHeaders(url, headerParams) {
-  const {refUrl, userAgent, referrerPolicy} = headerParams;
-  // Although browser will automatically set User-Agent
-  // but NativeApp won't.
-  // NativeApp needs to fake itself as a browser so
-  // that it won't be banned by server.
-  const headers = { 'User-Agent' : userAgent };
-
-  const referer = getReferrerHeader(
-    headerParams.refUrl, url,
-    headerParams.referrerPolicy
-  );
-
-  // $REMOVE_ME ? (see web-request.js for more details)
-
-  if (referer) {
-    headers['Referer'] = referer;
-  } else {
-    headers['Referer'] = '$REMOVE_ME';
-  }
-
-  const origin = getOriginHeader(refUrl, url);
-  if (origin) {
-    headers['Origin'] = origin;
-  } else {
-    headers['Origin'] = '$REMOVE_ME';
-  }
-
-  return headers;
-}
-
-/*
- * @param {String} policy - see <img>'s attribute referrerpolicy for details.
- */
-function getReferrerHeader(refUrl, targetUrl, policy) {
-  if (isDowngradeHttpRequest(refUrl, targetUrl)) {
-    // no-referrer-when-downgrade
-    return null;
-  }
-  switch (policy) {
-    case 'originWhenCrossOrigin':
-      const u = new URL(refUrl);
-      const t = new URL(targetUrl);
-      if (u.origin !== t.origin) {
-        return u.origin;
-      } else {
-        break;
-      }
-    case 'origin':
-      return (new URL(refUrl)).origin;
-    case 'noReferer':
-      return null;
-    case 'unsafeUrl':
-    default: break;
-  }
-
-  if (refUrl.indexOf('#') > 0) {
-    return refUrl.split('#')[0];
-  } else {
-    return refUrl;
-  }
-}
-
-function getOriginHeader(refUrl, targetUrl) {
-  if (isDowngradeHttpRequest(refUrl, targetUrl)) {
-    // not origin when downgrade request
-    return null;
-  }
-  const u = new URL(refUrl);
-  const t = new URL(targetUrl);
-  return u.origin === t.origin ? null : u.origin;
-}
-
-function isDowngradeHttpRequest(fromUrl, toUrl) {
-  return fromUrl.match(/^https:/i) && toUrl.match(/^http:/i)
-}
-
 export default {
   captureBackgroundAttr,
   captureImageSrcset,
   parseSrcset,
-  getRequestHeaders,
 };

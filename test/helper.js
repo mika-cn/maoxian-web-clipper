@@ -81,7 +81,6 @@ function assertReject(promise, validate) {
   );
 }
 
-
 module.exports = {
   depJs: depJs,
   depMockJs: depMockJs,

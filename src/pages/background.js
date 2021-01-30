@@ -23,6 +23,12 @@ import WebRequest    from '../js/background/web-request.js';
 
 const Global = { evTarget: new MxEvTarget() };
 
+function unknownMessageHandler(message, sender) {
+  return new Promise(function(resolve, reject) {
+    const error = new Error(`Unknown message: ${message.type}`);
+    reject(error);
+  })
+}
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
@@ -465,6 +471,7 @@ async function init(){
     Handler_NativeApp,
     Handler_WizNotePlus
   }, {evTarget: Global.evTarget}));
+  ExtMsg.listen('background', unknownMessageHandler);
 
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)

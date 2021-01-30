@@ -18,7 +18,7 @@ import CapturerCustomElement from '../capturer/custom-element.js';
 import StyleHelper           from './style-helper.js';
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, mimeTypeDict, frames, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
   Log.debug("html parser");
 
   const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
@@ -30,9 +30,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, m
     elem         : elem,
     docUrl       : win.location.href,
     baseUrl      : win.document.baseURI,
-    mimeTypeDict : mimeTypeDict,
     config       : config,
-    headerParams : headerParams,
+    requestParams : requestParams,
     needFixStyle : !isBodyElem,
     win          : win,
   });
@@ -51,9 +50,9 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, m
   tasks.push(mainFileTask);
 
   return Task.changeUrlTask(tasks, (task) => {
-    task.headers = CaptureTool.getRequestHeaders(task.url, headerParams);
-    task.timeout = config.requestTimeout;
-    task.tries = config.requestMaxTries;
+    task.headers = requestParams.getHeaders(task.url);
+    task.timeout = requestParams.timeout;
+    task.tries   = requestParams.tries;
   });
 }
 
@@ -67,10 +66,9 @@ async function getElemHtml(params){
     elem,
     baseUrl,
     docUrl,
-    mimeTypeDict,
     parentFrameId = topFrameId,
     config,
-    headerParams,
+    requestParams,
     needFixStyle,
     win,
   } = params;
@@ -229,13 +227,12 @@ async function captureNode(node, params) {
     elem,
     baseUrl,
     docUrl,
-    mimeTypeDict,
     cssRulesDict,
     customElementHtmlDict = {},
     customElementStyleDict = {},
     parentFrameId = topFrameId,
     config,
-    headerParams,
+    requestParams,
     needFixStyle,
     win,
     doc,
@@ -246,20 +243,20 @@ async function captureNode(node, params) {
   switch (node.tagName.toUpperCase()) {
     case 'LINK':
       opts = {baseUrl, docUrl, storageInfo, clipId,
-        mimeTypeDict, config, headerParams, needFixStyle};
+        config, requestParams, needFixStyle};
       r = await CapturerLink.capture(node, opts);
       break;
     case 'STYLE':
       opts = {baseUrl, docUrl, storageInfo, clipId,
-        mimeTypeDict, cssRulesDict, config, headerParams, needFixStyle};
+        cssRulesDict, config, requestParams, needFixStyle};
       r = await CapturerStyle.capture(node, opts);
       break;
     case 'PICTURE':
-      opts = {baseUrl, storageInfo, clipId, mimeTypeDict};
+      opts = {baseUrl, storageInfo, clipId, requestParams};
       r = await CapturerPicture.capture(node, opts);
       break;
     case 'IMG':
-      opts = {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict};
+      opts = {saveFormat, baseUrl, storageInfo, clipId, requestParams};
       r = await CapturerImg.capture(node, opts);
       break;
     case 'A':
@@ -271,8 +268,8 @@ async function captureNode(node, params) {
     case 'TH':
     case 'TD':
       // background attribute (deprecated since HTML5)
-      opts = {baseUrl, storageInfo, config, clipId, mimeTypeDict};
-      r = CaptureTool.captureBackgroundAttr(node, opts);
+      opts = {baseUrl, storageInfo, config, clipId, requestParams};
+      r = await CaptureTool.captureBackgroundAttr(node, opts);
       break;
     case 'AUDIO':
     case 'VEDIO':
@@ -287,7 +284,7 @@ async function captureNode(node, params) {
     case 'IFRAME':
     case 'FRAME':
       opts = {saveFormat, baseUrl, doc, storageInfo,
-        clipId, mimeTypeDict, config, parentFrameId, frames};
+        clipId, config, parentFrameId, frames};
       r = await CapturerIframe.capture(node, opts);
       break;
     default:
@@ -317,7 +314,7 @@ async function captureNode(node, params) {
           text: attr.value
         }, {
           baseUrl, docUrl, storageInfo, clipId,
-          mimeTypeDict, config, headerParams,
+          config, requestParams,
           needFixStyle
         })
       );

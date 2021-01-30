@@ -35,7 +35,7 @@ describe("Asset", () => {
       httpMimeType: 'image/jpeg',
       attrMimeType: 'image/png'
     }});
-    H.assertMatch(name, /^[^\.\/]+\.jpg$/);
+    H.assertMatch(name, /^[^\.\/]+\.bmp$/);
   });
 
   it("getNameByLink: with attrMimeType", () => {

@@ -22,13 +22,12 @@ import Template from '../lib/template.js';
  *   - {Object} storageInfo
  *   - {Document} doc
  *   - {Array} frames
- *   - {Object} mimeTypeDict
  *   - {Object} config
  */
 
 async function capture(node, opts) {
   const {parentFrameId, baseUrl, clipId, saveFormat,
-    storageInfo, doc, frames, mimeTypeDict, config} = opts;
+    storageInfo, doc, frames, config} = opts;
   const srcdoc = node.getAttribute('srcdoc');
   const src = node.getAttribute('src');
   const tasks = [];
@@ -94,7 +93,7 @@ async function capture(node, opts) {
       frameId: frame.frameId,
       frameUrl: frame.url,
       body: { clipId, frames, storageInfo,
-        mimeTypeDict, config }
+        config }
     });
 
     if (fromCache) {
