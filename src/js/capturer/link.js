@@ -41,6 +41,11 @@ async function capture(node, opts) {
   // Link types are case-insensitive.
   const linkTypes = rel.toLowerCase().split(/\s+/);
 
+  if (linkTypes.indexOf('preload') > -1) {
+    node.setAttribute('data-mx-ignore-me', 'true');
+    return {node, tasks};
+  }
+
   if (linkTypes.indexOf('stylesheet') > -1) {
     return await captureStylesheet({node, linkTypes, href, opts});
   } else if (linkTypes.length === 1) {

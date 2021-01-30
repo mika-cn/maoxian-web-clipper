@@ -121,5 +121,13 @@ describe('Capture link', () => {
     H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
   });
 
+  it('should not capture links with rel="preload"', async() => {
+    const html = '<link rel="preload" href="style-A.css">';
+    const {node, params} = initTest(html);
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 0);
+    H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
+  });
+
 
 });
