@@ -2,6 +2,31 @@
 
 import T   from './tool.js';
 import md5 from 'blueimp-md5';
+import ExtMsg from './ext-msg.js';
+
+// params: {:url, :headers, :timeout, :tries}
+async function getHttpMimeType(params) {
+  try {
+    if (T.isDataUrl(params.url) || T.isUrlHasFileExtension(params.url)) {
+      // in these cases, we don't need mimeType.
+      return null;
+    }
+    const mimeType = await ExtMsg.sendToBackend('clipping', {
+      type: 'get.mimeType',
+      body: params
+    });
+
+    if ('__EMPTY__' === mimeType) {
+      return null;
+    } else {
+      return mimeType;
+    }
+  } catch(e) {
+    console.error(e);
+    console.trace();
+    return null;
+  }
+}
 
 // link http:, https: or data:
 function getNameByLink({link, extension, mimeTypeData, prefix}) {
@@ -69,7 +94,7 @@ function getFileExtension(link, extension, mimeTypeData) {
     // mime type that get from attribute of HTML tag.
     attrMimeType
   } = (mimeTypeData || {});
-  try{
+  try {
     let url = new URL(link);
     if (url.protocol === 'data:') {
       //data:[<mediatype>][;base64],<data>
@@ -78,19 +103,13 @@ function getFileExtension(link, extension, mimeTypeData) {
     } else {
       // http OR https
       if (extension) { return extension }
-      if (httpMimeType) {
-        return T.mimeType2Extension(httpMimeType);
+      const urlExt = T.getUrlExtension(url.href)
+      if (urlExt) {
+        return urlExt;
       } else {
-        const ext = T.getUrlExtension(url.href)
-        if(ext) {
-          return ext;
-        } else {
-          if(attrMimeType) {
-            return T.mimeType2Extension(attrMimeType);
-          } else {
-            return null;
-          }
-        }
+        if(httpMimeType) { return T.mimeType2Extension(httpMimeType); }
+        if(attrMimeType) { return T.mimeType2Extension(attrMimeType); }
+        return null;
       }
     }
   } catch(e) {
@@ -100,12 +119,11 @@ function getFileExtension(link, extension, mimeTypeData) {
   }
 }
 
-const Asset = {
-  getNameByLink: getNameByLink,
-  getNameByContent: getNameByContent,
-  getFilename: getFilename,
-  getPath: getPath,
-  calcInfo: calcInfo,
+export default {
+  getHttpMimeType,
+  getNameByLink,
+  getNameByContent,
+  getFilename,
+  getPath,
+  calcInfo,
 }
-
-export default Asset;

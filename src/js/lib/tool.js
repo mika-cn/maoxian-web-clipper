@@ -826,6 +826,26 @@ T.createCounter = function() {
 };
 
 
+T.createMarker = function(start) {
+  return {
+    idx: (start || -1),
+    values: [],
+    template: "@[[INDEX]]",
+    reReplace: /@\[\[(\d+)\]\]/mg,
+    next: function() {
+      return this.template.replace('INDEX', ++this.idx);
+    },
+    replaceBack: function(str, replacements) {
+      const This = this;
+      return str.replace(this.reReplace, (match, p1) => {
+        const index = parseInt(p1);
+        return replacements[index];
+      });
+    }
+  }
+}
+
+
 // max value key
 T.maxValueKey = function(numValueObj){
   let maxk = null;
@@ -1119,8 +1139,8 @@ T.createResourceCache = function({size = 80}) {
         const mimeType = T.resourceType2MimeType(this.resourceType);
         return new Blob([this.data], {type: mimeType});
       },
-      readAsResponse: function() {
-        // forbidden response header name
+      readAsResponse: function(opts = {}) {
+        const {headersOnly = false} = opts;
         const blackList = ['set-cookie', 'set-cookie2'];
         const headers = new Headers();
         this.responseHeaders.forEach(({name, value}) => {
@@ -1128,8 +1148,9 @@ T.createResourceCache = function({size = 80}) {
             headers.append(name, value);
           }
         });
-        const init = {"status": 200, "statusText": "OK", "headers": headers};
-        return new Response(this.data, init);
+        const init = {status: 200, statusText: "OK", headers: headers};
+        const body = (headersOnly ? "" : this.data);
+        return new Response(body, init);
       },
     };
     return Object.assign({}, cache, readers);
@@ -1194,6 +1215,33 @@ T.getHeader = function(headers, name) {
     // some server's header name is lower case ... (fixit)
     return header.name.toLowerCase() === name;
   })
+}
+
+/**
+ * @param {String} headerText:
+ *   "date: Thu, 07 Jan 2021 07:21:53 GMT
+ *   content-length: 70441
+ *   content-type: image/png"
+ * @return {Object} Headers object
+ *
+ */
+T.headerText2HeadersObj = function(headerText) {
+  const headers = new Headers();
+  headerText.split(/\n+/).forEach((line) => {
+    if (line.match(/^\S*$/)) {
+      // empty line
+    } else {
+      try {
+        const idx = line.indexOf(':');
+        const name = line.substring(0, idx).trim();
+        const value = line.substring(idx + 1).trim();
+        headers.append(name, value);
+      } catch (e) {
+        // invalid header name.
+      }
+    }
+  });
+  return headers;
 }
 
 /**

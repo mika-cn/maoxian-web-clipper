@@ -7,6 +7,14 @@ WebRequest.init({requestToken: REQUEST_TOKEN});
 
 describe('WebRequest', () => {
 
+  function getRedirectionEvDetails(resourceType, url, targetUrl) {
+    return {
+      type: resourceType,
+      url: url,
+      redirectUrl: targetUrl,
+    }
+  }
+
   describe('StoreRedirection', () => {
 
     it('should store redirection', () => {
@@ -15,7 +23,7 @@ describe('WebRequest', () => {
       const originalUrl = 'http://a.org/image';
       const targetUrl = 'https://a.org/image.jpg';
 
-      const evDetails = getEvDetails('image', originalUrl, targetUrl);
+      const evDetails = getRedirectionEvDetails('image', originalUrl, targetUrl);
       StoreRedirection.perform(evDetails);
 
       const dict = StoreRedirection.getRedirectionDict();
@@ -29,8 +37,8 @@ describe('WebRequest', () => {
       const middleUrl = 'https://a.org/middle';
       const targetUrl = 'https://a.org/final';
 
-      const evDetailsA = getEvDetails('sub_frame', originalUrl, middleUrl);
-      const evDetailsB = getEvDetails('sub_frame', middleUrl, targetUrl);
+      const evDetailsA = getRedirectionEvDetails('sub_frame', originalUrl, middleUrl);
+      const evDetailsB = getRedirectionEvDetails('sub_frame', middleUrl, targetUrl);
 
       StoreRedirection.perform(evDetailsA);
       StoreRedirection.perform(evDetailsB);
@@ -39,13 +47,6 @@ describe('WebRequest', () => {
       H.assertEqual(dict[originalUrl], targetUrl);
     });
 
-    function getEvDetails(resourceType, url, targetUrl) {
-      return {
-        type: resourceType,
-        url: url,
-        redirectUrl: targetUrl,
-      }
-    }
   });
 
   describe('StoreMimeType', () => {
@@ -58,20 +59,31 @@ describe('WebRequest', () => {
         {'Content-Type': 'image/png'}
       );
       StoreMimeType.emit(details);
-      const dict = StoreMimeType.getMimeTypeDict();
-      H.assertEqual(dict[url], 'image/png');
+      const v = StoreMimeType.getMimeType(url);
+      H.assertEqual(v, 'image/png');
     });
 
-    it('should not store mimeType if request url has file extension', () => {
-      const {StoreMimeType} = WebRequest;
+
+    it('should store mimeType if request url is a redirection target', () => {
+
+      // perform redirection
+      const {StoreMimeType, StoreRedirection} = WebRequest;
+      StoreRedirection.init();
+      const originalUrl = 'http://a.org/image';
+      const targetUrl = 'https://a.org/image.jpg';
+
+      const evDetails = getRedirectionEvDetails('image', originalUrl, targetUrl);
+      StoreRedirection.perform(evDetails);
+
+
       StoreMimeType.init();
-      const url = 'https://a.org/image.png';
-      const details = getDetails('200', url,
+      const details = getDetails('200', targetUrl,
         {'Content-Type': 'image/png'}
       );
       StoreMimeType.emit(details);
-      const dict = StoreMimeType.getMimeTypeDict();
-      H.assertEqual(dict[url], undefined);
+      const v = StoreMimeType.getMimeType(originalUrl);
+      H.assertEqual(v, 'image/png');
+
     });
 
 

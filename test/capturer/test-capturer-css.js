@@ -6,13 +6,15 @@ import H from '../helper.js';
 import DOMTool from '../../src/js/lib/dom-tool.js';
 
 import Capturer from '../../src/js/capturer/css.js';
+import RequestParams from '../../src/js/lib/request-params.js';
 
 const ExtMsg = H.depMockJs('ext-msg.js');
 ExtMsg.initBrowser(browser);
 
 function getParams() {
+  const url = 'https://a.org/index.html';
   return {
-    docUrl: 'https://a.org/index.html',
+    docUrl: url,
     storageInfo: {
       assetFolder: 'category-a/clippings/assets',
       assetRelativePath: 'assets'
@@ -22,12 +24,7 @@ function getParams() {
       saveWebFont: false,
       saveCssImage: false
     },
-    headerParams: {
-      refUrl: 'https://a.org/index.html',
-      origin: 'https://a.org',
-      userAgent: 'ua',
-      referrerPolicy: 'origin',
-    },
+    requestParams: RequestParams.createExample({refUrl: url}),
     needFixStyle: false,
   }
 }

@@ -73,6 +73,22 @@
     });
   }
 
+  function mockGetMimeType(result) {
+    mock('get.mimeType', (msg, state) => {
+      return Promise.resolve(result);
+    });
+  }
+
+  function mockMsgResult(type, result, isResolved = true) {
+    mock(type, (msg, state) => {
+      if (isResolved) {
+        return Promise.resolve(result);
+      } else {
+        return Promise.reject(result);
+      }
+    });
+  }
+
 
   function clearMocks() {
     handlers = {};
@@ -82,6 +98,7 @@
   module.exports = {
     initBrowser,
     clearMocks,
+    mockMsgResult,
     mockFetchTextStatic,
     mockFetchTextUrls,
     mockFrameToHtmlStatic,

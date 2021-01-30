@@ -18,19 +18,17 @@ import CaptureTool from './tool.js';
  *   - {String} baseUrl
  *   - {String} clipId
  *   - {Object} storageInfo
- *   - {Object} mimeTypeDict
+ *   - {Object} requestParams
  *
  */
-function capture(node, opts) {
-  const {baseUrl, clipId, storageInfo, mimeTypeDict = {}} = opts;
-
+async function capture(node, opts) {
   const tasks = [];
 
   const sourceNodes = node.querySelectorAll('source');
-  [].forEach.call(sourceNodes, (sourceNode) => {
-    const {tasks: sourceTasks} = CaptureTool.captureImageSrcset(sourceNode, opts);
+  for (let i = 0; i < sourceNodes.length; i++) {
+    const {tasks: sourceTasks} = await CaptureTool.captureImageSrcset(sourceNodes[i], opts);
     tasks.push(...sourceTasks);
-  });
+  }
   return {node, tasks};
 }
 

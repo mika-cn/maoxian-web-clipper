@@ -131,7 +131,7 @@ const StoreMimeType = (function() {
     const {statusCode} = parseResponseStatusLine(details.statusLine);
     if(statusCode === '200') {
       const headers = details.responseHeaders;
-      const mimeType = getMimeType(headers)
+      const mimeType = findMimeTypeFromHeaders(headers)
       if(['text/html', 'text/plain'].indexOf(mimeType) > -1){
         ExtMsg.sendToContent({type: "page_content.changed"});
       }
@@ -161,34 +161,40 @@ const StoreMimeType = (function() {
 
 
   function initMimeTypeStore(){
+    const size = 300;
     return {
-      dict: {},
+      dict: T.createMRUCache(size),
       add(url, responseHeaders) {
         if (StoreRedirection.isTarget(url)
           || !T.isUrlHasFileExtension(url)
         ) {
-          const mimeType = getMimeType(responseHeaders);
-          if(mimeType){
-            this.dict[url] = mimeType;
-          }else{
-            Log.warn("MimeType empty: ", url)
-          }
+          this.dict.add(url, findMimeTypeFromHeaders(responseHeaders));
         }
+      },
+      get(url) {
+        return this.dict.get(url);
       }
     };
   }
 
-  function getMimeType(headers){
+  /**
+   * find mimeType from response headers.
+   *
+   * @param {Array} headers
+   *        - {Object} header {:name, :value}
+   * @return {String} mimeType or '__EMPTY__'
+   */
+  function findMimeTypeFromHeaders(headers){
     const header = T.getHeader(headers, 'content-type');
     // [firefox]
     //  will trigger two times sameUrl(notAll);
     //  one with Content-Type head, anotherOne is not
     // [Strange] attension or bug...
     // fixit.
-    if(header){
+    if (header) {
       return T.parseContentType(header.value).mimeType;
-    }else{
-      return null;
+    } else {
+      return '__EMPTY__';
     }
   }
 
@@ -214,19 +220,16 @@ const StoreMimeType = (function() {
     );
   }
 
-  function getMimeTypeDict() {
-    const mimeTypeDict = Object.assign({}, state.mimeTypeStore.dict);
-    const redirectionDict = StoreRedirection.getRedirectionDict('image');
-    for (let url in redirectionDict) {
-      const targetUrl = redirectionDict[url];
-      mimeTypeDict[url] = mimeTypeDict[targetUrl];
-    }
-    return mimeTypeDict;
+  // WARNING We don't handle data url in this function
+  function getMimeType(url) {
+    const redirectionDict = StoreRedirection.getRedirectionDict('all');
+    const targetUrl = redirectionDict[url];
+    return state.mimeTypeStore.get(targetUrl || url);
   }
 
   return {
     listen: listen,
-    getMimeTypeDict: getMimeTypeDict,
+    getMimeType: getMimeType,
     // test only
     init: init,
     emit: listener,
@@ -450,8 +453,8 @@ function listen() {
   StoreResource.listen();
 }
 
-function getMimeTypeDict() {
-  return StoreMimeType.getMimeTypeDict();
+function getMimeType(url) {
+  return StoreMimeType.getMimeType(url);
 }
 
 function getRedirectionDict(resourceType = 'all') {
@@ -477,7 +480,7 @@ function init(global) {
 const WebRequest = {
   init,
   listen,
-  getMimeTypeDict,
+  getMimeType,
   getRedirectionDict,
   // test only
   StoreRedirection,

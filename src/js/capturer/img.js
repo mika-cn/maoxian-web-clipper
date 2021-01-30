@@ -17,11 +17,11 @@ import CaptureTool from './tool.js';
  *   - {String} baseUrl
  *   - {String} clipId
  *   - {Object} storageInfo
- *   - {Object} mimeTypeDict
+ *   - {Object} requestParams
  *
  */
-function capture(node, opts) {
-  const {saveFormat, baseUrl, clipId, storageInfo, mimeTypeDict = {}} = opts;
+async function capture(node, opts) {
+  const {saveFormat, baseUrl, clipId, storageInfo, requestParams} = opts;
   const tasks = [];
 
   node.removeAttribute('crossorigin');
@@ -31,7 +31,8 @@ function capture(node, opts) {
   const src = node.getAttribute('src');
   const {isValid, url, message} = T.completeUrl(src, baseUrl);
   if (isValid) {
-    const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: mimeTypeDict[url]}, clipId);
+    const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
+    const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: httpMimeType}, clipId);
     const task = Task.createImageTask(filename, url, clipId);
     node.setAttribute('src', path);
     tasks.push(task);
@@ -43,7 +44,7 @@ function capture(node, opts) {
 
   // handle srcset
   if (saveFormat === 'html') {
-    const r = CaptureTool.captureImageSrcset(node, opts);
+    const r = await CaptureTool.captureImageSrcset(node, opts);
     node = r.node;
     tasks.push(...r.tasks);
   }
