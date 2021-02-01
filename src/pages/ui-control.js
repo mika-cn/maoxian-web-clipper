@@ -398,6 +398,10 @@ async function showForm(params){
         sort: sortByOrder,
       })
       if(category === ''){
+        if (config.autoInputLastCategory && v.length > 0) {
+          categoryInput.value = v[0];
+          categoryInput.select();
+        }
         categoryInput.focus();
       }
     })

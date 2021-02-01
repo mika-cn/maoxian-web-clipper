@@ -85,6 +85,11 @@ function initSettingGeneral(config) {
   );
 
   initCheckboxInput(config,
+    'auto-input-last-category',
+    'autoInputLastCategory',
+  );
+
+  initCheckboxInput(config,
     'remember-selection',
     'rememberSelection',
   );
