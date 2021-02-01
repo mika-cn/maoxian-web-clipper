@@ -209,6 +209,7 @@
     "label.hotkey-switch-enabled-input": "Enable hotkey `c` (clip switch)",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
     "label.input-field-save-format-enabled": "Enable selecting save format in form",
+    "label.auto-input-last-category": "Auto input the last category",
     "label.remember-selection-input": "Remember selection and try to apply it next time",
     "label.autogenerate-clipping-js-input": "Autogenerate javascript file",
     "label.not-generated-yet": "Not generated yet",
