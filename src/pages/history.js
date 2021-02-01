@@ -356,13 +356,16 @@ async function initSearch(){
     }
   })
 
+  const sortByOrder = function(a, b) { return 1 }
   const categoryInput = T.findElem('category')
   const aotoCompleteCategory = new Awesomplete(
     categoryInput,
     {
       autoFirst: true,
       minChars: 1,
-      list: state.categories
+      maxItems: 10000,
+      list: state.categories,
+      sort: sortByOrder,
     }
   );
 
@@ -373,7 +376,9 @@ async function initSearch(){
     {
       autoFirst: true,
       minChars: 1,
-      list: state.tags
+      maxItems: 10000,
+      list: state.tags,
+      sort: sortByOrder,
     }
   );
 

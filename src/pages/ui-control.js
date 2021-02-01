@@ -387,12 +387,15 @@ async function showForm(params){
   categoryInput.value= category;
   tagstrInput.value = tagstr;
   MxWc.form.clearAutoComplete();
+  const sortByOrder = function(a, b) { return 1 }
   MxWcStorage.get('categories', [])
     .then((v) => {
       MxWc.form.categoryAutoComplete = new Lib.Awesomplete(categoryInput, {
         autoFirst: true,
         minChars: 1,
-        list: v
+        maxItems: 10000,
+        list: v,
+        sort: sortByOrder,
       })
       if(category === ''){
         categoryInput.focus();
@@ -403,7 +406,9 @@ async function showForm(params){
       MxWc.form.tagstrAutoComplete =  new Lib.Awesomplete(tagstrInput, {
         autoFirst: true,
         minChars: 1,
+        maxItems: 10000,
         list: v,
+        sort: sortByOrder,
         filter: function(text, input) {
           return Lib.Awesomplete.FILTER_CONTAINS(text, input.match(/[^ ,，]*$/)[0]);
         },

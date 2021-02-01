@@ -277,6 +277,7 @@ function saveCategory(msg){
     .then((v) => {
       v = T.remove(v, category);
       v.unshift(category);
+
       MxWcStorage.set('categories', v);
     })
 }
