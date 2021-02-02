@@ -39,7 +39,7 @@ function getDefault(){
     hotkeySwitchEnabled: false,
     mouseModeEnabled: false,
     inputFieldSaveFormatEnabled: false,
-    autoInputLastCategory: false,
+    autoInputLastCategory: true,
     rememberSelection: false,
 
     allowFileSchemeAccess: false,

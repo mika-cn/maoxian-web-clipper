@@ -43,7 +43,7 @@ const ConfigMigration = {};
 // 1.3 => 1.4
 ConfigMigration['1.3'] = function(config) {
   config.version = '1.4';
-  config.autoInputLastCategory = false;
+  config.autoInputLastCategory = true;
   return config;
 }
 
