@@ -356,31 +356,33 @@ async function initSearch(){
     }
   })
 
-  const sortByOrder = function(a, b) { return 1 }
+  const doNotSort = function(a, b) { return 0 };
   const categoryInput = T.findElem('category')
-  const aotoCompleteCategory = new Awesomplete(
+  const autoCompleteCategory = new Awesomplete(
     categoryInput,
     {
       autoFirst: true,
       minChars: 1,
       maxItems: 10000,
       list: state.categories,
-      sort: sortByOrder,
+      sort: doNotSort,
     }
   );
+  autoCompleteCategory.ul.setAttribute('tabindex', '-1');
 
 
   const tagInput = T.findElem('tag');
-  const aotoCompleteTag = new Awesomplete(
+  const autoCompleteTag = new Awesomplete(
     tagInput,
     {
       autoFirst: true,
       minChars: 1,
       maxItems: 10000,
       list: state.tags,
-      sort: sortByOrder,
+      sort: doNotSort,
     }
   );
+  autoCompleteTag.ul.setAttribute('tabindex', '-1');
 
   initSearchListeners();
 }
