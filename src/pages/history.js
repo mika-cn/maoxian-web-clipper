@@ -338,7 +338,7 @@ async function initSearch(){
   search.value = await cacheGet('search.keyword', '');
 
   //created_at
-  const i18n = getPikadayI18n(ExtApi.locale);
+  const i18n = getPikadayI18n(ExtApi.getLocale());
   const pickerA = new Pikaday({
     field: T.findElem('created-at-from'),
     i18n: i18n,
@@ -356,26 +356,33 @@ async function initSearch(){
     }
   })
 
+  const doNotSort = function(a, b) { return 0 };
   const categoryInput = T.findElem('category')
-  const aotoCompleteCategory = new Awesomplete(
+  const autoCompleteCategory = new Awesomplete(
     categoryInput,
     {
       autoFirst: true,
       minChars: 1,
-      list: state.categories
+      maxItems: 10000,
+      list: state.categories,
+      sort: doNotSort,
     }
   );
+  autoCompleteCategory.ul.setAttribute('tabindex', '-1');
 
 
   const tagInput = T.findElem('tag');
-  const aotoCompleteTag = new Awesomplete(
+  const autoCompleteTag = new Awesomplete(
     tagInput,
     {
       autoFirst: true,
       minChars: 1,
-      list: state.tags
+      maxItems: 10000,
+      list: state.tags,
+      sort: doNotSort,
     }
   );
+  autoCompleteTag.ul.setAttribute('tabindex', '-1');
 
   initSearchListeners();
 }

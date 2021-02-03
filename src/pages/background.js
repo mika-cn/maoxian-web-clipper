@@ -23,6 +23,12 @@ import WebRequest    from '../js/background/web-request.js';
 
 const Global = { evTarget: new MxEvTarget() };
 
+function unknownMessageHandler(message, sender) {
+  return new Promise(function(resolve, reject) {
+    const error = new Error(`Unknown message: ${message.type}`);
+    reject(error);
+  })
+}
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
@@ -271,6 +277,7 @@ function saveCategory(msg){
     .then((v) => {
       v = T.remove(v, category);
       v.unshift(category);
+
       MxWcStorage.set('categories', v);
     })
 }
@@ -450,7 +457,7 @@ async function init(){
   WebRequest.listen();
 
 
-  Handler_Browser.init({Fetcher});
+  Handler_Browser.init(Object.assign({Fetcher}, {isChrome: MxWcLink.isChrome()}));
   Handler_NativeApp.init({Fetcher});
   Handler_WizNotePlus.init({Fetcher});
 
@@ -465,6 +472,7 @@ async function init(){
     Handler_NativeApp,
     Handler_WizNotePlus
   }, {evTarget: Global.evTarget}));
+  ExtMsg.listen('background', unknownMessageHandler);
 
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)

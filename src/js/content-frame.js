@@ -1,10 +1,11 @@
 "use strict";
 
-import Log       from  './lib/log.js';
-import T         from  './lib/tool.js';
-import ExtMsg    from  './lib/ext-msg.js';
-import MxWcEvent from  './lib/event.js';
-import Config    from  './lib/config.js';
+import Log           from './lib/log.js';
+import T             from './lib/tool.js';
+import ExtMsg        from './lib/ext-msg.js';
+import MxWcEvent     from './lib/event.js';
+import Config        from './lib/config.js';
+import RequestParams from './lib/request-params.js'
 
 import MxHtmlClipper     from './clipping/clip-as-html.js';
 import MxMarkdownClipper from './clipping/clip-as-markdown.js';
@@ -13,7 +14,7 @@ import MxWcAssistantMain from './assistant/main.js';
 
 /*
  * @param {Object} message: {
- *   fold, mimeTypeDict
+ *   type, body
  * }
  */
 function backgroundMessageHandler(message) {
@@ -23,34 +24,38 @@ function backgroundMessageHandler(message) {
     // what if the frame src atribute is not exist
     // it's content set by srcdoc attribute
     //
-    // Actually, this message is sent to this frame
-    // by background.js
-    // Maybe it's safe to remove this "if".
-    //
-    if (message.frameUrl === window.location.href) {
-      switch (message.type) {
-        case 'frame.toHtml':
-          MxHtmlClipper.getElemHtml(getParams(message)).then((result) => {
-            result.title = window.document.title;
-            resolve(result);
-          });
-          break;
-        case 'frame.toMd':
-          MxMarkdownClipper.getElemHtml(getParams(message)).then(resolve);
-          break;
-      }
+    switch (message.type) {
+      case 'broadcast-event.public':
+        MxWcEvent.extMsgReceived(message.body, {isInternal: false});
+        resolve();
+        break;
+      case 'broadcast-event.internal':
+        MxWcEvent.extMsgReceived(message.body, {isInternal: true});
+        resolve();
+        break;
+      case 'frame.toHtml':
+        MxHtmlClipper.getElemHtml(getParams(message)).then((result) => {
+          result.title = window.document.title;
+          resolve(result);
+        });
+        break;
+      case 'frame.toMd':
+        MxMarkdownClipper.getElemHtml(getParams(message)).then(resolve);
+        break;
     }
   });
 }
 
 function getParams(message) {
-  const {clipId, frames, storageInfo, mimeTypeDict, config} = message.body;
+  const {clipId, frames, storageInfo, config} = message.body;
 
-  const headerParams = {
-    refUrl: window.location.href,
-    userAgent: window.navigator.userAgent,
-    referrerPolicy: config.requestReferrerPolicy,
-  }
+  const requestParams = new RequestParams({
+    refUrl         : window.location.href,
+    userAgent      : window.navigator.userAgent,
+    referrerPolicy : config.requestReferrerPolicy,
+    timeout        : config.requestTimeout,
+    tries          : config.requestMaxTries,
+  });
 
   storageInfo.assetRelativePath = T.calcPath(
     storageInfo.frameFileFolder, storageInfo.assetFolder
@@ -63,26 +68,12 @@ function getParams(message) {
     elem: window.document.body,
     docUrl: window.location.href,
     baseUrl: window.document.baseURI,
-    mimeTypeDict: mimeTypeDict,
     parentFrameId: message.frameId,
     config: config,
-    headerParams: headerParams,
+    requestParams: requestParams,
     needFixStyle: false,
     win: window,
   }
-}
-
-function listenFrameMessage() {
-  MxWcEvent.initFrameMsg({
-    id: window.location.href,
-    origin: window.location.origin
-  });
-  MxWcEvent.handleBroadcastInternal();
-  Config.load().then((config) => {
-    if (config.communicateWithThirdParty) {
-      MxWcEvent.handleBroadcastPublic();
-    }
-  });
 }
 
 function initMxWcAssistant() {
@@ -107,7 +98,7 @@ function init() {
         // Iframe
         initMxWcAssistant();
         ExtMsg.listen('content-frame', backgroundMessageHandler);
-        listenFrameMessage();
+        MxWcEvent.init(ExtMsg);
       }
     } else {
       // feed or others

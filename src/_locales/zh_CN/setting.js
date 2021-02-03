@@ -184,6 +184,8 @@
     // label
     "label.storage-folder": "存储目录",
     "label.storage-filename": "文件名",
+    "label.save-info-file-input": "保存元信息文件",
+    "label.save-info-file-link": "（如何修改?）",
     "label.save-title-file-input": "保存标题文件",
 
     "label.enable-handler": "启用该处理程序",
@@ -203,6 +205,7 @@
     "label.hotkey-switch-enabled-input": "启用快捷键 `c` (裁剪开关)",
     "label.mouse-mode-enabled-input": "鼠标友好模式",
     "label.input-field-save-format-enabled": "启用表单上的格式选择",
+    "label.auto-input-last-category": "自动输入上次使用的目录",
     "label.remember-selection-input": "记住选区，并在下次尝试自动选中",
     "label.autogenerate-clipping-js-input": "自动生成脚本文件",
     "label.not-generated-yet": "还没有生成过",

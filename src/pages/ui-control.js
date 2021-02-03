@@ -387,14 +387,23 @@ async function showForm(params){
   categoryInput.value= category;
   tagstrInput.value = tagstr;
   MxWc.form.clearAutoComplete();
+  const doNotSort = function(a, b) { return 0 };
   MxWcStorage.get('categories', [])
     .then((v) => {
       MxWc.form.categoryAutoComplete = new Lib.Awesomplete(categoryInput, {
         autoFirst: true,
         minChars: 1,
-        list: v
+        maxItems: 10000,
+        list: v,
+        sort: doNotSort,
       })
+      MxWc.form.categoryAutoComplete.ul.setAttribute('tabindex', '-1');
+
       if(category === ''){
+        if (config.autoInputLastCategory && v.length > 0) {
+          categoryInput.value = v[0];
+          categoryInput.select();
+        }
         categoryInput.focus();
       }
     })
@@ -403,7 +412,9 @@ async function showForm(params){
       MxWc.form.tagstrAutoComplete =  new Lib.Awesomplete(tagstrInput, {
         autoFirst: true,
         minChars: 1,
+        maxItems: 10000,
         list: v,
+        sort: doNotSort,
         filter: function(text, input) {
           return Lib.Awesomplete.FILTER_CONTAINS(text, input.match(/[^ ,，]*$/)[0]);
         },
@@ -417,6 +428,8 @@ async function showForm(params){
           this.input.value = before + text + " ";
         }
       });
+      MxWc.form.tagstrAutoComplete.ul.setAttribute('tabindex', '-1');
+
       if(category !== '') {
         tagstrInput.focus();
       }

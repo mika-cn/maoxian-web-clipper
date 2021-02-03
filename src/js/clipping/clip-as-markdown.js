@@ -18,7 +18,7 @@ import TurndownService from 'turndown';
 const turndownPluginGfm = require('turndown-plugin-gfm');
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, mimeTypeDict, frames, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
   Log.debug("markdown parser");
 
   const {elemHtml, tasks} = await getElemHtml({
@@ -28,8 +28,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, m
     elem         : elem,
     docUrl       : win.location.href,
     baseUrl      : win.document.baseURI,
-    mimeTypeDict : mimeTypeDict,
     config       : config,
+    requestParams: requestParams,
     win          : win,
   })
   let markdown = generateMarkDown(elemHtml, info);
@@ -51,9 +51,9 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, headerParams, m
   tasks.push(mainFileTask);
 
   return Task.changeUrlTask(tasks, (task) => {
-    task.headers = CaptureTool.getRequestHeaders(task.url, headerParams);
-    task.timeout = config.requestTimeout;
-    task.tries = config.requestMaxTries;
+    task.headers = requestParams.getHeaders(task.url);
+    task.timeout = requestParams.timeout;
+    task.tries   = requestParams.tries;
   });
 }
 
@@ -66,9 +66,9 @@ async function getElemHtml(params){
     elem,
     baseUrl,
     docUrl,
-    mimeTypeDict,
     parentFrameId = topFrameId,
     config,
+    requestParams,
     win,
   } = params;
   Log.debug("getElemHtml", docUrl);
@@ -166,19 +166,19 @@ async function captureNode(node, params) {
     clipId,
     frames,
     storageInfo,
-    mimeTypeDict,
     customElementHtmlDict = {},
     parentFrameId = topFrameId,
     baseUrl,
     docUrl,
     config,
+    requestParams,
     doc,
   } = params;
   let opts = {};
   let r = {node: node, tasks: []}
   switch (node.tagName.toUpperCase()) {
     case 'IMG':
-      opts = {saveFormat, baseUrl, storageInfo, clipId, mimeTypeDict};
+      opts = {saveFormat, baseUrl, storageInfo, clipId, requestParams};
       r = await CapturerImg.capture(node, opts);
       break;
     case 'A':
@@ -188,7 +188,7 @@ async function captureNode(node, params) {
     case 'IFRAME':
     case 'FRAME':
       opts = {saveFormat, baseUrl, doc, storageInfo,
-        clipId, mimeTypeDict, config, parentFrameId, frames};
+        clipId, config, parentFrameId, frames};
       r = await CapturerIframe.capture(node, opts);
       break;
     default:

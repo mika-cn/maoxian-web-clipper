@@ -63,6 +63,7 @@ function getCopyItems() {
     ['src/js/lib/tool.js'              , 'js/lib/tool.js']              ,
     ['src/js/lib/icon.js'              , 'js/lib/icon.js']              ,
     ['src/js/lib/translation.js'       , 'js/lib/translation.js']       ,
+    ['src/js/lib/mime.js'              , 'js/lib/mime.js']              ,
     ['src/js/lib/ext-api.js'           , 'js/lib/ext-api.js']           ,
     ['src/js/lib/ext-msg.js'           , 'js/lib/ext-msg.js']           ,
     ['src/js/lib/storage.js'           , 'js/lib/storage.js']           ,

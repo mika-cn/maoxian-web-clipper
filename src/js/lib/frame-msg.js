@@ -14,6 +14,7 @@
  * topWindow --> Iframe
  */
 
+const MSG_NAMESPACE = 'MX-WC-FRAME-MSG';
 
 const state = {
   id: null,
@@ -51,6 +52,7 @@ function broadcast(params) {
   try{
     const message = params;
     message.broadcast = true;
+    message.namespace = MSG_NAMESPACE;
     const frames = document.querySelectorAll('iframe');
     frames.forEach(function(frame) {
       if(!isExtensionFrame(frame)) {
@@ -71,6 +73,7 @@ function send(params){
     const {to} = params;
     const {targetWindow, targetOrigin} = getTargetInfo(to);
     //console.log(to, message);
+    message.namespace = MSG_NAMESPACE;
     targetWindow.postMessage(message, targetOrigin);
   } catch(e) {
     console.log(e)
@@ -83,7 +86,11 @@ function receiveMessage(e) {
   if(state.allowOrigins.length > 0 && state.allowOrigins.indexOf(e.origin) < 0){
     return;
   }
-  const {to, type, msg, broadcast = false} = e.data;
+  const {namespace, to, type, msg, broadcast = false} = e.data;
+  if (!(namespace && namespace == MSG_NAMESPACE)) {
+    // messgae is not sent by us
+    return;
+  }
   if (broadcast || state.id === to) {
     const handler = state.listeners[type];
     if(handler){
@@ -94,7 +101,7 @@ function receiveMessage(e) {
       // deliver message to other frame
       send(e.data)
     } else {
-      console.warn("unknow message", to, msg);
+      console.warn("unknow message", e.data);
     }
   }
 }

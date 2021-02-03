@@ -40,6 +40,13 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+// 1.3 => 1.4
+ConfigMigration['1.3'] = function(config) {
+  config.version = '1.4';
+  config.autoInputLastCategory = true;
+  return config;
+}
+
 // 1.2 => 1.3
 ConfigMigration['1.2'] = function(config) {
   config.version = '1.3';

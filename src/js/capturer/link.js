@@ -15,9 +15,8 @@ import CapturerCss from './css.js';
  *   - {String} docUrl
  *   - {String} clipId
  *   - {Object} storageInfo
- *   - {Object} mimeTypeDict
  *   - {Object} config
- *   - {Object} headerParams
+ *   - {Object} requestParams
  *
  */
 async function capture(node, opts) {
@@ -42,25 +41,30 @@ async function capture(node, opts) {
   // Link types are case-insensitive.
   const linkTypes = rel.toLowerCase().split(/\s+/);
 
+  if (linkTypes.indexOf('preload') > -1) {
+    node.setAttribute('data-mx-ignore-me', 'true');
+    return {node, tasks};
+  }
+
   if (linkTypes.indexOf('stylesheet') > -1) {
     return await captureStylesheet({node, linkTypes, href, opts});
   } else if (linkTypes.length === 1) {
     const [linkType] = linkTypes;
     if (linkType.match(/icon/)) {
-      return captureIcon({node, href, opts});
+      return await captureIcon({node, href, opts});
     }
   } else {
     if (linkTypes.indexOf('icon') > -1) {
-      return captureIcon({node, href, opts});
+      return await captureIcon({node, href, opts});
     }
   }
 
   return {node, tasks};
 }
 
-function captureIcon({node, href, opts}) {
+async function captureIcon({node, href, opts}) {
   //The favicon of the website.
-  const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config} = opts;
+  const {baseUrl, docUrl, clipId, storageInfo, requestParams, config} = opts;
   const tasks = [];
 
   if (!config.saveIcon) {
@@ -70,8 +74,9 @@ function captureIcon({node, href, opts}) {
 
   const {isValid, url, message} = T.completeUrl(href, baseUrl);
   if (isValid) {
+    const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
     const mimeTypeData = {
-      httpMimeType: mimeTypeDict[url],
+      httpMimeType: httpMimeType,
       attrMimeType: node.getAttribute('type')
     };
     const {filename, path} = Asset.calcInfo(
@@ -87,7 +92,7 @@ function captureIcon({node, href, opts}) {
 }
 
 async function captureStylesheet({node, linkTypes, href, opts}) {
-  const {baseUrl, docUrl, clipId, storageInfo, mimeTypeDict = {}, config} = opts;
+  const {baseUrl, docUrl, clipId, storageInfo, config} = opts;
 
   /*
    * TODO Shall we handle alternative style sheets?

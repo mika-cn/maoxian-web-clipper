@@ -1,3 +1,6 @@
+import browser from 'sinon-chrome';
+global.browser = browser;
+
 const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
@@ -5,6 +8,10 @@ const win = jsdom.window;
 import H from '../helper.js';
 import DOMTool from '../../src/js/lib/dom-tool.js';
 import Capturer from '../../src/js/capturer/picture.js';
+import RequestParams from '../../src/js/lib/request-params.js';
+
+const ExtMsg = H.depMockJs('ext-msg.js');
+ExtMsg.initBrowser(browser);
 
 function getNode() {
   let html = `
@@ -20,25 +27,29 @@ function getNode() {
 
 
 function getParams() {
+  const url = 'https://a.org/index.html';
   return {
-    baseUrl: 'https://a.org/index.html',
+    baseUrl: url,
     storageInfo: {
       assetFolder: 'category-a/clippings/assets',
       assetRelativePath: 'assets'
     },
-    clipId: '001'
+    clipId: '001',
+    requestParams: RequestParams.createExample({refUrl: url}),
   }
 }
 
 describe('Capture Picture', () => {
-  it('capture picture source element', ()=> {
-    const {baseUrl, storageInfo, clipId} = getParams();
+  it('capture picture source element', async ()=> {
+    const params = getParams();
     const node = getNode();
-    const r = Capturer.capture(node, {baseUrl, storageInfo, clipId});
+    ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
+    const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 4);
     const [sourceA, sourceB, sourceC, img] = r.node.children;
     H.assertMatch(sourceB.getAttribute('srcset'), /\.jpg$/);
     H.assertMatch(sourceC.getAttribute('srcset'), /\.png$/);
     H.assertEqual(img.getAttribute('src'), 'img.png');
+    ExtMsg.clearMocks();
   });
 });

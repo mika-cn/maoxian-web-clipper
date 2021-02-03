@@ -188,6 +188,8 @@
     // label
     "label.storage-folder": "Saving Folder",
     "label.storage-filename": "Filename",
+    "label.save-info-file-input": "Save Information File",
+    "label.save-info-file-link": "(How to change it?)",
     "label.save-title-file-input": "Save Title File",
 
     "label.enable-handler": "Enable this handler",
@@ -207,6 +209,7 @@
     "label.hotkey-switch-enabled-input": "Enable hotkey `c` (clip switch)",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
     "label.input-field-save-format-enabled": "Enable selecting save format in form",
+    "label.auto-input-last-category": "Auto input the last category",
     "label.remember-selection-input": "Remember selection and try to apply it next time",
     "label.autogenerate-clipping-js-input": "Autogenerate javascript file",
     "label.not-generated-yet": "Not generated yet",

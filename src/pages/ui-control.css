@@ -360,10 +360,12 @@ body {
   }
 }
 
-
-
-
 /* overwrite awesomplete style */
 .awesomplete {
   display: block;
+}
+
+.awesomplete > ul {
+  max-height: 260px;
+  overflow-y: auto;
 }

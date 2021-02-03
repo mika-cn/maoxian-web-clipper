@@ -85,6 +85,11 @@ function initSettingGeneral(config) {
   );
 
   initCheckboxInput(config,
+    'auto-input-last-category',
+    'autoInputLastCategory',
+  );
+
+  initCheckboxInput(config,
     'remember-selection',
     'rememberSelection',
   );
@@ -183,6 +188,11 @@ function initSettingPath(config) {
   initTextInput(config,
     'frame-file-folder',
     'frameFileFolder'
+  );
+
+  initCheckboxInput(config,
+    'save-info-file',
+    'saveInfoFile'
   );
 
   initTextInput(config,

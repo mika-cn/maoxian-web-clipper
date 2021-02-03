@@ -133,6 +133,9 @@ MxWcTemplate.clippingInformationStyle = {
         color: #333 !important;
         font-size: 14px !important;
         line-height: 22px !important;
+        min-height: 50px !important;
+        max-height: 100px !important;
+        height: auto !important;
       }
       .clipping-information a {
         color: blue !important;
