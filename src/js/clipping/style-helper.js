@@ -115,13 +115,9 @@ function pElemHasNearWidth(pElem, elem, win){
   const threshold = 10; //10px
   const box = elem.getBoundingClientRect();
   const pBox = pElem.getBoundingClientRect();
-  return pBox.width - 2 * getElemPaddingLeft(pElem, win) - box.width < threshold
+  const margin  = getCssSize(elem, 'margin-left', win) + getCssSize(elem, 'margin-right', win);
+  return pBox.width - (box.width + margin) < threshold
 }
-
-function getElemPaddingLeft(elem, win){
-  return getCssSize(elem, 'padding-left', win)
-}
-
 
 function getFitWidth(elem, win){
   const width = elem.getBoundingClientRect().width;
@@ -249,7 +245,7 @@ function extractCssAttrs(node) {
 }
 
 function renderAttr(name, value) {
-  return value ? ` ${name}=${value}` : '';
+  return value ? ` ${name}="${value}"` : '';
 }
 
 const StyleHelper = {
