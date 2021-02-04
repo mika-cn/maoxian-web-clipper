@@ -472,7 +472,9 @@ async function init(){
     Handler_NativeApp,
     Handler_WizNotePlus
   }, {evTarget: Global.evTarget}));
-  ExtMsg.listen('background', unknownMessageHandler);
+
+  // TODO confirm Why the listener order on MacOS is reverse?
+  // ExtMsg.listen('background', unknownMessageHandler);
 
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)

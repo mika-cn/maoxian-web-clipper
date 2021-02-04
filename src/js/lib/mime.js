@@ -8270,8 +8270,8 @@ const MyMimeDB = {
 // return a dictionary (key is extension, value is mimeType)
 function getDict(mimeDB) {
   const dict = {};
-  for (let type in MyMimeDB) {
-    const it = MyMimeDB[type];
+  for (let type in mimeDB) {
+    const it = mimeDB[type];
     if (it && it.extensions) {
       it.extensions.forEach((ext) => {
         dict[ext] = type;
