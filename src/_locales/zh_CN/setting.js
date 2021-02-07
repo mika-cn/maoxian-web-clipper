@@ -190,7 +190,7 @@
 
     "label.enable-handler": "启用该处理程序",
     "label.file-url-input": "我设置好了 ‘允许插件访问文件路径’",
-    "label.request-timeout-input": "请求的超时时长 (秒, 5~240)",
+    "label.request-timeout-input": "请求的超时时长 (秒, 5 ~ 86400)",
     "label.request-max-tries-input": "请求的最大尝试次数，当该值大于 1 时，会在请求失败时进行重试，比如该值为 3，则会在失败时，最多重试 2 次。",
     "label.request-cache-size-input": "缓存容量（缓存多少个请求，0 ~ 500）",
     "label.request-cache-css-input": "缓存网页样式 （CSS）",
