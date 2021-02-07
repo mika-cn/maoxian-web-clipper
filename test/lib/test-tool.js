@@ -36,10 +36,10 @@ describe('Tool', () => {
     H.assertEqual(T.deleteLastPart('a.b.c'), 'a.b');
   });
 
-  it("isExtensionUrl", () => {
-    H.assertTrue(T.isExtensionUrl("moz-extension://abc/index"));
-    H.assertTrue(T.isExtensionUrl("chrome-extension://abc/index"));
-    H.assertFalse(T.isExtensionUrl("http://example.org/index"));
+  it("isBrowserExtensionUrl", () => {
+    H.assertTrue(T.isBrowserExtensionUrl("moz-extension://abc/index"));
+    H.assertTrue(T.isBrowserExtensionUrl("chrome-extension://abc/index"));
+    H.assertFalse(T.isBrowserExtensionUrl("http://example.org/index"));
   })
 
   it("calcPath(currDir, destPath)", () => {

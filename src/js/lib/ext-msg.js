@@ -78,7 +78,7 @@ function sendToPage(msg, pageUrl) {
 
 function broadcastToContent(msg) {
   eachTab((tab) => {
-    if(!T.isExtensionUrl(tab.url)) {
+    if(!T.isBrowserExtensionUrl(tab.url)) {
       sendToTab(addTarget('content', msg), tab.id)
     }
   });

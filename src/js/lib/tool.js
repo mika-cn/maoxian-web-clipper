@@ -365,7 +365,7 @@ T.isFileUrl = function(url){
   }
 }
 
-T.isExtensionUrl = function(url){
+T.isBrowserExtensionUrl = function(url){
   if(url.indexOf('://') > -1) {
     const protocol = url.split('://')[0];
     return !!protocol.match(/-extension$/);
