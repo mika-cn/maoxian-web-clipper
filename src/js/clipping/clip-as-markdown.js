@@ -11,6 +11,7 @@ import MdPluginMathML2LaTeX  from '../lib/md-plugin-mathml2latex.js';
 import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerImg           from '../capturer/img.js';
+import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
 import CapturerCustomElement from '../capturer/custom-element.js';
 
@@ -74,6 +75,7 @@ async function getElemHtml(params){
   Log.debug("getElemHtml", docUrl);
 
   const {customElementHtmlDict, customElementTasks} = await captureCustomElements(params);
+  const canvasDataUrlDict = preprocessCanvasElements(elem);
 
   const KLASS = ['mx-wc', clipId].join('-');
   elem.classList.add('mx-wc-selected-elem');
@@ -91,7 +93,7 @@ async function getElemHtml(params){
   selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
   const {node, taskCollection} = await captureContainerNode(selectedNode,
-    Object.assign({}, params, {doc, customElementHtmlDict}));
+    Object.assign({}, params, {doc, customElementHtmlDict, canvasDataUrlDict}));
   selectedNode = node;
 
   taskCollection.push(...customElementTasks);
@@ -104,6 +106,31 @@ async function getElemHtml(params){
   return {elemHtml: elemHtml, tasks: taskCollection};
 }
 
+/**
+ *
+ * Canvas nodes can not be clone without losing it's data.
+ * So we process it before we clone the whole document.
+ *
+ * @param {Element} contextNode
+ *
+ * @return {Object} dict (id => dataUrl)
+ */
+function preprocessCanvasElements(contextNode) {
+  const nodes = DOMTool.querySelectorIncludeSelf(contextNode, 'canvas');
+  const dict = {};
+  [].forEach.call(nodes, (it) => {
+    try {
+      const dataUrl = it.toDataURL();
+      const id = T.createId();
+      it.setAttribute('data-mx-id', id);
+      it.setAttribute('data-mx-marker', 'canvas-image');
+      dict[id] = dataUrl;
+    } catch(e) {
+      // tained canvas etc.
+    }
+  });
+  return dict;
+}
 
 async function captureCustomElements(params) {
   const {elem, win} = params;
@@ -126,12 +153,13 @@ async function captureCustomElements(params) {
   let it;
   while(it = nodeIterator.nextNode()) {
 
+    const canvasDataUrlDict = preprocessCanvasElements(it.shadowRoot);
     DOMTool.markHiddenNode(win, it.shadowRoot);
     const docHtml = `<mx-tmp-root>${it.shadowRoot.innerHTML}</mx-tmp-root>`;
     DOMTool.clearHiddenMark(it);
     const {doc, node: rootNode} = DOMTool.parseHTML(win, docHtml);
     let node = DOMTool.removeNodeByHiddenMark(rootNode);
-    const r = await captureContainerNode(node, Object.assign({}, params, {doc}));
+    const r = await captureContainerNode(node, Object.assign({}, params, {doc, canvasDataUrlDict}));
 
     const id = T.createId();
     it.setAttribute('data-mx-custom-element-id', id);
@@ -166,6 +194,7 @@ async function captureNode(node, params) {
     clipId,
     frames,
     storageInfo,
+    canvasDataUrlDict = {},
     customElementHtmlDict = {},
     parentFrameId = topFrameId,
     baseUrl,
@@ -184,6 +213,10 @@ async function captureNode(node, params) {
     case 'A':
       opts = {baseUrl, docUrl};
       r = await CapturerA.capture(node, opts);
+      break;
+    case 'CANVAS':
+      opts = {saveFormat, storageInfo, clipId, canvasDataUrlDict, doc};
+      r = CapturerCanvas.capture(node, opts);
       break;
     case 'IFRAME':
     case 'FRAME':
