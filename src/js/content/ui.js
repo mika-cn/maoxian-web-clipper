@@ -646,7 +646,7 @@ function isIndivisible(elem, pElem) {
 function isOnBlackList(elem){
   const blackList = ["SCRIPT", "STYLE", "TEMPLATE"];
   return (blackList.indexOf(elem.tagName.toUpperCase()) > -1
-    || elem.tagName.toUpperCase() === 'IFRAME' && T.isExtensionUrl(elem.src)
+    || elem.tagName.toUpperCase() === 'IFRAME' && T.isBrowserExtensionUrl(elem.src)
     || elem.getBoundingClientRect().height === 0
     || elem.innerText.trim().length === 0
   )

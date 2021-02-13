@@ -68,7 +68,7 @@ class RequestParams {
         }
       case 'origin':
         return (new URL(refUrl)).origin;
-      case 'noReferer':
+      case 'noReferrer':
         return null;
       case 'unsafeUrl':
       default: break;

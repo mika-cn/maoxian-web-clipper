@@ -13,6 +13,7 @@ import CapturerImg           from '../capturer/img.js';
 import CapturerCss           from '../capturer/css.js';
 import CapturerStyle         from '../capturer/style.js';
 import CapturerLink          from '../capturer/link.js';
+import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
 import CapturerCustomElement from '../capturer/custom-element.js';
 import StyleHelper           from './style-helper.js';
@@ -75,6 +76,7 @@ async function getElemHtml(params){
   Log.debug('getElemHtml', baseUrl);
 
   const {customElementHtmlDict, customElementStyleDict, customElementTasks} = await captureCustomElements(params);
+  const canvasDataUrlDict = preprocessCanvasElements(elem);
   const cssRulesDict = collectCssRules(win.document.documentElement);
 
   const KLASS = ['mx-wc', clipId].join('-');
@@ -95,7 +97,9 @@ async function getElemHtml(params){
   const {node, taskCollection} = await captureContainerNode(selectedNode,
     Object.assign({}, params, {
       doc,
-      customElementHtmlDict, customElementStyleDict,
+      customElementHtmlDict,
+      customElementStyleDict,
+      canvasDataUrlDict,
       cssRulesDict,
     })
   );
@@ -124,6 +128,32 @@ async function getElemHtml(params){
     elemHtml = dealNormalElem(selectedNode, elem, win);
   }
   return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection };
+}
+
+/**
+ *
+ * Canvas nodes can not be clone without losing it's data.
+ * So we process it before we clone the whole document.
+ *
+ * @param {Element} contextNode
+ *
+ * @return {Object} dict (id => dataUrl)
+ */
+function preprocessCanvasElements(contextNode) {
+  const nodes = DOMTool.querySelectorIncludeSelf(contextNode, 'canvas');
+  const dict = {};
+  [].forEach.call(nodes, (it) => {
+    try {
+      const dataUrl = it.toDataURL();
+      const id = T.createId();
+      it.setAttribute('data-mx-id', id);
+      it.setAttribute('data-mx-marker', 'canvas-image');
+      dict[id] = dataUrl;
+    } catch(e) {
+      // tained canvas etc.
+    }
+  });
+  return dict;
 }
 
 
@@ -176,6 +206,7 @@ async function captureCustomElements(params) {
 
     const box = it.getBoundingClientRect();
     const cssRulesDict = collectCssRules(it.shadowRoot);
+    const canvasDataUrlDict = preprocessCanvasElements(it.shadowRoot);
     DOMTool.markHiddenNode(win, it.shadowRoot);
     const docHtml = `<mx-tmp-root>${it.shadowRoot.innerHTML}</mx-tmp-root>`;
     DOMTool.clearHiddenMark(it);
@@ -187,7 +218,7 @@ async function captureCustomElements(params) {
         params.storageInfo.assetFolder
       )
     });
-    const r = await captureContainerNode(node, Object.assign({}, params, {storageInfo, doc, cssRulesDict}));
+    const r = await captureContainerNode(node, Object.assign({}, params, {storageInfo, doc, cssRulesDict, canvasDataUrlDict}));
 
     const id = T.createId();
     it.setAttribute('data-mx-custom-element-id', id);
@@ -228,6 +259,7 @@ async function captureNode(node, params) {
     baseUrl,
     docUrl,
     cssRulesDict,
+    canvasDataUrlDict = {},
     customElementHtmlDict = {},
     customElementStyleDict = {},
     parentFrameId = topFrameId,
@@ -276,10 +308,13 @@ async function captureNode(node, params) {
     case 'EMBED':
     case 'OBJECT':
     case 'APPLET':
-    case 'CANVAS':
       // Don't capture media nodes.
       node.setAttribute('data-mx-ignore-me', 'true');
       r.node = node;
+      break;
+    case 'CANVAS':
+      opts = {saveFormat, storageInfo, clipId, canvasDataUrlDict, doc};
+      r = CapturerCanvas.capture(node, opts);
       break;
     case 'IFRAME':
     case 'FRAME':
@@ -296,7 +331,7 @@ async function captureNode(node, params) {
   }
 
   // handle global attributes
-  const evAttrNames = [];
+  const attrsToRemove = [];
   const len = r.node.attributes.length;
   for (let i=0; i < len; i++) {
     const attr = r.node.attributes[i];
@@ -304,25 +339,29 @@ async function captureNode(node, params) {
 
     // remove event listener
     if (attrName.startsWith('on')) {
-      evAttrNames.push(attrName);
+      attrsToRemove.push(attrName);
     }
 
     // inline style
     if (attrName === 'style') {
-      const {cssText, tasks} = await CapturerCss.captureText(
-        Object.assign({
-          text: attr.value
-        }, {
-          baseUrl, docUrl, storageInfo, clipId,
-          config, requestParams,
-          needFixStyle
-        })
-      );
-      r.node.setAttribute('style', cssText);
-      r.tasks.push(...tasks);
+      if (r.node.hasAttribute('data-mx-dont-capture-style')) {
+        attrsToRemove.push('data-mx-dont-capture-style');
+      } else {
+        const {cssText, tasks} = await CapturerCss.captureText(
+          Object.assign({
+            text: attr.value
+          }, {
+            baseUrl, docUrl, storageInfo, clipId,
+            config, requestParams,
+            needFixStyle
+          })
+        );
+        r.node.setAttribute('style', cssText);
+        r.tasks.push(...tasks);
+      }
     }
   }
-  evAttrNames.forEach((attrName) => {
+  attrsToRemove.forEach((attrName) => {
     r.node.removeAttribute(attrName);
   })
 

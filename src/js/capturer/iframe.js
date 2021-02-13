@@ -56,7 +56,7 @@ async function capture(node, opts) {
     return {node: newNode, tasks: tasks};
   }
 
-  if (T.isExtensionUrl(url)) {
+  if (T.isBrowserExtensionUrl(url)) {
     const newNode = doc.createElement('div');
     newNode.setAttribute('data-mx-ignore-me', 'true');
     node.parentNode.replaceChild(newNode, node);

@@ -351,12 +351,16 @@ const UnescapeHeader = (function(){
       urls: ["http://*/*", "https://*/*"],
       types: [ "xmlhttprequest" ]
     };
+    const extraInfoSpect = ["blocking", "requestHeaders"];
+
+    const option = browser.webRequest.OnBeforeSendHeadersOptions;
+    if (option && (option.hasOwnProperty('EXTRA_HEADERS') || option.hasOwnProperty('EXTRAHEADERS'))) {
+      // Chrome needs `extraHeaders` to allow the modification of 'Referer' or 'Origin' (since chrome 72.0).
+      // console.log('mx-wc', 'set extraHeaders');
+      extraInfoSpect.push('extraHeaders');
+    }
     browser.webRequest.onBeforeSendHeaders.removeListener(listener);
-    browser.webRequest.onBeforeSendHeaders.addListener(
-      listener,
-      filter,
-      ["blocking", "requestHeaders"]
-    );
+    browser.webRequest.onBeforeSendHeaders.addListener(listener, filter, extraInfoSpect);
   }
 
 

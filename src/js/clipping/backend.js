@@ -80,7 +80,7 @@ async function getCurrentLayerFrames(tabId, parentFrameId) {
   const frames = await ExtApi.getAllFrames(tabId);
   const result = [];
   frames.forEach((it) => {
-    if (it.parentFrameId === parentFrameId && it.url && !T.isExtensionUrl(it.url)) {
+    if (it.parentFrameId === parentFrameId && it.url && !T.isBrowserExtensionUrl(it.url)) {
       result.push(it);
     }
   });

@@ -76,7 +76,7 @@ async function renderMenus(){
   let menuIds = [];
 
   if(T.isFileUrl(tabUrl) ||
-     T.isExtensionUrl(tabUrl) ||
+     T.isBrowserExtensionUrl(tabUrl) ||
      T.isBrowserUrl(tabUrl)){
     pageIds.forEach(function(pageId){
       const extPagePath = MxWcLink.getExtensionPagePath(pageId);

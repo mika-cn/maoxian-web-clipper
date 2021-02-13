@@ -194,7 +194,7 @@
 
     "label.enable-handler": "Enable this handler",
     "label.file-url-input": "I enabled 'allow file scheme access' ",
-    "label.request-timeout-input": "Timeout for performing a request (secs, 5~240)",
+    "label.request-timeout-input": "Timeout for performing a request (secs, 5 ~ 84600)",
     "label.request-max-tries-input": "Maximum tries to perform a request, If this value is bigger than one, that means we'll resend the reqeust if it fails",
     "label.request-cache-size-input": "Cache size (how many requests we'll cache, 0 ~ 500)",
     "label.request-cache-css-input": "Cache stylesheets (CSS)",
