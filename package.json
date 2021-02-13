@@ -1,6 +1,6 @@
 {
   "name": "maoxian-web-clipper",
-  "version": "0.1.71",
+  "version": "0.1.72",
   "description": "A web extension to clip information from web page. Save it to your local machine to avoid information invalidation. Not bored registration, Not charged.",
   "main": "",
   "scripts": {
