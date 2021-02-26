@@ -90,6 +90,9 @@
     "variable.minute"              : "<pre>$mm   => minute (2 digits, 00 ~ 59)</pre>",
     "variable.second"              : "<pre>$SS   => second (2 digits, 00 ~ 59)</pre>",
     "variable.time-integer-second" : "<pre>$TIME-INTSEC => clipping time in seconds (e.g. 1578712781)</pre>",
+    "variable.md5-of-url"          : "<pre>$MD5URL => MD5 value of file's URL (length: 32, e.g. 14b2881be9f76cd55ec3b4c72a08f349)</pre>",
+    "variable.filename"            : "<pre>$FILENAME => file's original name (exclude file extension)</pre>",
+    "variable.file-extension"      : '<pre>$EXT => file extension (include ".", such as ".png")</pre>',
 
 
     "path.download.intro": "download path： Download location of your browser, If you use NativeApp to save clipping file, this path is the value of \"data_dir\" in configure file (config.yaml) of NativeApp.",

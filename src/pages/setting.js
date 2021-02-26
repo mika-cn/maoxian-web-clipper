@@ -194,8 +194,18 @@ function initSettingPath(config) {
   );
 
   initTextInput(config,
+    'asset-file-name',
+    'assetFileName',
+  );
+
+  initTextInput(config,
     'frame-file-folder',
     'frameFileFolder'
+  );
+
+  initTextInput(config,
+    'frame-file-name',
+    'frameFileName',
   );
 
   initCheckboxInput(config,
