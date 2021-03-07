@@ -801,6 +801,25 @@ T.calcPath = function(currDir, destPath) {
 }
 
 
+// ===============================
+// blob
+// ===============================
+
+T.blob2BinaryString = function(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      resolve(e.target.result);
+    }
+    reader.onerror = function(e) {
+      const errName = (e.target.error.name || "Error")
+      reject(new Error(errName));
+    }
+    reader.readAsBinaryString(blob);
+  });
+}
+
+
 // ====================================
 
 T.createIdxTool = function(start) {

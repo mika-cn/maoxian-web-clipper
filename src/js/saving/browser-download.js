@@ -43,7 +43,6 @@ class Download {
     }
 
     this.id = downloadItem.id;
-    console.log("set id", this.id);
 
     if (downloadItem.filename) {
       // Firefox has filename on this event, but chrome hasn't.
@@ -85,7 +84,6 @@ class Download {
   }
 
   clean() {
-    console.log('clean...');
     this.revokeObjectUrl();
     this.unbindListener();
   }
@@ -102,11 +100,9 @@ class Download {
 
   unbindListener() {
     if (this.API.onCreated.hasListener(this.createdListener)) {
-      console.log('unbind createdListener');
       this.API.onCreated.removeListener(this.createdListener);
     }
     if (this.API.onChanged.hasListener(this.changedListener)) {
-      console.log('unbind changedListener');
       this.API.onChanged.removeListener(this.changedListener);
     }
     const noop = () => {};
