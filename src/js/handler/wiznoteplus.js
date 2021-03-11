@@ -2,7 +2,7 @@
 
 import Log             from '../lib/log.js';
 import MxWcStorage     from '../lib/storage.js';
-import SavingTool      from '../saving/saving-tool.js';
+import SavingTool      from '../saving/new-saving-tool.js';
 import { QWebChannel } from '../lib/qwebchannel.js';
 
 const state = {
@@ -23,11 +23,28 @@ const state = {
  */
 async function saveClipping(clipping, feedback) {
   await setup();
-  SavingTool.startSaving(clipping, feedback, { mode: 'completeWhenAllTaskFinished' });
   // Save all tasks.
   await createDocTempDir(clipping);
-  let promises = clipping.tasks.map((task) => handle(task, clipping));
-  let results = await Promise.all(promises);
+
+  const savingTool = new SavingTool.SaveClipping(clipping, feedback, {
+    mode: SavingTool.SaveClipping.MODE.COMPLETE_WHEN_ALL_TASK_FINISHED
+  });
+
+  for (let i = 0; i < clipping.tasks.length; i++) {
+    const task = clipping.tasks[i];
+    try {
+      const isDownloaded = await saveTask(task);
+      // notify download progress.
+      if (isDownloaded) {
+        //FIXME: add extra attrs to MainFile.
+        savingTool.taskCompleted(task);
+      } else {
+        savingTool.taskFailed(task, "Failed to download.");
+      }
+    } catch (error) {
+      savingTool.taskFailed(task, error.message);
+    }
+  }
   // Create a new document in WizNotePlus.
   saveToWizNotePlus(clipping, feedback);
 }
@@ -205,36 +222,34 @@ function handleClippingResult(it) {
 }
 
 /**
- * Used to handle tasks.
+ * Used to save tasks.
  * @param {Object} task
- * @param {Object} clipping
  */
-async function handle(task, clipping) {
+async function saveTask(task) {
   if (typeof state.objCom.Base64ToFile !== "undefined") {
     Log.debug("Use browser network.");
     switch (task.type) {
-      case 'text': await downloadTextToFile(task, clipping); break;
-      case 'url' : await fetchAndDownload(task, clipping); break;
-      case 'blob': await downloadBlobToFile(task, clipping); break;
+      case 'text': return await downloadTextToFile(task); break;
+      case 'url' : return await fetchAndDownload(task); break;
     }
   } else {
     Log.debug("Use WizNotePlus network.");
     switch(task.type){
-      case 'text': await downloadTextToFile(task, clipping); break;
-      case 'url': await downloadUrlToFile(task, clipping); break;
+      case 'text': return await downloadTextToFile(task); break;
+      case 'url' : return await downloadUrlToFile(task); break;
     }
   }
 }
+
 
 /**
  * Save text to file.
  * @param {*} task
  */
-async function downloadTextToFile(task, clipping) {
+async function downloadTextToFile(task) {
   const objCom = state.objCom;
   const filename = [state.tempPath, task.filename].join('/');
   const isDownloaded = await objCom.SaveTextToFile(filename, task.text, 'utf-8');
-  downloadCompleted(task, isDownloaded, clipping);
   return isDownloaded;
 }
 
@@ -242,25 +257,23 @@ async function downloadTextToFile(task, clipping) {
  * Download asset to file.
  * @param {*} task
  */
-async function downloadUrlToFile(task, clipping) {
+async function downloadUrlToFile(task) {
   const objCom = state.objCom;
   const filename = [state.tempPath, task.filename].join('/');
   const isImage = ['gif', 'png', 'apng', 'jpg', 'svg', 'bmp', 'webp', 'ico'].includes(task.filename.split('.').pop());
   const isDownloaded = await objCom.URLDownloadToFile(task.url, filename, isImage);
-  downloadCompleted(task, isDownloaded, clipping);
   return isDownloaded;
 }
 
 /**
  * Save blob to file
  */
-async function downloadBlobToFile(task, clipping){
+async function downloadBlobToFile(task){
   const objCom = state.objCom;
   const blob = task.blob;
   const filename = [state.tempPath, task.filename].join('/');
   const blobBase64 = await blobToBase64(blob);
   const isDownloaded = await objCom.Base64ToFile(blobBase64, filename);
-  downloadCompleted(task, isDownloaded, clipping);
   return isDownloaded;
 }
 
@@ -276,38 +289,21 @@ async function blobToBase64(blob) {
 
 async function fetchAndDownload(task, clipping) {
   Log.debug('fetch', task.url);
-  try {
-    const blob = await Global.Fetcher.get(task.url, {
-      respType: 'blob',
-      headers: task.headers,
-      timeout: task.timeout,
-      tries: task.tries,
-    });
-    await downloadBlobToFile({
-      blob: blob,
-      filename: task.filename
-    }, clipping);
-  } catch (err) {
-    Log.error(err);
-    SavingTool.taskFailed(task.filename, err.message);
-  }
+  const blob = await Global.Fetcher.get(task.url, {
+    respType: 'blob',
+    headers: task.headers,
+    timeout: task.timeout,
+    tries: task.tries,
+  });
+
+  const isDownloaded = await downloadBlobToFile({
+    blob: blob,
+    filename: task.filename
+  }, clipping);
+
+  return isDownloaded;
 }
 
-
-/**
- * Notify download state.
- * @param {Object} task
- * @param {boolean} isDownloaded
- * @param {Object} clipping
- */
-function downloadCompleted(task, isDownloaded, clipping) {
-  if (isDownloaded) {
-    //FIXME: add extra attrs to MainFile.
-    SavingTool.taskCompleted(task.filename);
-  } else {
-    SavingTool.taskFailed(task.filename, "Failed to download.");
-  }
-}
 
 /**
  * Create a temprary folder which used to organize clip files.
