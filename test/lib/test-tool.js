@@ -157,6 +157,10 @@ describe('Tool', () => {
     H.assertEqual(r.mimeType, 'text/html');
     r = T.parseContentType('text/Html');
     H.assertEqual(r.mimeType, 'text/html');
+    r = T.parseContentType('text/html;foo=');
+    H.assertEqual(r.parameters.foo, undefined);
+    r = T.parseContentType('text/html;foo');
+    H.assertEqual(r.parameters.foo, undefined);
     r = T.parseContentType('text/Html;Charset=UTF-8');
     H.assertEqual(r.parameters.charset, 'utf-8');
     r = T.parseContentType('text/html; charset="utf-8"');

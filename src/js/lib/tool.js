@@ -1269,12 +1269,14 @@ T.parseContentType = function(value) {
   const caseInsensitiveParameters = ['charset'];
   rests.forEach((it) => {
     const [k, v] = it.split('=');
-    const name = k.toLowerCase();
-    let value = v.replace(/"/g, '');
-    if (caseInsensitiveParameters.indexOf(name) > -1) {
-      value = value.toLowerCase();
+    if (k && v) {
+      const name = k.toLowerCase();
+      let value = v.replace(/"/g, '');
+      if (caseInsensitiveParameters.indexOf(name) > -1) {
+        value = value.toLowerCase();
+      }
+      parameters[name] = value;
     }
-    parameters[name] = value;
   });
   return {mimeType: mimeType.toLowerCase(), parameters}
 }
