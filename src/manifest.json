@@ -31,6 +31,7 @@
       "js": [
         "vendor/js/browser-polyfill.js",
         "vendor/js/i18n.js",
+        "vendor/js/mathml2latex.js",
         "_locales/en/common.js",
         "_locales/zh_CN/common.js",
         "js/content-frame.js"
