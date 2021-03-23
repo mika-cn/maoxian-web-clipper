@@ -73,6 +73,12 @@
     });
   }
 
+  function mockGetUniqueFilename() {
+    mock('get.uniqueFilename', (msg, state) => {
+      return Promise.resolve(msg.body.filename);
+    });
+  }
+
   function mockMsgResult(type, result, isResolved = true) {
     mock(type, (msg, state) => {
       if (isResolved) {
@@ -93,6 +99,7 @@
     initBrowser,
     clearMocks,
     mockMsgResult,
+    mockGetUniqueFilename,
     mockFetchTextStatic,
     mockFetchTextUrls,
     mockFrameToHtmlStatic,

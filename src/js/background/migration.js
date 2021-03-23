@@ -44,7 +44,7 @@ const ConfigMigration = {};
 ConfigMigration['1.5'] = function(config) {
   config.version = '1.6';
   config.assetFileName = '$TIME-INTSEC-$MD5URL$EXT';
-  config.frameFileName = '$TIME-INTSEC-$MD5URL.frame$EXT';
+  config.frameFileName = '$TIME-INTSEC-$MD5URL.frame.html';
   return config;
 }
 
@@ -54,6 +54,7 @@ ConfigMigration['1.4'] = function(config) {
   config.version = '1.5';
   config.customBodyBgCssEnabled = false;
   config.customBodyBgCssValue = "";
+  return config;
 }
 
 // 1.3 => 1.4

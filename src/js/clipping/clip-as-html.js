@@ -19,7 +19,7 @@ import CapturerCustomElement from '../capturer/custom-element.js';
 import StyleHelper           from './style-helper.js';
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}) {
   Log.debug("html parser");
 
   const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
@@ -80,6 +80,7 @@ async function getElemHtml(params){
   Log.debug('getElemHtml', baseUrl);
 
   const {customElementHtmlDict, customElementStyleDict, customElementTasks} = await captureCustomElements(params);
+
   const canvasDataUrlDict = preprocessCanvasElements(elem);
   const cssRulesDict = collectCssRules(win.document.documentElement);
 
@@ -320,7 +321,7 @@ async function captureNode(node, params) {
       break;
     case 'CANVAS':
       opts = {saveFormat, storageInfo, clipId, canvasDataUrlDict, doc};
-      r = CapturerCanvas.capture(node, opts);
+      r = await CapturerCanvas.capture(node, opts);
       break;
     case 'IFRAME':
     case 'FRAME':
@@ -331,7 +332,7 @@ async function captureNode(node, params) {
     default:
       if (node.hasAttribute('data-mx-custom-element-id')) {
         opts = {saveFormat, clipId, storageInfo, doc, customElementHtmlDict, customElementStyleDict};
-        r = CapturerCustomElement.capture(node, opts);
+        r = await CapturerCustomElement.capture(node, opts);
       }
       break;
   }

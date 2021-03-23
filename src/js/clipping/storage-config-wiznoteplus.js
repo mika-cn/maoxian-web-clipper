@@ -3,8 +3,8 @@
 // Storage Config for WizNotePlus
 //==========================================
 
-function get({config, now}) {
-  const saveFolder = Math.floor(now/1000).toString();
+function get({config}) {
+  const saveFolder = "$TIME-INTSEC";
 
   const defaultConfig = {
     rootFolder: config.rootFolder,
@@ -21,8 +21,10 @@ function get({config, now}) {
     mainFileName: "index.$FORMAT",
     /** the path to place frame files */
     frameFileFolder: saveFolder + "/index_files",
+    frameFileName: '$TIME-INTSEC-$MD5URL.frame.html',
     /** the path to place asset files */
     assetFolder: saveFolder + "/index_files",
+    assetFileName: "$TIME-INTSEC-$MD5URL$EXT",
   })
   return storageConfig;
 }

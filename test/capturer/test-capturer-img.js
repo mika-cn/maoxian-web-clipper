@@ -1,3 +1,6 @@
+import browser from 'sinon-chrome';
+global.browser = browser;
+
 const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
@@ -6,6 +9,9 @@ import H from '../helper.js';
 import DOMTool from '../../src/js/lib/dom-tool.js';
 import Capturer from '../../src/js/capturer/img.js';
 import RequestParams from '../../src/js/lib/request-params.js';
+
+const ExtMsg = H.depMockJs('ext-msg.js');
+ExtMsg.initBrowser(browser);
 
 function getNode(src, srcset) {
   let html = `<img src="${src}" $srcset crossorigin="anonymous"/>`;
@@ -27,7 +33,9 @@ function getParams() {
     baseUrl: url,
     storageInfo: {
       assetFolder: 'category-a/clippings/assets',
-      assetRelativePath: 'assets'
+      assetRelativePath: 'assets',
+      raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
+      valueObj: {now: Date.now()},
     },
     clipId: '001',
     requestParams: RequestParams.createExample({refUrl: url}),
@@ -58,31 +66,37 @@ describe('Capture Img', () => {
     const params = getParams();
     const {src, storageInfo} = params;
     const node = getNode(src);
+    ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
-    H.assertMatch(r.node.getAttribute('src'), /^assets\/001-[^\/]+\.jpg/);
+    H.assertMatch(r.node.getAttribute('src'), /^assets\/[^\/]+\.jpg/);
     H.assertTrue(r.tasks[0].filename.startsWith(storageInfo.assetFolder));
     H.assertEqual(r.node.getAttribute('srcset'), null);
     H.assertEqual(r.node.getAttribute('crossorigin'), null);
+    ExtMsg.clearMocks();
   });
 
   it('capture img srcset', async () => {
     const params = getParams();
     const {src, srcset} = params;
     const node = getNode(src, srcset);
+    ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 3);
     const srcsetItems = r.node.getAttribute('srcset').split(',');
     H.assertMatch(srcsetItems[0], /^assets\/[^\/]+.png 200w$/);
     H.assertMatch(srcsetItems[1], /^assets\/[^\/]+.png 400w$/);
+    ExtMsg.clearMocks();
   });
 
   it('capture img srcset [markdown]', async () => {
     const params = getParams();
     const {src, srcset} = params;
     const node = getNode(src, srcset);
+    ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, Object.assign({}, params, {saveFormat: 'md'}));
     H.assertEqual(r.tasks.length, 1);
+    ExtMsg.clearMocks();
   })
 
 });

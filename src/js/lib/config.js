@@ -128,7 +128,7 @@ function getDefault(){
      *   embed HTML file
      */
     frameFileFolder: '$CLIPPING-PATH/frames',
-    frameFileName: '$TIME-INTSEC-$MD5URL.frame$EXT',
+    frameFileName: '$TIME-INTSEC-$MD5URL.frame.html',
 
     /**
      * ======== Asset Files ========

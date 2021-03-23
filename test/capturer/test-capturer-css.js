@@ -17,7 +17,9 @@ function getParams() {
     docUrl: url,
     storageInfo: {
       assetFolder: 'category-a/clippings/assets',
-      assetRelativePath: 'assets'
+      assetRelativePath: 'assets',
+      raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
+      valueObj: {now: Date.now()},
     },
     clipId: '001',
     config: {
@@ -45,6 +47,7 @@ describe("Capturer css", () => {
     `;
     const linkText = '.CSSTEXT{}';
     ExtMsg.mockFetchTextStatic(linkText)
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureText(params);
     H.assertEqual(tasks.length, 5);
     tasks.forEach((it) => {
@@ -61,6 +64,7 @@ describe("Capturer css", () => {
     ExtMsg.mockFetchTextUrls({
       "https://a.org/style-A.css": "@import 'style-A.css';"
     });
+    ExtMsg.mockGetUniqueFilename();
     const tasks = await Capturer.captureLink(params);
     ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 1);
@@ -76,6 +80,7 @@ describe("Capturer css", () => {
       "https://a.org/style-A.css": "@import 'style-B.css';",
       "https://a.org/style-B.css": "@import 'style-A.css';",
     });
+    ExtMsg.mockGetUniqueFilename();
     const tasks = await Capturer.captureLink(params);
     ExtMsg.clearMocks();
     const [taskA, taskB] = tasks;
@@ -97,12 +102,14 @@ describe("Capturer css", () => {
       WEB_FONT_CSS_B,
       WEB_FONT_CSS_C
     ];
+    ExtMsg.mockGetUniqueFilename();
     for(let i = 0; i < texts.length; i++) {
       params.text = texts[i];
       var {cssText, tasks} = await Capturer.captureText(params);
       H.assertEqual(tasks.length, 0);
       H.assertMatch(cssText, /url\(""\)/);
     }
+    ExtMsg.clearMocks();
   });
 
   it("capture text (web font) - asset path - text in document", async () => {
@@ -110,7 +117,9 @@ describe("Capturer css", () => {
     params.baseUrl = params.docUrl;
     params.config.saveWebFont = true;
     params.text = WEB_FONT_CSS_A;
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureText(params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 1);
     H.assertEqual(tasks[0].url, 'https://a.org/foo.woff');
     H.assertMatch(cssText, /url\("assets\/[^\.\/]+.woff"\)/);
@@ -121,7 +130,9 @@ describe("Capturer css", () => {
     params.text = WEB_FONT_CSS_A;
     params.config.saveWebFont = true;
     params.baseUrl = 'https://a.org/style.css';
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureText(params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 1);
     H.assertMatch(cssText, /url\("[^\.\/]+.woff"\)/);
   });
@@ -131,7 +142,9 @@ describe("Capturer css", () => {
     params.text = WEB_FONT_CSS_A;
     params.config.saveWebFont = true;
     params.baseUrl = 'https://cdn.a.org/style.css';
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureText(params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 1);
     H.assertMatch(cssText, /url\("[^\.\/]+.woff"\)/);
   });
@@ -160,7 +173,9 @@ describe("Capturer css", () => {
     params.text = IMG_CSS;
     params.baseUrl = 'https://a.org/style.css';
     params.config.saveCssImage = true;
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureText(params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 3);
     H.assertMatch(cssText, /url\("[^\.\/]+.jpg"\)/);
     H.assertMatch(cssText, /url\("[^\.\/]+.png"\)/);

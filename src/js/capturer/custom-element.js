@@ -20,7 +20,7 @@ import Template from '../lib/template.js';
  *
  */
 
-function capture(node, opts) {
+async function capture(node, opts) {
   const {saveFormat, clipId, storageInfo, doc,
     customElementHtmlDict = {}, customElementStyleDict = {}} = opts;
   const tasks = [];
@@ -38,7 +38,19 @@ function capture(node, opts) {
     const html = Template.customElemPage.render({
       html: customElementHtmlDict[customElementId],
     });
-    const assetName = Asset.getNameByContent({ content: html, extension: 'frame.html', prefix: clipId});
+    const name = Asset.getNameByContent({
+      template: storageInfo.raw.frameFileName,
+      content: html,
+      name: 'custom-element',
+      extension: 'html',
+      now: storageInfo.valueObj.now,
+    });
+    const assetName = await Asset.getUniqueName({
+      clipId: clipId,
+      id: Asset.md5(content),
+      folder: storageInfo.frameFolder,
+      filename: name,
+    });
     const filename = T.joinPath(storageInfo.frameFileFolder, assetName);
     const src = T.calcPath(
       storageInfo.mainFileFolder,

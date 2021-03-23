@@ -61,6 +61,7 @@ function getParams(message) {
     storageInfo.frameFileFolder, storageInfo.assetFolder
   );
 
+
   return {
     clipId: clipId,
     frames: frames,

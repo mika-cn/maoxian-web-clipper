@@ -216,7 +216,7 @@ async function captureNode(node, params) {
       break;
     case 'CANVAS':
       opts = {saveFormat, storageInfo, clipId, canvasDataUrlDict, doc};
-      r = CapturerCanvas.capture(node, opts);
+      r = await CapturerCanvas.capture(node, opts);
       break;
     case 'IFRAME':
     case 'FRAME':
@@ -227,7 +227,7 @@ async function captureNode(node, params) {
     default:
       if (node.hasAttribute('data-mx-custom-element-id')) {
         opts = {saveFormat, clipId, storageInfo, doc, customElementHtmlDict};
-        r = CapturerCustomElement.capture(node, opts);
+        r = await CapturerCustomElement.capture(node, opts);
       }
       break;
   }
