@@ -288,7 +288,7 @@ function node2Str(node) {
     klass.trim().split(/\s+/).forEach((it) => {
       if (it.match(/\d+$/) || it === '') {
         // ends with number
-      } else if (it.match(/^[,\.:\*"']/)) {
+      } else if (it.match(/^[,\.:\*"'0-9]/)) {
         // invalid klass
       } else {
         // sanitize it
