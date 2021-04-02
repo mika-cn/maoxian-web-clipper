@@ -368,11 +368,16 @@ function submitForm(msg){
       if (config.rememberSelection) {
         MxWcSelectionMain.save(state.currElem, state.deletedElems);
       }
-     const callback = state.callbacks['submitted'];
-     callback({
+     const formSubmitted = state.callbacks['submitted'];
+     formSubmitted({
        elem: state.currElem,
        formInputs: formInputs,
        config: config,
+     }).catch((error) => {
+       Notify.error(error.message);
+       ignoreFrameMsg();
+       disable();
+       remove();
      });
     } else {
       Notify.error(message);
