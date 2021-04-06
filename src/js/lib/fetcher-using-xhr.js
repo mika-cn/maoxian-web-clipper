@@ -24,6 +24,15 @@ function get(url, {respType = 'text', headers = {}, timeout = 40, tries = 3}) {
 }
 
 /*
+ * @see doPut()
+ * @param {integer} tries - How many times we'll try (default 3)
+ */
+function put(url, {headers = {}, body = '', timeout = 40, tries = 3}) {
+  const action = function() { return doPut(url, {headers, body, timeout}) };
+  return T.retryAction(action, tries);
+}
+
+/*
  * @see doHead()
  * @param {integer} tries - How many times we'll try (default 3)
  */
@@ -56,6 +65,26 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
  * @param {String} url request url
  * @param {Object} options (@see doXhr)
  *
+ * @return {Promise} requesting : resolve with text or blob.
+ */
+function doPut(url, {headers = {}, body = '', timeout = 40}) {
+  return new Promise((resolve, reject) => {
+    const cache = state.Cache.get(url);
+    if (cache) {
+      const resp = cache.readAsResponse({headersOnly: true});
+      resolve(resp.headers);
+    } else {
+      doXhr('PUT', url, {headers, body, timeout}).then((resp) => {
+        resolve(resp.headers);
+      }, reject);
+    }
+  });
+}
+
+/**
+ * @param {String} url request url
+ * @param {Object} options (@see doXhr)
+ *
  * @return {Promise} requesting : resolve with headers
  */
 function doHead(url, {headers = {}, timeout = 40}) {
@@ -78,12 +107,13 @@ function doHead(url, {headers = {}, timeout = 40}) {
  * @param {String} url request url
  * @param {Object} options
  *   - {Object} headers request headers
+ *   - {String} body request body
  *   - {Integer} timeout (seconds)
  *
  * @return {Promise} resolve with a Response object.
  *
  */
-function doXhr(method, url, {headers = {}, timeout = 40}) {
+function doXhr(method, url, {headers = {}, body= '', timeout = 40}) {
 
   const requestHeaders = appendToken(escapeHeaders(headers));
 
@@ -174,10 +204,14 @@ function doXhr(method, url, {headers = {}, timeout = 40}) {
     xhr.onload = function(e) {
       if (this.status >= 200 && this.status < 300) {
         // 2xx
-        const body = this.response;
         const respHeaders = T.headerText2HeadersObj(this.getAllResponseHeaders())
         const init = {status: this.status, statusText: this.statusText, headers: respHeaders};
-        resolve(new Response(body, init));
+        if (this.status === 204) {
+          resolve(new Response(null, init));
+        } else {
+          const body = this.response;
+          resolve(new Response(body, init));
+        }
       } else {
         // XMLHttpRequest handles redirects automatically in the background,
         // So We don't need to handle it.
@@ -197,7 +231,11 @@ function doXhr(method, url, {headers = {}, timeout = 40}) {
     for (let name in requestHeaders) {
       xhr.setRequestHeader(name, requestHeaders[name]);
     }
-    xhr.send();
+    if (body) {
+      xhr.send(body);
+    } else {
+      xhr.send();
+    }
 
   });
 }
@@ -232,4 +270,4 @@ function init({token, cache}) {
   state.Cache = cache;
 }
 
-export default {init, get, head};
+export default {init, get, put, head};

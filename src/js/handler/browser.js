@@ -16,7 +16,7 @@ function saveClipping(clipping, feedback) {
   listen();
   SavingTool.startSaving(clipping, feedback, {mode: 'completeWhenAllTaskFinished'});
   T.each(clipping.tasks, (task) => {
-    saveTask(task);
+    saveTask(task, clipping.info);
   });
 }
 
@@ -32,12 +32,15 @@ function handleClippingResult(it) {
 }
 
 // msg: {:text, :mineType, :filename}
-function downloadText(msg){
+function downloadText(msg, info){
   const arr = [msg.text];
   const opt = {type: msg.mimeType};
   const blob = new Blob(arr, opt);
   const url = URL.createObjectURL(blob);
   downloadUrl({url: url, filename: msg.filename});
+  if (isMarkdown(msg.filename)) {
+    putTiddler(info.title, msg.text, info.tags)
+  }
 }
 
 function downloadBlob(msg){
@@ -82,6 +85,10 @@ function isMainFile(filename) {
       filename.endsWith('.html') && !filename.endsWith('.frame.html')
       || filename.endsWith('.md')
       || filename.endsWith('.mxwc'));
+}
+
+function isMarkdown(filename) {
+  return filename.endsWith('.md');
 }
 
 function downloadCompleted(downloadItemId){
@@ -184,10 +191,10 @@ function saveTextFile(task) {
   saveTask(task);
 }
 
-function saveTask(task) {
+function saveTask(task, info={}) {
   switch(task.type){
     // html, markdown, styles
-    case 'text': downloadText(task); break;
+    case 'text': downloadText(task, info); break;
     case 'blob': downloadBlob(task); break;
     // images and fonts
     case 'url' : fetchAndDownload(task); break;
@@ -229,6 +236,25 @@ function revokeObjectUrl(url) {
   if(url.match(/^blob:/i)) {
     URL.revokeObjectURL(url);
   }
+}
+
+function putTiddler(name, content, tags = [], timeout = 5, tries = 2) {
+  Log.debug('new tiddler', name, tags);
+  const body = {
+    'title': name,
+    'text': content,
+    'tags': tags,
+    'type': 'text/x-markdown',
+  };
+  return Global.Fetcher.put('http://localhost:8080/recipes/default/tiddlers/' + name, {
+    headers: {
+      'Content-type': 'application/json',
+      'X-Requested-With': 'TiddlyWiki',
+    },
+    body: JSON.stringify(body),
+    timeout: timeout,
+    tries: tries,
+  });
 }
 
 function getInfo(callback) {
