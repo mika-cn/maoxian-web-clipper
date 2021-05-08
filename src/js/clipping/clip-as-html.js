@@ -174,10 +174,12 @@ function collectCssRules(contextNode) {
   [].forEach.call(nodes, (it) => {
     try {
       const id = T.createId();
+      dict[id] = it.sheet.cssRules
       it.setAttribute('data-mx-id', id);
       it.setAttribute('data-mx-marker', 'css-rules');
-      dict[id] = it.sheet.cssRules
-    } catch(e) {}
+    } catch(e) {
+      // In some browsers, if a stylesheet is loaded from a different domain, calling cssRules results in SecurityError.
+    }
   });
   return dict;
 }
