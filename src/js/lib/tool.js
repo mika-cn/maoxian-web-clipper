@@ -801,6 +801,25 @@ T.calcPath = function(currDir, destPath) {
 }
 
 
+// ===============================
+// blob
+// ===============================
+
+T.blob2BinaryString = function(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      resolve(e.target.result);
+    }
+    reader.onerror = function(e) {
+      const errName = (e.target.error.name || "Error")
+      reject(new Error(errName));
+    }
+    reader.readAsBinaryString(blob);
+  });
+}
+
+
 // ====================================
 
 T.createIdxTool = function(start) {
@@ -1250,12 +1269,14 @@ T.parseContentType = function(value) {
   const caseInsensitiveParameters = ['charset'];
   rests.forEach((it) => {
     const [k, v] = it.split('=');
-    const name = k.toLowerCase();
-    let value = v.replace(/"/g, '');
-    if (caseInsensitiveParameters.indexOf(name) > -1) {
-      value = value.toLowerCase();
+    if (k && v) {
+      const name = k.toLowerCase();
+      let value = v.replace(/"/g, '');
+      if (caseInsensitiveParameters.indexOf(name) > -1) {
+        value = value.toLowerCase();
+      }
+      parameters[name] = value;
     }
-    parameters[name] = value;
   });
   return {mimeType: mimeType.toLowerCase(), parameters}
 }
