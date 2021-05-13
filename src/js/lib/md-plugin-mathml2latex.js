@@ -1,7 +1,7 @@
 "use strict";
 
-// FIXME
-//const MathML2LaTeX = require('../../vendor/js/mathml2latex.js');
+import MathML2LaTeX from 'mathml2latex';
+
 
 function handle(doc, elem) {
   if(elem.tagName.toUpperCase() === 'MATH') {
