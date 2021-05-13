@@ -201,6 +201,7 @@
     "label.save-icon-input": "保存网站图标",
     "label.save-web-font-input": "保存Web字体(建议取消勾选)",
     "label.save-css-image-input": "存储 CSS 背景图(建议取消勾选)",
+    "label.custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",
     "label.hotkey-switch-enabled-input": "启用快捷键 `c` (裁剪开关)",
     "label.mouse-mode-enabled-input": "鼠标友好模式",

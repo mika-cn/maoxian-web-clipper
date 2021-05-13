@@ -44,6 +44,10 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   v.headInnerHtml = headInnerHtml;
   v.elemHtml = elemHtml;
   v.config = config;
+
+  if (config.customBodyBgCssEnabled && config.customBodyBgCssValue)
+    v.bodyBgCss = config.customBodyBgCssValue;
+
   const html = Template[page].render(Object.assign({}, v, i18nLabel));
   const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName)
 

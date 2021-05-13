@@ -30,6 +30,8 @@ function getDefault(){
     saveWebFont: false,
     saveCssImage: false,
     htmlSaveClippingInformation: false,
+    customBodyBgCssEnabled: false,
+    customBodyBgCssValue: "",
 
     mdSaveClippingInformation: false,
     mdFrontMatterEnabled: false,

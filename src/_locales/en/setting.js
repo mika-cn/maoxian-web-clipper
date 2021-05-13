@@ -205,6 +205,7 @@
     "label.save-icon-input": "Save website icons",
     "label.save-web-font-input": "Save web fonts (not recommended)",
     "label.save-css-image-input": "Save CSS background images (not recommended)",
+    "label.custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",
     "label.hotkey-switch-enabled-input": "Enable hotkey `c` (clip switch)",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
