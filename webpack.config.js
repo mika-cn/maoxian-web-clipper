@@ -50,11 +50,6 @@ function getCopyItems() {
     items.push({from: sourceFilename, to: targetFilename});
   });
 
-  items.push({
-    from: 'src/vendor/js/mathml2latex.js',
-    to: path.join(dist_folder, 'vendor/js/mathml2latex.js'),
-  });
-
   // page assets
   [
     /* icons and locale files */

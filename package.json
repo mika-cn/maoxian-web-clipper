@@ -44,6 +44,7 @@
     "css-selector-generator": "^2.1.0",
     "turndown": "^6.0.0",
     "turndown-plugin-gfm": "^1.0.2",
+    "mathml2latex": "^1.1.1",
     "awesomplete": "^1.1.5",
     "pikaday": "^1.8.0"
   }
