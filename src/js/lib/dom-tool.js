@@ -97,7 +97,8 @@ function findNodeByXpath(doc, contextNode, xpath) {
 
 // Do not pass selector that you cann't control
 function querySelectorIncludeSelf(contextNode, selector) {
-  if (contextNode.matches(selector)) {
+  // ShadowRoot doen't have `matches()`;
+  if (contextNode.matches && contextNode.matches(selector)) {
     return [contextNode];
   } else {
     return contextNode.querySelectorAll(selector);

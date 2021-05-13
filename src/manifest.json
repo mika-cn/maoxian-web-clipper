@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.1.74",
+  "version": "0.1.76",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*",
@@ -31,7 +31,6 @@
       "js": [
         "vendor/js/browser-polyfill.js",
         "vendor/js/i18n.js",
-        "vendor/js/mathml2latex.js",
         "_locales/en/common.js",
         "_locales/zh_CN/common.js",
         "js/content-frame.js"

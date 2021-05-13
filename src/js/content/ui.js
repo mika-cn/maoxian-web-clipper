@@ -17,15 +17,28 @@ const state = {
 };
 
 // ifarme common functions
+//
+
+const IFRAME_STYLE_ITEMS =  [
+    ["display" , 'block'] ,
+    ["border"  , "none"]  ,
+    ["top"     , "0px"]     ,
+    ["left"    , "0px"]     ,
+    ["margin"  , "0px"]     ,
+    ["width"   , '100%']  ,
+    ["clip"    , "auto"]  ,
+    ["z-index" , "2147483647"],
+    ["background-color", "transparent"],
+];
 
 function appendIframe(){
-  this.element = initializeIframe(this.src());
+  this.element = document.createElement("iframe");
   this.element.id = this.id;
-  this.appendExtraStyle();
-  this.element.addEventListener('load', () => {
-    this.frameLoaded();
-  });
-  //document.body.appendChild(this.element);
+  this.element.src = this.src();
+  this.element.scrolling = 'no';
+  this.setStyle();
+  this.element.addEventListener('load', () => { this.frameLoaded() });
+  this.startMutationObserver();
   document.body.parentElement.appendChild(this.element);
   Log.debug(this.id, 'append');
 }
@@ -33,12 +46,51 @@ function appendIframe(){
 function removeIframe(){
   this.ready = false;
   if(this.element){
-    //document.body.removeChild(this.element);
     document.body.parentElement.removeChild(this.element);
     this.element = null;
     Log.debug(this.id, 'removed');
   }
+  this.stopMutationObserver();
 }
+
+function startMutationObserver() {
+  if (window.MutationObserver && !this.observer) {
+    this.mutationCount = 0;
+    this.observer = new window.MutationObserver((mutationRecords) => {
+      if (this.mutationCount > 20) {
+        // avoid infinite mutation.
+        return;
+      }
+      let mutationByPage = false;
+      [].forEach.call(mutationRecords, (record) => {
+        if (record.type == 'attributes' && record.attributeName == 'style') {
+          this.getStyleItems().forEach(([name, value]) => {
+            if ( this.element.style.getPropertyValue(name) != value
+              || this.element.style.getPropertyPriority(name) != 'important') {
+              mutationByPage = true;
+              this.element.style.setProperty(name, value, 'important');
+            }
+          });
+        }
+      });
+      if (mutationByPage) { this.mutationCount++ }
+    });
+
+    this.observer.observe(this.element, {
+      attributes: true,
+      childList: false,
+      subtree: false,
+    });
+  }
+}
+
+function stopMutationObserver() {
+  if (window.MutationObserver && this.observer) {
+    this.observer.disconnect();
+    this.observer = undefined;
+  }
+}
+
 
 // selection layer
 const selectionIframe = {
@@ -49,16 +101,24 @@ const selectionIframe = {
     return url + "?t=" + btoa(window.location.origin)
   },
   append: appendIframe,
-  appendExtraStyle: function(){
-    this.element.style.setProperty("z-index", "2147483646", "important");
-    this.element.style.setProperty("position", "absolute", "important");
+  setStyle: function() {
+    this.getStyleItems().forEach((it) => {
+      this.element.style.setProperty(it[0], it[1], "important");
+    });
     this.element = updateFrameSize(this.element);
+  },
+  getStyleItems() {
+    return IFRAME_STYLE_ITEMS.concat([
+      ["position", "absolute"],
+    ]);
   },
   remove: removeIframe,
   frameLoaded: function(){
     this.ready = true;
     dispatchFrameLoadedEvent(this.id);
-  }
+  },
+  startMutationObserver: startMutationObserver,
+  stopMutationObserver: stopMutationObserver,
 }
 
 // status & form layer
@@ -70,17 +130,25 @@ const controlIframe = {
     return url + "?t=" + btoa(window.location.origin)
   },
   append: appendIframe,
-  appendExtraStyle: function(){
-    this.element.style.setProperty("height", "100%", "important");
-    this.element.style.setProperty("z-index", "2147483647", "important");
-    this.element.style.setProperty("position", "fixed", "important");
+  setStyle: function() {
+    this.getStyleItems().forEach((it) => {
+      this.element.style.setProperty(it[0], it[1], "important");
+    });
+  },
+  getStyleItems() {
+    return IFRAME_STYLE_ITEMS.concat([
+      ["height", "100%"],
+      ["position", "fixed"],
+    ]);
   },
   remove: removeIframe,
   frameLoaded: function(){
     this.element.focus();
     this.ready = true;
     dispatchFrameLoadedEvent(this.id);
-  }
+  },
+  startMutationObserver: startMutationObserver,
+  stopMutationObserver: stopMutationObserver,
 }
 
 function dispatchFrameLoadedEvent(frameId) {
@@ -93,24 +161,6 @@ function dispatchFrameLoadedEvent(frameId) {
 }
 
 
-function initializeIframe(src) {
-  let el = document.createElement("iframe");
-  el.src = src;
-  [
-    ["display" , 'block'] ,
-    ["border"  , "none"]  ,
-    ["top"     , "0"]     ,
-    ["left"    , "0"]     ,
-    ["margin"  , "0"]     ,
-    ["width"   , '100%']  ,
-    ["clip"    , "auto"]  ,
-    ["background-color", "transparent"],
-  ].forEach((pair) => {
-    el.style.setProperty(pair[0], pair[1], 'important');
-  });
-  el.scrolling = "no";
-  return el;
-}
 
 // append UI layers
 function append(){
@@ -374,6 +424,7 @@ function submitForm(msg){
        formInputs: formInputs,
        config: config,
      }).catch((error) => {
+       console.error(error);
        Notify.error(error.message);
        ignoreFrameMsg();
        disable();

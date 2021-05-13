@@ -23,10 +23,12 @@ async function capture(node, opts) {
   let text = '';
   if (node.getAttribute('data-mx-marker') === 'css-rules') {
     const cssRules = opts.cssRulesDict[node.getAttribute('data-mx-id')];
-    const cssText = [].map.call(cssRules, (it) => {
-      return it.cssText
-    }).join("\n");
-    text = `\n${cssText}\n`;
+    if (cssRules) {
+      const cssText = [].map.call(cssRules, (it) => {
+        return it.cssText
+      }).join("\n");
+      text = `\n${cssText}\n`;
+    }
     node.removeAttribute('data-mx-marker');
     node.removeAttribute('data-mx-id');
   } else {
