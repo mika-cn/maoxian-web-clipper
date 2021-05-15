@@ -199,7 +199,9 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
             const value = This.getValue(elem, action);
             if(value) {
               const attrName = ['data-mx-original-attr', action.attr].join('-');
-              elem.setAttribute(attrName, elem.getAttribute(action.attr));
+              let attrOldValue = elem.getAttribute(action.attr);
+              attrOldValue = attrOldValue == null ? "" : attrOldValue;
+              elem.setAttribute(attrName, attrOldValue);
               elem.setAttribute(action.attr, value);
             }
           });
@@ -267,7 +269,7 @@ Action.undoChAttr = function(params, contextSelectorInput = 'document') {
             .forEach(function(elem) {
               const attrName = ['data-mx-original-attr', action.attr].join('-');
               const originalValue = elem.getAttribute(attrName);
-              if(originalValue) {
+              if(originalValue != null) {
                 elem.setAttribute(action.attr, originalValue);
                 elem.removeAttribute(attrName);
               }
