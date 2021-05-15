@@ -53,6 +53,14 @@ function initSettingGeneral(config) {
     'save-css-image',
     'saveCssImage'
   );
+  initCheckboxInput(config,
+    'custom-body-bg-css-enabled',
+    'customBodyBgCssEnabled'
+  );
+  initTextInput(config,
+    'custom-body-bg-css-value',
+    'customBodyBgCssValue'
+  );
   // - markdown
   initCheckboxInput(config,
     'md-save-clipping-information',

@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.4';
+const VERSION = '1.5';
 const state = {};
 
 /** WARNING
@@ -30,6 +30,8 @@ function getDefault(){
     saveWebFont: false,
     saveCssImage: false,
     htmlSaveClippingInformation: false,
+    customBodyBgCssEnabled: false,
+    customBodyBgCssValue: "",
 
     mdSaveClippingInformation: false,
     mdFrontMatterEnabled: false,
