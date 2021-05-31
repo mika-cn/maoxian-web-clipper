@@ -213,6 +213,13 @@ input[type=text]:focus {
   border: 2px solid pink;
 }
 
+input[type=color] {
+  border: 1px solid #ccc;
+  padding: 1px 2px;
+  width: 44px;
+  cursor: pointer;
+}
+
 input[type=number] {
   width: 50px;
 }
