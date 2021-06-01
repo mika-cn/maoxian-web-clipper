@@ -53,6 +53,14 @@ function initSettingGeneral(config) {
     'save-css-image',
     'saveCssImage'
   );
+  initCheckboxInput(config,
+    'custom-body-bg-css-enabled',
+    'customBodyBgCssEnabled'
+  );
+  initColorInput(config,
+    'custom-body-bg-css-value',
+    'customBodyBgCssValue'
+  );
   // - markdown
   initCheckboxInput(config,
     'md-save-clipping-information',
@@ -369,10 +377,17 @@ function initTextInput(config, elemId, configKey){
   const elem = T.findElem(elemId);
   elem.value = config[configKey];
   setConfigKey(elem, configKey);
-  T.bindOnce(elem, 'blur', textInputBlured);
+  T.bindOnce(elem, 'blur', saveTextValueByEvent);
 }
 
-function textInputBlured(e) {
+function initColorInput(config, elemId, configKey) {
+  const elem = T.findElem(elemId);
+  elem.value = config[configKey];
+  setConfigKey(elem, configKey);
+  T.bindOnce(elem, 'change', saveTextValueByEvent);
+}
+
+function saveTextValueByEvent(e) {
   const configKey = getConfigKey(e.target);
   const value = e.target.value.trim();
   e.target.value = value;
@@ -380,6 +395,7 @@ function textInputBlured(e) {
     Notify.success(I18N.t('g.hint.update-success'));
   }
 }
+
 
 function initNumberInput(config, elemId, configKey) {
   const elem = T.findElem(elemId);
