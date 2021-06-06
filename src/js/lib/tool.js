@@ -6,6 +6,16 @@ import mime from './mime.js';
 
 const T = {};
 
+T.defineEnum = function(names, start = 1) {
+  return Object.freeze(
+    names.reduce((obj, name, index) => {
+      obj[name] = index + start;
+      return obj;
+    }, {})
+  );
+}
+
+
 T.toJsVariableName = function(str) {
   const it = T.capitalize(str);
   const [char1, rest] = [
@@ -86,6 +96,13 @@ T.sliceObj = function(obj, keys) {
   }
   return r;
 }
+
+T.mapObj = function(obj, transfer) {
+  const r = [];
+  for (let k in obj) { r.push(transfer(k, obj[k])) }
+  return r;
+}
+
 
 /**
  * A filter can return:

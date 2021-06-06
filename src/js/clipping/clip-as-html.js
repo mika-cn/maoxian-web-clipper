@@ -6,6 +6,7 @@ import Log                   from '../lib/log.js';
 import ExtMsg                from '../lib/ext-msg.js';
 import Task                  from '../lib/task.js';
 import Template              from '../lib/template.js';
+import Snapshot              from '../snapshot/snapshot.js';
 import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerPicture       from '../capturer/picture.js';
@@ -21,6 +22,19 @@ import StyleHelper           from './style-helper.js';
 
 async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}) {
   Log.debug("html parser");
+
+  const topFrame = frames.find((it) => it.frameId == 0);
+  const frameInfo = {allFrames: frames, ancestors: [topFrame]}
+  const snapshot = await Snapshot.take(elem, {frameInfo, requestParams, win});
+  console.log(snapshot);
+
+
+
+
+
+
+
+
 
   const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
 

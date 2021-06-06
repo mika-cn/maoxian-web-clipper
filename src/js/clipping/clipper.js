@@ -38,7 +38,11 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
   const userInput = dealFormInputs(formInputs);
   const i18nLabel = getI18nLabel();
 
+  const now = Date.now();
+  const tObj = T.wrapNow(now);
+
   const requestParams = new RequestParams({
+    sessionId      : tObj.str.intSec,
     refUrl         : pageUrl,
     userAgent      : userAgent,
     referrerPolicy : config.requestReferrerPolicy,
@@ -46,7 +50,6 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
     tries          : config.requestMaxTries,
   });
 
-  const now = Date.now();
 
   const appendTags = [];
   if (config.saveDomainAsTag) {
@@ -75,7 +78,6 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
   userInput.category = storageInfo.category;
 
   // metas
-  const tObj = T.wrapNow(now);
   const info = {
     version    : '2.0', /* none, 2.0 */
     clipId     : tObj.str.intSec,
@@ -124,6 +126,9 @@ async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, 
   });
 
   let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win});
+
+  //FIXME
+  return;
 
   if (storageConfig.saveTitleFile) {
     const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);

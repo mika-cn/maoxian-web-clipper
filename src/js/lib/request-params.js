@@ -1,7 +1,8 @@
 
 class RequestParams {
 
-  constructor({refUrl, userAgent, referrerPolicy, timeout = 40, tries = 3}) {
+  constructor({sessionId, refUrl, userAgent, referrerPolicy, timeout = 40, tries = 3}) {
+    this.sessionId = sessionId;
     this.refUrl = refUrl;
     this.userAgent = userAgent;
     this.referrerPolicy = referrerPolicy;
@@ -11,6 +12,7 @@ class RequestParams {
 
   toParams(url) {
     return {
+      sessionId: this.sessionId,
       url: url,
       headers: this.getHeaders(url),
       timeout: this.timeout,
