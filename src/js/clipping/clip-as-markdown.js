@@ -279,13 +279,33 @@ function generateMdFrontMatter(template, v) {
     }).join("\n");
   }
   const tObj = T.wrapDate(new Date(v.created_at));
-  return T.renderTemplate(template, Object.assign({
+  return renderYamlFrontMatter(template, Object.assign({
     title: (v.title || "-"),
     url: v.link,
     createdAt: v.created_at,
     category: category,
     tags: tags
   }, tObj.str));
+}
+
+function renderYamlFrontMatter(template, v) {
+  const result = [];
+  let n = 0;
+  template.split(/\n/).forEach((line) => {
+    if (n == 2) {
+      result.push(line);
+    } else {
+      if (line.match(/^---\s*$/)) {
+        n++;
+        result.push(line.trim());
+      } else if (n == 1) {
+        result.push(T.renderTemplate(line, v));
+      } else {
+        result.push(line);
+      }
+    }
+  });
+  return result.join("\n");
 }
 
 function getTurndownService(){
