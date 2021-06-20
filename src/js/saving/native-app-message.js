@@ -66,10 +66,10 @@ class NativeAppClient {
       errMsg = "NativeApp: DisconnectErr:" + port.error.message;
     }
     if (errMsg) {
-      Log.error(errMsg);
       if (this.listeners.disconnect) {
         this.listeners.disconnect.forEach((it) => it(errMsg));
       }
+      console.error(errMsg);
     }
     this.port = null;
     this.listeners = {};
