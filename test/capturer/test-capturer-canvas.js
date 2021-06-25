@@ -6,65 +6,65 @@ const jsdom = new JSDOM();
 const win = jsdom.window;
 
 import H from '../helper.js';
-import DOMTool from '../../src/js/lib/dom-tool.js';
-import Capturer from '../../src/js/capturer/canvas.js';
+import CapturerCanvas from '../../src/js/capturer/canvas.js';
+import RequestParams from '../../src/js/lib/request-params.js';
 
 const ExtMsg = H.depMockJs('ext-msg.js');
 ExtMsg.initBrowser(browser);
+const Capturer = H.wrapAsyncCapturer(CapturerCanvas);
 
-function getParams(doc, canvasDataUrlDict = {}) {
+
+function getParams() {
+  const url = 'https://a.org/index.html';
   return {
     saveFormat: 'html',
     clipId: '001',
     storageInfo: {
+      mainFileFolder: 'category-a/clippings',
       assetFolder: 'category-a/clippings/assets',
       assetRelativePath: 'assets',
       raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
       valueObj: {now: Date.now()},
     },
-    doc: doc,
-    canvasDataUrlDict: canvasDataUrlDict,
+    requestParams: RequestParams.createExample({refUrl: url}),
   }
 }
 
 describe('Capture Canvas', () => {
 
-  it("Capturer Canvas: without marker", async () => {
-    const html = "<canvas></canvas>";
-    const {node, doc} = DOMTool.parseHTML(win, html);
-    const params = getParams(doc);
+  it("Capturer Canvas: tained canvas", async () => {
+    const node = {type: 1, name: 'CANVAS'};
+    const params = getParams();
+    ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
+    ExtMsg.clearMocks();
     H.assertEqual(r.tasks.length, 0);
-    H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
+    H.assertTrue(r.change.hasAttr('data-mx-ignore-me'));
   });
 
-  it("Capturer Canvas: with marker [html]", async () => {
-    const html = '<canvas data-mx-marker="canvas-image" data-mx-id="x1"></canvas>';
-    const canvasDataUrlDict = {"x1": "data:image/png;base64,imagedata"};
-    const {node, doc} = DOMTool.parseHTML(win, html);
-    const params = getParams(doc, canvasDataUrlDict);
+  it("Capturer Canvas: with dataUrl", async () => {
+    const node = {type: 1, name: 'CANVAS',
+      dataUrl: "data:image/png;base64,imagedata"
+    };
+    const params = getParams();
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
-    H.assertEqual(r.tasks.length, 1);
-    H.assertTrue(r.node.hasAttribute('style'));
-    H.assertFalse(r.node.hasAttribute('data-mx-marker'));
-    H.assertFalse(r.node.hasAttribute('data-mx-id'));
     ExtMsg.clearMocks();
+    H.assertEqual(r.tasks.length, 1);
+    H.assertTrue(r.change.hasStyleProperty('background-image'));
   })
 
-  it("Capturer Canvas: with marker [md]", async () => {
-    const html = '<canvas data-mx-marker="canvas-image" data-mx-id="x1"></canvas>';
-    const canvasDataUrlDict = {"x1": "data:image/png;base64,imagedata"};
-    const {node, doc} = DOMTool.parseHTML(win, html);
-    const params = getParams(doc, canvasDataUrlDict);
+  it("Capturer Canvas: with dataUrl [md]", async () => {
+    const node = {type: 1, name: 'CANVAS',
+      dataUrl: "data:image/png;base64,imagedata"
+    };
+    const params = getParams();
     params.saveFormat = 'md';
     ExtMsg.mockGetUniqueFilename();
-    const r = await Capturer.capture(node, params);
-    H.assertEqual(r.node.tagName, 'IMG');
-    H.assertEqual(r.tasks.length, 1);
-    H.assertFalse(r.node.hasAttribute('data-mx-marker'));
-    H.assertFalse(r.node.hasAttribute('data-mx-id'));
+    const {change, tasks} = await Capturer.capture(node, params);
     ExtMsg.clearMocks();
+    H.assertEqual(tasks.length, 1);
+    H.assertEqual(change.getProperty('name'), 'IMG');
   })
 
 });

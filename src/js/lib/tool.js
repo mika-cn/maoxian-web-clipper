@@ -103,6 +103,10 @@ T.mapObj = function(obj, transfer) {
   return r;
 }
 
+T.styleObj2Str = function(obj) {
+  return T.mapObj(obj, (k, v) => `${k}: ${v}`).join(";");
+}
+
 
 /**
  * A filter can return:
@@ -541,7 +545,7 @@ T.wrapNow = function(now) {
 T.wrapDate = function(date) {
   const tObj = {
     value  : date,
-    year   : date.getFullYear(),
+    year   : date.getFullYear(), // why the first call is so slow in node.
     sYear  : date.getFullYear() % 100,
     month  : date.getMonth() + 1,
     day    : date.getDate(),
@@ -551,6 +555,7 @@ T.wrapDate = function(date) {
     intSec : Math.floor(date/1000),
     intMs  : date / 1
   }
+
   // sYear => short year
   const s = {
     year: tObj.year.toString(),

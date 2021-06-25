@@ -13,65 +13,14 @@
 
 import T                  from '../lib/tool.js';
 import ExtMsg             from '../lib/ext-msg.js';
-import SnapshotStyleSheet from './stylesheet.js';
-
-
-const ELEMENT_NAME = T.defineEnum([
-  'LINK',
-  'STYLE',
-  'IMG',
-  'CANVAS',
-  'IFRAME',
-  'FRAME',
-  'TEMPLATE',
-  'SLOT',
-]);
-
-const NODE_TYPE = T.defineEnum([
-  'ELEMENT',
-  'ATTRIBUTE',
-  'TEXT',
-  'CDATA_SECTION',
-  'ENTITY_REFERENCE',
-  'ENTITY',
-  'PROCESSING_INSTRUCTION',
-  'COMMENT',
-  'DOCUMENT',
-  'DOCUMENT_TYPE',
-  'DOCUMENT_FRAGMENT',
-  'NOTATION',
-]);
-
-const CHILD_TYPE = T.defineEnum([
-  'DEFAULT',
-  'DOCUMENT',
-  'DOCUMENT_FRAGMENT',
-  'SHADOW_ROOT',
-  'SLOT',
-]);
-
-
-const FRAME_ERROR = T.defineEnum([
-  'INVALID_URL',
-  'NOT_FOUND',
-  'NAVIGATION_INTERRUPTED',
-  'IS_BROWSER_EXTENSION',
-  'CIRCULAR',
-  'CAN_NOT_CONTACT',
-]);
+import {NODE_TYPE}        from '../lib/constants.js';
+import StyleSheetSnapshot from './stylesheet.js';
+import CssTextParser from './css-text-parser.js';
 
 const FRAME_URL = {
   BLANK  : 'about:blank',
   SRCDOC : 'about:srcdoc',
 };
-
-function sliceObj(obj, keys) {
-  const r = {};
-  for (let i = 0; i < keys.length; i++) {
-    r[keys[i]] = obj[keys[i]];
-  }
-  return r;
-}
 
 
 /**
@@ -79,90 +28,106 @@ function sliceObj(obj, keys) {
  * - {Window} win
  * - {RequestParams} requestParams
  * - {Object} frameInfo
+ * - {Object} blacklist (nodeName => isIgnore)
+ * - {Function} ignoreFn - whether to ignore this element or not.
+ * - {Boolean} ignoreHiddenElement
+ *
+ * @return {Snapshot|undefined} node
  */
-async function takeSnapshot(elem, params) {
+async function takeSnapshot(node, params) {
 
-  const {win, frameInfo, requestParams} = params;
+  const {win, frameInfo, requestParams, blacklist = {}, ignoreFn, ignoreHiddenElement = true} = params;
 
-  const snapshot = {name: elem.nodeName, type: elem.nodeType};
+  const snapshot = {name: node.nodeName, type: node.nodeType};
 
-  switch(elem.nodeType) {
+  switch(node.nodeType) {
 
     case NODE_TYPE.ELEMENT:
-      snapshot.attr = handleAttrs(elem);
-      if (!isElemVisible(win, elem, VISIBLE_WHITE_LIST)) {
-        snapshot.hidden = true;
+      if (blacklist[snapshot.name]) {
+        snapshot.ignore = true;
+        snapshot.ignoreReason = 'onBlacklist';
+        return snapshot;
       }
 
-      if (elem.shadowRoot) {
-        snapshot.childType = CHILD_TYPE.SHADOW_ROOT;
+      if (ignoreFn) {
+        const {isIgnore, reason} = ignoreFn(node);
+        if (isIgnore) {
+          snapshot.ignore = true;
+          snapshot.ignoreReason = reason;
+          return snapshot;
+        }
+      }
+
+      if (ignoreHiddenElement && !isElemVisible(win, node, VISIBLE_WHITE_LIST)) {
+        snapshot.ignore = true;
+        snapshot.ignoreReason = 'isHidden';
+        return snapshot;
+      }
+
+
+      snapshot.attr = handleAttrs(node);
+
+      if (node.shadowRoot) {
+        snapshot.isShadowHost = true;
         // If a shadowRoot contains <slot> nodes, the assigned nodes
         // will be exist in children of shadowRoot's host.
         // We ignore these nodes.
-        snapshot.childNodes = [await takeSnapshot(elem.shadowRoot, params)];
+        const newParams = Object.assign({}, params, (params.shadowDom || {}));
+        snapshot.childNodes = [await takeSnapshot(node.shadowRoot, newParams)];
         break;
       }
 
-      const elementName = (
-          ELEMENT_NAME[elem.nodeName]
-       || ELEMENT_NAME[elem.nodeName.toUpperCase()]
-       || ELEMENT_NAME.UNDEFINED
-      );
-
-      switch(elementName) {
-        case ELEMENT_NAME.SLOT:
+      switch(node.nodeName) {
+        case 'SLOT':
           // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLSlotElement
-          // Tested result:
-          //   if there's no assignedNodes,
-          //   it won't return the slot's fallback content.
-          snapshot.childType = CHILD_TYPE.SLOT;
-          const assignedNodes = await handleNodes(elem.assignedNodes(), params);
-          if (assignedNodes.length > 0) {
-            snapshot.childNodes = assignedNodes;
+          if (node.assignedNodes().length > 0) {
+            snapshot.assigned = true;
+            snapshot.childNodes = await handleNodes(node.assignedNodes(), params);
           } else {
-            snapshot.childNodes = await handleNodes(elem.childNodes, params);
+            snapshot.assigned = false;
+            snapshot.childNodes = await handleNodes(node.childNodes, params);
           }
           break;
 
-        case ELEMENT_NAME.LINK:
+        case 'LINK':
           snapshot.childNodes = [];
-          snapshot.state = {relList: DOMTokenList2Array(elem.relList, true)};
-          if (elem.sheet) { snapshot.state.sheet = await SnapshotStyleSheet.take(elem.sheet, {requestParams, win}) }
+          // Link types are case-insensitive.
+          snapshot.relList = DOMTokenList2Array(node.relList, true);
+          if (node.sheet) {
+            snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {requestParams, win});
+          }
           break;
 
-        case ELEMENT_NAME.STYLE:
-          snapshot.childNodes = await handleNodes(elem.childNodes, params);
-          snapshot.state = {sheet: await SnapshotStyleSheet.take(elem.sheet, {requestParams, win})};
+        case 'STYLE':
+          snapshot.childNodes = await handleNodes(node.childNodes, params);
+          snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {requestParams, win});
           break;
 
-        case ELEMENT_NAME.IMG:
-          snapshot.childNodes = await handleNodes(elem.childNodes, params);
-          snapshot.state = {currentSrc: elem.currentSrc}
+        case 'IMG':
+          snapshot.childNodes = await handleNodes(node.childNodes, params);
+          snapshot.currentSrc = node.currentSrc;
           break;
 
-        case ELEMENT_NAME.CANVAS:
+        case 'CANVAS':
           try {
             snapshot.childNodes = [];
-            snapshot.state = {dateUrl: elem.toDataURL()}
+            snapshot.dataUrl = node.toDataURL();
           } catch(e) {
             // tained canvas etc.
           }
           break;
 
-        case ELEMENT_NAME.TEMPLATE:
-          snapshot.childType = CHILD_TYPE.DOCUMENT_FRAGMENT
-          snapshot.childNodes = [await takeSnapshot(elem.content, params)];
+        case 'TEMPLATE':
+          snapshot.childNodes = [await takeSnapshot(node.content, params)];
           break;
 
-        case ELEMENT_NAME.IFRAME:
-        case ELEMENT_NAME.FRAME:
+        case 'IFRAME':
+        case 'FRAME':
 
-          // all frame id increase in document order (Same layer)
+          // All frame ids increase in document order (Same layer)
           // frame without src and srcdoc 's url is `about:blank`
           // frame with srcdoc 's url is `about:srcdoc
           // frame at the circular end 's url is `about:blank`
-
-          snapshot.childType = CHILD_TYPE.DOCUMENT;
 
           let path;
           if (snapshot.attr.srcdoc) {
@@ -176,19 +141,16 @@ async function takeSnapshot(elem, params) {
           const {isValid, url, message} = completeUrl(path, win.document.baseURI);
           if (!isValid) {
             snapshot.childNodes = [];
-            snapshot.state = {
-              error: FRAME_ERROR.INVALID_URL,
-              render: 'blank',
-            };
+            snapshot.errorMessage = message;
+            snapshot.render = 'blank';
             break;
           }
 
           if (isCircularFrame(frameInfo, url)) {
             snapshot.childNodes = [];
-            snapshot.state = {
-              error: FRAME_ERROR.CIRCULAR,
-              render: 'blank',
-            };
+            snapshot.url = url;
+            snapshot.errorMessage = 'Circular frame';
+            snapshot.render = 'blank';
             break;
           }
 
@@ -197,19 +159,16 @@ async function takeSnapshot(elem, params) {
           if (!frame) {
             console.info("Coundn't find frame use url: ", url);
             snapshot.childNodes = [];
-            snapshot.state = {
-              error: FRAME_ERROR.NOT_FOUND,
-              render: 'blank',
-              url: url,
-            };
+            snapshot.url = url;
+            snapshot.errorMessage = 'Frame not found';
+            snapshot.render = 'blank';
             break;
           }
 
           // This assignment is nasty. It changes the parameter (params)
           frame.used = true;
 
-
-          const frameObj = {
+          snapshot.frame = {
             url: frame.url,
             frameId: frame.frameId,
             parentFrameId: frame.parentFrameId
@@ -217,39 +176,38 @@ async function takeSnapshot(elem, params) {
 
           if (frame.errorOccurred) {
             snapshot.childNodes = [];
-            snapshot.state = {
-              error: FRAME_ERROR.NAVIGATION_INTERRUPTED,
-              frame: frameObj,
-              render: 'blank'
-            };
+            snapshot.errorMessage = 'Navigation interrupted';
+            snapshot.render = 'blank';
             break;
           }
 
-          snapshot.state = {frame: frameObj};
-
-          if(isBrowserExtensionUrl(url)) {
+          if (isBrowserExtensionUrl(url)) {
             snapshot.childNodes = [];
-            snapshot.state.error = FRAME_ERROR.IS_BROWSER_EXTENSION,
-            snapshot.state.render = 'ignore';
+            snapshot.errorMessage = 'Is Browser extension iframe';
+            snapshot.render = 'ignore';
             break;
           }
 
           if (url == FRAME_URL.BLANK) {
             snapshot.childNodes = [];
-            snapshot.state.render = 'blank';
+            snapshot.url = url;
+            snapshot.render = 'blank';
             break;
           }
 
           const newFrameInfo = {
             allFrames: [...frameInfo.allFrames],
-            ancestors: [...frameInfo.ancestors, frame],
+            ancestors: [frame, ...frameInfo.ancestors],
           }
 
           if (url == FRAME_URL.SRCDOC) {
             snapshot.childNodes = [
               await takeSnapshot(
-                elem.contentDocument,
-                Object.assign({}, params, {frameInfo: newFrameInfo})
+                node.contentDocument,
+                Object.assign( {}, params,
+                  (params.srcdocFrame || {}),
+                  {frameInfo: newFrameInfo}
+                )
               )
             ];
             break;
@@ -260,9 +218,13 @@ async function takeSnapshot(elem, params) {
 
             snapshot.childNodes = [];
             // take snapshot through extension message
-            const frameSnapshot = await ExtMsg.sendToBackground({
+            const frameSnapshot = await ExtMsg.sendToBackend('clipping', {
               type: 'frame.takeSnapshot',
-              body: {frameId: frame.frameId, frameInfo: newFrameInfo}
+              body: {
+                frameId: frame.frameId,
+                frameInfo: newFrameInfo,
+                requestParams: requestParams.toObject(),
+              }
             })
 
             if (frameSnapshot) {
@@ -275,35 +237,30 @@ async function takeSnapshot(elem, params) {
           } catch(e) {
 
             snapshot.childNodes = [];
-            snapshot.state.error = FRAME_ERROR.CAN_NOT_CONTACT,
-            snapshot.state.render = 'blank';
-            snapshot.state.message = e.message;
+            snapshot.errorMessage = e.message;
+            snapshot.render = 'blank';
           }
           break;
 
         default:
-          snapshot.childNodes = await handleNodes(elem.childNodes, params);
+          snapshot.childNodes = await handleNodes(node.childNodes, params);
       }
 
       // handle style attribute
-      if (elem.style.length > 1) {
-        snapshot.state = snapshot.state || {};
-        snapshot.state.styleObj = CssTextParser.parse(elem.style.cssText);
+      if (node.style.length > 0) {
+        snapshot.styleObj = CssTextParser.parse(node.style.cssText);
       }
       break;
 
     case NODE_TYPE.TEXT:
     case NODE_TYPE.COMMENT:
-      snapshot.text = elem.data;
+      snapshot.text = node.data;
       break;
 
     case NODE_TYPE.DOCUMENT:
-      snapshot.childType = CHILD_TYPE.DOCUMENT;
-      snapshot.childNodes = await handleNodes(elem.childNodes, params);
-      snapshot.state = {
-        docUrl: elem.location.href,
-        baseUrl: elem.baseURI,
-      };
+      snapshot.childNodes = await handleNodes(node.childNodes, params);
+      snapshot.docUrl = node.location.href;
+      snapshot.baseUrl = node.baseURI;
       break;
 
     case NODE_TYPE.DOCUMENT_TYPE:
@@ -311,7 +268,13 @@ async function takeSnapshot(elem, params) {
       break;
 
     case NODE_TYPE.DOCUMENT_FRAGMENT:
-      snapshot.childNodes = await handleNodes(elem.childNodes, params);
+      if (node.host) {
+        snapshot.isShadowRoot = true;
+        snapshot.mode = node.mode;
+        snapshot.docUrl = node.host.ownerDocument.location.href;
+        snapshot.baseUrl = node.host.baseURI;
+      }
+      snapshot.childNodes = await handleNodes(node.childNodes, params);
       break;
 
     case NODE_TYPE.PROCESSING_INSTRUCTION:
@@ -330,6 +293,59 @@ async function takeSnapshot(elem, params) {
 }
 
 
+/**
+ * take snapshot toward ancestor nodes.
+ *
+ * @param {Node} node start from this element
+ * @param {Array(Snapshot)} snapshots (current layer snapshots)
+ * @param {Function} modifier
+ *
+ * @return {Snapshot} it.
+ */
+function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
+  const node = (lastNode.assignedSlot || lastNode.host || lastNode.parentNode);
+  if (node) {
+    const snapshot = {name: node.nodeName, type: node.nodeType};
+    switch(node.nodeType) {
+      case NODE_TYPE.ELEMENT:
+        snapshot.attr = handleAttrs(node);
+        if (node.shadowRoot) {
+          snapshot.isShadowHost = true;
+          snapshot.childNodes = snapshots;
+          break;
+        } else {
+          snapshot.childNodes = snapshots;
+          // handle style attribute
+          if (node.style.length > 0) {
+            snapshot.styleObj = CssTextParser.parse(node.style.cssText);
+          }
+        }
+        break;
+      case NODE_TYPE.DOCUMENT:
+        snapshot.childNodes = snapshots;
+        snapshot.docUrl = node.location.href;
+        snapshot.baseUrl = node.baseURI;
+        break;
+      case NODE_TYPE.DOCUMENT_FRAGMENT:
+        if (node.host) {
+          snapshot.isShadowRoot = true;
+          snapshot.mode = node.mode;
+          snapshot.docUrl = node.host.ownerDocument.location.href;
+          snapshot.baseUrl = node.host.baseURI;
+        }
+        snapshot.childNodes = snapshots;
+        break;
+    }
+
+    const newSnapshots = modifier(node, snapshot);
+    return takeAncestorsSnapshot(node, newSnapshots, modifier);
+    //
+  } else {
+    return snapshots[0];
+  }
+}
+
+
 
 function handleAttrs(elem) {
   if (elem.hasAttributes()) {
@@ -345,7 +361,6 @@ function handleAttrs(elem) {
 
 async function handleNodes(nodes, params) {
   const r = [];
-  let nextParams;
   for (let i = 0; i < nodes.length; i++) {
     r.push(await takeSnapshot(nodes[i], params));
   }
@@ -371,11 +386,10 @@ function DOMTokenList2Array(list, caseInsensitive = false) {
 
 
 function findFrame(frameInfo, url) {
-  const ancestorLen = frameInfo.ancestors.length;
-  if (ancestorLen == 0) {
+  if (frameInfo.ancestors.length == 0) {
     throw new Error("findFrame: Invalid frameInfo, ancestors should not be empty");
   } else {
-    const parentFrame = frameInfo.ancestors[ancestorLen - 1];
+    const parentFrame = frameInfo.ancestors[0];
     return frameInfo.allFrames.find((it) => {
       return it.url == url && it.parentFrameId == parentFrame.frameId && !it.used;
     });
@@ -389,7 +403,7 @@ function isCircularFrame(frameInfo, url) {
     case FRAME_URL.SRCDOC:
       return false;
     default:
-      return frameInfo.ancestors.findIndex((it) => it.url === url) > 0
+      return frameInfo.ancestors.findIndex((it) => it.url === url) > -1;
   }
 }
 
@@ -449,7 +463,6 @@ function isElemVisible(win, elem, whiteList = []) {
  * {Boolean} hidden
  * {Array} childNodes
  * {Integer} childType
- * {Object} state
  *
  *
  */
@@ -465,87 +478,329 @@ function link(node, parentNode) {
 function each(node, fn, ancestors = [], ancestorDocs = []) {
   const iterateChildren = fn(node, ancestors, ancestorDocs);
   if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
-      const newAncestors = [node, ...ancestors];
-      let newAncestorDocs = ancestorDocs;
-      if (node.type == NODE_TYPE.DOCUMENT) {
-        newAncestorDocs = [node, ...ancestorDocs];
+    const newAncestors = [node, ...ancestors];
+    let newAncestorDocs = ancestorDocs;
+    if (node.type == NODE_TYPE.DOCUMENT) {
+      newAncestorDocs = [node, ...ancestorDocs];
+    }
+    node.childNodes.forEach((it) => {
+      if (!it) { console.log(node); }
+      each(it, fn, newAncestors, newAncestorDocs);
+    });
+  }
+}
+
+async function eachElement(node, fn, ancestors = [], ancestorDocs = []) {
+  switch(node.type) {
+    case NODE_TYPE.ELEMENT:
+      if (node.ignore) {
+        // donothing
+      } else {
+        const iterateChildren = await fn(node, ancestors, ancestorDocs);
+        if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
+          const newAncestor = [node, ...ancestors];
+          for (const childNode of node.childNodes) {
+            await eachElement(childNode, fn, newAncestor, ancestorDocs);
+          }
+        }
       }
-      node.childNodes.forEach((it) => {
-        if (!it) { console.log(node); }
-        each(it, fn, newAncestors, newAncestorDocs);
-      });
+      break;
+    case NODE_TYPE.DOCUMENT:
+      if (node.childNodes) {
+        const newAncestor = [node, ...ancestors];
+        const newAncestorDocs = [node, ...ancestorDocs];
+        for (const childNode of node.childNodes) {
+          await eachElement(childNode, fn, newAncestor, newAncestorDocs);
+        }
+      }
+      break
+    case NODE_TYPE.DOCUMENT_FRAGMENT:
+      if (node.childNodes) {
+        const newAncestors = [node, ...ancestors];
+        for (const childNode of node.childNodes) {
+          await eachElement(childNode, fn, newAncestors, ancestorDocs);
+        }
+      }
+      break
   }
 }
 
 
+// ============================================
 
-// ===================================
 
-function toHTML() { return ''};
-/*
-function toHTML(snapshot) {
-  switch(snapshot.type) {
-    case Node.ELEMENT_NODE:
+class SnapshotAccessor {
+  constructor(snapshot) {
+    this.node = snapshot;
+    this._change = snapshot.change;
+    this.defineGetter([
+      'name',
+      'type',
+      'ignore',
+      'ignoreReason'
+    ]);
+
+    this.delegate([
+      'isShadowHost',
+      'isShadowRoot',
+      'render',
+      'errorMessage',
+      'text',
+      'html',
+    ]);
+  }
+
+  set change(v) {
+    this._change = v;
+  }
+
+  get tagName() {
+    return this.name.toLowerCase();
+  }
+
+  get childNodes() {
+    return this.node.childNodes || [];
+  }
+
+  getAttrHTML() {
+    const deletedAttr = ((this._change || {}).deletedAttr || {});
+    const attrObj = Object.assign( {},
+      (this.node.attr || {}),
+      ((this._change || {}).attr || {})
+    );
+    let attrHTML = '';
+    for (let name in attrObj) {
+      if (!deletedAttr[name]) {
+        attrHTML += ` ${name}="${attrObj[name]}"`
+      }
+    }
+    return attrHTML;
+  }
+
+  get innerHTML() {
+    return ((this._change || {}).innerHTML || '');
+  }
+
+
+  delegate(methods) {
+    for (const method of methods) {
+      this[method] = this.node[method];
+    }
+  }
+
+  defineGetter(props) {
+    for (const prop of props) {
+      this.__defineGetter__(prop, () => {
+        return (this._change || {})[prop] || this.node[prop];
+      });
+    }
+  }
+
+}
+
+
+// ============================================
+// serialization
+// ============================================
+
+// @see: @mdn/en-US/docs/Glossary/Empty_element
+const EMPTY_ELEMENT = {
+  AREA   : true,
+  BASE   : true,
+  BR     : true,
+  COL    : true,
+  EMBED  : true,
+  HR     : true,
+  IMG    : true,
+  INPUT  : true,
+  KEYGEN : true,
+  LINK   : true,
+  META   : true,
+  PARAM  : true,
+  SOURCE : true,
+  TRACK  : true,
+  WBR    : true,
+}
+
+/**
+ * @param {Snapshot} snapshot
+ * @param {Function} subHtmlHandler({});
+ * @param {Object} params
+ *   - {array} ancestorDocs
+ *   - {String} shadowDomRenderMethod (DeclarativeShadowDom or Tree)
+ */
+function toHTML(snapshot, subHtmlHandler, params = {}) {
+  const {ancestorDocs = [], shadowDomRenderMethod = 'DeclarativeShadowDom'} = params;
+  const it = new SnapshotAccessor(snapshot);
+  switch(it.type) {
+    case NODE_TYPE.ELEMENT:
+      if (it.ignore) { return ''}
+
+      const isEmptyElement = EMPTY_ELEMENT[it.name];
       let content = '';
-      switch(snapshot.name) {
-        case 'SLOT':
-          return children2HTML(snapshot.childNodes);
-        case 'FRAME':
-        case 'IFRAME':
-          if (snapshot.document) {
-            content = toHTML(snapshot.document);
-          }
-          break;
-        default:
-          content = children2HTML(snapshot.childNodes);
-          break;
-      }
-      const attrHTML = attrObj2HTML(snapshot.attrObj);
-      const tagName = snapshot.name.toLowerCase();
-      if (attrHTML.length > 0) {
-        return `<${tagName} ${attrHTML}>${content}</${tagName}>`;
-      } else {
-        return `<${tagName}>${content}</${tagName}>`;
-      }
-    case Node.TEXT_NODE:
-      return snapshot.text;
-      break;
-    case Node.PROCESSING_INSTRUCTION_NODE:
-      break;
-    case Node.COMMENT_NODE:
-      return `<--${snapshot.text}-->`;
-      break;
-    case Node.DOCUMENT_NODE:
-      return children2HTML(snapshot.childNodes);
-    case Node.DOCUMENT_TYPE_NODE:
-      return `<!DOCTYPE ${snapshot.name || 'html'}>\n`;
-    case Node.DOCUMENT_FRAGMENT_NODE:
-      return children2HTML(snapshot.childNodes);
+      if (!isEmptyElement) {
+        switch(it.name) {
+          case 'FRAME':
+          case 'IFRAME':
+            if (snapshot.render == 'ignore') { return '' }
 
-    case Node.ATTRIBUTE_NODE:
-    case Node.CDATA_SECTION_NODE:
-    case Node.ENTITY_REFERENCE_NODE:
-    case Node.ENTITY_NODE:
-    case Node.NOTATION_NODE:
+            let subHtml = '';
+            if (!snapshot.errorMessage) {
+              subHtml = children2HTML(it.childNodes, subHtmlHandler, params);
+            }
+            const change = subHtmlHandler({snapshot, subHtml, ancestorDocs});
+            if (change.type || change.name) {
+              // is a new snapshot
+              snapshot.change = change;
+              return toHTML(snapshot, subHtmlHandler, params);
+            } else {
+              if (change.ignore) {
+                return '';
+              } else {
+                it.change = change;
+                return `<${it.tagName}${it.getAttrHTML()}></${it.tagName}>`
+              }
+            }
+            break;
+          case 'SLOT':
+            if (shadowDomRenderMethod == 'DeclarativeShadowDom') {
+              if (snapshot.assigned) {
+                // ChildNodes have handled in shadowRoot
+                content = '';
+              } else {
+                content = children2HTML(it.childNodes, subHtmlHandler, params);
+              }
+            } else {
+              // Tree
+              content = children2HTML(it.childNodes, subHtmlHandler, params);
+            }
+            break;
+          default:
+            content = children2HTML(it.childNodes, subHtmlHandler, params);
+            break;
+        }
+      }
+
+      if (isEmptyElement) {
+        return `<${it.tagName}${it.getAttrHTML()}>`
+      } else {
+        return `<${it.tagName}${it.getAttrHTML()}>${content}</${it.tagName}>`
+      }
+    case NODE_TYPE.TEXT:
+      return it.text;
+      break;
+    case NODE_TYPE.PROCESSING_INSTRUCTION:
+      break;
+    case NODE_TYPE.COMMENT:
+      return `<!-- ${it.text} -->`;
+    case NODE_TYPE.DOCUMENT:
+      {
+        const newAncestorDocs = [snapshot, ...ancestorDocs];
+        return children2HTML(it.childNodes, subHtmlHandler,
+          {ancestorDocs: newAncestorDocs, shadowDomRenderMethod});
+      }
+    case NODE_TYPE.DOCUMENT_TYPE:
+      return `<!DOCTYPE ${it.name || 'html'}>\n`;
+    case NODE_TYPE.DOCUMENT_FRAGMENT:
+      {
+        if (snapshot.isShadowRoot) {
+          if (shadowDomRenderMethod == 'DeclarativeShadowDom') {
+            const shadowDomHTML = children2HTML(it.childNodes, subHtmlHandler, params);
+            const lightDomHTML = children2HTML(getAssignedNodes(snapshot), subHtmlHandler, params);
+            return `<template shadowroot="${snapshot.mode}">${shadowDomHTML}</template>${lightDomHTML}`;
+          } else {
+            return children2HTML(it.childNodes, subHtmlHandler, params);
+          }
+        } else {
+          return children2HTML(it.childNodes, subHtmlHandler, params);
+        }
+      }
+    case NODE_TYPE.ATTRIBUTE:
+    case NODE_TYPE.CDATA_SECTION:
+    case NODE_TYPE.ENTITY_REFERENCE:
+    case NODE_TYPE.ENTITY:
+    case NODE_TYPE.NOTATION:
       // deprecated and should not be used anymore.
       break;
+
+    case NODE_TYPE.HTML_STR:
+      return it.html;
     default: return "";
   }
   return '';
 }
 
-function children2HTML(nodes) {
-  return nodes.map((it) => toHTML(it)).join('');
+// @see toHTML
+function children2HTML(nodes = [], subHtmlHandler, params) {
+  return nodes.map((it) => toHTML(it, subHtmlHandler, params)).join('');
 }
 
-function attrObj2HTML(attrObj) {
-  const items = [];
-  for (let name in attrObj) {
-    items.push(`${name}="${attrObj[name]}`);
+function getAssignedNodes(shadowRootSnapshot) {
+  const assignedNodes = [];
+  const queue = [];
+
+  function pushNodesToQueue(nodes, depth) {
+    nodes.forEach((node) => queue.push([depth, node]));
   }
-  return items.join(' ');
-}
-*/
 
-export default Object.assign({take: takeSnapshot}, {link, each, toHTML});
+  pushNodesToQueue(shadowRootSnapshot.childNodes, 1);
+
+  let currItem;
+  while(currItem = queue.shift()) {
+    const [depth, node] = currItem;
+    if (node.name === 'SLOT') {
+      if (depth == 0) {
+        throw new Error("Depth should not be zero");
+      }
+      if (depth == 1) {
+        if (node.assigned) {
+          assignedNodes.push(...node.childNodes);
+        } else {
+          // Do nothing
+        }
+      } else {
+        // console.log("Depth: ", depth);
+        pushNodesToQueue(node.childNodes, depth - 1);
+      }
+    } else {
+      if (node.childNodes) {
+        node.childNodes.forEach((childNode) => {
+          if (childNode.isShadowRoot) {
+            queue.push([depth + 1, childNode]);
+          } else {
+            queue.push([depth, childNode]);
+          }
+        });
+      }
+    }
+  }
+  // console.log("~>", assignedNodes);
+  return assignedNodes;
+}
+
+// ================================================
+
+function accessNode(snapshot, namePath, fn) {
+  let currNode = snapshot;
+  for(const name of namePath) {
+    const child = currNode.childNodes.find((it) => it.name == name);
+    if (child) {
+      currNode = child;
+    } else {
+      throw new Error(`Cound not find node according to namePath: ${namePath}`);
+    }
+  }
+  fn(currNode);
+}
+
+
+export default Object.assign({
+  take: takeSnapshot,
+  takeAncestorsSnapshot,
+  accessNode,
+}, {
+  each,
+  eachElement,
+  link, toHTML
+});
 

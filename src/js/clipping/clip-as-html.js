@@ -3,43 +3,40 @@
 import T                     from '../lib/tool.js';
 import DOMTool               from '../lib/dom-tool.js';
 import Log                   from '../lib/log.js';
-import ExtMsg                from '../lib/ext-msg.js';
 import Task                  from '../lib/task.js';
-import Template              from '../lib/template.js';
 import Snapshot              from '../snapshot/snapshot.js';
+import SnapshotMaker         from '../snapshot/maker.js';
+import SnapshotNodeChange    from '../snapshot/change.js';
 import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerPicture       from '../capturer/picture.js';
 import CapturerImg           from '../capturer/img.js';
-import CapturerCss           from '../capturer/css.js';
 import CapturerStyle         from '../capturer/style.js';
 import CapturerLink          from '../capturer/link.js';
 import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
-import CapturerCustomElement from '../capturer/custom-element.js';
+//import CapturerCustomElement from '../capturer/custom-element.js';
+import CapturerStyleSheet    from '../capturer/stylesheet.js';
 import StyleHelper           from './style-helper.js';
+import RequestParams from '../lib/request-params.js'
 
 
 async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}) {
   Log.debug("html parser");
 
-  const topFrame = frames.find((it) => it.frameId == 0);
-  const frameInfo = {allFrames: frames, ancestors: [topFrame]}
-  const snapshot = await Snapshot.take(elem, {frameInfo, requestParams, win});
-  console.log(snapshot);
+  const {clipId} = info;
 
+  const calculatedStyle = StyleHelper.calcStyle(elem, win);
 
+  if (config.customBodyBgCssEnabled && config.customBodyBgCssValue){
+    calculatedStyle.bodyBgCss = config.customBodyBgCssValue;
+  }
 
+  const v = Object.assign({info, config}, calculatedStyle, i18nLabel)
 
-
-
-
-
-
-  const isBodyElem = elem.tagName.toUpperCase() === 'BODY';
-
-  const {elemHtml, headInnerHtml, tasks} = await getElemHtml({
-    clipId       : info.clipId,
+  const params = {
+    saveFormat   : 'html',
+    clipId       : clipId,
     frames       : frames,
     storageInfo  : storageInfo,
     elem         : elem,
@@ -47,403 +44,434 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     baseUrl      : win.document.baseURI,
     config       : config,
     requestParams : requestParams,
-    needFixStyle : !isBodyElem,
     win          : win,
+    v: v,
+  };
+
+  const snapshot = await takeSnapshot({elem, frames, requestParams, win, v});
+
+  const tasks = await captureAssets(snapshot, Object.assign({}, params, {
+    needFixStyle: (elem.tagName.toUpperCase !== 'BODY')
+  }));
+  console.log(snapshot);
+
+  const iframeStorageInfo = Object.assign({}, params.storageInfo, {
+    mainFileFolder: params.storageInfo.frameFileFolder,
   });
 
-  // render elemHtml into template
-  const v = StyleHelper.getRenderParams(elem, win);
-  const page = (isBodyElem ? 'bodyPage' : 'elemPage');
-  v.info = info;
-  v.headInnerHtml = headInnerHtml;
-  v.elemHtml = elemHtml;
-  v.config = config;
+  const subHtmlHandler = function({snapshot, subHtml, ancestorDocs}) {
+    const r = CapturerIframe.capture(snapshot, {
+      saveFormat: 'html',
+      html: subHtml,
+      clipId,
+      storageInfo: (ancestorDocs.length > 1 ? iframeStorageInfo : storageInfo),
+    });
+    tasks.push(...r.tasks);
+    return r.change.toObject();
+  };
 
-  if (config.customBodyBgCssEnabled && config.customBodyBgCssValue)
-    v.bodyBgCss = config.customBodyBgCssValue;
+  const html = Snapshot.toHTML(snapshot, subHtmlHandler);
 
-  const html = Template[page].render(Object.assign({}, v, i18nLabel));
   const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName)
-
-  const mainFileTask = Task.createHtmlTask(filename, html, info.clipId);
+  const mainFileTask = Task.createHtmlTask(filename, html, clipId);
   tasks.push(mainFileTask);
 
-  return Task.changeUrlTask(tasks, (task) => {
-    task.headers = requestParams.getHeaders(task.url);
-    task.timeout = requestParams.timeout;
-    task.tries   = requestParams.tries;
-  });
+  return tasks;
 }
 
 
-async function getElemHtml(params){
-  const topFrameId = 0, saveFormat = 'html';
-  const {
-    clipId,
-    frames,
-    storageInfo,
-    elem,
-    baseUrl,
-    docUrl,
-    parentFrameId = topFrameId,
-    config,
-    requestParams,
-    needFixStyle,
-    win,
-  } = params;
-  Log.debug('getElemHtml', baseUrl);
+async function takeSnapshot({elem, frames, requestParams, win, v}) {
+  const topFrame = frames.find((it) => it.frameId == 0);
+  const frameInfo = {allFrames: frames, ancestors: [topFrame]}
 
-  const {customElementHtmlDict, customElementStyleDict, customElementTasks} = await captureCustomElements(params);
+  let elemSnapshot = await Snapshot.take(elem, {
+    frameInfo, requestParams, win,
+    blacklist: {SCRIPT: true, LINK: true, STYLE: true, TEMPLATE: true},
+    shadowDom:    {blacklist: {SCRIPT: true, TEMPLATE: true}},
+    srcdocFrame:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
+  });
 
-  const canvasDataUrlDict = preprocessCanvasElements(elem);
-  const cssRulesDict = collectCssRules(win.document.documentElement);
+  appendClassName2Snapshot(elemSnapshot, 'mx-wc-selected');
 
-  const KLASS = ['mx-wc', clipId].join('-');
-  elem.classList.add('mx-wc-selected-elem');
-  elem.classList.add(KLASS);
-  DOMTool.markHiddenNode(win, elem);
-  const docHtml = win.document.documentElement.outerHTML;
-  elem.classList.remove('mx-wc-selected-elem');
-  elem.classList.remove(KLASS);
-  DOMTool.clearHiddenMark(elem);
-  DOMTool.removeMxMarker(win.document.documentElement);
+  const headNodes = win.document.querySelectorAll(
+    'link[rel*=icon],link[rel~=stylesheet],style');
 
-  const {doc} = DOMTool.parseHTML(win, docHtml);
-  let selectedNode = doc.querySelector('.' + KLASS);
-  selectedNode.classList.remove(KLASS);
-  selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
-
-  const {node, taskCollection} = await captureContainerNode(selectedNode,
-    Object.assign({}, params, {
-      doc,
-      customElementHtmlDict,
-      customElementStyleDict,
-      canvasDataUrlDict,
-      cssRulesDict,
-    })
-  );
-
-  selectedNode = node;
-  taskCollection.push(...customElementTasks);
-
-  // capture head nodes that haven't processed.
-  const headNodes = doc.querySelectorAll('style, link');
-  const processedNodes = selectedNode.querySelectorAll('style, link');
-
-  for (let i = 0; i < headNodes.length; i++) {
-    const currNode = headNodes[i];
-    if ([].indexOf.call(processedNodes, currNode) == -1) {
-      const r = await captureNode(currNode, Object.assign({}, params, {doc, cssRulesDict}));
-      taskCollection.push(...r.tasks);
-    }
+  const headChildrenSnapshots = [];
+  for (const node of headNodes) {
+    headChildrenSnapshots.push(await Snapshot.take(node, {
+      frameInfo, requestParams, win,}));
   }
-  const headInnerHtml = getNodesHtml(
-    doc.querySelectorAll('link[rel*=icon],link[rel~=stylesheet],style'));
 
-  let elemHtml = "";
-  if(elem.tagName.toUpperCase() === 'BODY') {
-    elemHtml = dealBodyElem(selectedNode, elem);
+  if (elemSnapshot.name == 'BODY') {
+    headChildrenSnapshots.push(
+      SnapshotMaker.getStyleNode(
+        {'class': 'mx-wc-style'},
+        getClippingInformationCssRules(v.config)
+      )
+    );
+    elemSnapshot.childNodes.push(getClippingInformationSnapshot(v));
+    elemSnapshot.childNodes.push(getShadowDomLoaderSnapshot());
+
   } else {
-    elemHtml = dealNormalElem(selectedNode, elem, win);
+
+    headChildrenSnapshots.push(getWrapperNodeStyleSnapshot(v));
+    appendStyleObj2Snapshot(elemSnapshot, StyleHelper.getSelectedNodeStyle(elem, win));
+    elemSnapshot = wrapOutermostElem(elem, elemSnapshot, v);
   }
-  return { elemHtml: elemHtml, headInnerHtml: headInnerHtml, tasks: taskCollection };
+
+  const headSnapshot = SnapshotMaker.getHeadNode([
+    SnapshotMaker.getCharsetMeta(),
+    SnapshotMaker.getViewportMeta(),
+    SnapshotMaker.getTitleNode(win.document.title),
+  ].concat(headChildrenSnapshots));
+
+  const commentSnapshot = SnapshotMaker.getCommentNode(`OriginalSrc: ${v.info.link}`);
+
+  const currLayerSnapshots = [elemSnapshot];
+  if (elemSnapshot.name == 'BODY') {
+    currLayerSnapshots.unshift(headSnapshot);
+    currLayerSnapshots.unshift(commentSnapshot);
+  }
+
+  const snapshot = Snapshot.takeAncestorsSnapshot(
+    elem, currLayerSnapshots, (ancestorNode, ancestorSnapshot) => {
+
+      if (ancestorSnapshot.name == 'HTML') {
+
+        appendStyleObj2Snapshot(ancestorSnapshot, v.htmlStyleObj);
+        return [SnapshotMaker.getDocTypeNode(), ancestorSnapshot];
+
+      } else if (ancestorSnapshot.name == 'BODY') {
+
+        appendStyleObj2Snapshot(ancestorSnapshot, v.bodyStyleObj);
+        ancestorSnapshot.childNodes.push(getShadowDomLoaderSnapshot());
+        return [
+          commentSnapshot,
+          headSnapshot,
+          ancestorSnapshot,
+        ];
+
+      } else {
+        // All the ancestor nodes that between the selected node
+        // and the body node are wrapper nodes.
+
+        const styleObj = StyleHelper.getWrapperStyleObj(ancestorSnapshot);
+        if (styleObj) {
+          appendStyleObj2Snapshot(ancestorSnapshot, styleObj);
+        }
+        ancestorSnapshot = wrapOutermostElem(ancestorNode, ancestorSnapshot, v);
+        return [ancestorSnapshot];
+      }
+    });
+
+  return snapshot;
 }
 
-/**
- *
- * Canvas nodes can not be clone without losing it's data.
- * So we process it before we clone the whole document.
- *
- * @param {Element} contextNode
- *
- * @return {Object} dict (id => dataUrl)
- */
-function preprocessCanvasElements(contextNode) {
-  const nodes = DOMTool.querySelectorIncludeSelf(contextNode, 'canvas');
-  const dict = {};
-  [].forEach.call(nodes, (it) => {
-    try {
-      const dataUrl = it.toDataURL();
-      const id = T.createId();
-      it.setAttribute('data-mx-id', id);
-      it.setAttribute('data-mx-marker', 'canvas-image');
-      dict[id] = dataUrl;
-    } catch(e) {
-      // tained canvas etc.
-    }
+
+function wrapOutermostElem(elem, snapshot, v) {
+  const isOutermost = elem.parentNode && elem.parentNode.nodeName === 'BODY';
+  if (isOutermost) {
+    const wrapper = SnapshotMaker.getElementNode('DIV',
+      {class: 'mx-wc-main'}, [snapshot, getClippingInformationSnapshot(v)]);
+    return wrapper;
+  } else {
+    return snapshot;
+  }
+}
+
+
+// WARNING: this function will modify the snapshot.
+function appendClassName2Snapshot(snapshot, name) {
+  if (!snapshot.attr) {snapshot.attr = {}}
+  const names = (snapshot.attr.class || '').split(/\s+/)
+  names.push(name);
+  snapshot.attr.class = names.filter((it) => it !== '').join(' ');
+}
+
+// WARNING: this function will modify the snapshot.
+function appendStyleObj2Snapshot(snapshot, styleObj) {
+  snapshot.styleObj = Object.assign(snapshot.styleObj || {}, styleObj);
+}
+
+async function captureAssets(snapshot, params) {
+  const {saveFormat, baseUrl, docUrl, clipId, config, needFixStyle} = params;
+
+  const iframeStorageInfo = Object.assign({}, params.storageInfo, {
+    mainFileFolder: params.storageInfo.frameFileFolder,
   });
-  return dict;
-}
 
+  const tasks = [];
 
-/**
- * There are some rules that generage by javascript (using CSSOM)
- * These rules are weired, you can find them in devTool as inline style,
- * but you can't find them in the html source...
- *
- * In order to obtain these rules, we collect them.
- *
- * @param {Element} contextNode
- *
- * @return {Object} dict (id => cssRules)
- */
-function collectCssRules(contextNode) {
-  const nodes = contextNode.querySelectorAll('style');
-  const dict = {};
-  [].forEach.call(nodes, (it) => {
-    try {
-      const id = T.createId();
-      dict[id] = it.sheet.cssRules
-      it.setAttribute('data-mx-id', id);
-      it.setAttribute('data-mx-marker', 'css-rules');
-    } catch(e) {
-      // In some browsers, if a stylesheet is loaded from a different domain, calling cssRules results in SecurityError.
-    }
-  });
-  return dict;
-}
+  await Snapshot.eachElement(snapshot,
+    async(node, ancestors, ancestorDocs) => {
+      const {baseUrl, docUrl} = ancestorDocs[0];
+      if (baseUrl == undefined) {
+        console.log(ancestorDocs[0])
+      }
+      let storageInfo, requestParams;
+      if (ancestorDocs.length == 1) {
+        storageInfo = params.storageInfo;
+        requestParams = params.requestParams;
+      } else {
+        storageInfo = iframeStorageInfo;
+        requestParams = params.requestParams.changeRefUrl(docUrl);
+      }
 
-async function captureCustomElements(params) {
-  const {elem, win} = params;
-  const customElementHtmlDict = {};
-  const customElementStyleDict = {};
-  const customElementTasks = [];
+      let r = {change: new SnapshotNodeChange(), tasks: []};
+      switch(node.name) {
+        case 'LINK':
+          r = await CapturerLink.capture(node, {
+            baseUrl, docUrl, storageInfo, clipId,
+            config, requestParams, needFixStyle,
+          });
+          break;
 
-  const nodeIterator = win.document.createNodeIterator(
-    elem, win.NodeFilter.SHOW_ELEMENT,
-    {
-      acceptNode: (it) => {
-        if (it.shadowRoot) {
-          return win.NodeFilter.FILTER_ACCEPT;
-        } else {
-          return win.NodeFilter.FILTER_REJECT;
+        case 'STYLE':
+          r = await CapturerStyle.capture(node, {
+            baseUrl, docUrl, storageInfo, clipId,
+            config, requestParams, needFixStyle,
+          });
+          break;
+
+        case 'PICTURE':
+          r = await CapturerPicture.capture(node, {
+            aseUrl, storageInfo, clipId, requestParams
+          });
+          break;
+
+        case 'IMG':
+          r = await CapturerImg.capture(node, {
+            saveFormat, baseUrl, storageInfo, clipId, requestParams
+          });
+          break;
+
+        case 'A':
+          r = await CapturerA.capture(node, {baseUrl, docUrl});
+          break;
+
+        case 'BODY':
+        case 'TABLE':
+        case 'TH':
+        case 'TD':
+          // background attribute (deprecated since HTML5)
+          r = await CaptureTool.captureBackgroundAttr(node, {
+            baseUrl, storageInfo, config, clipId, requestParams,
+          });
+          break;
+
+        case 'AUDIO':
+        case 'VEDIO':
+        case 'EMBED':
+        case 'OBJECT':
+        case 'APPLET':
+          // Don't capture media nodes.
+          r.change.setProperty('ignore', true);
+          r.change.setProperty('ignoreReason', 'mediaNode');
+          break;
+
+        case 'CANVAS':
+          r = CapturerCanvas.capture(node, {
+            saveFormat, storageInfo, clipId, requestParams,
+          });
+          break;
+
+        case 'IFRAME':
+        case 'FRAME':
+          // Frame's html will be captured when serialization
+          break;
+        default: break;
+
+      }
+
+      // handle attributes
+      for (let attrName in node.attr) {
+        // remove event listener
+        if (attrName.startsWith('on')) {
+          r.change.rmAttr(attrName);
         }
       }
+
+
+      // handle inline style (styleObj)
+      let inlineStyle = "";
+
+      if (node.styleObj) {
+        const params = Object.assign({ownerType: 'styleAttr'}, {
+          baseUrl, docUrl, storageInfo, clipId,
+          config, requestParams
+        });
+
+        const {cssText, tasks} = await CapturerStyleSheet.captureStyleObj(node.styleObj, params);
+        r.tasks.push(...tasks);
+        inlineStyle = cssText;
+      }
+
+
+      const changeObj = r.change.toObject();
+      const styleParts = [];
+      const changedStyle = T.styleObj2Str(changeObj.styleObj);
+
+      if (inlineStyle != '')  {styleParts.push(inlineStyle)}
+      if (changedStyle != '') {styleParts.push(changedStyle)}
+
+
+      if (styleParts.length > 0) {
+        changeObj.attr.style = styleParts.join(';');
+      }
+
+      node.change = changeObj;
+      tasks.push(...r.tasks);
+
+      return true;
     }
   );
 
-  let it;
-  while(it = nodeIterator.nextNode()) {
+  return tasks;
+}
 
-    const box = it.getBoundingClientRect();
-    const cssRulesDict = collectCssRules(it.shadowRoot);
-    const canvasDataUrlDict = preprocessCanvasElements(it.shadowRoot);
-    DOMTool.markHiddenNode(win, it.shadowRoot);
-    const docHtml = `<mx-tmp-root>${it.shadowRoot.innerHTML}</mx-tmp-root>`;
-    DOMTool.clearHiddenMark(it);
-    const {doc, node: rootNode} = DOMTool.parseHTML(win, docHtml);
-    let node = DOMTool.removeNodeByHiddenMark(rootNode);
-    const storageInfo = Object.assign({}, params.storageInfo, {
-      assetRelativePath: T.calcPath(
-        params.storageInfo.frameFileFolder,
-        params.storageInfo.assetFolder
+
+function getWrapperNodeStyleSnapshot(v) {
+  return SnapshotMaker.getStyleNode(
+    {'class': 'mx-wc-style'},
+    getWrapperNodeCssRules(v)
+  );
+}
+
+function getWrapperNodeCssRules(v) {
+  const rules = [
+    SnapshotMaker.getCssStyleRule('body',
+      StyleHelper.setImportantPriority({
+        'padding-top': '20px',
+      })
+    ),
+
+    SnapshotMaker.getCssStyleRule('.mx-wc-main',
+      StyleHelper.setImportantPriority({
+        'box-sizing'       : 'content-box',
+        'background-color' : v.outerElemBgCss,
+        'margin'           : '0 auto',
+        'max-width'        : `${v.elemWidth}px`,
+      })
+    ),
+
+    SnapshotMaker.getCssStyleRule('.mx-wc-main img',
+      StyleHelper.setImportantPriority({
+        'max-width': '100%',
+      })
+    ),
+
+    SnapshotMaker.getCssMediaRule('(min-width: 768px)', [
+      SnapshotMaker.getCssStyleRule('.mx-wc-main',
+        StyleHelper.setImportantPriority({
+          'padding': '15px 15px 80px 15px'
+        })
       )
-    });
-    const r = await captureContainerNode(node, Object.assign({}, params, {storageInfo, doc, cssRulesDict, canvasDataUrlDict}));
+    ]),
+    SnapshotMaker.getCssMediaRule('(max-width: 768px)', [
+      SnapshotMaker.getCssStyleRule('.mx-wc-main',
+        StyleHelper.setImportantPriority({
+          'padding': '15px 3px 80px 3px'
+        })
+      )
+    ]),
+  ];
 
-    const id = T.createId();
-    it.setAttribute('data-mx-custom-element-id', id);
-    customElementHtmlDict[id] = r.node.innerHTML;
-    customElementStyleDict[id] = {width: box.width, height: box.height};
-    customElementTasks.push(...r.taskCollection);
-  }
-  return {customElementHtmlDict, customElementStyleDict, customElementTasks};
+  return rules.concat(getClippingInformationCssRules(v.config));
 }
 
 
-async function captureContainerNode(containerNode, params) {
 
-  const taskCollection = [];
-  const childNodes = containerNode.querySelectorAll('*');
-  for (let i = 0; i < childNodes.length; i++) {
-    const r = await captureNode(childNodes[i], params);
-    taskCollection.push(...r.tasks);
+// =============================================
+// clipping information (metas)
+// =============================================
+
+
+function getClippingInformationCssRules(config) {
+  if (config.htmlSaveClippingInformation) {
+    return [
+      SnapshotMaker.getCssStyleRule('.clipping-information',
+        StyleHelper.setImportantPriority({
+          'text-align'       : 'left',
+          'margin-top'       : '20px',
+          'background-color' : '#eeeeee',
+          'padding'          : '15px',
+          'border-radius'    : '4px',
+          'color'            : '#333',
+          'font-size'        : '14px',
+          'line-height'      : '22px',
+          'min-height'       : '50px',
+          'max-height'       : '100px',
+          'height'           : 'auto',
+        })
+      ),
+
+      SnapshotMaker.getCssStyleRule('.clipping-information a',
+        StyleHelper.setImportantPriority({
+          'color'           : 'blue',
+          'text-decoration' : 'underline',
+        })
+      ),
+
+
+      SnapshotMaker.getCssStyleRule('.clipping-information label',
+        StyleHelper.setImportantPriority({
+          'font-weight'    : 'normal',
+          'display'        : 'inline',
+          'text-transform' : 'none',
+        })
+      ),
+
+      SnapshotMaker.getCssStyleRule('.clipping-information label > code',
+        StyleHelper.setImportantPriority({
+          'color'            : '#333',
+          'padding'          : '2px 8px',
+          'background-color' : 'rgba(200, 200, 200, 0.7)',
+          'font-size'        : '14px',
+        })
+      ),
+    ];
+  } else {
+    return [];
   }
-
-  const r = await captureNode(containerNode, params);
-  taskCollection.push(...r.tasks);
-  containerNode = r.node;
-
-  return {node: containerNode, taskCollection: taskCollection};
 }
 
-/**
- * @return {:node, :tasks}
+/*
+ * @param {Object} v value object
+ * - {Object} info ~ clipping info
+ * - {Object} config
+ * - {String} i18n_* ~ translated string
+ *
+ * @return {Snapshot} it
  */
-async function captureNode(node, params) {
-  const topFrameId = 0, saveFormat = 'html';
-  const {
-    clipId,
-    frames,
-    storageInfo,
-    elem,
-    baseUrl,
-    docUrl,
-    cssRulesDict,
-    canvasDataUrlDict = {},
-    customElementHtmlDict = {},
-    customElementStyleDict = {},
-    parentFrameId = topFrameId,
-    config,
-    requestParams,
-    needFixStyle,
-    win,
-    doc,
-  } = params;
-
-  let opts = {};
-  let r = {node: node, tasks: []}
-  switch (node.tagName.toUpperCase()) {
-    case 'LINK':
-      opts = {baseUrl, docUrl, storageInfo, clipId,
-        config, requestParams, needFixStyle};
-      r = await CapturerLink.capture(node, opts);
-      break;
-    case 'STYLE':
-      opts = {baseUrl, docUrl, storageInfo, clipId,
-        cssRulesDict, config, requestParams, needFixStyle};
-      r = await CapturerStyle.capture(node, opts);
-      break;
-    case 'PICTURE':
-      opts = {baseUrl, storageInfo, clipId, requestParams};
-      r = await CapturerPicture.capture(node, opts);
-      break;
-    case 'IMG':
-      opts = {saveFormat, baseUrl, storageInfo, clipId, requestParams};
-      r = await CapturerImg.capture(node, opts);
-      break;
-    case 'A':
-      opts = {baseUrl, docUrl};
-      r = await CapturerA.capture(node, opts);
-      break;
-    case 'BODY':
-    case 'TABLE':
-    case 'TH':
-    case 'TD':
-      // background attribute (deprecated since HTML5)
-      opts = {baseUrl, storageInfo, config, clipId, requestParams};
-      r = await CaptureTool.captureBackgroundAttr(node, opts);
-      break;
-    case 'AUDIO':
-    case 'VEDIO':
-    case 'EMBED':
-    case 'OBJECT':
-    case 'APPLET':
-      // Don't capture media nodes.
-      node.setAttribute('data-mx-ignore-me', 'true');
-      r.node = node;
-      break;
-    case 'CANVAS':
-      opts = {saveFormat, storageInfo, clipId, canvasDataUrlDict, doc};
-      r = await CapturerCanvas.capture(node, opts);
-      break;
-    case 'IFRAME':
-    case 'FRAME':
-      opts = {saveFormat, baseUrl, doc, storageInfo,
-        clipId, config, parentFrameId, frames};
-      r = await CapturerIframe.capture(node, opts);
-      break;
-    default:
-      if (node.hasAttribute('data-mx-custom-element-id')) {
-        opts = {saveFormat, clipId, storageInfo, doc, customElementHtmlDict, customElementStyleDict};
-        r = await CapturerCustomElement.capture(node, opts);
-      }
-      break;
-  }
-
-  // handle global attributes
-  const attrsToRemove = [];
-  const len = r.node.attributes.length;
-  for (let i=0; i < len; i++) {
-    const attr = r.node.attributes[i];
-    const attrName = attr.name.toLowerCase();
-
-    // remove event listener
-    if (attrName.startsWith('on')) {
-      attrsToRemove.push(attrName);
+function getClippingInformationSnapshot(v) {
+  let html = '';
+  if(v.config.htmlSaveClippingInformation){
+    let tagHtml = v.i18n_none;
+    if(v.info.tags.length > 0) {
+      tagHtml = T.map(v.info.tags, function(tag) {
+        return "<code>" + tag + "</code>";
+      }).join(", ");
     }
-
-    // inline style
-    if (attrName === 'style') {
-      if (r.node.hasAttribute('data-mx-dont-capture-style')) {
-        attrsToRemove.push('data-mx-dont-capture-style');
-      } else {
-        const {cssText, tasks} = await CapturerCss.captureText(
-          Object.assign({
-            text: attr.value
-          }, {
-            baseUrl, docUrl, storageInfo, clipId,
-            config, requestParams,
-            needFixStyle
-          })
-        );
-        r.node.setAttribute('style', cssText);
-        r.tasks.push(...tasks);
-      }
+    let categoryHtml = v.i18n_none;
+    if(v.info.category){
+      categoryHtml = v.info.category;
     }
+    html = `
+      <hr />
+      <!-- clipping information -->
+      <div class="clipping-information">
+        <label>${v.i18n_original_url}: <a href="${v.info.link}" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer">${v.i18n_access}</a></label><br />
+        <label>${v.i18n_created_at}: ${v.info.created_at}</label><br />
+        <label>${v.i18n_category}: ${categoryHtml}</label><br />
+        <label>${v.i18n_tags}: ${tagHtml}</label>
+      </div>`;
   }
-  attrsToRemove.forEach((attrName) => {
-    r.node.removeAttribute(attrName);
-  })
+  return SnapshotMaker.getHtmlStrNode(html);
+}
 
-  return r;
+function getShadowDomLoaderSnapshot() {
+  return SnapshotMaker.getShadowDomLoader();
 }
 
 
-function dealBodyElem(node, originalNode) {
-  node = removeUselessNode(node);
-  return node.outerHTML;
-}
-
-function dealNormalElem(node, originalNode, win){
-  node.style = StyleHelper.getSelectedNodeStyle(originalNode, win);
-  node = removeUselessNode(node);
-  return wrapToBody(originalNode, node.outerHTML);
-}
-
-function removeUselessNode(contextNode){
-  return DOMTool.removeNodeBySelectors(contextNode, [
-    'link',
-    'style',
-    'script',
-    'template',
-    '*[data-mx-ignore-me="true"]'
-  ]);
-}
-
-/* wrap to body element */
-function wrapToBody(elem, html){
-  let pElem = elem.parentElement;
-  while(pElem && ['HTML', 'BODY'].indexOf(pElem.tagName.toUpperCase()) == -1){
-    const tagName = pElem.tagName
-
-    const attrs = [];
-    T.each(pElem.attributes, function(attr){
-      if(attr.name !== "style"){
-        attrs.push([attr.name, attr.value]);
-      }
-    });
-    attrs.push(['style', StyleHelper.getWrapperStyle(pElem)]);
-    const attrHtml = T.map(attrs, function(pair){
-      return `${pair[0]}="${pair[1]}"`;
-    }).join(' ');
-    html = `<${tagName} ${attrHtml}>${html}</${tagName}>`;
-    pElem = pElem.parentElement;
-  }
-  return html;
-}
-
-
-function getNodesHtml(nodes) {
-  const outerHtmls = [];
-  [].forEach.call(nodes, (node) => {
-    if (!node.hasAttribute('data-mx-ignore-me')) {
-      outerHtmls.push(node.outerHTML);
-    }
-  });
-
-  return outerHtmls.length === 0 ? '' : ['', ...outerHtmls, ''].join('\n');
-}
-
-
-export default {clip, getElemHtml};
+export default {clip};

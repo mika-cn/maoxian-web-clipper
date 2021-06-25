@@ -127,9 +127,6 @@ async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, 
 
   let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win});
 
-  //FIXME
-  return;
-
   if (storageConfig.saveTitleFile) {
     const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);
     tasks.unshift(Task.createTitleTask(filename, info.clipId));

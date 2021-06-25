@@ -3,7 +3,8 @@
 import T           from '../lib/tool.js';
 import Asset       from '../lib/asset.js';
 import Task        from '../lib/task.js';
-import CapturerCss from './css.js';
+import CapturerStyleSheet from './stylesheet.js';
+import SnapshotNodeChange from '../snapshot/change.js';
 
 /*!
  * Capture Element <link>
@@ -17,34 +18,33 @@ import CapturerCss from './css.js';
  *   - {Object} storageInfo
  *   - {Object} config
  *   - {Object} requestParams
+ *   - {Boolean} needFixStyle
  *
  */
 async function capture(node, opts) {
-
-  const rel = node.getAttribute('rel')
-  const href = node.getAttribute('href');
   const tasks = [];
-  const {config} = opts;
+  const change = new SnapshotNodeChange();
 
-  if (!rel) {
+  if (!node.attr.rel) {
     // "rel" is absent, or empty
     // This node does not create any links.
-    return {node, tasks};
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'invalidRel');
+    return {change, tasks};
   }
 
-  if(!href) {
+  if(!node.attr.href) {
     // "href" is absent, or empty
     // This node does not create any links.
-    return {node, tasks};
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'invalidHref');
+    return {change, tasks};
   }
 
-  // Link types are case-insensitive.
-  const linkTypes = rel.toLowerCase().split(/\s+/);
-
-  if (linkTypes.indexOf('preload') > -1) {
-    node.setAttribute('data-mx-ignore-me', 'true');
-    return {node, tasks};
-  }
+  const rel = node.attr.rel
+  const href = node.attr.href;
+  const {config} = opts;
+  const linkTypes = node.relList;
 
   if (linkTypes.indexOf('stylesheet') > -1) {
     return await captureStylesheet({node, linkTypes, href, opts});
@@ -59,45 +59,48 @@ async function capture(node, opts) {
     }
   }
 
-  return {node, tasks};
+  change.setProperty('ignore', true);
+  change.setProperty('ignoreReason', 'unsupportedLinkRel');
+
+  return {change, tasks};
 }
 
 async function captureIcon({node, href, opts}) {
   //The favicon of the website.
   const {baseUrl, docUrl, clipId, storageInfo, requestParams, config} = opts;
   const tasks = [];
+  const change = new SnapshotNodeChange();
 
   if (!config.saveIcon) {
-    node.setAttribute('data-mx-ignore-me', 'true');
-    return {node, tasks};
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'configureItemDisabled');
+    return {change, tasks};
   }
 
   const {isValid, url, message} = T.completeUrl(href, baseUrl);
-  if (isValid) {
-    const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-    const mimeTypeData = {
-      httpMimeType: httpMimeType,
-      attrMimeType: node.getAttribute('type')
-    };
-    const {filename, path} = await Asset.calcInfo({
-      link: url,
-      storageInfo: storageInfo,
-      mimeTypeData: mimeTypeData,
-      clipId: clipId,
-    });
-
-    tasks.push(Task.createImageTask(filename, url, clipId));
-    node.setAttribute('href', path);
-    node = handleOtherAttrs(node);
-    return {node, tasks};
-  } else {
-    node.setAttribute('data-mx-warn', message);
-    return {node, tasks};
+  if (!isValid) {
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'InvalidHref');
+    return {change, tasks};
   }
+
+  const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
+  const attrMimeType = node.attr.type;
+  const {filename, path} = await Asset.getFilenameAndPath({
+    link: url, mimeTypeData: {httpMimeType, attrMimeType},
+    clipId,  storageInfo,
+  });
+
+  tasks.push(Task.createImageTask(filename, url, clipId, requestParams));
+  change.setAttr('href', path);
+  handleOtherAttrs(change);
+  return {change, tasks};
 }
 
 async function captureStylesheet({node, linkTypes, href, opts}) {
-  const {baseUrl, docUrl, clipId, storageInfo, config} = opts;
+  const {baseUrl, docUrl, clipId, storageInfo, requestParams, needFixStyle} = opts;
+  const tasks = [];
+  const change = new SnapshotNodeChange();
 
   /*
    * TODO Shall we handle alternative style sheets?
@@ -107,42 +110,48 @@ async function captureStylesheet({node, linkTypes, href, opts}) {
    *
    */
 
-  if (node.hasAttribute('disabled')) {
-    node.setAttribute('data-mx-ignore-me', 'true');
-    return {node: node, tasks: []};
-  } else {
-    const {isValid, url, message} = T.completeUrl(href, baseUrl);
-    if (isValid) {
-      const name = Asset.getNameByLink({
-        template: storageInfo.raw.assetFileName,
-        link: url,
-        extension: 'css',
-        now: storageInfo.valueObj.now
-      });
-      const assetName = await Asset.getUniqueName({
-        clipId: clipId,
-        id: url,
-        folder: storageInfo.assetFolder,
-        filename: name,
-      });
-      const path = Asset.getPath({storageInfo, assetName});
-      const tasks = await CapturerCss.captureLink(Object.assign({
-        link: url}, opts));
-      node.setAttribute('href', path);
-      node = handleOtherAttrs(node);
-      return {node: node, tasks: tasks};
-    } else {
-      node.setAttribute('data-mx-warn', message);
-      return {node: node, tasks: []};
-    }
+  if (!node.sheet) {
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'NoSheet');
+    return {change, tasks};
   }
+
+  if (node.sheet.disabled) {
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'Disabled');
+    return {change, tasks};
+  }
+
+  const {isValid, url, message} = T.completeUrl(href, baseUrl);
+  if (!isValid) {
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'InvalidHref');
+    change.setAttr('data-mx-warn', message);
+  }
+
+  const r = await CapturerStyleSheet.captureStyleSheet(
+    node.sheet, Object.assign({ownerType: 'linkNode'}, opts, {
+      baseUrl: url
+    }));
+
+  const {filename, path} = await Asset.getFilenameAndPath({
+    link: url, extension: 'css', clipId, storageInfo});
+
+  const cssText = (needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
+
+  tasks.push(...r.tasks);
+  tasks.push(Task.createStyleTask(filename, cssText, clipId, requestParams));
+
+  change.setAttr('href', path);
+  handleOtherAttrs(change);
+  return {change, tasks};
 }
 
-function handleOtherAttrs(node) {
-  node.removeAttribute('integrity');
-  node.removeAttribute('crossorigin');
-  node.setAttribute('referrerpolicy', 'no-referrer');
-  return node;
+function handleOtherAttrs(change) {
+  change.rmAttr('integrity');
+  change.rmAttr('crossorigin');
+  change.setAttr('referrerpolicy', 'no-referrer');
+  return change;
 }
 
 

@@ -318,9 +318,6 @@ async function formSubmitted({elem, formInputs, config}) {
 
   Log.debug(clipping);
 
-  //FIXME
-  return;
-
   UI.setStateClipped({clipping})
   ExtMsg.sendToBackend('clippibng', {
     type: 'clipped',

@@ -49,6 +49,15 @@ function messageHandler(message, sender) {
           });
         }).then(resolve, reject);
         break;
+      case 'frame.takeSnapshot':
+        const frameId = message.body.frameId;
+        if (frameId) {
+          ExtMsg.sendToContentFrame(message, sender.tab.id, frameId
+          ).then(resolve, reject);
+        } else {
+          reject("NoFrameID");
+        }
+        break;
       case 'frame.toHtml':
       case 'frame.toMd':
         ActionCache.findOrCache(

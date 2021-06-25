@@ -2,6 +2,7 @@
 
 import T           from '../lib/tool.js';
 import CaptureTool from './tool.js';
+import SnapshotNodeChange from '../snapshot/change.js';
 
 /*!
  * Capture Element Picture
@@ -14,22 +15,30 @@ import CaptureTool from './tool.js';
 
 /**
  *
- * @param {Object} opts
+ * @param {Object} params
  *   - {String} baseUrl
  *   - {String} clipId
  *   - {Object} storageInfo
  *   - {Object} requestParams
  *
  */
-async function capture(node, opts) {
+async function capture(node, params) {
   const tasks = [];
+  const change = new SnapshotNodeChange();
 
-  const sourceNodes = node.querySelectorAll('source');
-  for (let i = 0; i < sourceNodes.length; i++) {
-    const {tasks: sourceTasks} = await CaptureTool.captureImageSrcset(sourceNodes[i], opts);
-    tasks.push(...sourceTasks);
+  // TODO
+  // WE should capture according to saveFormat ?
+  if (node.childNodes) {
+    for (const childNode of node.childNodes) {
+      if (childNode.name === 'SOURCE') {
+        const r = await CaptureTool.captureImageSrcset(childNode, params);
+        tasks.push(...r.tasks);
+        childNode.change = r.change.toObject();
+      }
+    };
   }
-  return {node, tasks};
+
+  return {change, tasks};
 }
 
 export default {capture};

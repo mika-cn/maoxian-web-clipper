@@ -1,27 +1,20 @@
 
 import T      from '../lib/tool.js';
 import ExtMsg from '../lib/ext-msg.js';
+import {CSSRULE_TYPE} from '../lib/constants.js';
 import CssTextParser from './css-text-parser.js';
 
-const CSSRULE_TYPE = T.defineEnum([
-  'UNKNOWN',
-  'STYLE',
-  'CHARSET',
-  'IMPORT',
-  'MEDIA',
-  'FONT_FACE',
-  'PAGE',
-  'KEYFRAMES',
-  'KEYFRAME',
-  'MARGIN',
-  'NAMESPACE',
-  'COUNTER_STYLE',
-  'SUPPORTS',
-  'DOCUMENT',
-  'FONT_FEATURE_VALUES',
-  'VIEWPORT',
-  'REGION_STYLE',
-], 0);
+/**!
+ * There are some rules that generage by javascript (using CSSOM)
+ * These rules are weired, you can find them in devTool as inline style,
+ * but you can't find them in the html source...
+ *
+ * We use CSSOM to collect styles, but we lost some
+ * browser specific css declarations at the same time.
+ * Browsers will ignore other browsers' prefix,
+ * for example, Firefox will ignore "--webkit-*".
+ *
+ */
 
 
 
@@ -31,6 +24,8 @@ const CSSRULE_TYPE = T.defineEnum([
  *   - @param {Array} sheetInfoAncestors
  *   - @param {RequestParams} requestParams
  *   - @param {Window} win
+ *
+ * @return {Snapshot} it
  */
 async function handleStyleSheet(sheet, params) {
 
@@ -46,6 +41,7 @@ async function handleStyleSheet(sheet, params) {
   }
 
   const snapshot = T.sliceObj(sheet, ['href', 'disabled', 'title']);
+  snapshot.mediaText = sheet.media.mediaText;
   snapshot.mediaList = mediaList2Array(sheet.media);
 
   const sheetInfo = {accessDenied: false, url: sheet.href}
@@ -82,7 +78,7 @@ async function handleStyleSheet(sheet, params) {
     if (sheetInfo.url) {
 
       try {
-        const {result: text} = await ExtMsg.sendToBackground({
+        const {result: text} = await ExtMsg.sendToBackend('clipping', {
           type: 'fetch.text',
           body: requestParams.toParams(sheetInfo.url),
         });
@@ -160,7 +156,7 @@ async function handleCssRule(rule, params) {
 
     case CSSRULE_TYPE.IMPORT:
       r.href = rule.href;
-      //r.mediaText = rule.media.mediaText;
+      r.mediaText = rule.media.mediaText;
       r.mediaList = mediaList2Array(rule.media);
       // when circular, chrome will set sheet to null, but firefox
       // will still has stylesheet property with cssRules an empty list.
@@ -263,63 +259,91 @@ function mediaList2Array(mediaList) {
 // ============================================
 // serialization
 // ============================================
+//
+// ownerType:
 
-// ownerType: styleNode, linkNode, importRule, fontFaceRule, styleAttr
-
-function sheetToString(sheet, {baseUrl, ownerType, resourceHandler}) {
-  return rulesToString(sheet.rules, {baseUrl, ownerType, resourceHandler});
+/*
+ * @param {Object} params
+ * - {String} baseUrl
+ * - {String} ownerType (styleNode, linkNode, importRule, fontFaceRule, styleAttr)
+ * - {Function} resourceHandler
+ */
+async function sheet2String(sheet, params) {
+  return await rules2String(sheet.rules, params);
 }
 
-function rulesToString(rules = [], {baseUrl, ownerType, resourceHandler}) {
-  return rules.map((rule) => ruleToString(rule, {baseUrl, ownerType, resourceHandler})).join("\n");
+async function rules2String(rules = [], params) {
+  const r = [];
+  for (const rule of rules) {
+    r.push(await rule2String(rule, params));
+  }
+  return r.join("\n");
 }
 
-function ruleToString(rule, {baseUrl, ownerType, resourceHandler}) {
+async function rule2String(rule, params) {
+  const {resourceHandler, baseUrl} = params;
   let cssText;
   switch(rule.type) {
 
     case CSSRULE_TYPE.STYLE:
-      cssText = styleObjToString(rule.styleObj, {baseUrl, ownerType, resourceHandler});
+      cssText = await styleObj2String(rule.styleObj, params);
       return `${rule.selectorText} {\n${cssText}\n}`;
 
     case CSSRULE_TYPE.PAGE:
-      cssText = styleObjToString(rule.styleObj, {baseUrl, ownerType, resourceHandler});
+      cssText = await styleObj2String(rule.styleObj, params);
       return `@page${padIfNotEmpty(rule.selectorText)} {\n${cssText}}`;
 
     case CSSRULE_TYPE.IMPORT:
       if (rule.circular) {
-        return `/*@import url("${rule.href}"); Err: circular stylesheet.*/`;
+        return `/*@import url("${rule.href}"); Error: circular stylesheet.*/`;
       }
-      if (rule.sheet.rules.length == 0) {
-        return `/*@import url("${rule.sheet.href}"); Err: empty stylesheet(maybe 404).*/`;
+
+      if (!rule.sheet || rule.sheet.rules.length == 0) {
+        return `/*@import url("${rule.sheet.href}"); Error: empty stylesheet(maybe 404).*/`;
       }
-      cssText = sheetToString(rule.sheet, {baseUrl: rule.sheet.href, ownerType: 'importRule', resourceHandler});
+
+      const newOwnerType = 'importRule';
+      cssText = await sheet2String(rule.sheet, {
+        baseUrl: rule.sheet.href,
+        ownerType: newOwnerType,
+        resourceHandler: resourceHandler
+      });
+
       const resourceType = 'css';
-      const path = resourceHandler({ownerType, resourceType, cssText, baseUrl, url: rule.sheet.href});
+      const path = await resourceHandler({
+        url: rule.sheet.href,
+        ownerType: newOwnerType,
+        baseUrl: params.baseUrl,
+        resourceType, cssText,
+      });
       return `@import url("${path}")${padIfNotEmpty(rule.mediaText)};`;
 
     case CSSRULE_TYPE.FONT_FACE:
-      cssText = styleObjToString(rule.styleObj, {baseUrl, ownerType: 'fontFaceRule', resourceHandler});
+      cssText = await styleObj2String(rule.styleObj, {
+        ownerType: 'fontFaceRule',
+        resourceHandler,
+        baseUrl,
+      });
       return `@fontface {\n${cssText}\n}`;
       break;
 
     case CSSRULE_TYPE.MEDIA:
-      cssText = rulesToString(rule.rules, {baseUrl, ownerType, resourceHandler});
+      cssText = await rules2String(rule.rules, params);
       return `@media${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
 
     case CSSRULE_TYPE.SUPPORTS:
-      cssText = rulesToString(rule.rules, {baseUrl, ownerType, resourceHandler});
+      cssText = await rules2String(rule.rules, params);
       return `@supports${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
 
     case CSSRULE_TYPE.NAMESPACE:
       return `@namespace${padIfNotEmpty(rule.prefix)} url(${rule.namespaceURI})}`
 
     case CSSRULE_TYPE.KEYFRAMES:
-      cssText = rulesToString(rule.rules, {baseUrl, ownerType, resourceHandler});
+      cssText = await rules2String(rule.rules, params);
       return `@keyframes${padIfNotEmpty(rule.name)} {\n${cssText}\n}`;
 
     case CSSRULE_TYPE.KEYFRAME:
-      cssText = styleObjToString(rule.styleObj, {baseUrl, ownerType, resourceHandler});
+      cssText = await styleObj2String(rule.styleObj, params);
       return `${rule.keyText} {\n${cssText}\n}`;
       break;
 
@@ -344,7 +368,7 @@ const padIfNotEmpty = (str) => str.length > 0 ? ' ' + str : '';
 
 
 
-function styleObjToString(styleObj, {baseUrl, ownerType, resourceHandler}) {
+async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, renderIndent = true}) {
   const indent = '  ';
   const items = [
     /* ownerType resourceType propertyName */
@@ -355,38 +379,69 @@ function styleObjToString(styleObj, {baseUrl, ownerType, resourceHandler}) {
   ];
 
   const change = {};
-  items.forEach((it) => {
+  for (const it of items) {
     const propertyValue = styleObj[it[2]];
     if (propertyValue && (it[0] === '_ANY_' || it[0] === ownerType)) {
-      change[it[2]] = parsePropertyValue(propertyValue, {
+      change[it[2]] = await parsePropertyValue(propertyValue, {
         resourceType: it[1], baseUrl, ownerType, resourceHandler});
     }
-  });
+  };
 
-  return T.mapObj(styleObj, (k, v) => `${indent}${k}: ${change[k] || v};`).join("\n");
+  if (renderIndent) {
+    return T.mapObj(styleObj, (k, v) => `${indent}${k}: ${change[k] || v};`).join("\n");
+  } else {
+    return T.mapObj(styleObj, (k, v) => `${k}: ${change[k] || v}`).join(";");
+  }
 }
 
-const URL_RE_A = /url\("([^\)]+)"\)/i;
-const URL_RE_B = /url\('([^\)]+)'\)/i;
-const URL_RE_C = /url\(([^\)'"]+)\)/i;
+
+
+// WARNING: Do NOT change the order, dangerous.
+const URL_RE_A = /url\('([^\)]+)'\)/img;
+const URL_RE_B = /url\("([^\)]+)"\)/img;
+const URL_RE_C = /url\(([^\)'"]+)\)/img;
 const URL_RES = [URL_RE_A, URL_RE_B, URL_RE_C];
 
-function parsePropertyValue(value, {resourceType, baseUrl, ownerType, resourceHandler}) {
+async function parsePropertyValue(value, {resourceType, baseUrl, ownerType, resourceHandler}) {
   let txt = value;
-  let matched = false;
   for (let i = 0; i < URL_RES.length; i++) {
-    if (matched) { return txt }
-    txt = txt.replace(URL_RES[i], (match) => {
-      matched = true;
-      const path = resourceHandler({ownerType, resourceType, baseUrl, url: match[1]});
-      return `url("${path}")`;
+    const marker = T.createMarker();
+    const resourceInfos = [];
+
+    txt = txt.replace(URL_RES[i], (match, path) => {
+      const {isValid, url, message} = T.completeUrl(path, baseUrl);
+
+      if (!isValid) {
+        const err = [message, `path: ${path}`].join(' ');
+        //TODO add error message
+        return "url('')";
+      }
+
+      if(T.isDataUrl(url) || T.isHttpUrl(url)) {
+        resourceInfos.push({ownerType, resourceType, baseUrl, url});
+        return `url('${marker.next()}')`;
+      } else {
+        return match;
+      }
     });
+
+    if (resourceInfos.length > 0) {
+
+      const paths = [];
+      for (const resourceInfo of resourceInfos) {
+        const path = await resourceHandler(resourceInfo);
+        paths.push(path);
+      }
+
+      txt = marker.replaceBack(txt, paths);
+    }
   }
   return txt;
 }
 
+
 export default {
   take: handleStyleSheet,
-  toString: sheetToString,
-  styleObjToString: styleObjToString,
+  sheet2String,
+  styleObj2String
 };
