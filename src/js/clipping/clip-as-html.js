@@ -15,10 +15,9 @@ import CapturerStyle         from '../capturer/style.js';
 import CapturerLink          from '../capturer/link.js';
 import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
-//import CapturerCustomElement from '../capturer/custom-element.js';
 import CapturerStyleSheet    from '../capturer/stylesheet.js';
 import StyleHelper           from './style-helper.js';
-import RequestParams from '../lib/request-params.js'
+import RequestParams         from '../lib/request-params.js'
 
 
 async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}) {
@@ -51,7 +50,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   const snapshot = await takeSnapshot({elem, frames, requestParams, win, v});
 
   const tasks = await captureAssets(snapshot, Object.assign({}, params, {
-    needFixStyle: (elem.tagName.toUpperCase !== 'BODY')
+    needFixStyle: (elem.tagName.toUpperCase() !== 'BODY')
   }));
   console.log(snapshot);
 
@@ -274,13 +273,7 @@ async function captureAssets(snapshot, params) {
             saveFormat, storageInfo, clipId, requestParams,
           });
           break;
-
-        case 'IFRAME':
-        case 'FRAME':
-          // Frame's html will be captured when serialization
-          break;
         default: break;
-
       }
 
       // handle attributes

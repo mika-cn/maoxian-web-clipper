@@ -9,9 +9,6 @@ import RequestParams from './lib/request-params.js'
 import Snapshot      from './snapshot/snapshot.js';
 import SnapshotMaker from './snapshot/maker.js';
 
-import MxHtmlClipper     from './clipping/clip-as-html.js';
-import MxMarkdownClipper from './clipping/clip-as-markdown.js';
-
 import MxWcAssistantMain from './assistant/main.js';
 
 /*
@@ -45,7 +42,7 @@ function backgroundMessageHandler(message) {
               if (rel.match(/icon/) || rel.match(/stylesheet/)) {
                 return {isIgnore: false};
               } else {
-                return {isIgnore: true, reason: 'NoSupport'};
+                return {isIgnore: true, reason: 'NotSupported'};
               }
             } else {
               return {isIgnore: false}
@@ -60,18 +57,6 @@ function backgroundMessageHandler(message) {
         }, reject).catch(reject);
 
         break
-
-        /*
-      case 'frame.toHtml':
-        MxHtmlClipper.getElemHtml(getParams(message)).then((result) => {
-          result.title = window.document.title;
-          resolve(result);
-        });
-        break;
-      case 'frame.toMd':
-        MxMarkdownClipper.getElemHtml(getParams(message)).then(resolve);
-        break;
-        */
     }
   });
 }
