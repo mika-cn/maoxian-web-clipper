@@ -207,13 +207,16 @@ T.setHtml = function(obj, html) {
   }
   if(elem){
     elem.innerHTML = html;
-    const detailJson = JSON.stringify({selector: selector});
-    const e = new CustomEvent('___.mx-wc.page.changed', {detail: detailJson});
-    document.dispatchEvent(e);
+    T.emitPageChangedEvent(selector);
   }
 }
 
-
+T.emitPageChangedEvent = function(selector) {
+  const msg = selector ? {selector} : {};
+  const json = JSON.stringify(msg);
+  const e = new CustomEvent('___.mx-wc.page.changed', {detail: json});
+  document.dispatchEvent(e);
+}
 
 T.bind = function(elem, evt, fn, useCapture){
   elem.addEventListener(evt, fn, useCapture);

@@ -78,7 +78,7 @@ function getHandlerInfoThroughBG(name, callback) {
 
 function getHandlerLink(name) {
   const link =  `go.page:extPage.setting?t=${Date.now()}#setting-handler-${T.deCapitalize(name)}`;
-  return `<a href='${link}' target='_blank' i18n="handler.${T.deCapitalize(name)}.name"></a>`;
+  return `<a href='${link}' target='_blank' i18n="g.handler.${T.deCapitalize(name)}.name"></a>`;
 }
 
 function errResp(msg, name) {
