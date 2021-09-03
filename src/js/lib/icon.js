@@ -26,7 +26,7 @@ MxWcIcon.change = (iconStyle) => {
     "default": 'icons/mx-wc-32.png',
     "highlight": 'icons/mx-wc-32-highlight.png'
   })[iconStyle]
-  let url = browser.extension.getURL(icon_path);
+  let url = browser.runtime.getURL(icon_path);
   ExtApi.getCurrentTab().then((tab) => {
     if(tab) {
       // tab might not focus

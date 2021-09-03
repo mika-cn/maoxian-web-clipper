@@ -49,7 +49,7 @@ ExtApi.setUninstallURL = (url) => {
  *****************************/
 
 ExtApi.getURL = (path) => {
-  return browser.extension.getURL(path);
+  return browser.runtime.getURL(path);
 }
 /*
  * @return Promise
