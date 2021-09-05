@@ -62,17 +62,9 @@ function initSettingGeneral(config) {
     'customBodyBgCssValue'
   );
   // - markdown
-  initCheckboxInput(config,
-    'md-save-clipping-information',
-    'mdSaveClippingInformation'
-  );
-  initCheckboxInput(config,
-    'md-front-matter-enabled',
-    'mdFrontMatterEnabled'
-  );
   initTextInput(config,
-    'md-front-matter-template',
-    'mdFrontMatterTemplate'
+    'markdown-template',
+    'markdownTemplate'
   );
 
 

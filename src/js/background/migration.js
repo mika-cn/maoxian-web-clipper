@@ -40,6 +40,50 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['1.6'] = function(config) {
+  config.version = '1.7';
+  const parts = ["\n{{content}}\n"];
+  if (config.mdSaveClippingInformation) {
+    const clippingInfoTemplate = `
+---------------------------------------------------
+
+{{i18n_original_url}}: [{{i18n_access}}]({{url}})
+
+{{i18n_created_at}}: {{createdAt}}
+
+{{i18n_category}}: {{category}}{{^category}}{{i18n_none}}{{/category}}
+
+{{i18n_tags}}: {{#trimFn}}{{#tags}}\`{{.}}\`, {{/tags}}{{/trimFn}}{{^tags}}{{i18n_none}}{{/tags}}
+`;
+    parts.push(clippingInfoTemplate);
+  }
+
+  if (config.mdFrontMatterEnabled) {
+    try {
+      const regExp = /\$\{([^\$\}]+)\}/mg;
+      const frontMatterTemplate = config.mdFrontMatterTemplate.replace(regExp, (match, key) => {
+        let it = `{{${key}}}`
+        if (key == 'tags') {
+          it = "\n{{#tags}}\n - {{.}}\n{{/tags}}";
+          it += "\n{{^tags}}\n - {{i18n_none}}\n{{/tags}}";
+        }
+        if (key == 'category') {
+          it += "{{^category}}{{i18n_none}}{{/category}}";
+        }
+        if (key == 'title') {
+          it += "{{^title}}-{{/title}}";
+        }
+        return it;
+      });
+
+      parts.unshift(frontMatterTemplate);
+    }catch(e) {}
+  }
+
+  config.markdownTemplate = parts.join("\n\n");
+  return config;
+}
+
 // 1.5 => 1.6
 ConfigMigration['1.5'] = function(config) {
   config.version = '1.6';

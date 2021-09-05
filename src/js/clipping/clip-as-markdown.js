@@ -18,6 +18,8 @@ import CapturerCustomElement from '../capturer/custom-element.js';
 import TurndownService from 'turndown';
 const turndownPluginGfm = require('turndown-plugin-gfm');
 
+import Mustache from 'mustache';
+Mustache.escape = (text) => text;
 
 async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
   Log.debug("markdown parser");
@@ -36,17 +38,22 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   let markdown = generateMarkDown(elemHtml, info);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
-  if (config.mdFrontMatterEnabled) {
-    const v = Object.assign({}, info, i18nLabel);
-    markdown = [
-      generateMdFrontMatter(config.mdFrontMatterTemplate, v),
-      markdown
-    ].join("\n\n");
+
+
+  const trimFn = function() {
+    return function(text, render) {
+      return render(text).replace(/[,，\s]*$/, '');
+    }
+  };
+
+  const view = Object.assign({trimFn}, {url: info.link, content: markdown}, info, i18nLabel);
+  try {
+    markdown = Mustache.render(config.markdownTemplate, view);
+  } catch(e) {
+    // template may be invalid.
+    console.error(e);
   }
-  if (config.mdSaveClippingInformation){
-    const v = Object.assign({}, info, i18nLabel);
-    markdown += generateMdClippingInfo(v);
-  }
+
   const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName);
   const mainFileTask = Task.createMarkdownTask(filename, markdown, info.clipId);
   tasks.push(mainFileTask);
@@ -243,69 +250,6 @@ function generateMarkDown(elemHtml, info){
   }
   md += turndownService.turndown(elemHtml);
   return md;
-}
-
-function generateMdClippingInfo(v) {
-  Log.debug('generateMdClippingInfo');
-  let md = ""
-  md += "\n\n---------------------------------------------------\n"
-  md += `\n\n${v.i18n_original_url}: [${v.i18n_access}](${v.link})`;
-  md += `\n\n${v.i18n_created_at}: ${v.created_at}`;
-  let categoryStr = v.i18n_none;
-  let tagStr = v.i18n_none
-  if(v.category){
-    categoryStr = v.category
-  }
-  if(v.tags.length > 0){
-    tagStr = T.map(v.tags, function(tag){
-      return "`" + tag + "`";
-    }).join(", ");
-  }
-  md += `\n\n${v.i18n_category}: ${categoryStr}`;
-  md += `\n\n${v.i18n_tags}: ${tagStr}`;
-  md += "\n\n";
-  return md
-}
-
-function generateMdFrontMatter(template, v) {
-  let category = v.i18n_none;
-  let tags = "\n- " + v.i18n_none;
-  if(v.category){
-    category = v.category
-  }
-  if(v.tags.length > 0){
-    tags = "\n" + T.map(v.tags, function(tag){
-      return `  - ${tag}`
-    }).join("\n");
-  }
-  const tObj = T.wrapDate(new Date(v.created_at));
-  return renderYamlFrontMatter(template, Object.assign({
-    title: (v.title || "-"),
-    url: v.link,
-    createdAt: v.created_at,
-    category: category,
-    tags: tags
-  }, tObj.str));
-}
-
-function renderYamlFrontMatter(template, v) {
-  const result = [];
-  let n = 0;
-  template.split(/\n/).forEach((line) => {
-    if (n == 2) {
-      result.push(line);
-    } else {
-      if (line.match(/^---\s*$/)) {
-        n++;
-        result.push(line.trim());
-      } else if (n == 1) {
-        result.push(T.renderTemplate(line, v));
-      } else {
-        result.push(line);
-      }
-    }
-  });
-  return result.join("\n");
 }
 
 function getTurndownService(){

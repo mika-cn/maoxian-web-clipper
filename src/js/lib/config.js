@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.6';
+const VERSION = '1.7';
 const state = {};
 
 /** WARNING
@@ -36,6 +36,7 @@ function getDefault(){
     mdSaveClippingInformation: false,
     mdFrontMatterEnabled: false,
     mdFrontMatterTemplate: "---\ntitle: ${title}\ncategory: ${category}\ntags: ${tags}\ncreated_at: ${createdAt}\noriginal_url: ${url}\n---",
+    markdownTemplate: "\n{{content}}\n",
 
     // control
     hotkeySwitchEnabled: false,
@@ -194,7 +195,6 @@ export const API_SETTABLE_KEYS = [
   'frameFileFolder',
   'assetFolder',
 ];
-
 
 
 /*
