@@ -949,7 +949,6 @@ T.createFilenameConflictResolver = function() {
       const resolvedName = this.nameResolver.resolve({
         resolver: this.filenameResolver,
         namespace: folder,
-        id: id,
         name: filename,
       });
 

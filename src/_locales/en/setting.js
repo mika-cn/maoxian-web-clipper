@@ -99,7 +99,7 @@
     "path.filename.intro": "filename of main file： The filename of main file (entry file), default is <code>index.html</code> or <code>index.md</code>.",
     "folder.root.intro": "root folder： This is the storage root, all clipping files will storage under this folder.",
     "folder.category.intro": "category folder: This part is used to category your clippings. It's value depends on what you input in saving form. Let's assume your input value is <code>news/sports</code>, then extension will create a folder named <code>news</code> and a subfolder named <code>sports</code>.",
-    "folder.clipping.intro": "clpping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
+    "folder.clipping.intro": "clipping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
 
     // handler
     "handler.browser.name": "Browser",
