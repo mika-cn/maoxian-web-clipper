@@ -75,8 +75,8 @@ function style(){
       top: 1px;
       padding: 0px 10px !important;
     }
-    .notify > .notify-content > a{
-      color: #ffff00 !important;
+    .notify > .notify-content a{
+      color: #00ffff !important;
     }
     .notify:hover > .notify-btn{
       color: #efefef;

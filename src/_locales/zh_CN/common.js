@@ -44,6 +44,11 @@
     "g.option-value.html": "HTML",
     "g.option-value.md": "Markdown",
 
+    // handlers
+    "g.handler.browser.name": "浏览器",
+    "g.handler.native-app.name": "本地程序",
+    "g.handler.wiz-note-plus.name": "为知笔记",
+
     // errors
     "g.error.value-invalid": "输入值无效",
     "g.error.not-a-number": "输入值不是数字",
