@@ -2,6 +2,7 @@
 
 import T   from './tool.js';
 import md5 from 'blueimp-md5';
+import VariableRender from './variable-render.js'
 import ExtMsg from './ext-msg.js';
 
 // params: {:url, :headers, :timeout, :tries}
@@ -28,17 +29,67 @@ async function getHttpMimeType(params) {
   }
 }
 
-// link http:, https: or data:
-function getNameByLink({link, extension, mimeTypeData, prefix}) {
-  const name = generateName(link, prefix);
-  const ext  = getFileExtension(link, extension, mimeTypeData);
-  return ext ? [name, ext].join('.') : name;
+async function getUniqueName({clipId, id, folder, filename}) {
+  const name = await ExtMsg.sendToBackend('clipping', {
+    type: 'get.uniqueFilename',
+    body: {clipId, id, folder, filename}
+  });
+  return name;
 }
 
-function getNameByContent({content, extension, prefix}) {
-  const name = generateName(content, prefix);
-  const ext = extension;
-  return ext ? [name, ext].join('.') : name;
+
+function getValueObjectByLink({template, link, extension = null, mimeTypeData = {}}) {
+  let v = {};
+  if (template.indexOf('$MD5URL') > -1) {
+    v.md5url = md5(link);
+  }
+  if (template.indexOf('$FILENAME') > -1) {
+    let filename = null;
+    if (T.isDataUrl(link)) {
+      filename = 'dataurl';
+    } else {
+      filename = T.getUrlFilename(link);
+    }
+    const [name, _] = T.splitFilename(filename);
+    v.filename = name;
+  }
+  if (template.indexOf('$EXT') > -1) {
+    const ext = getFileExtension(link, extension, mimeTypeData);
+    v.ext = (ext ? `.${ext}` : '');
+  }
+  return v;
+}
+
+
+function getValueObjectByContent({template, content, name = "untitle", extension = null}) {
+  let v = {};
+
+  if (template.indexOf('$MD5URL') > -1) {
+    v.md5url = md5(content);
+  }
+
+  if (template.indexOf('$FILENAME') > -1) {
+    v.filename = name;
+  }
+
+  if (template.indexOf('$EXT') > -1) {
+    v.ext = (extension ? `.${extension}` : '');
+  }
+  return v;
+}
+
+// link http:, https: or data:
+function getNameByLink({template, link, extension, mimeTypeData = {}, now}) {
+  const v = getValueObjectByLink({template, link, extension, mimeTypeData});
+  const name = VariableRender.exec(template, Object.assign({now}, v),
+    VariableRender.AssetFilenameVariables);
+  return name
+}
+
+function getNameByContent({template, content, name, extension, now}) {
+  const v = getValueObjectByContent({template, content, name, extension});
+  return VariableRender.exec(template, Object.assign({now}, v),
+    VariableRender.AssetFilenameVariables);
 }
 
 function getFilename({storageInfo, assetName}) {
@@ -53,11 +104,22 @@ function getPath({storageInfo, assetName}) {
   }
 }
 
-function calcInfo(link, storageInfo, mimeTypeData, prefix) {
-  const assetName = getNameByLink({
+async function calcInfo(params) {
+  const {link, storageInfo, extension = null,
+    mimeTypeData = {}, clipId} = params;
+  const name = getNameByLink({
+    template: storageInfo.raw.assetFileName,
     link: link,
-    prefix: prefix,
-    mimeTypeData: mimeTypeData
+    extension: extension,
+    mimeTypeData: mimeTypeData,
+    now: storageInfo.valueObj.now,
+  });
+
+  const assetName = await getUniqueName({
+    clipId: clipId,
+    id: link,
+    folder: storageInfo.assetFolder,
+    filename: name
   });
 
   return {
@@ -66,26 +128,6 @@ function calcInfo(link, storageInfo, mimeTypeData, prefix) {
   }
 }
 
-
-/**
- * Generate asset name according to content
- *
- * @param {String} identifier
- *   Normally, it's a url
- *
- * @param {String} prefix - optional
- *   Use prefix to avoid asset name conflict.
- *   currently we use clipId as prefix.
- *
- * @return {String} the generated asset name
- *
- */
-function generateName(identifier, prefix) {
-  const parts = [];
-  parts.push(md5(identifier))
-  if (prefix) { parts.unshift(prefix); }
-  return parts.join('-');
-}
 
 function getFileExtension(link, extension, mimeTypeData) {
   const {
@@ -120,9 +162,11 @@ function getFileExtension(link, extension, mimeTypeData) {
 }
 
 export default {
+  md5,
   getHttpMimeType,
   getNameByLink,
   getNameByContent,
+  getUniqueName,
   getFilename,
   getPath,
   calcInfo,

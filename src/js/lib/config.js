@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.5';
+const VERSION = '1.6';
 const state = {};
 
 /** WARNING
@@ -105,11 +105,6 @@ function getDefault(){
     /* $TITLE */
     mainFileName: 'index.$FORMAT',
 
-    /**
-     * ======== Frame File ========
-     *   embed HTML file
-     */
-    frameFileFolder: '$CLIPPING-PATH/frames',
 
     /**
      * ======== Info File ========
@@ -129,10 +124,18 @@ function getDefault(){
     titleFileName: 'a-title_$TITLE',
 
     /**
+     * ======== Frame File ========
+     *   embed HTML file
+     */
+    frameFileFolder: '$CLIPPING-PATH/frames',
+    frameFileName: '$TIME-INTSEC-$MD5URL.frame.html',
+
+    /**
      * ======== Asset Files ========
      *   picture, icon, webfont, style
      */
     assetFolder: '$CLIPPING-PATH/assets',
+    assetFileName: '$TIME-INTSEC-$MD5URL$EXT',
 
     /* $NONE */
     /* $DOMAIN */

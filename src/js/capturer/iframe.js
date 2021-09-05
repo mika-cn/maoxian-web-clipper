@@ -92,14 +92,25 @@ async function capture(node, opts) {
       type: msgType,
       frameId: frame.frameId,
       frameUrl: frame.url,
-      body: { clipId, frames, storageInfo,
-        config }
+      body: {clipId, frames, storageInfo, config},
     });
 
     if (fromCache) {
       // processed
       if (saveFormat === 'html') {
-        const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
+        const name = Asset.getNameByLink({
+          template: storageInfo.raw.frameFileName,
+          link: frame.url,
+          extension: 'html',
+          now: storageInfo.valueObj.now,
+        });
+
+        const assetName = await Asset.getUniqueName({
+          clipId: clipId,
+          id: frame.url,
+          folder: storageInfo.frameFileFolder,
+          filename: name,
+        });
         const src = T.calcPath(
           storageInfo.mainFileFolder,
           T.joinPath(storageInfo.frameFileFolder, assetName)
@@ -123,7 +134,18 @@ async function capture(node, opts) {
           headInnerHtml: headInnerHtml,
           html: elemHtml
         });
-        const assetName = Asset.getNameByLink({ link: frame.url, extension: 'frame.html', prefix: clipId});
+        const name = Asset.getNameByLink({
+          template: storageInfo.raw.frameFileName,
+          link: frame.url,
+          extension: 'html',
+          now: storageInfo.valueObj.now,
+        });
+        const assetName = await Asset.getUniqueName({
+          clipId: clipId,
+          id: frame.url,
+          folder: storageInfo.frameFileFolder,
+          filename: name,
+        });
         const filename = T.joinPath(storageInfo.frameFileFolder, assetName);
         const src = T.calcPath(
           storageInfo.mainFileFolder,

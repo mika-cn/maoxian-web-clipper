@@ -16,14 +16,19 @@ import Task        from '../lib/task.js';
  *
  */
 
-function capture(node, opts) {
+async function capture(node, opts) {
   const {saveFormat, clipId, storageInfo,
     doc, canvasDataUrlDict = {}} = opts;
   const tasks = [];
   if (node.getAttribute('data-mx-marker') === 'canvas-image') {
     const dataUrl = canvasDataUrlDict[node.getAttribute('data-mx-id')];
     const mimeTypeData = {};
-    const {filename, path} = Asset.calcInfo(dataUrl, storageInfo, mimeTypeData, clipId);
+    const {filename, path} = await Asset.calcInfo({
+      link: dataUrl,
+      storageInfo: storageInfo,
+      mimeTypeData: mimeTypeData,
+      clipId: clipId,
+    });
     const task = Task.createImageTask(filename, dataUrl, clipId);
     tasks.push(task);
 

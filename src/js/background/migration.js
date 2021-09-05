@@ -40,6 +40,14 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+// 1.5 => 1.6
+ConfigMigration['1.5'] = function(config) {
+  config.version = '1.6';
+  config.assetFileName = '$TIME-INTSEC-$MD5URL$EXT';
+  config.frameFileName = '$TIME-INTSEC-$MD5URL.frame.html';
+  return config;
+}
+
 // 1.4 => 1.5
 ConfigMigration['1.4'] = function(config) {
   console.info("Migrating config from 1.4 to 1.5");

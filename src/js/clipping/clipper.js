@@ -30,6 +30,7 @@ import MxMarkdownClipper from './clip-as-markdown.js';
  *   - {Object} storageConfig
  *   - {Object} i18nLabel : some translated labels
  *   - {Object} requestParams
+ *   - {FilenameConflictResolver} nameConflictResolver
  *
  */
 function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
@@ -55,21 +56,18 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
   let storageConfig = {};
   switch(config.clippingHandler) {
     case 'WizNotePlus':
-      storageConfig = StorageConfig_WizNotePlus.get({
-        now: now, config: config
-      });
+      storageConfig = StorageConfig_WizNotePlus.get({config});
       break;
     default:
       // Browser or NativeApp
-      storageConfig = StorageConfig_Default.get({
-        config: config
-      })
+      storageConfig = StorageConfig_Default.get({config})
       break;
   }
 
-  const storageInfo = StorageConfigRender.exec(Object.assign(
-    { storageConfig, now, domain },
-    T.sliceObj(userInput, ['format', 'title', 'category']))
+  const {storageInfo, nameConflictResolver} = StorageConfigRender.exec(Object.assign(
+    { storageConfig, now, domain, nameConflictResolver},
+    T.sliceObj(userInput, ['format', 'title', 'category']),
+    {nameConflictResolver: T.createFilenameConflictResolver()})
   );
   Log.debug(storageInfo)
 
@@ -89,7 +87,7 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
     created_at : tObj.toString(),
   }
 
-  return {userInput, info, storageInfo, storageConfig, i18nLabel, requestParams};
+  return {userInput, info, storageInfo, storageConfig, i18nLabel, requestParams, nameConflictResolver};
 }
 
 
@@ -105,15 +103,25 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
  *   - {Object} i18nLabel : some translated labels
  *   - {Object} requestParams
  *   - {Window} window object
+ *   - {FilenameConflictResolver} nameConflictResolver
  *
  * @return {Promise} a Promise that will resolve with clipping
  */
-async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, requestParams, frames, win}) {
+async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, requestParams, frames, win, nameConflictResolver}) {
+
   let Clipper = null;
   switch(info.format){
     case 'html' : Clipper = MxHtmlClipper; break;
     case 'md'   : Clipper = MxMarkdownClipper; break;
   }
+
+  await ExtMsg.sendToBackend('clipping', {
+    type: 'add.nameConflictResolver',
+    body: {
+      clipId: info.clipId,
+      nameConflictResolverObject: nameConflictResolver.toObject()
+    }
+  });
 
   let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win});
 

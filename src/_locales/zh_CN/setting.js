@@ -89,6 +89,9 @@
     "variable.minute"              : "<pre>$mm   => 分 （2 位数字, 00 ~ 59）</pre>",
     "variable.second"              : "<pre>$SS   => 秒 （2 位数字, 00 ~ 59）</pre>",
     "variable.time-integer-second" : "<pre>$TIME-INTSEC => 以秒表示的裁剪时间（例：1578712781）.</pre>",
+    "variable.md5-of-url"          : "<pre>$MD5URL => 文件网址的 MD5 值（长度为32，例：14b2881be9f76cd55ec3b4c72a08f349）</pre>",
+    "variable.filename"            : "<pre>$FILENAME => 原文件的名字（不包含文件扩展名）</pre>",
+    "variable.file-extension"      : "<pre>$EXT => 文件扩展名 （包含“.“，如：“.png“）</pre>",
 
 
     "path.download.intro": "下载路径： 该路径即是你浏览器设置的下载目录，如果你使用「本地程序」的话，该路径是你配置文件（config.yaml）里面的 data_dir 项所配置的目录。",

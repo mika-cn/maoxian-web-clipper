@@ -90,13 +90,16 @@
     "variable.minute"              : "<pre>$mm   => minute (2 digits, 00 ~ 59)</pre>",
     "variable.second"              : "<pre>$SS   => second (2 digits, 00 ~ 59)</pre>",
     "variable.time-integer-second" : "<pre>$TIME-INTSEC => clipping time in seconds (e.g. 1578712781)</pre>",
+    "variable.md5-of-url"          : "<pre>$MD5URL => MD5 value of file's URL (length: 32, e.g. 14b2881be9f76cd55ec3b4c72a08f349)</pre>",
+    "variable.filename"            : "<pre>$FILENAME => file's original name (exclude file extension)</pre>",
+    "variable.file-extension"      : '<pre>$EXT => file extension (include ".", such as ".png")</pre>',
 
 
     "path.download.intro": "download path： Download location of your browser, If you use NativeApp to save clipping file, this path is the value of \"data_dir\" in configure file (config.yaml) of NativeApp.",
     "path.filename.intro": "filename of main file： The filename of main file (entry file), default is <code>index.html</code> or <code>index.md</code>.",
     "folder.root.intro": "root folder： This is the storage root, all clipping files will storage under this folder.",
     "folder.category.intro": "category folder: This part is used to category your clippings. It's value depends on what you input in saving form. Let's assume your input value is <code>news/sports</code>, then extension will create a folder named <code>news</code> and a subfolder named <code>sports</code>.",
-    "folder.clipping.intro": "clpping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
+    "folder.clipping.intro": "clipping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
 
     // handler
     "handler.browser.name": "Browser",

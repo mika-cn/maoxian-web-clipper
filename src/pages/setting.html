@@ -406,11 +406,28 @@
               <div class="notice-info">
                 <p i18n="notice.asset-file-intro"></p>
                 <details>
-                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
-                  <div class="help-content">
-                    <span i18n="variable.clipping-path"></span><br />
-                    <span i18n="variable.category-path"></span><br />
-                    <span i18n="variable.storage-path"></span><br />
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary><br />
+                  <div>
+                    <strong i18n="variable-in-folder"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.clipping-path"></span><br />
+                      <span i18n="variable.category-path"></span><br />
+                      <span i18n="variable.storage-path"></span><br />
+                    </div>
+                    <strong i18n="variable-in-filename"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.md5-of-url"></span>
+                      <span i18n="variable.filename"></span>
+                      <span i18n="variable.file-extension"></span>
+                      <span i18n="variable.year"></span>
+                      <span i18n="variable.short-year"></span>
+                      <span i18n="variable.month"></span>
+                      <span i18n="variable.day"></span>
+                      <span i18n="variable.hour"></span>
+                      <span i18n="variable.minute"></span>
+                      <span i18n="variable.second"></span>
+                      <span i18n="variable.time-integer-second"></span>
+                    </div>
                   </div>
                 </details>
               </div>
@@ -418,24 +435,50 @@
                 <label i18n="label.storage-folder"></label>
                 <input type="text" id="asset-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
+              <div class="input-group">
+                <label i18n="label.storage-filename"></label>
+                <input type="text" id="asset-file-name" i18n-attr="placeholder:placeholder.notblank"/>
+              </div>
             </div>
 
             <div>
               <h4 i18n="title.frame-file"></h4>
               <div class="notice-info">
                 <p i18n="notice.frame-file-intro"></p>
+
+
                 <details>
-                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
-                  <div class="help-content">
-                    <span i18n="variable.clipping-path"></span><br />
-                    <span i18n="variable.category-path"></span><br />
-                    <span i18n="variable.storage-path"></span><br />
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary><br />
+                  <div>
+                    <strong i18n="variable-in-folder"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.clipping-path"></span><br />
+                      <span i18n="variable.category-path"></span><br />
+                      <span i18n="variable.storage-path"></span><br />
+                    </div>
+                    <strong i18n="variable-in-filename"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.md5-of-url"></span>
+                      <span i18n="variable.filename"></span>
+                      <span i18n="variable.year"></span>
+                      <span i18n="variable.short-year"></span>
+                      <span i18n="variable.month"></span>
+                      <span i18n="variable.day"></span>
+                      <span i18n="variable.hour"></span>
+                      <span i18n="variable.minute"></span>
+                      <span i18n="variable.second"></span>
+                      <span i18n="variable.time-integer-second"></span>
+                    </div>
                   </div>
                 </details>
               </div>
               <div class="input-group">
                 <label i18n="label.storage-folder"></label>
                 <input type="text" id="frame-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
+              </div>
+              <div class="input-group">
+                <label i18n="label.storage-filename"></label>
+                <input type="text" id="frame-file-name" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
             </div>
 

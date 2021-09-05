@@ -285,7 +285,15 @@ async function formSubmitted({elem, formInputs, config}) {
 
   const frames = await ExtMsg.sendToBackend('clipping', {type: 'get.allFrames'});
 
-  const {userInput, info, storageInfo, storageConfig, i18nLabel, requestParams} = Clipper.getReadyToClip(formInputs, currConfig, {domain, pageUrl, userAgent})
+  const {
+    userInput,
+    info,
+    storageInfo,
+    storageConfig,
+    i18nLabel,
+    requestParams,
+    nameConflictResolver,
+  } = Clipper.getReadyToClip(formInputs, currConfig, {domain, pageUrl, userAgent})
 
   state.storageConfig = storageConfig;
   state.storageInfo = storageInfo;
@@ -293,7 +301,19 @@ async function formSubmitted({elem, formInputs, config}) {
   if (userInput.category != '')  { saveInputHistory('category', userInput.category); }
   if (userInput.tags.length > 0) { saveInputHistory('tags', userInput.tags); }
 
-  const params = Object.assign({info, storageInfo, storageConfig, i18nLabel, requestParams, frames}, {config: currConfig, win: window});
+  const params = Object.assign({
+    info,
+    storageInfo,
+    storageConfig,
+    i18nLabel,
+    requestParams,
+    frames,
+    nameConflictResolver,
+  }, {
+    config: currConfig,
+    win: window
+  });
+
   const clipping = await Clipper.clip(elem, params);
 
   Log.debug(clipping);
