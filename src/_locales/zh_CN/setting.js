@@ -68,7 +68,9 @@
 
     "help.label": "点击显示（或隐藏）帮助信息",
     "help.avariable-variable": "可用变量",
-    // variables
+
+
+    // variables that used in path, folder, filename
     "variable-in-folder": "以下变量可用于存储目录",
     "variable-in-filename": "以下变量可用于文件名",
     "variable.storage-path": '$STORAGE-PATH 等同于： <code>下载路径</code> / <code>根目录</code>',
@@ -92,6 +94,29 @@
     "variable.md5-of-url"          : "<pre>$MD5URL => 文件网址的 MD5 值（长度为32，例：14b2881be9f76cd55ec3b4c72a08f349）</pre>",
     "variable.filename"            : "<pre>$FILENAME => 原文件的名字（不包含文件扩展名）</pre>",
     "variable.file-extension"      : "<pre>$EXT => 文件扩展名 （包含“.“，如：“.png“）</pre>",
+
+    // variables that used in template
+
+    "tpl-variable.title"     : "<pre>{{title}}     => 网页标题 </pre>",
+    "tpl-variable.content"   : "<pre>{{content}}   => 裁剪后的内容</pre>",
+    "tpl-variable.url"       : "<pre>{{url}}       => 网址（URL）</pre>",
+    "tpl-variable.category"  : "<pre>{{category}}  => 目录</pre>",
+    "tpl-variable.tags"      : "<Pre>{{tags}}      => 标签</pre>",
+    "tpl-variable.created-at" : "<pre>{{createdAt}} => 裁剪时间 (e.g. 2020-02-01 11:00:00)</pre>",
+    "tpl-variable.year"      : "<pre>{{year}}      => 年 （4 位数字, 例： 2018）</pre>",
+    "tpl-variable.sYear"     : "<pre>{{sYear}}     => 年 （2 位数字, 例： 18）</pre>",
+    "tpl-variable.month"     : "<pre>{{month}}     => 月 （2 位数字, 01 ~ 12）</pre>",
+    "tpl-variable.day"       : "<pre>{{day}}       => 日 （2 位数字, 01 ~ 31）</pre>",
+    "tpl-variable.hour"      : "<pre>{{hour}}      => 时 （2 位数字, 00 ~ 23）</pre>",
+    "tpl-variable.minute"    : "<pre>{{minute}}    => 分 （2 位数字, 00 ~ 59）</pre>",
+    "tpl-variable.second"    : "<pre>{{second}}    => 秒 （2 位数字, 00 ~ 59）</pre>",
+    "tpl-variable.intSec"    : "<pre>{{intSec}}    => 以秒表示的裁剪时间（例：1578712781）.</pre>",
+    "tpl-variable.i18n-none"         : "<pre>{{i18n_none}}         => 文本: 无</pre>",
+    "tpl-variable.i18n-access"       : "<pre>{{i18n_access}}       => 文本: 访问</pre>",
+    "tpl-variable.i18n-original-url" : "<pre>{{i18n_original_url}} => 文本: 原网址</pre>",
+    "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => 文本: 创建时间</pre>",
+    "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => 文本: 目录</pre>",
+    "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => 文本: 标签</pre>",
 
 
     "path.download.intro": "下载路径： 该路径即是你浏览器设置的下载目录，如果你使用「本地程序」的话，该路径是你配置文件（config.yaml）里面的 data_dir 项所配置的目录。",
@@ -166,8 +191,7 @@
     "notice.file-url.help-msg": "你将需要以下信息:",
     "notice.file-url.ext-id": "扩展标识",
     "notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
-    "notice.front-matter": "YAML Front Matter 是一段位于 Markdown 文件开头的 YAML 文本，常用于保存文档本身的元信息，你可以使用它来保存裁剪信息。",
-    "notice.front-matter-template": "使用下方的模板，配置你想记录的信息。<br />可使用的变量为：<strong>title、url、category、tags、createdAt、sYear、month、day、hour、minute、second、intSec</strong>。",
+    "notice.markdown-template": '使用下方的模板，控制裁剪结果的渲染。MaoXian 使用 mustache.js 来渲染这个模板，你可以在它的<a target="_blank" href="https://github.com/janl/mustache.js">项目页面</a>找到使用介绍。',
     "notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
     "notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />",
@@ -200,7 +224,6 @@
     "label.request-cache-image-input": "缓存图片",
     "label.request-cache-web-font-input": "缓存字体",
     "label.clip-information-input": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
-    "label.md-front-matter-enabled-input": "启用 YAML Front Matter",
     "label.save-icon-input": "保存网站图标",
     "label.save-web-font-input": "保存Web字体(建议取消勾选)",
     "label.save-css-image-input": "存储 CSS 背景图(建议取消勾选)",

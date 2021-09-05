@@ -198,16 +198,37 @@
           </div>
           <div>
             <h4 i18n="title.markdown-content"></h4>
-            <input type="checkbox" id="md-save-clipping-information" />
-            <label for="md-save-clipping-information" i18n="label.clip-information-input"></label>
-            <br />
-            <input type="checkbox" id="md-front-matter-enabled" />
-            <label for="md-front-matter-enabled" i18n="label.md-front-matter-enabled-input"></label>
             <div class="notice-info">
-              <span i18n="notice.front-matter"></span><br /><br />
-              <span i18n="notice.front-matter-template"></span>
+              <p i18n="notice.markdown-template"></p>
+              <details>
+                <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <span i18n="tpl-variable.i18n-none"></span>
+                  <span i18n="tpl-variable.i18n-access"></span>
+                  <span i18n="tpl-variable.i18n-original-url"></span>
+                  <span i18n="tpl-variable.i18n-created-at"></span>
+                  <span i18n="tpl-variable.i18n-category"></span>
+                  <span i18n="tpl-variable.i18n-tags"></span>
+                  <hr />
+
+                  <span i18n="tpl-variable.title"></span>
+                  <span i18n="tpl-variable.content"></span>
+                  <span i18n="tpl-variable.url"></span>
+                  <span i18n="tpl-variable.category"></span>
+                  <span i18n="tpl-variable.tags"></span>
+                  <span i18n="tpl-variable.created-at"></span>
+                  <span i18n="tpl-variable.year"></span>
+                  <span i18n="tpl-variable.sYear"></span>
+                  <span i18n="tpl-variable.month"></span>
+                  <span i18n="tpl-variable.day"></span>
+                  <span i18n="tpl-variable.hour"></span>
+                  <span i18n="tpl-variable.minute"></span>
+                  <span i18n="tpl-variable.second"></span>
+                  <span i18n="tpl-variable.intSec"></span>
+                </div>
+              </details>
             </div>
-            <textarea id="md-front-matter-template"></textarea>
+            <textarea id="markdown-template"></textarea>
           </div>
         </div>
       </section>
