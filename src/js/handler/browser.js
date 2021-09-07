@@ -10,7 +10,7 @@ import Download    from '../saving/browser-download.js';
 
 
 function initDownloadFolder(config){
-  const filename = [config.rootFolder, 'touch.mxwc'].join('/');
+  const filename = [config.rootFolder, 'mx-wc-touch.txt'].join('/');
   downloadText({
     filename: filename,
     text: "useless file, delete me :)",

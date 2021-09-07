@@ -31,7 +31,7 @@ function getDefault(){
     saveCssImage: false,
     htmlSaveClippingInformation: false,
     customBodyBgCssEnabled: false,
-    customBodyBgCssValue: "",
+    customBodyBgCssValue: "#000000",
 
     mdSaveClippingInformation: false,
     mdFrontMatterEnabled: false,
