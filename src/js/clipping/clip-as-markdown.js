@@ -46,7 +46,12 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     }
   };
 
-  const view = Object.assign({trimFn}, {url: info.link, content: markdown}, info, i18nLabel);
+  const tObj = T.wrapDate(new Date(info.created_at));
+  const view = Object.assign({trimFn}, {
+    url: info.link,
+    createdAt: info.created_at,
+    content: markdown,
+  } , info, i18nLabel, tObj);
   try {
     markdown = Mustache.render(config.markdownTemplate, view);
   } catch(e) {
