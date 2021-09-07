@@ -12,11 +12,12 @@ import VariableRender from '../lib/variable-render.js'
  *   - {String} format
  *   - {String} title
  *   - {String} category
+ *   - {FilenameConflictResolver} nameConflictResolver
  *
  * @return storageInfo
  */
 function exec({storageConfig: config, now, domain,
-  format, title, category: originalCategory}) {
+  format, title, category: originalCategory, nameConflictResolver}) {
 
   const filenameValueHash = {now, title, format, domain};
 
@@ -43,50 +44,79 @@ function exec({storageConfig: config, now, domain,
   // FIXME category should be here?
   const storageInfo = {category: category};
 
-  // Main file
+  // storageInfo.raw stores storageConfig Items that can't be decided now.
+  storageInfo.raw = {};
+  // storageInfo.valueObj stores values that will be used to asset/iframe filename rendering.
+  storageInfo.valueObj = {now};
+
+  // ====================================
+  // render folder
+  // ====================================
   storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
     pathValueHash, pathVariables);
-  storageInfo.mainFileName = VariableRender.exec(config.mainFileName,
-    filenameValueHash, VariableRender.FilenameVariables);
+  nameConflictResolver.addFolder(storageInfo.mainFileFolder);
 
-  // Info file
+  storageInfo.assetFolder= VariableRender.exec(
+    fixPathVariable(config.assetFolder, 'assetFolder'),
+    pathValueHash, pathVariables);
+  nameConflictResolver.addFolder(storageInfo.assetFolder);
+
   if (config.saveInfoFile) {
     storageInfo.infoFileFolder = VariableRender.exec(
       fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
       pathValueHash, pathVariables);
-    storageInfo.infoFileName = VariableRender.exec(config.infoFileName,
-      filenameValueHash, VariableRender.FilenameVariables);
+    nameConflictResolver.addFolder(storageInfo.infoFileFolder);
   }
 
-  // asset file
-  storageInfo.assetFolder = VariableRender.exec(
-    fixPathVariable(config.assetFolder, 'assetFolder'),
-    pathValueHash, pathVariables);
-  storageInfo.assetRelativePath = T.calcPath(
-    storageInfo.mainFileFolder, storageInfo.assetFolder
-  );
+  if (config.saveTitleFile) {
+    storageInfo.titleFileFolder= VariableRender.exec(
+      fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
+      pathValueHash, pathVariables);
+    nameConflictResolver.addFolder(storageInfo.titleFileFolder);
+  }
 
-  // frame file
   if (format === 'html') {
     storageInfo.frameFileFolder = VariableRender.exec(
       fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
       pathValueHash, pathVariables);
+    nameConflictResolver.addFolder(storageInfo.frameFileFolder);
   } else {
-    // md
-    storageInfo.frameFileFolder = storageInfo.mainFileFolder;
+    // md don't need to store frame files
   }
 
-  // title file
-  if (config.saveTitleFile) {
-    storageInfo.titleFileFolder = VariableRender.exec(
-      fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
-      pathValueHash, pathVariables);
-    storageInfo.titleFileName = VariableRender.exec(config.titleFileName,
+
+  // ====================================
+  // render filename and relative path
+  // ====================================
+
+  const mainFileName = VariableRender.exec(config.mainFileName,
+    filenameValueHash, VariableRender.FilenameVariables);
+  storageInfo.mainFileName = nameConflictResolver.resolveFile('__mainFileName__', storageInfo.mainFileFolder, mainFileName);
+
+  storageInfo.assetRelativePath = T.calcPath(
+    storageInfo.mainFileFolder, storageInfo.assetFolder
+  );
+  storageInfo.raw.assetFileName = config.assetFileName;
+
+  if (config.saveInfoFile) {
+    const infoFileName = VariableRender.exec(config.infoFileName,
       filenameValueHash, VariableRender.FilenameVariables);
+
+    storageInfo.infoFileName = nameConflictResolver.resolveFile('__infoFileName__', storageInfo.infoFileFolder, infoFileName);
   }
 
-  return storageInfo;
+  if (config.saveTitleFile) {
+    const titleFileName = VariableRender.exec(config.titleFileName,
+      filenameValueHash, VariableRender.FilenameVariables);
+    storageInfo.titleFileName = nameConflictResolver.resolveFile('__titleFileName__', storageInfo.titleFileFolder, titleFileName);
+  }
+
+  if (format === 'html') {
+    storageInfo.raw.frameFileName = config.frameFileName;
+  }
+
+  return {storageInfo, nameConflictResolver};
 }
 
 function dealCategory(config, category, now, domain) {

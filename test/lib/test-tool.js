@@ -170,12 +170,59 @@ describe('Tool', () => {
     H.assertEqual(r.parameters.foo, 'Bar');
   });
 
-  it('getUrlFileName', () => {
+  it('getUrlFilename', () => {
     let url = 'https://a.org/example.jpeg';
-    H.assertEqual(T.getUrlFileName(url), 'example.jpeg')
+    H.assertEqual(T.getUrlFilename(url), 'example.jpeg')
     url = 'https://a.org/example.jpeg!large?a=1&b=2#h';
-    H.assertEqual(T.getUrlFileName(url), 'example.jpeg')
+    H.assertEqual(T.getUrlFilename(url), 'example.jpeg')
   });
 
+  it('FilenameConflictResolver: addFolder(folder)', () => {
+    const resolver = T.createFilenameConflictResolver();
+
+    resolver.addFolder('mx-wc/articles');
+    H.assertEqual(resolver.getNames('mx-wc').length, 1);
+    H.assertEqual(resolver.getNames('__ROOT__').length, 1);
+    H.assertEqual(resolver.addedFolder.length, 2);
+
+
+    // add same folder again, should not change the result.
+    resolver.addFolder('mx-wc/articles');
+    H.assertEqual(resolver.getNames('mx-wc').length, 1);
+    H.assertEqual(resolver.getNames('__ROOT__').length, 1);
+    H.assertEqual(resolver.addedFolder.length, 2);
+
+    resolver.addFolder('mx-wc/news');
+    H.assertEqual(resolver.getNames('mx-wc').length, 2);
+    H.assertEqual(resolver.getNames('__ROOT__').length, 1);
+    H.assertEqual(resolver.addedFolder.length, 3);
+
+    resolver.addFolder('clippings');
+    H.assertEqual(resolver.getNames('mx-wc').length, 2);
+    H.assertEqual(resolver.getNames('__ROOT__').length, 2);
+    H.assertEqual(resolver.addedFolder.length, 4);
+  });
+
+  it('FilenameConflictResolver: resolveFile(id, folder, filename)', () => {
+    const resolver = T.createFilenameConflictResolver();
+    const clippingFolder = 'mx-wc/clipping-folder';
+    const assetFolder    = 'mx-wc/clipping-folder/assets';
+    resolver.addFolder(clippingFolder);
+    resolver.addFolder(assetFolder);
+
+    const nameA = resolver.resolveFile('id-1', clippingFolder, 'index.png');
+    H.assertEqual(nameA, 'index.png');
+
+    const nameB = resolver.resolveFile('id-2', clippingFolder, 'index.png');
+    H.assertEqual(nameB, 'index1.png');
+
+    const nameC = resolver.resolveFile('id-1', clippingFolder, 'index.png');
+    H.assertEqual(nameC, 'index.png');
+
+    // confilict with folder
+    const nameD = resolver.resolveFile('id-3', clippingFolder, 'assets');
+    H.assertEqual(nameD, 'assets1');
+
+  });
 
 })

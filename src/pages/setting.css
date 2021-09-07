@@ -233,6 +233,10 @@ textarea {
   line-height: 18px;
 }
 
+#markdown-template {
+  min-height: 500px;
+}
+
 /********** table *********/
 
 table {

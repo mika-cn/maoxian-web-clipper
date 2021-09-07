@@ -198,16 +198,37 @@
           </div>
           <div>
             <h4 i18n="title.markdown-content"></h4>
-            <input type="checkbox" id="md-save-clipping-information" />
-            <label for="md-save-clipping-information" i18n="label.clip-information-input"></label>
-            <br />
-            <input type="checkbox" id="md-front-matter-enabled" />
-            <label for="md-front-matter-enabled" i18n="label.md-front-matter-enabled-input"></label>
             <div class="notice-info">
-              <span i18n="notice.front-matter"></span><br /><br />
-              <span i18n="notice.front-matter-template"></span>
+              <p i18n="notice.markdown-template"></p>
+              <details>
+                <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <span i18n="tpl-variable.i18n-none"></span>
+                  <span i18n="tpl-variable.i18n-access"></span>
+                  <span i18n="tpl-variable.i18n-original-url"></span>
+                  <span i18n="tpl-variable.i18n-created-at"></span>
+                  <span i18n="tpl-variable.i18n-category"></span>
+                  <span i18n="tpl-variable.i18n-tags"></span>
+                  <hr />
+
+                  <span i18n="tpl-variable.title"></span>
+                  <span i18n="tpl-variable.content"></span>
+                  <span i18n="tpl-variable.url"></span>
+                  <span i18n="tpl-variable.category"></span>
+                  <span i18n="tpl-variable.tags"></span>
+                  <span i18n="tpl-variable.created-at"></span>
+                  <span i18n="tpl-variable.year"></span>
+                  <span i18n="tpl-variable.sYear"></span>
+                  <span i18n="tpl-variable.month"></span>
+                  <span i18n="tpl-variable.day"></span>
+                  <span i18n="tpl-variable.hour"></span>
+                  <span i18n="tpl-variable.minute"></span>
+                  <span i18n="tpl-variable.second"></span>
+                  <span i18n="tpl-variable.intSec"></span>
+                </div>
+              </details>
             </div>
-            <textarea id="md-front-matter-template"></textarea>
+            <textarea id="markdown-template"></textarea>
           </div>
         </div>
       </section>
@@ -406,11 +427,28 @@
               <div class="notice-info">
                 <p i18n="notice.asset-file-intro"></p>
                 <details>
-                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
-                  <div class="help-content">
-                    <span i18n="variable.clipping-path"></span><br />
-                    <span i18n="variable.category-path"></span><br />
-                    <span i18n="variable.storage-path"></span><br />
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary><br />
+                  <div>
+                    <strong i18n="variable-in-folder"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.clipping-path"></span><br />
+                      <span i18n="variable.category-path"></span><br />
+                      <span i18n="variable.storage-path"></span><br />
+                    </div>
+                    <strong i18n="variable-in-filename"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.md5-of-url"></span>
+                      <span i18n="variable.filename"></span>
+                      <span i18n="variable.file-extension"></span>
+                      <span i18n="variable.year"></span>
+                      <span i18n="variable.short-year"></span>
+                      <span i18n="variable.month"></span>
+                      <span i18n="variable.day"></span>
+                      <span i18n="variable.hour"></span>
+                      <span i18n="variable.minute"></span>
+                      <span i18n="variable.second"></span>
+                      <span i18n="variable.time-integer-second"></span>
+                    </div>
                   </div>
                 </details>
               </div>
@@ -418,24 +456,50 @@
                 <label i18n="label.storage-folder"></label>
                 <input type="text" id="asset-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
+              <div class="input-group">
+                <label i18n="label.storage-filename"></label>
+                <input type="text" id="asset-file-name" i18n-attr="placeholder:placeholder.notblank"/>
+              </div>
             </div>
 
             <div>
               <h4 i18n="title.frame-file"></h4>
               <div class="notice-info">
                 <p i18n="notice.frame-file-intro"></p>
+
+
                 <details>
-                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
-                  <div class="help-content">
-                    <span i18n="variable.clipping-path"></span><br />
-                    <span i18n="variable.category-path"></span><br />
-                    <span i18n="variable.storage-path"></span><br />
+                  <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary><br />
+                  <div>
+                    <strong i18n="variable-in-folder"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.clipping-path"></span><br />
+                      <span i18n="variable.category-path"></span><br />
+                      <span i18n="variable.storage-path"></span><br />
+                    </div>
+                    <strong i18n="variable-in-filename"></strong>
+                    <div class="help-content">
+                      <span i18n="variable.md5-of-url"></span>
+                      <span i18n="variable.filename"></span>
+                      <span i18n="variable.year"></span>
+                      <span i18n="variable.short-year"></span>
+                      <span i18n="variable.month"></span>
+                      <span i18n="variable.day"></span>
+                      <span i18n="variable.hour"></span>
+                      <span i18n="variable.minute"></span>
+                      <span i18n="variable.second"></span>
+                      <span i18n="variable.time-integer-second"></span>
+                    </div>
                   </div>
                 </details>
               </div>
               <div class="input-group">
                 <label i18n="label.storage-folder"></label>
                 <input type="text" id="frame-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
+              </div>
+              <div class="input-group">
+                <label i18n="label.storage-filename"></label>
+                <input type="text" id="frame-file-name" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
             </div>
 

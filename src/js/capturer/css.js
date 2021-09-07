@@ -54,13 +54,20 @@ async function captureLink(params) {
         text, storageInfo, clipId, config, requestParams, needFixStyle
       }));
 
-      const assetName = Asset.getNameByLink({
+      const name = Asset.getNameByLink({
+        template: storageInfo.raw.assetFileName,
         link: url,
         extension: 'css',
-        prefix: clipId
+        now: storageInfo.valueObj.now,
       });
-      const filename = Asset.getFilename({storageInfo, assetName});
+      const assetName = await Asset.getUniqueName({
+        clipId: clipId,
+        id: url,
+        folder: storageInfo.assetFolder,
+        filename: name
+      });
 
+      const filename = Asset.getFilename({storageInfo, assetName});
       tasks.push(Task.createStyleTask(filename, cssText, clipId));
       return tasks;
     }
@@ -411,11 +418,20 @@ async function generateTasks(params) {
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
     const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-    const assetName = Asset.getNameByLink({
+
+    const name = Asset.getNameByLink({
+      template: storageInfo.raw.assetFileName,
       link: url,
       extension: extension,
-      prefix: clipId,
-      mimeTypeData: {httpMimeType}
+      mimeTypeData: {httpMimeType},
+      now: storageInfo.valueObj.now,
+    });
+
+    const assetName = await Asset.getUniqueName({
+      clipId: clipId,
+      id: url,
+      folder: storageInfo.assetFolder,
+      filename: name,
     });
     const filename = Asset.getFilename({storageInfo, assetName});
     tasks.push(Task.createUrlTask(filename, url, clipId, taskType));

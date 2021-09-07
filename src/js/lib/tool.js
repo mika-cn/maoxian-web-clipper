@@ -207,13 +207,16 @@ T.setHtml = function(obj, html) {
   }
   if(elem){
     elem.innerHTML = html;
-    const detailJson = JSON.stringify({selector: selector});
-    const e = new CustomEvent('___.mx-wc.page.changed', {detail: detailJson});
-    document.dispatchEvent(e);
+    T.emitPageChangedEvent(selector);
   }
 }
 
-
+T.emitPageChangedEvent = function(selector) {
+  const msg = selector ? {selector} : {};
+  const json = JSON.stringify(msg);
+  const e = new CustomEvent('___.mx-wc.page.changed', {detail: json});
+  document.dispatchEvent(e);
+}
 
 T.bind = function(elem, evt, fn, useCapture){
   elem.addEventListener(evt, fn, useCapture);
@@ -464,7 +467,7 @@ T.replaceAll = function(str, subStr, newSubStr){
 }
 
 
-T.getUrlFileName = function(url){
+T.getUrlFilename = function(url){
   const lastPart = new URL(decodeURI(url)).pathname.split('/').pop();
   const idxA = lastPart.lastIndexOf('.');
   const idxB = lastPart.lastIndexOf('!');
@@ -475,6 +478,12 @@ T.getUrlFileName = function(url){
     return lastPart
   }
 }
+
+// not support data protocol URLs
+T.getUrlExtension = function(url){
+  return T.getFileExtension(T.getUrlFilename(url));
+}
+
 
 T.getFileExtension = function(filename){
   if(filename.indexOf('.') > -1){
@@ -495,11 +504,6 @@ T.splitFilename = function(filename) {
   } else {
     return [filename, null];
   }
-}
-
-// not support data protocol URLs
-T.getUrlExtension = function(url){
-  return T.getFileExtension(T.getUrlFileName(url));
 }
 
 T.rjustNum = function(num, length){
@@ -868,6 +872,117 @@ T.createMarker = function(start) {
 }
 
 
+/**
+ * Name conflict resolver.
+ *
+ * if current name is used. it'll resolve nameN (name1, name2 etc.)
+ *
+ *
+ */
+T.createNameConflictResolver = function() {
+  return {
+    dict: {}, // {:namespace => [{:name, :resolvedName}]}
+    add({namespace = 'global', name, resolvedName}) {
+      if (!this.dict[namespace]) {
+        this.dict[namespace] = [];
+      }
+      this.dict[namespace].push({name, resolvedName});
+    },
+
+    resolve({namespace = 'global', name, resolver = null}) {
+      if (!this.dict[namespace]) {
+        this.dict[namespace] = [];
+      }
+
+
+      let n = 0;
+      this.dict[namespace].forEach((item) => {
+        if (name === item.name) { n++ }
+      });
+
+      const tail = ( n == 0 ? '' : `${n}`);
+
+      const resolvedName = (resolver || this.defaultResolver)(name, tail);
+      this.add({namespace, name, resolvedName});
+      return resolvedName;
+    },
+
+    defaultResolver(name, tail) {
+      return `${name}${tail}`;
+    }
+  }
+}
+
+
+
+T.createFilenameConflictResolver = function() {
+  return {
+    dict: {}, // id => resolvedName
+    nameResolver: T.createNameConflictResolver(),
+    addedFolder: [],
+    addFolder(folder) {
+      if (folder.startsWith('/')) {
+        throw new Error("this method can't handle absolute path");
+      }
+      const parts = folder.split('/');
+      let name = null;
+      while (name = parts.pop()) {
+        const currFolder = parts.concat(name).join('/');
+        if (this.addedFolder.indexOf(currFolder) > -1) {
+          // processed
+          break;
+        }
+        const namespace = parts.join('/') || '__ROOT__';
+        this.nameResolver.add({
+          namespace: namespace,
+          name: name,
+          resolvedName: name,
+        })
+        this.addedFolder.push(currFolder);
+      }
+    },
+    resolveFile(id, folder, filename) {
+      if (this.dict[id]) {
+        return this.dict[id];
+      }
+
+      const resolvedName = this.nameResolver.resolve({
+        resolver: this.filenameResolver,
+        namespace: folder,
+        name: filename,
+      });
+
+      this.dict[id] = resolvedName;
+      return resolvedName;
+    },
+    filenameResolver(filename, tail) {
+      const [name, ext] = T.splitFilename(filename)
+      return ext ? `${name}${tail}.${ext}` : `${name}${tail}`;
+    },
+    toObject() {
+      const obj = T.sliceObj(this, ['dict', 'addedFolder']);
+      obj.nameResolverDict = this.nameResolver.dict;
+      return obj;
+    },
+    inspect() {
+      return this.nameResolver.dict;
+    },
+    getNames(namespace) {
+      return this.nameResolver.dict[namespace];
+    }
+
+  }
+}
+
+T.restoreFilenameConflictResolver = function(obj) {
+  const resolver = T.createFilenameConflictResolver();
+  resolver.dict = obj.dict;
+  resolver.addedFolder = obj.addedFolder;
+  resolver.nameResolver.dict = obj.nameResolverDict;
+  return resolver;
+}
+
+
 // max value key
 T.maxValueKey = function(numValueObj){
   let maxk = null;
@@ -1100,6 +1215,7 @@ T.retryAction = function(action, n = 3, errObjs = []) {
     });
   }
 }
+
 
 
 // ====================================

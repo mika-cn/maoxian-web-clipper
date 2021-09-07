@@ -69,7 +69,8 @@
 
     "help.label": "Click me to show (or hide) help content",
     "help.avariable-variable": "Variables",
-    // variables
+
+    // variables that used in path, folder, filename
     "variable-in-folder": "Variables below can be used in saving folder",
     "variable-in-filename": "Variables below can be used in filename",
     "variable-intro": "<strong>Avariable variables are:</strong>",
@@ -90,13 +91,40 @@
     "variable.minute"              : "<pre>$mm   => minute (2 digits, 00 ~ 59)</pre>",
     "variable.second"              : "<pre>$SS   => second (2 digits, 00 ~ 59)</pre>",
     "variable.time-integer-second" : "<pre>$TIME-INTSEC => clipping time in seconds (e.g. 1578712781)</pre>",
+    "variable.md5-of-url"          : "<pre>$MD5URL => MD5 value of file's URL (length: 32, e.g. 14b2881be9f76cd55ec3b4c72a08f349)</pre>",
+    "variable.filename"            : "<pre>$FILENAME => file's original name (exclude file extension)</pre>",
+    "variable.file-extension"      : '<pre>$EXT => file extension (include ".", such as ".png")</pre>',
+
+    // variables that used in template
+
+    "tpl-variable.title"     : "<pre>{{title}}     => title </pre>",
+    "tpl-variable.content"   : "<pre>{{content}}   => the clipped content</pre>",
+    "tpl-variable.url"       : "<pre>{{url}}       => URL</pre>",
+    "tpl-variable.category"  : "<pre>{{category}}  => category</pre>",
+    "tpl-variable.tags"      : "<Pre>{{tags}}      => tags</pre>",
+    "tpl-variable.created-at" : "<pre>{{createdAt}} => clipping time (e.g. 2020-02-01 11:00:00)</pre>",
+    "tpl-variable.year"      : "<pre>{{year}}      => year (4 digits, e.g. 2018)</pre>",
+    "tpl-variable.sYear"     : "<pre>{{sYear}}     => short year (2 digits, e.g. 18)</pre>",
+    "tpl-variable.month"     : "<pre>{{month}}     => month (2 digits, 01 ~ 12)</pre>",
+    "tpl-variable.day"       : "<pre>{{day}}       => day (2 digits, 01 ~ 31)</pre>",
+    "tpl-variable.hour"      : "<pre>{{hour}}      => hour (2 digits, 00 ~ 23)</pre>",
+    "tpl-variable.minute"    : "<pre>{{minute}}    => minute (2 digits, 00 ~ 59)</pre>",
+    "tpl-variable.second"    : "<pre>{{second}}    => second (2 digits, 00 ~ 59)</pre>",
+    "tpl-variable.intSec"    : "<pre>{{intSec}}    => clipping time in seconds (e.g. 1578712781)</pre>",
+    "tpl-variable.i18n-none"         : "<pre>{{i18n_none}}         => text: none</pre>",
+    "tpl-variable.i18n-access"       : "<pre>{{i18n_access}}       => text: access</pre>",
+    "tpl-variable.i18n-original-url" : "<pre>{{i18n_original_url}} => text: Original Url</pre>",
+    "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => text: Created At</pre>",
+    "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => text: Category</pre>",
+    "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => text: Tags</pre>",
+
 
 
     "path.download.intro": "download path： Download location of your browser, If you use NativeApp to save clipping file, this path is the value of \"data_dir\" in configure file (config.yaml) of NativeApp.",
     "path.filename.intro": "filename of main file： The filename of main file (entry file), default is <code>index.html</code> or <code>index.md</code>.",
     "folder.root.intro": "root folder： This is the storage root, all clipping files will storage under this folder.",
     "folder.category.intro": "category folder: This part is used to category your clippings. It's value depends on what you input in saving form. Let's assume your input value is <code>news/sports</code>, then extension will create a folder named <code>news</code> and a subfolder named <code>sports</code>.",
-    "folder.clipping.intro": "clpping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
+    "folder.clipping.intro": "clipping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
 
     // handler
     "handler.browser.name": "Browser",
@@ -166,8 +194,8 @@
     "notice.file-url.help-msg": "Your will need message below:",
     "notice.file-url.ext-id": "Extension identify",
     "notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after you allow browser to access file URLs.",
-    "notice.front-matter": "YAML Front Matter is a block of text that is placed in front of markdown content. Usually, it is used to save meta information. You can use it to save clipping information",
-    "notice.front-matter-template": "Using template below to configure which information you want to save.<br />Avariable variables are: <strong>title, url, category, tags, createdAt, year, sYear, month, day, hour, minute, second, intSec</strong>.",
+    "notice.markdown-template": 'Using template below to configure which information you want to save. MaoXian uses mustache.js to render this template, you can go to their <a target="_blank" href="https://github.com/janl/mustache.js">project</a> to see the usage.',
+
     "notice.root-folder": "<strong>Notice:</strong><br /> This folder is used as storage entry, We suggest you don't change it after you set it right. If you do want to change it, you should change the name of folder in your file system too. So that you won't get two storage entry.",
     "notice.default-category": "Default category is the value that will be used if you don't specify a category in saving form.<br />Use <strong>/</strong> to separate sub category<br />",
     "notice.clipping-folder-name": "MaoXian can creates a directory to store clipping result in every clipping, we call this directory clipping folder.",
@@ -201,7 +229,6 @@
     "label.request-cache-image-input": "Cache images",
     "label.request-cache-web-font-input": "Cache web fonts",
     "label.clip-information-input": "Include clipping information (original url, time, category and tags) in main file",
-    "label.md-front-matter-enabled-input": "Enable YAML Front Matter",
     "label.save-icon-input": "Save website icons",
     "label.save-web-font-input": "Save web fonts (not recommended)",
     "label.save-css-image-input": "Save CSS background images (not recommended)",

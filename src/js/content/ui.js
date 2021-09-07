@@ -432,6 +432,7 @@ function submitForm(msg){
      });
     } else {
       Notify.error(message);
+      T.emitPageChangedEvent();
       ignoreFrameMsg();
       disable();
       remove();
@@ -573,6 +574,7 @@ function pressEnter(msg){
         sendFrameMsgToControl('showForm', params);
       } else {
         Notify.error(message);
+        T.emitPageChangedEvent();
         ignoreFrameMsg();
         disable();
         remove();

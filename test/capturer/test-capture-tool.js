@@ -1,3 +1,6 @@
+import browser from 'sinon-chrome';
+global.browser = browser;
+
 const JSDOM = require('jsdom').JSDOM;
 const jsdom = new JSDOM();
 const win = jsdom.window;
@@ -6,6 +9,10 @@ import H from '../helper.js';
 import DOMTool from '../../src/js/lib/dom-tool.js';
 import CaptureTool from '../../src/js/capturer/tool.js';
 import RequestParams from '../../src/js/lib/request-params.js';
+
+const ExtMsg = H.depMockJs('ext-msg.js');
+ExtMsg.initBrowser(browser);
+ExtMsg.mockGetUniqueFilename();
 
 describe('CaptureTool', () => {
 
@@ -22,7 +29,9 @@ describe('CaptureTool', () => {
         baseUrl: url,
         storageInfo: {
           assetFolder: 'category-a/clippings/assets',
-          assetRelativePath: 'assets'
+          assetRelativePath: 'assets',
+          raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
+          valueObj: {now: Date.now()},
         },
         clipId: '001',
         config: { saveCssImage: true },

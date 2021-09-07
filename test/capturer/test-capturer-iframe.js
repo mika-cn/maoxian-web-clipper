@@ -24,6 +24,8 @@ describe("Capture iframe", async () => {
       storageInfo: {
         mainFileFolder: 'category-a/clipping-001',
         frameFileFolder: 'category-a/clipping-001',
+        raw: { frameFileName: '$TIME-INTSEC-$MD5URL.frame.html' },
+        valueObj: {now: Date.now()},
       },
       frames: [
         { parentFrameId: 0, frameId: 1,
@@ -100,6 +102,7 @@ describe("Capture iframe", async () => {
         tasks: []
       }
     });
+    ExtMsg.mockGetUniqueFilename();
     const {node} = DOMTool.parseHTML(win, html);
     const params = getParams();
     params.storageInfo.frameFileFolder = 'category-a/clipping-001/frames';

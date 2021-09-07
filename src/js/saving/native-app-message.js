@@ -125,6 +125,7 @@ class NativeMessage {
   }
 
   onDisconnect(errMsg) {
+    console.error(errMsg);
     this.unbindListener();
     this.reject(new Error(errMsg));
   }

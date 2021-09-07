@@ -44,6 +44,11 @@
     "g.option-value.html": "HTML",
     "g.option-value.md": "Markdown",
 
+    // handlers
+    "g.handler.browser.name": "Browser",
+    "g.handler.native-app.name": "Native App",
+    "g.handler.wiz-note-plus.name": "WizNotePlus",
+
     // errors
     "g.error.value-invalid": "Value invalid",
     "g.error.not-a-number": "Input value is not a number",

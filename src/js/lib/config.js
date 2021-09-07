@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.5';
+const VERSION = '1.7';
 const state = {};
 
 /** WARNING
@@ -31,11 +31,12 @@ function getDefault(){
     saveCssImage: false,
     htmlSaveClippingInformation: false,
     customBodyBgCssEnabled: false,
-    customBodyBgCssValue: "",
+    customBodyBgCssValue: "#000000",
 
     mdSaveClippingInformation: false,
     mdFrontMatterEnabled: false,
     mdFrontMatterTemplate: "---\ntitle: ${title}\ncategory: ${category}\ntags: ${tags}\ncreated_at: ${createdAt}\noriginal_url: ${url}\n---",
+    markdownTemplate: "\n{{content}}\n",
 
     // control
     hotkeySwitchEnabled: false,
@@ -105,11 +106,6 @@ function getDefault(){
     /* $TITLE */
     mainFileName: 'index.$FORMAT',
 
-    /**
-     * ======== Frame File ========
-     *   embed HTML file
-     */
-    frameFileFolder: '$CLIPPING-PATH/frames',
 
     /**
      * ======== Info File ========
@@ -129,10 +125,18 @@ function getDefault(){
     titleFileName: 'a-title_$TITLE',
 
     /**
+     * ======== Frame File ========
+     *   embed HTML file
+     */
+    frameFileFolder: '$CLIPPING-PATH/frames',
+    frameFileName: '$TIME-INTSEC-$MD5URL.frame.html',
+
+    /**
      * ======== Asset Files ========
      *   picture, icon, webfont, style
      */
     assetFolder: '$CLIPPING-PATH/assets',
+    assetFileName: '$TIME-INTSEC-$MD5URL$EXT',
 
     /* $NONE */
     /* $DOMAIN */
@@ -191,7 +195,6 @@ export const API_SETTABLE_KEYS = [
   'frameFileFolder',
   'assetFolder',
 ];
-
 
 
 /*

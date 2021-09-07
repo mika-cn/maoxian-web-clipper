@@ -16,7 +16,12 @@ async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, reques
     const {isValid, url, message} = T.completeUrl(bg, baseUrl);
     if (isValid) {
       const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-      const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: httpMimeType}, clipId);
+      const {filename, path} = await Asset.calcInfo({
+        link: url,
+        storageInfo: storageInfo,
+        mimeTypeData: {httpMimeType},
+        clipId: clipId,
+      });
       const task = Task.createImageTask(filename, url, clipId);
       node.setAttribute('background', path);
       return {node: node, tasks: [task]};
@@ -34,7 +39,7 @@ async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, reques
  * and <source> element in <picture>
  * @return {Array} imagetasks
  */
-async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, clipId }) {
+async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, clipId}) {
   const srcset = node.getAttribute('srcset');
   const tasks = [];
   if (srcset) {
@@ -50,10 +55,15 @@ async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, cl
       const {isValid, url, message} = T.completeUrl(itemSrc, baseUrl);
       if (isValid) {
         const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-        const {filename, path} = Asset.calcInfo(url, storageInfo, {
-          httpMimeType: httpMimeType,
-          attrMimeType: attrMimeType
-        }, clipId);
+        const {filename, path} = await Asset.calcInfo({
+          link: url,
+          storageInfo: storageInfo,
+          mimeTypeData: {
+            httpMimeType: httpMimeType,
+            attrMimeType: attrMimeType
+          },
+          clipId: clipId,
+        });
         const task = Task.createImageTask(filename, url, clipId);
         tasks.push(task);
         item[0] = path;

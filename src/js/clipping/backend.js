@@ -19,6 +19,18 @@ function messageHandler(message, sender) {
           resolve();
         });
         break;
+      case 'add.nameConflictResolver':
+        addNameConflictResolver(message.body);
+        resolve();
+        break;
+      case 'get.uniqueFilename':
+        const filename = getUniqueFilename(message.body);
+        if (filename) {
+          resolve(filename);
+        } else {
+          reject(new Error("couldn't find nameConflictResolver"));
+        }
+        break;
       case 'get.allFrames':
         getAllFrames(sender.tab.id).then(resolve);
         break;
@@ -48,12 +60,34 @@ function messageHandler(message, sender) {
         break;
       case 'clipped':
         const clipping = message.body;
+        removeNameConflictResolver(clipping.info.clipId);
         ActionCache.removeByKeyPrefix(clipping.info.clipId);
         resolve();
         break;
     }
   });
 }
+
+//
+
+function addNameConflictResolver({clipId, nameConflictResolverObject}) {
+  const resolver = T.restoreFilenameConflictResolver(nameConflictResolverObject);
+  Global.nameConflictResolverDict.add(clipId, resolver);
+}
+
+function getUniqueFilename({clipId, id, folder, filename}) {
+  const resolver = Global.nameConflictResolverDict.find(clipId);
+  if (resolver) {
+    return resolver.resolveFile(id, folder, filename);
+  } else {
+    return null;
+  }
+}
+
+function removeNameConflictResolver(clipId) {
+  Global.nameConflictResolverDict.remove(clipId);
+}
+
 
 async function getMimeType({url, headers, timeout, tries}) {
   let mimeType = Global.WebRequest.getMimeType(url);
@@ -110,5 +144,6 @@ async function getAllFrames(tabId) {
 let Global = null;
 export default function init(global) {
   Global = global;
+  Global.nameConflictResolverDict = T.createDict();
   ExtMsg.listen('backend.clipping', messageHandler);
 }

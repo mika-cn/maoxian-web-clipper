@@ -32,7 +32,13 @@ async function capture(node, opts) {
   const {isValid, url, message} = T.completeUrl(src, baseUrl);
   if (isValid) {
     const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-    const {filename, path} = Asset.calcInfo(url, storageInfo, {httpMimeType: httpMimeType}, clipId);
+
+    const {filename, path} = await Asset.calcInfo({
+      link: url,
+      storageInfo: storageInfo,
+      mimeTypeData: {httpMimeType},
+      clipId: clipId,
+    });
     const task = Task.createImageTask(filename, url, clipId);
     node.setAttribute('src', path);
     tasks.push(task);

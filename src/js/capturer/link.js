@@ -79,8 +79,13 @@ async function captureIcon({node, href, opts}) {
       httpMimeType: httpMimeType,
       attrMimeType: node.getAttribute('type')
     };
-    const {filename, path} = Asset.calcInfo(
-      url, storageInfo, mimeTypeData, clipId);
+    const {filename, path} = await Asset.calcInfo({
+      link: url,
+      storageInfo: storageInfo,
+      mimeTypeData: mimeTypeData,
+      clipId: clipId,
+    });
+
     tasks.push(Task.createImageTask(filename, url, clipId));
     node.setAttribute('href', path);
     node = handleOtherAttrs(node);
@@ -108,14 +113,21 @@ async function captureStylesheet({node, linkTypes, href, opts}) {
   } else {
     const {isValid, url, message} = T.completeUrl(href, baseUrl);
     if (isValid) {
-      const assetName = Asset.getNameByLink({
+      const name = Asset.getNameByLink({
+        template: storageInfo.raw.assetFileName,
         link: url,
         extension: 'css',
-        prefix: clipId
+        now: storageInfo.valueObj.now
+      });
+      const assetName = await Asset.getUniqueName({
+        clipId: clipId,
+        id: url,
+        folder: storageInfo.assetFolder,
+        filename: name,
       });
       const path = Asset.getPath({storageInfo, assetName});
       const tasks = await CapturerCss.captureLink(Object.assign({
-        link: url, }, opts));
+        link: url}, opts));
       node.setAttribute('href', path);
       node = handleOtherAttrs(node);
       return {node: node, tasks: tasks};

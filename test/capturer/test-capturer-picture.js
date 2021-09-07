@@ -32,7 +32,9 @@ function getParams() {
     baseUrl: url,
     storageInfo: {
       assetFolder: 'category-a/clippings/assets',
-      assetRelativePath: 'assets'
+      assetRelativePath: 'assets',
+      raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
+      valueObj: {now: Date.now()},
     },
     clipId: '001',
     requestParams: RequestParams.createExample({refUrl: url}),
@@ -44,6 +46,7 @@ describe('Capture Picture', () => {
     const params = getParams();
     const node = getNode();
     ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
+    ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 4);
     const [sourceA, sourceB, sourceC, img] = r.node.children;

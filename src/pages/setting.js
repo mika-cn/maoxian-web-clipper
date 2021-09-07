@@ -62,17 +62,9 @@ function initSettingGeneral(config) {
     'customBodyBgCssValue'
   );
   // - markdown
-  initCheckboxInput(config,
-    'md-save-clipping-information',
-    'mdSaveClippingInformation'
-  );
-  initCheckboxInput(config,
-    'md-front-matter-enabled',
-    'mdFrontMatterEnabled'
-  );
   initTextInput(config,
-    'md-front-matter-template',
-    'mdFrontMatterTemplate'
+    'markdown-template',
+    'markdownTemplate'
   );
 
 
@@ -194,8 +186,18 @@ function initSettingPath(config) {
   );
 
   initTextInput(config,
+    'asset-file-name',
+    'assetFileName',
+  );
+
+  initTextInput(config,
     'frame-file-folder',
     'frameFileFolder'
+  );
+
+  initTextInput(config,
+    'frame-file-name',
+    'frameFileName',
   );
 
   initCheckboxInput(config,

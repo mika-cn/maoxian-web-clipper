@@ -26,7 +26,9 @@ function getParams() {
     baseUrl: url,
     storageInfo: {
       assetFolder: 'category-a/clippings/assets',
-      assetRelativePath: 'assets'
+      assetRelativePath: 'assets',
+      raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
+      valueObj: {now: Date.now()},
     },
     clipId: '001',
     config: {
@@ -43,6 +45,7 @@ describe('Capture link', () => {
   function initTest(html) {
     const text = 'body{font-size:12pt;}';
     ExtMsg.mockFetchTextStatic(text);
+    ExtMsg.mockGetUniqueFilename();
     return {
       node: getNode(html),
       params: getParams()
