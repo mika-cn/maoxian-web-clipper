@@ -71,11 +71,20 @@ function getResourceHandler(params) {
     const extension = (resourceType == 'css' ? 'css' : undefined);
 
     const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-    const assetName = Asset.getNameByLink({
+
+    const name = Asset.getNameByLink({
+      template: storageInfo.raw.assetFileName,
       link: url,
       extension: extension,
-      prefix: clipId,
-      mimeTypeData: {httpMimeType}
+      mimeTypeData: {httpMimeType},
+      now: storageInfo.valueObj.now,
+    });
+
+    const assetName = await Asset.getUniqueName({
+      clipId: clipId,
+      id: url,
+      folder: storageInfo.assetFolder,
+      filename: name
     });
 
     const filename = T.joinPath(storageInfo.assetFolder, assetName);

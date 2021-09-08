@@ -1,10 +1,6 @@
 import browser from 'sinon-chrome';
 global.browser = browser;
 
-const JSDOM = require('jsdom').JSDOM;
-const jsdom = new JSDOM();
-const win = jsdom.window;
-
 import H from '../helper.js';
 import CapturerImg from '../../src/js/capturer/img.js';
 import RequestParams from '../../src/js/lib/request-params.js';

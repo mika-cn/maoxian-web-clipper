@@ -58,8 +58,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     mainFileFolder: params.storageInfo.frameFileFolder,
   });
 
-  const subHtmlHandler = function({snapshot, subHtml, ancestorDocs}) {
-    const r = CapturerIframe.capture(snapshot, {
+  const subHtmlHandler = async function({snapshot, subHtml, ancestorDocs}) {
+    const r = await CapturerIframe.capture(snapshot, {
       saveFormat: 'html',
       html: subHtml,
       clipId,
@@ -69,7 +69,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     return r.change.toObject();
   };
 
-  const html = Snapshot.toHTML(snapshot, subHtmlHandler);
+  const html = await Snapshot.toHTML(snapshot, subHtmlHandler);
 
   const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName)
   const mainFileTask = Task.createHtmlTask(filename, html, clipId);
@@ -269,7 +269,7 @@ async function captureAssets(snapshot, params) {
           break;
 
         case 'CANVAS':
-          r = CapturerCanvas.capture(node, {
+          r = await CapturerCanvas.capture(node, {
             saveFormat, storageInfo, clipId, requestParams,
           });
           break;

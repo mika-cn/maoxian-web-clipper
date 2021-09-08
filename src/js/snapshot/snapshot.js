@@ -537,10 +537,7 @@ class SnapshotAccessor {
       'name',
       'type',
       'ignore',
-      'ignoreReason'
-    ]);
-
-    this.delegate([
+      'ignoreReason',
       'isShadowHost',
       'isShadowRoot',
       'render',
@@ -629,7 +626,7 @@ const EMPTY_ELEMENT = {
  *   - {array} ancestorDocs
  *   - {String} shadowDomRenderMethod (DeclarativeShadowDom or Tree)
  */
-function toHTML(snapshot, subHtmlHandler, params = {}) {
+async function toHTML(snapshot, subHtmlHandler, params = {}) {
   const {ancestorDocs = [], shadowDomRenderMethod = 'DeclarativeShadowDom'} = params;
   const it = new SnapshotAccessor(snapshot);
   switch(it.type) {
@@ -646,13 +643,13 @@ function toHTML(snapshot, subHtmlHandler, params = {}) {
 
             let subHtml = '';
             if (!snapshot.errorMessage) {
-              subHtml = children2HTML(it.childNodes, subHtmlHandler, params);
+              subHtml = await children2HTML(it.childNodes, subHtmlHandler, params);
             }
-            const change = subHtmlHandler({snapshot, subHtml, ancestorDocs});
+            const change = await subHtmlHandler({snapshot, subHtml, ancestorDocs});
             if (change.type || change.name) {
               // is a new snapshot
               snapshot.change = change;
-              return toHTML(snapshot, subHtmlHandler, params);
+              return await toHTML(snapshot, subHtmlHandler, params);
             } else {
               if (change.ignore) {
                 return '';
@@ -668,15 +665,15 @@ function toHTML(snapshot, subHtmlHandler, params = {}) {
                 // ChildNodes have handled in shadowRoot
                 content = '';
               } else {
-                content = children2HTML(it.childNodes, subHtmlHandler, params);
+                content = await children2HTML(it.childNodes, subHtmlHandler, params);
               }
             } else {
               // Tree
-              content = children2HTML(it.childNodes, subHtmlHandler, params);
+              content = await children2HTML(it.childNodes, subHtmlHandler, params);
             }
             break;
           default:
-            content = children2HTML(it.childNodes, subHtmlHandler, params);
+            content = await children2HTML(it.childNodes, subHtmlHandler, params);
             break;
         }
       }
@@ -696,7 +693,7 @@ function toHTML(snapshot, subHtmlHandler, params = {}) {
     case NODE_TYPE.DOCUMENT:
       {
         const newAncestorDocs = [snapshot, ...ancestorDocs];
-        return children2HTML(it.childNodes, subHtmlHandler,
+        return await children2HTML(it.childNodes, subHtmlHandler,
           {ancestorDocs: newAncestorDocs, shadowDomRenderMethod});
       }
     case NODE_TYPE.DOCUMENT_TYPE:
@@ -705,14 +702,14 @@ function toHTML(snapshot, subHtmlHandler, params = {}) {
       {
         if (snapshot.isShadowRoot) {
           if (shadowDomRenderMethod == 'DeclarativeShadowDom') {
-            const shadowDomHTML = children2HTML(it.childNodes, subHtmlHandler, params);
-            const lightDomHTML = children2HTML(getAssignedNodes(snapshot), subHtmlHandler, params);
+            const shadowDomHTML = await children2HTML(it.childNodes, subHtmlHandler, params);
+            const lightDomHTML = await children2HTML(getAssignedNodes(snapshot), subHtmlHandler, params);
             return `<template shadowroot="${snapshot.mode}">${shadowDomHTML}</template>${lightDomHTML}`;
           } else {
-            return children2HTML(it.childNodes, subHtmlHandler, params);
+            return await children2HTML(it.childNodes, subHtmlHandler, params);
           }
         } else {
-          return children2HTML(it.childNodes, subHtmlHandler, params);
+          return await children2HTML(it.childNodes, subHtmlHandler, params);
         }
       }
     case NODE_TYPE.ATTRIBUTE:
@@ -731,8 +728,12 @@ function toHTML(snapshot, subHtmlHandler, params = {}) {
 }
 
 // @see toHTML
-function children2HTML(nodes = [], subHtmlHandler, params) {
-  return nodes.map((it) => toHTML(it, subHtmlHandler, params)).join('');
+async function children2HTML(nodes = [], subHtmlHandler, params) {
+  const r = [];
+  for (let i = 0; i < nodes.length; i++) {
+    r.push(await toHTML(nodes[i], subHtmlHandler, params));
+  }
+  return r.join('');
 }
 
 function getAssignedNodes(shadowRootSnapshot) {

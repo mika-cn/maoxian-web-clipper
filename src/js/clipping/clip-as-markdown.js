@@ -45,8 +45,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 
   console.log(snapshot);
 
-  const subHtmlHandler = function({snapshot, subHtml, ancestorDocs}) {
-    const r = CapturerIframe.capture(snapshot, {
+  const subHtmlHandler = async function({snapshot, subHtml, ancestorDocs}) {
+    const r = await CapturerIframe.capture(snapshot, {
       saveFormat: 'md',
       html: subHtml,
       clipId,
@@ -56,10 +56,11 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     return r.change.toObject();
   };
 
-  const elemHTML = Snapshot.toHTML(snapshot, subHtmlHandler, {
+  const elemHTML = await Snapshot.toHTML(snapshot, subHtmlHandler, {
     shadowDomRenderMethod: 'Tree',
   });
 
+  //console.log(elemHTML);
   const html = doExtraWork({html: elemHTML, win});
 
   let markdown = generateMarkDown(html, info);
@@ -146,7 +147,7 @@ async function captureAssets(snapshot, params) {
           break;
 
         case 'CANVAS':
-          r = CapturerCanvas.capture(node, {
+          r = await CapturerCanvas.capture(node, {
             saveFormat, storageInfo, clipId, requestParams,
           });
           break;

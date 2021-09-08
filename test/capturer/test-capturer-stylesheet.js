@@ -1,8 +1,13 @@
+import browser from 'sinon-chrome';
+global.browser = browser;
 
 import H from '../helper.js';
 import {CSSRULE_TYPE} from '../../src/js/lib/constants.js';
 import RequestParams from '../../src/js/lib/request-params.js';
 import Capturer from '../../src/js/capturer/stylesheet.js';
+
+const ExtMsg = H.depMockJs('ext-msg.js');
+ExtMsg.initBrowser(browser);
 
 function getParams() {
   const url = 'https://a.org/index.html';
@@ -11,6 +16,9 @@ function getParams() {
     storageInfo: {
       mainFileFolder: 'category-a/clippings',
       assetFolder: 'category-a/clippings/assets',
+      assetRelativePath: 'assets',
+      raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
+      valueObj: {now: Date.now()},
     },
     clipId: '001',
     config: {
@@ -60,7 +68,9 @@ describe('Capturer stylesheet', () => {
     params.baseUrl = params.docUrl;
     params.ownerType = 'styleNode';
 
+    ExtMsg.mockGetUniqueFilename();
     const {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 0);
     H.assertEqual(cssText.match(/url\(''\)/mg).length, 5);
   });
@@ -75,7 +85,9 @@ describe('Capturer stylesheet', () => {
     params.config.saveCssImage = true;
     params.ownerType = 'linkNode';
 
+    ExtMsg.mockGetUniqueFilename();
     const {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 5);
     H.assertMatch(cssText, /url\('[^\.\/]+.jpg'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.png'\)/);
@@ -95,7 +107,9 @@ describe('Capturer stylesheet', () => {
     params.baseUrl = params.docUrl;
     params.ownerType = 'linkNode';
 
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 0);
     H.assertEqual(cssText.match(/url\(''\)/mg).length, 3);
   });
@@ -108,7 +122,9 @@ describe('Capturer stylesheet', () => {
     params.config.saveWebFont = true;
     params.ownerType = 'linkNode';
 
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 3);
     H.assertEqual(tasks[0].url, 'https://a.org/a.woff');
     H.assertEqual(tasks[1].url, 'https://a.org/b.woff');
@@ -124,7 +140,9 @@ describe('Capturer stylesheet', () => {
     params.config.saveWebFont = true;
     params.ownerType = 'linkNode';
 
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 3);
     H.assertEqual(tasks[0].url, 'https://a.org/a.woff');
     H.assertEqual(cssText.match(/url\('[^\.\/]+.woff'\)/mg).length, 3);
@@ -137,7 +155,9 @@ describe('Capturer stylesheet', () => {
     params.config.saveWebFont = true;
     params.ownerType = 'linkNode';
 
+    ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 3);
     H.assertEqual(tasks[0].url, 'https://cdn.a.org/a.woff');
     H.assertEqual(cssText.match(/url\('[^\.\/]+.woff'\)/mg).length, 3);
