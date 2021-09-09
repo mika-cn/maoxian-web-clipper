@@ -2,6 +2,9 @@
 
 import T from './tool.js';
 
+/*
+ * wrap the html inside a div if it's a <body>, <html> tag.
+ */
 function parseHTML(win, html) {
   const parser = new win.DOMParser();
   const doc = parser.parseFromString(html, 'text/html');

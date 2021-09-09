@@ -60,7 +60,6 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     shadowDomRenderMethod: 'Tree',
   });
 
-  //console.log(elemHTML);
   const html = doExtraWork({html: elemHTML, win});
 
   let markdown = generateMarkDown(html, info);
@@ -98,13 +97,12 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 async function takeSnapshot({elem, frames, requestParams, win}) {
   const topFrame = frames.find((it) => it.frameId == 0);
   const frameInfo = {allFrames: frames, ancestors: [topFrame]}
-  const blacklist = {
-    SCRIPT: true, LINK: true,
-    STYLE: true, TEMPLATE: true,
-  };
+  const extMsgType = 'frame.clipAsMd.takeSnapshot';
+  const blacklist = {META: true, HEAD: true, LINK: true,
+    STYLE: true, SCRIPT: true, TEMPLATE: true};
 
   let elemSnapshot = await Snapshot.take(elem, {
-    frameInfo, requestParams, win,
+    frameInfo, requestParams, win, extMsgType,
     blacklist: blacklist,
     shadowDom: {blacklist: blacklist},
     srcdocFrame: {blacklist: blacklist},
@@ -180,7 +178,7 @@ function appendClassName2Snapshot(snapshot, name) {
 }
 
 function doExtraWork({html, win}) {
-  const r = DOMTool.parseHTML(win, html);
+  const r = DOMTool.parseHTML(win, `<div>${html}</div>`);
   const doc = r.doc;
   let selectedNode = r.node;
   selectedNode = MdPluginCode.handle(doc, selectedNode);

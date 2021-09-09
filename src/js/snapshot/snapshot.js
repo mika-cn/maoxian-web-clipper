@@ -28,15 +28,19 @@ const FRAME_URL = {
  * - {Window} win
  * - {RequestParams} requestParams
  * - {Object} frameInfo
- * - {Object} blacklist (nodeName => isIgnore)
+ *   {String} extMsgType - the message type that send to nested iframes
+ * - {Object} blacklist  - {nodeName => isIgnore}
+ *   {Object} shadowDom  - {blacklist: {nodeName => isIgnore}}
+ *   {Object} srcdocFrame - {blacklist: {nodeName => isIgnore}}
  * - {Function} ignoreFn - whether to ignore this element or not.
- * - {Boolean} ignoreHiddenElement
+ * - {Boolean} ignoreHiddenElement (default: true)
  *
  * @return {Snapshot|undefined} node
  */
 async function takeSnapshot(node, params) {
 
-  const {win, frameInfo, requestParams, blacklist = {}, ignoreFn, ignoreHiddenElement = true} = params;
+  const {win, frameInfo, requestParams, extMsgType,
+    blacklist = {}, ignoreFn, ignoreHiddenElement = true} = params;
 
   const snapshot = {name: node.nodeName, type: node.nodeType};
 
@@ -219,7 +223,7 @@ async function takeSnapshot(node, params) {
             snapshot.childNodes = [];
             // take snapshot through extension message
             const frameSnapshot = await ExtMsg.sendToBackend('clipping', {
-              type: 'frame.takeSnapshot',
+              type: extMsgType,
               body: {
                 frameId: frame.frameId,
                 frameInfo: newFrameInfo,

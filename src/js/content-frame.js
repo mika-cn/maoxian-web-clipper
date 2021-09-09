@@ -23,40 +23,61 @@ function backgroundMessageHandler(message) {
         MxWcEvent.extMsgReceived(message.body, {isInternal: false});
         resolve();
         break;
+
       case 'broadcast-event.internal':
         MxWcEvent.extMsgReceived(message.body, {isInternal: true});
         resolve();
         break;
-      case 'frame.takeSnapshot':
-        const blacklist = {SCRIPT: true, TEMPLATE: true};
-        Snapshot.take(window.document, {
-          win: window,
-          requestParams: getRequestParams(message),
-          frameInfo: message.body.frameInfo,
-          blacklist: blacklist,
-          shadowDom: {blacklist},
-          srcdocFrame: {blacklist},
-          ignoreFn: (node) => {
-            if (node.nodeName == 'LINK' && node.rel) {
-              const rel = node.rel.toLowerCase();
-              if (rel.match(/icon/) || rel.match(/stylesheet/)) {
-                return {isIgnore: false};
-              } else {
-                return {isIgnore: true, reason: 'NotSupported'};
-              }
-            } else {
-              return {isIgnore: false}
-            }
-          }
-        }).then((snapshot) => {
-          const namePath = ['HTML', 'BODY'];
-          Snapshot.accessNode(snapshot, namePath, (bodyNode) => {
-            bodyNode.childNodes.push(SnapshotMaker.getShadowDomLoader());
-          });
-          resolve(snapshot);
-        }, reject).catch(reject);
 
-        break
+      case 'frame.clipAsHtml.takeSnapshot':
+        {
+          const blacklist = {SCRIPT: true, TEMPLATE: true};
+          Snapshot.take(window.document, {
+            win: window,
+            requestParams: getRequestParams(message),
+            frameInfo: message.body.frameInfo,
+            extMsgType: message.type,
+            blacklist: blacklist,
+            shadowDom: {blacklist},
+            srcdocFrame: {blacklist},
+            ignoreFn: (node) => {
+              if (node.nodeName == 'LINK' && node.rel) {
+                const rel = node.rel.toLowerCase();
+                if (rel.match(/icon/) || rel.match(/stylesheet/)) {
+                  return {isIgnore: false};
+                } else {
+                  return {isIgnore: true, reason: 'NotSupported'};
+                }
+              } else {
+                return {isIgnore: false}
+              }
+            }
+          }).then((snapshot) => {
+            const namePath = ['HTML', 'BODY'];
+            Snapshot.accessNode(snapshot, namePath, (bodyNode) => {
+              bodyNode.childNodes.push(SnapshotMaker.getShadowDomLoader());
+            });
+            resolve(snapshot);
+          }, reject).catch(reject);
+        }
+
+        break;
+
+      case 'frame.clipAsMd.takeSnapshot':
+        {
+          const blacklist = {META: true, HEAD: true, LINK: true,
+            STYLE: true, SCRIPT: true, TEMPLATE: true};
+          Snapshot.take(window.document, {
+            win: window,
+            requestParams: getRequestParams(message),
+            frameInfo: message.body.frameInfo,
+            extMsgType: message.type,
+            blacklist: blacklist,
+            shadowDom: {blacklist},
+            srcdocFrame: {blacklist},
+          }).then(resolve, reject).catch(reject);
+        }
+        break;
     }
   });
 }

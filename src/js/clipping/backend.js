@@ -49,23 +49,16 @@ function messageHandler(message, sender) {
           });
         }).then(resolve, reject);
         break;
-      case 'frame.takeSnapshot':
+      case 'frame.clipAsHtml.takeSnapshot':
+      case 'frame.clipAsMd.takeSnapshot':
         const frameId = message.body.frameId;
         if (frameId) {
+          // redirect message to content frame.
           ExtMsg.sendToContentFrame(message, sender.tab.id, frameId
           ).then(resolve, reject);
         } else {
           reject("NoFrameID");
         }
-        break;
-      case 'frame.toHtml':
-      case 'frame.toMd':
-        ActionCache.findOrCache(
-          [message.body.sessionId, message.frameUrl].join('.'),
-          () => {
-          // Redirect message to content frame.
-          return ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId);
-        }).then(resolve, reject);
         break;
       case 'clipped':
         const clipping = message.body;

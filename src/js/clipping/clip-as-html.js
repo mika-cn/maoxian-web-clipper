@@ -82,9 +82,10 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 async function takeSnapshot({elem, frames, requestParams, win, v}) {
   const topFrame = frames.find((it) => it.frameId == 0);
   const frameInfo = {allFrames: frames, ancestors: [topFrame]}
+  const extMsgType = 'frame.clipAsHtml.takeSnapshot';
 
   let elemSnapshot = await Snapshot.take(elem, {
-    frameInfo, requestParams, win,
+    frameInfo, requestParams, win, extMsgType,
     blacklist: {SCRIPT: true, LINK: true, STYLE: true, TEMPLATE: true},
     shadowDom:    {blacklist: {SCRIPT: true, TEMPLATE: true}},
     srcdocFrame:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
@@ -98,7 +99,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
   const headChildrenSnapshots = [];
   for (const node of headNodes) {
     headChildrenSnapshots.push(await Snapshot.take(node, {
-      frameInfo, requestParams, win,}));
+      frameInfo, requestParams, win, extMsgType}));
   }
 
   if (elemSnapshot.name == 'BODY') {
