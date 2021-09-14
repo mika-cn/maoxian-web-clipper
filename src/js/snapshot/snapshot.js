@@ -313,16 +313,20 @@ function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
     switch(node.nodeType) {
       case NODE_TYPE.ELEMENT:
         snapshot.attr = handleAttrs(node);
+        snapshot.childNodes = snapshots;
         if (node.shadowRoot) {
           snapshot.isShadowHost = true;
-          snapshot.childNodes = snapshots;
           break;
-        } else {
-          snapshot.childNodes = snapshots;
-          // handle style attribute
-          if (node.style.length > 0) {
-            snapshot.styleObj = CssTextParser.parse(node.style.cssText);
-          }
+        }
+
+        if (node.nodeName == 'SLOT') {
+          snapshot.assigned = node.assignedNodes().length > 0;
+          break;
+        }
+
+        // handle style attribute
+        if (node.style.length > 0) {
+          snapshot.styleObj = CssTextParser.parse(node.style.cssText);
         }
         break;
       case NODE_TYPE.DOCUMENT:
@@ -576,17 +580,6 @@ class SnapshotAccessor {
       }
     }
     return attrHTML;
-  }
-
-  get innerHTML() {
-    return ((this._change || {}).innerHTML || '');
-  }
-
-
-  delegate(methods) {
-    for (const method of methods) {
-      this[method] = this.node[method];
-    }
   }
 
   defineGetter(props) {

@@ -61,6 +61,7 @@ describe('Capture Canvas', () => {
     ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 1);
     H.assertEqual(change.getProperty('name'), 'IMG');
+    H.assertMatch(change.getAttr('src'), /^assets\//);
   })
 
 });

@@ -81,8 +81,7 @@ function getHtmlStrNode(html) {
 
 function getShadowDomLoader() {
   const html = `
-  <!-- shadowDom loader -->
-  <script>
+  <script id="mx-wc-shadowDOM-loader">
     (() => {
       function loadSD(C) {
         [].forEach.call(C.querySelectorAll('template[shadowroot]'),

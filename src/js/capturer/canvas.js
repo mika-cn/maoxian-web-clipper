@@ -33,7 +33,7 @@ async function capture(node, {saveFormat, clipId, storageInfo, requestParams}) {
       change.setStyleProperty('background-image', `url('${path}') !important`);
     } else {
       change.setProperty('name', 'IMG');
-      change.setAttr('src', 'path');
+      change.setAttr('src', path);
     }
   } else {
     // tained canvas

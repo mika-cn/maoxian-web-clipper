@@ -61,10 +61,10 @@ async function handleStyleSheet(sheet, params) {
 
     if (snapshot.rules.length == 0
       && sheetInfoAncestors.length > 0
-      && sheetInfoAncestors[sheetInfoAncestors.length - 1].accessDenied) {
+      && sheetInfoAncestors[0].accessDenied) {
       // In this case, calling the cssRules of parent sheet was denied.
       // This sheet is an imported sheet.
-      // it's cssRules hasn't fetched yet (@see handleCrossOriginCssText).
+      // it's cssRules hasn't fetched yet (@see handleRulesByParsingCssText).
       //
       // We should fetch this sheet;
       throw new Error("AccessDenied: Imported sheet hasn't fetched");
@@ -112,7 +112,7 @@ async function handleRulesByParsingCssText(text, params) {
   doc.head.appendChild(base);
   doc.head.appendChild(style);
 
-  // if the text contains @import rule
+  // if the text contains an @import rule
   //
   // On firefox:
   //   the imported style has empty cssRules,
@@ -164,7 +164,7 @@ async function handleCssRule(rule, params) {
         r.circular = true;
         break;
       }
-      const newSheetInfoAncestors = [...sheetInfoAncestors, sheetInfo];
+      const newSheetInfoAncestors = [sheetInfo, ...sheetInfoAncestors];
       if (isCircularSheet(rule.styleSheet, newSheetInfoAncestors)) {
         r.circular = true;
       } else {

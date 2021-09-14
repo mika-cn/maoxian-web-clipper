@@ -3,6 +3,7 @@ const DICT = {'(': ')', '"': '"', "'": "'"};
 const MODE = {OUT: 1, IN: 2}; // not inside name and value;
 
 // @param {String} cssText - is the value from style.cssText;
+// @return {Object} styleObj - e.g. {left: '13px', color: '#ccc !important'};
 function parse(cssText) {
   const obj = {};
 

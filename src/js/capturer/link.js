@@ -140,7 +140,7 @@ async function captureStylesheet({node, linkTypes, href, opts}) {
   const cssText = (needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
 
   tasks.push(...r.tasks);
-  tasks.push(Task.createStyleTask(filename, cssText, clipId, requestParams));
+  tasks.push(Task.createStyleTask(filename, cssText, clipId));
 
   change.setAttr('href', path);
   handleOtherAttrs(change);

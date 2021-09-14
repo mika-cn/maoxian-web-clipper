@@ -1,4 +1,6 @@
 
+// @see https://developer.mozilla.org/en-US/docs/Web/API/CSSRule
+// @see https://developer.mozilla.org/en-US/docs/Web/API/CSSRule/type
 export const CSSRULE_TYPE = defineEnum([
   'UNKNOWN',
   'STYLE',
@@ -20,6 +22,7 @@ export const CSSRULE_TYPE = defineEnum([
 ], 0);
 
 
+// @see https://developer.mozilla.org/en-US/docs/Web/API/Node
 const DOM_NODE_TYPE = defineEnum([
   'ELEMENT',
   'ATTRIBUTE',
