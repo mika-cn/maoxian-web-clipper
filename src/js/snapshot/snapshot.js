@@ -506,9 +506,9 @@ async function eachElement(node, fn, ancestors = [], ancestorDocs = []) {
       } else {
         const iterateChildren = await fn(node, ancestors, ancestorDocs);
         if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
-          const newAncestor = [node, ...ancestors];
+          const newAncestors = [node, ...ancestors];
           for (const childNode of node.childNodes) {
-            await eachElement(childNode, fn, newAncestor, ancestorDocs);
+            await eachElement(childNode, fn, newAncestors, ancestorDocs);
           }
         }
       }

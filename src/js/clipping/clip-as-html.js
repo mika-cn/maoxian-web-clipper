@@ -110,7 +110,6 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
       )
     );
     elemSnapshot.childNodes.push(getClippingInformationSnapshot(v));
-    elemSnapshot.childNodes.push(getShadowDomLoaderSnapshot());
 
   } else {
 
@@ -144,7 +143,6 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
       } else if (ancestorSnapshot.name == 'BODY') {
 
         appendStyleObj2Snapshot(ancestorSnapshot, v.bodyStyleObj);
-        ancestorSnapshot.childNodes.push(getShadowDomLoaderSnapshot());
         return [
           commentSnapshot,
           headSnapshot,
@@ -164,7 +162,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
       }
     });
 
-  return snapshot;
+  return await addShadowDomLoader2snapshot(snapshot);
 }
 
 
@@ -375,6 +373,28 @@ function getWrapperNodeCssRules(v) {
 
 
 
+async function addShadowDomLoader2snapshot(snapshot) {
+  const added = new Map();
+  await Snapshot.eachElement(snapshot, (node, ancestors, ancestorDocs) => {
+    if (node.isShadowHost && ancestorDocs[0]) {
+      const doc = ancestorDocs[0];
+      if (added.get(doc)) {
+        // added
+      } else {
+        const namePath = ['HTML', 'BODY'];
+        // FIXME xhtml?
+        Snapshot.accessNode(doc, namePath, (bodyNode) => {
+          bodyNode.childNodes.push(SnapshotMaker.getShadowDomLoader());
+        });
+        added.set(doc, true);
+      }
+    }
+    return true;
+  });
+
+  return snapshot;
+}
+
 // =============================================
 // clipping information (metas)
 // =============================================
@@ -463,9 +483,6 @@ function getClippingInformationSnapshot(v) {
   return SnapshotMaker.getHtmlStrNode(html);
 }
 
-function getShadowDomLoaderSnapshot() {
-  return SnapshotMaker.getShadowDomLoader();
-}
 
 
 export default {clip};

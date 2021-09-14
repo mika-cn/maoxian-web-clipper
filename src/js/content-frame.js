@@ -52,13 +52,7 @@ function backgroundMessageHandler(message) {
                 return {isIgnore: false}
               }
             }
-          }).then((snapshot) => {
-            const namePath = ['HTML', 'BODY'];
-            Snapshot.accessNode(snapshot, namePath, (bodyNode) => {
-              bodyNode.childNodes.push(SnapshotMaker.getShadowDomLoader());
-            });
-            resolve(snapshot);
-          }, reject).catch(reject);
+          }).then(resolve, reject).catch(reject);
         }
 
         break;
