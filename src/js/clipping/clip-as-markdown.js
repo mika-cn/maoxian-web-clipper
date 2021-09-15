@@ -104,11 +104,11 @@ async function takeSnapshot({elem, frames, requestParams, win}) {
   let elemSnapshot = await Snapshot.take(elem, {
     frameInfo, requestParams, win, extMsgType,
     blacklist: blacklist,
-    shadowDom: {blacklist: blacklist},
-    srcdocFrame: {blacklist: blacklist},
+    shadowDom: {blacklist},
+    srcdocFrame: {blacklist},
   });
 
-  appendClassName2Snapshot(elemSnapshot, 'mx-wc-selected');
+  Snapshot.appendClassName(elemSnapshot, 'mx-wc-selected');
 
   return elemSnapshot;
 }
@@ -119,8 +119,7 @@ async function captureAssets(snapshot, params) {
   const {saveFormat, baseUrl, docUrl, clipId, config, storageInfo} = params;
   const tasks = [];
   const ancestors = [];
-  //FIXME
-  const documentSnapshot = {baseUrl, docUrl};
+  const documentSnapshot = SnapshotMaker.getDocumentNode(docUrl, baseUrl);
   const ancestorDocs = [documentSnapshot];
   await Snapshot.eachElement(snapshot,
     async(node, ancestors, ancestorDocs) => {
@@ -167,14 +166,6 @@ async function captureAssets(snapshot, params) {
 
   return tasks;
 
-}
-
-// WARNING: this function will modify the snapshot.
-function appendClassName2Snapshot(snapshot, name) {
-  if (!snapshot.attr) {snapshot.attr = {}}
-  const names = (snapshot.attr.class || '').split(/\s+/)
-  names.push(name);
-  snapshot.attr.class = names.filter((it) => it !== '').join(' ');
 }
 
 function doExtraWork({html, win}) {

@@ -44,10 +44,9 @@ async function handleStyleSheet(sheet, params) {
   snapshot.mediaText = sheet.media.mediaText;
   snapshot.mediaList = mediaList2Array(sheet.media);
 
-  const sheetInfo = {accessDenied: false, url: sheet.href}
+  const sheetInfo = {accessDenied: false, url: sheet.href, rules: []}
 
   if (sheetInfo.url && !sheetInfo.url.match(/^http/i)) {
-    // FIXME
     // not starts with http (about:blank, about:invalid etc.)
     return snapshot;
   }
@@ -239,7 +238,7 @@ function getCssRuleType(rule) {
       }
     } else {
       //FIXME
-      throw new Error("getCssRuleType(): Why constructor.name is undefined");
+      throw new Error("getCssRuleType(): Why constructor.name is undefined in content script");
     }
   }
 }

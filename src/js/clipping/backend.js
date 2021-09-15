@@ -57,7 +57,7 @@ function messageHandler(message, sender) {
           ExtMsg.sendToContentFrame(message, sender.tab.id, frameId
           ).then(resolve, reject);
         } else {
-          reject("NoFrameID");
+          reject(new Error("NoFrameID"));
         }
         break;
       case 'clipped':

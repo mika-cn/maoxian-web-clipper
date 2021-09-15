@@ -91,7 +91,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
     srcdocFrame:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
   });
 
-  appendClassName2Snapshot(elemSnapshot, 'mx-wc-selected');
+  Snapshot.appendClassName(elemSnapshot, 'mx-wc-selected');
 
   const headNodes = win.document.querySelectorAll(
     'link[rel*=icon],link[rel~=stylesheet],style');
@@ -114,7 +114,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
   } else {
 
     headChildrenSnapshots.push(getWrapperNodeStyleSnapshot(v));
-    appendStyleObj2Snapshot(elemSnapshot, StyleHelper.getSelectedNodeStyle(elem, win));
+    Snapshot.appendStyleObj(elemSnapshot, StyleHelper.getSelectedNodeStyle(elem, win));
     elemSnapshot = wrapOutermostElem(elem, elemSnapshot, v);
   }
 
@@ -137,12 +137,12 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
 
       if (ancestorSnapshot.name == 'HTML') {
 
-        appendStyleObj2Snapshot(ancestorSnapshot, v.htmlStyleObj);
+        Snapshot.appendStyleObj(ancestorSnapshot, v.htmlStyleObj);
         return [SnapshotMaker.getDocTypeNode(), ancestorSnapshot];
 
       } else if (ancestorSnapshot.name == 'BODY') {
 
-        appendStyleObj2Snapshot(ancestorSnapshot, v.bodyStyleObj);
+        Snapshot.appendStyleObj(ancestorSnapshot, v.bodyStyleObj);
         return [
           commentSnapshot,
           headSnapshot,
@@ -155,7 +155,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
 
         const styleObj = StyleHelper.getWrapperStyleObj(ancestorSnapshot);
         if (styleObj) {
-          appendStyleObj2Snapshot(ancestorSnapshot, styleObj);
+          Snapshot.appendStyleObj(ancestorSnapshot, styleObj);
         }
         ancestorSnapshot = wrapOutermostElem(ancestorNode, ancestorSnapshot, v);
         return [ancestorSnapshot];
@@ -177,19 +177,6 @@ function wrapOutermostElem(elem, snapshot, v) {
   }
 }
 
-
-// WARNING: this function will modify the snapshot.
-function appendClassName2Snapshot(snapshot, name) {
-  if (!snapshot.attr) {snapshot.attr = {}}
-  const names = (snapshot.attr.class || '').split(/\s+/)
-  names.push(name);
-  snapshot.attr.class = names.filter((it) => it !== '').join(' ');
-}
-
-// WARNING: this function will modify the snapshot.
-function appendStyleObj2Snapshot(snapshot, styleObj) {
-  snapshot.styleObj = Object.assign(snapshot.styleObj || {}, styleObj);
-}
 
 async function captureAssets(snapshot, params) {
   const {saveFormat, baseUrl, docUrl, clipId, config, needFixStyle} = params;

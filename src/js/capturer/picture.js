@@ -26,8 +26,6 @@ async function capture(node, params) {
   const tasks = [];
   const change = new SnapshotNodeChange();
 
-  // TODO
-  // WE should capture according to saveFormat ?
   if (node.childNodes) {
     for (const childNode of node.childNodes) {
       if (childNode.name === 'SOURCE') {

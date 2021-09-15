@@ -1,6 +1,14 @@
 
 import {NODE_TYPE, CSSRULE_TYPE}        from '../lib/constants.js';
 
+function getDocumentNode(docUrl, baseUrl, childNodes = []) {
+  return {
+    name: '#document',
+    type: NODE_TYPE.DOCUMENT,
+    docUrl: docUrl,
+    baseUrl: baseUrl,
+  }
+}
 
 function getTextNode(text) {
   return {
@@ -140,6 +148,7 @@ function getCssMediaRule(conditionText, rules) {
 
 
 export default {
+  getDocumentNode,
   getElementNode,
   getHtmlStrNode,
   getDocTypeNode,

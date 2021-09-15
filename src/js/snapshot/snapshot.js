@@ -468,20 +468,11 @@ function isElemVisible(win, elem, whiteList = []) {
  * {Integer} type
  * {String}  text
  * {Object} attr
- * {Boolean} hidden
  * {Array} childNodes
- * {Integer} childType
- *
+ * {Boolean} ignore
+ * {String} ignoreReason
  *
  */
-
-function link(node, parentNode) {
-  if (parentNode) { node.parentNode = parentNode; }
-  if (node.childNodes && node.childNodes.length > 0) {
-    node.childNodes.forEach((it) => link(it, node));
-  }
-  return node;
-}
 
 function each(node, fn, ancestors = [], ancestorDocs = []) {
   const iterateChildren = fn(node, ancestors, ancestorDocs);
@@ -792,13 +783,29 @@ function accessNode(snapshot, namePath, fn) {
 }
 
 
+// WARNING: this function will modify the snapshot.
+function appendClassName(snapshot, name) {
+  if (!snapshot.attr) {snapshot.attr = {}}
+  const names = (snapshot.attr.class || '').split(/\s+/)
+  names.push(name);
+  snapshot.attr.class = names.filter((it) => it !== '').join(' ');
+}
+
+// WARNING: this function will modify the snapshot.
+function appendStyleObj(snapshot, styleObj) {
+  snapshot.styleObj = Object.assign(snapshot.styleObj || {}, styleObj);
+}
+
+
 export default Object.assign({
   take: takeSnapshot,
   takeAncestorsSnapshot,
   accessNode,
+  appendClassName,
+  appendStyleObj,
 }, {
   each,
   eachElement,
-  link, toHTML
+  toHTML
 });
 

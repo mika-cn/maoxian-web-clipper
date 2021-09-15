@@ -78,8 +78,8 @@ async function capture(node, opts) {
       return {change, tasks}
 
     } else {
-      // FIXME
-      // TODO check this html should be the selected node html
+      // html contains "<html><body>..</body></html>" which
+      // will be removed at DOMTool.parseHTML (clip-as-markdown.js)
       const newNode = SnapshotMaker.getHtmlStrNode(`<div>${html}</div>`);
       // replace self
       change.setProperty('type', newNode.type);

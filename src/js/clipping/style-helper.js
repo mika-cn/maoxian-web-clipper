@@ -8,7 +8,7 @@ function calcStyle(elem, win){
   let bodyStyleObj = {};
 
   if (!isOverflowDefault(win.document.documentElement, win)) {
-    htmlStyleAttr['overflow'] = 'auto !important';
+    htmlStyleObj['overflow'] = 'auto !important';
   }
 
   if (elem.tagName.toUpperCase() == 'BODY') {
