@@ -39,7 +39,7 @@ function messageHandler(message, sender) {
         break;
       case 'fetch.text':
         ActionCache.findOrCache(
-          [message.body.clipId, message.body.url].join('.'),
+          [message.body.sessionId, message.body.url].join('.'),
           () => {
           return Global.Fetcher.get(message.body.url, {
             respType: 'text',
@@ -49,19 +49,22 @@ function messageHandler(message, sender) {
           });
         }).then(resolve, reject);
         break;
-      case 'frame.toHtml':
-      case 'frame.toMd':
-        ActionCache.findOrCache(
-          [message.body.clipId, message.frameUrl].join('.'),
-          () => {
-          // Redirect message to content frame.
-          return ExtMsg.sendToContentFrame(message, sender.tab.id, message.frameId);
-        }).then(resolve, reject);
+      case 'frame.clipAsHtml.takeSnapshot':
+      case 'frame.clipAsMd.takeSnapshot':
+        const frameId = message.body.frameId;
+        if (frameId) {
+          // redirect message to content frame.
+          ExtMsg.sendToContentFrame(message, sender.tab.id, frameId
+          ).then(resolve, reject);
+        } else {
+          reject(new Error("NoFrameID"));
+        }
         break;
       case 'clipped':
         const clipping = message.body;
         removeNameConflictResolver(clipping.info.clipId);
-        ActionCache.removeByKeyPrefix(clipping.info.clipId);
+        const sessionId = clipping.info.clipId;
+        ActionCache.removeByKeyPrefix(sessionId);
         resolve();
         break;
     }
@@ -121,6 +124,8 @@ async function getCurrentLayerFrames(tabId, parentFrameId) {
   return result;
 }
 
+
+
 async function getAllFrames(tabId) {
   // get frame redirections
   const dict = Global.WebRequest.getRedirectionDict('sub_frame');
@@ -133,8 +138,10 @@ async function getAllFrames(tabId) {
   frames.forEach((it) => {
     it.originalUrl = (redirectFrom[it.url] || it.url);
   });
-  return frames;
+
+  return frames.sort((a, b) => a.frameId - b.frameId);
 }
+
 
 /*
  * @param {Object} global

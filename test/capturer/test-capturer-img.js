@@ -1,26 +1,20 @@
 import browser from 'sinon-chrome';
 global.browser = browser;
 
-const JSDOM = require('jsdom').JSDOM;
-const jsdom = new JSDOM();
-const win = jsdom.window;
-
 import H from '../helper.js';
-import DOMTool from '../../src/js/lib/dom-tool.js';
-import Capturer from '../../src/js/capturer/img.js';
+import CapturerImg from '../../src/js/capturer/img.js';
 import RequestParams from '../../src/js/lib/request-params.js';
 
 const ExtMsg = H.depMockJs('ext-msg.js');
 ExtMsg.initBrowser(browser);
+const Capturer = H.wrapAsyncCapturer(CapturerImg);
 
 function getNode(src, srcset) {
-  let html = `<img src="${src}" $srcset crossorigin="anonymous"/>`;
-  if (srcset) {
-    html = html.replace('$srcset', `srcset="${srcset}"`);
-  } else {
-    html = html.replace('$srcset', '');
-  }
-  const {node} = DOMTool.parseHTML(win, html);
+  const node = {type: 1, name: 'IMG', attr: {
+    crossorigin: 'anonymous'
+  }};
+  if (src !== undefined) { node.attr.src = src; }
+  if (srcset) { node.attr.srcset = srcset; }
   return node;
 }
 
@@ -32,6 +26,7 @@ function getParams() {
     saveFormat: 'html',
     baseUrl: url,
     storageInfo: {
+      mainFileFolder: 'category-a/clippings',
       assetFolder: 'category-a/clippings/assets',
       assetRelativePath: 'assets',
       raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
@@ -46,20 +41,15 @@ describe('Capture Img', () => {
 
   it('capture empty src', async () => {
     const params = getParams();
-    const node = getNode('');
-    let r = await Capturer.capture(node, params);
+    let r = await Capturer.capture(getNode(''), params);
     H.assertEqual(r.tasks.length, 0);
-    H.assertTrue(r.node.getAttribute('data-mx-warn').length > 0);
-    H.assertTrue(r.node.hasAttribute('data-mx-original-src'));
+    H.assertTrue(r.change.getAttr('data-mx-warn').length > 0);
+    H.assertTrue(r.change.hasAttr('data-mx-original-src'));
 
-    node.removeAttribute('src');
-    node.removeAttribute('data-mx-warn');
-    node.removeAttribute('data-mx-original-src');
-
-    r = await Capturer.capture(node, params);
+    r = await Capturer.capture(getNode(), params);
     H.assertEqual(r.tasks.length, 0);
-    H.assertTrue(r.node.hasAttribute('data-mx-warn'));
-    H.assertTrue(r.node.hasAttribute('data-mx-original-src'));
+    H.assertTrue(r.change.hasAttr('data-mx-warn'));
+    H.assertTrue(r.change.hasAttr('data-mx-original-src'));
   });
 
   it('capture img src', async () => {
@@ -69,10 +59,10 @@ describe('Capture Img', () => {
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
-    H.assertMatch(r.node.getAttribute('src'), /^assets\/[^\/]+\.jpg/);
+    H.assertMatch(r.change.getAttr('src'), /^assets\/\d+-[^\/]+\.jpg/);
     H.assertTrue(r.tasks[0].filename.startsWith(storageInfo.assetFolder));
-    H.assertEqual(r.node.getAttribute('srcset'), null);
-    H.assertEqual(r.node.getAttribute('crossorigin'), null);
+    H.assertEqual(r.change.getAttr('srcset'), undefined);
+    H.assertTrue(r.change.deletedAttr('crossorigin'));
     ExtMsg.clearMocks();
   });
 
@@ -83,7 +73,7 @@ describe('Capture Img', () => {
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 3);
-    const srcsetItems = r.node.getAttribute('srcset').split(',');
+    const srcsetItems = r.change.getAttr('srcset').split(',');
     H.assertMatch(srcsetItems[0], /^assets\/[^\/]+.png 200w$/);
     H.assertMatch(srcsetItems[1], /^assets\/[^\/]+.png 400w$/);
     ExtMsg.clearMocks();

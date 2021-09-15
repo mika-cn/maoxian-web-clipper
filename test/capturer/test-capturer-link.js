@@ -1,22 +1,25 @@
 import browser from 'sinon-chrome';
 global.browser = browser;
 
-const JSDOM = require('jsdom').JSDOM;
-const jsdom = new JSDOM();
-const win = jsdom.window;
-
 import H from '../helper.js';
-import DOMTool from '../../src/js/lib/dom-tool.js';
-import Capturer from '../../src/js/capturer/link.js';
+import CapturerLink from '../../src/js/capturer/link.js';
 import RequestParams from '../../src/js/lib/request-params.js';
+import {CSSRULE_TYPE} from '../../src/js/lib/constants.js';
+
+const Capturer = H.wrapAsyncCapturer(CapturerLink);
 
 const ExtMsg = H.depMockJs('ext-msg.js');
 ExtMsg.initBrowser(browser);
 
 
-function getNode(html) {
-  const {doc} = DOMTool.parseHTML(win, html);
-  return doc.head.children[0];
+function getNode(relList, attr = {}, sheet) {
+  return {
+    type: 1,
+    name: 'LINK',
+    relList: relList,
+    attr: attr,
+    sheet: sheet,
+  }
 }
 
 function getParams() {
@@ -25,6 +28,7 @@ function getParams() {
     docUrl: url,
     baseUrl: url,
     storageInfo: {
+      mainFileFolder: 'category-a/clippings',
       assetFolder: 'category-a/clippings/assets',
       assetRelativePath: 'assets',
       raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
@@ -42,94 +46,112 @@ function getParams() {
 
 describe('Capture link', () => {
 
-  function initTest(html) {
-    const text = 'body{font-size:12pt;}';
-    ExtMsg.mockFetchTextStatic(text);
-    ExtMsg.mockGetUniqueFilename();
-    return {
-      node: getNode(html),
-      params: getParams()
-    }
-  }
-
   it('capture link without rel attribute', async () => {
-    const html = '<link href="_">';
-    const {node, params} = initTest(html);
-    const {tasks} = await Capturer.capture(node, params);
+    const node = getNode([], {href: '_'});
+    const params = getParams();
+    const {change, tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
   });
 
   it('capture link without href attribute', async () => {
-    const html = '<link rel="_">';
-    const {node, params} = initTest(html);
-    const {tasks} = await Capturer.capture(node, params);
+    const node = getNode(['stylesheet'], {rel: 'stylesheet'});
+    const params = getParams();
+    const {change, tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
   });
 
   it('capture link rel="icon"', async() => {
-    const html = '<link rel="icon" href="a.icon">';
-    const {node, params} = initTest(html);
-    const r = await Capturer.capture(node, params);
-    H.assertEqual(r.tasks.length, 1);
-    H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.icon/);
+    const node = getNode(['icon'], {rel: 'icon', href: 'a.icon'});
+    const params = getParams();
+    ExtMsg.mockGetUniqueFilename();
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 1);
+    H.assertMatch(change.getAttr('href'), /assets\/[^\.\/]+\.icon/);
+    ExtMsg.clearMocks();
   });
 
   it('capture link rel="shortcut icon"', async() => {
-    const html = '<link rel="shortcut icon" href="a.icon">';
-    const {node, params} = initTest(html);
+    const node = getNode(['shortcut', 'icon'], {rel: 'shortcut icon', href: 'a.icon'});
+    const params = getParams();
+    ExtMsg.mockGetUniqueFilename();
     const {tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 1);
+    ExtMsg.clearMocks();
   });
 
 
   it('capture link rel="apple-touch-icon-precomposed"', async() => {
-    const html = '<link rel="apple-touch-icon-precomposed" href="a" type="image/png">';
-    const {node, params} = initTest(html);
+    const node = getNode(['apple-touch-icon-precomposed'],
+      {rel:'apple-touch-icon-precomposed', href: 'a', type: 'image/png'});
+    const params = getParams();
+    ExtMsg.mockGetUniqueFilename();
     ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
-    const r = await Capturer.capture(node, params);
-    H.assertEqual(r.tasks.length, 1);
-    H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.png/);
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 1);
+    H.assertMatch(change.getAttr('href'), /assets\/[^\.\/]+\.png/);
     ExtMsg.clearMocks();
   });
 
-  async function testCaptureStylesheet(html) {
-    const {node, params} = initTest(html);
-    const r = await Capturer.capture(node, params);
-    H.assertEqual(r.tasks.length, 1);
-    H.assertEqual(r.node.getAttribute('referrerpolicy'), 'no-referrer');
-    H.assertMatch(r.node.getAttribute('href'), /assets\/[^\.\/]+\.css/);
+  async function testCaptureStylesheet(linkType, href) {
+    const linkTypes = [linkType.toLowerCase()];
+    const sheet = {
+      href: `https://a.org/${href}`,
+      diabled: false,
+      title: 'TITLE',
+      rules: [
+        {
+          type: CSSRULE_TYPE.STYLE,
+          selectorText: 'body',
+          styleObj: {background: 'red'}
+        }
+      ]
+    };
+
+    const node = getNode(linkTypes, {href: href, rel: linkType}, sheet);
+    const params = getParams();
+    ExtMsg.mockGetUniqueFilename()
+    const {change, tasks} = await Capturer.capture(node, params);
     ExtMsg.clearMocks();
+    H.assertEqual(tasks.length, 1);
+    H.assertEqual(change.getAttr('referrerpolicy'), 'no-referrer');
+    H.assertTrue(change.deletedAttr('integrity'));
+    H.assertTrue(change.deletedAttr('crossorigin'));
+    H.assertMatch(change.getAttr('href'), /assets\/[^\.\/]+\.css/);
   }
 
   it('capture rel="stylesheet"', async () => {
-    const html = '<link rel="stylesheet" href="style-A.css">';
-    await testCaptureStylesheet(html);
+    await testCaptureStylesheet('stylesheet', 'style-A.css');
   });
 
   it('capture rel="Stylesheet"', async() => {
-    const html = '<link rel="Stylesheet" href="style-A.css">';
-    await testCaptureStylesheet(html);
+    await testCaptureStylesheet('Stylesheet', 'style-A.css');
   });
 
   it('capture rel="Stylesheet" that have not extension', async() => {
-    const html = '<link rel="Stylesheet" href="style-A">';
-    await testCaptureStylesheet(html);
+    await testCaptureStylesheet('Stylesheet', 'style-A');
   });
 
   it('capture rel="alternate stylesheet" disabled', async() => {
-    const html = '<link rel="alternate stylesheet" href="style-A.css" disabled>';
-    const {node, params} = initTest(html);
-    const r = await Capturer.capture(node, params);
-    H.assertEqual(r.tasks.length, 0);
-    H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
+    const linkTypes = ['alternate', 'stylesheet'];
+    const attrs = {rel: 'alternate Stylesheet', href: 'style-A.css', disabled: ''};
+    const sheet = {disabled: true}
+    const node = getNode(linkTypes, attrs, sheet);
+    const params = getParams();
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
   });
 
   it('should not capture links with rel="preload"', async() => {
-    const html = '<link rel="preload" href="style-A.css">';
-    const {node, params} = initTest(html);
-    const r = await Capturer.capture(node, params);
-    H.assertEqual(r.tasks.length, 0);
-    H.assertTrue(r.node.hasAttribute('data-mx-ignore-me'));
+    const linkTypes = ['preload'];
+    const attrs = {rel: 'preload', href: 'style-A.css'};
+    const node = getNode(linkTypes, attrs);
+    const params = getParams();
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
   });
 
 

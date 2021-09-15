@@ -1,7 +1,8 @@
 
 class RequestParams {
 
-  constructor({refUrl, userAgent, referrerPolicy, timeout = 40, tries = 3}) {
+  constructor({sessionId, refUrl, userAgent, referrerPolicy, timeout = 40, tries = 3}) {
+    this.sessionId = sessionId;
     this.refUrl = refUrl;
     this.userAgent = userAgent;
     this.referrerPolicy = referrerPolicy;
@@ -9,8 +10,28 @@ class RequestParams {
     this.tries = tries;
   }
 
+  toObject() {
+    return {
+      sessionId      : this.sessionId,
+      refUrl         : this.refUrl,
+      userAgent      : this.userAgent,
+      referrerPolicy : this.referrerPolicy,
+      timeout        : this.timeout,
+      tries          : this.tries,
+    }
+  }
+
+  // return a new RequestParams
+  changeRefUrl(refUrl) {
+    const obj = this.toObject();
+    return new RequestParams(
+      Object.assign({}, obj, {refUrl})
+    );
+  }
+
   toParams(url) {
     return {
+      sessionId: this.sessionId,
       url: url,
       headers: this.getHeaders(url),
       timeout: this.timeout,
@@ -99,13 +120,14 @@ class RequestParams {
 
 RequestParams.createExample = function(params = {}) {
   const {
+    sessionId      = '001',
     refUrl         = 'https://example.org',
     userAgent      = 'UserAgent',
     referrerPolicy = 'origin',
     timeout        = 40,
     tries          = 3
   } = params;
-  return new RequestParams({refUrl, userAgent, referrerPolicy, timeout, tries});
+  return new RequestParams({sessionId, refUrl, userAgent, referrerPolicy, timeout, tries});
 }
 
 export default RequestParams;

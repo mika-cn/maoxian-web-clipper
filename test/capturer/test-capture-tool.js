@@ -1,12 +1,7 @@
 import browser from 'sinon-chrome';
 global.browser = browser;
 
-const JSDOM = require('jsdom').JSDOM;
-const jsdom = new JSDOM();
-const win = jsdom.window;
-
 import H from '../helper.js';
-import DOMTool from '../../src/js/lib/dom-tool.js';
 import CaptureTool from '../../src/js/capturer/tool.js';
 import RequestParams from '../../src/js/lib/request-params.js';
 
@@ -19,8 +14,7 @@ describe('CaptureTool', () => {
   describe('captureBackgroundAttr', () => {
 
     function getNode() {
-      const {node} = DOMTool.parseHTML(win, '<div></div>');
-      return node;
+      return {type: 1, name: 'DIV', attr: {}}
     }
 
     function getParams() {
@@ -28,6 +22,7 @@ describe('CaptureTool', () => {
       return {
         baseUrl: url,
         storageInfo: {
+          mainFileFolder: 'category-a/clippings',
           assetFolder: 'category-a/clippings/assets',
           assetRelativePath: 'assets',
           raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
@@ -48,7 +43,7 @@ describe('CaptureTool', () => {
 
     it('it should capture background', async () => {
       const node = getNode();
-      node.setAttribute('background', 'assets/a.jpg');
+      node.attr.background = 'assets/a.jpg';
       const params = getParams();
       const r = await CaptureTool.captureBackgroundAttr(node, params);
       H.assertEqual(r.tasks.length, 1);
@@ -56,7 +51,7 @@ describe('CaptureTool', () => {
 
     it('it should not capture background if config is not true', async () => {
       const node = getNode();
-      node.setAttribute('background', 'assets/a.jpg');
+      node.attr.background = 'assets/a.jpg';
       const params = getParams();
       params.config.saveCssImage = false;
       const r = await CaptureTool.captureBackgroundAttr(node, params);

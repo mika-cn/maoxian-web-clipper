@@ -3,26 +3,18 @@
 import Log from '../lib/log.js';
 import T   from '../lib/tool.js';
 
-function getRenderParams(elem, win){
-  const {
-       id: htmlId,
-    klass: htmlClass,
-    style: htmlStyle
-  } = extractCssAttrs(win.document.documentElement);
-  let htmlAppendStyle = '';
+function calcStyle(elem, win){
+  const htmlStyleObj = {};
+  let bodyStyleObj = {};
+
   if (!isOverflowDefault(win.document.documentElement, win)) {
-    htmlAppendStyle = 'overflow: auto !important;';
+    htmlStyleObj['overflow'] = 'auto !important';
   }
 
-  if (elem.tagName.toUpperCase() === 'BODY') {
-    return {
-      htmlIdAttr: renderAttr('id', htmlId),
-      htmlClassAttr: renderAttr('class', htmlClass),
-      htmlStyleAttr: renderAttr('style', htmlStyle + htmlAppendStyle),
-    }
+  if (elem.tagName.toUpperCase() == 'BODY') {
+    return {htmlStyleObj, bodyStyleObj};
 
   } else {
-    const {id: bodyId, klass: bodyClass} = extractCssAttrs(win.document.body);
     let bodyBgCss = getBgCss(win.document.body, win);
     const elemWrappers = getWrappers(elem, [], win);
     const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
@@ -46,15 +38,21 @@ function getRenderParams(elem, win){
       }
     }
     const elemWidth = getFitWidth(elem, win);
+
+    bodyStyleObj = setImportantPriority({
+      'background-color': bodyBgCss,
+      'min-height' : '100%',
+      'height' : 'auto',
+      'position': 'static',
+      'overflow': 'auto',
+      'padding-bottom': '0px',
+    });
+
     return {
-      elemWidth      : elemWidth,
-      bodyBgCss      : bodyBgCss,
-      outerElemBgCss : outerElemBgCss,
-      bodyIdAttr     : renderAttr('id', bodyId),
-      bodyClassAttr  : renderAttr('class', bodyClass),
-      htmlIdAttr     : renderAttr('id', htmlId),
-      htmlClassAttr  : renderAttr('class', htmlClass),
-      htmlStyleAttr  : renderAttr('style', htmlStyle + htmlAppendStyle),
+      htmlStyleObj,
+      bodyStyleObj,
+      elemWidth,
+      outerElemBgCss,
     }
   }
 }
@@ -158,7 +156,17 @@ function getCssSize(elem, cssKey, win){
   }
 }
 
-function getWrapperStyle(node) {
+/*
+ * @param {Snapshot} node
+ * @return {Objcet} styleObj
+ */
+function getWrapperStyleObj(node) {
+  if (
+    node.type !== 1
+    || node.name == 'BODY'
+    || node.name == 'HTML'
+  ) { return null}
+
   const cssObj = {
     'display'    : 'block',
     'float'      : 'none',
@@ -177,13 +185,20 @@ function getWrapperStyle(node) {
     'padding'    : '0px',
   }
 
-  if (node.tagName.toUpperCase() === 'TABLE') {
+  if (node.name == 'TABLE') {
     cssObj['display'] = 'table';
   }
 
-  return (node.style.cssText || '') + toCssText(cssObj);
+  return setImportantPriority(cssObj);
 }
 
+
+
+/*
+ * @param {Node} node
+ * @param {Window} win
+ * @return {Object} styleObj
+ */
 function getSelectedNodeStyle(node, win) {
   const cssObj = {
     'float'      : 'none',
@@ -214,13 +229,14 @@ function getSelectedNodeStyle(node, win) {
     cssObj['padding-top'] = `${paddingLeft}px`;
   }
 
-  return (node.style.cssText || '') + toCssText(cssObj);
+  return setImportantPriority(cssObj);
 }
 
-function toCssText(cssObj) {
-  let r = '';
+
+function setImportantPriority(cssObj) {
+  let r = {};
   for (let k in cssObj) {
-    r += `${k}: ${cssObj[k]} !important;`;
+    r[k] = cssObj[k] + ' !important';
   }
   return r;
 }
@@ -236,22 +252,9 @@ function isOverflowDefault(node, win) {
   );
 }
 
-function extractCssAttrs(node) {
-  return {
-    id: node.getAttribute('id') || "",
-    klass: node.getAttribute('class') || "",
-    style: node.getAttribute('style') || "",
-  }
+export default {
+  setImportantPriority,
+  calcStyle,
+  getSelectedNodeStyle,
+  getWrapperStyleObj,
 }
-
-function renderAttr(name, value) {
-  return value ? ` ${name}="${value}"` : '';
-}
-
-const StyleHelper = {
-  getRenderParams: getRenderParams,
-  getSelectedNodeStyle: getSelectedNodeStyle,
-  getWrapperStyle: getWrapperStyle,
-}
-
-export default StyleHelper;
