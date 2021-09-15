@@ -47,21 +47,29 @@ function createInfoTask(filename, info) {
   return createTextTask(filename, text, 'application/json', info.clipId, 'infoFileTask');
 }
 
-function createImageTask(filename, url, clipId) {
-  return createUrlTask(filename, url, clipId, 'imageFileTask');
+function createImageTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'imageFileTask', requestParams);
 }
 
-function createUrlTask(filename, url, clipId, taskType = 'assetFileTask', headers={}) {
+function createFontTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'fontFileTask', requestParams);
+}
+
+
+function createUrlTask(filename, url, clipId, taskType, requestParams) {
   return {
-    taskType: taskType,
-    type: 'url',
-    filename: filename,
-    url: url,
-    headers: headers,
-    clipId: clipId,
-    createdMs: T.currentTime().str.intMs,
+    taskType  : taskType,
+    type      : 'url',
+    filename  : filename,
+    url       : url,
+    headers   : requestParams.getHeaders(url),
+    timeout   : requestParams.timeout,
+    tries     : requestParams.tries,
+    clipId    : clipId,
+    createdMs : Date.now().toString(),
   }
 }
+
 
 // @private
 function createTextTask(filename, text, mimeType, clipId, taskType) {
@@ -72,7 +80,7 @@ function createTextTask(filename, text, mimeType, clipId, taskType) {
     mimeType: mimeType,
     text: text,
     clipId: clipId,
-    createdMs: T.currentTime().str.intMs,
+    createdMs: Date.now().toString(),
   }
 }
 
@@ -88,15 +96,6 @@ function rmReduplicate(tasks) {
     }
   });
   return result;
-}
-
-function changeUrlTask(tasks, action) {
-  tasks.forEach((task) => {
-    if (task.type === 'url') {
-      task = action(task);
-    }
-  });
-  return tasks;
 }
 
 /*
@@ -131,18 +130,18 @@ function getRelativePath(tasks, currDir) {
 }
 
 const Task = {
-  createHtmlTask: createHtmlTask,
-  createMarkdownTask: createMarkdownTask,
-  createFrameTask: createFrameTask,
-  createStyleTask: createStyleTask,
-  createTitleTask: createTitleTask,
-  createInfoTask: createInfoTask,
-  createImageTask: createImageTask,
-  createUrlTask: createUrlTask,
-  rmReduplicate: rmReduplicate,
-  changeUrlTask: changeUrlTask,
-  sort: sort,
-  getRelativePath: getRelativePath,
+  createHtmlTask,
+  createMarkdownTask,
+  createFrameTask,
+  createStyleTask,
+  createTitleTask,
+  createInfoTask,
+  createImageTask,
+  createFontTask,
+  rmReduplicate,
+
+  sort,
+  getRelativePath,
 }
 
 export default Task;

@@ -9,6 +9,24 @@ function depMockJs(path) {
   return require(`./mock/${path}`);
 }
 
+function wrapCapturer(Capturer) {
+  return {
+    capture(node, params) {
+      const r = Capturer.capture(node, params);
+      return {tasks: r.tasks, change: r.change.toChangeObjectAccessor()};
+    }
+  }
+}
+
+function wrapAsyncCapturer(Capturer) {
+  return {
+    capture: async function(node, params) {
+      const r = await Capturer.capture(node, params);
+      return {tasks: r.tasks, change: r.change.toChangeObjectAccessor()};
+    }
+  }
+}
+
 function assertEqual(actual, expected) {
   assert.strictEqual(actual, expected);
 }
@@ -37,7 +55,7 @@ function assertNotMatch(value, regExp) {
   }
 }
 
-function assertTure(value) {
+function assertTrue(value) {
   if (value === true) {
     assert(true);
   } else {
@@ -82,17 +100,19 @@ function assertReject(promise, validate) {
 }
 
 module.exports = {
-  depJs: depJs,
-  depMockJs: depMockJs,
+  depJs,
+  depMockJs,
+  wrapCapturer,
+  wrapAsyncCapturer,
 
   /* asserts */
-  assertEqual: assertEqual,
-  assertNotEqual: assertNotEqual,
-  assertMatch: assertMatch,
-  assertNotMatch: assertNotMatch,
-  assertTrue: assertTure,
-  assertFalse: assertFalse,
-  assertThrowError: assertThrowError,
-  assertResolve: assertResolve,
-  assertReject: assertReject,
+  assertEqual,
+  assertNotEqual,
+  assertMatch,
+  assertNotMatch,
+  assertTrue,
+  assertFalse,
+  assertThrowError,
+  assertResolve,
+  assertReject,
 };

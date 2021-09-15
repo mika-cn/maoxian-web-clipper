@@ -1,55 +1,45 @@
 "use strict";
 
-import Asset       from '../lib/asset.js';
-import Task        from '../lib/task.js';
+import Asset  from '../lib/asset.js';
+import Task   from '../lib/task.js';
+import SnapshotNodeChange from '../snapshot/change.js';
 
 /*!
- * Capture Element canvas
+ * Capture SnapshotNode CANVAS
  *
- * @param {Node} node
- * @param {Object} opts
+ * @param {SnapshotNode} node
+ * @param {Object} params
  *   - {String} saveFormat
  *   - {String} clipId
  *   - {Object} storageInfo
- *   - {Document} doc
- *   - {Hash} canvasDataUrlDict
+ *   - {RequestParams} requestParams
  *
  */
 
-async function capture(node, opts) {
-  const {saveFormat, clipId, storageInfo,
-    doc, canvasDataUrlDict = {}} = opts;
+async function capture(node, {saveFormat, clipId, storageInfo, requestParams}) {
   const tasks = [];
-  if (node.getAttribute('data-mx-marker') === 'canvas-image') {
-    const dataUrl = canvasDataUrlDict[node.getAttribute('data-mx-id')];
-    const mimeTypeData = {};
-    const {filename, path} = await Asset.calcInfo({
-      link: dataUrl,
-      storageInfo: storageInfo,
-      mimeTypeData: mimeTypeData,
-      clipId: clipId,
+  const change = new SnapshotNodeChange();
+
+  if (node.dataUrl) {
+
+    const {filename, path} = await Asset.getFilenameAndPath({
+      link: node.dataUrl, mimeTypeData: {},
+      clipId, storageInfo,
     });
-    const task = Task.createImageTask(filename, dataUrl, clipId);
-    tasks.push(task);
+
+    tasks.push(Task.createImageTask(filename, node.dataUrl, clipId, requestParams));
 
     if (saveFormat === 'html') {
-      node.style.setProperty('background-image', `url(${path})`, 'important');
-      node.setAttribute('data-mx-dont-capture-style', 'true');
-      node.removeAttribute('data-mx-marker');
-      node.removeAttribute('data-mx-id');
-      return {node, tasks};
-
+      change.setStyleProperty('background-image', `url('${path}') !important`);
     } else {
-
-      const newNode = doc.createElement('img');
-      newNode.setAttribute('src', path);
-      node.parentNode.replaceChild(newNode, node);
-      return {node: newNode, tasks: tasks}
+      change.setProperty('name', 'IMG');
+      change.setAttr('src', path);
     }
   } else {
-    node.setAttribute('data-mx-ignore-me', 'true');
-    return {node, tasks};
+    // tained canvas
+    change.setAttr('data-mx-ignore-me', 'true');
   }
+  return {change, tasks};
 }
 
 export default {capture};

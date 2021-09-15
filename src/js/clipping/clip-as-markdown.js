@@ -3,8 +3,10 @@
 import T                     from '../lib/tool.js';
 import DOMTool               from '../lib/dom-tool.js';
 import Log                   from '../lib/log.js';
-import ExtMsg                from '../lib/ext-msg.js';
 import Task                  from '../lib/task.js';
+import Snapshot              from '../snapshot/snapshot.js';
+import SnapshotMaker         from '../snapshot/maker.js';
+import SnapshotNodeChange    from '../snapshot/change.js';
 import MdPluginCode          from '../lib/md-plugin-code.js';
 import MdPluginMathJax       from '../lib/md-plugin-mathjax.js';
 import MdPluginMathML2LaTeX  from '../lib/md-plugin-mathml2latex.js';
@@ -13,7 +15,6 @@ import CapturerA             from '../capturer/a.js';
 import CapturerImg           from '../capturer/img.js';
 import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
-import CapturerCustomElement from '../capturer/custom-element.js';
 
 import TurndownService from 'turndown';
 const turndownPluginGfm = require('turndown-plugin-gfm');
@@ -22,10 +23,13 @@ import Mustache from 'mustache';
 Mustache.escape = (text) => text;
 
 async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
-  Log.debug("markdown parser");
+  Log.debug("clip as markdown");
 
-  const {elemHtml, tasks} = await getElemHtml({
-    clipId       : info.clipId,
+  const {clipId} = info;
+
+  const params = {
+    saveFormat   : 'md',
+    clipId       : clipId,
     frames       : frames,
     storageInfo  : storageInfo,
     elem         : elem,
@@ -34,8 +38,31 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     config       : config,
     requestParams: requestParams,
     win          : win,
-  })
-  let markdown = generateMarkDown(elemHtml, info);
+  };
+
+  const snapshot = await takeSnapshot({elem, frames, requestParams, win});
+  const tasks = await captureAssets(snapshot, params);
+
+  console.log(snapshot);
+
+  const subHtmlHandler = async function({snapshot, subHtml, ancestorDocs}) {
+    const r = await CapturerIframe.capture(snapshot, {
+      saveFormat: 'md',
+      html: subHtml,
+      clipId,
+      storageInfo,
+    });
+    tasks.push(...r.tasks);
+    return r.change.toObject();
+  };
+
+  const elemHTML = await Snapshot.toHTML(snapshot, subHtmlHandler, {
+    shadowDomRenderMethod: 'Tree',
+  });
+
+  const html = doExtraWork({html: elemHTML, win});
+
+  let markdown = generateMarkDown(html, info);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
 
@@ -59,191 +86,97 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     console.error(e);
   }
 
-  const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName);
-  const mainFileTask = Task.createMarkdownTask(filename, markdown, info.clipId);
+  const filename = T.joinPath(storageInfo.mainFileFolder, storageInfo.mainFileName)
+  const mainFileTask = Task.createMarkdownTask(filename, markdown, clipId);
   tasks.push(mainFileTask);
 
-  return Task.changeUrlTask(tasks, (task) => {
-    task.headers = requestParams.getHeaders(task.url);
-    task.timeout = requestParams.timeout;
-    task.tries   = requestParams.tries;
-  });
+  return tasks;
 }
 
-async function getElemHtml(params){
-  const topFrameId = 0, saveFormat = 'md';
-  const {
-    clipId,
-    frames,
-    storageInfo,
-    elem,
-    baseUrl,
-    docUrl,
-    parentFrameId = topFrameId,
-    config,
-    requestParams,
-    win,
-  } = params;
-  Log.debug("getElemHtml", docUrl);
 
-  const {customElementHtmlDict, customElementTasks} = await captureCustomElements(params);
-  const canvasDataUrlDict = preprocessCanvasElements(elem);
+async function takeSnapshot({elem, frames, requestParams, win}) {
+  const topFrame = frames.find((it) => it.frameId == 0);
+  const frameInfo = {allFrames: frames, ancestors: [topFrame]}
+  const extMsgType = 'frame.clipAsMd.takeSnapshot';
+  const blacklist = {META: true, HEAD: true, LINK: true,
+    STYLE: true, SCRIPT: true, TEMPLATE: true};
 
-  const KLASS = ['mx-wc', clipId].join('-');
-  elem.classList.add('mx-wc-selected-elem');
-  elem.classList.add(KLASS);
-  DOMTool.markHiddenNode(win, elem);
-  const docHtml = win.document.documentElement.outerHTML;
-  elem.classList.remove('mx-wc-selected-elem');
-  elem.classList.remove(KLASS);
-  DOMTool.clearHiddenMark(elem);
+  let elemSnapshot = await Snapshot.take(elem, {
+    frameInfo, requestParams, win, extMsgType,
+    blacklist: blacklist,
+    shadowDom: {blacklist},
+    srcdocFrame: {blacklist},
+  });
+
+  Snapshot.appendClassName(elemSnapshot, 'mx-wc-selected');
+
+  return elemSnapshot;
+}
 
 
-  const {doc} = DOMTool.parseHTML(win, docHtml);
-  let selectedNode = doc.querySelector('.' + KLASS);
-  selectedNode.classList.remove(KLASS);
-  selectedNode = DOMTool.removeNodeByHiddenMark(selectedNode);
 
-  const {node, taskCollection} = await captureContainerNode(selectedNode,
-    Object.assign({}, params, {doc, customElementHtmlDict, canvasDataUrlDict}));
-  selectedNode = node;
+async function captureAssets(snapshot, params) {
+  const {saveFormat, baseUrl, docUrl, clipId, config, storageInfo} = params;
+  const tasks = [];
+  const ancestors = [];
+  const documentSnapshot = SnapshotMaker.getDocumentNode(docUrl, baseUrl);
+  const ancestorDocs = [documentSnapshot];
+  await Snapshot.eachElement(snapshot,
+    async(node, ancestors, ancestorDocs) => {
+      const {baseUrl, docUrl} = ancestorDocs[0];
+      let requestParams;
+      if (ancestorDocs.length == 1) {
+        requestParams = params.requestParams;
+      } else {
+        requestParams = params.requestParams.changeRefUrl(docUrl);
+      }
 
-  taskCollection.push(...customElementTasks);
+      let r = {change: new SnapshotNodeChange(), tasks: []};
+      switch(node.name) {
+        case 'IMG':
+          r = await CapturerImg.capture(node, {
+            saveFormat, baseUrl, storageInfo, clipId, requestParams
+          });
+          break;
 
+        case 'A':
+          r = await CapturerA.capture(node, {baseUrl, docUrl});
+          break;
+
+        case 'CANVAS':
+          r = await CapturerCanvas.capture(node, {
+            saveFormat, storageInfo, clipId, requestParams,
+          });
+          break;
+
+        case 'IFRAME':
+        case 'FRAME':
+          // Frame's html will be captured when serialization
+          break;
+      }
+
+      node.change = r.change.toObject();
+      tasks.push(...r.tasks);
+
+      return true;
+    },
+    ancestors,
+    ancestorDocs
+  );
+
+  return tasks;
+
+}
+
+function doExtraWork({html, win}) {
+  const r = DOMTool.parseHTML(win, `<div>${html}</div>`);
+  const doc = r.doc;
+  let selectedNode = r.node;
   selectedNode = MdPluginCode.handle(doc, selectedNode);
   selectedNode = MdPluginMathJax.handle(doc, selectedNode);
   selectedNode = MdPluginMathML2LaTeX.handle(doc, selectedNode);
 
-  let elemHtml = selectedNode.outerHTML;
-  return {elemHtml: elemHtml, tasks: taskCollection};
-}
-
-/**
- *
- * Canvas nodes can not be clone without losing it's data.
- * So we process it before we clone the whole document.
- *
- * @param {Element} contextNode
- *
- * @return {Object} dict (id => dataUrl)
- */
-function preprocessCanvasElements(contextNode) {
-  const nodes = DOMTool.querySelectorIncludeSelf(contextNode, 'canvas');
-  const dict = {};
-  [].forEach.call(nodes, (it) => {
-    try {
-      const dataUrl = it.toDataURL();
-      const id = T.createId();
-      it.setAttribute('data-mx-id', id);
-      it.setAttribute('data-mx-marker', 'canvas-image');
-      dict[id] = dataUrl;
-    } catch(e) {
-      // tained canvas etc.
-    }
-  });
-  return dict;
-}
-
-async function captureCustomElements(params) {
-  const {elem, win} = params;
-  const customElementHtmlDict = {};
-  const customElementTasks = [];
-
-  const nodeIterator = win.document.createNodeIterator(
-    elem, win.NodeFilter.SHOW_ELEMENT,
-    {
-      acceptNode: (it) => {
-        if (it.shadowRoot) {
-          return win.NodeFilter.FILTER_ACCEPT;
-        } else {
-          return win.NodeFilter.FILTER_REJECT;
-        }
-      }
-    }
-  );
-
-  let it;
-  while(it = nodeIterator.nextNode()) {
-
-    const canvasDataUrlDict = preprocessCanvasElements(it.shadowRoot);
-    DOMTool.markHiddenNode(win, it.shadowRoot);
-    const docHtml = `<mx-tmp-root>${it.shadowRoot.innerHTML}</mx-tmp-root>`;
-    DOMTool.clearHiddenMark(it);
-    const {doc, node: rootNode} = DOMTool.parseHTML(win, docHtml);
-    let node = DOMTool.removeNodeByHiddenMark(rootNode);
-    const r = await captureContainerNode(node, Object.assign({}, params, {doc, canvasDataUrlDict}));
-
-    const id = T.createId();
-    it.setAttribute('data-mx-custom-element-id', id);
-    customElementHtmlDict[id] = r.node.innerHTML;
-    customElementTasks.push(...r.taskCollection);
-  }
-  return {customElementHtmlDict, customElementTasks};
-}
-
-async function captureContainerNode(containerNode, params) {
-
-  const taskCollection = [];
-  const childNodes = containerNode.querySelectorAll('*');
-  for (let i = 0; i < childNodes.length; i++) {
-    const r = await captureNode(childNodes[i], params);
-    taskCollection.push(...r.tasks);
-  }
-
-  const r = await captureNode(containerNode, params);
-  taskCollection.push(...r.tasks);
-  containerNode = r.node;
-
-  return {node: containerNode, taskCollection: taskCollection};
-}
-
-/**
- * @return {:node, :tasks}
- */
-async function captureNode(node, params) {
-  const topFrameId = 0, saveFormat = 'md';
-  const {
-    clipId,
-    frames,
-    storageInfo,
-    canvasDataUrlDict = {},
-    customElementHtmlDict = {},
-    parentFrameId = topFrameId,
-    baseUrl,
-    docUrl,
-    config,
-    requestParams,
-    doc,
-  } = params;
-  let opts = {};
-  let r = {node: node, tasks: []}
-  switch (node.tagName.toUpperCase()) {
-    case 'IMG':
-      opts = {saveFormat, baseUrl, storageInfo, clipId, requestParams};
-      r = await CapturerImg.capture(node, opts);
-      break;
-    case 'A':
-      opts = {baseUrl, docUrl};
-      r = await CapturerA.capture(node, opts);
-      break;
-    case 'CANVAS':
-      opts = {saveFormat, storageInfo, clipId, canvasDataUrlDict, doc};
-      r = await CapturerCanvas.capture(node, opts);
-      break;
-    case 'IFRAME':
-    case 'FRAME':
-      opts = {saveFormat, baseUrl, doc, storageInfo,
-        clipId, config, parentFrameId, frames};
-      r = await CapturerIframe.capture(node, opts);
-      break;
-    default:
-      if (node.hasAttribute('data-mx-custom-element-id')) {
-        opts = {saveFormat, clipId, storageInfo, doc, customElementHtmlDict};
-        r = await CapturerCustomElement.capture(node, opts);
-      }
-      break;
-  }
-  return r;
+  return selectedNode.outerHTML;
 }
 
 function generateMarkDown(elemHtml, info){
@@ -273,4 +206,4 @@ function getTurndownService(){
   return service;
 }
 
-export default {clip, getElemHtml};
+export default {clip};

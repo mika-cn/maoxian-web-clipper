@@ -3,35 +3,38 @@
 import T     from '../lib/tool.js';
 import Asset from '../lib/asset.js';
 import Task  from '../lib/task.js';
+import SnapshotNodeChange from '../snapshot/change.js';
 
 async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, requestParams, clipId}) {
-  if (node.hasAttribute('background')) {
-    const bg = node.getAttribute('background');
+  const change = new SnapshotNodeChange();
+  const tasks = [];
+
+  if (node.attr.background) {
+    const bg = node.attr.background;
 
     if (!config.saveCssImage) {
-      node.setAttribute('data-mx-original-background', (bg || ''));
-      node.setAttribute('background', '');
-      return {node: node, tasks: []};
+      change.setAttr('data-mx-original-background', (bg || ''));
+      change.setAttr('background', '');
+      return {change, tasks};
     }
     const {isValid, url, message} = T.completeUrl(bg, baseUrl);
     if (isValid) {
       const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-      const {filename, path} = await Asset.calcInfo({
-        link: url,
-        storageInfo: storageInfo,
-        mimeTypeData: {httpMimeType},
-        clipId: clipId,
+      const {filename, path} = await Asset.getFilenameAndPath({
+        link: url, mimeTypeData: {httpMimeType},
+        clipId, storageInfo,
       });
-      const task = Task.createImageTask(filename, url, clipId);
-      node.setAttribute('background', path);
-      return {node: node, tasks: [task]};
+
+      tasks.push(Task.createImageTask(filename, url, clipId, requestParams))
+      change.setAttr('background', path);
+      return {change, tasks};
     } else {
-      node.setAttribute('data-mx-warn', message);
-      node.setAttribute('data-mx-original-background', (bg || ''));
-      node.setAttribute('background', '');
+      change.setAttr('data-mx-warn', message);
+      change.setAttr('data-mx-original-background', (bg || ''));
+      change.setAttr('background', '');
     }
   }
-  return {node: node, tasks: []}
+  return {change, tasks}
 }
 
 /**
@@ -39,14 +42,15 @@ async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, reques
  * and <source> element in <picture>
  * @return {Array} imagetasks
  */
-async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, clipId}) {
-  const srcset = node.getAttribute('srcset');
+async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, clipId }) {
+  const srcset = node.attr.srcset;
   const tasks = [];
+  const change = new SnapshotNodeChange();
   if (srcset) {
     const arr = parseSrcset(srcset);
     let attrMimeType = null;
-    if (node.tagName.toUpperCase() === 'SOURCE') {
-      attrMimeType = node.getAttribute('type');
+    if (node.name === 'SOURCE') {
+      attrMimeType = node.attr.type;
     }
     const newArr = [];
     for (let i = 0; i < arr.length; i++) {
@@ -55,26 +59,21 @@ async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, cl
       const {isValid, url, message} = T.completeUrl(itemSrc, baseUrl);
       if (isValid) {
         const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-        const {filename, path} = await Asset.calcInfo({
-          link: url,
-          storageInfo: storageInfo,
-          mimeTypeData: {
-            httpMimeType: httpMimeType,
-            attrMimeType: attrMimeType
-          },
-          clipId: clipId,
+        const {filename, path} = await Asset.getFilenameAndPath({
+          link: url, mimeTypeData: {httpMimeType, attrMimeType},
+          clipId, storageInfo,
         });
-        const task = Task.createImageTask(filename, url, clipId);
-        tasks.push(task);
+
+        tasks.push(Task.createImageTask(filename, url, clipId, requestParams));
         item[0] = path;
       } else {
         item[0] = 'invalid-url.png';
       }
       newArr.push(item.join(' '));
     }
-    node.setAttribute('srcset', newArr.join(','));
+    change.setAttr('srcset', newArr.join(','));
   }
-  return {node, tasks};
+  return {change, tasks};
 }
 
 /**

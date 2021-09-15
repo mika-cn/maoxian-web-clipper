@@ -6,6 +6,16 @@ import mime from './mime.js';
 
 const T = {};
 
+T.defineEnum = function(names, start = 1) {
+  return Object.freeze(
+    names.reduce((obj, name, index) => {
+      obj[name] = index + start;
+      return obj;
+    }, {})
+  );
+}
+
+
 T.toJsVariableName = function(str) {
   const it = T.capitalize(str);
   const [char1, rest] = [
@@ -86,6 +96,17 @@ T.sliceObj = function(obj, keys) {
   }
   return r;
 }
+
+T.mapObj = function(obj, transfer) {
+  const r = [];
+  for (let k in obj) { r.push(transfer(k, obj[k])) }
+  return r;
+}
+
+T.styleObj2Str = function(obj) {
+  return T.mapObj(obj, (k, v) => `${k}: ${v}`).join(";");
+}
+
 
 /**
  * A filter can return:
@@ -524,7 +545,7 @@ T.wrapNow = function(now) {
 T.wrapDate = function(date) {
   const tObj = {
     value  : date,
-    year   : date.getFullYear(),
+    year   : date.getFullYear(), // why the first call is so slow in node.
     sYear  : date.getFullYear() % 100,
     month  : date.getMonth() + 1,
     day    : date.getDate(),
@@ -534,6 +555,7 @@ T.wrapDate = function(date) {
     intSec : Math.floor(date/1000),
     intMs  : date / 1
   }
+
   // sYear => short year
   const s = {
     year: tObj.year.toString(),

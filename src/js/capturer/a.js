@@ -1,25 +1,26 @@
-"use strict";
 
 import T from '../lib/tool.js';
+import SnapshotNodeChange from '../snapshot/change.js';
 
 /*!
- * Capture Element <a>
+ * Capture SnapshotNode A
  */
 
-
 /**
- * @param {Object} opts
+ * @param {SnapshotNode} node
+ * @param {Object} params
  *   - {String} baseUrl
  *   - {String} docUrl
  *
  */
-function capture(node, opts) {
-  const {baseUrl, docUrl} = opts;
-  const href = node.getAttribute('href');
-  const {isValid, url, message} = T.completeUrl(href, baseUrl);
+function capture(node, {baseUrl, docUrl}) {
   const tasks = [];
+  const change = new SnapshotNodeChange();
 
+  const href = node.attr.href;
+  const {isValid, url, message} = T.completeUrl(href, baseUrl);
   let newHref = href;
+
   if (isValid) {
     if (url.toLowerCase().startsWith('javascript:')) {
       newHref = 'javascript:';
@@ -27,20 +28,20 @@ function capture(node, opts) {
       newHref = T.url2Anchor(url, docUrl);
     }
   } else {
-    node.setAttribute('data-mx-warn', message);
-    return {node, tasks};
+    change.setAttr('data-mx-warn', message);
+    return {change, tasks};
   }
 
-  node.setAttribute('href', newHref);
-  node.removeAttribute('ping');
+  change.setAttr('href', newHref);
+  change.rmAttr('ping');
 
   if (!newHref.match(/^#/)) {
     // not anchor link (fragment link)
-    node.setAttribute('target', '_blank');
-    node.setAttribute('referrerpolicy', 'no-referrer');
-    node.setAttribute('rel', 'noopener noreferrer');
+    change.setAttr('target', '_blank');
+    change.setAttr('referrerpolicy', 'no-referrer');
+    change.setAttr('rel', 'noopener noreferrer');
   }
-  return {node, tasks};
+  return {change, tasks};
 }
 
 export default {capture};

@@ -96,17 +96,21 @@ function getFilename({storageInfo, assetName}) {
   return T.joinPath(storageInfo.assetFolder, assetName);
 }
 
-function getPath({storageInfo, assetName}) {
-  if (storageInfo.assetRelativePath === '') {
-    return assetName;
-  } else {
-    return [storageInfo.assetRelativePath, assetName].join('/');
-  }
-}
+/*
+ * @param {Object} params
+ *   - {String} link
+ *   - {String} extension
+ *   - {Object} mimeTypeData
+ *   - {Object} storageInfo
+ *   - {String} clipId
+ *
+ * @return {Object} {:filename, :path}
+ */
+async function getFilenameAndPath(params) {
 
-async function calcInfo(params) {
   const {link, storageInfo, extension = null,
     mimeTypeData = {}, clipId} = params;
+
   const name = getNameByLink({
     template: storageInfo.raw.assetFileName,
     link: link,
@@ -122,10 +126,9 @@ async function calcInfo(params) {
     filename: name
   });
 
-  return {
-    filename: getFilename({storageInfo, assetName}),
-    path: getPath({storageInfo, assetName})
-  }
+  const filename = T.joinPath(storageInfo.assetFolder, assetName);
+  const path = T.calcPath(storageInfo.mainFileFolder, filename);
+  return {filename, path}
 }
 
 
@@ -168,6 +171,5 @@ export default {
   getNameByContent,
   getUniqueName,
   getFilename,
-  getPath,
-  calcInfo,
+  getFilenameAndPath,
 }

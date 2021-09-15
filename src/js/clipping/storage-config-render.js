@@ -14,7 +14,7 @@ import VariableRender from '../lib/variable-render.js'
  *   - {String} category
  *   - {FilenameConflictResolver} nameConflictResolver
  *
- * @return storageInfo
+ * @return {storageInfo, nameConflictResolver}
  */
 function exec({storageConfig: config, now, domain,
   format, title, category: originalCategory, nameConflictResolver}) {

@@ -4,15 +4,11 @@ import T           from '../lib/tool.js';
 import Asset       from '../lib/asset.js';
 import Task        from '../lib/task.js';
 import CaptureTool from './tool.js';
-
-/*!
- * Capture Element <img>
- */
-
+import SnapshotNodeChange from '../snapshot/change.js';
 
 /**
  *
- * @param {Object} opts
+ * @param {Object} params
  *   - {String} saveFormat
  *   - {String} baseUrl
  *   - {String} clipId
@@ -20,42 +16,40 @@ import CaptureTool from './tool.js';
  *   - {Object} requestParams
  *
  */
-async function capture(node, opts) {
-  const {saveFormat, baseUrl, clipId, storageInfo, requestParams} = opts;
+async function capture(node, params) {
+  const {saveFormat, baseUrl, clipId, storageInfo, requestParams} = params;
   const tasks = [];
+  const change = new SnapshotNodeChange();
 
-  node.removeAttribute('crossorigin');
+  change.rmAttr('crossorigin');
   // referrerpolicy attribute
 
   // handle src
-  const src = node.getAttribute('src');
+  const src = node.attr.src;
   const {isValid, url, message} = T.completeUrl(src, baseUrl);
   if (isValid) {
     const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-
-    const {filename, path} = await Asset.calcInfo({
-      link: url,
-      storageInfo: storageInfo,
-      mimeTypeData: {httpMimeType},
-      clipId: clipId,
+    const {filename, path} = await Asset.getFilenameAndPath({
+      link: url, mimeTypeData: {httpMimeType},
+      clipId, storageInfo,
     });
-    const task = Task.createImageTask(filename, url, clipId);
-    node.setAttribute('src', path);
-    tasks.push(task);
+
+    tasks.push(Task.createImageTask(filename, url, clipId, requestParams));
+    change.setAttr('src', path);
   } else {
-    node.setAttribute('data-mx-warn', message);
-    node.setAttribute('data-mx-original-src', (src || ''));
-    node.setAttribute('src', 'invalid-url.png');
+    change.setAttr('data-mx-warn', message);
+    change.setAttr('data-mx-original-src', (src || ''));
+    change.setAttr('src', 'invalid-url.png');
   }
 
   // handle srcset
   if (saveFormat === 'html') {
-    const r = await CaptureTool.captureImageSrcset(node, opts);
-    node = r.node;
+    const r = await CaptureTool.captureImageSrcset(node, params);
     tasks.push(...r.tasks);
+    return {change: change.merge(r.change), tasks};
   }
 
-  return {node, tasks};
+  return {change, tasks};
 }
 
 export default {capture};

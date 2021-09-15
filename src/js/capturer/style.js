@@ -1,42 +1,46 @@
 "use strict";
 
-import CapturerCss from './css.js';
+import CapturerStyleSheet from './stylesheet.js';
+import SnapshotNodeChange from '../snapshot/change.js';
+import {NODE_TYPE} from '../lib/constants.js';
 
 /*!
  * Capture Element <style>
  */
 
 /**
- * @param {Object} opts
+ * @param {Object} params
  *   - {String} baseUrl
  *   - {String} docUrl
  *   - {Object} storageInfo
  *   - {String} clipId
- *   - {Object} cssRulesDict
  *   - {Object} config
  *   - {Object} requestParams
  *   - {Boolean} needFixStyle
  *
  */
-async function capture(node, opts) {
-  node.removeAttribute('nonce');
-  let text = '';
-  if (node.getAttribute('data-mx-marker') === 'css-rules') {
-    const cssRules = opts.cssRulesDict[node.getAttribute('data-mx-id')];
-    if (cssRules) {
-      const cssText = [].map.call(cssRules, (it) => {
-        return it.cssText
-      }).join("\n");
-      text = `\n${cssText}\n`;
+async function capture(node, params) {
+  const change = new SnapshotNodeChange();
+  change.rmAttr('nonce');
+  if (node.sheet && node.sheet.rules.length > 0) {
+    const {needFixStyle} = params;
+    const r = await CapturerStyleSheet.captureStyleSheet(node.sheet, Object.assign({ownerType: 'styleNode'}, params));
+    const cssText = (needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
+
+    if (!node.childNodes) { node.childNodes = [] }
+    if (node.childNodes.length == 0) {
+      node.childNodes.push({
+        type: NODE_TYPE.TEXT,
+        name: '#text',
+        text: cssText
+      });
+    } else {
+      node.childNodes[0].text = cssText;
     }
-    node.removeAttribute('data-mx-marker');
-    node.removeAttribute('data-mx-id');
+    return {change, tasks: r.tasks};
   } else {
-    text = node.textContent;
+    return {change, tasks: []};
   }
-  const {cssText, tasks} = await CapturerCss.captureText(Object.assign({ text: text }, opts));
-  node.textContent = cssText;
-  return {node, tasks};
 }
 
 export default {capture};
