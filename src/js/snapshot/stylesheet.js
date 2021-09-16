@@ -41,8 +41,16 @@ async function handleStyleSheet(sheet, params) {
   }
 
   const snapshot = T.sliceObj(sheet, ['href', 'disabled', 'title']);
-  snapshot.mediaText = sheet.media.mediaText;
-  snapshot.mediaList = mediaList2Array(sheet.media);
+  try {
+    snapshot.mediaText = sheet.media.mediaText;
+    snapshot.mediaList = mediaList2Array(sheet.media);
+  } catch(e) {
+    // permission denied to access property "mediaText"
+    // @ https://bugzilla.mozilla.org/show_bug.cgi?id=1673199
+    snapshot.mediaText = 'all';
+    snapshot.mediaList = ['all'];
+  }
+
 
   const sheetInfo = {accessDenied: false, url: sheet.href, rules: []}
 
@@ -149,14 +157,19 @@ async function handleCssRule(rule, params) {
 
     case CSSRULE_TYPE.STYLE:
     case CSSRULE_TYPE.PAGE:
-      r.selectorText = rule.selectorText;
+      r.selectorText = (rule.selectorText || "");
       r.styleObj = CssTextParser.parse(rule.style.cssText);
       break;
 
     case CSSRULE_TYPE.IMPORT:
       r.href = rule.href;
-      r.mediaText = rule.media.mediaText;
-      r.mediaList = mediaList2Array(rule.media);
+      try {
+        r.mediaText = rule.media.mediaText;
+        r.mediaList = mediaList2Array(rule.media);
+      } catch(e) {
+        r.mediaText = 'all';
+        r.mediaList = ['all'];
+      }
       // when circular, chrome will set sheet to null, but firefox
       // will still has stylesheet property with cssRules an empty list.
       if (!rule.styleSheet) {
@@ -181,7 +194,7 @@ async function handleCssRule(rule, params) {
 
     case CSSRULE_TYPE.MEDIA:
     case CSSRULE_TYPE.SUPPORTS:
-      r.conditionText = rule.conditionText;
+      r.conditionText = (rule.conditionText || "");
       r.rules = await handleCssRules(rule.cssRules, params);
       break;
 
@@ -290,7 +303,7 @@ async function rule2String(rule, params) {
 
     case CSSRULE_TYPE.PAGE:
       cssText = await styleObj2String(rule.styleObj, params);
-      return `@page${padIfNotEmpty(rule.selectorText)} {\n${cssText}}`;
+      return `@page${padIfNotEmpty(rule.selectorText)} {\n${cssText}\n}`;
 
     case CSSRULE_TYPE.IMPORT:
       if (rule.circular) {
@@ -363,7 +376,7 @@ async function rule2String(rule, params) {
   }
 }
 
-const padIfNotEmpty = (str) => str.length > 0 ? ' ' + str : '';
+const padIfNotEmpty = (str) => str && str.length > 0 ? ' ' + str : '';
 
 
 
