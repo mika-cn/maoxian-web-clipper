@@ -39,7 +39,8 @@ const FRAME_URL = {
  */
 async function takeSnapshot(node, params) {
 
-  const {win, frameInfo, requestParams, extMsgType,
+  const defaultAncestorInfo = {codeAncestor: false, preAncestor: false};
+  const {win, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
     blacklist = {}, ignoreFn, ignoreHiddenElement = true} = params;
 
   const snapshot = {name: node.nodeName, type: node.nodeType};
@@ -119,6 +120,14 @@ async function takeSnapshot(node, params) {
           } catch(e) {
             // tained canvas etc.
           }
+          break;
+
+        case 'CODE':
+        case 'PRE':
+          const key = `${node.nodeName.toLowerCase()}Ancestor`;
+          const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
+          const newParams = Object.assign({}, params, {ancestorInfo: newAncestorInfo});
+          snapshot.childNodes = await handleNodes(node.childNodes, newParams);
           break;
 
         case 'TEMPLATE':
@@ -257,6 +266,12 @@ async function takeSnapshot(node, params) {
       break;
 
     case NODE_TYPE.TEXT:
+      snapshot.text = node.data;
+      if (ancestorInfo.codeAncestor || ancestorInfo.preAncestor) {
+        snapshot.needEscape = true;
+      }
+      break;
+
     case NODE_TYPE.COMMENT:
       snapshot.text = node.data;
       break;
@@ -541,6 +556,7 @@ class SnapshotAccessor {
       'isShadowRoot',
       'render',
       'errorMessage',
+      'needEscape',
       'text',
       'html',
     ]);
@@ -671,9 +687,10 @@ async function toHTML(snapshot, subHtmlHandler, params = {}) {
       } else {
         return `<${it.tagName}${it.getAttrHTML()}>${content}</${it.tagName}>`
       }
+
     case NODE_TYPE.TEXT:
-      return it.text;
-      break;
+      return it.needEscape && escapeText(it.text) || it.text;
+
     case NODE_TYPE.PROCESSING_INSTRUCTION:
       break;
     case NODE_TYPE.COMMENT:
@@ -765,6 +782,16 @@ function getAssignedNodes(shadowRootSnapshot) {
   }
   // console.log("~>", assignedNodes);
   return assignedNodes;
+}
+
+function escapeText(text) {
+  return (text || "").replace(/[&<>]/g, function (s) {
+    return ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+    })[s];
+  });
 }
 
 // ================================================
