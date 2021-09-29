@@ -8,12 +8,23 @@ import mdPlugin from '../../src/js/lib/md-plugin-code.js';
 
 describe('MdPluginCode', () => {
 
-  it('fix linebreak (convert <br> to linebreak)', () => {
-    const html = `<pre>code<br />text</pre>`;
-    const {doc, node: contextNode} = DOMTool.parseHTML(win, html);
-    const node = mdPlugin.handle(doc, contextNode);
-    H.assertMatch(node.textContent, /^code\ntext$/);
-  });
+  function testFixLineBreaker(html, resultRe) {
+    it('fix linebreak (convert <br> to linebreak): ' + html, () => {
+      const {doc, node: contextNode} = DOMTool.parseHTML(win, html);
+      const node = mdPlugin.handle(doc, contextNode);
+      H.assertMatch(node.textContent, resultRe);
+    });
+  }
+
+
+  {
+    const resultRe = /^code\ntext$/;
+    testFixLineBreaker(`<pre>code<br>text</pre>`, resultRe);
+    testFixLineBreaker(`<pre>code<br />text</pre>`, resultRe);
+    testFixLineBreaker(`<pre>code<br class="x">text</pre>`, resultRe);
+  }
+
+
 
 
   function testGetLanguage(html, language) {

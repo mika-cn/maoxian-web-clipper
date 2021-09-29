@@ -512,7 +512,10 @@ function allChildrenAreAlike(node) {
 
 function fixLineBreak(node) {
   // convert <br> to "\n"
-  node.innerHTML = node.innerHTML.replace(/<br\s{0,1}\/{0,1}>/img, "\n");
+  const brNodes = node.querySelectorAll('br');
+  [].forEach.call(brNodes, (brNode) => {
+    brNode.parentNode.replaceChild(brNode.ownerDocument.createTextNode("\n"), brNode);
+  });
   return node;
 }
 
