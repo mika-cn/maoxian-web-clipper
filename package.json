@@ -8,7 +8,7 @@
     "dev-firefox": "web-ext run --target firefox-desktop --source-dir dist/extension/maoxian-web-clipper",
     "dev-chromium-lazy": "web-ext run --no-reload --target chromium --source-dir dist/extension/maoxian-web-clipper",
     "dev-firefox-lazy": "web-ext run --no-reload --target firefox-desktop --source-dir dist/extension/maoxian-web-clipper",
-    "build-chrome": "cross-env NODE_ENV=production MX_PLATFORM=chrome MX_PLATFORM_ID=$MX_CHROME_ID webpack --mode=production --progress",
+    "build-chrome": "cross-env NODE_ENV=production MX_PLATFORM=chrome MX_PLATFORM_ID=$MX_CHROME_ID MX_PLATFORM_UPDATE_URL=$MX_CHROME_UPDATE_URL webpack --mode=production --progress",
     "build-firefox": "cross-env NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID webpack --mode=production --progress",
     "build-all": "npm run build-chrome && npm run build-firefox",
     "build-test": "cross-env NODE_ENV=production webpack --mode=production --progress",
