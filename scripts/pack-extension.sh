@@ -26,10 +26,16 @@ if [ "$MX_CHROME_ID" = "" ]; then
   exit 1
 fi
 
+if [ "$MX_CHROME_UPDATE_URL" = "" ]; then
+  echo "Environment variable MX_CHROME_UPDATE_URL is empty"
+  exit 1
+fi
+
 if [ "$MX_FIREFOX_ID" = "" ]; then
   echo "Environment variable MX_FIREFOX_ID is empty"
   exit 1
 fi
+
 
 npm run build-all
 
