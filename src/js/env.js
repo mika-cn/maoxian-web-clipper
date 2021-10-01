@@ -8,7 +8,7 @@ const env = {
   isDev: true,
   logLevel: "debug",
   version: '0.1.83',
-  minNativeAppVersion: '0.2.2',
+  minNativeAppVersion: '0.2.8',
   websiteRoot: websiteRoot,
   projectRoot: projectRoot,
   mxAssistantRoot: mxAssistantRoot,
