@@ -25,7 +25,6 @@ That's it, Not bored registration, Not charged.
 ## Install
 
 * Firefox - [https://addons.mozilla.org/en-US/firefox/addon/maoxian-web-clipper/](https://addons.mozilla.org/en-US/firefox/addon/maoxian-web-clipper/)
-* Chrome - [https://chrome.google.com/webstore/detail/maoxian-web-clipper/kjahokgdcbohofgdidndeiaigkehdjdc](https://chrome.google.com/webstore/detail/maoxian-web-clipper/kjahokgdcbohofgdidndeiaigkehdjdc)
 * Chrome - [install by crx](https://mika-cn.github.io/maoxian-web-clipper/chrome-install-by-crx.html)
 
 
@@ -36,6 +35,7 @@ Thanks to these awesome libraries for making MaoXian's development become easier
 * [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
 * [JavaScript-MD5](https://github.com/blueimp/JavaScript-MD5)
 * [i18njs](http://i18njs.com/)
+* [mustache.js](http://github.com/janl/mustache.js)
 * [turndown](https://github.com/domchristie/turndown)
 * [turndown-plugin-gfw](https://github.com/domchristie/turndown-plugin-gfm)
 * [mathml2latex](https://github.com/mika-cn/mathml2latex)
