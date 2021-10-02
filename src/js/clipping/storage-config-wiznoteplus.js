@@ -4,7 +4,7 @@
 //==========================================
 
 function get({config}) {
-  const saveFolder = "$TIME-INTSEC";
+  const saveFolder = Math.floor(Date.now()/1000).toString();
 
   const defaultConfig = {
     rootFolder: config.rootFolder,
