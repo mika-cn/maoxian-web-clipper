@@ -50,7 +50,7 @@ function exec({storageConfig: config, now, domain,
   storageInfo.valueObj = {now};
 
   // ====================================
-  // render folder
+  // render folders
   // ====================================
   storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
@@ -87,16 +87,13 @@ function exec({storageConfig: config, now, domain,
 
 
   // ====================================
-  // render filename and relative path
+  // render filenames
   // ====================================
 
   const mainFileName = VariableRender.exec(config.mainFileName,
     filenameValueHash, VariableRender.FilenameVariables);
   storageInfo.mainFileName = nameConflictResolver.resolveFile('__mainFileName__', storageInfo.mainFileFolder, mainFileName);
 
-  storageInfo.assetRelativePath = T.calcPath(
-    storageInfo.mainFileFolder, storageInfo.assetFolder
-  );
   storageInfo.raw.assetFileName = config.assetFileName;
 
   if (config.saveInfoFile) {
