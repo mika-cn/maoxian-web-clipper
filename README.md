@@ -25,7 +25,7 @@ That's it, Not bored registration, Not charged.
 ## Install
 
 * Firefox - [https://addons.mozilla.org/en-US/firefox/addon/maoxian-web-clipper/](https://addons.mozilla.org/en-US/firefox/addon/maoxian-web-clipper/)
-* Chrome - [install by crx](https://mika-cn.github.io/maoxian-web-clipper/chrome-install-by-crx.html)
+* Chrome - [install by crx](https://mika-cn.github.io/maoxian-web-clipper/install-by-extension-file.html)
 
 
 ## Third party library

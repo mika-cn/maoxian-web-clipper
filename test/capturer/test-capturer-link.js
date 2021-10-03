@@ -30,7 +30,6 @@ function getParams() {
     storageInfo: {
       mainFileFolder: 'category-a/clippings',
       assetFolder: 'category-a/clippings/assets',
-      assetRelativePath: 'assets',
       raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
       valueObj: {now: Date.now()},
     },

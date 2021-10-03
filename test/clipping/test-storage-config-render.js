@@ -15,7 +15,6 @@ describe("StorageConfigRender", () => {
 
   it('storageConfig: wizNotePlus', () => {
     const storageConfig = StorageConfigWizNotePlus.get({config: Config.getDefault()});
-    console.log(storageConfig);
     assertStorageConfigHasRequiredAttrs(storageConfig);
   });
 
@@ -38,6 +37,32 @@ describe("StorageConfigRender", () => {
     H.assertTrue(it.hasOwnProperty('assetFileName'));
     H.assertTrue(it.hasOwnProperty('frameFileFolder'));
     H.assertTrue(it.hasOwnProperty('frameFileName'));
+  }
+
+
+  it('should render Saving Folder variables', () => {
+    const SavingFolderKeys = [
+      'mainFileFolder',
+      'infoFileFolder',
+      'titleFileFolder',
+      'frameFileFolder',
+      'assetFolder'
+    ];
+    const timeVariables = ['$YYYY', '$YY', '$MM', '$DD', '$HH', '$mm', '$SS', '$TIME-INTSEC'];
+    const pathVariables = ['$ROOT-FOLDER', '$CATEGORY-FOLDER', '$CLIPPING-FOLDER'];
+    const variables = [...timeVariables, ...pathVariables, '$DOMAIN'];
+    SavingFolderKeys.forEach((key) => {
+      assetRenderSavingFolderVariables(key, variables);
+    });
+  });
+
+  function assetRenderSavingFolderVariables(storageConfigKey, variables) {
+    const params = getParams();
+    variables.forEach((variable) => {
+      params.storageConfig[storageConfigKey] = variable;
+      const {storageInfo} = Render.exec(params);
+      H.assertNotEqual(storageInfo[storageConfigKey], variable);
+    });
   }
 
   it('should save title as filename', () => {
@@ -91,7 +116,6 @@ describe("StorageConfigRender", () => {
     const {storageInfo} = Render.exec(params);
     H.assertEqual(clearPath(storageInfo.assetFolder),
       'mx-wc/test/CLIPPING-FOLDER/static');
-    H.assertEqual(storageInfo.assetRelativePath, 'static');
   });
 
   it('config.assetFolder: $CATEGORY-PATH/static', () => {
@@ -100,7 +124,6 @@ describe("StorageConfigRender", () => {
     const {storageInfo} = Render.exec(params);
     H.assertEqual(storageInfo.assetFolder,
       'mx-wc/test/static');
-    H.assertEqual(storageInfo.assetRelativePath, '../static');
   });
 
   it('config.assetFolder: $STORAGE-PATH/static', () => {
@@ -108,7 +131,6 @@ describe("StorageConfigRender", () => {
     params.storageConfig.assetFolder = "$STORAGE-PATH/static";
     const {storageInfo} = Render.exec(params);
     H.assertEqual(storageInfo.assetFolder, 'mx-wc/static');
-    H.assertEqual(storageInfo.assetRelativePath, '../../static');
   });
 
   it('config.assetFolder: empty string', () => {
@@ -117,7 +139,6 @@ describe("StorageConfigRender", () => {
     const {storageInfo} = Render.exec(params);
     H.assertEqual(clearPath(storageInfo.assetFolder),
       'mx-wc/test/CLIPPING-FOLDER/assets');
-    H.assertEqual(storageInfo.assetRelativePath, 'assets');
   });
 
 
