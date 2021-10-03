@@ -62,7 +62,7 @@
     "title.path": "Path",
     "path-intro.format": "Format: ",
     "path.download": "download path",
-    "path.filename": "filename of main file",
+    "path.filename": "filename",
     "folder.root": "root folder",
     "folder.category": "category folder",
     "folder.clipping": "clipping folder",
@@ -71,12 +71,16 @@
     "help.avariable-variable": "Variables",
 
     // variables that used in path, folder, filename
-    "variable-in-folder": "Variables below can be used in saving folder",
-    "variable-in-filename": "Variables below can be used in filename",
+    "variable-in-folder": "Belowing variables can be used in Saving Folder",
+    "variable-in-filename": "Belowing variables can be used in Filename",
+    "variable-in-folder-and-filename": "Belowing variables can be used in both Saving folder and Filename",
     "variable-intro": "<strong>Avariable variables are:</strong>",
-    "variable.storage-path": '$STORAGE-PATH =&gt; <code>download path</code> / <code>root folder</code>',
-    "variable.category-path": '$CATEGORY-PATH =&gt; <code>download path</code> / <code> root folder</code> / <code>category folder</code>',
-    "variable.clipping-path": '$CLIPPING-PATH =&gt; <code>download path</code> / <code>root folder</code> / <code>category folder</code> / <code>clipping folder</code>',
+    "variable.storage-path"    : '<pre>$STORAGE-PATH    => <code>root folder</code></pre>',
+    "variable.category-path"   : '<pre>$CATEGORY-PATH   => <code>root folder</code> / <code>category folder</code></pre>',
+    "variable.clipping-path"   : '<pre>$CLIPPING-PATH   => <code>root folder</code> / <code>category folder</code> / <code>clipping folder</code></pre>',
+    "variable.root-folder"     : '<pre>$ROOT-FOLDER     => <code>root folder</code></pre>',
+    "variable.category-folder" : '<pre>$CATEGORY-FOLDER => <code>category folder</code></pre>',
+    "variable.clipping-folder" : '<pre>$CLIPPING-FOLDER => <code>clipping folder</code></pre>',
 
     "variable.none": "<pre>$NONE => empty value (not category)</pre>",
     "variable.title": "<pre>$TITLE  => title </pre>",
@@ -121,8 +125,8 @@
 
 
     "path.download.intro": "download path： Download location of your browser, If you use NativeApp to save clipping file, this path is the value of \"data_dir\" in configure file (config.yaml) of NativeApp.",
-    "path.filename.intro": "filename of main file： The filename of main file (entry file), default is <code>index.html</code> or <code>index.md</code>.",
-    "folder.root.intro": "root folder： This is the storage root, all clipping files will storage under this folder.",
+    "path.filename.intro": "filename： The filename of downloaded file, such as <code>index.html</code>.",
+    "folder.root.intro": "root folder： It was designed to use as storage entry, all clipped files will storage under this folder. When you configure each file's Saving Folder, make sure you contains it.",
     "folder.category.intro": "category folder: This part is used to category your clippings. It's value depends on what you input in saving form. Let's assume your input value is <code>news/sports</code>, then extension will create a folder named <code>news</code> and a subfolder named <code>sports</code>.",
     "folder.clipping.intro": "clipping folder： MaoXian can create a clipping folder in every clipping, and saves clipping files inside it.",
 

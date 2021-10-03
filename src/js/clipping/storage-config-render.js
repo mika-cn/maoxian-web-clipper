@@ -22,20 +22,24 @@ function exec({storageConfig: config, now, domain,
   const filenameValueHash = {now, title, format, domain};
 
   // folder and path
+  const rootFolder = config.rootFolder;
   const storagePath = config.rootFolder;
   const category = dealCategory(config, originalCategory, now, domain);
+  const categoryFolder = category;
   const categoryPath = dealCategoryPath(config, originalCategory, now, domain, storagePath);
 
-  let pathValueHash = {storagePath, categoryPath};
-  let pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH'];
+  let pathValueHash = {storagePath, categoryPath, rootFolder, categoryFolder};
+  let pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH', '$ROOT-FOLDER', '$CATEGORY-FOLDER'];
 
   let clippingPath = "clippingFolderName-not-specified";
   if (config.clippingFolderName) {
-    const clippingFolderName = VariableRender.exec(config.clippingFolderName,
+    const clippingFolder = VariableRender.exec(config.clippingFolderName,
       filenameValueHash, VariableRender.FilenameVariables);
-    clippingPath = T.joinPath(categoryPath, clippingFolderName);
+    clippingPath = T.joinPath(categoryPath, clippingFolder);
 
-    pathValueHash['clippingPath'] = clippingPath;
+    pathValueHash.clippingFolder = clippingFolder;
+    pathValueHash.clippingPath = clippingPath;
+    pathVariables.push('$CLIPPING-FOLDER');
     pathVariables.push('$CLIPPING-PATH');
   } else {
     // 3rd party don't need clippingPath
@@ -50,36 +54,39 @@ function exec({storageConfig: config, now, domain,
   storageInfo.valueObj = {now};
 
   // ====================================
-  // render folder
+  // render folders
   // ====================================
+  const savingFolderVariables = [...pathVariables, ...VariableRender.TimeVariables, '$DOMAIN'];
+  const savingFolderValueHash = Object.assign({now, domain}, pathValueHash);
+
   storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
-    pathValueHash, pathVariables);
+    savingFolderValueHash, savingFolderVariables);
   nameConflictResolver.addFolder(storageInfo.mainFileFolder);
 
   storageInfo.assetFolder= VariableRender.exec(
     fixPathVariable(config.assetFolder, 'assetFolder'),
-    pathValueHash, pathVariables);
+    savingFolderValueHash, savingFolderVariables);
   nameConflictResolver.addFolder(storageInfo.assetFolder);
 
   if (config.saveInfoFile) {
     storageInfo.infoFileFolder = VariableRender.exec(
       fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
-      pathValueHash, pathVariables);
+      savingFolderValueHash, savingFolderVariables);
     nameConflictResolver.addFolder(storageInfo.infoFileFolder);
   }
 
   if (config.saveTitleFile) {
     storageInfo.titleFileFolder= VariableRender.exec(
       fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
-      pathValueHash, pathVariables);
+      savingFolderValueHash, savingFolderVariables);
     nameConflictResolver.addFolder(storageInfo.titleFileFolder);
   }
 
   if (format === 'html') {
     storageInfo.frameFileFolder = VariableRender.exec(
       fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
-      pathValueHash, pathVariables);
+      savingFolderValueHash, savingFolderVariables);
     nameConflictResolver.addFolder(storageInfo.frameFileFolder);
   } else {
     // md don't need to store frame files
@@ -87,16 +94,13 @@ function exec({storageConfig: config, now, domain,
 
 
   // ====================================
-  // render filename and relative path
+  // render filenames
   // ====================================
 
   const mainFileName = VariableRender.exec(config.mainFileName,
     filenameValueHash, VariableRender.FilenameVariables);
   storageInfo.mainFileName = nameConflictResolver.resolveFile('__mainFileName__', storageInfo.mainFileFolder, mainFileName);
 
-  storageInfo.assetRelativePath = T.calcPath(
-    storageInfo.mainFileFolder, storageInfo.assetFolder
-  );
   storageInfo.raw.assetFileName = config.assetFileName;
 
   if (config.saveInfoFile) {
