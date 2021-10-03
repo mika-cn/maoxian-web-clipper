@@ -73,6 +73,7 @@
     // variables that used in path, folder, filename
     "variable-in-folder": "以下变量可用于存储目录",
     "variable-in-filename": "以下变量可用于文件名",
+    "variable-in-folder-and-filename": "以下变量可用于存储目录和文件名",
     "variable.storage-path": '$STORAGE-PATH 等同于： <code>下载路径</code> / <code>根目录</code>',
     "variable.category-path": '$CATEGORY-PATH 等同于： <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code>',
     "variable.clipping-path": '$CLIPPING-PATH 等同于： <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code> / <code> 裁剪目录</code>',

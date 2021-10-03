@@ -71,8 +71,9 @@
     "help.avariable-variable": "Variables",
 
     // variables that used in path, folder, filename
-    "variable-in-folder": "Variables below can be used in saving folder",
-    "variable-in-filename": "Variables below can be used in filename",
+    "variable-in-folder": "Belowing variables can be used in Saving Folder",
+    "variable-in-filename": "Belowing variables can be used in Filename",
+    "variable-in-folder-and-filename": "Belowing variables can be used in both Saving folder and Filename",
     "variable-intro": "<strong>Avariable variables are:</strong>",
     "variable.storage-path": '$STORAGE-PATH =&gt; <code>download path</code> / <code>root folder</code>',
     "variable.category-path": '$CATEGORY-PATH =&gt; <code>download path</code> / <code> root folder</code> / <code>category folder</code>',

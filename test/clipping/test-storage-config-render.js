@@ -40,6 +40,37 @@ describe("StorageConfigRender", () => {
     H.assertTrue(it.hasOwnProperty('frameFileName'));
   }
 
+  it('should render Saving Folder time variables', () => {
+    [
+      'mainFileFolder',
+      'infoFileFolder',
+      'titleFileFolder',
+      'frameFileFolder',
+      'assetFolder'
+    ].forEach(assetRenderSavingFolderTimeVariables);
+  });
+
+
+  function assetRenderSavingFolderTimeVariables(storageConfigKey) {
+    const items = [
+      ['$YYYY', 'year'],
+      ['$YY', 'sYear'],
+      ['$MM', 'month'],
+      ['$DD', 'day'],
+      ['$HH', 'hour'],
+      ['$mm', 'minute'],
+      ['$SS', 'second'],
+      ['$TIME-INTSEC', 'intSec'],
+    ]
+    items.forEach(([timeVariable, timeObjAttr]) => {
+      const params = getParams();
+      params.storageConfig[storageConfigKey] = timeVariable;
+      const {storageInfo} = Render.exec(params);
+      const tObj = T.wrapNow(params.now);
+      H.assertEqual(storageInfo[storageConfigKey], tObj.str[timeObjAttr]);
+    });
+  }
+
   it('should save title as filename', () => {
     const params = getParams();
     params.storageConfig.mainFileName = '$TITLE.$FORMAT';

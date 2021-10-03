@@ -52,34 +52,36 @@ function exec({storageConfig: config, now, domain,
   // ====================================
   // render folders
   // ====================================
+  const savingFolderVariables = [...pathVariables, ...VariableRender.TimeVariables];
+  const savingFolderValueHash = Object.assign({now}, pathValueHash);
   storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
-    pathValueHash, pathVariables);
+    savingFolderValueHash, savingFolderVariables);
   nameConflictResolver.addFolder(storageInfo.mainFileFolder);
 
   storageInfo.assetFolder= VariableRender.exec(
     fixPathVariable(config.assetFolder, 'assetFolder'),
-    pathValueHash, pathVariables);
+    savingFolderValueHash, savingFolderVariables);
   nameConflictResolver.addFolder(storageInfo.assetFolder);
 
   if (config.saveInfoFile) {
     storageInfo.infoFileFolder = VariableRender.exec(
       fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
-      pathValueHash, pathVariables);
+      savingFolderValueHash, savingFolderVariables);
     nameConflictResolver.addFolder(storageInfo.infoFileFolder);
   }
 
   if (config.saveTitleFile) {
     storageInfo.titleFileFolder= VariableRender.exec(
       fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
-      pathValueHash, pathVariables);
+      savingFolderValueHash, savingFolderVariables);
     nameConflictResolver.addFolder(storageInfo.titleFileFolder);
   }
 
   if (format === 'html') {
     storageInfo.frameFileFolder = VariableRender.exec(
       fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
-      pathValueHash, pathVariables);
+      savingFolderValueHash, savingFolderVariables);
     nameConflictResolver.addFolder(storageInfo.frameFileFolder);
   } else {
     // md don't need to store frame files
