@@ -22,20 +22,24 @@ function exec({storageConfig: config, now, domain,
   const filenameValueHash = {now, title, format, domain};
 
   // folder and path
+  const rootFolder = config.rootFolder;
   const storagePath = config.rootFolder;
   const category = dealCategory(config, originalCategory, now, domain);
+  const categoryFolder = category;
   const categoryPath = dealCategoryPath(config, originalCategory, now, domain, storagePath);
 
-  let pathValueHash = {storagePath, categoryPath};
-  let pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH'];
+  let pathValueHash = {storagePath, categoryPath, rootFolder, categoryFolder};
+  let pathVariables = ['$STORAGE-PATH', '$CATEGORY-PATH', '$ROOT-FOLDER', '$CATEGORY-FOLDER'];
 
   let clippingPath = "clippingFolderName-not-specified";
   if (config.clippingFolderName) {
-    const clippingFolderName = VariableRender.exec(config.clippingFolderName,
+    const clippingFolder = VariableRender.exec(config.clippingFolderName,
       filenameValueHash, VariableRender.FilenameVariables);
-    clippingPath = T.joinPath(categoryPath, clippingFolderName);
+    clippingPath = T.joinPath(categoryPath, clippingFolder);
 
-    pathValueHash['clippingPath'] = clippingPath;
+    pathValueHash.clippingFolder = clippingFolder;
+    pathValueHash.clippingPath = clippingPath;
+    pathVariables.push('$CLIPPING-FOLDER');
     pathVariables.push('$CLIPPING-PATH');
   } else {
     // 3rd party don't need clippingPath
@@ -52,8 +56,9 @@ function exec({storageConfig: config, now, domain,
   // ====================================
   // render folders
   // ====================================
-  const savingFolderVariables = [...pathVariables, ...VariableRender.TimeVariables];
-  const savingFolderValueHash = Object.assign({now}, pathValueHash);
+  const savingFolderVariables = [...pathVariables, ...VariableRender.TimeVariables, '$DOMAIN'];
+  const savingFolderValueHash = Object.assign({now, domain}, pathValueHash);
+
   storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
     savingFolderValueHash, savingFolderVariables);

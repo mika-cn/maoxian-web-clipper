@@ -61,7 +61,7 @@
     "title.path": "存储路径",
     "path-intro.format": "格式：",
     "path.download": "下载路径",
-    "path.filename": "主文件名",
+    "path.filename": "文件名",
     "folder.root": "根目录",
     "folder.category": "分类目录",
     "folder.clipping": "裁剪目录",
@@ -74,9 +74,12 @@
     "variable-in-folder": "以下变量可用于存储目录",
     "variable-in-filename": "以下变量可用于文件名",
     "variable-in-folder-and-filename": "以下变量可用于存储目录和文件名",
-    "variable.storage-path": '$STORAGE-PATH 等同于： <code>下载路径</code> / <code>根目录</code>',
-    "variable.category-path": '$CATEGORY-PATH 等同于： <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code>',
-    "variable.clipping-path": '$CLIPPING-PATH 等同于： <code>下载路径</code> / <code>根目录</code> / <code>分类目录</code> / <code> 裁剪目录</code>',
+    "variable.storage-path"    : '<pre>$STORAGE-PATH    => <code>根目录</code></pre>',
+    "variable.category-path"   : '<pre>$CATEGORY-PATH   => <code>根目录</code> / <code>分类目录</code></pre>',
+    "variable.clipping-path"   : '<pre>$CLIPPING-PATH   => <code>根目录</code> / <code>分类目录</code> / <code> 裁剪目录</code></pre>',
+    "variable.root-folder"     : '<pre>$ROOT-FOLDER     => <code>根目录</code></pre>',
+    "variable.category-folder" : '<pre>$CATEGORY-FOLDER => <code>分类目录</code></pre>',
+    "variable.clipping-folder" : '<pre>$CLIPPING-FOLDER => <code>裁剪目录</code></pre>',
 
 
     "variable.none": "<pre>$NONE => 表示空值（即无目录）</pre>",
@@ -121,8 +124,8 @@
 
 
     "path.download.intro": "下载路径： 该路径即是你浏览器设置的下载目录，如果你使用「本地程序」的话，该路径是你配置文件（config.yaml）里面的 data_dir 项所配置的目录。",
-    "path.filename.intro": "主文件名： 即保存下来的主文件的名字，默认为 <code>index.html</code> 或 <code>index.md</code>",
-    "folder.root.intro": "根目录： 该目录为扩展的存储入口，所有裁剪下来的文件都会存储在该目录下。",
+    "path.filename.intro": "文件名： 即保存下来的文件的名字，例如： <code>index.html</code>",
+    "folder.root.intro": "根目录： 该目录被设计为扩展的存储入口，所有裁剪下来的文件都会存储在该目录下。请务必在设置文件的存储目录时，都包含它。",
     "folder.category.intro": "分类目录： 该目录是用于归类的，可由多级组成，其值由表单的输入决定，例如表单的输入项为 <code>新闻/体育</code> 那么会生成 <code>新闻</code> 这个目录，同时在新闻目录下生成 <code>体育</code> 这个子目录。",
     "folder.clipping.intro": "裁剪目录： 扩展可以为每次裁剪都生成一个裁剪目录，并把裁剪下来的文件保存在该目录下",
 
@@ -183,7 +186,7 @@
     // notice
     "notice.main-file-intro": "主文件是你裁剪下来的 HTML 文件（即网页文件）或者是 Markdown 文件（取决于保存格式是什么）",
     "notice.asset-file-intro": "资源文件指的是跟随网页的图片，样式，字体和网站图标（注：不包含脚本文件，居于安全考虑，MaoXian 不保存脚本文件）。",
-    "notice.frame-file-intro": "顾名思义，这些网页内嵌在主网页中。在裁剪的过程中，如果保存格式为 HTML，则会把这些内嵌的网页另存为一个文件，并在主文件中引入；如果保存格式为 Markdown，则会把这些内嵌的网页的内容嵌入到主文件中。",
+    "notice.frame-file-intro": "顾名思意，这些网页内嵌在主网页中。在裁剪的过程中，如果保存格式为 HTML，则会把这些内嵌的网页另存为一个文件，并在主文件中引入。如果保存格式为 Markdown，则会把这些内嵌的网页的内容嵌入到主文件中。",
     "notice.info-file-intro": "元信息文件是用来记录整个裁剪过程所涉及的信息的，内容包括保存格式，裁剪时间，原网址，分类，标签等等。",
     "notice.title-file-intro": "标题文件是一个包含空内容的文件，其特点是文件名包含标题，如果你的主文件的路径不包含标题信息，则可以在主文件的同级目录中保存该文件，以便浏览，该文件为可选。",
 

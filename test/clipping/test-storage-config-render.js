@@ -15,7 +15,6 @@ describe("StorageConfigRender", () => {
 
   it('storageConfig: wizNotePlus', () => {
     const storageConfig = StorageConfigWizNotePlus.get({config: Config.getDefault()});
-    console.log(storageConfig);
     assertStorageConfigHasRequiredAttrs(storageConfig);
   });
 
@@ -40,34 +39,29 @@ describe("StorageConfigRender", () => {
     H.assertTrue(it.hasOwnProperty('frameFileName'));
   }
 
-  it('should render Saving Folder time variables', () => {
-    [
+
+  it('should render Saving Folder variables', () => {
+    const SavingFolderKeys = [
       'mainFileFolder',
       'infoFileFolder',
       'titleFileFolder',
       'frameFileFolder',
       'assetFolder'
-    ].forEach(assetRenderSavingFolderTimeVariables);
+    ];
+    const timeVariables = ['$YYYY', '$YY', '$MM', '$DD', '$HH', '$mm', '$SS', '$TIME-INTSEC'];
+    const pathVariables = ['$ROOT-FOLDER', '$CATEGORY-FOLDER', '$CLIPPING-FOLDER'];
+    const variables = [...timeVariables, ...pathVariables, '$DOMAIN'];
+    SavingFolderKeys.forEach((key) => {
+      assetRenderSavingFolderVariables(key, variables);
+    });
   });
 
-
-  function assetRenderSavingFolderTimeVariables(storageConfigKey) {
-    const items = [
-      ['$YYYY', 'year'],
-      ['$YY', 'sYear'],
-      ['$MM', 'month'],
-      ['$DD', 'day'],
-      ['$HH', 'hour'],
-      ['$mm', 'minute'],
-      ['$SS', 'second'],
-      ['$TIME-INTSEC', 'intSec'],
-    ]
-    items.forEach(([timeVariable, timeObjAttr]) => {
-      const params = getParams();
-      params.storageConfig[storageConfigKey] = timeVariable;
+  function assetRenderSavingFolderVariables(storageConfigKey, variables) {
+    const params = getParams();
+    variables.forEach((variable) => {
+      params.storageConfig[storageConfigKey] = variable;
       const {storageInfo} = Render.exec(params);
-      const tObj = T.wrapNow(params.now);
-      H.assertEqual(storageInfo[storageConfigKey], tObj.str[timeObjAttr]);
+      H.assertNotEqual(storageInfo[storageConfigKey], variable);
     });
   }
 
