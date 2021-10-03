@@ -7,7 +7,7 @@ const mxAssistantRoot = [websiteRoot, 'tmp/assistant'].join('/');
 const env = {
   isDev: true,
   logLevel: "debug",
-  version: '0.2.0',
+  version: '0.2.1',
   minNativeAppVersion: '0.2.8',
   websiteRoot: websiteRoot,
   projectRoot: projectRoot,
