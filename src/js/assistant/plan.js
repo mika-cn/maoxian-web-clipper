@@ -149,23 +149,61 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
   }
 }
 
+
 /*
- * chAttr: [
- *   {
- *     pick: $selectorInput,
- *     attr: attributeName,
- *     type: 'parent.attr', 'self.attr', 'self.replace', 'self.add', 'self.remove'
- *     target: attrname or subStr
- *     value: newStr
- *     sep: ' '
- * ]
+ * chAttr {Attay} [$action]
+ *
+ * Structure of $action {Object}
+ *
+ * action.type {String} (required) avariable values are:
+ *   1. "assign.from.self-attr"
+ *   2. "assign.from.parent-attr"
+ *   3. "assign.from.ancestor-attr"
+ *   4. "assign.from.ancestor.child-attr"
+ *
+ *   5. "replace.last-match"
+ *   6. "replace.all"
+ *
+ *   7. "split2list.add"
+ *   8. "split2list.remove"
+ *
+ * action.pick {SelectorInput} (required)
+ *   Which element to operator.
+ *
+ * action.attr {String} (required)
+ *   Which attribute to operator.
+ *
+ * action.subStr {String} (required if type is 5 or 6)
+ *   The String that is to be replaced by newStr. not interpreted as a regular expression.
+ *
+ * action.newStr {String} (required if type is 5 or 6)
+ *   The String that replaces the substring specified by the subStr parameter.
+ *
+ * action.tElem {Array} (required if type is 3 or 4)
+ *   The CSS selector(s) that will be used to select the target element.
+ *   if type is 3 it contains one or two selectors,
+ *     the first one is used to select the ancestor,
+ *     if the first one is not enough to identify the ancestor,
+ *     provide the second one which select the ancestor's children to help the identification.
+ *   if type is 4 it should contains two CSS selectors,
+ *     the first one is used to select the ancestor,
+ *     the second one is used to select the ancestor's children.
+ *
+ * action.tAtt {String} (required if type is in [1, 2, 3, 4])
+ *   The target attribute that will be used as value to assignment.
+ *
+ * action.sep {String} (required if type is 7 or 8.)
+ *   The separator that will be used to split the attribute (action.attr).
+ *
+ * action.value {String} (required if type is 7 or 8.)
+ *   The value that will be added or removed from the list.
  *
  */
 
 function initChAttrActions(params) {
   const result = [];
   params.forEach(function(it) {
-    if(['self.add', 'self.remove'].indexOf(it.type) > -1) {
+    if(['split2list.add', 'split2list.remove', 'self.add', 'self.remove'].indexOf(it.type) > -1) {
       if(!it.attr) { it.attr = 'class' }
       if(!it.sep) { it.sep = ' ' }
     }
@@ -189,6 +227,7 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
       })
       //console.debug("MxWcTool.changeAttr", document.location.href);
     },
+
     changeAttr: function(action) {
       const This = this;
       const selectorStrs = toSelectorStrs(action.pick);
@@ -196,7 +235,7 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
       selectorStrs.forEach(function(it) {
         queryElemsBySelector(it, contextElem)
           .forEach(function(elem) {
-            const value = This.getValue(elem, action);
+            const value = This.getValue(elem, action, contextElem);
             if(value) {
               const attrName = ['data-mx-original-attr', action.attr].join('-');
               let attrOldValue = elem.getAttribute(action.attr);
@@ -208,17 +247,88 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
       })
 
     },
-    getValue: function(elem, action) {
+
+
+    getValue: function(elem, action, contextElem) {
       switch(action.type) {
-        case 'self.attr':
+        case 'self.attr': // deprecated
+        case 'assign.from.self-attr':
           return elem.getAttribute(action.tAttr);
           break;
-        case 'parent.attr':
+
+
+        case 'parent.attr': //deprecated
+        case 'assign.from.parent-attr':
           if(elem.parentElement) {
             return elem.parentElement.getAttribute(action.tAttr);
           }
           break;
-        case 'self.replace':
+
+
+        case 'assign.from.ancestor-attr': {
+          let result = undefined;
+          const [ancestorSelector, childSelector] = action.tElem;
+          if (!ancestorSelector) { return result }
+
+          iterateAncestors(elem, (ancestor) => {
+            // out of scope, stop iterating
+            if (ancestor == contextElem) { return false }
+
+            if (isElemMatchesSelector(ancestor, ancestorSelector)) {
+              if (childSelector) {
+                // both selector were provided.
+                const children = queryElemsByCss(childSelector, ancestor);
+                if (children.length > 0) {
+                  // both selector can match elements, this is the target.
+                  result = ancestor.getAttribute(action.tAttr);
+                  return false;
+                } else {
+                  // the second selector can't match any elements,
+                  // this is not the target, keep iterating.
+                  return true;
+                }
+              } else {
+                // only ancestorSelector was provided, this is the target.
+                result = ancestor.getAttribute(action.tAttr);
+                return false;
+              }
+            } else {
+              return true;
+            }
+          });
+          return result;
+        }
+
+
+        case 'assign.from.ancestor.child-attr': {
+          let result = undefined;
+          const [ancestorSelector, childSelector] = action.tElem;
+          if (!ancestorSelector || !childSelector) { return result }
+
+          iterateAncestors(elem, (ancestor) => {
+            // out of scope, stop iterating
+            if (ancestor == contextElem) { return false }
+
+            if (isElemMatchesSelector(ancestor, ancestorSelector)) {
+              const children = queryElemsByCss(action.tSelector, ancestor);
+
+              // it's the wrong ancestor, keep iterating.
+              if (children.length == 0) { return true }
+
+              // Should not select the picked elem, keep iterating.
+              if (children[0] == elem) { return true }
+
+              result = children[0].getAttribute(action.tAttr);
+              return false;
+            }
+            return true;
+          });
+          return result;
+        }
+
+
+        case 'self.replace': //deprecated
+        case 'replace.last-match': {
           const attr = elem.getAttribute(action.attr);
           const index = attr.lastIndexOf(action.subStr)
           if(index > -1) {
@@ -230,19 +340,37 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
             ].join('');
           }
           break;
-        case 'self.add':
-        case 'self.remove':
+        }
+
+
+        case 'replace.all': {
+          try {
+            const attr = elem.getAttribute(action.attr);
+            const index = attr.lastIndexOf(action.subStr)
+            if(index > -1) {
+              const re = new RegExp(action.subStr,  'mg');
+              return attr.replace(re, action.newStr);
+            }
+          } catch(e){}
+          break;
+        }
+
+
+        case 'self.add': //deprecated
+        case 'self.remove': //deprecated
+        case 'split2list.add':
+        case 'split2list.remove':
           let parts = [];
           const attrValue = elem.getAttribute(action.attr);
           if(attrValue) {
             parts = attrValue.trim().split(action.sep);
           }
           const idx = parts.indexOf(action.value);
-          if(action.type == 'self.add' && idx == -1) {
+          if((action.type == 'split2list.add' || action.type == 'self.add') && idx == -1) {
             parts.push(action.value);
             return parts.join(action.sep);
           }
-          if(action.type == 'self.remove' && idx > -1) {
+          if((action.type == 'split2list.remove' || action.type == 'self.remove') && idx > -1) {
             parts.splice(idx, 1);
             return parts.join(action.sep);
           }
@@ -349,8 +477,41 @@ Action.completed = function(fn) {
 }
 
 //=========================================
-// query element relative
+// Tool functions
 //=========================================
+
+function iterateAncestors(elem, action) {
+  let currElem = elem;
+  let pElem;
+  while(true) {
+    pElem = currElem.parentElement;
+    if (!pElem) { break }
+    const continueIterate = action(pElem);
+    if (continueIterate) {
+      currElem = pElem;
+    } else {
+      break;
+    }
+  }
+}
+
+function isElemMatchesSelector(elem, selector) {
+  try {
+    if (elem.matches) {
+      return elem.matches(selector)
+    } else {
+      // shadowRoot doesn't have matches()
+      return false;
+    }
+  } catch(e) {
+    console.warn("[Mx assistant] invalid selector: ", selector);
+    console.warn(e.message);
+    console.warn(e);
+    return false;
+  }
+}
+
+//======== query element relative ========
 
 function toSelectorStrs(selectorInput) {
   if(typeof selectorInput === 'string') {
