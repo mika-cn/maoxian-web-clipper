@@ -4,6 +4,7 @@
 require_relative 'lib/app_env'
 require_relative 'lib/log'
 require_relative 'lib/config'
+require_relative 'lib/native_message'
 require_relative 'lib/application'
 
 def run
@@ -25,15 +26,21 @@ def run
 
     unless config.valid?
       if !config.data_dir_valid?
-        Log.error("Config Invalid, data_dir not exist: #{config.data_dir}")
+        errMsg = "Config Invalid, data_dir not exist: #{config.data_dir}"
+        Log.error(errMsg)
+        feedback_error(errMsg)
       end
 
       if !config.proxy_url_valid?
-        Log.error("Proxy url invalid: #{config.proxy_url}")
+        errMsg = "Proxy url invalid: #{config.proxy_url}"
+        Log.error(errMsg)
+        feedback_error(errMsg)
       end
 
       if !config.proxy_user_valid?
-        Log.error("Proxy user info invalid, or you forget to config proxy url")
+        errMsg = "Proxy user info invalid, or you forget to config proxy url"
+        Log.error(errMsg)
+        feedback_error(errMsg)
       end
       exit 1
     end
@@ -58,5 +65,11 @@ def run
     Log.fatal(err)
   end
 end
+
+def feedback_error(errorMessage)
+  msg = {type: 'nativeApp.error', error: errorMessage}
+  NativeMessage.write(msg)
+end
+
 
 run

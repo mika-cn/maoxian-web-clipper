@@ -13,7 +13,12 @@ module Clipping
       return { ok: false, message: 'clipping.op-error.path-overflow' }
     else
       if File.exist?(path)
-        json_str = File.open(path, 'r').read
+        # json_str = File.open(path, 'r').read
+        # expression above, will cause permission denied Error on Windows
+        # when execute FileUtils.rm(path)
+
+        json_str = File.open(path, 'r') {|f| f.read}
+
         begin
           info = JSON.parse(json_str)
           info_file_folder = File.dirname(path)

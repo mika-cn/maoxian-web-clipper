@@ -54,7 +54,7 @@ class ClippingTest < Minitest::Test
     assert_equal true, result[:ok]
     assert_equal '0000', result[:clip_id]
     refute_nil result[:message]
-    assert_match /exist/, result[:message]
+    assert_match(/exist/ , result[:message])
   end
 
   def test_v2_default_info

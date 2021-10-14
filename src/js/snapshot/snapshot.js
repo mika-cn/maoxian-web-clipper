@@ -260,7 +260,7 @@ async function takeSnapshot(node, params) {
       }
 
       // handle style attribute
-      if (node.style.length > 0) {
+      if (node.style && node.style.length > 0) {
         snapshot.styleObj = CssTextParser.parse(node.style.cssText);
       }
       break;
@@ -340,7 +340,7 @@ function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
         }
 
         // handle style attribute
-        if (node.style.length > 0) {
+        if (node.style && node.style.length > 0) {
           snapshot.styleObj = CssTextParser.parse(node.style.cssText);
         }
         break;

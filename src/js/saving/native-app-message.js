@@ -5,10 +5,20 @@ class NativeAppClient {
   constructor(runtimeAPI, typesToCache = []) {
     this.API = runtimeAPI;
     this.appName = 'maoxian_web_clipper_native';
+    this.appErrorType = 'nativeApp.error';
+    this.typesToCache = typesToCache;
+    this.init();
+  }
+
+  init() {
     this.port = null;
     this.listeners = {};
-    this.typesToCache = typesToCache;
-    this.cache = {};
+    this.cache = {}; // Some responses can be cached.
+    this.errors = []; // errors that send from Native App
+  }
+
+  reset() {
+    this.init();
   }
 
   addListener(type, listener) {
@@ -48,6 +58,10 @@ class NativeAppClient {
   }
 
   responseHandler(resp) {
+    if (this.appErrorType == resp.type) {
+      this.errors.push(resp.error);
+      return;
+    }
     if (this.listeners[resp.type]) {
       if (this.typesToCache.indexOf(resp.type) > -1) {
         this.cache[resp.type] = resp;
@@ -58,22 +72,25 @@ class NativeAppClient {
 
   // reset port when native application disconnected.
   disconnectHandler(port) {
-    let errMsg = null;
+    const errors = [...this.errors];
+
+    let lastError;
+    // Chromium
     if (this.API.lastError) {
-      errMsg = "NativeApp: DisconnectErr:" + this.API.lastError.message;
+      lastError = "NativeApp: DisconnectErr:" + this.API.lastError.message;
     }
+    // Firefox
     if (port.error) {
-      errMsg = "NativeApp: DisconnectErr:" + port.error.message;
+      lastError = "NativeApp: DisconnectErr:" + port.error.message;
     }
-    if (errMsg) {
-      if (this.listeners.disconnect) {
-        this.listeners.disconnect.forEach((it) => it(errMsg));
-      }
-      console.error(errMsg);
+    if (lastError) { errors.push(lastError) }
+
+    const errMsg = errors.length > 0 ? errors.join("; ") : "Unknown Error";
+    if (this.listeners.disconnect) {
+      this.listeners.disconnect.forEach((it) => it(errMsg));
     }
-    this.port = null;
-    this.listeners = {};
-    this.cache = {};
+
+    this.reset();
   }
 
   connect() {

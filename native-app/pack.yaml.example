@@ -1,6 +1,6 @@
 app_name: 'maoxian_web_clipper_native'
 app_description: 'Native aplication of maoxian web clipper'
 app_path: 'main.rb'
-extension_id: 'mx-wc@oyd'
-extension_origin: 'chrome-extension://abtwertkbasdftllwerwh/'
+extension_id: 'maoxian-web-clipper@dev.whatever.org'
+extension_origin: 'chrome-extension://pikcgpiailaenhiojklhmmpcjepmilbj/'
 execute_cmd: 'ruby'

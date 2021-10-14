@@ -13,7 +13,7 @@ There are two main branches called "master" and "develop".
 
 Generally, it's a good practise to open an issue before you dive into the code. Especially when you want to add a new feature or do something big.
 
-### step 0.clone the codebase
+### step 0. clone the codebase
 
 1. fork it first
 2. clone it
@@ -37,15 +37,40 @@ If you want to use `web-ext` to run this project which is highly recommended. yo
 npm install -g web-ext
 ```
 
-### step 2. watch the project
+### step 2. define the required environment variables
+
+You can copy the belowing code to your shell (such as /home/username/.bashrc) and restart your terminal.
 
 ```shell
-npm run watch
+# ================================
+# MaoXian development env
+# ================================
+
+export MX_DEV_CHROMIUM_ID="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm/MHQbzfXMM/OBfPLvHRq1600omN/wra4Frbe+Rzpga5lDmycWuxlTrhKXyzF01YS5QCvNSYVS1NGNr4lHYE8UK0TJNaYViA9WFLdA3Q2Wqt9grvIuXJ8jZVgcZPgvLfOOiFuDypPbayWUEU0JPWtZHqXILnS9S+i6c8n3+nev+Khc0XHc2/QnrKUZqce3ZMXOQ7auzfExQB225GoitTy6K+SpFln3v1o9SE4cJkca+iTcPVlHDwsCm7ZnwSmAWv3Fz7BGmCg6zwsz/w31O85rNgHR0K3qNZCHXJVvN08ny8tQ9E6VdOkWCQzEOh75WJTu8tXi8s35QWKKQAv1aCoQIDAQAB"
+export MX_DEV_CHROMIUM_UPDATE_URL=""
+# export MX_DEV_CHROMIUM_UPDATE_URL="http://dev.pc:3000/maoxian-web-clipper/extension/chrome-updates.xml"
+
+export MX_DEV_FIREFOX_ID="maoxian-web-clipper@dev.whatever.org"
 ```
 
-This command will watch the project's code and automatically compile it.  All compiled code will be placed in `dist/extension/maoxian-web-clipper`.
+### step 3. watch the project
 
-### step 3. run the project
+
+For Firefox, run:
+
+```shell
+npm run watch-firefox
+```
+
+For Chromium, run:
+
+```shell
+npm run watch-chromium
+```
+
+The watch command will watch the project's code and automatically compile it.  All compiled code will be placed in `dist/extension/maoxian-web-clipper`.
+
+### step 4. run the project
 
 In this step, we will install MaoXian (sources in `dist/extension/maoxian-web-clipper`) to the browser. There are two methods to install it.
 
@@ -59,13 +84,13 @@ web-ext --version
 
 after that, change directory to project's root directory, then run the command according to your browser:
 
-On Firefox, run:
+For Firefox, run:
 
 ```shell
 npm run dev-firefox
 ```
 
-On Chromium, run:
+For Chromium, run:
 
 ```
 npm run dev-chromium
@@ -79,10 +104,10 @@ Use `npm run dev-firefox-lazy` or `npm run dev-chromium-lazy` to disable the aut
 
 **method B: install it manually**
 
-If you use Chrome (or Chromium) to developing.
+If you use Chromium to developing.
 
-* Go to extensions page (by visit url: `chrome://extensions/`)
-* Enable developer mode
+* Go to extensions page (by visit url: `about:extensions`)
+* Turn developer mode on
 * Load unpacked (select `dist/extension/maoxian-web-clipper`)
 
 If you use Firefox to developing.
