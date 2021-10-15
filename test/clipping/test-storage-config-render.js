@@ -92,18 +92,32 @@ describe("StorageConfigRender", () => {
   it('should use domain as default category', () => {
     const params = getParams();
     params.storageConfig.defaultCategory = "$DOMAIN";
+    params.storageConfig.mainFileFolder = "$CATEGORY-PATH";
     params.category = '';
     const {storageInfo} = Render.exec(params);
     H.assertEqual(storageInfo.category, params.domain);
+    H.assertEqual(storageInfo.mainFileFolder, 'mx-wc/example.org');
   });
 
   it('should not set category when default category is $NONE', () => {
     const params = getParams();
     params.storageConfig.defaultCategory = "$NONE";
+    params.storageConfig.mainFileFolder = "$CATEGORY-PATH";
     params.category = '';
     const {storageInfo} = Render.exec(params);
     H.assertEqual(storageInfo.category, '');
+    H.assertEqual(storageInfo.mainFileFolder, 'mx-wc');
   });
+
+  it('should use "default" as category when default category is ""', () => {
+    const params = getParams();
+    params.storageConfig.defaultCategory = "";
+    params.storageConfig.mainFileFolder = "$CATEGORY-PATH";
+    params.category = '';
+    const {storageInfo} = Render.exec(params);
+    H.assertEqual(storageInfo.category, 'default');
+    H.assertEqual(storageInfo.mainFileFolder, 'mx-wc/default');
+  })
 
 
   function clearPath(path) {
