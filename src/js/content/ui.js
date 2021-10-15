@@ -29,6 +29,8 @@ const IFRAME_STYLE_ITEMS =  [
     ["clip"    , "auto"]  ,
     ["z-index" , "2147483647"],
     ["background-color", "transparent"],
+    ["color-scheme", "normal"],
+    ["forced-color-adjust", "none"],
 ];
 
 function appendIframe(){
