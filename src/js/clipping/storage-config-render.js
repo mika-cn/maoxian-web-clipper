@@ -124,13 +124,15 @@ function exec({storageConfig: config, now, domain,
 }
 
 function dealCategory(config, category, now, domain) {
-  const v = {now: now, domain: domain};
-  const defaultCategory = VariableRender.exec(config.defaultCategory, v, VariableRender.TimeVariables.concat(['$DOMAIN']));
   if (category === '') {
+    const v = {now: now, domain: domain};
+    const defaultCategory = VariableRender.exec(config.defaultCategory,
+      v, VariableRender.TimeVariables.concat(['$DOMAIN']));
+
     if (defaultCategory === '$NONE') {
       // Do nothing
     } else {
-      category = (defaultCategory === '' ? 'default' : defaultCategory);
+      category = defaultCategory || 'default';
     }
   } else {
     if (category === '$NONE') {
@@ -144,13 +146,16 @@ function dealCategory(config, category, now, domain) {
 
 function dealCategoryPath(config, category, now, domain, storagePath) {
   let categoryPath;
-  const v = {now: now, domain: domain};
-  const defaultCategory = VariableRender.exec(config.defaultCategory, v, VariableRender.TimeVariables.concat(['$DOMAIN']));
+
   if (category === '') {
+    const v = {now: now, domain: domain};
+    const defaultCategory = VariableRender.exec(config.defaultCategory,
+      v, VariableRender.TimeVariables.concat(['$DOMAIN']));
+
     if(defaultCategory === "$NONE"){
       categoryPath = storagePath;
     } else {
-      categoryPath = T.joinPath(storagePath, category);
+      categoryPath = T.joinPath(storagePath, defaultCategory || 'default');
     }
   } else {
     if(category === '$NONE'){
