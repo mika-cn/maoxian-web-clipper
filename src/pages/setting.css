@@ -209,10 +209,6 @@ input[type=text] {
   padding: 0px 5px 0px 5px;
 }
 
-input[type=text]:focus {
-  border: 2px solid pink;
-}
-
 input[type=color] {
   border: 1px solid #ccc;
   padding: 1px 2px;
@@ -222,6 +218,7 @@ input[type=color] {
 
 input[type=number] {
   width: 50px;
+  padding: 0px 5px 0px 5px;
 }
 
 textarea {
@@ -232,6 +229,17 @@ textarea {
   padding: 10px;
   line-height: 18px;
 }
+
+input[type=text]:hover, textarea:hover {
+  border: 1px solid #888;
+}
+
+input[type=text]:focus, textarea:focus {
+  border: 2px solid rgb(77, 144, 254);
+  outline: unset;
+  background-color: #f0f0f0;
+}
+
 
 #markdown-template {
   min-height: 500px;
