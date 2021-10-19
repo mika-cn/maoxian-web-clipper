@@ -9,7 +9,7 @@ import ExtMsg from './ext-msg.js';
 async function getHttpMimeType(params) {
   try {
     if (T.isDataUrl(params.url) || T.isUrlHasFileExtension(params.url)) {
-      // in these cases, we don't need mimeType.
+      // in these cases, we don't need httpMimeType.
       return null;
     }
     const mimeType = await ExtMsg.sendToBackend('clipping', {
@@ -143,7 +143,7 @@ function getFileExtension(link, extension, mimeTypeData) {
     let url = new URL(link);
     if (url.protocol === 'data:') {
       //data:[<mediatype>][;base64],<data>
-      const mimeType = url.pathname.split(';')[0];
+      const mimeType = url.pathname.split(/[;,]{1}/)[0];
       return T.mimeType2Extension(mimeType);
     } else {
       // http OR https
