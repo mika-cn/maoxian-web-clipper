@@ -409,9 +409,15 @@ async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, r
 
 
 // WARNING: Do NOT change the order, dangerous.
-const URL_RE_A = /url\('([^\)]+)'\)/img;
-const URL_RE_B = /url\("([^\)]+)"\)/img;
-const URL_RE_C = /url\(([^\)'"]+)\)/img;
+
+// (?:[^']|(?:\\'))+ matches:
+//   - Any characters that is not "'"
+//   - Those escapted "'" (preceded by "\")
+
+const URL_RE_A = /url\(\s*'((?:[^']|(?:\\'))+)'\s*\)/img
+const URL_RE_B = /url\(\s*"((?:[^"]|(?:\\"))+)"\s*\)/img
+const URL_RE_C = /url\(\s*((?:[^'"]|(?:\\")|(?:\\'))+)\s*\)/img
+
 const URL_RES = [URL_RE_A, URL_RE_B, URL_RE_C];
 
 async function parsePropertyValue(value, {resourceType, baseUrl, ownerType, resourceHandler}) {
