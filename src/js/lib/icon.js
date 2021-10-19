@@ -9,8 +9,8 @@ const MxWcIcon = {};
 // n = times * 2 - 1
 MxWcIcon.flicker = (n, style) => {
   if(n > 0){
-    let iconStyle = (style || "default");
-    iconStyle = (iconStyle == "default" ? "highlight" : "default");
+    let iconStyle = style || 'default';
+    iconStyle = (iconStyle == 'default' ? 'highlight' : 'default');
     setTimeout(() => {
       MxWcIcon.change(iconStyle);
       MxWcIcon.flicker( n - 1, iconStyle);
@@ -22,11 +22,7 @@ MxWcIcon.flicker = (n, style) => {
  * @param {string} iconStyle - default Or highlight
  */
 MxWcIcon.change = (iconStyle) => {
-  let icon_path = ({
-    "default": 'icons/mx-wc-32.png',
-    "highlight": 'icons/mx-wc-32-highlight.png'
-  })[iconStyle]
-  let url = browser.runtime.getURL(icon_path);
+  let url = MxWcIcon.getUrl(iconStyle);
   ExtApi.getCurrentTab().then((tab) => {
     if(tab) {
       // tab might not focus
@@ -35,6 +31,23 @@ MxWcIcon.change = (iconStyle) => {
       });
     }
   })
+}
+
+
+// iconStyle: 'default', 'highlight'
+MxWcIcon.getUrl = (iconStyle) => {
+  let key;
+  if (iconStyle == 'default') {
+    key = isBrowserDarkTheme() ? 'light' : 'dark';
+  } else {
+    key = iconStyle;
+  }
+  let icon_path = ({
+    "dark"      : 'icons/mx-wc-32.png',
+    "light"     : 'icons/mx-wc-32-light.png',
+    "highlight" : 'icons/mx-wc-32-highlight.png'
+  })[key]
+  return browser.runtime.getURL(icon_path);
 }
 
 // getImageData by icon url
@@ -50,5 +63,12 @@ MxWcIcon.getImageData = (url, cb) => {
   }
   img.src = url;
 }
+
+
+function isBrowserDarkTheme() {
+  return (window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+
 
 export default MxWcIcon;
