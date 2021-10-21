@@ -21,6 +21,8 @@ import Handler_WizNotePlus from '../js/handler/wiznoteplus.js';
 import MxWcMigration from '../js/background/migration.js';
 import WebRequest    from '../js/background/web-request.js';
 
+import ContentScriptsLoader from '../js/content-scripts-loader.js';
+
 const Global = { evTarget: new MxEvTarget() };
 
 function unknownMessageHandler(message, sender) {
@@ -282,15 +284,26 @@ function commandListener(command) {
     case 'open-clipping':
       openClipping();
       break;
-    default:
+    default: {
       // toggle-clip
-      ExtMsg.sendToContent({
-        type: "command",
-        body: {command: command}
-      });
+      const handleError = (errMsg) => {
+        console.error(errMsg);
+      }
+      ExtApi.getCurrentTab().then((tab) => {
+        ContentScriptsLoader.load(tab.id).then(
+          () => {
+            ExtMsg.sendToContent({
+              type: "command",
+              body: {command: command}
+            })
+          }, handleError);
+      }, handleError);
       break;
+    }
   }
 }
+
+
 
 async function openClipping() {
   const lastClippingResult = await MxWcStorage.get('lastClippingResult');

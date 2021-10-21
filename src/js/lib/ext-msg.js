@@ -53,6 +53,12 @@ function sendToBackend(name, msg) {
   return sendToExtPage(['backend', name].join('.'), msg);
 }
 
+function pingContentScript(tabId, frameId) {
+  const msg = {type: 'ping'};
+  return sendToTab(addTarget('content.ping', msg),
+    tabId, frameId);
+}
+
 function sendToContent(msg, tabId, frameId) {
   return sendToTab(addTarget('content', msg),
     tabId, frameId);
@@ -102,29 +108,22 @@ function sendToTab(msg, tabId, frameId) {
   const defaultFrameId = 0;
   const options = {frameId: defaultFrameId};
   if(frameId) { options.frameId = frameId }
-  return new Promise(function(resolve, _){
+  return new Promise(function(resolve, reject){
+    const handleError = (errMsg) => {
+      console.warn(tabId, options.frameId);
+      console.warn(msg);
+      console.warn(errMsg);
+      console.trace();
+      reject(errMsg);
+    }
     if(tabId){
       browser.tabs.sendMessage(tabId, msg, options)
-        .then(resolve)
-        .catch((err) => {
-          console.log(tabId, options.frameId);
-          console.log(msg);
-          console.error(err);
-          console.trace();
-          resolve(undefined);
-        })
-    }else{
+        .then(resolve, handleError)
+    } else {
       ExtApi.getCurrentTab().then((tab) => {
         browser.tabs.sendMessage(tab.id, msg, options)
-          .then(resolve)
-          .catch((err) => {
-            console.log(tabId, options.frameId);
-            console.log(msg);
-            console.error(err);
-            console.trace();
-            resolve(undefined);
-          })
-      })
+          .then(resolve, handleError);
+      }, handleError)
     }
   })
 }
@@ -133,6 +132,7 @@ const ExtMsg = {
   listen,
   sendToBackend,
   sendToBackground,
+  pingContentScript,
   sendToContent,
   sendToContentFrame,
   sendToPage,

@@ -75,22 +75,24 @@ ExtApi.removeTab = (tabId) => {
 }
 
 ExtApi.getCurrentTab = () => {
-  return new Promise(function(resolve, _){
+  return new Promise(function(resolve, reject){
     browser.tabs.query({
       currentWindow: true,
       active: true
-    }).then((tabs) => { resolve(tabs[0]) })
-    .catch((err) => {console.error(err);});
+    }).then((tabs) => {resolve(tabs[0])}, reject);
   })
 }
 
 ExtApi.getAllTabs = () => {
-  return new Promise(function(resolve, _){
+  return new Promise(function(resolve, reject){
     browser.tabs.query({
       currentWindow: true
-    }).then((tabs) => { resolve(tabs) })
-    .catch((err) => {console.error(err);});
+    }).then((tabs) => { resolve(tabs)}, reject);
   })
+}
+
+ExtApi.executeContentScript = (tabId, details) => {
+  return browser.tabs.executeScript(tabId, details);
 }
 
 /*****************************

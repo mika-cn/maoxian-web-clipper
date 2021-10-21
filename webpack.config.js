@@ -103,6 +103,9 @@ function getCopyItems() {
     ['src/js/lib/action-cache.js'      , 'js/lib/action-cache.js']      ,
     ['src/js/lib/qwebchannel.js'       , 'js/lib/qwebchannel.js']       ,
 
+    /* content */
+    ['src/js/content-scripts-loader.js', 'js/content-scripts-loader.js'],
+
     /* background */
     ['src/js/handler'                      , 'js/handler']                      ,
     ['src/js/saving'                       , 'js/saving']                       ,
