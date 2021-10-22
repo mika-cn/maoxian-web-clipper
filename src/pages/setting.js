@@ -15,13 +15,6 @@ import MxWcHandler  from '../js/lib/handler.js';
 
 function updateConfig(key, value) {
   const isUpdated = MxWcConfig.update(key, value);
-  const keys = ['hotkeySwitchEnabled'];
-  if(keys.indexOf(key) > -1) {
-    ExtMsg.broadcastToContent({
-      type: 'config.changed',
-      body: { key: key, value: value }
-    });
-  }
   return isUpdated;
 }
 
@@ -69,11 +62,6 @@ function initSettingGeneral(config) {
 
 
   // control
-  initCheckboxInput(config,
-    'hotkey-switch-enabled',
-    'hotkeySwitchEnabled',
-  );
-
   initCheckboxInput(config,
     'mouse-mode-enabled',
     'mouseModeEnabled',
