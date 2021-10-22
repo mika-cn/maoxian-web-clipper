@@ -105,10 +105,19 @@ ExtApi.getAllFrames = (tabId) => {
   return new Promise(function(resolve, _) {
     browser.webNavigation.getAllFrames({
       tabId: tabId
-    }).then((frames) => {
-      resolve(frames);
-    });
+    }).then(resolve);
   });
+}
+
+ExtApi.bindPageDomContentLoadListener = (listener, filter) => {
+  ExtApi.unbindPageDomContentLoadedListener(listener);
+  browser.webNavigation.onDOMContentLoaded.addListener(listener, filter);
+}
+
+ExtApi.unbindPageDomContentLoadedListener = (listener) => {
+  if (browser.webNavigation.onDOMContentLoaded.hasListener(listener)) {
+    browser.webNavigation.onDOMContentLoaded.removeListener(listener);
+  }
 }
 
 /*****************************

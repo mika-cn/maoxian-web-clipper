@@ -103,6 +103,9 @@ function addTarget(target, msg) {
   return Object.assign(msg, {target});
 }
 
+
+const IGNORE_MSG_ERROR = {ping: true};
+
 // private
 function sendToTab(msg, tabId, frameId) {
   const defaultFrameId = 0;
@@ -110,10 +113,12 @@ function sendToTab(msg, tabId, frameId) {
   if(frameId) { options.frameId = frameId }
   return new Promise(function(resolve, reject){
     const handleError = (errMsg) => {
-      console.warn(tabId, options.frameId);
-      console.warn(msg);
-      console.warn(errMsg);
-      console.trace();
+      if (!IGNORE_MSG_ERROR[msg.type]) {
+        console.warn(tabId, options.frameId);
+        console.warn(msg);
+        console.warn(errMsg);
+        console.trace();
+      }
       reject(errMsg);
     }
     if(tabId){

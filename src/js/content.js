@@ -404,7 +404,9 @@ function initialize(){
 
 function fetchContentMessage() {
   ExtMsg.sendToBackground({type: 'fetch.content-message'})
-    .then(messageHandler, (errMsg) => {Log.warn(errMsg)});
+    .then(messageHandler, (errMsg) => {
+      // Log.warn(errMsg)
+    });
 }
 
 function run(){
