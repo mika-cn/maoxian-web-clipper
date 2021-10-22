@@ -40,6 +40,12 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['1.8'] = function(config) {
+  config.version = '1.9';
+  config.autoRunContentScripts = false;
+  return config;
+}
+
 ConfigMigration['1.7'] = function(config) {
   config.version = '1.8';
   delete config.hotkeySwitchEnabled;

@@ -251,7 +251,8 @@
     "label.refresh-now-msg-sent": "Refresh command has been sent",
     "label.refresh-now-success": "Refresh success",
     "label.last-refresh-time": "Last refreshed time",
-    "label.communicate-with-third-party-input": "Communicate with third party",
+    "label.communicate-with-third-party-input": "Communicate with third party (API)",
+    "label.auto-run-content-scripts-input": "Auto run content scripts when the web page has loaded (only enable it, if you are programing using MaoXian's API and want to clip web page automatically)",
     "label.assistant-enabled-input": "Enable assistant",
     "label.auto-update-public-plan-input": "Auto update public plan (when you open the browser)",
 

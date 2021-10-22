@@ -93,8 +93,26 @@ function initMxWcAssistant() {
   });
 }
 
+// The background script will send a "ping" message to test
+// if the content scirpts have loaded.
+function initPingPong() {
+  Log.debug("init ping pong...");
+  ExtMsg.listen('content.ping', function(message) {
+    return new Promise((resolve, _) => {
+      if (message.type == 'ping') {
+        Log.debug("sending pong");
+        resolve('pong');
+      }
+    });
+  });
+}
+
+
 // This script only run in web page and it's external iframes (NOT includes inline iframe)
 function init() {
+
+  initPingPong();
+
   if (document) {
     if (document.documentElement.tagName.toUpperCase() === 'HTML') {
       if(window === window.top){
@@ -114,4 +132,5 @@ function init() {
 }
 
 init();
+Log.debug("content frame init...");
 

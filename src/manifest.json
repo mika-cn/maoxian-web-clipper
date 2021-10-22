@@ -26,34 +26,6 @@
   "background": {
     "page": "pages/background.html"
   },
-  "content_scripts": [
-    {
-      "js": [
-        "vendor/js/browser-polyfill.js",
-        "vendor/js/i18n.js",
-        "_locales/en/common.js",
-        "_locales/zh_CN/common.js",
-        "js/content-frame.js"
-      ],
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "run_at": "document_idle",
-      "all_frames": true
-    },
-    {
-      "js": [
-        "js/content.js"
-      ],
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "run_at": "document_idle",
-      "all_frames": false
-    }
-  ],
   "commands": {
     "toggle-clip": {
       "suggested_key": {

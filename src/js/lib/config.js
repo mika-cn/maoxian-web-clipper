@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.8';
+const VERSION = '1.9';
 const state = {};
 
 /** WARNING
@@ -59,6 +59,7 @@ function getDefault(){
 
     /* misc */
     communicateWithThirdParty: false,
+    autoRunContentScripts: false,
 
     //=====================================
     // Storage

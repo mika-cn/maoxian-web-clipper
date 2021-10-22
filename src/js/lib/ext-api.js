@@ -75,22 +75,24 @@ ExtApi.removeTab = (tabId) => {
 }
 
 ExtApi.getCurrentTab = () => {
-  return new Promise(function(resolve, _){
+  return new Promise(function(resolve, reject){
     browser.tabs.query({
       currentWindow: true,
       active: true
-    }).then((tabs) => { resolve(tabs[0]) })
-    .catch((err) => {console.error(err);});
+    }).then((tabs) => {resolve(tabs[0])}, reject);
   })
 }
 
 ExtApi.getAllTabs = () => {
-  return new Promise(function(resolve, _){
+  return new Promise(function(resolve, reject){
     browser.tabs.query({
       currentWindow: true
-    }).then((tabs) => { resolve(tabs) })
-    .catch((err) => {console.error(err);});
+    }).then((tabs) => { resolve(tabs)}, reject);
   })
+}
+
+ExtApi.executeContentScript = (tabId, details) => {
+  return browser.tabs.executeScript(tabId, details);
 }
 
 /*****************************
@@ -103,10 +105,19 @@ ExtApi.getAllFrames = (tabId) => {
   return new Promise(function(resolve, _) {
     browser.webNavigation.getAllFrames({
       tabId: tabId
-    }).then((frames) => {
-      resolve(frames);
-    });
+    }).then(resolve);
   });
+}
+
+ExtApi.bindPageDomContentLoadListener = (listener, filter) => {
+  ExtApi.unbindPageDomContentLoadedListener(listener);
+  browser.webNavigation.onDOMContentLoaded.addListener(listener, filter);
+}
+
+ExtApi.unbindPageDomContentLoadedListener = (listener) => {
+  if (browser.webNavigation.onDOMContentLoaded.hasListener(listener)) {
+    browser.webNavigation.onDOMContentLoaded.removeListener(listener);
+  }
 }
 
 /*****************************
