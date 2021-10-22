@@ -70,28 +70,36 @@ function jumpToPage(page){
 }
 
 async function renderMenus(){
-  const tab = await ExtApi.getCurrentTab();
-  const tabUrl = tab.url;
   const pageIds = ['history', 'setting'];
   let menuIds = [];
+  let tab;
 
-  if(T.isFileUrl(tabUrl) ||
-     T.isBrowserExtensionUrl(tabUrl) ||
-     T.isBrowserUrl(tabUrl)){
-    pageIds.forEach(function(pageId){
-      const extPagePath = MxWcLink.getExtensionPagePath(pageId);
-      if(tabUrl.indexOf(extPagePath) == -1){
-        menuIds.push(pageId);
-      }
-    })
-  }else{
-    //browser restricted url
-    if(['addons.mozilla.org', 'chrome.google.com'].indexOf((new URL(tabUrl)).host) > -1) {
-      menuIds = pageIds;
+  try { tab = await ExtApi.getCurrentTab(); } catch(e) {}
+
+  if (tab) {
+    const tabUrl = tab.url;
+
+    if (T.isFileUrl(tabUrl) ||
+       T.isBrowserExtensionUrl(tabUrl) ||
+       T.isBrowserUrl(tabUrl)){
+      pageIds.forEach(function(pageId) {
+        const extPagePath = MxWcLink.getExtensionPagePath(pageId);
+        if (tabUrl.indexOf(extPagePath) == -1) {
+          menuIds.push(pageId);
+        }
+      })
     } else {
-      menuIds = ['clip'].concat(pageIds);
+      //browser restricted url
+      if (['addons.mozilla.org', 'chrome.google.com'].indexOf((new URL(tabUrl)).host) > -1) {
+        menuIds = pageIds;
+      } else {
+        menuIds = ['clip'].concat(pageIds);
+      }
     }
+  } else {
+    menuIds = [...pageIds];
   }
+
   menuIds.push('home');
 
   if (ENV.isDev) {
