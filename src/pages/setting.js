@@ -15,6 +15,13 @@ import MxWcHandler  from '../js/lib/handler.js';
 
 function updateConfig(key, value) {
   const isUpdated = MxWcConfig.update(key, value);
+  const BG_CARE_KEYS = ['autoRunContentScripts'];
+  if (BG_CARE_KEYS.indexOf(key) > -1) {
+    ExtMsg.sendToBackground({
+      type: 'config.changed',
+      body: {key, value}
+    });
+  }
   return isUpdated;
 }
 
@@ -291,6 +298,10 @@ function initSettingAdvanced(config) {
     'communicateWithThirdParty'
   );
 
+  initCheckboxInput(config,
+    'auto-run-content-scripts',
+    'autoRunContentScripts'
+  );
 
 }
 

@@ -103,10 +103,22 @@ function messageHandler(message, sender){
         break;
       case 'migrate-config':
         migrateConfig(message.body).then(resolve, reject);
+        break;
+      case 'config.changed':
+        configChanged(message.body);
+        resolve();
+        break;
       default:
         break;
     }
   });
+}
+
+
+function configChanged({key, value}) {
+  if (key === 'autoRunContentScripts') {
+    resetAutoRunContentScriptsListener(value);
+  }
 }
 
 
@@ -409,6 +421,7 @@ async function migrateConfig(config) {
 // ========================================
 
 function resetAutoRunContentScriptsListener(enabled) {
+  Log.debug("Auto run content scripts: ", enabled);
   if (enabled) {
     bindAutoRunContentScriptsListener();
   } else {
