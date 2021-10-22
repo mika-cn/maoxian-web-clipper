@@ -40,6 +40,24 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['1.8'] = function(config) {
+  config.version = '1.9';
+  config.autoRunContentScripts = false;
+  return config;
+}
+
+ConfigMigration['1.7'] = function(config) {
+  config.version = '1.8';
+  delete config.hotkeySwitchEnabled;
+
+  // these three items hasn't deleted on migration[1.6]
+  delete config.mdSaveClippingInformation;
+  delete config.mdFrontMatterEnabled;
+  delete config.mdFrontMatterTemplate;
+
+  return config;
+}
+
 ConfigMigration['1.6'] = function(config) {
   config.version = '1.7';
   const parts = ["\n{{content}}\n"];
@@ -94,7 +112,6 @@ ConfigMigration['1.5'] = function(config) {
 
 // 1.4 => 1.5
 ConfigMigration['1.4'] = function(config) {
-  console.info("Migrating config from 1.4 to 1.5");
   config.version = '1.5';
   config.customBodyBgCssEnabled = false;
   config.customBodyBgCssValue = "";

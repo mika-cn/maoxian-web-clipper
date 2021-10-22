@@ -22,45 +22,45 @@ function resetClippingState() {
   state.clipping = null;
 }
 
-function listenMessage(){
-  // ExtMsg has initialized in content-frame.js
-  ExtMsg.listen('content', function(msg){
-    return new Promise(function(resolve, reject){
-      switch(msg.type){
-        case 'icon.click':
+function messageHandler(msg) {
+  return new Promise(function(resolve, reject){
+    switch(msg.type){
+      case 'popup-menu.clip':
+        window.focus();
+        activeUI({});
+        break;
+      case 'command':
+        const {command} = msg.body;
+        if (command === 'toggle-clip')  {
           window.focus();
           activeUI({});
-          break;
-        case 'command':
-          const {command} = msg.body;
-          if (command === 'toggle-clip')  {
-            window.focus();
-            activeUI({});
-          }
-          break;
-        case 'saving.started':
-          UI.savingStarted(msg.body);
-          break;
-        case 'saving.progress':
-          UI.savingProgress(msg.body);
-          break;
-        case 'saving.completed':
-          UI.savingCompleted(msg.body);
-          tellTpCompleted(msg.body);
-          resetClippingState();
-          break;
-        case 'page_content.changed':
-          pageContentChanged();
-          break;
-        case 'config.changed':
-          configChanged(msg.body);
-          break;
-        default: break;
-      }
-      resolve();
-    });
+        }
+        break;
+      case 'saving.started':
+        UI.savingStarted(msg.body);
+        break;
+      case 'saving.progress':
+        UI.savingProgress(msg.body);
+        break;
+      case 'saving.completed':
+        UI.savingCompleted(msg.body);
+        tellTpCompleted(msg.body);
+        resetClippingState();
+        break;
+      case 'page_content.changed':
+        pageContentChanged();
+        break;
+      case 'config.changed':
+        configChanged(msg.body);
+        break;
+      default: break;
+    }
+    resolve(true);
   });
+}
 
+function listenMessage(){
+  ExtMsg.listen('content', messageHandler);
   MxWcEvent.listenInternal('selecting', initMutationObserver);
   MxWcEvent.listenInternal('clipping', stopMutationObserver);
   MxWcEvent.listenInternal('idle', stopMutationObserver);
@@ -376,18 +376,6 @@ function pageContentChanged(){
   delayPageChanged.run();
 }
 
-function configChanged(detail) {
-  const {key, value} = detail;
-  switch(key) {
-    case 'hotkeySwitchEnabled':
-      if(value == true) {
-        T.bindOnce(document, "keydown", toggleSwitch);
-      } else {
-        T.unbind(document, "keydown", toggleSwitch);
-      }
-  }
-}
-
 function activeUI(e) {
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
@@ -407,28 +395,18 @@ function activeUI(e) {
   }
 }
 
-/*
- * Hotkey `c` listener
- */
-function toggleSwitch(e){
-  if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey){ return }
-  const KEYCODE_c = 67;
-  if(e.keyCode != KEYCODE_c){ return }
-  if(e.target.tagName.toUpperCase() === 'BODY'){
-    activeUI(e);
-  }else{
-    Log.debug(e.target.tagName);
-  }
-}
-
 function initialize(){
-  if(state.config.hotkeySwitchEnabled) {
-    T.bindOnce(document, "keydown", toggleSwitch);
-  }
   T.bind(window, 'resize', function(e){
     UI.windowSizeChanged(e);
   });
   Log.debug("content init...");
+}
+
+function fetchContentMessage() {
+  ExtMsg.sendToBackground({type: 'fetch.content-message'})
+    .then(messageHandler, (errMsg) => {
+      // Log.warn(errMsg)
+    });
 }
 
 function run(){
@@ -452,6 +430,7 @@ function run(){
             tellTpWeAreReady();
           }
           MxWcLink.listen(document.body);
+          fetchContentMessage();
         });
       }, 0)
     } else {

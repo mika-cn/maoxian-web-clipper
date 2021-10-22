@@ -42,10 +42,6 @@ function initUIListener() {
 
   const bar = getStateBar();
   MxWcConfig.load().then((config) => {
-    // "c" hotkey
-    if(config.hotkeySwitchEnabled) {
-      T.bindOnce(document, "keydown", toggleSwitch);
-    }
 
     if(config.mouseModeEnabled && bar) {
       bar.classList.add('mouse-friendly')
@@ -196,17 +192,6 @@ function sendKeyPressMessage(keyCode) {
       case -1001 : type = 'clickSelectedArea' ; break;
     }
     sendFrameMsgToTop(type);
-}
-
-function toggleSwitch(e){
-  if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey){ return }
-  // 67 keyCode of 'c'
-  if(e.keyCode != 67){ return }
-  if(e.target.tagName.toUpperCase() === 'BODY'){
-    entryClick();
-  }else{
-    // console.log(e.target.tagName);
-  }
 }
 
 function entryClick(){

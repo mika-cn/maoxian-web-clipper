@@ -15,11 +15,11 @@ import MxWcHandler  from '../js/lib/handler.js';
 
 function updateConfig(key, value) {
   const isUpdated = MxWcConfig.update(key, value);
-  const keys = ['hotkeySwitchEnabled'];
-  if(keys.indexOf(key) > -1) {
-    ExtMsg.broadcastToContent({
+  const BG_CARE_KEYS = ['autoRunContentScripts'];
+  if (BG_CARE_KEYS.indexOf(key) > -1) {
+    ExtMsg.sendToBackground({
       type: 'config.changed',
-      body: { key: key, value: value }
+      body: {key, value}
     });
   }
   return isUpdated;
@@ -69,11 +69,6 @@ function initSettingGeneral(config) {
 
 
   // control
-  initCheckboxInput(config,
-    'hotkey-switch-enabled',
-    'hotkeySwitchEnabled',
-  );
-
   initCheckboxInput(config,
     'mouse-mode-enabled',
     'mouseModeEnabled',
@@ -303,6 +298,10 @@ function initSettingAdvanced(config) {
     'communicateWithThirdParty'
   );
 
+  initCheckboxInput(config,
+    'auto-run-content-scripts',
+    'autoRunContentScripts'
+  );
 
 }
 

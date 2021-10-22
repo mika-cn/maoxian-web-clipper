@@ -238,7 +238,6 @@
     "label.save-css-image-input": "Save CSS background images (not recommended)",
     "label.custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",
-    "label.hotkey-switch-enabled-input": "Enable hotkey `c` (clip switch)",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
     "label.input-field-save-format-enabled": "Enable selecting save format in form",
     "label.auto-input-last-category": "Auto input the last category",
@@ -252,7 +251,8 @@
     "label.refresh-now-msg-sent": "Refresh command has been sent",
     "label.refresh-now-success": "Refresh success",
     "label.last-refresh-time": "Last refreshed time",
-    "label.communicate-with-third-party-input": "Communicate with third party",
+    "label.communicate-with-third-party-input": "Communicate with third party (API)",
+    "label.auto-run-content-scripts-input": "Auto run content scripts when the web page has loaded (only enable it, if you are programing using MaoXian's API and want to clip web page automatically)",
     "label.assistant-enabled-input": "Enable assistant",
     "label.auto-update-public-plan-input": "Auto update public plan (when you open the browser)",
 
