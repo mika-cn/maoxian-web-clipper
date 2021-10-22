@@ -22,42 +22,45 @@ function resetClippingState() {
   state.clipping = null;
 }
 
-function listenMessage(){
-  // ExtMsg has initialized in content-frame.js
-  ExtMsg.listen('content', function(msg){
-    return new Promise(function(resolve, reject){
-      switch(msg.type){
-        case 'icon.click':
+function messageHandler(msg) {
+  return new Promise(function(resolve, reject){
+    switch(msg.type){
+      case 'popup-menu.clip':
+        window.focus();
+        activeUI({});
+        break;
+      case 'command':
+        const {command} = msg.body;
+        if (command === 'toggle-clip')  {
           window.focus();
           activeUI({});
-          break;
-        case 'command':
-          const {command} = msg.body;
-          if (command === 'toggle-clip')  {
-            window.focus();
-            activeUI({});
-          }
-          break;
-        case 'saving.started':
-          UI.savingStarted(msg.body);
-          break;
-        case 'saving.progress':
-          UI.savingProgress(msg.body);
-          break;
-        case 'saving.completed':
-          UI.savingCompleted(msg.body);
-          tellTpCompleted(msg.body);
-          resetClippingState();
-          break;
-        case 'page_content.changed':
-          pageContentChanged();
-          break;
-        default: break;
-      }
-      resolve();
-    });
+        }
+        break;
+      case 'saving.started':
+        UI.savingStarted(msg.body);
+        break;
+      case 'saving.progress':
+        UI.savingProgress(msg.body);
+        break;
+      case 'saving.completed':
+        UI.savingCompleted(msg.body);
+        tellTpCompleted(msg.body);
+        resetClippingState();
+        break;
+      case 'page_content.changed':
+        pageContentChanged();
+        break;
+      case 'config.changed':
+        configChanged(msg.body);
+        break;
+      default: break;
+    }
+    resolve(true);
   });
+}
 
+function listenMessage(){
+  ExtMsg.listen('content', messageHandler);
   MxWcEvent.listenInternal('selecting', initMutationObserver);
   MxWcEvent.listenInternal('clipping', stopMutationObserver);
   MxWcEvent.listenInternal('idle', stopMutationObserver);
@@ -399,6 +402,11 @@ function initialize(){
   Log.debug("content init...");
 }
 
+function fetchContentMessage() {
+  ExtMsg.sendToBackground({type: 'fetch.content-message'})
+    .then(messageHandler, (errMsg) => {Log.warn(errMsg)});
+}
+
 function run(){
   if (document) {
     if (document.documentElement.tagName.toUpperCase() === 'HTML') {
@@ -420,6 +428,7 @@ function run(){
             tellTpWeAreReady();
           }
           MxWcLink.listen(document.body);
+          fetchContentMessage();
         });
       }, 0)
     } else {

@@ -61,7 +61,7 @@ function viewLastResult(){
 }
 
 function startClip(){
-  ExtMsg.sendToContent({type: 'icon.click'}).then(closeWindow);
+  ExtMsg.sendToBackground({type: 'popup-menu.clip'}).then(closeWindow);
 }
 
 function jumpToPage(page){

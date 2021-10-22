@@ -16,10 +16,17 @@ const CONTENT_SCRIPTS_B = [
   "/js/content.js"
 ]
 
+
+/**
+ * load content scripts to tab
+ *
+ * return a promise that will resolve with loaded frame ids.
+ *
+ */
 async function load(tabId) {
   const frames = await getFramesThatNotLoadContentScriptsYet(tabId);
-  console.log("frame length", frames.length);
-  if (frames.length == 0) { return; }
+  const loadedFrameIds = [];
+  if (frames.length == 0) { return loadedFrameIds; }
 
   const tasks = [];
   for (const {frameId} of frames) {
@@ -37,7 +44,7 @@ async function load(tabId) {
           }
         }
         // all content scripts has loaded successfully.
-        resolve();
+        resolve(frameId);
       } catch(e) {
         // something wrong happened when loading content scripts
         reject(e.message);
@@ -49,7 +56,6 @@ async function load(tabId) {
 }
 
 async function getFramesThatNotLoadContentScriptsYet(tabId) {
-  console.log(tabId);
   const frames = await ExtApi.getAllFrames(tabId);
   const targetFrames = [];
   for (const frame of frames) {

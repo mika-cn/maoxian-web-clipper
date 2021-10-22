@@ -36,6 +36,20 @@ function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
 
+      case 'popup-menu.clip':
+        const msg = {type: message.type};
+        loadContentScriptsAndSendMsg(msg).then(resolve, reject);
+        break;
+
+      case 'fetch.content-message':
+        if (Global.contentMessage) {
+          resolve(Object.assign({}, Global.contentMessage));
+          Global.contentMessage = null;
+        } else {
+          reject("No content message");
+        }
+        break;
+
       case 'handler.get-info':
         const handler = getHandlerByName(message.body.name);
         handler.getInfo(resolve);
@@ -286,20 +300,28 @@ function commandListener(command) {
       break;
     default: {
       // toggle-clip
-      const handleError = (errMsg) => {
-        console.error(errMsg);
-      }
-      ExtApi.getCurrentTab().then((tab) => {
-        ContentScriptsLoader.load(tab.id).then(
-          () => {
-            ExtMsg.sendToContent({
-              type: "command",
-              body: {command: command}
-            })
-          }, handleError);
-      }, handleError);
+      const msg = {type: "command", body: {command}};
+      const handleError = (errMsg) => console.error(errMsg);
+      loadContentScriptsAndSendMsg(msg).then(
+        () => {}, handleError);
       break;
     }
+  }
+}
+
+async function loadContentScriptsAndSendMsg(msg) {
+  const tab = await ExtApi.getCurrentTab();
+  const loadedFrameIds = await ContentScriptsLoader.load(tab.id);
+
+  if (loadedFrameIds.indexOf(0) > -1) {
+    // It contains the top frame, In this case,
+    // We store the message and wait the top frame to fetch.
+    // Because we don't know when the content script will
+    // set up the background message handler.
+    Global.contentMessage = msg;
+    return true;
+  } else {
+    return ExtMsg.sendToContent(msg)
   }
 }
 
