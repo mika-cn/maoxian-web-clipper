@@ -128,7 +128,7 @@ async function saveTask(task) {
     throw new Error(response.errMsg);
   } else {
     if (task.taskType == 'mainFileTask') {
-      const downloadFolder = filePath.replace(task.filename, '');
+      const downloadFolder = T.sanitizePath(filePath).replace(task.filename, '');
       updateDownloadFolder(downloadFolder);
     }
     return {filename: filePath};

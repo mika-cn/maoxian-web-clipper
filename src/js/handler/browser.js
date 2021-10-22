@@ -149,7 +149,7 @@ function downloadUrl(msg){
 
 
 function updateDownloadFolder(filename, filePath){
-  const downloadFolder = filePath.replace(filename, '');
+  const downloadFolder = T.sanitizePath(filePath).replace(filename, '');
   MxWcStorage.set('downloadFolder', downloadFolder);
 }
 
