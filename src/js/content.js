@@ -52,9 +52,6 @@ function listenMessage(){
         case 'page_content.changed':
           pageContentChanged();
           break;
-        case 'config.changed':
-          configChanged(msg.body);
-          break;
         default: break;
       }
       resolve();
@@ -376,18 +373,6 @@ function pageContentChanged(){
   delayPageChanged.run();
 }
 
-function configChanged(detail) {
-  const {key, value} = detail;
-  switch(key) {
-    case 'hotkeySwitchEnabled':
-      if(value == true) {
-        T.bindOnce(document, "keydown", toggleSwitch);
-      } else {
-        T.unbind(document, "keydown", toggleSwitch);
-      }
-  }
-}
-
 function activeUI(e) {
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
@@ -407,24 +392,7 @@ function activeUI(e) {
   }
 }
 
-/*
- * Hotkey `c` listener
- */
-function toggleSwitch(e){
-  if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey){ return }
-  const KEYCODE_c = 67;
-  if(e.keyCode != KEYCODE_c){ return }
-  if(e.target.tagName.toUpperCase() === 'BODY'){
-    activeUI(e);
-  }else{
-    Log.debug(e.target.tagName);
-  }
-}
-
 function initialize(){
-  if(state.config.hotkeySwitchEnabled) {
-    T.bindOnce(document, "keydown", toggleSwitch);
-  }
   T.bind(window, 'resize', function(e){
     UI.windowSizeChanged(e);
   });

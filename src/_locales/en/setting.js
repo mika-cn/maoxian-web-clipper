@@ -238,7 +238,6 @@
     "label.save-css-image-input": "Save CSS background images (not recommended)",
     "label.custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",
-    "label.hotkey-switch-enabled-input": "Enable hotkey `c` (clip switch)",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
     "label.input-field-save-format-enabled": "Enable selecting save format in form",
     "label.auto-input-last-category": "Auto input the last category",

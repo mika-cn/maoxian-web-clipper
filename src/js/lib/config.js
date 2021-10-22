@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.7';
+const VERSION = '1.8';
 const state = {};
 
 /** WARNING
@@ -33,13 +33,9 @@ function getDefault(){
     customBodyBgCssEnabled: false,
     customBodyBgCssValue: "#000000",
 
-    mdSaveClippingInformation: false,
-    mdFrontMatterEnabled: false,
-    mdFrontMatterTemplate: "---\ntitle: ${title}\ncategory: ${category}\ntags: ${tags}\ncreated_at: ${createdAt}\noriginal_url: ${url}\n---",
     markdownTemplate: "\n{{content}}\n",
 
     // control
-    hotkeySwitchEnabled: false,
     mouseModeEnabled: false,
     inputFieldSaveFormatEnabled: false,
     autoInputLastCategory: true,
