@@ -69,6 +69,9 @@
 
     "help.label": "Click me to show (or hide) help content",
     "help.avariable-variable": "Variables",
+    "help.examples": "Examples",
+    "help.md-template.example-a": "Example A: append clipping information to the end",
+    "help.md-template.example-b": "Example B: add YAML-front-matter at the beginning",
 
     // variables that used in path, folder, filename
     "variable-in-folder": "Belowing variables can be used in Saving Folder",
@@ -104,8 +107,8 @@
     "tpl-variable.title"     : "<pre>{{title}}     => title </pre>",
     "tpl-variable.content"   : "<pre>{{content}}   => the clipped content</pre>",
     "tpl-variable.url"       : "<pre>{{url}}       => URL</pre>",
-    "tpl-variable.category"  : "<pre>{{category}}  => category</pre>",
-    "tpl-variable.tags"      : "<Pre>{{tags}}      => tags</pre>",
+    "tpl-variable.category"  : "<pre>{{category}}  => category, the value could be empty</pre>",
+    "tpl-variable.tags"      : "<Pre>{{tags}}      => tags, this is an array. It may has multiple tags or empty.</pre>",
     "tpl-variable.created-at" : "<pre>{{createdAt}} => clipping time (e.g. 2020-02-01 11:00:00)</pre>",
     "tpl-variable.year"      : "<pre>{{year}}      => year (4 digits, e.g. 2018)</pre>",
     "tpl-variable.sYear"     : "<pre>{{sYear}}     => short year (2 digits, e.g. 18)</pre>",
@@ -121,6 +124,7 @@
     "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => text: Created At</pre>",
     "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => text: Category</pre>",
     "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => text: Tags</pre>",
+    "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => This function remove commas and spaces from the two ends of the content.",
 
 
 

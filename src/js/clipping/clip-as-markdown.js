@@ -69,7 +69,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 
   const trimFn = function() {
     return function(text, render) {
-      return render(text).replace(/[,，\s]*$/, '');
+      return render(text).replace(/^[,，\s]/, '').replace(/[,，\s]*$/, '');
     }
   };
 

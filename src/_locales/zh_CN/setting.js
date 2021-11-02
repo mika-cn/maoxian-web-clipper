@@ -68,6 +68,9 @@
 
     "help.label": "点击显示（或隐藏）帮助信息",
     "help.avariable-variable": "可用变量",
+    "help.examples": "使用样例",
+    "help.md-template.example-a": "例一：在裁剪下来的内容后面追加裁剪信息",
+    "help.md-template.example-b": "例二：在裁剪下来的内容最前方加上 YAML Front Matter",
 
 
     // variables that used in path, folder, filename
@@ -104,8 +107,8 @@
     "tpl-variable.title"     : "<pre>{{title}}     => 网页标题 </pre>",
     "tpl-variable.content"   : "<pre>{{content}}   => 裁剪后的内容</pre>",
     "tpl-variable.url"       : "<pre>{{url}}       => 网址（URL）</pre>",
-    "tpl-variable.category"  : "<pre>{{category}}  => 目录</pre>",
-    "tpl-variable.tags"      : "<Pre>{{tags}}      => 标签</pre>",
+    "tpl-variable.category"  : "<pre>{{category}}  => 目录，该项可能为空白。</pre>",
+    "tpl-variable.tags"      : "<Pre>{{tags}}      => 标签，为元组，即可能包含零个值，也可能包含多个值。",
     "tpl-variable.created-at" : "<pre>{{createdAt}} => 裁剪时间 (e.g. 2020-02-01 11:00:00)</pre>",
     "tpl-variable.year"      : "<pre>{{year}}      => 年 （4 位数字, 例： 2018）</pre>",
     "tpl-variable.sYear"     : "<pre>{{sYear}}     => 年 （2 位数字, 例： 18）</pre>",
@@ -121,6 +124,7 @@
     "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => 文本: 创建时间</pre>",
     "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => 文本: 目录</pre>",
     "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => 文本: 标签</pre>",
+    "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => 修剪函数：将内容两端的逗号（含英文逗号）和空格删除。",
 
 
     "path.download.intro": "下载路径： 该路径即是你浏览器设置的下载目录，如果你使用「本地程序」的话，该路径是你配置文件（config.yaml）里面的 data_dir 项所配置的目录。",

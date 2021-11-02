@@ -197,6 +197,22 @@ details > summary {
   padding: 0px;
 }
 
+.help-content > .example-code {
+  padding: 8px;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  line-height: 18px;
+  font-size: 12px;
+  overflow-x: auto;
+}
+
+.example-code > code {
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+}
+
 
 input[type=text] {
   display: block;
@@ -225,7 +241,8 @@ textarea {
   width: 85%;
   border: 1px solid #ccc;
   border-radius: 3px;
-  min-height: 100px;
+  min-height: 150px;
+  height: auto;
   padding: 10px;
   line-height: 18px;
 }
@@ -240,10 +257,6 @@ input[type=text]:focus, textarea:focus {
   background-color: #f0f0f0;
 }
 
-
-#markdown-template {
-  min-height: 500px;
-}
 
 /********** table *********/
 
