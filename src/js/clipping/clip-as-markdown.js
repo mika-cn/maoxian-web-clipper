@@ -25,6 +25,7 @@ Mustache.escape = (text) => text;
 async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
   Log.debug("clip as markdown");
 
+
   const {clipId} = info;
 
   const params = {
@@ -43,7 +44,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   const snapshot = await takeSnapshot({elem, frames, requestParams, win});
   const tasks = await captureAssets(snapshot, params);
 
-  console.log(snapshot);
+  Log.debug(snapshot);
 
   const subHtmlHandler = async function({snapshot, subHtml, ancestorDocs}) {
     const r = await CapturerIframe.capture(snapshot, {
@@ -62,7 +63,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 
   const html = doExtraWork({html: elemHTML, win});
 
-  let markdown = generateMarkDown(html, info);
+  Log.debug('generateMarkDown');
+  let markdown = getTurndownService().turndown(html);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
 
@@ -73,11 +75,13 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     }
   };
 
+  const elemHasTitle = DOMTool.querySelectorIncludeSelf(elem, 'h1').length > 0;
   const tObj = T.wrapDate(new Date(info.created_at));
   const view = Object.assign({trimFn}, {
     url: info.link,
     createdAt: info.created_at,
-    content: markdown,
+    content: (elemHasTitle ? markdown : `\n# ${info.title}\n\n${markdown}`),
+    contentOnly: markdown,
   } , info, i18nLabel, tObj);
   try {
     markdown = Mustache.render(config.markdownTemplate, view);
@@ -177,17 +181,6 @@ function doExtraWork({html, win}) {
   selectedNode = MdPluginMathML2LaTeX.handle(doc, selectedNode);
 
   return selectedNode.outerHTML;
-}
-
-function generateMarkDown(elemHtml, info){
-  Log.debug('generateMarkDown');
-  const turndownService = getTurndownService();
-  let md = "";
-  if (!elemHtml.match(/<h1[\s>]{1}/i)) {
-    md += `\n# ${info.title}\n\n`;
-  }
-  md += turndownService.turndown(elemHtml);
-  return md;
 }
 
 function getTurndownService(){
