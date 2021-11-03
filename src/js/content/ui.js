@@ -219,6 +219,11 @@ function windowSizeChanged(){
 }
 
 function mouseMove(msg) {
+  if (state.clippingState !== 'selecting') {
+    // Before the unbindMouseMove event reach the ui-control iframe,
+    // user may move the mouse, ignore these events.
+    return;
+  }
   try {
     const elem = getElementFromPoint(msg.x, msg.y);
     if(['HTML'].indexOf(elem.tagName.toUpperCase()) > -1) {
