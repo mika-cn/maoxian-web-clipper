@@ -232,6 +232,16 @@ T.setHtml = function(obj, html) {
   }
 }
 
+T.sanitizeSelectorItem = function(selector, win) {
+  try {
+    const w = win || window;
+    return w.CSS.escape(selector);
+  } catch(e) {
+    // test env
+    return selector;
+  }
+}
+
 T.emitPageChangedEvent = function(selector) {
   const msg = selector ? {selector} : {};
   const json = JSON.stringify(msg);

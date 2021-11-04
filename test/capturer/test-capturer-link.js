@@ -8,7 +8,7 @@ import {CSSRULE_TYPE} from '../../src/js/lib/constants.js';
 
 const Capturer = H.wrapAsyncCapturer(CapturerLink);
 
-const ExtMsg = H.depMockJs('ext-msg.js');
+import ExtMsg from '../mock/ext-msg.js';
 ExtMsg.initBrowser(browser);
 
 

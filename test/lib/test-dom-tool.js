@@ -1,5 +1,5 @@
-const JSDOM = require('jsdom').JSDOM;
-const jsdom = new JSDOM();
+import jsdomApi from 'jsdom';
+const jsdom = new jsdomApi.JSDOM();
 const win = jsdom.window;
 
 import H from '../helper.js';

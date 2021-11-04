@@ -1,11 +1,11 @@
 "use strict";
 
+import T         from '../lib/tool.js';
 import Log       from '../lib/log.js';
 import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 
-import getCssSelector         from 'css-selector-generator/src/index.js';
-import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
+import getCssSelector         from 'css-selector-generator';
 
 const state = {appliedSelection: null};
 
@@ -162,7 +162,7 @@ function node2Str(node) {
   arr.push(node.tagName.toLowerCase());
   const id = node.getAttribute('id');
   if (id != null && id != '' && !id.match(/^\s+$/) && !id.match(/\d+$/)) {
-    const sanitized_id = sanitizeSelectorItem(id);
+    const sanitized_id = T.sanitizeSelectorItem(id);
     arr.push(sanitized_id);
     return arr.join('#');
   }
@@ -186,7 +186,7 @@ function node2Str(node) {
       } else if (blackList.indexOf(it) > -1) {
         // in blacklist
       } else {
-        klasses.push(sanitizeSelectorItem(it));
+        klasses.push(T.sanitizeSelectorItem(it));
       }
     });
     arr.push(...klasses.sort());

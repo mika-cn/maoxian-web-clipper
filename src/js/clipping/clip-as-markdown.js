@@ -17,7 +17,7 @@ import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
 
 import TurndownService from 'turndown';
-const turndownPluginGfm = require('turndown-plugin-gfm');
+import * as TurndownPluginGfm from 'turndown-plugin-gfm';
 
 import Mustache from 'mustache';
 Mustache.escape = (text) => text;
@@ -188,10 +188,12 @@ function getTurndownService(){
     headingStyle: 'atx',
     codeBlockStyle: 'fenced'
   });
+
   service.use([
-    turndownPluginGfm.tables,
-    turndownPluginGfm.strikethrough
+    TurndownPluginGfm.tables,
+    TurndownPluginGfm.strikethrough
   ]);
+
   service.addRule('ignoreTag', {
     filter: ['style', 'script', 'noscript', 'noframes', 'canvas', 'template'],
     replacement: function(content, node, options){return ''}

@@ -1,10 +1,12 @@
 
-const path                   = require('path');
-const webpack                = require('webpack');
-const CopyWebpackPlugin      = require("copy-webpack-plugin");
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const RemovePlugin           = require('remove-files-webpack-plugin');
-const ZipPlugin              = require('zip-webpack-plugin');
+import fs                     from 'fs';
+import path                   from 'path';
+import { fileURLToPath }      from 'url';
+import webpack                from 'webpack';
+import CopyWebpackPlugin      from "copy-webpack-plugin";
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import RemovePlugin           from 'remove-files-webpack-plugin';
+import ZipPlugin              from 'zip-webpack-plugin';
 
 const ENVIRONMENT = process.env.NODE_ENV || "development";
 const IS_PRODUCTION  = (ENVIRONMENT === "production");
@@ -43,11 +45,16 @@ if (IS_PRODUCTION) {
   }
 }
 
-const manifest = require("./src/manifest.json");
+// Fix CJS global variables
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 const pages_folder = path.join(__dirname, "src", "pages");
 const dist_folder  = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 const npm_folder   = path.join(__dirname, "node_modules");
+const manifestPath = path.join(__dirname, "src", "manifest.json");
+
+const manifest = JSON.parse(fs.readFileSync(manifestPath));
 
 // extension page names
 const pages = [
@@ -62,6 +69,7 @@ function getCopyItems() {
   // 3rd party js and css
   [
     ['webextension-polyfill/dist/browser-polyfill.js', 'vendor/js/browser-polyfill.js'],
+    ['css.escape/css.escape.js'    , 'vendor/js/css.escape.js'],
     ['roddeh-i18n/dist/i18n.js'    , 'vendor/js/i18n.js']          ,
     ['awesomplete/awesomplete.js'  , 'vendor/js/awesomplete.js']   ,
     ['pikaday/pikaday.js'          , 'vendor/js/pikaday.js']       ,
@@ -191,12 +199,14 @@ const config = {
               cacheDirectory: true
             }
           }
-        ]
+        ],
+        // webpack/webpack/issues/11467
+        resolve: { fullySpecified: false }
       },
     ]
   },
   plugins: [
-    new CopyWebpackPlugin(getCopyItems(), { copyUnmodified: true }),
+    new CopyWebpackPlugin({patterns: getCopyItems()}),
     new webpack.NormalModuleReplacementPlugin(
       /js\/env\.js/,
       (IS_PRODUCTION ? 'env.production.js' : 'env.js')
@@ -255,4 +265,4 @@ if (IS_PRODUCTION) {
   config.devtool = 'inline-source-map';
 }
 
-module.exports = config
+export default config;

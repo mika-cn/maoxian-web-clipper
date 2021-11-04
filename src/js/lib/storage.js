@@ -1,6 +1,5 @@
 "use strict";
 
-//const browser = require('webextension-polyfill');
 import T from './tool.js';
 
 const TYPE = 'local';

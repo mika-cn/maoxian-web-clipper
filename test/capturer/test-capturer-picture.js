@@ -5,7 +5,7 @@ import H from '../helper.js';
 import Capturer from '../../src/js/capturer/picture.js';
 import RequestParams from '../../src/js/lib/request-params.js';
 
-const ExtMsg = H.depMockJs('ext-msg.js');
+import ExtMsg from '../mock/ext-msg.js';
 ExtMsg.initBrowser(browser);
 
 function getNode() {

@@ -5,6 +5,7 @@ import ExtMsg      from '../js/lib/ext-msg.js';
 // scripts that will execute on all frames
 const CONTENT_SCRIPTS_A = [
   "/vendor/js/browser-polyfill.js",
+  "/vendor/js/css.escape.js",
   "/vendor/js/i18n.js",
   "/_locales/en/common.js",
   "/_locales/zh_CN/common.js",
