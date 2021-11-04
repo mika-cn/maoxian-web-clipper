@@ -10,6 +10,7 @@
 
 "use strict";
 
+import T from '../lib/tool.js';
 import MxWcEvent from '../lib/event.js';
 
 let listeners = {};
@@ -81,7 +82,7 @@ function createSetDisplayAction(params) {
       selectorInput: selectorInput,
       contextSelectorInput: contextSelectorInput,
       perform: function(detail={}) {
-        const selectorStrs = toSelectorStrs(this.selectorInput);
+        const selectorStrs = toArray(this.selectorInput);
         const contextElem = getContextElem(this.contextSelectorInput);
         selectorStrs.forEach(function(it) {
           queryElemsBySelector(it, contextElem)
@@ -125,7 +126,7 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
     selectorInput: selectorInput,
     contextSelectorInput: contextSelectorInput,
     perform: function(detail={}) {
-      const selectorStrs = toSelectorStrs(this.selectorInput);
+      const selectorStrs = toArray(this.selectorInput);
       const contextElem = getContextElem(this.contextSelectorInput);
       selectorStrs.forEach(function(it) {
         queryElemsBySelector(it, contextElem)
@@ -173,8 +174,9 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
  * action.attr {String} (required)
  *   Which attribute to operator.
  *
- * action.subStr {String} (required if type is 5 or 6)
+ * action.subStr {String|Array} (required if type is 5 or 6)
  *   The String that is to be replaced by newStr. not interpreted as a regular expression.
+ *
  *
  * action.newStr {String} (required if type is 5 or 6)
  *   The String that replaces the substring specified by the subStr parameter.
@@ -230,7 +232,7 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
 
     changeAttr: function(action) {
       const This = this;
-      const selectorStrs = toSelectorStrs(action.pick);
+      const selectorStrs = toArray(action.pick);
       const contextElem = getContextElem(this.contextSelectorInput);
       selectorStrs.forEach(function(it) {
         queryElemsBySelector(it, contextElem)
@@ -330,14 +332,19 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
         case 'self.replace': //deprecated
         case 'replace.last-match': {
           const attr = elem.getAttribute(action.attr);
-          const index = attr.lastIndexOf(action.subStr)
-          if(index > -1) {
-            const firstPart = attr.substring(0, index);
-            const lastPart = attr.substring(index);
-            return [
-              firstPart,
-              lastPart.replace(action.subStr, action.newStr)
-            ].join('');
+          const subStrs = toArray(action.subStr);
+          const newStrs = toArray(action.newStr);
+
+          for (let i = 0; i < subStrs.length; i++) {
+            const index = attr.lastIndexOf(subStrs[i])
+            if(index > -1) {
+              const firstPart = attr.substring(0, index);
+              const lastPart = attr.substring(index);
+              return [
+                firstPart,
+                lastPart.replace(subStrs[i], (newStrs[i] || newStrs[0] || ''))
+              ].join('');
+            }
           }
           break;
         }
@@ -346,12 +353,21 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
         case 'replace.all': {
           try {
             const attr = elem.getAttribute(action.attr);
-            const index = attr.lastIndexOf(action.subStr)
-            if(index > -1) {
-              const re = new RegExp(action.subStr,  'mg');
-              return attr.replace(re, action.newStr);
+            const subStrs = toArray(action.subStr);
+            const newStrs = toArray(action.newStr);
+
+            let result = attr, changed = false;
+            for (let i = 0; i < subStrs.length; i++) {
+              const index = attr.indexOf(subStrs[i])
+              if(index > -1) {
+                const re = new RegExp(T.escapeRegExp(subStrs[i]),  'mg');
+                result = result.replace(re, (newStrs[i] || newStrs[0] || ''));
+                changed = true;
+              }
             }
-          } catch(e){}
+
+            if (changed) { return result }
+          } catch(e){ console.warn(e)}
           break;
         }
 
@@ -391,7 +407,7 @@ Action.undoChAttr = function(params, contextSelectorInput = 'document') {
     perform: function(detail={}) {
       const contextElem = getContextElem(this.contextSelectorInput);
       this.actions.forEach(function(action) {
-        const selectorStrs = toSelectorStrs(action.pick);
+        const selectorStrs = toArray(action.pick);
         selectorStrs.forEach(function(it) {
           queryElemsBySelector(it, contextElem)
             .forEach(function(elem) {
@@ -513,11 +529,11 @@ function isElemMatchesSelector(elem, selector) {
 
 //======== query element relative ========
 
-function toSelectorStrs(selectorInput) {
-  if(typeof selectorInput === 'string') {
-    return [selectorInput];
+function toArray(it) {
+  if (it.constructor == Array) {
+    return it;
   } else {
-    return selectorInput;
+    return [it];
   }
 }
 
@@ -531,7 +547,7 @@ function getContextElem(selectorInput) {
 }
 
 function queryFirstElem(selectorInput, contextElem) {
-  const selectorStrs = toSelectorStrs(selectorInput);
+  const selectorStrs = toArray(selectorInput);
   let elem = undefined;
   let selector = undefined;
   for(let i = 0; i < selectorStrs.length; i++) {

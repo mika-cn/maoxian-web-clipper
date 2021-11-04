@@ -1458,6 +1458,11 @@ T.escapeHtml = function(string) {
 
 }
 
+T.escapeRegExp = function(str) {
+  const re = /[.*+?^${}()|[\]\\]/g
+  return str.replace(re, "\\$&");
+}
+
 
 T.getTagsByName = function(elem, name){
   let r = []
