@@ -2,7 +2,8 @@
  * FuzzyMatcher
  */
 
-"use strict";
+import T from '../lib/tool.js';
+
 
 function matchText(str, pattern) {
   if(str!= '' && !str || pattern != '' && !pattern){
@@ -33,8 +34,8 @@ function matchText(str, pattern) {
   }
 }
 
-function matchPath(path, pattern) {
-  const names = splitAndSanitizeInput(path);
+function matchAddress(address, pattern) {
+  const names = splitAndSanitizeInput(address);
   const subPtns = splitAndSanitizeInput(pattern);
   return matchTwoCollection(names, subPtns);
 }
@@ -119,15 +120,104 @@ function matchTwoCollection(names, subPtns) {
   }
 }
 
+
+function matchSearch(search, pattern) {
+  if (!pattern) { return true }
+  if (!search) { return false }
+  const isStrictMode = pattern.startsWith('!');
+  const searchItems = parseSearch(search);
+  const patternItems = parseSearch(isStrictMode ? pattern.substring(1) : pattern);
+  const restrictOK = isStrictMode ? searchItems.length == patternItems.length : true;
+  return restrictOK && T.all(patternItems, ([namePtn, valuePtn]) => {
+    return searchItems.some(([name, value]) => {
+      return name == namePtn && matchText(value, valuePtn);
+    });
+  });
+}
+
+
+
+function matchFrame(frame, pattern) {
+  if (!pattern) { return true }
+  if (!frame) { return false }
+  return matchText(frame, pattern);
+}
+
+
 function matchUrl(url, pattern){
   try {
-    const str = url.split('?')[0].split('#')[0];
-    return matchPath(str, pattern);
+    if (url === pattern) { return true }
+    const urlObj = parseUrl(url);
+    const ptnObj = parseUrl(pattern);
+    return (
+         matchText(urlObj.scheme, ptnObj.scheme)
+      && matchAddress(urlObj.address, ptnObj.address)
+      && matchSearch(urlObj.search, ptnObj.search)
+      && matchFrame(urlObj.frame, ptnObj.frame)
+    );
   } catch(e) {
     const msg = ["url", url, "pattern", pattern].join(': ');
     console.error(msg);
     //console.error(e);
     throw e;
+  }
+}
+
+
+// only supports http:// https:// file://
+function parseUrl(input) {
+  let scheme, address, search, frame, rest;
+  // sanitize
+  rest = input.replace("\\", '/').trim();
+
+  splitToTwoParts(rest, '://', false, (head, tail) => {
+    scheme = head;
+    rest = tail;
+  });
+
+  splitToTwoParts(rest, '?', false, (head, tail) => {
+    address = head;
+    rest = tail;
+  });
+
+  splitToTwoParts(rest, '#', true, (head, tail) => {
+    frame = tail;
+    if (address) {
+      search = head;
+    } else {
+      address = head;
+    }
+    rest = null;
+  });
+
+  if (rest) {
+    if (address) {
+      search = rest;
+    } else {
+      address = rest;
+    }
+  }
+
+  return {scheme, address, search, frame};
+}
+
+
+function parseSearch(search) {
+  return search.split('&').reduce((querys, item) => {
+    splitToTwoParts(item, '=', false, (key, value) => {
+      querys.push([key, value]);
+    });
+    return querys;
+  }, []);
+}
+
+
+function splitToTwoParts(str, sep, reverse, callback) {
+  const idx = reverse ? str.lastIndexOf(sep) : str.indexOf(sep);
+  if (idx > -1) {
+    const head = str.substring(0, idx);
+    const tail = str.substring(idx + sep.length);
+    callback(head, tail);
   }
 }
 
