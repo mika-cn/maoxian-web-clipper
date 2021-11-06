@@ -24,6 +24,7 @@
     "title.subscription.url": "Url",
     "title.subscription.detail": "Detail",
     "title.custom-plan": "Custom plan",
+    "title.global-plan": "Global plan",
     "title.handler": "Handler",
     "title.handler-browser": "Browser",
     "title.handler-native-app": "Native App",
@@ -69,6 +70,9 @@
 
     "help.label": "Click me to show (or hide) help content",
     "help.avariable-variable": "Variables",
+    "help.examples": "Examples",
+    "help.md-template.example-a": "Example A: append clipping information to the end",
+    "help.md-template.example-b": "Example B: add YAML-front-matter at the beginning",
 
     // variables that used in path, folder, filename
     "variable-in-folder": "Belowing variables can be used in Saving Folder",
@@ -101,26 +105,28 @@
 
     // variables that used in template
 
-    "tpl-variable.title"     : "<pre>{{title}}     => title </pre>",
-    "tpl-variable.content"   : "<pre>{{content}}   => the clipped content</pre>",
-    "tpl-variable.url"       : "<pre>{{url}}       => URL</pre>",
-    "tpl-variable.category"  : "<pre>{{category}}  => category</pre>",
-    "tpl-variable.tags"      : "<Pre>{{tags}}      => tags</pre>",
-    "tpl-variable.created-at" : "<pre>{{createdAt}} => clipping time (e.g. 2020-02-01 11:00:00)</pre>",
-    "tpl-variable.year"      : "<pre>{{year}}      => year (4 digits, e.g. 2018)</pre>",
-    "tpl-variable.sYear"     : "<pre>{{sYear}}     => short year (2 digits, e.g. 18)</pre>",
-    "tpl-variable.month"     : "<pre>{{month}}     => month (2 digits, 01 ~ 12)</pre>",
-    "tpl-variable.day"       : "<pre>{{day}}       => day (2 digits, 01 ~ 31)</pre>",
-    "tpl-variable.hour"      : "<pre>{{hour}}      => hour (2 digits, 00 ~ 23)</pre>",
-    "tpl-variable.minute"    : "<pre>{{minute}}    => minute (2 digits, 00 ~ 59)</pre>",
-    "tpl-variable.second"    : "<pre>{{second}}    => second (2 digits, 00 ~ 59)</pre>",
-    "tpl-variable.intSec"    : "<pre>{{intSec}}    => clipping time in seconds (e.g. 1578712781)</pre>",
+    "tpl-variable.title"        : "<pre>{{title}}       => title </pre>",
+    "tpl-variable.content"      : "<pre>{{content}}     => the clipped content (add title if the selection doesn't contains title)</pre>",
+    "tpl-variable.content-only" : "<pre>{{contentOnly}} => the clipped content</pre>",
+    "tpl-variable.url"          : "<pre>{{url}}         => URL</pre>",
+    "tpl-variable.category"     : "<pre>{{category}}    => category, the value could be empty</pre>",
+    "tpl-variable.tags"         : "<Pre>{{tags}}        => tags, this is an array. It may has multiple tags or empty.</pre>",
+    "tpl-variable.created-at"   : "<pre>{{createdAt}}   => clipping time (e.g. 2020-02-01 11:00:00)</pre>",
+    "tpl-variable.year"         : "<pre>{{year}}        => year (4 digits, e.g. 2018)</pre>",
+    "tpl-variable.sYear"        : "<pre>{{sYear}}       => short year (2 digits, e.g. 18)</pre>",
+    "tpl-variable.month"        : "<pre>{{month}}       => month (2 digits, 01 ~ 12)</pre>",
+    "tpl-variable.day"          : "<pre>{{day}}         => day (2 digits, 01 ~ 31)</pre>",
+    "tpl-variable.hour"         : "<pre>{{hour}}        => hour (2 digits, 00 ~ 23)</pre>",
+    "tpl-variable.minute"       : "<pre>{{minute}}      => minute (2 digits, 00 ~ 59)</pre>",
+    "tpl-variable.second"       : "<pre>{{second}}      => second (2 digits, 00 ~ 59)</pre>",
+    "tpl-variable.intSec"       : "<pre>{{intSec}}      => clipping time in seconds (e.g. 1578712781)</pre>",
     "tpl-variable.i18n-none"         : "<pre>{{i18n_none}}         => text: none</pre>",
     "tpl-variable.i18n-access"       : "<pre>{{i18n_access}}       => text: access</pre>",
     "tpl-variable.i18n-original-url" : "<pre>{{i18n_original_url}} => text: Original Url</pre>",
     "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => text: Created At</pre>",
     "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => text: Category</pre>",
     "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => text: Tags</pre>",
+    "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => This function remove commas and spaces from the two ends of the content.",
 
 
 
@@ -213,6 +219,7 @@
     "notice.public-plan-intro": "Public Plans are contributed by every MaoXian user. so that more people can use it.",
     "notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it<br /><br />See <a href='go.page:public-subscriptions' target='_blank'>this page</a> for more subscriptions.",
     "notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
+    "notice.global-plan-intro": 'The Global Plan will be applied to every web pages (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>).',
     "notice.request-cache": 'Currently, only Firefox supports request cache.',
     "notice.request-cache-applying": "<strong>Warning:</strong><br />The settings of cache will only be applied after you restart the browser.",
 

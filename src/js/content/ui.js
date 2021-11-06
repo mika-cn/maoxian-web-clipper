@@ -219,6 +219,11 @@ function windowSizeChanged(){
 }
 
 function mouseMove(msg) {
+  if (state.clippingState !== 'selecting') {
+    // Before the unbindMouseMove event reach the ui-control iframe,
+    // user may move the mouse, ignore these events.
+    return;
+  }
   try {
     const elem = getElementFromPoint(msg.x, msg.y);
     if(['HTML'].indexOf(elem.tagName.toUpperCase()) > -1) {
@@ -572,7 +577,7 @@ function pressEnter(msg){
         setStateConfirmed();
         const params = Object.assign({
           handlerInfo: handlerInfo, config: config
-        }, getFormInputs(msg));
+        }, getFormInputs(state.currElem, msg));
         sendFrameMsgToControl('showForm', params);
       } else {
         Notify.error(message);
@@ -795,7 +800,7 @@ function confirmElem(elem, formInputs){
  */
 function clipElem(elem, formInputs){
   selectElem(elem, function(){
-    submitForm(getFormInputs(formInputs));
+    submitForm(getFormInputs(elem, formInputs));
   });
 }
 
@@ -808,16 +813,24 @@ function setFormInputs(formInputs) {
   state.formInputs = formInputs;
 }
 
-function getFormInputs(formInputs) {
+function getFormInputs(elem, formInputs = {}) {
   const inputs = {
     format   : (formInputs.format   || state.formInputs.format   || ""),
-    title    : (formInputs.title    || state.formInputs.title    || document.title),
+    title    : (formInputs.title    || state.formInputs.title    || getTitle(elem) || getTitle(document.body) || document.title),
     category : (formInputs.category || state.formInputs.category || ""),
     tagstr   : (formInputs.tagstr   || state.formInputs.tagstr   || "")
   };
 
   setFormInputs({}); // reset it.
   return inputs;
+}
+
+function getTitle(contextElem) {
+  if (contextElem.tagName.toUpperCase() == 'H1') {
+    return contextElem.textContent;
+  }
+  const elems = contextElem.querySelectorAll('h1');
+  return (elems.length > 0 ? elems[0].textContent : '');
 }
 
 state.callbacks = {};

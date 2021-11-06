@@ -5,7 +5,7 @@ import H from '../helper.js';
 import CapturerCanvas from '../../src/js/capturer/canvas.js';
 import RequestParams from '../../src/js/lib/request-params.js';
 
-const ExtMsg = H.depMockJs('ext-msg.js');
+import ExtMsg from '../mock/ext-msg.js';
 ExtMsg.initBrowser(browser);
 const Capturer = H.wrapAsyncCapturer(CapturerCanvas);
 

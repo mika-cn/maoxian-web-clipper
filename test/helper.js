@@ -1,13 +1,5 @@
 
-const assert = require('assert');
-
-function depJs(path) {
-  return require(`../src/js/${path}`);
-}
-
-function depMockJs(path) {
-  return require(`./mock/${path}`);
-}
+import assert from 'assert';
 
 function wrapCapturer(Capturer) {
   return {
@@ -99,9 +91,7 @@ function assertReject(promise, validate) {
   );
 }
 
-module.exports = {
-  depJs,
-  depMockJs,
+export default {
   wrapCapturer,
   wrapAsyncCapturer,
 

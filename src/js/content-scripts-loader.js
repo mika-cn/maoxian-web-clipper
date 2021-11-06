@@ -5,6 +5,7 @@ import ExtMsg      from '../js/lib/ext-msg.js';
 // scripts that will execute on all frames
 const CONTENT_SCRIPTS_A = [
   "/vendor/js/browser-polyfill.js",
+  "/vendor/js/css.escape.js",
   "/vendor/js/i18n.js",
   "/_locales/en/common.js",
   "/_locales/zh_CN/common.js",
@@ -26,22 +27,38 @@ const CONTENT_SCRIPTS_B = [
 async function loadInTab(tabId) {
   const frames = await getFramesThatNotLoadContentScriptsYet(tabId);
   const loadedFrameIds = [];
-  if (frames.length == 0) { return loadedFrameIds; }
+  const errorDetails = [];
 
-  const tasks = [];
-  for (const {frameId} of frames) {
-    tasks.push(new Promise(async (resolve, reject) => {
-      try {
-        await loadInFrame(tabId, frameId);
-        resolve(frameId);
-      } catch(e) {
-        // something wrong happened when loading content scripts
-        reject(e.message);
-      }
-    }));
+  if (frames.length == 0) { return {loadedFrameIds, errorDetails}; }
+
+  for (const frame of frames) {
+    try {
+      await loadInFrame(tabId, frame.frameId);
+      loadedFrameIds.push(frame.frameId);
+    } catch(e) {
+      // something wrong happened when loading content scripts
+      const errorDetail = Object.assign(
+        {message: e.message}, frame
+      );
+      errorDetails.push(errorDetail);
+    }
   }
 
-  return await Promise.all(tasks);
+  return {loadedFrameIds, errorDetails}
+}
+
+function errorDetails2Str(errorDetails, tab) {
+  return errorDetails.map((it) => {
+    return [
+      `ContentScriptLoadError: ${it.message}`,
+      `frameId: ${it.frameId}`,
+      `frameUrl: ${it.url}`,
+      `parentFrameId: ${it.parentFrameId}`,
+      `errorOccurred: ${it.errorOccured}`,
+      `tabUrl: ${tab.url}`,
+      `tabTitle: ${tab.title}`,
+    ].join(", ");
+  }).join("\n");
 }
 
 
@@ -68,13 +85,24 @@ async function loadInFrame(tabId, frameId, needPing = false) {
 
 async function getFramesThatNotLoadContentScriptsYet(tabId) {
   const frames = await ExtApi.getAllFrames(tabId);
+
+  let topFrame;
   const targetFrames = [];
   for (const frame of frames) {
     if (T.isHttpUrl(frame.url)
       && !(await isContentScriptsLoaded(tabId, frame.frameId))
     ) {
-      targetFrames.push(frame);
+      if (frame.frameId == 0) {
+        topFrame = frame;
+      } else {
+        targetFrames.push(frame);
+      }
     }
+  }
+
+  if (topFrame) {
+    // put topFrame at the end.
+    targetFrames.push(topFrame);
   }
   return targetFrames;
 }
@@ -101,4 +129,4 @@ async function isContentScriptsLoaded(tabId, frameId) {
   }
 }
 
-export default {loadInTab, loadInFrame};
+export default {loadInTab, loadInFrame, errorDetails2Str};

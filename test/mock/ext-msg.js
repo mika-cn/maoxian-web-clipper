@@ -1,5 +1,4 @@
 
-;(function() {
   let handlers = {};
   let state = {};
 
@@ -95,7 +94,7 @@
     state = {};
   }
 
-  module.exports = {
+  export default {
     initBrowser,
     clearMocks,
     mockMsgResult,
@@ -105,4 +104,3 @@
     mockFrameToHtmlStatic,
     mockFrameMsgUrls,
   }
-})();

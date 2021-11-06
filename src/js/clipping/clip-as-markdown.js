@@ -17,13 +17,14 @@ import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
 
 import TurndownService from 'turndown';
-const turndownPluginGfm = require('turndown-plugin-gfm');
+import * as TurndownPluginGfm from 'turndown-plugin-gfm';
 
 import Mustache from 'mustache';
 Mustache.escape = (text) => text;
 
 async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
   Log.debug("clip as markdown");
+
 
   const {clipId} = info;
 
@@ -43,7 +44,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   const snapshot = await takeSnapshot({elem, frames, requestParams, win});
   const tasks = await captureAssets(snapshot, params);
 
-  console.log(snapshot);
+  Log.debug(snapshot);
 
   const subHtmlHandler = async function({snapshot, subHtml, ancestorDocs}) {
     const r = await CapturerIframe.capture(snapshot, {
@@ -62,22 +63,25 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 
   const html = doExtraWork({html: elemHTML, win});
 
-  let markdown = generateMarkDown(html, info);
+  Log.debug('generateMarkDown');
+  let markdown = getTurndownService().turndown(html);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
 
 
   const trimFn = function() {
     return function(text, render) {
-      return render(text).replace(/[,，\s]*$/, '');
+      return render(text).replace(/^[,，\s]/, '').replace(/[,，\s]*$/, '');
     }
   };
 
+  const elemHasTitle = DOMTool.querySelectorIncludeSelf(elem, 'h1').length > 0;
   const tObj = T.wrapDate(new Date(info.created_at));
   const view = Object.assign({trimFn}, {
     url: info.link,
     createdAt: info.created_at,
-    content: markdown,
+    content: (elemHasTitle ? markdown : `\n# ${info.title}\n\n${markdown}`),
+    contentOnly: markdown,
   } , info, i18nLabel, tObj);
   try {
     markdown = Mustache.render(config.markdownTemplate, view);
@@ -179,26 +183,17 @@ function doExtraWork({html, win}) {
   return selectedNode.outerHTML;
 }
 
-function generateMarkDown(elemHtml, info){
-  Log.debug('generateMarkDown');
-  const turndownService = getTurndownService();
-  let md = "";
-  if (!elemHtml.match(/<h1[\s>]{1}/i)) {
-    md += `\n# ${info.title}\n\n`;
-  }
-  md += turndownService.turndown(elemHtml);
-  return md;
-}
-
 function getTurndownService(){
   const service = new TurndownService({
     headingStyle: 'atx',
     codeBlockStyle: 'fenced'
   });
+
   service.use([
-    turndownPluginGfm.tables,
-    turndownPluginGfm.strikethrough
+    TurndownPluginGfm.tables,
+    TurndownPluginGfm.strikethrough
   ]);
+
   service.addRule('ignoreTag', {
     filter: ['style', 'script', 'noscript', 'noframes', 'canvas', 'template'],
     replacement: function(content, node, options){return ''}

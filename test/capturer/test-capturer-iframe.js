@@ -4,7 +4,7 @@ global.browser = browser;
 import H from '../helper.js';
 import CapturerIframe from '../../src/js/capturer/iframe.js';
 
-const ExtMsg = H.depMockJs('ext-msg.js');
+import ExtMsg from '../mock/ext-msg.js';
 ExtMsg.initBrowser(browser);
 const Capturer = H.wrapAsyncCapturer(CapturerIframe);
 

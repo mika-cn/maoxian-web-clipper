@@ -10,6 +10,12 @@ import Storage      from '../lib/storage.js';
 /**!
  * Storage keys:
  *
+ *   assistant.global-plan.text
+ *     {String} content that written by user.
+ *
+ *   assistant.global-plan
+ *     {Plan} the global plan.
+ *
  *   assistant.custom-plan.text
  *     {String} content that written by user.
  *
@@ -37,11 +43,13 @@ import Storage      from '../lib/storage.js';
  */
 
 const state = {
+  globalPlan: null,
   cachedPlans: [],
   customPlans: null,
   publicPlanPointers: [],
   publicPlanDict: {},
 };
+
 
 function initPublicPlanPointers() {
   Storage.get('assistant.public-plan.pointers').then((pointers) => {
@@ -50,6 +58,25 @@ function initPublicPlanPointers() {
 }
 
 async function get(url) {
+  const globalPlan = await getGlobalPlan();
+  const pagePlan = await getPagePlan(url);
+  return {globalPlan, pagePlan};
+}
+
+
+
+const DEFAULT_GLOBAL_PLAN = {name: 'the global plan', disabled: true};
+
+async function getGlobalPlan() {
+  if (!state.globalPlan) {
+    state.globalPlan = await Storage.get('assistant.global-plan', DEFAULT_GLOBAL_PLAN);
+  }
+  return state.globalPlan;
+}
+
+
+// WARNING: the returned page plan may be disabled.
+async function getPagePlan(url) {
   const fn = (plan) => FuzzyMatcher.matchUrl(url, plan.pattern);
 
   // find from cachedPlans
@@ -183,6 +210,21 @@ async function updatePublicPlans(urls) {
   return result;
 }
 
+async function updateGlobalPlan(planText) {
+  try {
+    const plan = JSON.parse(planText);
+    if (plan.constructor !== Object) {
+      throw new Error(`The global plan must be an Object, but we've got ${plan.constructor.name}`);
+    }
+    state.globalPlan = plan;
+    await Storage.set('assistant.global-plan', plan);
+    await Storage.set('assistant.global-plan.text', planText);
+    return {ok: true}
+  } catch(err) {
+    return {ok: false, message: err.message}
+  }
+}
+
 async function updateCustomPlans(planText) {
   state.cachedPlans = [];
   try {
@@ -217,6 +259,7 @@ function init(global) {
 
 // set state to default
 function restart() {
+  state.globalPlan = null;
   state.cachedPlans = [];
   state.customPlans = null;
   state.publicPlanPointers = [];
@@ -224,5 +267,5 @@ function restart() {
   initPublicPlanPointers();
 }
 
-const PlanRepository = { init, restart, get, updatePublicPlans, updateCustomPlans }
+const PlanRepository = { init, restart, get, updatePublicPlans, updateCustomPlans, updateGlobalPlan, }
 export default PlanRepository;

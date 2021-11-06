@@ -6,7 +6,7 @@ import {CSSRULE_TYPE} from '../../src/js/lib/constants.js';
 import RequestParams from '../../src/js/lib/request-params.js';
 import Capturer from '../../src/js/capturer/stylesheet.js';
 
-const ExtMsg = H.depMockJs('ext-msg.js');
+import ExtMsg from '../mock/ext-msg.js';
 ExtMsg.initBrowser(browser);
 
 function getParams() {

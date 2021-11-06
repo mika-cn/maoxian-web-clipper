@@ -24,6 +24,7 @@
     "title.subscription.url": "网址",
     "title.subscription.detail": "细节",
     "title.custom-plan": "自定义「计划」",
+    "title.global-plan": "全局「计划」",
     "title.handler": "处理程序",
     "title.handler-browser": "浏览器",
     "title.handler-native-app": "本地程序",
@@ -68,6 +69,9 @@
 
     "help.label": "点击显示（或隐藏）帮助信息",
     "help.avariable-variable": "可用变量",
+    "help.examples": "使用样例",
+    "help.md-template.example-a": "例一：在裁剪下来的内容后面追加裁剪信息",
+    "help.md-template.example-b": "例二：在裁剪下来的内容最前方加上 YAML Front Matter",
 
 
     // variables that used in path, folder, filename
@@ -101,26 +105,28 @@
 
     // variables that used in template
 
-    "tpl-variable.title"     : "<pre>{{title}}     => 网页标题 </pre>",
-    "tpl-variable.content"   : "<pre>{{content}}   => 裁剪后的内容</pre>",
-    "tpl-variable.url"       : "<pre>{{url}}       => 网址（URL）</pre>",
-    "tpl-variable.category"  : "<pre>{{category}}  => 目录</pre>",
-    "tpl-variable.tags"      : "<Pre>{{tags}}      => 标签</pre>",
-    "tpl-variable.created-at" : "<pre>{{createdAt}} => 裁剪时间 (e.g. 2020-02-01 11:00:00)</pre>",
-    "tpl-variable.year"      : "<pre>{{year}}      => 年 （4 位数字, 例： 2018）</pre>",
-    "tpl-variable.sYear"     : "<pre>{{sYear}}     => 年 （2 位数字, 例： 18）</pre>",
-    "tpl-variable.month"     : "<pre>{{month}}     => 月 （2 位数字, 01 ~ 12）</pre>",
-    "tpl-variable.day"       : "<pre>{{day}}       => 日 （2 位数字, 01 ~ 31）</pre>",
-    "tpl-variable.hour"      : "<pre>{{hour}}      => 时 （2 位数字, 00 ~ 23）</pre>",
-    "tpl-variable.minute"    : "<pre>{{minute}}    => 分 （2 位数字, 00 ~ 59）</pre>",
-    "tpl-variable.second"    : "<pre>{{second}}    => 秒 （2 位数字, 00 ~ 59）</pre>",
-    "tpl-variable.intSec"    : "<pre>{{intSec}}    => 以秒表示的裁剪时间（例：1578712781）.</pre>",
+    "tpl-variable.title"        : "<pre>{{title}}       => 网页标题 </pre>",
+    "tpl-variable.content"      : "<pre>{{content}}     => 裁剪后的内容（当选区不带标题时，加上标题）</pre>",
+    "tpl-variable.content-only" : "<pre>{{contentOnly}} => 裁剪后的内容</pre>",
+    "tpl-variable.url"          : "<pre>{{url}}         => 网址（URL）</pre>",
+    "tpl-variable.category"     : "<pre>{{category}}    => 目录，该项可能为空白。</pre>",
+    "tpl-variable.tags"         : "<Pre>{{tags}}        => 标签，为元组，即可能包含零个值，也可能包含多个值。",
+    "tpl-variable.created-at"   : "<pre>{{createdAt}}   => 裁剪时间 (e.g. 2020-02-01 11:00:00)</pre>",
+    "tpl-variable.year"         : "<pre>{{year}}        => 年 （4 位数字, 例： 2018）</pre>",
+    "tpl-variable.sYear"        : "<pre>{{sYear}}       => 年 （2 位数字, 例： 18）</pre>",
+    "tpl-variable.month"        : "<pre>{{month}}       => 月 （2 位数字, 01 ~ 12）</pre>",
+    "tpl-variable.day"          : "<pre>{{day}}         => 日 （2 位数字, 01 ~ 31）</pre>",
+    "tpl-variable.hour"         : "<pre>{{hour}}        => 时 （2 位数字, 00 ~ 23）</pre>",
+    "tpl-variable.minute"       : "<pre>{{minute}}      => 分 （2 位数字, 00 ~ 59）</pre>",
+    "tpl-variable.second"       : "<pre>{{second}}      => 秒 （2 位数字, 00 ~ 59）</pre>",
+    "tpl-variable.intSec"       : "<pre>{{intSec}}      => 以秒表示的裁剪时间（例：1578712781）.</pre>",
     "tpl-variable.i18n-none"         : "<pre>{{i18n_none}}         => 文本: 无</pre>",
     "tpl-variable.i18n-access"       : "<pre>{{i18n_access}}       => 文本: 访问</pre>",
     "tpl-variable.i18n-original-url" : "<pre>{{i18n_original_url}} => 文本: 原网址</pre>",
     "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => 文本: 创建时间</pre>",
     "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => 文本: 目录</pre>",
     "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => 文本: 标签</pre>",
+    "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => 修剪函数：将内容两端的逗号（含英文逗号）和空格删除。",
 
 
     "path.download.intro": "下载路径： 该路径即是你浏览器设置的下载目录，如果你使用「本地程序」的话，该路径是你配置文件（config.yaml）里面的 data_dir 项所配置的目录。",
@@ -209,6 +215,7 @@
     "notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
     "notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。<br /><br /><a href='go.page:public-subscriptions' target='_blank'>查看可订阅列表</a>",
     "notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
+    "notice.global-plan-intro": '全局「计划」可以应用到所有的网页（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>）。',
     "notice.request-cache": '目前，只有 Firefox 支持缓存 HTTP 请求。',
     "notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 

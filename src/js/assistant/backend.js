@@ -17,6 +17,9 @@ function messageHandler(message, sender) {
       case 'update.public-plan':
         PlanRepository.updatePublicPlans(message.body.urls).then(resolve);
         break;
+      case 'save.global-plan':
+        PlanRepository.updateGlobalPlan(message.body.planText).then(resolve);
+        break;
       case 'save.custom-plan':
         PlanRepository.updateCustomPlans(message.body.planText).then(resolve);
         break;

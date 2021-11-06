@@ -23,7 +23,6 @@
 import Log     from './log.js';
 import T       from './tool.js';
 import DOMTool from './dom-tool.js';
-import {sanitizeSelectorItem} from 'css-selector-generator/src/utilities-selectors.js'
 
 const KEYWORDS = ['highlight', 'syntax', 'code'];
 const DEFAULT_LANGUAGE = 'plain';
@@ -292,7 +291,7 @@ function node2Str(node) {
         // invalid klass
       } else {
         // sanitize it
-        arr.push(sanitizeSelectorItem(it));
+        arr.push(T.sanitizeSelectorItem(it));
       }
     });
   }

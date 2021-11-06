@@ -322,10 +322,23 @@ function commandListener(command) {
 }
 
 async function loadContentScriptsAndSendMsg(msg) {
+  const topFrameId = 0;
   const tab = await ExtApi.getCurrentTab();
-  const loadedFrameIds = await ContentScriptsLoader.loadInTab(tab.id);
+  const {loadedFrameIds, errorDetails} = await ContentScriptsLoader.loadInTab(tab.id);
 
-  if (loadedFrameIds.indexOf(0) > -1) {
+  if (errorDetails.length > 0) {
+    const log = ContentScriptsLoader.errorDetails2Str(errorDetails, tab);
+    //FIXME log it.
+    Log.warn(log);
+
+    const lastError = errorDetails[errorDetails.length - 1];
+    if (lastError.frameId == topFrameId) {
+      // Something unexpected happened.
+      throw new Error(log);
+    }
+  }
+
+  if (loadedFrameIds.indexOf(topFrameId) > -1) {
     // It contains the top frame, In this case,
     // We store the message and wait the top frame to fetch.
     // Because we don't know when the content script will
