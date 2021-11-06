@@ -662,25 +662,19 @@ function isTopWindow() {
  */
 function apply(plan) {
   const {pickElem, pickAction = 'select'} = plan;
-  if(isTopWindow()) {
-    if(hasSelector(pickElem)) {
-      const selectorInput = pickElem;
-      handleNormalAttr(plan, selectorInput);
-      switch(pickAction) {
-        case 'select':
-          listen('selecting', Action.selectElem(selectorInput));
-          break;
-        case 'confirm':
-          listen('selecting', Action.confirmElem(selectorInput));
-          break;
-        case 'clip':
-          break;
-        default: break;
-
-      }
-    } else {
-      // plan invalid, do nothing
-      console.warn("[Mx assistant] 'pick' attribute is required");
+  if(isTopWindow() && hasSelector(pickElem)) {
+    const selectorInput = pickElem;
+    handleNormalAttr(plan, selectorInput);
+    switch(pickAction) {
+      case 'select':
+        listen('selecting', Action.selectElem(selectorInput));
+        break;
+      case 'confirm':
+        listen('selecting', Action.confirmElem(selectorInput));
+        break;
+      case 'clip':
+        break;
+      default: break;
     }
   } else {
     applyGlobal(plan);
