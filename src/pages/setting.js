@@ -812,6 +812,7 @@ const AssistantDefault = {
     + '\n    "pick" : ".post",'
     + '\n    "hide" : [".post-btns", "div.comments"]'
     + '\n  }\n]',
+  exampleGlobalPlanText: '{\n  "name": "the global plan",\n  "disabled": true\n}',
   defaultIndexUrl: MxWcLink.get('assistant.subscription.default.index'),
 }
 
@@ -819,6 +820,9 @@ function renderSectionAssistant(id, container, template) {
   const html = T.renderTemplate(template, {});
   T.setHtml(container, html);
   renderSubscriptions();
+  MxWcStorage.get('assistant.global-plan.text', AssistantDefault.exampleGlobalPlanText).then((value) => {
+    T.setElemValue('#global-plan', value);
+  });
   MxWcStorage.get('assistant.custom-plan.text', AssistantDefault.examplePlanText).then((value) => {
     T.setElemValue('#custom-plans', value);
   });
@@ -835,6 +839,7 @@ function renderSectionAssistant(id, container, template) {
   bindClickListener('update-public-plan-now', updatePublicPlans);
   bindClickListener('save-plan-subscription', savePlanSubscription);
   bindClickListener('save-custom-plan', saveCustomPlan);
+  bindClickListener('save-global-plan', saveGlobalPlan);
 }
 
 function renderSubscriptions() {
@@ -926,6 +931,29 @@ function renderLog(log, isError) {
   }
 }
 
+function saveGlobalPlan(e) {
+  const elem = T.findElem('global-plan');
+  try {
+    const plan = JSON.parse(elem.value);
+    if (plan.constructor == Object) {
+      ExtMsg.sendToBackend('assistant', {
+        type: 'save.global-plan',
+        body: {planText: elem.value}
+      }).then((result) => {
+        if (result.ok) {
+          Notify.success(I18N.t('g.hint.saved'));
+        } else {
+          Notify.error(result.message);
+        }
+      })
+    } else {
+      Notify.error(I18N.t('g.error.value-invalid'));
+    }
+  } catch(e) {
+    Notify.error(I18N.t('g.error.value-invalid'));
+  }
+}
+
 function saveCustomPlan(e) {
   const elem = T.findElem('custom-plans');
   try {
@@ -950,8 +978,16 @@ function saveCustomPlan(e) {
 }
 
 async function resetAssistant() {
+  await resetGlobalPlan();
   await resetCustomPlan();
   await resetPublicPlan();
+}
+
+function resetGlobalPlan() {
+  return ExtMsg.sendToBackend('assistant', {
+    type: 'save.global-plan',
+    body: {planText: AssistantDefault.exampleGlobalPlanText}
+  });
 }
 
 function resetCustomPlan() {

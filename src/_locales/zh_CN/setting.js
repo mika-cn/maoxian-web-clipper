@@ -24,6 +24,7 @@
     "title.subscription.url": "网址",
     "title.subscription.detail": "细节",
     "title.custom-plan": "自定义「计划」",
+    "title.global-plan": "全局「计划」",
     "title.handler": "处理程序",
     "title.handler-browser": "浏览器",
     "title.handler-native-app": "本地程序",
@@ -214,6 +215,7 @@
     "notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
     "notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。<br /><br /><a href='go.page:public-subscriptions' target='_blank'>查看可订阅列表</a>",
     "notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
+    "notice.global-plan-intro": '全局「计划」可以应用到所有的网页（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>）。',
     "notice.request-cache": '目前，只有 Firefox 支持缓存 HTTP 请求。',
     "notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 

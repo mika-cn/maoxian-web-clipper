@@ -40,6 +40,8 @@ function toMxPlan(plan) {
   return p;
 }
 
+// Other components can call assistant to apply plan,
+// such as the remember selection component.
 function listenInternalEvent() {
   MxWcEvent.listenInternal('assistant.apply-plan', (e) => {
     const plan = MxWcEvent.getData(e);
@@ -52,11 +54,24 @@ function listenInternalEvent() {
 }
 
 function init() {
-  getPlan().then((plan) => {
-    if (plan) {
-      Plan.apply(toMxPlan(plan));
+  getPlan().then(({globalPlan, pagePlan}) => {
+    if (globalPlan) {
+      if (globalPlan.disabled) {
+        Log.debug("The global plan is disabled");
+      } else {
+        Plan.applyGlobal(toMxPlan(globalPlan));
+        Log.debug("the global plan has been applied");
+      }
+    }
+    if (pagePlan) {
+      if (pagePlan.disabled) {
+        Log.debug("The page plan is disabled");
+      } else {
+        Plan.apply(toMxPlan(pagePlan));
+        Log.debug("the page plan has been applied");
+      }
     } else {
-      Log.debug("NotPlan matched");
+      Log.debug("No page plan matched");
       setTimeout(() => {
         MxWcEvent.dispatchInternal('assistant.not-plan-matched');
       }, 0);

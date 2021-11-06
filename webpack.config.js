@@ -8,9 +8,11 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import RemovePlugin           from 'remove-files-webpack-plugin';
 import ZipPlugin              from 'zip-webpack-plugin';
 
+
 const ENVIRONMENT = process.env.NODE_ENV || "development";
 const IS_PRODUCTION  = (ENVIRONMENT === "production");
 const IS_DEVELOPMENT = (ENVIRONMENT === "development");
+
 
 // "chromium" or "firefox"
 const PLATFORM = process.env.MX_PLATFORM
@@ -261,8 +263,9 @@ if (IS_PRODUCTION) {
       filename: zipfile,
     })
   );
-} else if (ENVIRONMENT == "development") {
+} else if (IS_DEVELOPMENT) {
   config.devtool = 'inline-source-map';
 }
+
 
 export default config;

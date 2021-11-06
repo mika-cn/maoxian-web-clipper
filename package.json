@@ -15,8 +15,8 @@
     "build-firefox": "cross-env NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID webpack --mode=production --progress",
     "build-all": "npm run build-chromium && npm run build-firefox",
     "watch-chrome": "npm run watch-chromium",
-    "watch-chromium": "cross-env NODE_ENV=developer MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_DEV_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_DEV_CHROMIUM_URL webpack --mode=development --watch --progress",
-    "watch-firefox": "cross-env NODE_ENV=developer MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_DEV_FIREFOX_ID webpack --mode=development --watch --progress",
+    "watch-chromium": "cross-env NODE_ENV=development MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_DEV_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_DEV_CHROMIUM_URL webpack --mode=development --watch --progress",
+    "watch-firefox": "cross-env NODE_ENV=development MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_DEV_FIREFOX_ID webpack --mode=development --watch --progress",
     "test": "mocha --recursive"
   },
   "author": "Mika",

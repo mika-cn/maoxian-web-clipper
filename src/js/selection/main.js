@@ -5,7 +5,7 @@ import Log       from '../lib/log.js';
 import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 
-import getCssSelector         from 'css-selector-generator';
+import {getCssSelector} from 'css-selector-generator';
 
 const state = {appliedSelection: null};
 
@@ -25,7 +25,7 @@ function save(elem, deletedElems) {
         ancestors: getAncestors(elem),
         deletion: {
           selectors: deletedElems.map((it) => {
-            return generator.getSelector(it)
+            return getCssSelector(it)
           })
         }
       }

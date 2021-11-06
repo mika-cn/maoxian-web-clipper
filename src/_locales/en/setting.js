@@ -24,6 +24,7 @@
     "title.subscription.url": "Url",
     "title.subscription.detail": "Detail",
     "title.custom-plan": "Custom plan",
+    "title.global-plan": "Global plan",
     "title.handler": "Handler",
     "title.handler-browser": "Browser",
     "title.handler-native-app": "Native App",
@@ -218,6 +219,7 @@
     "notice.public-plan-intro": "Public Plans are contributed by every MaoXian user. so that more people can use it.",
     "notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it<br /><br />See <a href='go.page:public-subscriptions' target='_blank'>this page</a> for more subscriptions.",
     "notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
+    "notice.global-plan-intro": 'The Global Plan will be applied to every web pages (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>).',
     "notice.request-cache": 'Currently, only Firefox supports request cache.',
     "notice.request-cache-applying": "<strong>Warning:</strong><br />The settings of cache will only be applied after you restart the browser.",
 
