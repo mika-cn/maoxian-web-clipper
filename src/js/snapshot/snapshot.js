@@ -583,7 +583,7 @@ class SnapshotAccessor {
     let attrHTML = '';
     for (let name in attrObj) {
       if (!deletedAttr[name]) {
-        attrHTML += ` ${name}="${attrObj[name]}"`
+        attrHTML += ` ${name}="${T.escapeHtml(attrObj[name])}"`
       }
     }
     return attrHTML;
