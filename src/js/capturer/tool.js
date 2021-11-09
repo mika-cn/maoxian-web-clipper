@@ -8,7 +8,7 @@ import SnapshotNodeChange from '../snapshot/change.js';
 
 
 async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, requestParams, clipId}) {
-  const change = new SnapshotNodeChange();
+  let change = new SnapshotNodeChange();
   const tasks = [];
 
   if (node.attr.background) {
@@ -19,22 +19,11 @@ async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, reques
       change.setAttr('background', '');
       return {change, tasks};
     }
-    const {isValid, url, message} = T.completeUrl(bg, baseUrl);
-    if (isValid) {
-      const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-      const {filename, path} = await Asset.getFilenameAndPath({
-        link: url, mimeTypeData: {httpMimeType},
-        clipId, storageInfo,
-      });
-
-      tasks.push(Task.createImageTask(filename, url, clipId, requestParams))
-      change.setAttr('background', path);
-      return {change, tasks};
-    } else {
-      change.setAttr('data-mx-warn', message);
-      change.setAttr('data-mx-original-background', (bg || ''));
-      change.setAttr('background', '');
-    }
+    const params = {baseUrl, clipId, storageInfo, requestParams};
+    const attrParams = {resourceType: 'Image', attrName: 'background'};
+    const r = await captureAttrResource(node, params, attrParams);
+    tasks.push(...r.tasks);
+    change = change.merge(r.change);
   }
   return {change, tasks}
 }
@@ -185,22 +174,33 @@ async function captureAttrResource(node, params, attrParams) {
 
     } else {
 
-      const {invalidUrl, invalidMimeType} = getInvalidValue(resourceType);
 
       const isEmptyError = message.match(/^empty/i);
       if (!(isEmptyError && canEmpty)) {
         change.setAttr('data-mx-warn', message);
       }
 
-      if (attrValue) {
+      if (attrValue === undefined || attrValue === null) {
+        // The target attribute is not exist at all
+
+      } else if (attrValue === "") {
+        change.setAttr(`data-mx-original-${attrName}`, attrValue);
+
+      } else {
+        // Other non-empty values.
+
+        const {invalidUrl, invalidMimeType} = getInvalidValue(resourceType);
+
         change.setAttr(`data-mx-original-${attrName}`, attrValue);
         change.setAttr(attrName, invalidUrl);
+
+        if (mimeTypeAttrName && node.attr[mimeTypeAttrName]) {
+          change.setAttr(`data-mx-original-${mimeTypeAttrName}`, node.attr[mimeTypeAttrName]);
+          change.setAttr(mimeTypeAttrName, invalidMimeType);
+        }
       }
 
-      if (mimeTypeAttrName && node.attr[mimeTypeAttrName]) {
-        change.setAttr(`data-mx-original-${mimeTypeAttrName}`, node.attr[mimeTypeAttrName]);
-        change.setAttr(mimeTypeAttrName, invalidMimeType);
-      }
+
 
     }
 

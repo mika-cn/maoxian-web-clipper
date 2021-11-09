@@ -145,6 +145,17 @@ describe('CaptureTool', () => {
       H.assertFalse(change.hasAttr('data-mx-warn'));
     });
 
+    it('attribute is ""', async() => {
+      const node = getNode({src: ''});
+      const params = getParams();
+      const attrParams = {resourceType: 'Image', attrName: 'src'}
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 0);
+      H.assertTrue(change.hasAttr('data-mx-warn'));
+      H.assertTrue(change.hasAttr('data-mx-original-src'));
+    });
+
     it('attribute has invalid value', async() => {
       const node = getNode({src: 'http://:300', type: 'video/mp4'});
       const params = getParams();
