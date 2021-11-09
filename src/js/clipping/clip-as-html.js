@@ -11,6 +11,7 @@ import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerPicture       from '../capturer/picture.js';
 import CapturerImg           from '../capturer/img.js';
+import CapturerAudio         from '../capturer/audio.js';
 import CapturerStyle         from '../capturer/style.js';
 import CapturerLink          from '../capturer/link.js';
 import CapturerCanvas        from '../capturer/canvas.js';
@@ -52,7 +53,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   const tasks = await captureAssets(snapshot, Object.assign({}, params, {
     needFixStyle: (elem.tagName.toUpperCase() !== 'BODY')
   }));
-  console.log(snapshot);
+  Log.debug(snapshot);
 
   const iframeStorageInfo = Object.assign({}, params.storageInfo, {
     mainFileFolder: params.storageInfo.frameFileFolder,
@@ -190,6 +191,12 @@ async function captureAssets(snapshot, params) {
 
   await Snapshot.eachElement(snapshot,
     async(node, ancestors, ancestorDocs) => {
+
+      if (node.change) {
+        // processed
+        return true;
+      }
+
       const {baseUrl, docUrl} = ancestorDocs[0];
       if (baseUrl == undefined) {
         console.log(ancestorDocs[0])
@@ -247,6 +254,11 @@ async function captureAssets(snapshot, params) {
           break;
 
         case 'AUDIO':
+          r = await CapturerAudio.capture(node, {
+            baseUrl, storageInfo, clipId, requestParams,
+          });
+          break;
+
         case 'VEDIO':
         case 'EMBED':
         case 'OBJECT':

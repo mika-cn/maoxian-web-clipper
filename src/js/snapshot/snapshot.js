@@ -113,6 +113,11 @@ async function takeSnapshot(node, params) {
           snapshot.currentSrc = node.currentSrc;
           break;
 
+        case 'AUDIO':
+          snapshot.childNodes = await handleNodes(node.childNodes, params);
+          snapshot.currentSrc = node.currentSrc;
+          break;
+
         case 'CANVAS':
           try {
             snapshot.childNodes = [];
@@ -580,7 +585,11 @@ class SnapshotAccessor {
     let attrHTML = '';
     for (let name in attrObj) {
       if (!deletedAttr[name]) {
-        attrHTML += ` ${name}="${T.escapeHtml(attrObj[name])}"`
+        if (attrObj[name]) {
+          attrHTML += ` ${name}="${T.escapeHtmlAttr(attrObj[name])}"`;
+        } else {
+          attrHTML += ` ${name}`;
+        }
       }
     }
     return attrHTML;

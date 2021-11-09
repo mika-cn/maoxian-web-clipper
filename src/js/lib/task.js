@@ -51,6 +51,14 @@ function createImageTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'imageFileTask', requestParams);
 }
 
+function createAudioTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'audioFileTask', requestParams);
+}
+
+function createTextTrackTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'textTrackFileTask', requestParams);
+}
+
 function createFontTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'fontFileTask', requestParams);
 }
@@ -137,6 +145,8 @@ const Task = {
   createTitleTask,
   createInfoTask,
   createImageTask,
+  createAudioTask,
+  createTextTrackTask,
   createFontTask,
   rmReduplicate,
 

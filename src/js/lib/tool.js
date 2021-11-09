@@ -1442,6 +1442,19 @@ T.resourceType2MimeType = function(type) {
 
 // ====================================
 
+T.escapeHtmlAttr = function(string) {
+  return String(string).replace(/[&<>"'`]/g, function(s) {
+    return ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '`': '&#x60;',
+    })[s];
+  });
+}
+
 T.escapeHtml = function(string) {
   return String(string).replace(/[&<>"'`=\/]/g, function (s) {
     return ({
