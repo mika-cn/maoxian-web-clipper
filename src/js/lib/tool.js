@@ -280,8 +280,16 @@ T.splitTagstr = function(str){
 
 // collection
 
+T.toArray = function(it) {
+  if (it.constructor == Array) {
+    return it;
+  } else {
+    return [it];
+  }
+}
+
 T.unique = function(collection){
-  const arr = T.toArray(collection);
+  const arr = T.iterable2Array(collection);
   return arr.filter(function(value, index, self) {
     return self.indexOf(value) === index;
   });
@@ -311,7 +319,8 @@ T.map = function(collection, fn){
   });
   return r;
 }
-T.toArray = function(collection){
+
+T.iterable2Array = function(collection){
   if(collection.length == 0){ return []}
   return T.map(collection, function(o){return o});
 }
@@ -1483,7 +1492,7 @@ T.getTagsByName = function(elem, name){
     r.push(elem);
   }
   const child = elem.getElementsByTagName(name)
-  return r.concat(T.toArray(child));
+  return r.concat(T.iterable2Array(child));
 }
 
 // Gteq => greater than or equals to

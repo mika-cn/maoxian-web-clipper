@@ -55,6 +55,10 @@ function createAudioTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'audioFileTask', requestParams);
 }
 
+function createVideoTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'videoFileTask', requestParams);
+}
+
 function createTextTrackTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'textTrackFileTask', requestParams);
 }
@@ -146,6 +150,7 @@ const Task = {
   createInfoTask,
   createImageTask,
   createAudioTask,
+  createVideoTask,
   createTextTrackTask,
   createFontTask,
   rmReduplicate,

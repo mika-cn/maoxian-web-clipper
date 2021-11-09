@@ -5,6 +5,8 @@ import Asset from '../lib/asset.js';
 import Task  from '../lib/task.js';
 import SnapshotNodeChange from '../snapshot/change.js';
 
+
+
 async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, requestParams, clipId}) {
   const change = new SnapshotNodeChange();
   const tasks = [];
@@ -40,7 +42,7 @@ async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, reques
 /**
  * capture srcset of <img> element
  * and <source> element in <picture>
- * @return {Array} imagetasks
+ * @return {Object} {:change, :tasks}
  */
 async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, clipId }) {
   const srcset = node.attr.srcset;
@@ -131,8 +133,100 @@ function parseSrcset(srcset) {
   return result;
 }
 
+
+
+
+/**
+ * @param {Snapshot} node
+ * @param {Object} params
+ * @param {Object|Array} attrParams
+ *   - {String}  resourceType -  Avariable values are "Image", "Audio", "Video" and "TextTrack"
+ *   - {String}  attrName - The name of target attribute
+ *   - {String}  mimeTypeAttrName (optional) - The attribute that indicate the mime type.
+ *   - {String}  extension (optional) - The target file extension to save.
+ *   - {Boolean} canEmpty (optional) - Can this attribute be empty, default is false.
+ *
+ * @return {Object} {:change, tasks}
+ */
+async function captureAttrResource(node, params, attrParams) {
+  const {baseUrl, clipId, storageInfo, requestParams} = params;
+  const change = new SnapshotNodeChange();
+  const tasks = [];
+  const defaultV = {captureResouce: true, canEmpty: false};
+  const attrParamsArr = T.toArray(attrParams);
+
+  for (const it of attrParamsArr) {
+
+    const {resourceType, attrName, mimeTypeAttrName, extension, canEmpty = false} = it;
+
+
+    const attrValue = node.attr[attrName];
+    const {isValid, url, message} = T.completeUrl(attrValue, baseUrl);
+
+    if (isValid) {
+
+      // deal mimeType
+      const mimeTypeData = {};
+      if (!extension) {
+        if (mimeTypeAttrName) {
+          mimeTypeData.attrMimeType = node.attr[mimeTypeAttrName];
+        }
+        if (!mimeTypeData.attrMimeType) {
+          mimeTypeData.httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
+        }
+      }
+
+      const {filename, path} = await Asset.getFilenameAndPath({
+        link: url, extension, mimeTypeData, clipId, storageInfo});
+
+      tasks.push(Task[`create${resourceType}Task`](filename, url, clipId, requestParams));
+      change.setAttr(attrName, path);
+
+
+    } else {
+
+      const {invalidUrl, invalidMimeType} = getInvalidValue(resourceType);
+
+      const isEmptyError = message.match(/^empty/i);
+      if (!(isEmptyError && canEmpty)) {
+        change.setAttr('data-mx-warn', message);
+      }
+
+      if (attrValue) {
+        change.setAttr(`data-mx-original-${attrName}`, attrValue);
+        change.setAttr(attrName, invalidUrl);
+      }
+
+      if (mimeTypeAttrName && node.attr[mimeTypeAttrName]) {
+        change.setAttr(`data-mx-original-${mimeTypeAttrName}`, node.attr[mimeTypeAttrName]);
+        change.setAttr(mimeTypeAttrName, invalidMimeType);
+      }
+
+    }
+
+
+  }
+
+  return {change, tasks};
+}
+
+
+
+function getInvalidValue(resourceType) {
+  const [invalidUrl, invalidMimeType] = ({
+    "Image": ["invalid-image.png", "image/png"],
+    "Audio": ["invalid-audio.mp3", "audio/mp3"],
+    "Video": ["invalid-video.mp4", "video/mp4"],
+    "TextTrack": ["invalid-text-track.vtt", "text/vtt"],
+  }[resourceType]);
+  return {invalidUrl, invalidMimeType};
+}
+
+
+
 export default {
   captureBackgroundAttr,
   captureImageSrcset,
+  captureAttrResource,
   parseSrcset,
 };
