@@ -12,6 +12,7 @@ import CapturerA             from '../capturer/a.js';
 import CapturerPicture       from '../capturer/picture.js';
 import CapturerImg           from '../capturer/img.js';
 import CapturerAudio         from '../capturer/audio.js';
+import CapturerVideo         from '../capturer/video.js';
 import CapturerStyle         from '../capturer/style.js';
 import CapturerLink          from '../capturer/link.js';
 import CapturerCanvas        from '../capturer/canvas.js';
@@ -259,7 +260,12 @@ async function captureAssets(snapshot, params) {
           });
           break;
 
-        case 'VEDIO':
+        case 'VIDEO':
+          r = await CapturerVideo.capture(node, {
+            baseUrl, storageInfo, clipId, requestParams,
+          });
+          break;
+
         case 'EMBED':
         case 'OBJECT':
         case 'APPLET':

@@ -113,11 +113,6 @@ async function takeSnapshot(node, params) {
           snapshot.currentSrc = node.currentSrc;
           break;
 
-        case 'AUDIO':
-          snapshot.childNodes = await handleNodes(node.childNodes, params);
-          snapshot.currentSrc = node.currentSrc;
-          break;
-
         case 'CANVAS':
           try {
             snapshot.childNodes = [];
@@ -134,6 +129,13 @@ async function takeSnapshot(node, params) {
           const newParams = Object.assign({}, params, {ancestorInfo: newAncestorInfo});
           snapshot.childNodes = await handleNodes(node.childNodes, newParams);
           break;
+
+        case 'AUDIO':
+        case 'VIDEO':
+          snapshot.childNodes = await handleNodes(node.childNodes, params);
+          snapshot.currentSrc = node.currentSrc;
+          break;
+
 
         case 'TEMPLATE':
           snapshot.childNodes = [await takeSnapshot(node.content, params)];
