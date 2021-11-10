@@ -232,6 +232,7 @@ async function captureAssets(snapshot, params) {
           break;
 
         case 'A':
+        case 'AREA':
           r = await CapturerA.capture(node, {baseUrl, docUrl});
           break;
 

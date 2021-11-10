@@ -461,6 +461,7 @@ function isBrowserExtensionUrl(url) {
 const VISIBLE_WHITE_LIST = [
   'HEAD', 'META', 'TITLE',
   'LINK', 'STYLE', 'INPUT',
+  'MAP', 'AREA',
 ];
 
 
