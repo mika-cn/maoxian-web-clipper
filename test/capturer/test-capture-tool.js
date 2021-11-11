@@ -181,6 +181,17 @@ describe('CaptureTool', () => {
     });
 
 
+    it('attribute has value, with attrValue', async () => {
+      const node = getNode({src: 'test.png'});
+      const params = getParams();
+      const attrParams = {resourceType: 'Image', attrName: 'src', attrValue: 'test.svg'};
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 1);
+      H.assertTrue(change.getAttr('src').endsWith('.svg'));
+    });
+
+
     it('attribute has value, with extension', async () => {
       const node = getNode({src: 'test'});
       const params = getParams();

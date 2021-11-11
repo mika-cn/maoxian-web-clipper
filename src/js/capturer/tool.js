@@ -129,8 +129,10 @@ function parseSrcset(srcset) {
  * @param {Snapshot} node
  * @param {Object} params
  * @param {Object|Array} attrParams
- *   - {String}  resourceType -  Avariable values are "Image", "Audio", "Video" and "TextTrack"
+ *   - {String}  resourceType -  Avariable values are "Image", "Audio", "Video", "TextTrack" and "Misc"
  *   - {String}  attrName - The name of target attribute
+ *   - {String}  attrValue (optional) - The value to use instead of getting it from node.
+ *   - {String}  baseUrl (optional) - The baseUrl to use instead of getting it from params
  *   - {String}  mimeTypeAttrName (optional) - The attribute that indicate the mime type.
  *   - {String}  extension (optional) - The target file extension to save.
  *   - {Boolean} canEmpty (optional) - Can this attribute be empty, default is false.
@@ -146,11 +148,12 @@ async function captureAttrResource(node, params, attrParams) {
 
   for (const it of attrParamsArr) {
 
-    const {resourceType, attrName, mimeTypeAttrName, extension, canEmpty = false} = it;
+    const {resourceType, attrName, attrValue: _attrValue, baseUrl: _baseUrl,
+      mimeTypeAttrName, extension, canEmpty = false} = it;
 
 
-    const attrValue = node.attr[attrName];
-    const {isValid, url, message} = T.completeUrl(attrValue, baseUrl);
+    const attrValue = (_attrValue || node.attr[attrName]);
+    const {isValid, url, message} = T.completeUrl(attrValue, (_baseUrl || baseUrl));
 
     if (isValid) {
 
@@ -218,6 +221,7 @@ function getInvalidValue(resourceType) {
     "Audio": ["invalid-audio.mp3", "audio/mp3"],
     "Video": ["invalid-video.mp4", "video/mp4"],
     "TextTrack": ["invalid-text-track.vtt", "text/vtt"],
+    "Misc": ["invalid-url.misc", "custom/misc"],
   }[resourceType]);
   return {invalidUrl, invalidMimeType};
 }

@@ -67,6 +67,10 @@ function createFontTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'fontFileTask', requestParams);
 }
 
+function createMiscTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'miscFileTask', requestParams);
+}
+
 
 function createUrlTask(filename, url, clipId, taskType, requestParams) {
   return {
@@ -141,6 +145,33 @@ function getRelativePath(tasks, currDir) {
   return {mainPath: mainPath, paths: paths};
 }
 
+// Resource type is the taskType that
+// without the end ("FileTask").
+function getResourceType(url, mimeType) {
+  let r = mimeType2resourceType(mimeType);
+  if (!r) { r = url2resourceType(url) }
+  return (r || 'Misc');
+}
+
+function url2resourceType(it) {
+  if (it) {
+    try {
+      const mimeType = T.extension2MimeType(T.getUrlExtension(it));
+      return mimeType2resourceType(mimeType);
+    } catch(e) {}
+  }
+  return null;
+}
+
+function mimeType2resourceType(it) {
+  if (it) {
+    if (it.startsWith('image/')){ return  'Image'};
+    if (it.startsWith('audio/')){ return  'Audio'};
+    if (it.startsWith('video/')){ return  'Video'};
+  }
+  return null;
+}
+
 const Task = {
   createHtmlTask,
   createMarkdownTask,
@@ -153,8 +184,10 @@ const Task = {
   createVideoTask,
   createTextTrackTask,
   createFontTask,
-  rmReduplicate,
+  createMiscTask,
 
+  getResourceType,
+  rmReduplicate,
   sort,
   getRelativePath,
 }
