@@ -24,15 +24,36 @@ async function capture(node, params, [attrParamsMedia, attrParamsSource, attrPar
   const {config} = params;
   const name = T.capitalize(node.name);
   const key = `htmlCapture${name}`
-
   const captureMethod = config[key];
+
   switch(captureMethod) {
-    case 'saveAll':
-      return await captureSaveAll(node, params, [
-        attrParamsMedia,
-        attrParamsSource,
-        attrParamsTrack,
-      ]);
+
+    case 'saveAll': {
+      const r = await captureMediaNode(node, params, attrParamsMedia);
+      const childrenTasks = await captureMediaChildren(node, params, [attrParamsSource, attrParamsTrack]);
+      r.tasks.push(...childrenTasks);
+      return r;
+    }
+    case 'saveCurrent': {
+      // HTMLMediaElement.currentSrc is an empty string
+      // if the networkState property is EMPTY.
+      //
+      // WARNING: we don't pass currentSrc here.
+      // do it in capturerAudio or capturerVideo
+      const r = await captureMediaNode(node, params, attrParamsMedia);
+      let childrenTasks = [];
+      if (node.attr.src || node.currentSrc) {
+        childrenTasks = await captureMediaChildren(node, params, [null, attrParamsTrack]);
+      } else {
+        // There's not current resource to save, save all.
+        childrenTasks = await captureMediaChildren(node, params, [attrParamsSource, attrParamsTrack]);
+      }
+
+      r.tasks.push(...childrenTasks);
+
+      return r;
+    }
+
     case 'remove':
     default:
       return CaptureTool.captureRemoveNode();
@@ -40,26 +61,32 @@ async function capture(node, params, [attrParamsMedia, attrParamsSource, attrPar
 }
 
 
-
-
-
-
-async function captureSaveAll(node, params, [attrParamsMedia, attrParamsSource, attrParamsTrack]) {
+async function captureMediaNode(node, params, attrParamsMedia) {
   const tasks = [];
   let change = new SnapshotNodeChange();
   change.rmAttr('crossorigin');
-
   const r = await CaptureTool.captureAttrResource(node, params, attrParamsMedia);
   tasks.push(...r.tasks);
   change = change.merge(r.change);
+  return {tasks, change};
+}
+
+async function captureMediaChildren(node, params, [attrParamsSource, attrParamsTrack]) {
+  const tasks = [];
 
   if (node.childNodes && node.childNodes.length > 0) {
     for (const childNode of node.childNodes) {
       switch (childNode.name) {
         case 'SOURCE': {
-          // although we can remove source tags if the audio tag's src attribute is not empty
-          // but we keep them, In case user want to correct the audio tag's src attribute.
-          const result = await CaptureTool.captureAttrResource(childNode, params, attrParamsSource);
+          let result;
+          if (attrParamsSource) {
+            // although we can remove source tags if the audio tag's src attribute is not empty
+            // but we keep them, In case user want to correct the audio tag's src attribute.
+            result = await CaptureTool.captureAttrResource(childNode, params, attrParamsSource);
+          } else {
+            const reason = "capture method: currentSrc";
+            result = CaptureTool.captureRemoveNode(reason);
+          }
           tasks.push(...result.tasks);
           childNode.change = result.change.toObject();
           break;
@@ -79,8 +106,7 @@ async function captureSaveAll(node, params, [attrParamsMedia, attrParamsSource, 
       }
     }
   }
-
-  return {change, tasks};
+  return tasks;
 }
 
 

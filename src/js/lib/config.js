@@ -31,8 +31,8 @@ function getDefault(){
     customBodyBgCssValue: "#000000",
 
     htmlCaptureImage    : 'svaeAll', // saveAll | saveCurrent
-    htmlCaptureAudio    : 'remove',  // saveAll | remove
-    htmlCaptureVideo    : 'remove',  // saveAll | remove
+    htmlCaptureAudio    : 'remove',  // saveAll | remove | saveCurrent
+    htmlCaptureVideo    : 'remove',  // saveAll | remove | saveCurrent
     htmlCaptureApplet   : 'remove',  // saveAll | remove
     htmlCaptureEmbed    : 'filter',  // saveAll | remove | filter
     htmlCaptureObject   : 'filter',  // saveAll | remove | filter
