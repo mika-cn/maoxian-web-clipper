@@ -68,6 +68,7 @@
     "folder.clipping": "裁剪目录",
 
     "help.label": "点击显示（或隐藏）帮助信息",
+    "help.how-to-write-it": "如何编写",
     "help.avariable-variable": "可用变量",
     "help.examples": "使用样例",
     "help.md-template.example-a": "例一：在裁剪下来的内容后面追加裁剪信息",
@@ -159,6 +160,9 @@
     "option.request-referrer-policy.no-referrer": "不发送 Referer",
     "option.request-referrer-policy.unsafe-url": "Referrer 为全路径（请求域 + 请求路径）",
 
+    "option.capture.save-all": "保存所有",
+    "option.capture.remove": "移除",
+    "option.capture.filter": "过滤",
 
     "notice.info.storage.browser": "使用浏览器来下载裁剪结果",
     "notice.info.storage.native-app": "通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过扩展互相冲突的问题）<br /><a href='go.page:native-app' target='_blank'>选择本选项需先安装「本地程序」</a>",
@@ -201,6 +205,15 @@
     "notice.file-url.help-msg": "你将需要以下信息:",
     "notice.file-url.ext-id": "扩展标识",
     "notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
+
+    "notice.capture-filter-intro": "通过下方输入框定义的规则，对引用的文件进行过滤，以选择自己想要保存的文件。",
+    "notice.capture-filter-format": "过滤器的规则是依据网址的后缀名来过滤的。以井号（#）打头的行是注释，每行可填写多个后缀名，中间用英文逗号隔开（如：<code>pdf,doc,xls</code>）。",
+    "notice.capture-filter-variable.intro": "<strong>另：</strong> 扩展内置了一些指令可方便匹配一类扩展名。其使用方式与后缀名一样（例如：<code>&lt;images&gt;,pdf</code> 可匹配到所有图片文件和 pdf 文件）。可使用的指令如下：",
+    "notice.capture-filter-variable.images": "&lt;images&gt; ： 可匹配所有图片文件后缀名",
+    "notice.capture-filter-variable.audios": "&lt;audios&gt;  ： 可匹配所有声音文件后缀名",
+    "notice.capture-filter-variable.videos": "&lt;videos&gt;  ： 可匹配所有影片文件后缀名",
+
+
     "notice.markdown-template": '使用下方的模板，控制裁剪结果的渲染。MaoXian 使用 mustache.js 来渲染这个模板，你可以在它的<a target="_blank" href="https://github.com/janl/mustache.js">项目页面</a>找到使用介绍。',
     "notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
@@ -261,6 +274,13 @@
     "label.backup-history-page-config-input": "历史页面的配置信息",
     "label.backup-assistant-data-input": "毛线助手的数据（自定义的「计划」，订阅信息 和 已下载的「计划」）",
     "label.backup-selection-data-input": "已记住的选区信息",
+
+    "label.html-capture-audio-input": "AUDIO 元素（用于向网页中插入声音文件）",
+    "label.html-capture-video-input": "VIDEO 元素（用于向网页中插入影片文件，由于该类文件通常较大，保存流程可能会大大加长）",
+    "label.html-capture-embed-input": "EMBED 元素（用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件，建议只保存图片文件）",
+    "label.html-capture-object-input": "OBJECT 元素（用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件，建议只保存图片文件）",
+    "label.html-capture-applet-input": "APPLET 元素（用于向网页中插入 JAVA 小程序，大多数现代浏览器都不再支持，建议不保存）",
+
     "label.last-update-time": "上次更新时间",
     "label.update-now-success": "更新成功",
     "label.reset-to-default-intro": "下方列出的项目都会被重置。",

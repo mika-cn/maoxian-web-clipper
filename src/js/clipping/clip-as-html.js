@@ -259,31 +259,31 @@ async function captureAssets(snapshot, params) {
 
         case 'AUDIO':
           r = await CapturerAudio.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams,
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 
         case 'VIDEO':
           r = await CapturerVideo.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams,
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 
         case 'EMBED':
           r = await CapturerEmbed.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams,
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 
         case 'OBJECT':
           r = await CapturerObject.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams,
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 
         case 'APPLET':
           r = await CapturerApplet.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams,
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 

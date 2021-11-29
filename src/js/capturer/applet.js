@@ -14,10 +14,22 @@ import CaptureTool from './tool.js';
  *   - {String} clipId
  *   - {Object} storageInfo
  *   - {RequestParams} requestParams
+ *   - {Object} config
  *
  */
-
 async function capture(node, params) {
+  const {config} = params;
+  switch(config.htmlCaptureApplet) {
+    case 'saveAll':
+      return await captureSaveAll(node, params);
+    case 'remove':
+    default:
+      return CaptureTool.captureRemoveNode();
+  }
+}
+
+
+async function captureSaveAll(node, params) {
   const tasks = [];
   let change = new SnapshotNodeChange();
 
@@ -35,6 +47,7 @@ async function capture(node, params) {
 
   return {change, tasks};
 }
+
 
 function getCodeBaseUrl(codebase, baseUrl) {
   if (codebase) {

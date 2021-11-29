@@ -18,6 +18,7 @@ const ATTR_PARAMS_TRACK  = {resourceType: 'TextTrack', attrName: 'src', extensio
  *   - {String} clipId
  *   - {Object} storageInfo
  *   - {RequestParams} requestParams
+ *   - {Object} config
  *
  */
 

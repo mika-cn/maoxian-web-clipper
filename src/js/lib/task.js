@@ -153,6 +153,13 @@ function getResourceType(url, mimeType) {
   return (r || 'Misc');
 }
 
+function getFileExtension(url, mimeType) {
+  let ext;
+  if (url) { ext = T.getUrlExtension(url) }
+  if (!ext && mimeType) { ext = T.mimeType2Extension(mimeType) }
+  return ext;
+}
+
 function url2resourceType(it) {
   if (it) {
     try {
@@ -187,6 +194,7 @@ const Task = {
   createMiscTask,
 
   getResourceType,
+  getFileExtension,
   rmReduplicate,
   sort,
   getRelativePath,

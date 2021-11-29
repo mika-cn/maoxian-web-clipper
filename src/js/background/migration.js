@@ -40,6 +40,19 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['1.9'] = function(config) {
+  config.version = '2.0';
+  config.htmlCaptureAudio  = 'remove';
+  config.htmlCaptureVideo  = 'remove';
+  config.htmlCaptureApplet = 'remove';
+  config.htmlCaptureEmbed  = 'filter';
+  config.htmlCaptureObject = 'filter';
+
+  config.htmlEmbedFilter   = "<images>";
+  config.htmlObjectFilter  = "<images>";
+  return config;
+}
+
 ConfigMigration['1.8'] = function(config) {
   config.version = '1.9';
   config.autoRunContentScripts = false;

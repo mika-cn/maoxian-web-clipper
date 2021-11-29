@@ -86,6 +86,18 @@ T.createId = function() {
   return '' + Math.round(Math.random() * 100000000000);
 }
 
+T.eachNonCommentLine = function(text, fn) {
+  const lines = text.split(/\n+/);
+  const commentRe = /^#/;
+  for (const line of lines) {
+    const lineText = line.trim();
+    if (!lineText.match(commentRe) && lineText !== '') {
+      const isBreak = fn(lineText);
+      if (isBreak) { break; }
+    }
+  }
+}
+
 // ===============================
 // Object
 // ===============================
@@ -507,8 +519,9 @@ T.replaceAll = function(str, subStr, newSubStr){
 }
 
 
-T.getUrlFilename = function(url){
-  const lastPart = new URL(decodeURI(url)).pathname.split('/').pop();
+T.getUrlFilename = function(urlOrPath){
+  const urlBody = urlOrPath.split('?')[0].split('#')[0]
+  const lastPart = decodeURI(urlBody).split('/').pop();
   const idxA = lastPart.lastIndexOf('.');
   const idxB = lastPart.lastIndexOf('!');
   if (idxA > -1 && idxB > -1 && idxA < idxB) {

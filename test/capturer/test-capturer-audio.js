@@ -21,6 +21,7 @@ function getParams() {
     },
     clipId: '001',
     requestParams: RequestParams.createExample({refUrl: url}),
+    config: {htmlCaptureAudio: 'saveAll'},
   }
 }
 

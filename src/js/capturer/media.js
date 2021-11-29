@@ -16,12 +16,35 @@ import CaptureTool from './tool.js';
  *   - {String} clipId
  *   - {Object} storageInfo
  *   - {RequestParams} requestParams
+ *   - {Object} config
  * @param {Array} attrParamsArray @see capturer/tool.js > captureAttrResource()
  *
  */
-
-
 async function capture(node, params, [attrParamsMedia, attrParamsSource, attrParamsTrack]) {
+  const {config} = params;
+  const name = T.capitalize(node.name);
+  const key = `htmlCapture${name}`
+
+  const captureMethod = config[key];
+  switch(captureMethod) {
+    case 'saveAll':
+      return await captureSaveAll(node, params, [
+        attrParamsMedia,
+        attrParamsSource,
+        attrParamsTrack,
+      ]);
+    case 'remove':
+    default:
+      return CaptureTool.captureRemoveNode();
+  }
+}
+
+
+
+
+
+
+async function captureSaveAll(node, params, [attrParamsMedia, attrParamsSource, attrParamsTrack]) {
   const tasks = [];
   let change = new SnapshotNodeChange();
   change.rmAttr('crossorigin');
@@ -59,5 +82,6 @@ async function capture(node, params, [attrParamsMedia, attrParamsSource, attrPar
 
   return {change, tasks};
 }
+
 
 export default {capture};

@@ -227,10 +227,56 @@ function getInvalidValue(resourceType) {
 }
 
 
+function captureRemoveNode() {
+  const tasks = [];
+  let change = new SnapshotNodeChange();
+  change.setProperty('ignore', true);
+  change.setProperty('ignoreReason', 'capture method: remove');
+  return {change, tasks};
+}
+
+function isFilterMatch(filterText, url, mimeType) {
+  if (!filterText) { return false }
+  const resourceType = Task.getResourceType(url, mimeType);
+  const extension = Task.getFileExtension(url, mimeType);
+  let match = false;
+
+  T.eachNonCommentLine(filterText, (lineText) => {
+    const items = lineText.split(',');
+    for(const item of items) {
+      const it = item.trim();
+      switch (it) {
+        case '<images>':
+          match = resourceType == 'Image';
+          if (match) { return true }
+          break;
+        case '<audios>':
+          match = resourceType == 'Audio';
+          if (match) { return true }
+          break;
+        case '<videos>':
+          match = resourceType == 'Video';
+          if (match) { return true }
+          break;
+        default:
+          match = extension && extension == it;
+          if (match) { return true }
+          break;
+      }
+    }
+  });
+
+  return match;
+}
+
+
+
 
 export default {
   captureBackgroundAttr,
   captureImageSrcset,
   captureAttrResource,
+  captureRemoveNode,
   parseSrcset,
+  isFilterMatch,
 };
