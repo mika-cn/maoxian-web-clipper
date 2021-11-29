@@ -30,7 +30,7 @@ function getDefault(){
     customBodyBgCssEnabled: false,
     customBodyBgCssValue: "#000000",
 
-    htmlCaptureImage    : 'svaeAll', // saveAll
+    htmlCaptureImage    : 'svaeAll', // saveAll | saveCurrent
     htmlCaptureAudio    : 'remove',  // saveAll | remove
     htmlCaptureVideo    : 'remove',  // saveAll | remove
     htmlCaptureApplet   : 'remove',  // saveAll | remove

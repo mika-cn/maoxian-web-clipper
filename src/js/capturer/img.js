@@ -10,31 +10,42 @@ const ATTR_PARAMS_IMG = {resourceType: 'Image', attrName: 'src'}
 
 /**
  *
+ * @param {SnapshotNode} node
  * @param {Object} params
- *   - {String} saveFormat
- *   - {String} baseUrl
- *   - {String} clipId
- *   - {Object} storageInfo
- *   - {Object} requestParams
+ * @param {String} params.saveFormat
+ * @param {String} params.baseUrl
+ * @param {String} params.clipId
+ * @param {Object} params.storageInfo
+ * @param {Object} params.requestParams
+ * @param {Object} params.config
+ *
+ * @returns {Object} result
  *
  */
 async function capture(node, params) {
-  const {saveFormat, baseUrl, clipId, storageInfo, requestParams} = params;
+  const {saveFormat, baseUrl, clipId, storageInfo, requestParams, config} = params;
   const tasks = [];
   let change = new SnapshotNodeChange();
 
   change.rmAttr('crossorigin');
   // referrerpolicy attribute
 
-  const r = await CaptureTool.captureAttrResource(node, params, ATTR_PARAMS_IMG);
+  // handle src
+  let attrParams = ATTR_PARAMS_IMG;
+  if (config.htmlCaptureImage == 'saveCurrent') {
+    attrParams = Object.assign({attrValue: node.currentSrc}, attrParams);
+  }
+  const r = await CaptureTool.captureAttrResource(node, params, attrParams);
   tasks.push(...r.tasks);
   change = change.merge(r.change);
 
   // handle srcset
-  if (saveFormat === 'html') {
+  if (saveFormat === 'html' && config.htmlCaptureImage == 'saveAll') {
     const r = await CaptureTool.captureImageSrcset(node, params);
     tasks.push(...r.tasks);
     return {change: change.merge(r.change), tasks};
+  } else {
+    change.rmAttr('srcset');
   }
 
   return {change, tasks};

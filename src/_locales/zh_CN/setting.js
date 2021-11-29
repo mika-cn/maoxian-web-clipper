@@ -161,6 +161,7 @@
     "option.request-referrer-policy.unsafe-url": "Referrer 为全路径（请求域 + 请求路径）",
 
     "option.capture.save-all": "保存所有",
+    "option.capture.save-current": "保存当前",
     "option.capture.remove": "移除",
     "option.capture.filter": "过滤",
 

@@ -163,6 +163,7 @@
     "option.request-referrer-policy.unsafe-url": "unsafeUrl: The Referer header will include full path (origin + path).",
 
     "option.capture.save-all": "Save all",
+    "option.capture.save-current": "Save current",
     "option.capture.remove": "Remove",
     "option.capture.filter": "Filter",
 

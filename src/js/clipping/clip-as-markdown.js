@@ -144,8 +144,8 @@ async function captureAssets(snapshot, params) {
       let r = {change: new SnapshotNodeChange(), tasks: []};
       switch(node.name) {
         case 'IMG':
-          r = await CapturerImg.capture(node, {
-            saveFormat, baseUrl, storageInfo, clipId, requestParams
+          r = await CapturerImg.capture(node, { saveFormat,
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 
