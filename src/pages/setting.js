@@ -42,24 +42,29 @@ function initSettingGeneral(config) {
     'htmlSaveClippingInformation'
   );
   initCheckboxInput(config,
-    'save-icon',
-    'saveIcon'
-  );
-  initCheckboxInput(config,
-    'save-web-font',
-    'saveWebFont'
-  );
-  initCheckboxInput(config,
-    'save-css-image',
-    'saveCssImage'
-  );
-  initCheckboxInput(config,
     'custom-body-bg-css-enabled',
     'customBodyBgCssEnabled'
   );
   initColorInput(config,
     'custom-body-bg-css-value',
     'customBodyBgCssValue'
+  );
+
+  initSelectInput(config,
+    'html-capture-icon',
+    'htmlCaptureIcon'
+  );
+  initSelectInput(config,
+    'html-capture-web-font',
+    'htmlCaptureWebFont'
+  );
+  initSelectInput(config,
+    'html-capture-image',
+    'htmlCaptureImage'
+  );
+  initSelectInput(config,
+    'html-capture-css-image',
+    'htmlCaptureCssImage'
   );
   initSelectInput(config,
     'html-capture-audio',

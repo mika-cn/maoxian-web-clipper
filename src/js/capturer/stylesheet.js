@@ -61,8 +61,8 @@ function getResourceHandler(params) {
   return async ({ownerType, resourceType, cssText, baseUrl, url}) => {
     const saveResource = (
          resourceType == 'css'   && true
-      || resourceType == 'image' && config.saveCssImage
-      || resourceType == 'font'  && config.saveWebFont
+      || resourceType == 'image' && config.htmlCaptureCssImage == 'saveAll'
+      || resourceType == 'font'  && config.htmlCaptureWebFont == 'saveAll'
     );
 
     if (!saveResource) { return '' }

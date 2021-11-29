@@ -22,7 +22,7 @@ describe('CaptureTool', () => {
         valueObj: {now: Date.now()},
       },
       clipId: '001',
-      config: { saveCssImage: true },
+      config: { htmlCaptureCssImage: 'saveAll' },
       requestParams: RequestParams.createExample({refUrl: url}),
     }
   }
@@ -52,7 +52,7 @@ describe('CaptureTool', () => {
       const node = getNode();
       node.attr.background = 'assets/a.jpg';
       const params = getParams();
-      params.config.saveCssImage = false;
+      params.config.htmlCaptureCssImage = 'remove';
       const r = await CaptureTool.captureBackgroundAttr(node, params);
       H.assertEqual(r.tasks.length, 0);
     });

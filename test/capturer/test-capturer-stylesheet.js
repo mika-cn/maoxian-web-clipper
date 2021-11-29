@@ -21,8 +21,8 @@ function getParams() {
     },
     clipId: '001',
     config: {
-      saveWebFont: false,
-      saveCssImage: false
+      htmlCaptureWebFont: 'remove',
+      htmlCaptureCssImage: 'remove',
     },
     requestParams: RequestParams.createExample({refUrl: url}),
   }
@@ -61,7 +61,7 @@ describe('Capturer stylesheet', () => {
   const IMG_RULE_D = createStyleRule('.d', 'background-image', 'url("bg-d.webp"), url(bg-d.svg)');
   const IMG_RULE_E = createStyleRule('.e', 'cursor', 'url("cursor.ico")');
 
-  it("capture text (css img) - saveCssImage: false", async () => {
+  it("capture text (css img) - htmlCaptureCssImage: 'remove'", async () => {
     const sheet = createSheet([IMG_RULE_A,
       IMG_RULE_B, IMG_RULE_C, IMG_RULE_D, IMG_RULE_E]);
     const params = getParams();
@@ -75,14 +75,14 @@ describe('Capturer stylesheet', () => {
     H.assertEqual(cssText.match(/url\(''\)/mg).length, 6);
   });
 
-  it("capture text (css img) - saveCssImage: true", async () => {
+  it("capture text (css img) - htmlCaptureCssImage: 'saveAll'", async () => {
     const sheet = createSheet([IMG_RULE_A,
       IMG_RULE_B, IMG_RULE_C, IMG_RULE_D, IMG_RULE_E]);
 
     const params = getParams();
     params.baseUrl = params.docUrl;
     params.baseUrl = 'https://a.org/style.css';
-    params.config.saveCssImage = true;
+    params.config.htmlCaptureCssImage = 'saveAll';
     params.ownerType = 'linkNode';
 
     ExtMsg.mockGetUniqueFilename();
@@ -101,7 +101,7 @@ describe('Capturer stylesheet', () => {
   const WEB_FONT_RULE_B = createFontRule('src', "url('b.woff')")
   const WEB_FONT_RULE_C = createFontRule('src', 'url("c.woff")')
 
-  it("capture text (web font) - saveWebFont: false", async () => {
+  it("capture text (web font) - htmlCaptureWebFont: 'remove'", async () => {
     const sheet = createSheet([WEB_FONT_RULE_A, WEB_FONT_RULE_B, WEB_FONT_RULE_C]);
 
     const params = getParams();
@@ -120,7 +120,7 @@ describe('Capturer stylesheet', () => {
 
     const params = getParams();
     params.baseUrl = params.docUrl;
-    params.config.saveWebFont = true;
+    params.config.htmlCaptureWebFont = 'saveAll';
     params.ownerType = 'linkNode';
 
     ExtMsg.mockGetUniqueFilename();
@@ -138,7 +138,7 @@ describe('Capturer stylesheet', () => {
     const sheet = createSheet([WEB_FONT_RULE_A, WEB_FONT_RULE_B, WEB_FONT_RULE_C]);
     const params = getParams();
     params.baseUrl = 'https://a.org/style.css';
-    params.config.saveWebFont = true;
+    params.config.htmlCaptureWebFont = 'saveAll';
     params.ownerType = 'linkNode';
 
     ExtMsg.mockGetUniqueFilename();
@@ -153,7 +153,7 @@ describe('Capturer stylesheet', () => {
     const sheet = createSheet([WEB_FONT_RULE_A, WEB_FONT_RULE_B, WEB_FONT_RULE_C]);
     const params = getParams();
     params.baseUrl = 'https://cdn.a.org/style.css';
-    params.config.saveWebFont = true;
+    params.config.htmlCaptureWebFont = 'saveAll';
     params.ownerType = 'linkNode';
 
     ExtMsg.mockGetUniqueFilename();

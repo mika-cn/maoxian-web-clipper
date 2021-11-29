@@ -14,8 +14,8 @@ function getParams() {
     },
     clipId: '001',
     config: {
-      saveWebFont: false,
-      saveCssImage: false
+      htmlCaptureWebFont: 'remove',
+      htmlCaptureCssImage: 'remove',
     }
   }
 }

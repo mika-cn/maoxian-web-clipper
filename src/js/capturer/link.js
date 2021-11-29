@@ -71,7 +71,7 @@ async function captureIcon({node, href, opts}) {
   const tasks = [];
   const change = new SnapshotNodeChange();
 
-  if (!config.saveIcon) {
+  if (config.htmlCaptureIcon == 'remove') {
     change.setProperty('ignore', true);
     change.setProperty('ignoreReason', 'configureItemDisabled');
     return {change, tasks};

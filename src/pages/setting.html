@@ -180,23 +180,46 @@
           <div>
             <h4 i18n="title.html-content"></h4>
 
-            <input type="checkbox" id="html-save-clipping-information" />
-            <label for="html-save-clipping-information" i18n="label.clip-information-input"></label>
-            <br />
-            <input type="checkbox" id="save-icon" />
-            <label for="save-icon" i18n="label.save-icon-input"></label>
-            <br />
-            <input type="checkbox" id="save-web-font" />
-            <label for="save-web-font" i18n="label.save-web-font-input"></label>
-            <br />
-            <input type="checkbox" id="save-css-image" />
-            <label for="save-css-image" i18n="label.save-css-image-input"></label>
-            <br />
+            <div class="input-group">
+              <input type="checkbox" id="html-save-clipping-information" />
+              <label for="html-save-clipping-information" i18n="label.clip-information-input"></label>
+            </div>
 
             <div class="input-group">
               <input type="checkbox" id="custom-body-bg-css-enabled" />
               <label for="custom-body-bg-css-enabled" i18n="label.custom-body-bg-css-enabled-input"></label>
               <input type="color" id="custom-body-bg-css-value"></input>
+            </div>
+
+            <div class="input-group">
+              <select id="html-capture-icon">
+                <option value="saveAll" i18n="option.capture.save-all"></option>
+                <option value="remove" i18n="option.capture.remove"></option>
+              </select>
+              <label i18n="label.html-capture-icon-input"></label>
+            </div>
+
+            <div class="input-group">
+              <select id="html-capture-image">
+                <option value="saveAll" i18n="option.capture.save-all"></option>
+              </select>
+              <label i18n="label.html-capture-image-input"></label>
+            </div>
+
+            <div class="input-group">
+              <select id="html-capture-css-image">
+                <option value="saveAll" i18n="option.capture.save-all"></option>
+                <option value="remove" i18n="option.capture.remove"></option>
+              </select>
+              <label i18n="label.html-capture-css-image-input"></label>
+            </div>
+
+            <div class="input-group">
+              <select id="html-capture-web-font">
+                <option value="saveAll" i18n="option.capture.save-all"></option>
+                <option value="remove" i18n="option.capture.remove"></option>
+              </select>
+              <label i18n="label.html-capture-web-font-input"></label>
             </div>
 
             <div class="input-group">

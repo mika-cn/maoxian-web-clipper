@@ -14,7 +14,7 @@ async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, reques
   if (node.attr.background) {
     const bg = node.attr.background;
 
-    if (!config.saveCssImage) {
+    if (config.htmlCaptureCssImage == 'remove') {
       change.setAttr('data-mx-original-background', (bg || ''));
       change.setAttr('background', '');
       return {change, tasks};
