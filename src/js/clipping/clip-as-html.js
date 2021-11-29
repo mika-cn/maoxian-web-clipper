@@ -232,7 +232,7 @@ async function captureAssets(snapshot, params) {
 
         case 'PICTURE':
           r = await CapturerPicture.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 

@@ -227,11 +227,14 @@ function getInvalidValue(resourceType) {
 }
 
 
-function captureRemoveNode() {
+function captureRemoveNode(reason) {
   const tasks = [];
   let change = new SnapshotNodeChange();
   change.setProperty('ignore', true);
-  change.setProperty('ignoreReason', 'capture method: remove');
+  change.setProperty(
+    'ignoreReason',
+    (reason || 'capture method: remove')
+  );
   return {change, tasks};
 }
 

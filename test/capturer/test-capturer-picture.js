@@ -31,11 +31,12 @@ function getParams() {
     },
     clipId: '001',
     requestParams: RequestParams.createExample({refUrl: url}),
+    config: {htmlCaptureImage: 'saveAll'},
   }
 }
 
 describe('Capture Picture', () => {
-  it('capture picture source element', async ()=> {
+  it('capture picture source elements', async ()=> {
     const params = getParams();
     const node = getNode();
     ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
@@ -45,6 +46,22 @@ describe('Capture Picture', () => {
     const [sourceA, sourceB, sourceC, img] = node.childNodes;
     H.assertMatch(sourceB.change.attr.srcset, /\.jpg$/);
     H.assertMatch(sourceC.change.attr.srcset, /\.png$/);
+    H.assertEqual(img.change, undefined);
+    ExtMsg.clearMocks();
+  });
+
+  it('ignore picture source elements when config is saveCurrent', async() => {
+    const params = getParams();
+    const node = getNode();
+    ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
+    ExtMsg.mockGetUniqueFilename();
+    params.config.htmlCaptureImage = 'saveCurrent';
+    const r = await Capturer.capture(node, params);
+    H.assertEqual(r.tasks.length, 0);
+    const [sourceA, sourceB, sourceC, img] = node.childNodes;
+    H.assertTrue(sourceA.change.ignore);
+    H.assertTrue(sourceB.change.ignore);
+    H.assertTrue(sourceC.change.ignore);
     H.assertEqual(img.change, undefined);
     ExtMsg.clearMocks();
   });
