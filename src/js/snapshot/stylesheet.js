@@ -387,6 +387,7 @@ async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, r
     ['_ANY_',        'image', 'background'],
     ['_ANY_',        'image', 'background-image'],
     ['_ANY_',        'image', 'border-image'],
+    ['_ANY_',        'image', 'cursor'],
     ['fontFaceRule', 'font' , 'src'],
   ];
 

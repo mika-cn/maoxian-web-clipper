@@ -59,10 +59,11 @@ describe('Capturer stylesheet', () => {
   const IMG_RULE_B = createStyleRule('.b', 'background-image', "url('bg-b.png')");
   const IMG_RULE_C = createStyleRule('.c', 'border-image',     'url("bg-c.bmp")');
   const IMG_RULE_D = createStyleRule('.d', 'background-image', 'url("bg-d.webp"), url(bg-d.svg)');
+  const IMG_RULE_E = createStyleRule('.e', 'cursor', 'url("cursor.ico")');
 
   it("capture text (css img) - saveCssImage: false", async () => {
     const sheet = createSheet([IMG_RULE_A,
-      IMG_RULE_B, IMG_RULE_C, IMG_RULE_D]);
+      IMG_RULE_B, IMG_RULE_C, IMG_RULE_D, IMG_RULE_E]);
     const params = getParams();
     params.baseUrl = params.docUrl;
     params.ownerType = 'styleNode';
@@ -71,12 +72,12 @@ describe('Capturer stylesheet', () => {
     const {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
     ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 0);
-    H.assertEqual(cssText.match(/url\(''\)/mg).length, 5);
+    H.assertEqual(cssText.match(/url\(''\)/mg).length, 6);
   });
 
   it("capture text (css img) - saveCssImage: true", async () => {
     const sheet = createSheet([IMG_RULE_A,
-      IMG_RULE_B, IMG_RULE_C, IMG_RULE_D]);
+      IMG_RULE_B, IMG_RULE_C, IMG_RULE_D, IMG_RULE_E]);
 
     const params = getParams();
     params.baseUrl = params.docUrl;
@@ -87,12 +88,13 @@ describe('Capturer stylesheet', () => {
     ExtMsg.mockGetUniqueFilename();
     const {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
     ExtMsg.clearMocks();
-    H.assertEqual(tasks.length, 5);
+    H.assertEqual(tasks.length, 6);
     H.assertMatch(cssText, /url\('[^\.\/]+.jpg'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.png'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.bmp'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.webp'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.svg'\)/);
+    H.assertMatch(cssText, /url\('[^\.\/]+.ico'\)/);
   });
 
   const WEB_FONT_RULE_A = createFontRule('src', 'url(a.woff)')
