@@ -15,7 +15,8 @@ import T                  from '../lib/tool.js';
 import ExtMsg             from '../lib/ext-msg.js';
 import {NODE_TYPE}        from '../lib/constants.js';
 import StyleSheetSnapshot from './stylesheet.js';
-import CssTextParser from './css-text-parser.js';
+import CssTextParser      from './css-text-parser.js';
+import {SelectorTextMatcher} from './css-selector-text.js';
 
 const FRAME_URL = {
   BLANK  : 'about:blank',
@@ -34,6 +35,7 @@ const FRAME_URL = {
  *   {Object} srcdocFrame - {blacklist: {nodeName => isIgnore}}
  * - {Function} ignoreFn - whether to ignore this element or not.
  * - {Boolean} ignoreHiddenElement (default: true)
+ * - {SelectorTextMatcher} selectorTextMatcher
  *
  * @return {Snapshot|undefined} node
  */
@@ -41,13 +43,14 @@ async function takeSnapshot(node, params) {
 
   const defaultAncestorInfo = {codeAncestor: false, preAncestor: false};
   const {win, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
-    blacklist = {}, ignoreFn, ignoreHiddenElement = true} = params;
+    blacklist = {}, ignoreFn, ignoreHiddenElement = true, selectorTextMatcher} = params;
 
   const snapshot = {name: node.nodeName, type: node.nodeType};
 
   switch(node.nodeType) {
 
-    case NODE_TYPE.ELEMENT:
+    case NODE_TYPE.ELEMENT: {
+
       if (blacklist[snapshot.name]) {
         snapshot.ignore = true;
         snapshot.ignoreReason = 'onBlacklist';
@@ -83,7 +86,7 @@ async function takeSnapshot(node, params) {
       }
 
       switch(node.nodeName) {
-        case 'SLOT':
+        case 'SLOT': {
           // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLSlotElement
           if (node.assignedNodes().length > 0) {
             snapshot.assigned = true;
@@ -93,27 +96,33 @@ async function takeSnapshot(node, params) {
             snapshot.childNodes = await handleNodes(node.childNodes, params);
           }
           break;
+        }
 
-        case 'LINK':
+        case 'LINK': {
           snapshot.childNodes = [];
           // Link types are case-insensitive.
           snapshot.relList = DOMTokenList2Array(node.relList, true);
           if (node.sheet) {
-            snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {requestParams, win});
+            snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {
+              requestParams, selectorTextMatcher, win});
           }
           break;
+        }
 
-        case 'STYLE':
+        case 'STYLE': {
           snapshot.childNodes = await handleNodes(node.childNodes, params);
-          snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {requestParams, win});
+          snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {
+            requestParams, selectorTextMatcher, win});
           break;
+        }
 
-        case 'IMG':
+        case 'IMG': {
           snapshot.childNodes = await handleNodes(node.childNodes, params);
           snapshot.currentSrc = node.currentSrc;
           break;
+        }
 
-        case 'CANVAS':
+        case 'CANVAS': {
           try {
             snapshot.childNodes = [];
             snapshot.dataUrl = node.toDataURL();
@@ -121,28 +130,32 @@ async function takeSnapshot(node, params) {
             // tained canvas etc.
           }
           break;
+        }
 
         case 'CODE':
-        case 'PRE':
+        case 'PRE': {
           const key = `${node.nodeName.toLowerCase()}Ancestor`;
           const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
           const newParams = Object.assign({}, params, {ancestorInfo: newAncestorInfo});
           snapshot.childNodes = await handleNodes(node.childNodes, newParams);
           break;
+        }
 
         case 'AUDIO':
-        case 'VIDEO':
+        case 'VIDEO': {
           snapshot.childNodes = await handleNodes(node.childNodes, params);
           snapshot.currentSrc = node.currentSrc;
           break;
+        }
 
 
-        case 'TEMPLATE':
+        case 'TEMPLATE': {
           snapshot.childNodes = [await takeSnapshot(node.content, params)];
           break;
+        }
 
         case 'IFRAME':
-        case 'FRAME':
+        case 'FRAME': {
 
           // All frame ids increase in document order (Same layer)
           // frame without src and srcdoc 's url is `about:blank`
@@ -261,6 +274,7 @@ async function takeSnapshot(node, params) {
             snapshot.render = 'blank';
           }
           break;
+        }
 
         default:
           snapshot.childNodes = await handleNodes(node.childNodes, params);
@@ -271,37 +285,60 @@ async function takeSnapshot(node, params) {
         snapshot.styleObj = CssTextParser.parse(node.style.cssText);
       }
       break;
+    }
 
-    case NODE_TYPE.TEXT:
+    case NODE_TYPE.TEXT: {
       snapshot.text = node.data;
       if (ancestorInfo.codeAncestor || ancestorInfo.preAncestor) {
         snapshot.needEscape = true;
       }
       break;
+    }
 
-    case NODE_TYPE.COMMENT:
+    case NODE_TYPE.COMMENT: {
       snapshot.text = node.data;
       break;
+    }
 
-    case NODE_TYPE.DOCUMENT:
-      snapshot.childNodes = await handleNodes(node.childNodes, params);
+    case NODE_TYPE.DOCUMENT: {
       snapshot.docUrl = node.location.href;
       snapshot.baseUrl = node.baseURI;
+      let childrenParams = params;
+      if (selectorTextMatcher) {
+        childrenParams = Object.assign({}, params, {
+          selectorTextMatcher: updateSelectorTextMatcher(selectorTextMatcher,
+            {contextNode: node, type: 'rootNode'}
+          ),
+        });
+      }
+      snapshot.childNodes = await handleNodes(node.childNodes, childrenParams);
       break;
+    }
 
-    case NODE_TYPE.DOCUMENT_TYPE:
+    case NODE_TYPE.DOCUMENT_TYPE: {
       // nodeName is xxx in <!DOCTYPE xxx>
       break;
+    }
 
-    case NODE_TYPE.DOCUMENT_FRAGMENT:
+    case NODE_TYPE.DOCUMENT_FRAGMENT: {
+      let childrenParams = params;
       if (node.host) {
         snapshot.isShadowRoot = true;
         snapshot.mode = node.mode;
         snapshot.docUrl = node.host.ownerDocument.location.href;
         snapshot.baseUrl = node.host.baseURI;
+
+        if (selectorTextMatcher) {
+          childrenParams = Object.assign({}, params, {
+            selectorTextMatcher: updateSelectorTextMatcher(selectorTextMatcher,
+              {contextNode: node, type: 'rootNode'}
+            ),
+          });
+        }
       }
-      snapshot.childNodes = await handleNodes(node.childNodes, params);
+      snapshot.childNodes = await handleNodes(node.childNodes, childrenParams);
       break;
+    }
 
     case NODE_TYPE.PROCESSING_INSTRUCTION:
       break;
@@ -832,12 +869,23 @@ function appendStyleObj(snapshot, styleObj) {
 }
 
 
+function createSelectorTextMatcher({contextNode, enabled = false, type = 'selectedNode'}) {
+  return new SelectorTextMatcher({contextNode, enabled, type});
+}
+
+// returns a new SelectorTextMatcher
+function updateSelectorTextMatcher(oldMatcher, newParams) {
+  const params = Object.assign(oldMatcher.toParams(), newParams);
+  return new SelectorTextMatcher(params);
+}
+
 export default Object.assign({
   take: takeSnapshot,
   takeAncestorsSnapshot,
   accessNode,
   appendClassName,
   appendStyleObj,
+  createSelectorTextMatcher,
 }, {
   each,
   eachElement,

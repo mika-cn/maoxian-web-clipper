@@ -23,13 +23,15 @@ import CssTextParser from './css-text-parser.js';
  * @param {Object} params
  *   - @param {Array} sheetInfoAncestors
  *   - @param {RequestParams} requestParams
+ *   - @param {SelectorTextMatcher} selectorTextMatcher
  *   - @param {Window} win
  *
  * @return {Snapshot} it
  */
 async function handleStyleSheet(sheet, params) {
 
-  const {sheetInfoAncestors = [], requestParams, win} = params;
+
+  const {sheetInfoAncestors = [], requestParams, selectorTextMatcher, win} = params;
 
   if (sheetInfoAncestors.length > 10) {
     console.error("handleStyleSheet() dead loop: ", sheetInfoAncestors);
@@ -63,7 +65,7 @@ async function handleStyleSheet(sheet, params) {
     // @see MDN/en-US/docs/Web/API/CSSStyleSheet
     // Calling cssRules may throw SecurityError (when crossOrigin)
     snapshot.rules = await handleCssRules(sheet.cssRules,
-      {sheetInfo, sheetInfoAncestors, requestParams, win});
+      {sheetInfo, sheetInfoAncestors, requestParams, selectorTextMatcher, win});
 
 
     if (snapshot.rules.length == 0
@@ -90,7 +92,7 @@ async function handleStyleSheet(sheet, params) {
           body: requestParams.toParams(sheetInfo.url),
         });
         snapshot.rules = await handleRulesByParsingCssText(text,
-          {sheetInfo, sheetInfoAncestors, requestParams, win});
+          {sheetInfo, sheetInfoAncestors, requestParams, selectorTextMatcher, win});
       } catch(e) {
         console.error("fetch.text(css): ", e);
         snapshot.rules = [];
@@ -148,7 +150,7 @@ async function handleCssRules(rules, params) {
 
 async function handleCssRule(rule, params) {
 
-  const {sheetInfo, sheetInfoAncestors, requestParams, win} = params;
+  const {sheetInfo, sheetInfoAncestors, requestParams, selectorTextMatcher, win} = params;
 
   const ruleType = getCssRuleType(rule);
   const r = {type: ruleType};
@@ -156,6 +158,13 @@ async function handleCssRule(rule, params) {
   switch(ruleType) {
 
     case CSSRULE_TYPE.STYLE:
+      r.selectorText = (rule.selectorText || "");
+      r.styleObj = CssTextParser.parse(rule.style.cssText);
+      if (selectorTextMatcher && selectorTextMatcher.enabled) {
+        r.used = selectorTextMatcher.match(r.selectorText);
+      }
+      break;
+
     case CSSRULE_TYPE.PAGE:
       r.selectorText = (rule.selectorText || "");
       r.styleObj = CssTextParser.parse(rule.style.cssText);
@@ -182,7 +191,7 @@ async function handleCssRule(rule, params) {
       } else {
         r.sheet = await handleStyleSheet(rule.styleSheet, {
           sheetInfoAncestors: newSheetInfoAncestors,
-          requestParams,
+          requestParams, selectorTextMatcher,
           win
         });
       }
@@ -287,7 +296,8 @@ async function sheet2String(sheet, params) {
 async function rules2String(rules = [], params) {
   const r = [];
   for (const rule of rules) {
-    r.push(await rule2String(rule, params));
+    const t = await rule2String(rule, params);
+    if (t) {r.push(t)}
   }
   return r.join("\n");
 }
@@ -298,8 +308,12 @@ async function rule2String(rule, params) {
   switch(rule.type) {
 
     case CSSRULE_TYPE.STYLE:
-      cssText = await styleObj2String(rule.styleObj, params);
-      return `${rule.selectorText} {\n${cssText}\n}`;
+      if ((!rule.hasOwnProperty('used')) || rule.used) {
+        cssText = await styleObj2String(rule.styleObj, params);
+        return `${rule.selectorText} {\n${cssText}\n}`;
+      } else {
+        return '';
+      }
 
     case CSSRULE_TYPE.PAGE:
       cssText = await styleObj2String(rule.styleObj, params);
@@ -341,7 +355,11 @@ async function rule2String(rule, params) {
 
     case CSSRULE_TYPE.MEDIA:
       cssText = await rules2String(rule.rules, params);
-      return `@media${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
+      if (cssText.match(/^\s*$/)) {
+        return '';
+      } else {
+        return `@media${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
+      }
 
     case CSSRULE_TYPE.SUPPORTS:
       cssText = await rules2String(rule.rules, params);
@@ -457,6 +475,7 @@ async function parsePropertyValue(value, {resourceType, baseUrl, ownerType, reso
   }
   return txt;
 }
+
 
 
 export default {
