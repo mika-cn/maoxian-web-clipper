@@ -162,6 +162,7 @@
 
     "option.capture.save-all": "保存所有",
     "option.capture.save-current": "保存当前",
+    "option.capture.save-used": "保存已使用",
     "option.capture.remove": "移除",
     "option.capture.filter": "过滤",
 
@@ -275,6 +276,7 @@
 
     "label.html-capture-icon-input": "Favicon - 即显示在浏览器标签上的网站图标",
     "label.html-capture-image-input": "图片 - 选中区域里的内容相关的图片",
+    "label.html-capture-css-rules-input": "CSS 规则 - 定义网页上元素的样式（建议只保存已使用）",
     "label.html-capture-css-image-input": "CSS 图片 - 修饰网页样式的图片，如：元素背景图，边框背景图等等（建议移除）",
     "label.html-capture-web-font-input": "Web 字体 - 由网页样式引入的字体文件（建议移除）",
 

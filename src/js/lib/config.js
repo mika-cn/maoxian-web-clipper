@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.1';
+const VERSION = '2.2';
 const state = {};
 
 /** WARNING
@@ -37,6 +37,8 @@ function getDefault(){
     htmlCaptureEmbed    : 'filter',  // saveAll | remove | filter
     htmlCaptureObject   : 'filter',  // saveAll | remove | filter
     htmlCaptureIcon     : 'remove',  // saveAll | remove
+
+    htmlCaptureCssRules : 'saveUsed',// saveAll | saveUsed
     htmlCaptureWebFont  : 'remove',  // saveAll | remove
     htmlCaptureCssImage : 'remove',  // saveAll | remove
 

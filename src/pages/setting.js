@@ -55,6 +55,10 @@ function initSettingGeneral(config) {
     'htmlCaptureIcon'
   );
   initSelectInput(config,
+    'html-capture-css-rules',
+    'htmlCaptureCssRules',
+  );
+  initSelectInput(config,
     'html-capture-web-font',
     'htmlCaptureWebFont'
   );

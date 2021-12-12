@@ -164,6 +164,7 @@
 
     "option.capture.save-all": "Save all",
     "option.capture.save-current": "Save current",
+    "option.capture.save-used": "Save used",
     "option.capture.remove": "Remove",
     "option.capture.filter": "Filter",
 
@@ -282,6 +283,7 @@
 
     "label.html-capture-icon-input": "Favicon - the website icons that shown on browser tabs.",
     "label.html-capture-image-input": "Images - the images that the selected area contains.",
+    "label.html-capture-css-rules-input": "Style rules - define how the elements on web page looks like.",
     "label.html-capture-css-image-input": "Style images - the images that decorate the web page styles, such as background images, border images etc.",
     "label.html-capture-web-font-input": "Web fonts - fonts that embed by web pages.",
 
