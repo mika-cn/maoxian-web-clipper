@@ -12,6 +12,8 @@ function calcStyle(elem, win){
   }
 
   if (elem.tagName.toUpperCase() == 'BODY') {
+    bodyStyleObj = setImportantPriority({
+      'min-height' : '100vh', 'height' : 'auto'});
     return {htmlStyleObj, bodyStyleObj};
 
   } else {
@@ -41,7 +43,7 @@ function calcStyle(elem, win){
 
     bodyStyleObj = setImportantPriority({
       'background-color': bodyBgCss,
-      'min-height' : '100%',
+      'min-height' : '100vh',
       'height' : 'auto',
       'position': 'static',
       'overflow': 'auto',

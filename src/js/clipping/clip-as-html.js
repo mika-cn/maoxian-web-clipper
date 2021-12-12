@@ -110,6 +110,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
       )
     );
     elemSnapshot.childNodes.push(getClippingInformationSnapshot(v));
+    Snapshot.appendStyleObj(elemSnapshot, v.bodyStyleObj);
 
   } else {
 
