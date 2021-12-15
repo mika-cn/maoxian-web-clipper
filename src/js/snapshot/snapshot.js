@@ -322,7 +322,14 @@ async function takeSnapshot(node, params) {
  * @return {Snapshot} it.
  */
 function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
-  const node = (lastNode.assignedSlot || lastNode.host || lastNode.parentNode);
+  let node;
+  if (lastNode.nodeType == NODE_TYPE.DOCUMENT_FRAGMENT && lastNode.host) {
+    // lastNode is shadowRoot
+    node = lastNode.host;
+  } else {
+    node = (lastNode.assignedSlot || lastNode.parentNode);
+  }
+
   if (node) {
     const snapshot = {name: node.nodeName, type: node.nodeType};
     switch(node.nodeType) {
@@ -362,8 +369,8 @@ function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
 
     const newSnapshots = modifier(node, snapshot);
     return takeAncestorsSnapshot(node, newSnapshots, modifier);
-    //
   } else {
+    // reach the outmost node: Document.
     return snapshots[0];
   }
 }
@@ -477,17 +484,6 @@ function isElemVisible(win, elem, whiteList = []) {
 }
 
 // ===================================
-
-/**
- * {String} name
- * {Integer} type
- * {String}  text
- * {Object} attr
- * {Array} childNodes
- * {Boolean} ignore
- * {String} ignoreReason
- *
- */
 
 function each(node, fn, ancestors = [], ancestorDocs = []) {
   const iterateChildren = fn(node, ancestors, ancestorDocs);
