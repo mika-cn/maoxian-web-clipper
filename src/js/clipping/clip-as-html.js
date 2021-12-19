@@ -325,8 +325,14 @@ function getWrapperNodeCssRules(v) {
       })
     ),
 
+    // Using relative position and z-index
+    // we create a stacking context to avoid
+    // the negative layers become invisible
+    // because of the wrapper has a background-color.
     SnapshotMaker.getCssStyleRule('.mx-wc-main',
       StyleHelper.setImportantPriority({
+        'position'         : 'relative',
+        'z-index'          : '0',
         'box-sizing'       : 'content-box',
         'background-color' : v.outerElemBgCss,
         'margin'           : '0 auto',

@@ -18,13 +18,14 @@ function calcStyle(elem, win){
 
   } else {
     let bodyBgCss = getBgCss(win.document.body, win);
-    const elemWrappers = getWrappers(elem, [], win);
-    const outerElem = elemWrappers.length > 0 ? elemWrappers[elemWrappers.length - 1] : elem
-    const outerElemBgCss = getBgCss(outerElem, win);
     const elemBgCss = getBgCss(elem, win);
+    const outerElem = getOutermostWrapper(elem, win);
+    const outerElemBgCss = getBgCss(outerElem, win);
+
     Log.debug('elemBgCss:', elemBgCss);
     Log.debug('outerElemBgCss:', outerElemBgCss);
     Log.debug('bodyBgCss:', bodyBgCss);
+
     if(elemBgCss == outerElemBgCss){
       const [r,g,b] = T.extractRgbStr(outerElemBgCss);
       if(r == g && g == b && r - 70 >= 86){
@@ -74,12 +75,24 @@ function getBgCss(elem, win){
 }
 
 
+/**
+ * @returns {Element} the outermost wrapper or elem itself.
+ */
+function getOutermostWrapper(elem, win) {
+  const wrappers = getWrappers(elem, [], win);
+  return wrappers.length > 0 ? wrappers[0] : elem;
+}
+
+
+/**
+ * @return {Array} [OutermostWrapper, ..., innermostWrapper]
+ */
 function getWrappers(elem, wrapperList, win){
   const pElem = elem.parentElement;
   if(pElem && ['HTML', 'BODY'].indexOf(pElem.tagName.toUpperCase()) == -1){
     if(pElemHasNearWidth(pElem, elem, win) || siblingHasSameStructure(elem)){
       // probably is a wrapper
-      wrapperList.push(pElem);
+      wrapperList.unshift(pElem);
       return getWrappers(pElem, wrapperList, win);
     }else{
       return wrapperList;
@@ -88,6 +101,7 @@ function getWrappers(elem, wrapperList, win){
     return wrapperList;
   }
 }
+
 
 // maybe need to compare all sibling?
 function siblingHasSameStructure(elem){
@@ -122,17 +136,26 @@ function pElemHasNearWidth(pElem, elem, win){
 function getFitWidth(elem, win){
   const width = elem.getBoundingClientRect().width;
   const widthText = getStyleText(elem, 'width', win)
-  if(widthText.match(/\d+px/)){
+  if (widthText.match(/\d+px/)) {
     // absolate width
     return width;
   }else{
-    // percentage or not set.
+    // percentage or not set(inherited)
     if(width > 980){ return width }
     if(width > 900){ return 980 }
     if(width > 800){ return 900 }
     if(width > 700){ return 800 }
     if(width > 600){ return 700 }
-    return 600;
+    if(width < 250) {
+      // Selecting a very small area, even smaller than palm device
+      return width;
+    } else {
+      // 251 ~ 599
+      // In this case, May be the screen is palm devices'.
+      // In order to have a better preview on desktop devices,
+      // we return a wider width.
+      return 600;
+    }
   }
 }
 
@@ -212,6 +235,9 @@ function getSelectedNodeStyle(node, win) {
     'width'      : '100%',
     'max-width'  : '100%',
   };
+
+  const height = getCssSize(node, 'height', win);
+  cssObj['height'] = `${height}px`;
 
   if (getStyleText(node, 'box-sizing', win) !== 'border-box') {
     cssObj['box-sizing'] = 'border-box';
