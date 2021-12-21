@@ -108,7 +108,7 @@ function rmReduplicate(tasks) {
       result.push(task);
       names.push(task.filename);
     } else {
-      console.debug('reduplicate task:', task);
+      // console.debug('reduplicate task:', task);
     }
   });
   return result;

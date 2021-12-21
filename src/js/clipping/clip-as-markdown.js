@@ -126,7 +126,7 @@ async function captureAssets(snapshot, params) {
   const documentSnapshot = SnapshotMaker.getDocumentNode(docUrl, baseUrl);
   const ancestorDocs = [documentSnapshot];
   await Snapshot.eachElement(snapshot,
-    async(node, ancestors, ancestorDocs) => {
+    async(node, ancestors, ancestorDocs, ancestorRoots) => {
 
       if (node.change) {
         // processed

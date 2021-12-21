@@ -44,12 +44,14 @@ describe("CSS selector text", () => {
   changeTo("it:actived:first-child", "it:first-child");
   unchange("it:dir(rtl)");
   unchange("it:lang(en)");
-  changeTo("it:host(.hello[attr=value], p:link)", 'it:host(.hello[attr=value], p)');
+  changeTo(":host", "*");
+  changeTo(":host(#id)", '*');
+  changeTo(":host-context(.xxx)", '*');
   unchange("it:is(main article .classname)");
 
   changeTo("it:before", "it");
   changeTo("it::before", "it");
-  changeTo("it::first-line", "it::first-line");
+  changeTo("it::first-line", "it");
 
   changeTo(":actived", "*");
   changeTo("it :actived", "it *");
@@ -63,9 +65,8 @@ describe("CSS selector text", () => {
   changeTo(":actived:actived:actived B:actived:first-child", "* B:first-child");
   changeTo("B:actived:first-child :actived:actived:actived", "B:first-child *");
   changeTo(":not(:actived)", '*');
-  changeTo("[attr~=value]::first-line:actived", "[attr~=value]::first-line");
-  unchange("has(> img)");
-  unchange(":has(:has(:has(main[attr=value], article.post)))");
+  changeTo("[attr~=value]::first-line:actived", "[attr~=value]");
+  changeTo(":has(> img)", '*');
   changeTo("it:unknown-class-name", "it");
   changeTo("::unknown-element-name", "*");
 

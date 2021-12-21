@@ -831,10 +831,10 @@ function getFormInputs(elem, formInputs = {}) {
 
 function getTitle(contextElem) {
   if (contextElem.tagName.toUpperCase() == 'H1') {
-    return contextElem.textContent;
+    return contextElem.textContent.trim();
   }
   const elems = contextElem.querySelectorAll('h1');
-  return (elems.length > 0 ? elems[0].textContent : '');
+  return (elems.length > 0 ? elems[0].textContent.trim() : '');
 }
 
 state.callbacks = {};

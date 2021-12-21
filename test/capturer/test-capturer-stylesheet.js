@@ -25,6 +25,7 @@ function getParams() {
       htmlCaptureCssImage: 'remove',
     },
     requestParams: RequestParams.createExample({refUrl: url}),
+    cssParams: {removeUnusedRules: false},
   }
 }
 

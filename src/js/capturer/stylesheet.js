@@ -14,17 +14,22 @@ import StyleSheetSnapshot from '../snapshot/stylesheet.js';
  *   - {String} clipId
  *   - {Object} config
  *   - {Object} requestParams
+ *   - {Object} cssParams
+ *   - {Boolean} cssParams.needFixStyle
+ *   - {Boolean} cssParams.removeUnusedRules
+ *   - {Object}  cssParams.usedFont
+ *   - {Object}  cssParams.usedKeyFrames
  *
  * @return {Object} it {:cssText, :tasks}
  */
 
 async function captureStyleSheet(sheet, params) {
   const tasks = [];
-  const {baseUrl, ownerType} = params;
+  const {baseUrl, ownerType, cssParams} = params;
 
   const resourceHandler = getResourceHandler(Object.assign({tasks}, params));
   const cssText = await StyleSheetSnapshot.sheet2String(sheet,
-    {baseUrl, ownerType, resourceHandler});
+    {baseUrl, ownerType, cssParams, resourceHandler});
 
   return {cssText, tasks};
 }

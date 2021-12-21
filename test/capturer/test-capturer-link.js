@@ -22,9 +22,9 @@ function getNode(relList, attr = {}, sheet) {
   }
 }
 
-function getParams() {
+function getParams(change = {}) {
   const url = 'https://a.org/index.html';
-  return {
+  return Object.assign({
     docUrl: url,
     baseUrl: url,
     storageInfo: {
@@ -40,7 +40,8 @@ function getParams() {
       htmlCaptureIcon: 'saveAll',
     },
     requestParams: RequestParams.createExample({refUrl: url}),
-  }
+    cssParams: {removeUnusedRules: false},
+  }, change);
 }
 
 describe('Capture link', () => {
@@ -96,9 +97,7 @@ describe('Capture link', () => {
   async function testCaptureStylesheet(linkType, href) {
     const linkTypes = [linkType.toLowerCase()];
     const sheet = {
-      href: `https://a.org/${href}`,
-      diabled: false,
-      title: 'TITLE',
+      href: `https://a.org/${href}`, diabled: false, title: 'TITLE',
       rules: [
         {
           type: CSSRULE_TYPE.STYLE,
@@ -149,6 +148,27 @@ describe('Capture link', () => {
     const node = getNode(linkTypes, attrs);
     const params = getParams();
     const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
+  });
+
+  it("should ignore when captured result is blank", async() => {
+    const linkType = 'stylesheet';
+    const attrs = {href: 'style.css', rel: linkType};
+    const sheet = {
+      href: 'https://a.org/style.css', diabled: false, title: 'TITLE',
+      rules: [{
+          type: CSSRULE_TYPE.STYLE,
+          ignore: true,
+          selectorText: 'body',
+          styleObj: {},
+        }]
+    };
+    const node = getNode([linkType], attrs, sheet);
+    const params = getParams({cssParams: {removeUnusedRules: true}});
+    ExtMsg.mockGetUniqueFilename()
+    const {change, tasks} = await Capturer.capture(node, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 0);
     H.assertTrue(change.getProperty('ignore'));
   });

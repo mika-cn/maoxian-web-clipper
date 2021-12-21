@@ -11,14 +11,19 @@ import SnapshotNodeChange from '../snapshot/change.js';
  */
 
 /**
+ * @param {Snapshot} node
  * @param {Object} opts
- *   - {String} baseUrl
- *   - {String} docUrl
- *   - {String} clipId
- *   - {Object} storageInfo
- *   - {Object} config
- *   - {Object} requestParams
- *   - {Boolean} needFixStyle
+ * @param {String} opts.baseUrl
+ * @param {String} opts.docUrl
+ * @param {String} opts.clipId
+ * @param {Object} opts.storageInfo
+ * @param {Object} opts.config
+ * @param {Object} opts.requestParams
+ * @param {Object} opts.cssParams
+ * @param {Boolean} opts.cssParams.needFixStyle
+ * @param {Boolean} opts.cssParams.removeUnusedRules
+ * @param {Object}  opts.cssParams.usedFont
+ * @param {Object}  opts.cssParams.usedKeyFrames
  *
  */
 async function capture(node, opts) {
@@ -98,7 +103,8 @@ async function captureIcon({node, href, opts}) {
 }
 
 async function captureStylesheet({node, linkTypes, href, opts}) {
-  const {baseUrl, docUrl, clipId, storageInfo, requestParams, needFixStyle} = opts;
+  const {baseUrl, docUrl, clipId, storageInfo,
+    requestParams, cssParams} = opts;
   const tasks = [];
   const change = new SnapshotNodeChange();
 
@@ -134,16 +140,23 @@ async function captureStylesheet({node, linkTypes, href, opts}) {
       baseUrl: url
     }));
 
-  const {filename, path} = await Asset.getFilenameAndPath({
-    link: url, extension: 'css', clipId, storageInfo});
+  if (T.isBlankStr(r.cssText)) {
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'blank');
 
-  const cssText = (needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
+  } else {
 
-  tasks.push(...r.tasks);
-  tasks.push(Task.createStyleTask(filename, cssText, clipId));
+    const {filename, path} = await Asset.getFilenameAndPath({
+      link: url, extension: 'css', clipId, storageInfo});
 
-  change.setAttr('href', path);
-  handleOtherAttrs(change);
+    const cssText = (cssParams.needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
+
+    tasks.push(...r.tasks);
+    tasks.push(Task.createStyleTask(filename, cssText, clipId));
+
+    change.setAttr('href', path);
+    handleOtherAttrs(change);
+  }
   return {change, tasks};
 }
 

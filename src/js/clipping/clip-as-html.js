@@ -88,14 +88,12 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
   const topFrame = frames.find((it) => it.frameId == 0);
   const frameInfo = {allFrames: frames, ancestors: [topFrame]}
   const extMsgType = 'frame.clipAsHtml.takeSnapshot';
-  const selectorTextMatcher = Snapshot.createSelectorTextMatcher({
-    contextNode: elem,
-    enabled: (v.config.htmlCaptureCssRules === 'saveUsed'),
-    type: 'selectedNode',
-  });
+
+  const removeUnusedRules = (v.config.htmlCaptureCssRules === 'saveUsed');
+  const cssBox = Snapshot.createCssBox({removeUnusedRules, node: elem});
 
   let elemSnapshot = await Snapshot.take(elem, {
-    frameInfo, requestParams, win, extMsgType, selectorTextMatcher,
+    frameInfo, requestParams, win, extMsgType, cssBox,
     blacklist: {SCRIPT: true, LINK: true, STYLE: true, TEMPLATE: true},
     shadowDom:    {blacklist: {SCRIPT: true, TEMPLATE: true}},
     srcdocFrame:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
@@ -109,7 +107,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
   const headChildrenSnapshots = [];
   for (const node of headNodes) {
     headChildrenSnapshots.push(await Snapshot.take(node, {
-      frameInfo, requestParams, win, extMsgType, selectorTextMatcher}));
+      frameInfo, requestParams, win, extMsgType, cssBox}));
   }
 
   if (elemSnapshot.name == 'BODY') {
@@ -144,7 +142,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
   }
 
   const snapshot = Snapshot.takeAncestorsSnapshot(
-    elem, currLayerSnapshots, (ancestorNode, ancestorSnapshot) => {
+    elem, currLayerSnapshots, cssBox, (ancestorNode, ancestorSnapshot) => {
 
       if (ancestorSnapshot.name == 'HTML') {
 
@@ -199,7 +197,7 @@ async function captureAssets(snapshot, params) {
   const tasks = [];
 
   await Snapshot.eachElement(snapshot,
-    async(node, ancestors, ancestorDocs) => {
+    async(node, ancestors, ancestorDocs, ancestorRoots) => {
 
       if (node.change) {
         // processed
@@ -210,6 +208,7 @@ async function captureAssets(snapshot, params) {
       if (baseUrl == undefined) {
         console.log(ancestorDocs[0])
       }
+
       let storageInfo, requestParams;
       if (ancestorDocs.length == 1) {
         storageInfo = params.storageInfo;
@@ -221,82 +220,96 @@ async function captureAssets(snapshot, params) {
 
       let r = {change: new SnapshotNodeChange(), tasks: []};
       switch(node.name) {
-        case 'LINK':
+        case 'LINK': {
+          const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
           r = await CapturerLink.capture(node, {
             baseUrl, docUrl, storageInfo, clipId,
-            config, requestParams, needFixStyle,
+            config, requestParams, cssParams,
           });
           break;
+        }
 
-        case 'STYLE':
+        case 'STYLE': {
+          const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
           r = await CapturerStyle.capture(node, {
             baseUrl, docUrl, storageInfo, clipId,
-            config, requestParams, needFixStyle,
+            config, requestParams, cssParams,
           });
           break;
+        }
 
-        case 'PICTURE':
+        case 'PICTURE': {
           r = await CapturerPicture.capture(node, {
             baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
+        }
 
-        case 'IMG':
+        case 'IMG': {
           r = await CapturerImg.capture(node, { saveFormat,
             baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
+        }
 
         case 'A':
-        case 'AREA':
+        case 'AREA': {
           r = await CapturerA.capture(node, {baseUrl, docUrl});
           break;
+        }
 
         case 'BODY':
         case 'TABLE':
         case 'TH':
-        case 'TD':
+        case 'TD': {
           // background attribute (deprecated since HTML5)
           r = await CaptureTool.captureBackgroundAttr(node, {
             baseUrl, storageInfo, config, clipId, requestParams,
           });
           break;
+        }
 
-        case 'AUDIO':
+        case 'AUDIO': {
           r = await CapturerAudio.capture(node, {
             baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
+        }
 
-        case 'VIDEO':
+        case 'VIDEO': {
           r = await CapturerVideo.capture(node, {
             baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
+        }
 
-        case 'EMBED':
+        case 'EMBED': {
           r = await CapturerEmbed.capture(node, {
             baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
+        }
 
-        case 'OBJECT':
+        case 'OBJECT': {
           r = await CapturerObject.capture(node, {
             baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
+        }
 
-        case 'APPLET':
+        case 'APPLET': {
           r = await CapturerApplet.capture(node, {
             baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
+        }
 
-        case 'CANVAS':
+        case 'CANVAS': {
           r = await CapturerCanvas.capture(node, {
             saveFormat, storageInfo, clipId, requestParams,
           });
           break;
+        }
         default: break;
       }
 

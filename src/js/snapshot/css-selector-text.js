@@ -1,9 +1,13 @@
 
+import {NODE_TYPE} from '../lib/constants.js';
 
 // Pseudo-classes
 //   @see MDN/en-US/docs/Web/CSS/Pseudo-classes
 //
 //  name => keep
+
+// FIXME We need reconsider this dict, it can't be too restrict.
+// otherwise we'll damage the page style.
 const PSEUDO_CLASSES_DICT = {
   "active"   : false,
   "any-link" : false,
@@ -18,8 +22,9 @@ const PSEUDO_CLASSES_DICT = {
   "empty"    : true,
   "enabled"  : true,
 
-  "first-child"   : true,
-  "first-of-type" : true,
+
+  "first-child"   : true, //*
+  "first-of-type" : true, //*
   "first"         : false,
   "focus-visible" : false,
   "focus-within"  : false,
@@ -27,36 +32,37 @@ const PSEUDO_CLASSES_DICT = {
   "fullscreen"    : false,
   "future"        : false,
   // 'a:has(> img)', not supported in any browser yet(20211207).
-  "has"           : true,
-  "host-context"  : true,
-  "host"          : true,
+  "has"           : false, //*
+  "host-context"  : false, //-
+  "host"          : false, //-
   "hover"         : false,
   "in-range"      : false,
   "indeterminate" : false,
   "invalid"       : false,
 
-  "is"          : true,
-  "matches"     : true,
-  "any"         : true,
-  "-moz-any"    : true,
-  "-webkit-any" : true,
+  "is"          : true, //*
+//  "matches"     : true, //* renamed to "is"
+//  "any"         : true, //*
+  "-moz-any"    : true, //*
+  "-webkit-any" : true, //*
+
 
   "lang"         : true,
-  "last-child"   : true,
-  "last-of-type" : true,
+  "last-child"   : true,//*
+  "last-of-type" : true,//*
   "left"         : false,
   "link"         : false,
 
   // Do not keep not(), because it's too complicated,
   // like :not(:focus) => :not(*) can't match anything.
   "not"              : false,
-  "nth-child"        : true, // nth-child(2)
-  "nth-last-child"   : true,
-  "nth-last-of-type" : true,
-  "nth-of-type"      : true,
+  "nth-child"        : true,//* // nth-child(2)
+  "nth-last-child"   : true,//*
+  "nth-last-of-type" : true,//*
+  "nth-of-type"      : true,//*
 
-  "only-child"   : true,
-  "only-of-type" : true,
+  "only-child"   : true,//*
+  "only-of-type" : true,//*
   "optional"     : true,
   "out-of-range" : false,
 
@@ -84,12 +90,15 @@ const PSEUDO_CLASSES_DICT = {
 
   "valid"   : false,
   "visited" : false,
-  "where"   : true,
+  "where"   : true, //*
 };
 
 
 // Pseudo-elements
 //   @see MDN/en-US/docs/Web/CSS/Pseudo-elements
+//
+//  currently(2021.12.21)
+//  querySelector() with pseudo-emements will not matche any element.
 //
 //  name => keep
 const PSEUDO_ELEMENTS_DICT = {
@@ -98,17 +107,17 @@ const PSEUDO_ELEMENTS_DICT = {
   "backdrop"             : false,
   "cue"                  : false,
   "cue-region"           : false,
-  "first-letter"         : true,
-  "first-line"           : true,
+  "first-letter"         : false, // *
+  "first-line"           : false, // *
   "file-selector-button" : false,
-  "grammar-error"        : true,
+  "grammar-error"        : false, // *
   "marker"               : false,
-  "part"                 : true,
+  "part"                 : false, // *
   "placeholder"          : false,
   "selection"            : false,
   "-moz-selection"       : false,
-  "slotted"              : true,
-  "spelling-error"       : true,
+  "slotted"              : false, // *
+  "spelling-error"       : false, // *
   "target-text"          : false,
 };
 
@@ -445,44 +454,22 @@ function editSelectorText(selectorText, pseudoModifier) {
 
 class Matcher {
   /**
-   * @param {Element|DocumentFragment|Document} contextNode
+   * @param {Element|DocumentFragment(shadowRoot)|Document} contextNode
    *    contextNode must has querySelector() function,
    *    and optionally has matches() function.
    *
-   * @param {Boolean} enabled
-   *
-   * @param {String} type 'rootNode', 'selectedNode'
-   *
    */
-  constructor({contextNode, enabled = true, type = 'rootNode'}) {
-    this._enabled = enabled;
+  constructor(contextNode) {
     this._contextNode = contextNode;
-    this._type = type;
-    if (enabled) {
-      if (type === 'rootNode') {
-        this.nodesToMatch = [contextNode];
-      } else {
-        this.nodesToMatch = this._getSelectedNodeAndItsAncestors(contextNode);
-      }
+    if (this._isRootNode(contextNode)) {
+      this.nodesToMatch = [contextNode];
+    } else {
+      this.nodesToMatch = this._getSelectedNodeAndItsAncestors(contextNode);
     }
-  }
-
-  toParams() {
-    return {
-      contextNode : this._contextNode,
-      type        : this._type,
-      enabled     : this._enabled,
-    }
-  }
-
-  get enabled() {
-    return this._enabled;
   }
 
   match(selectorText = "") {
-    if (!this._enabled) {
-      throw new Error("Matcher is not enabled, couldn't call match()");
-    }
+
     if (selectorText === "") {
       // nothing to match, return true for safety
       return true;
@@ -551,6 +538,13 @@ class Matcher {
     }
   }
 
+  _isRootNode(node) {
+    return node.nodeType === NODE_TYPE.DOCUMENT || this._isShadowRoot(node);
+  }
+
+  _isShadowRoot(node) {
+    return node.nodeType === NODE_TYPE.DOCUMENT_FRAGMENT && node.host;
+  }
 
   _getSelectedNodeAndItsAncestors(node) {
     let arr = [node];
@@ -565,7 +559,8 @@ class Matcher {
         // Current node's parentNode equals to it's parentElement.
         pNode = currNode.parentNode
       }
-      if (!pNode && currNode.host) {
+
+      if ((!pNode) && this._isShadowRoot(currNode)) {
         // Currently, we can't select elements that inside shadowDOM yet,
         // but if we can, the ancestors of the selected node may be a shadowRoot.
         //
