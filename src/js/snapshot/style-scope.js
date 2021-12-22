@@ -25,9 +25,13 @@ class StyleScope {
     this.childScopes.push(scope);
   }
 
-  defineFont(fontName) { this.definedFonts.add(fontName) }
+  defineFont(fontName) {
+    this.definedFonts.add(unescapeCustomIdentifier(fontName));
+  }
 
-  defineKeyFrames(keyFramesName) { this.definedKeyFrames.add(keyFramesName) }
+  defineKeyFrames(keyFramesName) {
+    this.definedKeyFrames.add(keyFramesName);
+  }
 
   recordReferences(style) {
     const fontFamilyText = style.getPropertyValue('font-family');
@@ -44,24 +48,28 @@ class StyleScope {
 
   addFontReference(fontFamilyText) {
     if (!fontFamilyText) {return;}
-    const names = this._splitFontFamilyText(fontFamilyText);
-    names.forEach((name) => { this.referencedFonts.add(name) });
+    const names = splitTextByComma(fontFamilyText);
+    names.forEach((name) => {
+      this.referencedFonts.add(unescapeCustomIdentifier(name));
+    });
   }
 
   addKeyFramesReference(animationNameText) {
     if (!animationNameText) {return;}
-    const names = this._splitAnimationNameText(animationNameText);
-    names.forEach((name) => { this.referencedKeyFrames.add(name) });
+    const names = splitTextByComma(animationNameText);
+    names.forEach((name) => {
+      this.referencedKeyFrames.add(unescapeAnimationName(name));
+    });
   }
 
   addKeyFrameFontReference(keyFramesName, fontFamilyText) {
     if (!fontFamilyText) {return;}
-    const fontNames = this._splitFontFamilyText(fontFamilyText);
+    const fontNames = splitTextByComma(fontFamilyText);
     for (const fontName of fontNames) {
       if (!this.keyFrameFontMap[keyFramesName]) {
         this.keyFrameFontMap[keyFramesName] = new Set();
       }
-      this.keyFrameFontMap[keyFramesName].add(fontName);
+      this.keyFrameFontMap[keyFramesName].add(unescapeCustomIdentifier(fontName));
     }
   }
 
@@ -115,15 +123,56 @@ class StyleScope {
     return obj;
   }
 
-  //FIXME
-  _splitFontFamilyText(it) {
-    return it.split(",").map((it) => it.trim());
-  }
+}
 
-  //FIXME
-  _splitAnimationNameText(it) {
-    return it.split(",").map((it) => it.trim());
+function splitTextByComma(it) {
+  return it.split(",").map((it) => it.trim());
+}
+
+/**
+ * Quoted custom Idents are invalid.
+ *
+ * There's a weird behavior on Firefox that you can use
+ * quoted customIdent in @keyframes name and
+ * animation-name property value, but Firefox only trim
+ * the quotes in @keyframes name. And even in this case,
+ * Firefox will correctly referrence these two names.
+ *
+ * We handle this, because it's an used @keyframes.
+ */
+function unescapeAnimationName(it) {
+  const lastIdx = it.length - 1;
+  let customIdent;
+  if (lastIdx !== 0 && it[0] == `"` && it[lastIdx] == `"`) {
+    customIdent = it.substring(1, lastIdx);
+  } else if (lastIdx !== 0 && it[0] == `'` && it[lastIdx] == `'`) {
+    customIdent = it.substring(1, lastIdx);
+  } else {
+    customIdent = it;
   }
+  return unescapeCustomIdentifier(customIdent);
+}
+
+
+
+/* @param {String} it customIdent (can only handle CSS property value)
+ * @see @mdn/en-US/docs/Web/CSS/custom-ident
+ */
+function unescapeCustomIdentifier(it) {
+  // Unicode character: "\" + (one to six hexadecimal digits)
+  // escapted character: "\" + char
+  // " ?" means there may be one space after the unicode character,
+  // this was added by browsers, not sure why they did this.
+  const re = /\\(?:([A-Fa-f0-9]{1,6}) ?|(.))/g
+  return it.replace(re, (m, m1, m2) => {
+    if (m1) {
+      // Unicode character, m1 is an Unicode code point
+      return String.fromCodePoint(parseInt(m1, 16));
+    } else {
+      // escapted character, m2 is the character
+      return m2;
+    }
+  });
 }
 
 export default StyleScope;
