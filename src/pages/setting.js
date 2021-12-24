@@ -50,6 +50,11 @@ function initSettingGeneral(config) {
     'customBodyBgCssValue'
   );
 
+  initCheckboxInput(config,
+    'html-compress-css',
+    'htmlCompressCss'
+  );
+
   initSelectInput(config,
     'html-capture-icon',
     'htmlCaptureIcon'

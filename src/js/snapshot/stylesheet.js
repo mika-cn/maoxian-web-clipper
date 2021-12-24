@@ -320,6 +320,7 @@ function mediaList2Array(mediaList) {
  * @param {String} params.baseUrl
  * @param {String} params.ownerType (styleNode, linkNode, importRule, fontFaceRule, styleAttr)
  * @param {Function} params.resourceHandler
+ * @param {WhiteSpace} params.whiteSpace
  * @param {Object} params.cssParams
  * @param {Boolean} params.cssParams.removeUnusedRules
  * @param {Object}  params.cssParams.usedFont
@@ -330,18 +331,19 @@ async function sheet2String(sheet, params) {
 }
 
 async function rules2String(rules = [], params) {
+  const {whiteSpace} = params;
   const r = [];
   for (const rule of rules) {
     const t = await rule2String(rule, params);
     if (t) {r.push(t)}
   }
-  return r.join("\n");
+  return r.join(whiteSpace.nLine);
 }
 
 async function rule2String(rule, params) {
   if (rule.ignore) { return '' }
 
-  const {baseUrl, resourceHandler, cssParams} = params;
+  const {baseUrl, resourceHandler, whiteSpace, cssParams} = params;
   let cssText;
 
   switch(rule.type) {
@@ -349,13 +351,13 @@ async function rule2String(rule, params) {
     case CSSRULE_TYPE.STYLE: {
       cssText = await styleObj2String(rule.styleObj, params);
       if (T.isBlankStr(cssText)) { return '' }
-      return `${rule.selectorText} {\n${cssText}\n}`;
+      return `${whiteSpace.indent0}${rule.selectorText}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}${whiteSpace.indent0}}`;
     }
 
     case CSSRULE_TYPE.PAGE: {
       cssText = await styleObj2String(rule.styleObj, params);
       if (T.isBlankStr(cssText)) { return '' }
-      return `@page${padIfNotEmpty(rule.selectorText)} {\n${cssText}\n}`;
+      return `@page${whiteSpace.pad(rule.selectorText)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
     case CSSRULE_TYPE.IMPORT: {
@@ -373,6 +375,7 @@ async function rule2String(rule, params) {
         ownerType: newOwnerType,
         cssParams: cssParams,
         resourceHandler: resourceHandler,
+        whiteSpace: whiteSpace.resetLevel(),
       });
 
       if (T.isBlankStr(cssText)) {
@@ -386,7 +389,7 @@ async function rule2String(rule, params) {
         baseUrl: params.baseUrl,
         resourceType, cssText,
       });
-      return `@import url("${path}")${padIfNotEmpty(rule.mediaText)};`;
+      return `@import url("${path}")${whiteSpace.pad(rule.mediaText)};`;
     }
 
     case CSSRULE_TYPE.FONT_FACE: {
@@ -399,25 +402,28 @@ async function rule2String(rule, params) {
         ownerType: 'fontFaceRule',
         resourceHandler,
         baseUrl,
+        whiteSpace,
       });
       if (T.isBlankStr(cssText)) { return '' }
-      return `@fontface {\n${cssText}\n}`;
+      return `@fontface${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
     case CSSRULE_TYPE.MEDIA: {
-      cssText = await rules2String(rule.rules, params);
+      const newParams = Object.assign({}, params, {whiteSpace: whiteSpace.nextLevel()})
+      cssText = await rules2String(rule.rules, newParams);
       if (T.isBlankStr(cssText)) { return '' }
-      return `@media${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
+      return `@media${whiteSpace.pad(rule.conditionText)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
     case CSSRULE_TYPE.SUPPORTS: {
-      cssText = await rules2String(rule.rules, params);
+      const newParams = Object.assign({}, params, {whiteSpace: whiteSpace.nextLevel()})
+      cssText = await rules2String(rule.rules, newParams);
       if (T.isBlankStr(cssText)) { return '' }
-      return `@supports${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
+      return `@supports${whiteSpace.pad(rule.conditionText)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
     case CSSRULE_TYPE.NAMESPACE: {
-      return `@namespace${padIfNotEmpty(rule.prefix)} url(${rule.namespaceURI})}`
+      return `@namespace${whiteSpace.pad(rule.prefix)} url(${rule.namespaceURI});`
     }
 
     case CSSRULE_TYPE.KEYFRAMES: {
@@ -425,15 +431,16 @@ async function rule2String(rule, params) {
         return '';
       }
 
-      cssText = await rules2String(rule.rules, params);
+      const newParams = Object.assign({}, params, {whiteSpace: whiteSpace.nextLevel()})
+      cssText = await rules2String(rule.rules, newParams);
       if (T.isBlankStr(cssText)) { return '' }
-      return `@keyframes${padIfNotEmpty(rule.name)} {\n${cssText}\n}`;
+      return `@keyframes${whiteSpace.pad(rule.name)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
     case CSSRULE_TYPE.KEYFRAME: {
       cssText = await styleObj2String(rule.styleObj, params);
       if (T.isBlankStr(cssText)) { return '' }
-      return `${rule.keyText} {\n${cssText}\n}`;
+      return `${whiteSpace.indent0}${rule.keyText}${whiteSpace}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}${whiteSpace.indent0}}`;
     }
 
     case CSSRULE_TYPE.MARGIN: {
@@ -454,11 +461,9 @@ async function rule2String(rule, params) {
 }
 
 
-const padIfNotEmpty = (str) => str && str.length > 0 ? ' ' + str : '';
 
 
-
-async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, renderIndent = true}) {
+async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, whiteSpace}) {
   const indent = '  ';
   const items = [
     /* ownerType resourceType propertyName */
@@ -478,11 +483,7 @@ async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, r
     }
   };
 
-  if (renderIndent) {
-    return T.mapObj(styleObj, (k, v) => `${indent}${k}: ${change[k] || v};`).join("\n");
-  } else {
-    return T.mapObj(styleObj, (k, v) => `${k}: ${change[k] || v}`).join(";");
-  }
+  return T.mapObj(styleObj, (k, v) => `${whiteSpace.indent1}${k}:${whiteSpace.space}${change[k] || v};`).join(whiteSpace.nLine);
 }
 
 

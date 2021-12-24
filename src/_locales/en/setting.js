@@ -281,6 +281,7 @@
     "label.backup-assistant-data-input": "Assistant data (subscriptions and plans)",
     "label.backup-selection-data-input": "Remembered selection",
 
+    "label.html-compress-css-input": "Compress style(CSS) source code, includes inline styles and external styles. Compress means remove all unnecessary white space, this operation can reduce the captured style content size",
     "label.html-capture-icon-input": "Favicon - the website icons that shown on browser tabs.",
     "label.html-capture-image-input": "Images - the images that the selected area contains.",
     "label.html-capture-css-rules-input": "Style rules - define how the elements on web page looks like.",

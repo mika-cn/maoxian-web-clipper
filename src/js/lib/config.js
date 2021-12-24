@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.2';
+const VERSION = '2.3';
 const state = {};
 
 /** WARNING
@@ -29,6 +29,7 @@ function getDefault(){
     htmlSaveClippingInformation: false,
     customBodyBgCssEnabled: false,
     customBodyBgCssValue: "#000000",
+    htmlCompressCss: false,
 
     htmlCaptureImage    : 'svaeAll', // saveAll | saveCurrent
     htmlCaptureAudio    : 'remove',  // saveAll | remove | saveCurrent
