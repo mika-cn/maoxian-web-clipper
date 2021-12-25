@@ -176,7 +176,7 @@ section {
 /********** inputs ***********/
 
 .input-group {
-  margin-bottom: 20px;
+  margin-top: 5px;
 }
 
 details {
@@ -247,6 +247,11 @@ textarea {
   line-height: 18px;
 }
 
+.capture-filter {
+  min-height: 30px;
+  height: 70px;
+}
+
 input[type=text]:hover, textarea:hover {
   border: 1px solid #888;
 }
@@ -257,6 +262,13 @@ input[type=text]:focus, textarea:focus {
   background-color: #f0f0f0;
 }
 
+select {
+  border: 1px solid #666;
+}
+
+
+div.binded {display: none;}
+div.binded.actived {display: block;}
 
 /********** table *********/
 

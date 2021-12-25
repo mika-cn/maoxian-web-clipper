@@ -130,6 +130,13 @@ async function takeSnapshot(node, params) {
           snapshot.childNodes = await handleNodes(node.childNodes, newParams);
           break;
 
+        case 'AUDIO':
+        case 'VIDEO':
+          snapshot.childNodes = await handleNodes(node.childNodes, params);
+          snapshot.currentSrc = node.currentSrc;
+          break;
+
+
         case 'TEMPLATE':
           snapshot.childNodes = [await takeSnapshot(node.content, params)];
           break;
@@ -461,6 +468,7 @@ function isBrowserExtensionUrl(url) {
 const VISIBLE_WHITE_LIST = [
   'HEAD', 'META', 'TITLE',
   'LINK', 'STYLE', 'INPUT',
+  'MAP', 'AREA',
 ];
 
 
@@ -579,7 +587,11 @@ class SnapshotAccessor {
     let attrHTML = '';
     for (let name in attrObj) {
       if (!deletedAttr[name]) {
-        attrHTML += ` ${name}="${T.escapeHtml(attrObj[name])}"`
+        if (attrObj[name]) {
+          attrHTML += ` ${name}="${T.escapeHtmlAttr(attrObj[name])}"`;
+        } else {
+          attrHTML += ` ${name}`;
+        }
       }
     }
     return attrHTML;

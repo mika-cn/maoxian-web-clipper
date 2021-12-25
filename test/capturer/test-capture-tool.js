@@ -11,26 +11,26 @@ ExtMsg.mockGetUniqueFilename();
 
 describe('CaptureTool', () => {
 
+  function getParams() {
+    const url = 'https://a.org/index.html';
+    return {
+      baseUrl: url,
+      storageInfo: {
+        mainFileFolder: 'category-a/clippings',
+        assetFolder: 'category-a/clippings/assets',
+        raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
+        valueObj: {now: Date.now()},
+      },
+      clipId: '001',
+      config: { htmlCaptureCssImage: 'saveAll' },
+      requestParams: RequestParams.createExample({refUrl: url}),
+    }
+  }
+
   describe('captureBackgroundAttr', () => {
 
     function getNode() {
       return {type: 1, name: 'DIV', attr: {}}
-    }
-
-    function getParams() {
-      const url = 'https://a.org/index.html';
-      return {
-        baseUrl: url,
-        storageInfo: {
-          mainFileFolder: 'category-a/clippings',
-          assetFolder: 'category-a/clippings/assets',
-          raw: { assetFileName: '$TIME-INTSEC-$MD5URL$EXT' },
-          valueObj: {now: Date.now()},
-        },
-        clipId: '001',
-        config: { saveCssImage: true },
-        requestParams: RequestParams.createExample({refUrl: url}),
-      }
     }
 
     it('it should capture empty background', async () => {
@@ -52,7 +52,7 @@ describe('CaptureTool', () => {
       const node = getNode();
       node.attr.background = 'assets/a.jpg';
       const params = getParams();
-      params.config.saveCssImage = false;
+      params.config.htmlCaptureCssImage = 'remove';
       const r = await CaptureTool.captureBackgroundAttr(node, params);
       H.assertEqual(r.tasks.length, 0);
     });
@@ -115,6 +115,186 @@ describe('CaptureTool', () => {
       H.assertEqual(arr[1][1], '2x');
     });
   });
+
+
+
+
+  describe('captureAttrResource', () => {
+
+    function getNode(attr = {}) {
+      return {type: 1, name: 'XXX', attr}
+    }
+
+    it('attribute is not exist', async () => {
+      const node = getNode();
+      const params = getParams();
+      const attrParams = {resourceType: 'Image', attrName: 'src'}
+      let r, change;
+
+      r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 0);
+      H.assertTrue(change.hasAttr('data-mx-warn'));
+      H.assertFalse(change.hasAttr('data-mx-original-src'));
+
+
+      attrParams.canEmpty = true;
+      r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 0);
+      H.assertFalse(change.hasAttr('data-mx-warn'));
+    });
+
+    it('attribute is ""', async() => {
+      const node = getNode({src: ''});
+      const params = getParams();
+      const attrParams = {resourceType: 'Image', attrName: 'src'}
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 0);
+      H.assertTrue(change.hasAttr('data-mx-warn'));
+      H.assertTrue(change.hasAttr('data-mx-original-src'));
+    });
+
+    it('attribute has invalid value', async() => {
+      const node = getNode({src: 'http://:300', type: 'video/mp4'});
+      const params = getParams();
+      const attrParams = {resourceType: 'Video', attrName: 'src', mimeTypeAttrName: 'type'}
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 0);
+      H.assertTrue(change.hasAttr('data-mx-warn'));
+      H.assertTrue(change.hasAttr('data-mx-original-src'));
+      H.assertTrue(change.hasAttr('data-mx-original-type'));
+    });
+
+    it('attribute has value', async () => {
+      const node = getNode({src: 'test.mp3'});
+      const params = getParams();
+      const attrParams = {resourceType: 'Audio', attrName: 'src'}
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 1);
+      H.assertEqual(r.tasks[0].taskType, 'audioFileTask')
+      H.assertTrue(change.hasAttr('src'))
+      H.assertFalse(change.hasAttr('data-mx-warn'));
+    });
+
+
+    it('attribute has value, with attrValue', async () => {
+      const node = getNode({src: 'test.png'});
+      const params = getParams();
+      const attrParams = {resourceType: 'Image', attrName: 'src', attrValue: 'test.svg'};
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 1);
+      H.assertTrue(change.getAttr('src').endsWith('.svg'));
+    });
+
+
+    it('attribute has value, with extension', async () => {
+      const node = getNode({src: 'test'});
+      const params = getParams();
+      const attrParams = {resourceType: 'TextTrack', attrName: 'src', extension: 'vtt'};
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 1);
+      H.assertTrue(r.tasks[0].filename.endsWith('.vtt'));
+      H.assertTrue(change.getAttr('src').endsWith('.vtt'))
+    });
+
+
+    it('attribute has value, with mimeTypeAttrName', async () => {
+      const node = getNode({src: 'test', type: 'image/svg+xml'});
+      const params = getParams();
+      const attrParams = {resourceType: 'Image', attrName: 'src', mimeTypeAttrName: 'type'};
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 1);
+      H.assertTrue(r.tasks[0].filename.endsWith('.svg'));
+      H.assertTrue(change.getAttr('src').endsWith('.svg'))
+    });
+
+    it('attribute has value, target mimeTypeAttr has not value', async () => {
+      const node = getNode({src: 'test'});
+      const params = getParams();
+      const attrParams = {resourceType: 'Image', attrName: 'src', mimeTypeAttrName: 'type'};
+      ExtMsg.mockMsgResult('get.mimeType', 'image/svg+xml');
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 1);
+      H.assertTrue(change.getAttr('src').endsWith('.svg'))
+    });
+
+    it('can capture multiple attributes', async () => {
+      const node = getNode({src: 'test.mp4', poster: 'poster.jpg'});
+      const params = getParams();
+      const attrParams = [
+        {resourceType: 'Video', attrName: 'src'},
+        {resourceType: 'Image', attrName: 'poster'},
+      ];
+      const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 2);
+      H.assertTrue(change.hasAttr('src'));
+      H.assertTrue(change.hasAttr('poster'));
+    });
+  });
+
+  describe('isFilterMatch', () => {
+    it('should not match, if filter text is ""', () => {
+      const filterText = "";
+      const url = "a.png";
+      const mimeType = "image/png";
+      H.assertFalse(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    })
+
+    it('should not match, if filter text are all comments', () => {
+      const filterText = "#comment";
+      const url = "a.png";
+      const mimeType = "image/png";
+      H.assertFalse(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+    it('should match <images>, mimeType', () => {
+      const filterText = "<images>";
+      const url = 'a';
+      const mimeType = "image/jpeg";
+      H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+    it('should match <audios>, url', () => {
+      const filterText = "<audios>";
+      const url = 'a.mp3';
+      const mimeType = "";
+      H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+    it('should not match <videos>, both url and mimeType can not match', () => {
+      const filterText = "<videos>";
+      const url = 'a.html';
+      const mimeType = "text/html";
+      H.assertFalse(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+    it('should match extension', () => {
+      const filterText = "<images>,pdf";
+      const url = 'a';
+      const mimeType = 'application/pdf';
+      H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+    it('should match last line', () => {
+      const filterText = "<images>\nmp3, wmv, mp4\npdf";
+      const url = 'a.pdf';
+      const mimeType = null;
+      H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+
+
+  });
+
 
 });
 

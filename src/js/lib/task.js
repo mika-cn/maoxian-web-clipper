@@ -51,8 +51,24 @@ function createImageTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'imageFileTask', requestParams);
 }
 
+function createAudioTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'audioFileTask', requestParams);
+}
+
+function createVideoTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'videoFileTask', requestParams);
+}
+
+function createTextTrackTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'textTrackFileTask', requestParams);
+}
+
 function createFontTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'fontFileTask', requestParams);
+}
+
+function createMiscTask(filename, url, clipId, requestParams) {
+  return createUrlTask(filename, url, clipId, 'miscFileTask', requestParams);
 }
 
 
@@ -129,6 +145,40 @@ function getRelativePath(tasks, currDir) {
   return {mainPath: mainPath, paths: paths};
 }
 
+// Resource type is the taskType that
+// without the end ("FileTask").
+function getResourceType(url, mimeType) {
+  let r = mimeType2resourceType(mimeType);
+  if (!r) { r = url2resourceType(url) }
+  return (r || 'Misc');
+}
+
+function getFileExtension(url, mimeType) {
+  let ext;
+  if (url) { ext = T.getUrlExtension(url) }
+  if (!ext && mimeType) { ext = T.mimeType2Extension(mimeType) }
+  return ext;
+}
+
+function url2resourceType(it) {
+  if (it) {
+    try {
+      const mimeType = T.extension2MimeType(T.getUrlExtension(it));
+      return mimeType2resourceType(mimeType);
+    } catch(e) {}
+  }
+  return null;
+}
+
+function mimeType2resourceType(it) {
+  if (it) {
+    if (it.startsWith('image/')){ return  'Image'};
+    if (it.startsWith('audio/')){ return  'Audio'};
+    if (it.startsWith('video/')){ return  'Video'};
+  }
+  return null;
+}
+
 const Task = {
   createHtmlTask,
   createMarkdownTask,
@@ -137,9 +187,15 @@ const Task = {
   createTitleTask,
   createInfoTask,
   createImageTask,
+  createAudioTask,
+  createVideoTask,
+  createTextTrackTask,
   createFontTask,
-  rmReduplicate,
+  createMiscTask,
 
+  getResourceType,
+  getFileExtension,
+  rmReduplicate,
   sort,
   getRelativePath,
 }

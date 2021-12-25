@@ -42,24 +42,57 @@ function initSettingGeneral(config) {
     'htmlSaveClippingInformation'
   );
   initCheckboxInput(config,
-    'save-icon',
-    'saveIcon'
-  );
-  initCheckboxInput(config,
-    'save-web-font',
-    'saveWebFont'
-  );
-  initCheckboxInput(config,
-    'save-css-image',
-    'saveCssImage'
-  );
-  initCheckboxInput(config,
     'custom-body-bg-css-enabled',
     'customBodyBgCssEnabled'
   );
   initColorInput(config,
     'custom-body-bg-css-value',
     'customBodyBgCssValue'
+  );
+
+  initSelectInput(config,
+    'html-capture-icon',
+    'htmlCaptureIcon'
+  );
+  initSelectInput(config,
+    'html-capture-web-font',
+    'htmlCaptureWebFont'
+  );
+  initSelectInput(config,
+    'html-capture-image',
+    'htmlCaptureImage'
+  );
+  initSelectInput(config,
+    'html-capture-css-image',
+    'htmlCaptureCssImage'
+  );
+  initSelectInput(config,
+    'html-capture-audio',
+    'htmlCaptureAudio'
+  );
+  initSelectInput(config,
+    'html-capture-video',
+    'htmlCaptureVideo'
+  );
+  initSelectInput(config,
+    'html-capture-applet',
+    'htmlCaptureApplet'
+  );
+  initSelectInput(config,
+    'html-capture-embed',
+    'htmlCaptureEmbed'
+  );
+  initTextInput(config,
+    'html-embed-filter',
+    'htmlEmbedFilter'
+  );
+  initSelectInput(config,
+    'html-capture-object',
+    'htmlCaptureObject'
+  );
+  initTextInput(config,
+    'html-object-filter',
+    'htmlObjectFilter'
   );
   // - markdown
   initTextInput(config,
@@ -351,6 +384,41 @@ function checkBoxChanged(e) {
   const configKey = getConfigKey(e.target);
   updateConfig(configKey, e.target.checked);
 }
+
+function initSelectInput(config, elemId, configKey) {
+  const elem = T.findElem(elemId);
+  setConfigKey(elem, configKey);
+  T.bindOnce(elem, 'change', selectInputChanged);
+  selectSelectInput(elem, config[configKey]);
+  updateBindedElemOfSelect(elem, config[configKey]);
+}
+
+function selectInputChanged(e) {
+  const configKey = getConfigKey(e.target);
+  updateConfig(configKey, e.target.value);
+  updateBindedElemOfSelect(e.target, e.target.value);
+}
+
+function selectSelectInput(select, value) {
+  const optionElems = T.queryElems('option', select);
+  optionElems.forEach((it) => {
+    if (it.value == value) {
+      it.selected = true;
+    }
+  });
+}
+
+function updateBindedElemOfSelect(select, value) {
+  const bindedElems = T.queryElems(`[data-bind-select=${select.id}]`);
+  bindedElems.forEach((it) => {
+    if (it.getAttribute('data-bind-value') == value) {
+      it.classList.add('actived');
+    } else {
+      it.classList.remove('actived');
+    }
+  });
+}
+
 
 function initRadioInput(config, elemId, configKey){
   const elem = T.findElem(elemId);
@@ -865,21 +933,18 @@ function renderSubscriptions() {
 
 function savePlanSubscription(e) {
   const text = T.getElemValue('#plan-subscription');
-  const lines = text.split(/\n+/);
   const urls = [];
   const errors = [];
-  lines.forEach((it) => {
-    const lineText = it.trim();
-    const commentRe = /^#/;
-    if (!lineText.match(commentRe) && lineText !== '') {
-      try {
-        const url = new URL(lineText);
-        urls.push(lineText);
-      } catch(e) {
-        errors.push([e.message, T.escapeHtml(lineText)].join(": "));
-      }
+
+  T.eachNonCommentLine(text, (lineText) => {
+    try {
+      const url = new URL(lineText);
+      urls.push(lineText);
+    } catch(e) {
+      errors.push([e.message, T.escapeHtml(lineText)].join(": "));
     }
   });
+
   if (errors.length > 0) {
     Notify.error(errors.join('\n'));
   } else {

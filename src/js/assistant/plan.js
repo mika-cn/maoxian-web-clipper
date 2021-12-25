@@ -82,7 +82,7 @@ function createSetDisplayAction(params) {
       selectorInput: selectorInput,
       contextSelectorInput: contextSelectorInput,
       perform: function(detail={}) {
-        const selectorStrs = toArray(this.selectorInput);
+        const selectorStrs = T.toArray(this.selectorInput);
         const contextElem = getContextElem(this.contextSelectorInput);
         selectorStrs.forEach(function(it) {
           queryElemsBySelector(it, contextElem)
@@ -126,7 +126,7 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
     selectorInput: selectorInput,
     contextSelectorInput: contextSelectorInput,
     perform: function(detail={}) {
-      const selectorStrs = toArray(this.selectorInput);
+      const selectorStrs = T.toArray(this.selectorInput);
       const contextElem = getContextElem(this.contextSelectorInput);
       selectorStrs.forEach(function(it) {
         queryElemsBySelector(it, contextElem)
@@ -232,7 +232,7 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
 
     changeAttr: function(action) {
       const This = this;
-      const selectorStrs = toArray(action.pick);
+      const selectorStrs = T.toArray(action.pick);
       const contextElem = getContextElem(this.contextSelectorInput);
       selectorStrs.forEach(function(it) {
         queryElemsBySelector(it, contextElem)
@@ -332,8 +332,8 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
         case 'self.replace': //deprecated
         case 'replace.last-match': {
           const attr = elem.getAttribute(action.attr);
-          const subStrs = toArray(action.subStr);
-          const newStrs = toArray(action.newStr);
+          const subStrs = T.toArray(action.subStr);
+          const newStrs = T.toArray(action.newStr);
 
           for (let i = 0; i < subStrs.length; i++) {
             const index = attr.lastIndexOf(subStrs[i])
@@ -353,8 +353,8 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
         case 'replace.all': {
           try {
             const attr = elem.getAttribute(action.attr);
-            const subStrs = toArray(action.subStr);
-            const newStrs = toArray(action.newStr);
+            const subStrs = T.toArray(action.subStr);
+            const newStrs = T.toArray(action.newStr);
 
             let result = attr, changed = false;
             for (let i = 0; i < subStrs.length; i++) {
@@ -407,7 +407,7 @@ Action.undoChAttr = function(params, contextSelectorInput = 'document') {
     perform: function(detail={}) {
       const contextElem = getContextElem(this.contextSelectorInput);
       this.actions.forEach(function(action) {
-        const selectorStrs = toArray(action.pick);
+        const selectorStrs = T.toArray(action.pick);
         selectorStrs.forEach(function(it) {
           queryElemsBySelector(it, contextElem)
             .forEach(function(elem) {
@@ -529,14 +529,6 @@ function isElemMatchesSelector(elem, selector) {
 
 //======== query element relative ========
 
-function toArray(it) {
-  if (it.constructor == Array) {
-    return it;
-  } else {
-    return [it];
-  }
-}
-
 function getContextElem(selectorInput) {
   if (selectorInput === 'document') {
     return document;
@@ -547,7 +539,7 @@ function getContextElem(selectorInput) {
 }
 
 function queryFirstElem(selectorInput, contextElem) {
-  const selectorStrs = toArray(selectorInput);
+  const selectorStrs = T.toArray(selectorInput);
   let elem = undefined;
   let selector = undefined;
   for(let i = 0; i < selectorStrs.length; i++) {

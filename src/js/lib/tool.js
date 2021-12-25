@@ -86,6 +86,18 @@ T.createId = function() {
   return '' + Math.round(Math.random() * 100000000000);
 }
 
+T.eachNonCommentLine = function(text, fn) {
+  const lines = text.split(/\n+/);
+  const commentRe = /^#/;
+  for (const line of lines) {
+    const lineText = line.trim();
+    if (!lineText.match(commentRe) && lineText !== '') {
+      const isBreak = fn(lineText);
+      if (isBreak) { break; }
+    }
+  }
+}
+
 // ===============================
 // Object
 // ===============================
@@ -280,8 +292,16 @@ T.splitTagstr = function(str){
 
 // collection
 
+T.toArray = function(it) {
+  if (it.constructor == Array) {
+    return it;
+  } else {
+    return [it];
+  }
+}
+
 T.unique = function(collection){
-  const arr = T.toArray(collection);
+  const arr = T.iterable2Array(collection);
   return arr.filter(function(value, index, self) {
     return self.indexOf(value) === index;
   });
@@ -311,7 +331,8 @@ T.map = function(collection, fn){
   });
   return r;
 }
-T.toArray = function(collection){
+
+T.iterable2Array = function(collection){
   if(collection.length == 0){ return []}
   return T.map(collection, function(o){return o});
 }
@@ -498,8 +519,9 @@ T.replaceAll = function(str, subStr, newSubStr){
 }
 
 
-T.getUrlFilename = function(url){
-  const lastPart = new URL(decodeURI(url)).pathname.split('/').pop();
+T.getUrlFilename = function(urlOrPath){
+  const urlBody = urlOrPath.split('?')[0].split('#')[0]
+  const lastPart = decodeURI(urlBody).split('/').pop();
   const idxA = lastPart.lastIndexOf('.');
   const idxB = lastPart.lastIndexOf('!');
   if (idxA > -1 && idxB > -1 && idxA < idxB) {
@@ -1442,6 +1464,19 @@ T.resourceType2MimeType = function(type) {
 
 // ====================================
 
+T.escapeHtmlAttr = function(string) {
+  return String(string).replace(/[&<>"'`]/g, function(s) {
+    return ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '`': '&#x60;',
+    })[s];
+  });
+}
+
 T.escapeHtml = function(string) {
   return String(string).replace(/[&<>"'`=\/]/g, function (s) {
     return ({
@@ -1470,7 +1505,7 @@ T.getTagsByName = function(elem, name){
     r.push(elem);
   }
   const child = elem.getElementsByTagName(name)
-  return r.concat(T.toArray(child));
+  return r.concat(T.iterable2Array(child));
 }
 
 // Gteq => greater than or equals to

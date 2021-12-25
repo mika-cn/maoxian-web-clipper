@@ -11,10 +11,15 @@ import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerPicture       from '../capturer/picture.js';
 import CapturerImg           from '../capturer/img.js';
+import CapturerAudio         from '../capturer/audio.js';
+import CapturerVideo         from '../capturer/video.js';
 import CapturerStyle         from '../capturer/style.js';
 import CapturerLink          from '../capturer/link.js';
 import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
+import CapturerEmbed         from '../capturer/embed.js';
+import CapturerObject        from '../capturer/object.js';
+import CapturerApplet        from '../capturer/applet.js';
 import CapturerStyleSheet    from '../capturer/stylesheet.js';
 import StyleHelper           from './style-helper.js';
 import RequestParams         from '../lib/request-params.js'
@@ -52,7 +57,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   const tasks = await captureAssets(snapshot, Object.assign({}, params, {
     needFixStyle: (elem.tagName.toUpperCase() !== 'BODY')
   }));
-  console.log(snapshot);
+  Log.debug(snapshot);
 
   const iframeStorageInfo = Object.assign({}, params.storageInfo, {
     mainFileFolder: params.storageInfo.frameFileFolder,
@@ -190,6 +195,12 @@ async function captureAssets(snapshot, params) {
 
   await Snapshot.eachElement(snapshot,
     async(node, ancestors, ancestorDocs) => {
+
+      if (node.change) {
+        // processed
+        return true;
+      }
+
       const {baseUrl, docUrl} = ancestorDocs[0];
       if (baseUrl == undefined) {
         console.log(ancestorDocs[0])
@@ -232,6 +243,7 @@ async function captureAssets(snapshot, params) {
           break;
 
         case 'A':
+        case 'AREA':
           r = await CapturerA.capture(node, {baseUrl, docUrl});
           break;
 
@@ -246,13 +258,33 @@ async function captureAssets(snapshot, params) {
           break;
 
         case 'AUDIO':
-        case 'VEDIO':
+          r = await CapturerAudio.capture(node, {
+            baseUrl, storageInfo, clipId, requestParams, config,
+          });
+          break;
+
+        case 'VIDEO':
+          r = await CapturerVideo.capture(node, {
+            baseUrl, storageInfo, clipId, requestParams, config,
+          });
+          break;
+
         case 'EMBED':
+          r = await CapturerEmbed.capture(node, {
+            baseUrl, storageInfo, clipId, requestParams, config,
+          });
+          break;
+
         case 'OBJECT':
+          r = await CapturerObject.capture(node, {
+            baseUrl, storageInfo, clipId, requestParams, config,
+          });
+          break;
+
         case 'APPLET':
-          // Don't capture media nodes.
-          r.change.setProperty('ignore', true);
-          r.change.setProperty('ignoreReason', 'mediaNode');
+          r = await CapturerApplet.capture(node, {
+            baseUrl, storageInfo, clipId, requestParams, config,
+          });
           break;
 
         case 'CANVAS':

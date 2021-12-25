@@ -69,6 +69,7 @@
     "folder.clipping": "clipping folder",
 
     "help.label": "Click me to show (or hide) help content",
+    "help.how-to-write-it": "How to write it",
     "help.avariable-variable": "Variables",
     "help.examples": "Examples",
     "help.md-template.example-a": "Example A: append clipping information to the end",
@@ -161,6 +162,10 @@
     "option.request-referrer-policy.no-referrer": "noReferrer: The Referer header will not be sent.",
     "option.request-referrer-policy.unsafe-url": "unsafeUrl: The Referer header will include full path (origin + path).",
 
+    "option.capture.save-all": "Save all",
+    "option.capture.remove": "Remove",
+    "option.capture.filter": "Filter",
+
 
 
     "notice.info.storage.browser": "Use browser to download clipping result.<br />",
@@ -204,6 +209,15 @@
     "notice.file-url.help-msg": "Your will need message below:",
     "notice.file-url.ext-id": "Extension identify",
     "notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after you allow browser to access file URLs.",
+
+    "notice.capture-filter-intro": "Use belowing input field to difine rules that will filter the referred files, so that you can choose what types of files to save",
+    "notice.capture-filter-format": "These rules are filter by the file extension in the URL. Those lines that starts with <code>#</code> are comments. Every line can have multiple file extensions, you can use comma to split them (e.g. <code>pdf,doc,xls</code>).",
+    "notice.capture-filter-variable.intro": "<strong>Note：</strong> MaoXian have some built-in variables that can be used to match a tipical types of file extensions (e.g. <code>&lt;images&gt;,pdf</code> can match all images and pdf files). All variables are :",
+    "notice.capture-filter-variable.images": "&lt;images&gt; : can match all image file extensions",
+    "notice.capture-filter-variable.audios": "&lt;audios&gt; : can match all audio file extensions",
+    "notice.capture-filter-variable.videos": "&lt;videos&gt; : can match all video file extensions",
+
+
     "notice.markdown-template": 'Using template below to configure which information you want to save. MaoXian uses mustache.js to render this template, you can go to their <a target="_blank" href="https://github.com/janl/mustache.js">project</a> to see the usage.',
 
     "notice.root-folder": "<strong>Notice:</strong><br /> This folder is used as storage entry, We suggest you don't change it after you set it right. If you do want to change it, you should change the name of folder in your file system too. So that you won't get two storage entry.",
@@ -240,9 +254,6 @@
     "label.request-cache-image-input": "Cache images",
     "label.request-cache-web-font-input": "Cache web fonts",
     "label.clip-information-input": "Include clipping information (original url, time, category and tags) in main file",
-    "label.save-icon-input": "Save website icons",
-    "label.save-web-font-input": "Save web fonts (not recommended)",
-    "label.save-css-image-input": "Save CSS background images (not recommended)",
     "label.custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
@@ -268,6 +279,16 @@
     "label.backup-assistant-data-input": "Assistant data (subscriptions and plans)",
     "label.backup-selection-data-input": "Remembered selection",
 
+    "label.html-capture-icon-input": "Favicon - the website icons that shown on browser tabs.",
+    "label.html-capture-image-input": "Images - the images that the selected area contains.",
+    "label.html-capture-css-image-input": "Style images - the images that decorate the web page styles, such as background images, border images etc.",
+    "label.html-capture-web-font-input": "Web fonts - fonts that embed by web pages.",
+
+    "label.html-capture-audio-input": "Audio elements - are used to include audio files.",
+    "label.html-capture-video-input": "Video elements - are used to include video files, because these files are typically large, the saving process will likely much longer if you save them.",
+    "label.html-capture-embed-input": "Embed elements - are used to include some complicated files which are so difficult to render that the browser needs to install plugins to corrently handle it. and will rarely include images, audios or videos (We suggest you only save images).",
+    "label.html-capture-object-input": "Object elements - are used to include some complicated files which are so difficult to render that the browser needs to install plugins to corrently handle it. and will rarely include images, audios or videos (We suggest you only save images).",
+    "label.html-capture-applet-input": "Applet elements - are used to include JAVA applets which are not longer supported by most modern browsers.",
 
     "label.last-update-time": "Last updated time",
     "label.update-now-success": "Update success",
@@ -275,6 +296,7 @@
     "label.reset-to-default-warning": "All your settings will be reset to default, are you sure?",
     "label.reset-to-default-success": "Reset success",
     "label.restore-from-file-success": "Restore success",
+
 
     // placeholder
     "placeholder.notblank": "This value can not be blank!",

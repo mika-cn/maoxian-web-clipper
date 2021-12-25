@@ -35,9 +35,9 @@ function getParams() {
     },
     clipId: '001',
     config: {
-      saveWebFont: false,
-      saveCssImage: false,
-      saveIcon: true,
+      htmlCaptureWebFont: 'remove',
+      htmlCaptureCssImage: 'remove',
+      htmlCaptureIcon: 'saveAll',
     },
     requestParams: RequestParams.createExample({refUrl: url}),
   }

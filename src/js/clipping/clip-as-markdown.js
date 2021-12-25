@@ -127,6 +127,12 @@ async function captureAssets(snapshot, params) {
   const ancestorDocs = [documentSnapshot];
   await Snapshot.eachElement(snapshot,
     async(node, ancestors, ancestorDocs) => {
+
+      if (node.change) {
+        // processed
+        return true;
+      }
+
       const {baseUrl, docUrl} = ancestorDocs[0];
       let requestParams;
       if (ancestorDocs.length == 1) {

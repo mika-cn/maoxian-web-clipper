@@ -40,6 +40,29 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.0'] = function(config) {
+  config.version = '2.1';
+  const getValue = (checked) => checked ? 'saveAll' : 'remove';
+  config.htmlCaptureIcon      = getValue(config.saveIcon);
+  config.htmlCaptureWebFont   = getValue(config.saveWebFont);
+  config.htmlCaptureCssImage  = getValue(config.saveCssImage);
+  config.htmlCaptureImage = 'saveAll';
+  return config;
+}
+
+ConfigMigration['1.9'] = function(config) {
+  config.version = '2.0';
+  config.htmlCaptureAudio  = 'remove';
+  config.htmlCaptureVideo  = 'remove';
+  config.htmlCaptureApplet = 'remove';
+  config.htmlCaptureEmbed  = 'filter';
+  config.htmlCaptureObject = 'filter';
+
+  config.htmlEmbedFilter   = "<images>";
+  config.htmlObjectFilter  = "<images>";
+  return config;
+}
+
 ConfigMigration['1.8'] = function(config) {
   config.version = '1.9';
   config.autoRunContentScripts = false;

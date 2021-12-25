@@ -48,7 +48,6 @@ describe('Capture Img', () => {
     r = await Capturer.capture(getNode(), params);
     H.assertEqual(r.tasks.length, 0);
     H.assertTrue(r.change.hasAttr('data-mx-warn'));
-    H.assertTrue(r.change.hasAttr('data-mx-original-src'));
   });
 
   it('capture img src', async () => {
