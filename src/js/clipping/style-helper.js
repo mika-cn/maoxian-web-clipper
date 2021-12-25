@@ -237,7 +237,7 @@ function getSelectedNodeStyle(node, win) {
   };
 
   const height = getCssSize(node, 'height', win);
-  cssObj['height'] = `${height}px`;
+  cssObj['min-height'] = `${height}px`;
 
   if (getStyleText(node, 'box-sizing', win) !== 'border-box') {
     cssObj['box-sizing'] = 'border-box';
