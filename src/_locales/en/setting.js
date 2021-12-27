@@ -3,6 +3,7 @@
 })(this, function(root, undefined) {
   const currValues = (root.MxWcI18N_en || {}).values || {};
   const values = {
+    // labels
     "label.version": "Current Version: ",
     "label.ruby-version": "Ruby Version: ",
 
@@ -14,6 +15,8 @@
 
     "title.general": "General",
     "title.storage": "Storage",
+    "title.html": "HTML",
+    "title.markdown": "Markdown",
     "title.assistant": "Assistant",
     "title.public-plan": "Public plan",
     "title.subscriptions": "Subscriptions",
@@ -34,9 +37,13 @@
     "title.backup": "Backup",
     "title.restore": "Restore",
 
-    "title.save-format": "Save Format",
     "title.control": "Control",
     "title.file-url": "File URL",
+    "title.clipping-content": "Clipping Content",
+
+    // section markdown
+    "title.markdown-template": "Markdown Template",
+
     "title.advanced": "Advanced",
     "title.request": "HTTP Request",
     "title.request-timeout": "Timeout",
@@ -44,13 +51,11 @@
     "title.request-referrer-policy": "Referrer Policy",
     "title.request-cache": "Cache",
     "title.misc": "Misc",
-    "title.clipping-content": "Clipping Content",
-    "title.html-content": "HTML",
-    "title.markdown-content": "Markdown",
     "title.offline-page": "Offline Index Page",
     "title.refresh-history": "Refresh History",
 
 
+    "title.save-format": "Save Format",
     "title.root-folder": "Root Folder",
     "title.default-category": "Default Category",
     "title.clipping-folder-name": "Clipping Folder",
@@ -130,7 +135,6 @@
     "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => This function remove commas and spaces from the two ends of the content.",
 
 
-
     "path.download.intro": "download path： Download location of your browser, If you use NativeApp to save clipping file, this path is the value of \"data_dir\" in configure file (config.yaml) of NativeApp.",
     "path.filename.intro": "filename： The filename of downloaded file, such as <code>index.html</code>.",
     "folder.root.intro": "root folder： It was designed to use as storage entry, all clipped files will storage under this folder. When you configure each file's Saving Folder, make sure you contains it.",
@@ -157,6 +161,7 @@
 
 
 
+    // options
     "option.request-referrer-policy.origin-when-cross-origin": "originWhenCrossOrigin: full path (origin + path) when request to same origins, origin (protocol + host + port) only when request to other origins.",
     "option.request-referrer-policy.origin": "origin: origin only (protocol + host + port).",
     "option.request-referrer-policy.no-referrer": "noReferrer: The Referer header will not be sent.",
@@ -168,6 +173,17 @@
     "option.capture.remove": "Remove",
     "option.capture.filter": "Filter",
 
+    // capture targets
+    "capture.target.icon": "Site Icons",
+    "capture.target.image": "Images",
+    "capture.target.css-rules": "Style Rules",
+    "capture.target.css-image": "Style Images",
+    "capture.target.web-font": "Web Fonts",
+    "capture.target.audio": "Audios",
+    "capture.target.video": "Videos",
+    "capture.target.embed": "Embeds",
+    "capture.target.object": "Objects",
+    "capture.target.applet": "Applets",
 
 
     "notice.info.storage.browser": "Use browser to download clipping result.<br />",
@@ -199,7 +215,7 @@
     "button.backup-to-file": "Backup to file",
     "button.restore-from-file": "Restore from file",
 
-    // notice
+    // notices
     "notice.main-file-intro": "Main file is the HTML file or the Markdown file (depends on which format that you configure to save) that you clip",
     "notice.asset-file-intro": "Asset files are image files, style files, web font files and website icon files (notice that this doesn't include script files, MaoXian won't save script files due to security reason)",
     "notice.frame-file-intro": "Frame file is another webpage that is embedded in a webpage. In the process of clipping, MaoXian will save these files if your saving format is HTML. on the other hand, MaoXian will embed it's content into main file if saving format is Markdown",
@@ -255,7 +271,7 @@
     "label.request-cache-css-input": "Cache stylesheets (CSS)",
     "label.request-cache-image-input": "Cache images",
     "label.request-cache-web-font-input": "Cache web fonts",
-    "label.clip-information-input": "Include clipping information (original url, time, category and tags) in main file",
+    "label.clip-information-input": "Append clipping information (original url, time, category and tags) to clippted content",
     "label.custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
@@ -282,17 +298,20 @@
     "label.backup-selection-data-input": "Remembered selection",
 
     "label.html-compress-css-input": "Compress style(CSS) source code, includes inline styles and external styles. Compress means remove all unnecessary white space, this operation can reduce the captured style content size",
-    "label.html-capture-icon-input": "Favicon - the website icons that shown on browser tabs.",
-    "label.html-capture-image-input": "Images - the images that the selected area contains.",
-    "label.html-capture-css-rules-input": "Style rules - define how the elements on web page looks like.",
-    "label.html-capture-css-image-input": "Style images - the images that decorate the web page styles, such as background images, border images etc.",
-    "label.html-capture-web-font-input": "Web fonts - fonts that embed by web pages.",
 
-    "label.html-capture-audio-input": "Audio elements - are used to include audio files.",
-    "label.html-capture-video-input": "Video elements - are used to include video files, because these files are typically large, the saving process will likely much longer if you save them.",
-    "label.html-capture-embed-input": "Embed elements - are used to include some complicated files which are so difficult to render that the browser needs to install plugins to corrently handle it. and will rarely include images, audios or videos (We suggest you only save images).",
-    "label.html-capture-object-input": "Object elements - are used to include some complicated files which are so difficult to render that the browser needs to install plugins to corrently handle it. and will rarely include images, audios or videos (We suggest you only save images).",
-    "label.html-capture-applet-input": "Applet elements - are used to include JAVA applets which are not longer supported by most modern browsers.",
+
+    "notice.icon.intro": "Site icons are website favicons (those little images that shown on browser tabs) or the icons for the home screen and apps on mobile devices.",
+    "notice.image.intro": "Images only includes those that represent as content, such as article figures, profile avatars but not includes background images",
+    "notice.css-rules.intro": "Style rules define how every elements on web page looks like",
+    "notice.css-image.intro": "Style images are those that decrote the web page styles (generally content unrealative), suce as background images, border images, cursor images etc.",
+    "notice.web-font.intro": "Web fonts are font files that embed by web page in order to change how the text will looks like, and sometimes are also used to define icons",
+
+    "notice.audio.intro": "Audios are sound files that embed by web page using HTML5 technology, not includes those that embed through other methods",
+    "notice.video.intro": "Videos are video files that embed by web page using HTML5 technology, not includes those that embed through other methods (like: Adobe Flash Player). Because video files are typically large, save these files will likely make the saving process much longer",
+    "notice.embed.intro": "Embeds are used to include some complicated files which are so difficult to render that the browser needs to install plugins to corrently handle it. and will rarely include images, audios or videos (We suggest you only save images)",
+    "notice.object.intro": "Objects are used to include some complicated files which are so difficult to render that the browser needs to install plugins to corrently handle it. and will rarely include images, audios or videos (We suggest you only save images)",
+    "notice.applet.intro":  "Applets are used to include JAVA applets which are not longer supported by most modern browsers",
+
 
     "label.last-update-time": "Last updated time",
     "label.update-now-success": "Update success",
