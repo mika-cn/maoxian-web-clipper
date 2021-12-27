@@ -299,9 +299,11 @@ async function takeSnapshot(node, params) {
 
     case NODE_TYPE.TEXT: {
       snapshot.text = node.data;
-      if (ancestorInfo.codeAncestor || ancestorInfo.preAncestor) {
-        snapshot.needEscape = true;
-      }
+      if (ancestorInfo.codeAncestor) { snapshot.codeAncestor = true }
+      if (ancestorInfo.preAncestor) { snapshot.preAncestor = true }
+      const {blank, needEscape} = parseText(node.data);
+      if (blank) { snapshot.blank = true }
+      if (needEscape) { snapshot.needEscape = true }
       break;
     }
 
@@ -874,6 +876,68 @@ function escapeText(text) {
       '>': '&gt;',
     })[s];
   });
+}
+
+
+// [ \f\n\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]
+const CODE_SPACE   = 0x0020;
+const CODE_SPACE_F = 0x000C; // \f form feed
+const CODE_SPACE_T = 0x0009; // \t
+const CODE_SPACE_V = 0x000B; // \v
+const CODE_SPACE_N = 0x000A; // \n
+const CODE_SPACE_R = 0x000D; // \r
+const CODE_SPACE_U00A0 = 0x00A0; // unicode space
+const CODE_SPACE_U1680 = 0x1680;
+const CODE_SPACE_U2000 = 0x2000;
+const CODE_SPACE_U200A = 0x200A;
+const CODE_SPACE_U2028 = 0x2028;
+const CODE_SPACE_U2029 = 0x2029;
+const CODE_SPACE_U202F = 0x202F;
+const CODE_SPACE_U205F = 0x205F;
+const CODE_SPACE_U3000 = 0x3000;
+const CODE_SPACE_UFEFF = 0xFEFF;
+
+const CODE_AMPERSAND = 0x0026; // &
+const CODE_L_ANGLE_BRACKET = 0x003C; // <
+const CODE_R_ANGLE_BRACKET = 0x003E; // >
+
+function parseText(text) {
+  let blank = true;
+  let needEscape = false;
+  let code;
+  for (let i = 0; i < text.length; i++) {
+    code = text.charCodeAt(i);
+    if (blank && (
+         code == CODE_SPACE
+      || code == CODE_SPACE_N
+      || code == CODE_SPACE_T
+      || code == CODE_SPACE_R
+      || code == CODE_SPACE_V
+      || code == CODE_SPACE_F
+      || code == CODE_SPACE_U00A0
+      || code == CODE_SPACE_U1680
+      || code >= CODE_SPACE_U2000 && code <= CODE_SPACE_U200A
+      || code == CODE_SPACE_U2028
+      || code == CODE_SPACE_U2029
+      || code == CODE_SPACE_U202F
+      || code == CODE_SPACE_U205F
+      || code == CODE_SPACE_U3000
+      || code == CODE_SPACE_UFEFF
+    )) {
+      // the "blank" is true and current character is white space.
+      // do nothing
+    } else {
+      if (blank) { blank = false }
+      if ( code == CODE_L_ANGLE_BRACKET
+        || code == CODE_R_ANGLE_BRACKET
+        || code == CODE_AMPERSAND
+      ) {
+        needEscape = true;
+        break;
+      }
+    }
+  }
+  return {blank, needEscape};
 }
 
 // ================================================
