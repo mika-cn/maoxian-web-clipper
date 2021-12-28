@@ -223,7 +223,7 @@ async function captureAssets(snapshot, params) {
         case 'LINK': {
           const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
           r = await CapturerLink.capture(node, {
-            baseUrl, docUrl, storageInfo, clipId,
+            baseUrl, storageInfo, clipId,
             config, requestParams, cssParams,
           });
           break;
@@ -232,7 +232,7 @@ async function captureAssets(snapshot, params) {
         case 'STYLE': {
           const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
           r = await CapturerStyle.capture(node, {
-            baseUrl, docUrl, storageInfo, clipId,
+            baseUrl, storageInfo, clipId,
             config, requestParams, cssParams,
           });
           break;
@@ -326,8 +326,8 @@ async function captureAssets(snapshot, params) {
       let inlineStyle = "";
 
       if (node.styleObj) {
-        const params = Object.assign({ownerType: 'styleAttr'}, {
-          baseUrl, docUrl, storageInfo, clipId,
+        const params = Object.assign({ownerType: 'styleAttr', docBaseUrl: baseUrl}, {
+          baseUrl, storageInfo, clipId,
           config, requestParams
         });
 

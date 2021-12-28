@@ -6,7 +6,6 @@ const Capturer = H.wrapAsyncCapturer(CapturerStyle);
 
 function getParams(change = {}) {
   return Object.assign({
-    docUrl: 'https://a.org/index.html',
     baseUrl: 'https://a.org/index.html',
     storageInfo: {
       mainFileFolder: 'category-a/clippings',

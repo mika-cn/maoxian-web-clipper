@@ -13,7 +13,7 @@ ExtMsg.initBrowser(browser);
 function getParams() {
   const url = 'https://a.org/index.html';
   return {
-    docUrl: url,
+    docBaseUrl: url,
     storageInfo: {
       mainFileFolder: 'category-a/clippings',
       assetFolder: 'category-a/clippings/assets',
@@ -68,7 +68,7 @@ describe('Capturer stylesheet', () => {
     const sheet = createSheet([IMG_RULE_A,
       IMG_RULE_B, IMG_RULE_C, IMG_RULE_D, IMG_RULE_E]);
     const params = getParams();
-    params.baseUrl = params.docUrl;
+    params.baseUrl = params.docBaseUrl;
     params.ownerType = 'styleNode';
 
     ExtMsg.mockGetUniqueFilename();
@@ -78,12 +78,25 @@ describe('Capturer stylesheet', () => {
     H.assertEqual(cssText.match(/url\(''\)/mg).length, 6);
   });
 
-  it("capture text (css img) - htmlCaptureCssImage: 'saveAll'", async () => {
+  it("capture text (css img) - styleNode, htmlCaptureCssImage: 'saveAll'", async () => {
+    const sheet = createSheet([IMG_RULE_A]);
+    const params = getParams();
+    params.baseUrl = params.docBaseUrl;
+    params.ownerType = 'styleNode';
+    params.config.htmlCaptureCssImage = 'saveAll';
+    ExtMsg.mockGetUniqueFilename();
+    const {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
+    H.assertEqual(tasks.length, 1);
+    const [_, path] = cssText.match(/url\(\'(.+)\'\)/m);
+    H.assertTrue(path.startsWith('assets/'));
+  });
+
+  it("capture text (css img) - linkNode, htmlCaptureCssImage: 'saveAll'", async () => {
     const sheet = createSheet([IMG_RULE_A,
       IMG_RULE_B, IMG_RULE_C, IMG_RULE_D, IMG_RULE_E]);
 
     const params = getParams();
-    params.baseUrl = params.docUrl;
     params.baseUrl = 'https://a.org/style.css';
     params.config.htmlCaptureCssImage = 'saveAll';
     params.ownerType = 'linkNode';
@@ -92,12 +105,14 @@ describe('Capturer stylesheet', () => {
     const {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
     ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 6);
+
     H.assertMatch(cssText, /url\('[^\.\/]+.jpg'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.png'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.bmp'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.webp'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.svg'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.ico'\)/);
+    H.assertNotMatch(cssText, /url\('assets\/.+'\)/);
   });
 
   const WEB_FONT_RULE_A = createFontRule('src', 'url(a.woff)')
@@ -108,7 +123,7 @@ describe('Capturer stylesheet', () => {
     const sheet = createSheet([WEB_FONT_RULE_A, WEB_FONT_RULE_B, WEB_FONT_RULE_C]);
 
     const params = getParams();
-    params.baseUrl = params.docUrl;
+    params.baseUrl = params.docBaseUrl;
     params.ownerType = 'linkNode';
 
     ExtMsg.mockGetUniqueFilename();
@@ -122,7 +137,7 @@ describe('Capturer stylesheet', () => {
     const sheet = createSheet([WEB_FONT_RULE_A, WEB_FONT_RULE_B, WEB_FONT_RULE_C]);
 
     const params = getParams();
-    params.baseUrl = params.docUrl;
+    params.baseUrl = params.docBaseUrl;
     params.config.htmlCaptureWebFont = 'saveAll';
     params.ownerType = 'linkNode';
 

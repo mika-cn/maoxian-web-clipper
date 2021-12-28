@@ -14,7 +14,6 @@ import SnapshotNodeChange from '../snapshot/change.js';
  * @param {Snapshot} node
  * @param {Object} opts
  * @param {String} opts.baseUrl
- * @param {String} opts.docUrl
  * @param {String} opts.clipId
  * @param {Object} opts.storageInfo
  * @param {Object} opts.config
@@ -72,7 +71,7 @@ async function capture(node, opts) {
 
 async function captureIcon({node, href, opts}) {
   //The favicon of the website.
-  const {baseUrl, docUrl, clipId, storageInfo, requestParams, config} = opts;
+  const {baseUrl, clipId, storageInfo, requestParams, config} = opts;
   const tasks = [];
   const change = new SnapshotNodeChange();
 
@@ -103,8 +102,7 @@ async function captureIcon({node, href, opts}) {
 }
 
 async function captureStylesheet({node, linkTypes, href, opts}) {
-  const {baseUrl, docUrl, clipId, storageInfo,
-    requestParams, cssParams} = opts;
+  const {baseUrl, clipId, storageInfo, requestParams, cssParams} = opts;
   const tasks = [];
   const change = new SnapshotNodeChange();
 
@@ -137,7 +135,8 @@ async function captureStylesheet({node, linkTypes, href, opts}) {
 
   const r = await CapturerStyleSheet.captureStyleSheet(
     node.sheet, Object.assign({ownerType: 'linkNode'}, opts, {
-      baseUrl: url
+      baseUrl: url,
+      docBaseUrl: baseUrl,
     }));
 
   if (T.isBlankStr(r.cssText)) {

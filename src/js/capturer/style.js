@@ -13,7 +13,6 @@ import SnapshotNodeChange from '../snapshot/change.js';
  * @param {Snapshot} node
  * @param {Object} params
  * @param {String} params.baseUrl
- * @param {String} params.docUrl
  * @param {String} params.clipId
  * @param {Object} params.storageInfo
  * @param {Object} params.config
@@ -30,7 +29,7 @@ async function capture(node, params) {
   change.rmAttr('nonce');
 
   if (node.sheet && node.sheet.rules.length > 0) {
-    const r = await CapturerStyleSheet.captureStyleSheet(node.sheet, Object.assign({ownerType: 'styleNode'}, params));
+    const r = await CapturerStyleSheet.captureStyleSheet(node.sheet, Object.assign({ownerType: 'styleNode', docBaseUrl: params.baseUrl}, params));
 
 
     if (T.isBlankStr(r.cssText)) {

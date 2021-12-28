@@ -10,7 +10,7 @@ import StyleSheetSnapshot from '../snapshot/stylesheet.js';
  * @param {Object} params
  *   - {String} ownerType 'syleNode' or 'linkNode'
  *   - {String} baseUrl
- *   - {String} docUrl
+ *   - {String} docBaseUrl - document's base url
  *   - {Object} storageInfo
  *   - {String} clipId
  *   - {Object} config
@@ -41,7 +41,7 @@ async function captureStyleSheet(sheet, params) {
  * @param {Object} params
  *   - {String} ownerType 'syleNode' or 'styleAttr'
  *   - {String} baseUrl
- *   - {String} docUrl
+ *   - {String} docBaseUrl - document's baseUrl
  *   - {Object} storageInfo
  *   - {String} clipId
  *   - {Object} config
@@ -66,7 +66,7 @@ async function captureStyleObj(styleObj, params) {
 
 
 function getResourceHandler(params) {
-  const {tasks, ownerType, baseUrl, docUrl, storageInfo, clipId, config, requestParams} = params;
+  const {tasks, ownerType, baseUrl, docBaseUrl, storageInfo, clipId, config, requestParams} = params;
   // @return path;
   return async ({ownerType, resourceType, cssText, baseUrl, url}) => {
     const saveResource = (
@@ -110,9 +110,14 @@ function getResourceHandler(params) {
     }
 
 
-    if(baseUrl === docUrl) {
+    if(baseUrl === docBaseUrl) {
+      // In this case, it means this asset is referred by document (top document or iframe).
+      // We need to calculate path that relative to mainFileFolder,
+      // which is the place that the document will be saved in.
       return T.calcPath(storageInfo.mainFileFolder, filename);
     } else {
+      // This asset is referred by an external style which is also an asset.
+      // So they will stay in same folder.
       return assetName;
     }
   }

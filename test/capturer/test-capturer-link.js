@@ -25,7 +25,6 @@ function getNode(relList, attr = {}, sheet) {
 function getParams(change = {}) {
   const url = 'https://a.org/index.html';
   return Object.assign({
-    docUrl: url,
     baseUrl: url,
     storageInfo: {
       mainFileFolder: 'category-a/clippings',
