@@ -172,6 +172,7 @@
     "option.capture.save-used": "只保存已使用的",
     "option.capture.save-image": "只保存图片",
     "option.capture.save-favicon": "只保存 favicon",
+    "option.capture.save-woff": "只保存 WOFF 字体",
     "option.capture.remove": "移除",
     "option.capture.filter": "过滤",
 
@@ -232,6 +233,7 @@
 
     "notice.capture-filter-intro": "通过下方输入框定义的规则，对引用的文件进行过滤，以选择自己想要保存的文件。",
     "notice.capture-filter-format": "过滤器的规则是依据网址的后缀名来过滤的。以井号（#）打头的行是注释，每行可填写多个后缀名，中间用英文逗号隔开（如：<code>pdf,doc,xls</code>）。",
+    "notice.capture-filter-format-web-font": "过滤器的规则是依据网址的后缀名来过滤的。以井号（#）打头的行是注释，每行可填写多个后缀名，中间用英文逗号隔开（如：<code>woff,woff2,ttf,otf</code>）。",
     "notice.capture-filter-variable.intro": "<strong>另：</strong> 扩展内置了一些指令可方便匹配一类扩展名。其使用方式与后缀名一样（例如：<code>&lt;images&gt;,pdf</code> 可匹配到所有图片文件和 pdf 文件）。可使用的指令如下：",
     "notice.capture-filter-variable.images": "&lt;images&gt; ： 可匹配所有图片文件后缀名",
     "notice.capture-filter-variable.audios": "&lt;audios&gt;  ： 可匹配所有声音文件后缀名",
@@ -305,7 +307,7 @@
     "notice.image.intro": "图片只包含那些表示内容的图片，比如：文章例图，用户头像等等，但不包括用于改变网站样式的图片（如： 背景图）",
     "notice.css-rules.intro": "样式规则定义网页上每个元素的样式，一张网页通常有成百上千条规则。而由于我们只会裁剪网页的一部分，这意味着只需要保存一部分规则就足以正常显示网页。",
     "notice.css-image.intro": "样式图片即修饰网页样式的图片，如：元素背景图，边框背景图，光标图片等等。这类图片一般与网页内容无关，可安全移除。",
-    "notice.web-font.intro": "Web 字体是网页嵌入的字体文件，常用于改变网页文本的字体样式，也会用于引入图标（建议移除）",
+    "notice.web-font.intro": "Web 字体是网页嵌入的字体文件，常用于改变网页文本的字体样式，也会用于引入图标。<br />注：下方选项中的 WOFF 指的是 Web 开放字体格式（Web Open Font Format）。该格式具有很大的兼容性，大部分现代浏览器都支持它。",
     "notice.audio.intro": "声音是网页通过 HTML5 技术嵌入的音频文件，不包含通过其他方式嵌入的声音（建议移除）",
     "notice.video.intro": "影片是网页通过 HTML5 技术嵌入的视频文件，不包含通过其他方式嵌入的影片，由于影片文件通常较大，这会导致保存流程可能会大大加长（建议移除）",
 

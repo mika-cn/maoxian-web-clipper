@@ -5,6 +5,7 @@ import Asset from '../lib/asset.js';
 import Task  from '../lib/task.js';
 import WhiteSpace from '../lib/white-space.js';
 import StyleSheetSnapshot from '../snapshot/stylesheet.js';
+import CaptureTool from './tool.js';
 
 /*
  * @param {Object} params
@@ -72,7 +73,7 @@ function getResourceHandler(params) {
     const saveResource = (
          resourceType == 'css'   && true
       || resourceType == 'image' && config.htmlCaptureCssImage == 'saveAll'
-      || resourceType == 'font'  && config.htmlCaptureWebFont == 'saveAll'
+      || resourceType == 'font'  && saveWebFont(config, url)
     );
 
     if (!saveResource) { return '' }
@@ -121,6 +122,27 @@ function getResourceHandler(params) {
       return assetName;
     }
   }
+}
+
+
+// save web font or not?
+// returns a boolean value.
+function saveWebFont(config, url) {
+  const option = config.htmlCaptureWebFont;
+  let filterText;
+  switch(config.htmlCaptureWebFont) {
+    case 'remove': return false;
+    case 'saveAll': return true;
+    case 'saveWoff': {
+      filterText = 'woff,woff2';
+      break;
+    }
+    case 'filter': {
+      filterText = config.htmlWebFontFilter;
+      break;
+    }
+  }
+  return CaptureTool.isFilterMatch(filterText, url);
 }
 
 

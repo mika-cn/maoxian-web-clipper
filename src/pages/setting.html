@@ -96,8 +96,26 @@
             <div id="html-capture-web-font">
               <input type="radio" value="saveAll" name="html-capture-web-font" id="save-all-web-font">
               <label for="save-all-web-font" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveWoff" name="html-capture-web-font" id="save-woff-web-font">
+              <label for="save-woff-web-font" i18n="option.capture.save-woff"></label>
+
+              <input type="radio" value="filter" name="html-capture-web-font" id="filter-web-font">
+              <label for="filter-web-font" i18n="option.capture.filter"></label>
               <input type="radio" value="remove" name="html-capture-web-font" id="remove-web-font">
               <label for="remove-web-font" i18n="option.capture.remove"></label>
+            </div>
+            <div class="binded" data-bind-radio="html-capture-web-font" data-bind-value="filter">
+              <br />
+              <div class="notice-info">
+                <p i18n="notice.capture-filter-intro"></p>
+                <details>
+                  <summary i18n="help.how-to-write-it" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <p i18n="notice.capture-filter-format-web-font"></p>
+                </div>
+                </details>
+              </div>
+              <textarea id="html-web-font-filter" class="capture-filter"></textarea>
             </div>
           </fieldset>
 
