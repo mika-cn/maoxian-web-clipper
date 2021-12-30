@@ -106,18 +106,16 @@ async function captureIcon({node, href, linkTypes, opts}) {
   return {change, tasks};
 }
 
+
+
+/**
+ * We don't save alternative stylesheets. they have a disabled property
+ * which value is true, disabled stylesheets won't be svaed.
+ */
 async function captureStylesheet({node, linkTypes, href, opts}) {
   const {baseUrl, clipId, storageInfo, requestParams, cssParams} = opts;
   const tasks = [];
   const change = new SnapshotNodeChange();
-
-  /*
-   * TODO Shall we handle alternative style sheets?
-   * <link href="default.css" rel="stylesheet" title="Default Style">
-   * <link href="fancy.css" rel="alternate stylesheet" title="Fancy">
-   * <link href="basic.css" rel="alternate stylesheet" title="Basic">
-   *
-   */
 
   if (!node.sheet) {
     change.setProperty('ignore', true);

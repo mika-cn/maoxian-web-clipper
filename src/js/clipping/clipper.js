@@ -105,11 +105,12 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
  *   - {Object} i18nLabel : some translated labels
  *   - {Object} requestParams
  *   - {Window} window object
+ *   - {Object} platform
  *   - {FilenameConflictResolver} nameConflictResolver
  *
  * @return {Promise} a Promise that will resolve with clipping
  */
-async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, requestParams, frames, win, nameConflictResolver}) {
+async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, requestParams, frames, win, platform, nameConflictResolver}) {
 
   let Clipper = null;
   switch(info.format){
@@ -125,7 +126,7 @@ async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, 
     }
   });
 
-  let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win});
+  let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform});
 
   if (storageConfig.saveTitleFile) {
     const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);

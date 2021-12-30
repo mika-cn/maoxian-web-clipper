@@ -25,7 +25,7 @@ import StyleHelper           from './style-helper.js';
 import RequestParams         from '../lib/request-params.js'
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}) {
+async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform}) {
   Log.debug("html parser");
 
   const {clipId} = info;
@@ -37,6 +37,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
   }
 
   const v = Object.assign({info, config}, calculatedStyle, i18nLabel)
+
+  const snapshot = await takeSnapshot({elem, frames, requestParams, win, platform, v});
 
   const params = {
     saveFormat   : 'html',
@@ -51,8 +53,6 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     win          : win,
     v: v,
   };
-
-  const snapshot = await takeSnapshot({elem, frames, requestParams, win, v});
 
   const tasks = await captureAssets(snapshot, Object.assign({}, params, {
     needFixStyle: (elem.tagName.toUpperCase() !== 'BODY')
@@ -84,7 +84,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 }
 
 
-async function takeSnapshot({elem, frames, requestParams, win, v}) {
+async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
   const topFrame = frames.find((it) => it.frameId == 0);
   const frameInfo = {allFrames: frames, ancestors: [topFrame]}
   const extMsgType = 'frame.clipAsHtml.takeSnapshot';
@@ -93,7 +93,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
   const cssBox = Snapshot.createCssBox({removeUnusedRules, node: elem});
 
   let elemSnapshot = await Snapshot.take(elem, {
-    frameInfo, requestParams, win, extMsgType, cssBox,
+    frameInfo, requestParams, win, platform, extMsgType, cssBox,
     blacklist: {SCRIPT: true, LINK: true, STYLE: true, TEMPLATE: true},
     shadowDom:    {blacklist: {SCRIPT: true, TEMPLATE: true}},
     srcdocFrame:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
@@ -107,7 +107,7 @@ async function takeSnapshot({elem, frames, requestParams, win, v}) {
   const headChildrenSnapshots = [];
   for (const node of headNodes) {
     headChildrenSnapshots.push(await Snapshot.take(node, {
-      frameInfo, requestParams, win, extMsgType, cssBox}));
+      frameInfo, requestParams, win, platform, extMsgType, cssBox}));
   }
 
   if (elemSnapshot.name == 'BODY') {
