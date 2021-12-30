@@ -55,11 +55,11 @@ async function capture(node, opts) {
   } else if (linkTypes.length === 1) {
     const [linkType] = linkTypes;
     if (linkType.match(/icon/)) {
-      return await captureIcon({node, href, opts});
+      return await captureIcon({node, href, linkTypes, opts});
     }
   } else {
     if (linkTypes.indexOf('icon') > -1) {
-      return await captureIcon({node, href, opts});
+      return await captureIcon({node, href, linkTypes, opts});
     }
   }
 
@@ -69,15 +69,20 @@ async function capture(node, opts) {
   return {change, tasks};
 }
 
-async function captureIcon({node, href, opts}) {
+async function captureIcon({node, href, linkTypes, opts}) {
   //The favicon of the website.
   const {baseUrl, clipId, storageInfo, requestParams, config} = opts;
   const tasks = [];
   const change = new SnapshotNodeChange();
 
-  if (config.htmlCaptureIcon == 'remove') {
+  const removeIcon = (
+       config.htmlCaptureIcon == 'remove'
+    || config.htmlCaptureIcon == 'saveFavicon' && linkTypes.indexOf('icon') == -1
+  );
+
+  if (removeIcon) {
     change.setProperty('ignore', true);
-    change.setProperty('ignoreReason', 'configureItemDisabled');
+    change.setProperty('ignoreReason', 'removeByUserConfigure');
     return {change, tasks};
   }
 

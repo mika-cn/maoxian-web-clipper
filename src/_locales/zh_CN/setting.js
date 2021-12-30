@@ -171,6 +171,7 @@
     "option.capture.save-current": "保存当前",
     "option.capture.save-used": "只保存已使用的",
     "option.capture.save-image": "只保存图片",
+    "option.capture.save-favicon": "只保存 favicon",
     "option.capture.remove": "移除",
     "option.capture.filter": "过滤",
 
@@ -300,7 +301,7 @@
 
 
 
-    "notice.icon.intro": "网站图标包含显示在浏览器标签上的小图片，也包含显示在移动设备的 Home 屏幕上或 APP 上的图标",
+    "notice.icon.intro": "网站图标包含显示在浏览器标签上的小图片（洋名为：favicon），也包含显示在移动设备的 Home 屏幕上或 APP 上的图标",
     "notice.image.intro": "图片只包含那些表示内容的图片，比如：文章例图，用户头像等等，但不包括用于改变网站样式的图片（如： 背景图）",
     "notice.css-rules.intro": "样式规则定义网页上每个元素的样式，一张网页通常有成百上千条规则。而由于我们只会裁剪网页的一部分，这意味着只需要保存一部分规则就足以正常显示网页。",
     "notice.css-image.intro": "样式图片即修饰网页样式的图片，如：元素背景图，边框背景图，光标图片等等。这类图片一般与网页内容无关，可安全移除。",

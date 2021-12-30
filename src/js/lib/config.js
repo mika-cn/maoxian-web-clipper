@@ -37,7 +37,7 @@ function getDefault(){
     htmlCaptureApplet   : 'remove',  // saveAll | remove
     htmlCaptureEmbed    : 'saveImage',  // saveAll | saveImage | remove | filter
     htmlCaptureObject   : 'saveImage',  // saveAll | saveImage | remove | filter
-    htmlCaptureIcon     : 'remove',  // saveAll | remove
+    htmlCaptureIcon     : 'remove',  // saveAll | saveFavicon | remove
 
     htmlCaptureCssRules : 'saveUsed',// saveAll | saveUsed
     htmlCaptureWebFont  : 'remove',  // saveAll | remove
