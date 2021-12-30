@@ -40,6 +40,14 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.3'] = function(config) {
+  config.version = '2.4';
+  // change default value
+  config.htmlCaptureEmbed  = 'saveImage';
+  config.htmlCaptureObject = 'saveImage';
+  return config;
+}
+
 ConfigMigration['2.2'] = function(config) {
   config.version = '2.3';
   config.htmlCompressCss = false;

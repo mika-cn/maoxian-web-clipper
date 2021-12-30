@@ -170,6 +170,7 @@
     "option.capture.save-all": "保存所有",
     "option.capture.save-current": "保存当前",
     "option.capture.save-used": "只保存已使用的",
+    "option.capture.save-image": "只保存图片",
     "option.capture.remove": "移除",
     "option.capture.filter": "过滤",
 

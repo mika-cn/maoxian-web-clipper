@@ -170,6 +170,7 @@
     "option.capture.save-all": "Save all",
     "option.capture.save-current": "Save current",
     "option.capture.save-used": "Save used",
+    "option.capture.save-image": "Save Images",
     "option.capture.remove": "Remove",
     "option.capture.filter": "Filter",
 
