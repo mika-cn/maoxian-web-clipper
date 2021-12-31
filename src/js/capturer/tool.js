@@ -240,8 +240,8 @@ function captureRemoveNode(reason) {
 
 function isFilterMatch(filterText, url, mimeType) {
   if (!filterText) { return false }
-  const resourceType = Task.getResourceType(url, mimeType);
-  const extension = Task.getFileExtension(url, mimeType);
+  const extension = Asset.getWebUrlExtension(url, {mimeType});
+  const resourceType = Task.getResourceType(extension, mimeType);
   let match = false;
 
   T.eachNonCommentLine(filterText, (lineText) => {

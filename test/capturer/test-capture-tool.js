@@ -244,53 +244,66 @@ describe('CaptureTool', () => {
   describe('isFilterMatch', () => {
     it('should not match, if filter text is ""', () => {
       const filterText = "";
-      const url = "a.png";
+      const url = "https://a.org/test.png";
       const mimeType = "image/png";
       H.assertFalse(CaptureTool.isFilterMatch(filterText, url, mimeType));
     })
 
     it('should not match, if filter text are all comments', () => {
       const filterText = "#comment";
-      const url = "a.png";
+      const url = "https://a.org/test.png";
       const mimeType = "image/png";
       H.assertFalse(CaptureTool.isFilterMatch(filterText, url, mimeType));
     });
 
     it('should match <images>, mimeType', () => {
       const filterText = "<images>";
-      const url = 'a';
+      const url = "https://a.org/test.png";
       const mimeType = "image/jpeg";
+      H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+    it('should match <images>, dataUrl', () => {
+      const filterText = "<images>";
+      const url = "data:image/jpeg;base64,xxx";
+      const mimeType = "";
       H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
     });
 
     it('should match <audios>, url', () => {
       const filterText = "<audios>";
-      const url = 'a.mp3';
+      const url = "https://a.org/test.mp3";
       const mimeType = "";
       H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
     });
 
     it('should not match <videos>, both url and mimeType can not match', () => {
       const filterText = "<videos>";
-      const url = 'a.html';
+      const url = "https://a.org/test.html";
       const mimeType = "text/html";
       H.assertFalse(CaptureTool.isFilterMatch(filterText, url, mimeType));
     });
 
     it('should match extension', () => {
       const filterText = "<images>,pdf";
-      const url = 'a';
+      const url = "https://a.org/test.pdf";
       const mimeType = 'application/pdf';
+      H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
+    });
+
+    it('should match extension of data url', () => {
+      const filterText = "woff, woff2";
+      const url = 'data:font/woff2;base64,xxx';
+      const mimeType = undefined;
       H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
     });
 
     it('should match last line', () => {
       const filterText = "<images>\nmp3, wmv, mp4\npdf";
-      const url = 'a.pdf';
+      const url = "https://a.org/test.pdf";
       const mimeType = null;
       H.assertTrue(CaptureTool.isFilterMatch(filterText, url, mimeType));
     });
-
 
 
   });
