@@ -257,6 +257,7 @@ async function takeSnapshot(node, params) {
             snapshot.childNodes = [];
             // take snapshot through extension message
             const extMsg = {
+              platform: platform,
               frameId: frame.frameId,
               frameInfo: newFrameInfo,
               requestParams: requestParams.toObject(),

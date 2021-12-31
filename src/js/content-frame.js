@@ -34,6 +34,7 @@ function backgroundMessageHandler(message) {
           const blacklist = {SCRIPT: true, TEMPLATE: true};
           Snapshot.take(window.document, {
             win: window,
+            platform: message.body.platform,
             requestParams: getRequestParams(message),
             frameInfo: message.body.frameInfo,
             extMsgType: message.type,
@@ -64,6 +65,7 @@ function backgroundMessageHandler(message) {
             STYLE: true, SCRIPT: true, TEMPLATE: true};
           Snapshot.take(window.document, {
             win: window,
+            platform: message.body.platform,
             requestParams: getRequestParams(message),
             frameInfo: message.body.frameInfo,
             extMsgType: message.type,
