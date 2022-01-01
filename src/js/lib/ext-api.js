@@ -7,7 +7,7 @@ const ExtApi = {};
  * environment
  *****************************/
 ExtApi.getLocale = () => {
-  //return 'zh-CN';
+  return 'zh-CN';
   try {
     return browser.i18n.getUILanguage();
   } catch(e) {

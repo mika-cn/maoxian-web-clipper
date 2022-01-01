@@ -40,6 +40,14 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.5'] = function(config) {
+  config.version = '2.6';
+  delete config.htmlWebFontFilter;
+  //FIXME
+  config.htmlWebFontFilterList = "woff|woff2|ttf|otf|eof|svg";
+  return config;
+}
+
 ConfigMigration['2.4'] = function(config) {
   config.version = '2.5';
   config.htmlWebFontFilter = 'woff,woff2';

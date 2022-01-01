@@ -98,8 +98,8 @@ function initSettingHtml(config) {
     'htmlCaptureWebFont'
   );
   initTextInput(config,
-    'html-web-font-filter',
-    'htmlWebFontFilter'
+    'html-web-font-filter-list',
+    'htmlWebFontFilterList'
   );
   initRadioInput(config,
     'html-capture-image',

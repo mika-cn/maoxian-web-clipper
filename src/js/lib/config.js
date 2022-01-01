@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.5';
+const VERSION = '2.6';
 const state = {};
 
 /** WARNING
@@ -40,12 +40,13 @@ function getDefault(){
     htmlCaptureIcon     : 'remove',  // saveAll | saveFavicon | remove
 
     htmlCaptureCssRules : 'saveUsed',// saveAll | saveUsed
-    htmlCaptureWebFont  : 'remove',  // saveAll | saveWoff | remove | filter
+    htmlCaptureWebFont  : 'remove',  // saveAll | filterList | remove |
     htmlCaptureCssImage : 'remove',  // saveAll | remove
 
     htmlEmbedFilter: "<images>",
     htmlObjectFilter: "<images>",
-    htmlWebFontFilter: "woff,woff2",
+    // FIXME FIX this filter List
+    htmlWebFontFilterList: "woff|woff2|ttf|otf|eof|svg",
 
     markdownTemplate: "\n{{content}}\n",
 
