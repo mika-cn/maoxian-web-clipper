@@ -43,8 +43,7 @@ const ConfigMigration = {};
 ConfigMigration['2.5'] = function(config) {
   config.version = '2.6';
   delete config.htmlWebFontFilter;
-  //FIXME
-  config.htmlWebFontFilterList = "woff|woff2|ttf|otf|eof|svg";
+  config.htmlWebFontFilterList = "woff2|woff|otf|ttf";
   return config;
 }
 

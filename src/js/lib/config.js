@@ -45,8 +45,7 @@ function getDefault(){
 
     htmlEmbedFilter: "<images>",
     htmlObjectFilter: "<images>",
-    // FIXME FIX this filter List
-    htmlWebFontFilterList: "woff|woff2|ttf|otf|eof|svg",
+    htmlWebFontFilterList: "woff2|woff|otf|ttf",
 
     markdownTemplate: "\n{{content}}\n",
 

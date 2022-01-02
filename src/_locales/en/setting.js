@@ -236,6 +236,7 @@
     "notice.capture-filter-format": "A filter is composed of multiple file extensions which are seperated by comma (e.g. <code>pdf,doc,xls</code>). <br>When a filter is used, it matches these file extensions with referred files'. If a referred file matches, it will be saved",
     "notice.capture-filter-list-format": "A filter list contains multiple filters. These filters will match one by one. If there is one filter that matches, the rest will be ignored. <br /> You can use '|' to seperate these filters (like: <code>filterA|filterB|filterC)",
     "notice.capture-filter-format-web-font": "A filter is composed of multiple file extensions which are seperated by comma (e.g. <code>woff,woff2,ttf</code>). <br>When a filter is used, it matches these file extensions with referred files'. If a referred file matches, it will be saved",
+    "notice.capture-web-font-extra-intro": "If all filters can't match, all font files will be saved.<br>If you always browser the clipped web pages on modern browsers, the recommended filter list is <code>woffs|woff|otf|ttf</code><br>If you want to support some older browsers, the recommend filter list is <code>woff2,woff|otf,ttf</code>",
     "notice.capture-filter-variable.intro": "<strong>Note：</strong> MaoXian have some built-in variables that can be used to match a tipical types of file extensions (e.g. <code>&lt;images&gt;,pdf</code> can match all images and pdf files). All variables are :",
     "notice.capture-filter-variable.images": "&lt;images&gt; : can match all image file extensions",
     "notice.capture-filter-variable.audios": "&lt;audios&gt; : can match all audio file extensions",
@@ -307,10 +308,10 @@
 
 
     "notice.icon.intro": "Site icons are website favicons (those little images that shown on browser tabs) or the icons for the home screen and apps on mobile devices.",
-    "notice.image.intro": "Images only includes those that represent as content, such as article figures, profile avatars but not includes background images",
+    "notice.image.intro": "Images only includes those that represent as content, such as article figures, profile avatars but not includes background images. For the same image there might be several different files that have different quality and size which will be chosen by browsers according to devices and network speed",
     "notice.css-rules.intro": "Style rules define how every elements on web page looks like",
     "notice.css-image.intro": "Style images are those that decrote the web page styles (generally content unrealative), suce as background images, border images, cursor images etc.",
-    "notice.web-font.intro": "Web fonts are font files that embed by web page in order to change how the text will looks like, and sometimes are also used to define icons.",
+    "notice.web-font.intro": "Web fonts are font files that embed by web page in order to change how the text will looks like, and sometimes are also used to define icons. In order to support different types and versions of browser, the web page might define several web font files with different types for the same font.",
 
     "notice.audio.intro": "Audios are sound files that embed by web page using HTML5 technology, not includes those that embed through other methods",
     "notice.video.intro": "Videos are video files that embed by web page using HTML5 technology, not includes those that embed through other methods (like: Adobe Flash Player). Because video files are typically large, save these files will likely make the saving process much longer",
