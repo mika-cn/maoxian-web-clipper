@@ -423,7 +423,7 @@ async function rule2String(rule, params) {
         whiteSpace,
       });
       if (T.isBlankStr(cssText)) { return '' }
-      return `@fontface${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
+      return `@font-face${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
     case CSSRULE_TYPE.MEDIA: {
