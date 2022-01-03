@@ -32,9 +32,9 @@ function getParams() {
   }
 }
 
-function createSheet(rules) {
+function createSheet(rules, url) {
   return {
-    href: undefined,
+    url: url,
     disabled: false,
     title: 'TITLE',
     rules: rules,
@@ -46,6 +46,14 @@ function createStyleRule(selectorText, propertyName, propertyValue) {
     type: CSSRULE_TYPE.STYLE,
     selectorText: selectorText,
     styleObj: {[propertyName]: propertyValue},
+  }
+}
+
+function createImportRule(sheet, url) {
+  return {
+    type: CSSRULE_TYPE.IMPORT,
+    url: url,
+    sheet: sheet,
   }
 }
 
@@ -114,6 +122,24 @@ describe('Capturer stylesheet', () => {
     H.assertMatch(cssText, /url\('[^\.\/]+.svg'\)/);
     H.assertMatch(cssText, /url\('[^\.\/]+.ico'\)/);
     H.assertNotMatch(cssText, /url\('assets\/.+'\)/);
+  });
+
+  it("capture text(imported rule)", async () => {
+    const url = 'https://a.org/external.css';
+    const externalSheet = createSheet([
+      createStyleRule('color', 'red'),
+    ], url)
+    const rule = createImportRule(externalSheet, url);
+    const sheet = createSheet([rule]);
+
+    const params = getParams();
+    params.baseUrl = params.docBaseUrl;
+    params.ownerType = 'styleNode';
+
+    ExtMsg.mockGetUniqueFilename();
+    var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
+    H.assertEqual(tasks.length, 1);
   });
 
   const WEB_FONT_RULE_A = createFontRule('src', 'url(a.woff)')
@@ -189,32 +215,54 @@ describe('Capturer stylesheet', () => {
   const WEB_FONT_RULE_Y = createFontRule('src', "url('b.woff2')")
   const WEB_FONT_RULE_Z = createFontRule('src', 'url("c.otf")')
 
-  it("capture text (web font) - option: saveWoff", async () => {
+  it("capture text (web font) - option: filterList, should save unmatched files", async () => {
     const sheet = createSheet([WEB_FONT_RULE_X, WEB_FONT_RULE_Y, WEB_FONT_RULE_Z]);
     const params = getParams();
     params.baseUrl = params.docBaseUrl;
-    params.config.htmlCaptureWebFont = 'saveWoff';
+    params.config.htmlCaptureWebFont = 'filterList';
+    params.config.htmlWebFontFilterList = 'woff|woff2'
     params.ownerType = 'styleNode';
     ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
     ExtMsg.clearMocks();
-    H.assertEqual(tasks.length, 2);
+    H.assertEqual(tasks.length, 3);
     H.assertEqual(tasks[0].url, 'https://a.org/a.woff');
     H.assertEqual(tasks[1].url, 'https://a.org/b.woff2');
+    // all filters are not match, still saved
+    H.assertEqual(tasks[2].url, 'https://a.org/c.otf');
   });
 
-  it("capture text (web font) - option: filter", async () => {
-    const sheet = createSheet([WEB_FONT_RULE_X, WEB_FONT_RULE_Y, WEB_FONT_RULE_Z]);
+  const N_URL_FONT_RULE = createFontRule('src', ""
+    + "url(a.woff) format(woff),"
+    + "url('b.woff2') format(woff2),"
+    + 'url("c.otf") format(opentype)'
+  );
+
+  it("capture text (web font) - option: filterList, should only match first filter", async () => {
+    const sheet = createSheet([N_URL_FONT_RULE]);
     const params = getParams();
     params.baseUrl = params.docBaseUrl;
-    params.config.htmlCaptureWebFont = 'filter';
-    params.config.htmlWebFontFilter = 'ttf, otf';
+    params.config.htmlCaptureWebFont = 'filterList';
+    params.config.htmlWebFontFilterList = 'woff|woff2|otf';
     params.ownerType = 'styleNode';
     ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
     ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 1);
-    H.assertEqual(tasks[0].url, 'https://a.org/c.otf');
+    H.assertEqual(tasks[0].url, 'https://a.org/a.woff');
+  });
+
+  it("capture text (web font) - option: filterList, matches multiple extensions", async () => {
+    const sheet = createSheet([N_URL_FONT_RULE]);
+    const params = getParams();
+    params.baseUrl = params.docBaseUrl;
+    params.config.htmlCaptureWebFont = 'filterList';
+    params.config.htmlWebFontFilterList = 'woff,woff2|otf';
+    params.ownerType = 'styleNode';
+    ExtMsg.mockGetUniqueFilename();
+    var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
+    H.assertEqual(tasks.length, 2);
   });
 
 

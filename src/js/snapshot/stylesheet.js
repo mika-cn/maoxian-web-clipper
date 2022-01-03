@@ -201,7 +201,7 @@ async function handleCssRule(rule, params) {
     }
 
     case CSSRULE_TYPE.IMPORT: {
-      r.href = rule.href;
+      r.url = rule.href;
       try {
         r.mediaText = rule.media.mediaText;
         r.mediaList = mediaList2Array(rule.media);
@@ -380,11 +380,11 @@ async function rule2String(rule, params) {
 
     case CSSRULE_TYPE.IMPORT: {
       if (rule.circular) {
-        return `/*@import url("${rule.href}"); Error: circular stylesheet.*/`;
+        return `/*@import url("${rule.url}"); Error: circular stylesheet.*/`;
       }
 
       if (!rule.sheet || rule.sheet.rules.length == 0) {
-        return `/*@import url("${rule.sheet.href}"); Error: empty stylesheet(maybe 404).*/`;
+        return `/*@import url("${rule.url}"); Error: empty stylesheet(maybe 404).*/`;
       }
 
       const newOwnerType = 'importRule';
@@ -402,10 +402,10 @@ async function rule2String(rule, params) {
 
       const resourceType = 'css';
       const path = await resourceHandler({
-        url: rule.sheet.href,
         ownerType: newOwnerType,
+        resourceType: resourceType,
         baseUrl: params.baseUrl,
-        resourceType, cssText,
+        resourceItems: [{cssText, url: rule.url}]
       });
       return `@import url("${path}")${whiteSpace.pad(rule.mediaText)};`;
     }
@@ -514,16 +514,16 @@ async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, w
 
 const URL_RE_A = /url\(\s*'((?:[^']|(?:\\'))+)'\s*\)/img
 const URL_RE_B = /url\(\s*"((?:[^"]|(?:\\"))+)"\s*\)/img
-const URL_RE_C = /url\(\s*((?:[^'"]|(?:\\")|(?:\\'))+)\s*\)/img
+const URL_RE_C = /url\(\s*((?:[^'"\)]|(?:\\")|(?:\\')|(?:\\\)))+)\s*\)/img
 
 const URL_RES = [URL_RE_A, URL_RE_B, URL_RE_C];
 
 async function parsePropertyValue(value, {resourceType, baseUrl, ownerType, resourceHandler}) {
   let txt = value;
-  for (let i = 0; i < URL_RES.length; i++) {
-    const marker = T.createMarker();
-    const resourceInfos = [];
+  const resourceInfo = {ownerType, resourceType, baseUrl, resourceItems: []};
+  const marker = T.createMarker();
 
+  for (let i = 0; i < URL_RES.length; i++) {
     txt = txt.replace(URL_RES[i], (match, path) => {
       const {isValid, url, message} = T.completeUrl(path, baseUrl);
 
@@ -534,23 +534,17 @@ async function parsePropertyValue(value, {resourceType, baseUrl, ownerType, reso
       }
 
       if(T.isDataUrl(url) || T.isHttpUrl(url)) {
-        resourceInfos.push({ownerType, resourceType, baseUrl, url});
+        resourceInfo.resourceItems.push({url});
         return `url('${marker.next()}')`;
       } else {
         return match;
       }
     });
+  }
 
-    if (resourceInfos.length > 0) {
-
-      const paths = [];
-      for (const resourceInfo of resourceInfos) {
-        const path = await resourceHandler(resourceInfo);
-        paths.push(path);
-      }
-
-      txt = marker.replaceBack(txt, paths);
-    }
+  if (resourceInfo.resourceItems.length > 0) {
+    const paths = await resourceHandler(resourceInfo);
+    txt = marker.replaceBack(txt, paths);
   }
   return txt;
 }

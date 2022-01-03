@@ -238,6 +238,7 @@ function captureRemoveNode(reason) {
   return {change, tasks};
 }
 
+// @returns {boolean}
 function isFilterMatch(filterText, url, mimeType) {
   if (!filterText) { return false }
   const extension = Asset.getWebUrlExtension(url, {mimeType});
@@ -272,6 +273,37 @@ function isFilterMatch(filterText, url, mimeType) {
   return match;
 }
 
+/**
+ * @param {String} filterListText
+ * @param {[Object]} resourceItems
+ * @param {String} resourceItem.url
+ * @param {Function} defaultHandler - execute if all filters can't match.
+ */
+// @returns {[boolean]} boolFlags
+function matchFilterList(filterListText, resourceItems, defaultHandler) {
+  const text = filterListText.trim();
+  if (!text) { return defaultHandler(resourceItems)}
+  const filterTexts = text.split('|').map((it) => it.trim());
+  let result = [];
+  for (const filterText of filterTexts) {
+    const tmpArr = [];
+    let matches = false;
+    for (const resourceItem of resourceItems) {
+      if (isFilterMatch(filterText, resourceItem.url)) {
+        matches = true;
+        tmpArr.push(true);
+      } else {
+        tmpArr.push(false);
+      }
+    }
+    if (matches) {
+      result = [...tmpArr];
+      break;
+    }
+  }
+  return result.length > 0 ? result : defaultHandler(resourceItems);
+}
+
 
 
 
@@ -282,4 +314,5 @@ export default {
   captureRemoveNode,
   parseSrcset,
   isFilterMatch,
+  matchFilterList,
 };
