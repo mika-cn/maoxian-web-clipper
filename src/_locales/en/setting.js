@@ -163,6 +163,8 @@
     "option.request-referrer-policy.unsafe-url": "unsafeUrl: The Referer header will include full path (origin + path).",
 
     "option.capture.save-all": "Save all",
+    "option.capture.save-current": "Save current",
+    "option.capture.save-used": "Save used",
     "option.capture.remove": "Remove",
     "option.capture.filter": "Filter",
 
@@ -210,7 +212,7 @@
     "notice.file-url.ext-id": "Extension identify",
     "notice.file-url-warning": "This item will not change your browser's setting.<br />Only check this after you allow browser to access file URLs.",
 
-    "notice.capture-filter-intro": "Use belowing input field to difine rules that will filter the referred files, so that you can choose what types of files to save",
+    "notice.capture-filter-intro": "Use belowing input field to define rules that will filter the referred files, so that you can choose what types of files to save",
     "notice.capture-filter-format": "These rules are filter by the file extension in the URL. Those lines that starts with <code>#</code> are comments. Every line can have multiple file extensions, you can use comma to split them (e.g. <code>pdf,doc,xls</code>).",
     "notice.capture-filter-variable.intro": "<strong>Note：</strong> MaoXian have some built-in variables that can be used to match a tipical types of file extensions (e.g. <code>&lt;images&gt;,pdf</code> can match all images and pdf files). All variables are :",
     "notice.capture-filter-variable.images": "&lt;images&gt; : can match all image file extensions",
@@ -281,6 +283,7 @@
 
     "label.html-capture-icon-input": "Favicon - the website icons that shown on browser tabs.",
     "label.html-capture-image-input": "Images - the images that the selected area contains.",
+    "label.html-capture-css-rules-input": "Style rules - define how the elements on web page looks like.",
     "label.html-capture-css-image-input": "Style images - the images that decorate the web page styles, such as background images, border images etc.",
     "label.html-capture-web-font-input": "Web fonts - fonts that embed by web pages.",
 

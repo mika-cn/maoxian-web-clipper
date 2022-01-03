@@ -23,8 +23,15 @@ const ATTR_PARAMS_TRACK  = {resourceType: 'TextTrack', attrName: 'src', extensio
  */
 
 async function capture(node, params) {
+  let attrParamsMedia = ATTR_PARAMS_VIDEO;
+  if (params.config.htmlCaptureVideo === 'saveCurrent') {
+    attrParamsMedia[0] = Object.assign(
+      {attrValue: node.currentSrc},
+      attrParamsMedia[0]
+    );
+  }
   return await CapturerMedia.capture(node, params, [
-    ATTR_PARAMS_VIDEO,
+    attrParamsMedia,
     ATTR_PARAMS_SOURCE,
     ATTR_PARAMS_TRACK,
   ]);

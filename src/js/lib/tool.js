@@ -15,6 +15,9 @@ T.defineEnum = function(names, start = 1) {
   );
 }
 
+T.isBlankStr = function(str) {
+  return (/^\s*$/).test(str);
+}
 
 T.toJsVariableName = function(str) {
   const it = T.capitalize(str);

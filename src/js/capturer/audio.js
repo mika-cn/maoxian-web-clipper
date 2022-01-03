@@ -19,8 +19,16 @@ const ATTR_PARAMS_TRACK  = {resourceType: 'TextTrack', attrName: 'src', extensio
  */
 
 async function capture(node, params) {
+  let attrParamsMedia = ATTR_PARAMS_AUDIO;
+  if (params.config.htmlCaptureAudio === 'saveCurrent') {
+    attrParamsMedia = Object.assign(
+      {attrValue: node.currentSrc},
+      attrParamsMedia
+    );
+  }
+
   return await CapturerMedia.capture(node, params, [
-    ATTR_PARAMS_AUDIO,
+    attrParamsMedia,
     ATTR_PARAMS_SOURCE,
     ATTR_PARAMS_TRACK,
   ]);

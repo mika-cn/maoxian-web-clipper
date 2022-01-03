@@ -15,7 +15,9 @@ import T                  from '../lib/tool.js';
 import ExtMsg             from '../lib/ext-msg.js';
 import {NODE_TYPE}        from '../lib/constants.js';
 import StyleSheetSnapshot from './stylesheet.js';
-import CssTextParser from './css-text-parser.js';
+import StyleScope         from './style-scope.js';
+import CssTextParser      from './css-text-parser.js';
+import CssBox             from './css-box.js';
 
 const FRAME_URL = {
   BLANK  : 'about:blank',
@@ -34,20 +36,24 @@ const FRAME_URL = {
  *   {Object} srcdocFrame - {blacklist: {nodeName => isIgnore}}
  * - {Function} ignoreFn - whether to ignore this element or not.
  * - {Boolean} ignoreHiddenElement (default: true)
+ * - {CssBox} cssBox
  *
  * @return {Snapshot|undefined} node
  */
 async function takeSnapshot(node, params) {
 
   const defaultAncestorInfo = {codeAncestor: false, preAncestor: false};
-  const {win, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
-    blacklist = {}, ignoreFn, ignoreHiddenElement = true} = params;
+  const {
+    win, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
+    blacklist = {}, ignoreFn, ignoreHiddenElement = true, cssBox,
+  } = params;
 
   const snapshot = {name: node.nodeName, type: node.nodeType};
 
   switch(node.nodeType) {
 
-    case NODE_TYPE.ELEMENT:
+    case NODE_TYPE.ELEMENT: {
+
       if (blacklist[snapshot.name]) {
         snapshot.ignore = true;
         snapshot.ignoreReason = 'onBlacklist';
@@ -83,7 +89,7 @@ async function takeSnapshot(node, params) {
       }
 
       switch(node.nodeName) {
-        case 'SLOT':
+        case 'SLOT': {
           // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLSlotElement
           if (node.assignedNodes().length > 0) {
             snapshot.assigned = true;
@@ -93,27 +99,33 @@ async function takeSnapshot(node, params) {
             snapshot.childNodes = await handleNodes(node.childNodes, params);
           }
           break;
+        }
 
-        case 'LINK':
+        case 'LINK': {
           snapshot.childNodes = [];
           // Link types are case-insensitive.
           snapshot.relList = DOMTokenList2Array(node.relList, true);
           if (node.sheet) {
-            snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {requestParams, win});
+            snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {
+              requestParams, cssBox, win});
           }
           break;
+        }
 
-        case 'STYLE':
+        case 'STYLE': {
           snapshot.childNodes = await handleNodes(node.childNodes, params);
-          snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {requestParams, win});
+          snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {
+            requestParams, cssBox, win});
           break;
+        }
 
-        case 'IMG':
+        case 'IMG': {
           snapshot.childNodes = await handleNodes(node.childNodes, params);
           snapshot.currentSrc = node.currentSrc;
           break;
+        }
 
-        case 'CANVAS':
+        case 'CANVAS': {
           try {
             snapshot.childNodes = [];
             snapshot.dataUrl = node.toDataURL();
@@ -121,28 +133,32 @@ async function takeSnapshot(node, params) {
             // tained canvas etc.
           }
           break;
+        }
 
         case 'CODE':
-        case 'PRE':
+        case 'PRE': {
           const key = `${node.nodeName.toLowerCase()}Ancestor`;
           const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
           const newParams = Object.assign({}, params, {ancestorInfo: newAncestorInfo});
           snapshot.childNodes = await handleNodes(node.childNodes, newParams);
           break;
+        }
 
         case 'AUDIO':
-        case 'VIDEO':
+        case 'VIDEO': {
           snapshot.childNodes = await handleNodes(node.childNodes, params);
           snapshot.currentSrc = node.currentSrc;
           break;
+        }
 
 
-        case 'TEMPLATE':
+        case 'TEMPLATE': {
           snapshot.childNodes = [await takeSnapshot(node.content, params)];
           break;
+        }
 
         case 'IFRAME':
-        case 'FRAME':
+        case 'FRAME': {
 
           // All frame ids increase in document order (Same layer)
           // frame without src and srcdoc 's url is `about:blank`
@@ -238,13 +254,17 @@ async function takeSnapshot(node, params) {
 
             snapshot.childNodes = [];
             // take snapshot through extension message
+            const extMsg = {
+              frameId: frame.frameId,
+              frameInfo: newFrameInfo,
+              requestParams: requestParams.toObject(),
+            }
+            if (cssBox) {
+              extMsg.cssBoxParams = cssBox.toParams();
+            }
             const frameSnapshot = await ExtMsg.sendToBackend('clipping', {
               type: extMsgType,
-              body: {
-                frameId: frame.frameId,
-                frameInfo: newFrameInfo,
-                requestParams: requestParams.toObject(),
-              }
+              body: extMsg,
             })
 
             if (frameSnapshot) {
@@ -261,6 +281,7 @@ async function takeSnapshot(node, params) {
             snapshot.render = 'blank';
           }
           break;
+        }
 
         default:
           snapshot.childNodes = await handleNodes(node.childNodes, params);
@@ -269,39 +290,65 @@ async function takeSnapshot(node, params) {
       // handle style attribute
       if (node.style && node.style.length > 0) {
         snapshot.styleObj = CssTextParser.parse(node.style.cssText);
+        if (cssBox && cssBox.removeUnusedRules) {
+          cssBox.scope.recordReferences(node.style);
+        }
       }
       break;
+    }
 
-    case NODE_TYPE.TEXT:
+    case NODE_TYPE.TEXT: {
       snapshot.text = node.data;
       if (ancestorInfo.codeAncestor || ancestorInfo.preAncestor) {
         snapshot.needEscape = true;
       }
       break;
+    }
 
-    case NODE_TYPE.COMMENT:
+    case NODE_TYPE.COMMENT: {
       snapshot.text = node.data;
       break;
+    }
 
-    case NODE_TYPE.DOCUMENT:
-      snapshot.childNodes = await handleNodes(node.childNodes, params);
+    case NODE_TYPE.DOCUMENT: {
       snapshot.docUrl = node.location.href;
       snapshot.baseUrl = node.baseURI;
+      let childrenParams = params;
+      if (cssBox) {
+        childrenParams = Object.assign({}, params, {cssBox: cssBox.change({node})});
+      }
+      snapshot.childNodes = await handleNodes(node.childNodes, childrenParams);
+      if (cssBox) { snapshot.styleScope = cssBox.scopeToObject(); }
       break;
+    }
 
-    case NODE_TYPE.DOCUMENT_TYPE:
+    case NODE_TYPE.DOCUMENT_TYPE: {
       // nodeName is xxx in <!DOCTYPE xxx>
       break;
+    }
 
-    case NODE_TYPE.DOCUMENT_FRAGMENT:
+    case NODE_TYPE.DOCUMENT_FRAGMENT: {
+      let childrenParams = params;
+      let childCssBox;
+
       if (node.host) {
         snapshot.isShadowRoot = true;
         snapshot.mode = node.mode;
         snapshot.docUrl = node.host.ownerDocument.location.href;
         snapshot.baseUrl = node.host.baseURI;
+        if (cssBox) {
+          childCssBox = cssBox.change({node});
+          childrenParams = Object.assign({}, params, {cssBox: childCssBox});
+        }
       }
-      snapshot.childNodes = await handleNodes(node.childNodes, params);
+      snapshot.childNodes = await handleNodes(node.childNodes, childrenParams);
+      if (childCssBox) {
+        const styleScope = childCssBox.scopeToObject();
+        snapshot.styleScope = styleScope;
+        if (cssBox) { cssBox.scope.addChildScope(styleScope) }
+      }
       break;
+    }
 
     case NODE_TYPE.PROCESSING_INSTRUCTION:
       break;
@@ -324,11 +371,12 @@ async function takeSnapshot(node, params) {
  *
  * @param {Node} node start from this element
  * @param {Array(Snapshot)} snapshots (current layer snapshots)
+ * @param {CssBox} cssBox
  * @param {Function} modifier
  *
  * @return {Snapshot} it.
  */
-function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
+function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
   let node;
   if (lastNode.nodeType == NODE_TYPE.DOCUMENT_FRAGMENT && lastNode.host) {
     // lastNode is shadowRoot
@@ -356,12 +404,16 @@ function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
         // handle style attribute
         if (node.style && node.style.length > 0) {
           snapshot.styleObj = CssTextParser.parse(node.style.cssText);
+          if (cssBox && cssBox.removeUnusedRules) {
+            cssBox.scope.recordReferences(node.style);
+          }
         }
         break;
       case NODE_TYPE.DOCUMENT:
         snapshot.childNodes = snapshots;
         snapshot.docUrl = node.location.href;
         snapshot.baseUrl = node.baseURI;
+        if (cssBox) { snapshot.styleScope = cssBox.scopeToObject() }
         break;
       case NODE_TYPE.DOCUMENT_FRAGMENT:
         if (node.host) {
@@ -369,13 +421,14 @@ function takeAncestorsSnapshot(lastNode, snapshots, modifier) {
           snapshot.mode = node.mode;
           snapshot.docUrl = node.host.ownerDocument.location.href;
           snapshot.baseUrl = node.host.baseURI;
+          if (cssBox) { snapshot.styleScope = cssBox.scopeToObject() }
         }
         snapshot.childNodes = snapshots;
         break;
     }
 
     const newSnapshots = modifier(node, snapshot);
-    return takeAncestorsSnapshot(node, newSnapshots, modifier);
+    return takeAncestorsSnapshot(node, newSnapshots, cssBox, modifier);
   } else {
     // reach the outmost node: Document.
     return snapshots[0];
@@ -508,39 +561,60 @@ function each(node, fn, ancestors = [], ancestorDocs = []) {
   }
 }
 
-async function eachElement(node, fn, ancestors = [], ancestorDocs = []) {
+/**
+ * @param {Snapshot} node
+ * @param {Function} fn - element handler
+ * @param {[Snapshot]} ancestors - node's ancestor nodes.
+ * @param {[Snapshot]} ancestorDocs - node's ancestor Document nodes.
+ * @param {[Snapshot]} ancestorRoots - node's ancestor Document or ShadowRoot nodes
+ */
+async function eachElement(node, fn, ancestors = [], ancestorDocs = [], ancestorRoots = []) {
+
   switch(node.type) {
-    case NODE_TYPE.ELEMENT:
+
+    case NODE_TYPE.ELEMENT: {
       if (node.ignore) {
         // donothing
       } else {
-        const iterateChildren = await fn(node, ancestors, ancestorDocs);
+        const iterateChildren = await fn(node, ancestors, ancestorDocs, ancestorRoots);
         if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
           const newAncestors = [node, ...ancestors];
           for (const childNode of node.childNodes) {
-            await eachElement(childNode, fn, newAncestors, ancestorDocs);
+            await eachElement(childNode, fn, newAncestors, ancestorDocs, ancestorRoots);
           }
         }
       }
       break;
-    case NODE_TYPE.DOCUMENT:
+    }
+
+    case NODE_TYPE.DOCUMENT: {
       if (node.childNodes) {
         const newAncestor = [node, ...ancestors];
         const newAncestorDocs = [node, ...ancestorDocs];
+        const newAncestorRoots = [node, ...ancestorRoots];
         for (const childNode of node.childNodes) {
-          await eachElement(childNode, fn, newAncestor, newAncestorDocs);
+          await eachElement(childNode, fn, newAncestor, newAncestorDocs, newAncestorRoots);
         }
       }
       break
-    case NODE_TYPE.DOCUMENT_FRAGMENT:
+    }
+
+    case NODE_TYPE.DOCUMENT_FRAGMENT: {
       if (node.childNodes) {
         const newAncestors = [node, ...ancestors];
+        const newAncestorRoots = [...ancestorRoots];
+        // is shadowRoot?
+        if (node.host) { newAncestorRoots.unshift(node) }
+
         for (const childNode of node.childNodes) {
-          await eachElement(childNode, fn, newAncestors, ancestorDocs);
+          await eachElement(childNode, fn, newAncestors, ancestorDocs, newAncestorRoots);
         }
       }
       break
+    }
+
   }
+
 }
 
 
@@ -831,6 +905,9 @@ function appendStyleObj(snapshot, styleObj) {
   snapshot.styleObj = Object.assign(snapshot.styleObj || {}, styleObj);
 }
 
+function createCssBox({node, removeUnusedRules}) {
+  return new CssBox({node, removeUnusedRules});
+}
 
 export default Object.assign({
   take: takeSnapshot,
@@ -838,6 +915,7 @@ export default Object.assign({
   accessNode,
   appendClassName,
   appendStyleObj,
+  createCssBox,
 }, {
   each,
   eachElement,

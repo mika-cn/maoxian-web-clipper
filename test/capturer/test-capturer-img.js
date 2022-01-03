@@ -33,6 +33,7 @@ function getParams() {
     },
     clipId: '001',
     requestParams: RequestParams.createExample({refUrl: url}),
+    config: {htmlCaptureImage: 'saveAll'},
   }
 }
 
@@ -77,6 +78,36 @@ describe('Capture Img', () => {
     ExtMsg.clearMocks();
   });
 
+  it('capture img, current src exists', async () => {
+    const params = getParams();
+    const {src, srcset} = params;
+    params.config.htmlCaptureImage = 'saveCurrent';
+    const node = getNode(src, srcset);
+    node.currentSrc = 'test.svg';
+    ExtMsg.mockGetUniqueFilename();
+    const r = await Capturer.capture(node, params);
+    const newSrc = r.change.getAttr('src');
+    H.assertEqual(r.tasks.length, 1);
+    H.assertMatch(newSrc, /\.svg$/);
+    H.assertTrue(r.change.deletedAttr('srcset'));
+    ExtMsg.clearMocks();
+  });
+
+  it('capture img, current src is empty', async () => {
+    const params = getParams();
+    const {src, srcset} = params;
+    params.config.htmlCaptureImage = 'saveCurrent';
+    const node = getNode(src, srcset);
+    node.currentSrc = null;
+    ExtMsg.mockGetUniqueFilename();
+    const r = await Capturer.capture(node, params);
+    const newSrc = r.change.getAttr('src');
+    H.assertEqual(r.tasks.length, 1);
+    H.assertMatch(newSrc, /\.jpg$/);
+    H.assertTrue(r.change.deletedAttr('srcset'));
+    ExtMsg.clearMocks();
+  });
+
   it('capture img srcset [markdown]', async () => {
     const params = getParams();
     const {src, srcset} = params;
@@ -84,6 +115,7 @@ describe('Capture Img', () => {
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, Object.assign({}, params, {saveFormat: 'md'}));
     H.assertEqual(r.tasks.length, 1);
+    H.assertTrue(r.change.deletedAttr('srcset'));
     ExtMsg.clearMocks();
   })
 

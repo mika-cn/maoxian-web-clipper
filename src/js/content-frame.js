@@ -37,6 +37,7 @@ function backgroundMessageHandler(message) {
             requestParams: getRequestParams(message),
             frameInfo: message.body.frameInfo,
             extMsgType: message.type,
+            cssBox: getCssBox(message),
             blacklist: blacklist,
             shadowDom: {blacklist},
             srcdocFrame: {blacklist},
@@ -76,10 +77,18 @@ function backgroundMessageHandler(message) {
   });
 }
 
+
 function getRequestParams(message) {
   const {requestParams} = message.body;
   requestParams.refUrl = window.location.href;
   return new RequestParams(requestParams);
+}
+
+
+function getCssBox(message) {
+  const {cssBoxParams} = message.body;
+  return Snapshot.createCssBox(Object.assign(
+    {node: window.document}, cssBoxParams));
 }
 
 

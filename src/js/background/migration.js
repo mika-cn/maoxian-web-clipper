@@ -40,6 +40,12 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.1'] = function(config) {
+  config.version = '2.2';
+  config.htmlCaptureCssRules = 'saveAll';
+  return config;
+}
+
 ConfigMigration['2.0'] = function(config) {
   config.version = '2.1';
   const getValue = (checked) => checked ? 'saveAll' : 'remove';

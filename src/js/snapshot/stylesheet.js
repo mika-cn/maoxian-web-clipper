@@ -23,13 +23,15 @@ import CssTextParser from './css-text-parser.js';
  * @param {Object} params
  *   - @param {Array} sheetInfoAncestors
  *   - @param {RequestParams} requestParams
+ *   - @param {CssBox} cssBox
  *   - @param {Window} win
  *
  * @return {Snapshot} it
  */
 async function handleStyleSheet(sheet, params) {
 
-  const {sheetInfoAncestors = [], requestParams, win} = params;
+
+  const {sheetInfoAncestors = [], requestParams, cssBox, win} = params;
 
   if (sheetInfoAncestors.length > 10) {
     console.error("handleStyleSheet() dead loop: ", sheetInfoAncestors);
@@ -63,7 +65,7 @@ async function handleStyleSheet(sheet, params) {
     // @see MDN/en-US/docs/Web/API/CSSStyleSheet
     // Calling cssRules may throw SecurityError (when crossOrigin)
     snapshot.rules = await handleCssRules(sheet.cssRules,
-      {sheetInfo, sheetInfoAncestors, requestParams, win});
+      {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win});
 
 
     if (snapshot.rules.length == 0
@@ -90,7 +92,7 @@ async function handleStyleSheet(sheet, params) {
           body: requestParams.toParams(sheetInfo.url),
         });
         snapshot.rules = await handleRulesByParsingCssText(text,
-          {sheetInfo, sheetInfoAncestors, requestParams, win});
+          {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win});
       } catch(e) {
         console.error("fetch.text(css): ", e);
         snapshot.rules = [];
@@ -148,20 +150,39 @@ async function handleCssRules(rules, params) {
 
 async function handleCssRule(rule, params) {
 
-  const {sheetInfo, sheetInfoAncestors, requestParams, win} = params;
+  const {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win} = params;
 
   const ruleType = getCssRuleType(rule);
   const r = {type: ruleType};
 
   switch(ruleType) {
 
-    case CSSRULE_TYPE.STYLE:
-    case CSSRULE_TYPE.PAGE:
+    case CSSRULE_TYPE.STYLE: {
+      r.selectorText = (rule.selectorText || "");
+      if (cssBox && cssBox.removeUnusedRules) {
+        if(cssBox.selectorTextMatcher.match(r.selectorText)) {
+          cssBox.scope.recordReferences(rule.style);
+          r.styleObj = CssTextParser.parse(rule.style.cssText);
+        } else {
+          r.ignore = true;
+          r.styleObj = {};
+        }
+      } else {
+        r.styleObj = CssTextParser.parse(rule.style.cssText);
+      }
+      break;
+    }
+
+    case CSSRULE_TYPE.PAGE: {
       r.selectorText = (rule.selectorText || "");
       r.styleObj = CssTextParser.parse(rule.style.cssText);
+      if (cssBox && cssBox.removeUnusedRules) {
+        cssBox.scope.recordReferences(rule.style);
+      }
       break;
+    }
 
-    case CSSRULE_TYPE.IMPORT:
+    case CSSRULE_TYPE.IMPORT: {
       r.href = rule.href;
       try {
         r.mediaText = rule.media.mediaText;
@@ -182,48 +203,68 @@ async function handleCssRule(rule, params) {
       } else {
         r.sheet = await handleStyleSheet(rule.styleSheet, {
           sheetInfoAncestors: newSheetInfoAncestors,
-          requestParams,
+          requestParams, cssBox,
           win
         });
       }
       break;
+    }
 
-    case CSSRULE_TYPE.FONT_FACE:
+    case CSSRULE_TYPE.FONT_FACE: {
       r.styleObj = CssTextParser.parse(rule.style.cssText);
+      r.name = rule.style.getPropertyValue('font-family');
+      if (cssBox && cssBox.removeUnusedRules) {
+        cssBox.scope.defineFont(r.name);
+      }
       break;
+    }
 
     case CSSRULE_TYPE.MEDIA:
-    case CSSRULE_TYPE.SUPPORTS:
+    case CSSRULE_TYPE.SUPPORTS: {
       r.conditionText = (rule.conditionText || "");
       r.rules = await handleCssRules(rule.cssRules, params);
       break;
+    }
 
-    case CSSRULE_TYPE.NAMESPACE:
+    case CSSRULE_TYPE.NAMESPACE: {
       r.namespaceURI = rule.namespaceURI;
       r.prefix = rule.prefix;
       break;
+    }
 
-    case CSSRULE_TYPE.KEYFRAMES:
+    case CSSRULE_TYPE.KEYFRAMES: {
       r.name = rule.name;
       r.rules = await handleCssRules(rule.cssRules, params);
+      if (cssBox && cssBox.removeUnusedRules) {
+        cssBox.scope.defineKeyFrames(r.name);
+      }
       break;
+    }
 
-    case CSSRULE_TYPE.KEYFRAME:
+    case CSSRULE_TYPE.KEYFRAME: {
       r.text = rule.cssText;
       r.keyText = rule.keyText;
       r.styleObj = CssTextParser.parse(rule.style.cssText);
+      if (cssBox && cssBox.removeUnusedRules) {
+        cssBox.scope.recordKeyFrameFontReferences(rule.parentRule.name, rule.style);
+      }
       break;
+    }
 
-    case CSSRULE_TYPE.MARGIN:
+    case CSSRULE_TYPE.MARGIN: {
       r.name = rule.name;
       r.styleObj = CssTextParser.parse(rule.style.cssText);
+      break;
+    }
 
-    default:
+    default: {
       r.text = rule.cssText;
       break;
+    }
   }
   return r;
 }
+
 
 function getCssRuleType(rule) {
   if (rule.type && typeof rule.type === 'number') {
@@ -276,9 +317,13 @@ function mediaList2Array(mediaList) {
 
 /*
  * @param {Object} params
- * - {String} baseUrl
- * - {String} ownerType (styleNode, linkNode, importRule, fontFaceRule, styleAttr)
- * - {Function} resourceHandler
+ * @param {String} params.baseUrl
+ * @param {String} params.ownerType (styleNode, linkNode, importRule, fontFaceRule, styleAttr)
+ * @param {Function} params.resourceHandler
+ * @param {Object} params.cssParams
+ * @param {Boolean} params.cssParams.removeUnusedRules
+ * @param {Object}  params.cssParams.usedFont
+ * @param {Object}  params.cssParams.usedKeyFrames
  */
 async function sheet2String(sheet, params) {
   return await rules2String(sheet.rules, params);
@@ -287,25 +332,33 @@ async function sheet2String(sheet, params) {
 async function rules2String(rules = [], params) {
   const r = [];
   for (const rule of rules) {
-    r.push(await rule2String(rule, params));
+    const t = await rule2String(rule, params);
+    if (t) {r.push(t)}
   }
   return r.join("\n");
 }
 
 async function rule2String(rule, params) {
-  const {resourceHandler, baseUrl} = params;
+  if (rule.ignore) { return '' }
+
+  const {baseUrl, resourceHandler, cssParams} = params;
   let cssText;
+
   switch(rule.type) {
 
-    case CSSRULE_TYPE.STYLE:
+    case CSSRULE_TYPE.STYLE: {
       cssText = await styleObj2String(rule.styleObj, params);
+      if (T.isBlankStr(cssText)) { return '' }
       return `${rule.selectorText} {\n${cssText}\n}`;
+    }
 
-    case CSSRULE_TYPE.PAGE:
+    case CSSRULE_TYPE.PAGE: {
       cssText = await styleObj2String(rule.styleObj, params);
+      if (T.isBlankStr(cssText)) { return '' }
       return `@page${padIfNotEmpty(rule.selectorText)} {\n${cssText}\n}`;
+    }
 
-    case CSSRULE_TYPE.IMPORT:
+    case CSSRULE_TYPE.IMPORT: {
       if (rule.circular) {
         return `/*@import url("${rule.href}"); Error: circular stylesheet.*/`;
       }
@@ -318,8 +371,13 @@ async function rule2String(rule, params) {
       cssText = await sheet2String(rule.sheet, {
         baseUrl: rule.sheet.href,
         ownerType: newOwnerType,
-        resourceHandler: resourceHandler
+        cssParams: cssParams,
+        resourceHandler: resourceHandler,
       });
+
+      if (T.isBlankStr(cssText)) {
+        return `/*@import url("${rule.sheet.href}"); reason: blank content.*/`;
+      }
 
       const resourceType = 'css';
       const path = await resourceHandler({
@@ -329,52 +387,72 @@ async function rule2String(rule, params) {
         resourceType, cssText,
       });
       return `@import url("${path}")${padIfNotEmpty(rule.mediaText)};`;
+    }
 
-    case CSSRULE_TYPE.FONT_FACE:
+    case CSSRULE_TYPE.FONT_FACE: {
+
+      if (cssParams.removeUnusedRules && !cssParams.usedFont[rule.name]) {
+        return '';
+      }
+
       cssText = await styleObj2String(rule.styleObj, {
         ownerType: 'fontFaceRule',
         resourceHandler,
         baseUrl,
       });
+      if (T.isBlankStr(cssText)) { return '' }
       return `@fontface {\n${cssText}\n}`;
-      break;
+    }
 
-    case CSSRULE_TYPE.MEDIA:
+    case CSSRULE_TYPE.MEDIA: {
       cssText = await rules2String(rule.rules, params);
+      if (T.isBlankStr(cssText)) { return '' }
       return `@media${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
+    }
 
-    case CSSRULE_TYPE.SUPPORTS:
+    case CSSRULE_TYPE.SUPPORTS: {
       cssText = await rules2String(rule.rules, params);
+      if (T.isBlankStr(cssText)) { return '' }
       return `@supports${padIfNotEmpty(rule.conditionText)} {\n${cssText}\n}`;
+    }
 
-    case CSSRULE_TYPE.NAMESPACE:
+    case CSSRULE_TYPE.NAMESPACE: {
       return `@namespace${padIfNotEmpty(rule.prefix)} url(${rule.namespaceURI})}`
+    }
 
-    case CSSRULE_TYPE.KEYFRAMES:
+    case CSSRULE_TYPE.KEYFRAMES: {
+      if (cssParams.removeUnusedRules && !cssParams.usedKeyFrames[rule.name]) {
+        return '';
+      }
+
       cssText = await rules2String(rule.rules, params);
+      if (T.isBlankStr(cssText)) { return '' }
       return `@keyframes${padIfNotEmpty(rule.name)} {\n${cssText}\n}`;
+    }
 
-    case CSSRULE_TYPE.KEYFRAME:
+    case CSSRULE_TYPE.KEYFRAME: {
       cssText = await styleObj2String(rule.styleObj, params);
+      if (T.isBlankStr(cssText)) { return '' }
       return `${rule.keyText} {\n${cssText}\n}`;
-      break;
+    }
 
-    case CSSRULE_TYPE.MARGIN:
+    case CSSRULE_TYPE.MARGIN: {
         /*
       r.name = rule.name;
       r.styleObj = CssTextParser.parse(rule.style.cssText);
       */
         //FIXME
       return "";
-      break;
+    }
 
-    default:
+    default: {
         //FIXME
       //r.text = rule.cssText;
       return "";
-      break;
+    }
   }
 }
+
 
 const padIfNotEmpty = (str) => str && str.length > 0 ? ' ' + str : '';
 
@@ -457,6 +535,7 @@ async function parsePropertyValue(value, {resourceType, baseUrl, ownerType, reso
   }
   return txt;
 }
+
 
 
 export default {
