@@ -3,6 +3,7 @@
 })(this, function(root, undefined) {
   const currValues = (root.MxWcI18N_zh_CN || {}).values || {};
   const values = {
+    // labels
     "label.version": "当前版本：",
     "label.ruby-version": "Ruby 版本：",
 
@@ -14,6 +15,8 @@
 
     "title.general": "基础设置",
     "title.storage": "存储设置",
+    "title.html": "HTML",
+    "title.markdown": "Markdown",
     "title.assistant": "助手设置",
     "title.public-plan": "公开的「计划」",
     "title.subscriptions": "我的订阅（已下载）",
@@ -34,9 +37,13 @@
     "title.backup": "备份",
     "title.restore": "恢复",
 
-    "title.save-format": "保存格式",
     "title.control": "操作设置",
     "title.file-url": "本地网址",
+    "title.clipping-content": "裁剪内容",
+
+    // section markdown
+    "title.markdown-template": "Markdown 模板",
+
     "title.advanced": "高级",
     "title.request": "HTTP 请求",
     "title.request-timeout": "超时设置",
@@ -44,12 +51,10 @@
     "title.request-referrer-policy": "設置 Referrer",
     "title.request-cache": "缓存",
     "title.misc": "杂项",
-    "title.clipping-content": "裁剪内容",
-    "title.html-content": "HTML",
-    "title.markdown-content": "Markdown",
     "title.offline-page": "离线索引页面",
     "title.refresh-history": "刷新裁剪历史",
 
+    "title.save-format": "保存格式",
     "title.root-folder": "根目录",
     "title.default-category": "默认分类",
     "title.clipping-folder-name": "裁剪目录",
@@ -155,6 +160,8 @@
     "handler.wiz-note-plus.warning": "<strong> 警告！ </strong><br /> 如果你启用为知笔记，你必须先 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装它</a>，并且剪裁时为知笔记必须处于启动状态，否则处理程序无法正常工作",
 
 
+
+    // options
     "option.request-referrer-policy.origin-when-cross-origin": "同域请求时，Referrer 为全路径（请求域 + 请求路径），跨域请求时，Referrer 只包含请求域（协议 + 域名 + 端口）",
     "option.request-referrer-policy.origin": "Referrer 只包含请求域（协议 + 域名 + 端口）",
     "option.request-referrer-policy.no-referrer": "不发送 Referer",
@@ -162,9 +169,22 @@
 
     "option.capture.save-all": "保存所有",
     "option.capture.save-current": "保存当前",
-    "option.capture.save-used": "保存已使用",
+    "option.capture.save-used": "只保存已使用的",
     "option.capture.remove": "移除",
     "option.capture.filter": "过滤",
+
+    // capture targets
+    "capture.target.icon": "网站图标",
+    "capture.target.image": "图片",
+    "capture.target.css-rules": "样式规则",
+    "capture.target.css-image": "样式图片",
+    "capture.target.web-font": "Web 字体",
+    "capture.target.audio": "声音",
+    "capture.target.video": "影片",
+    "capture.target.embed": "Embeds",
+    "capture.target.object": "Objects",
+    "capture.target.applet": "Applets",
+
 
     "notice.info.storage.browser": "使用浏览器来下载裁剪结果",
     "notice.info.storage.native-app": "通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过扩展互相冲突的问题）<br /><a href='go.page:native-app' target='_blank'>选择本选项需先安装「本地程序」</a>",
@@ -249,7 +269,7 @@
     "label.request-cache-css-input": "缓存网页样式 （CSS）",
     "label.request-cache-image-input": "缓存图片",
     "label.request-cache-web-font-input": "缓存字体",
-    "label.clip-information-input": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
+    "label.clip-information-input": "追加裁剪信息 （原网址、时间、目录和标签）到内容尾部",
     "label.custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",
     "label.mouse-mode-enabled-input": "鼠标友好模式",
@@ -275,17 +295,21 @@
     "label.backup-selection-data-input": "已记住的选区信息",
 
     "label.html-compress-css-input": "压缩样式（CSS）, 所有非必须的空白（空格，换行符和缩进）都会被移除，该操作可减少裁剪下来的样式的体积。同时，压缩后的样式也会丢失可读性",
-    "label.html-capture-icon-input": "Favicon - 即显示在浏览器标签上的网站图标",
-    "label.html-capture-image-input": "图片 - 选中区域里的内容相关的图片",
-    "label.html-capture-css-rules-input": "CSS 规则 - 定义网页上元素的样式（建议只保存已使用）",
-    "label.html-capture-css-image-input": "CSS 图片 - 修饰网页样式的图片，如：元素背景图，边框背景图等等（建议移除）",
-    "label.html-capture-web-font-input": "Web 字体 - 由网页样式引入的字体文件（建议移除）",
 
-    "label.html-capture-audio-input": "AUDIO 元素 - 用于向网页中插入声音文件（建议移除）",
-    "label.html-capture-video-input": "VIDEO 元素 - 用于向网页中插入影片文件，由于该类文件通常较大，保存流程可能会大大加长（建议移除）",
-    "label.html-capture-embed-input": "EMBED 元素 - 用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件（建议只保存图片文件）",
-    "label.html-capture-object-input": "OBJECT 元素 - 用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件（建议只保存图片文件）",
-    "label.html-capture-applet-input": "APPLET 元素 - 用于向网页中插入 JAVA 小程序，大多数现代浏览器都不再支持（建议移除）",
+
+
+
+    "notice.icon.intro": "网站图标包含显示在浏览器标签上的小图片，也包含显示在移动设备的 Home 屏幕上或 APP 上的图标",
+    "notice.image.intro": "图片只包含那些表示内容的图片，比如：文章例图，用户头像等等，但不包括用于改变网站样式的图片（如： 背景图）",
+    "notice.css-rules.intro": "样式规则定义网页上每个元素的样式，一张网页通常有成百上千条规则。而由于我们只会裁剪网页的一部分，这意味着只需要保存一部分规则就足以正常显示网页。",
+    "notice.css-image.intro": "样式图片即修饰网页样式的图片，如：元素背景图，边框背景图，光标图片等等。这类图片一般与网页内容无关，可安全移除。",
+    "notice.web-font.intro": "Web 字体是网页嵌入的字体文件，常用于改变网页文本的字体样式，也会用于引入图标（建议移除）",
+    "notice.audio.intro": "声音是网页通过 HTML5 技术嵌入的音频文件，不包含通过其他方式嵌入的声音（建议移除）",
+    "notice.video.intro": "影片是网页通过 HTML5 技术嵌入的视频文件，不包含通过其他方式嵌入的影片，由于影片文件通常较大，这会导致保存流程可能会大大加长（建议移除）",
+
+    "notice.embed.intro": "EMBED 元素 - 用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件（建议只保存图片文件）",
+    "notice.object.intro": "OBJECT 元素 - 用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件（建议只保存图片文件）",
+    "notice.applet.intro": "APPLET 元素 - 用于向网页中插入 JAVA 小程序，大多数现代浏览器都不再支持（建议移除）",
 
     "label.last-update-time": "上次更新时间",
     "label.update-now-success": "更新成功",

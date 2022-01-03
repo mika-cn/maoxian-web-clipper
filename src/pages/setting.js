@@ -30,86 +30,6 @@ function updateConfig(key, value) {
 // ======================================
 
 function initSettingGeneral(config) {
-  // clipping content
-  initCheckboxInput(config,
-    'save-domain-as-tag',
-    'saveDomainAsTag'
-  );
-
-  // - html
-  initCheckboxInput(config,
-    'html-save-clipping-information',
-    'htmlSaveClippingInformation'
-  );
-  initCheckboxInput(config,
-    'custom-body-bg-css-enabled',
-    'customBodyBgCssEnabled'
-  );
-  initColorInput(config,
-    'custom-body-bg-css-value',
-    'customBodyBgCssValue'
-  );
-
-  initCheckboxInput(config,
-    'html-compress-css',
-    'htmlCompressCss'
-  );
-
-  initSelectInput(config,
-    'html-capture-icon',
-    'htmlCaptureIcon'
-  );
-  initSelectInput(config,
-    'html-capture-css-rules',
-    'htmlCaptureCssRules',
-  );
-  initSelectInput(config,
-    'html-capture-web-font',
-    'htmlCaptureWebFont'
-  );
-  initSelectInput(config,
-    'html-capture-image',
-    'htmlCaptureImage'
-  );
-  initSelectInput(config,
-    'html-capture-css-image',
-    'htmlCaptureCssImage'
-  );
-  initSelectInput(config,
-    'html-capture-audio',
-    'htmlCaptureAudio'
-  );
-  initSelectInput(config,
-    'html-capture-video',
-    'htmlCaptureVideo'
-  );
-  initSelectInput(config,
-    'html-capture-applet',
-    'htmlCaptureApplet'
-  );
-  initSelectInput(config,
-    'html-capture-embed',
-    'htmlCaptureEmbed'
-  );
-  initTextInput(config,
-    'html-embed-filter',
-    'htmlEmbedFilter'
-  );
-  initSelectInput(config,
-    'html-capture-object',
-    'htmlCaptureObject'
-  );
-  initTextInput(config,
-    'html-object-filter',
-    'htmlObjectFilter'
-  );
-  // - markdown
-  initTextInput(config,
-    'markdown-template',
-    'markdownTemplate'
-  );
-
-
   // control
   initCheckboxInput(config,
     'mouse-mode-enabled',
@@ -137,7 +57,94 @@ function initSettingGeneral(config) {
     'allowFileSchemeAccess'
   );
 
+  // common clipping content
+  initCheckboxInput(config,
+    'save-domain-as-tag',
+    'saveDomainAsTag'
+  );
+
 }
+
+// section: HTML
+function initSettingHtml(config) {
+  initCheckboxInput(config,
+    'html-save-clipping-information',
+    'htmlSaveClippingInformation'
+  );
+  initCheckboxInput(config,
+    'custom-body-bg-css-enabled',
+    'customBodyBgCssEnabled'
+  );
+  initColorInput(config,
+    'custom-body-bg-css-value',
+    'customBodyBgCssValue'
+  );
+
+  initCheckboxInput(config,
+    'html-compress-css',
+    'htmlCompressCss'
+  );
+
+  initRadioInput(config,
+    'html-capture-icon',
+    'htmlCaptureIcon'
+  );
+  initRadioInput(config,
+    'html-capture-css-rules',
+    'htmlCaptureCssRules',
+  );
+  initRadioInput(config,
+    'html-capture-web-font',
+    'htmlCaptureWebFont'
+  );
+  initRadioInput(config,
+    'html-capture-image',
+    'htmlCaptureImage'
+  );
+  initRadioInput(config,
+    'html-capture-css-image',
+    'htmlCaptureCssImage'
+  );
+  initRadioInput(config,
+    'html-capture-audio',
+    'htmlCaptureAudio'
+  );
+  initRadioInput(config,
+    'html-capture-video',
+    'htmlCaptureVideo'
+  );
+  initRadioInput(config,
+    'html-capture-applet',
+    'htmlCaptureApplet'
+  );
+  initRadioInput(config,
+    'html-capture-embed',
+    'htmlCaptureEmbed'
+  );
+  initTextInput(config,
+    'html-embed-filter',
+    'htmlEmbedFilter'
+  );
+  initRadioInput(config,
+    'html-capture-object',
+    'htmlCaptureObject'
+  );
+  initTextInput(config,
+    'html-object-filter',
+    'htmlObjectFilter'
+  );
+}
+
+
+// section: Markdown
+function initSettingMarkdown(config) {
+  // - markdown
+  initTextInput(config,
+    'markdown-template',
+    'markdownTemplate'
+  );
+}
+
 
 // section: Storage
 function initSettingStorage(config) {
@@ -434,12 +441,14 @@ function initRadioInput(config, elemId, configKey){
   setConfigKey(elem, configKey);
   T.bindOnce(elem, 'change', radioInputChanged)
   checkRadioInput(elem, config[configKey]);
+  updateBindedElemOfRadio(elem, config[configKey]);
 }
 
 function radioInputChanged(e) {
   const container = T.findParentById(e.target, e.target.name);
   const configKey = getConfigKey(container);
   updateConfig(configKey, e.target.value);
+  updateBindedElemOfRadio(container, e.target.value);
 }
 
 function checkRadioInput(container, value) {
@@ -447,6 +456,17 @@ function checkRadioInput(container, value) {
   radioInputs.forEach((it) => {
     if(it.value === value) {
       it.checked = true;
+    }
+  });
+}
+
+function updateBindedElemOfRadio(container, value) {
+  const bindedElems = T.queryElems(`[data-bind-radio=${container.id}]`);
+  bindedElems.forEach((it) => {
+    if (it.getAttribute('data-bind-value') == value) {
+      it.classList.add('actived');
+    } else {
+      it.classList.remove('actived');
     }
   });
 }
@@ -804,6 +824,12 @@ function renderSection(id) {
     case 'setting-storage':
       render = renderSectionStorage;
       break;
+    case 'setting-html':
+      render = renderSectionHtml;
+      break;
+    case 'setting-markdown':
+      render = renderSectionMarkdown;
+      break;
     case 'setting-assistant':
       render = renderSectionAssistant;
       break;
@@ -834,6 +860,13 @@ function renderSection(id) {
   render(id, container, template);
 }
 
+/*
+function getSectionRender(sectionId) {
+  const fnName = 'renderSection' + T.capitalize(sectionID.replace('^setting-', ''));
+  return this[fnName];
+}
+*/
+
 function getSectionTemplate(sectionId) {
   const tplId = ["section",  sectionId, "tpl"].join("-");
   return T.findElem(tplId).innerHTML;
@@ -847,6 +880,22 @@ function renderSectionGeneral(id, container, template) {
   T.setHtml(container, html);
   MxWcConfig.load().then((config) => {
     initSettingGeneral(config);
+  });
+}
+
+function renderSectionHtml(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  MxWcConfig.load().then((config) => {
+    initSettingHtml(config);
+  });
+}
+
+function renderSectionMarkdown(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  MxWcConfig.load().then((config) => {
+    initSettingMarkdown(config);
   });
 }
 
