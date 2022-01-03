@@ -4,6 +4,7 @@ global.browser = browser;
 import H from '../helper.js';
 import {CSSRULE_TYPE} from '../../src/js/lib/constants.js';
 import RequestParams from '../../src/js/lib/request-params.js';
+import WhiteSpace from '../../src/js/lib/white-space.js';
 import Capturer from '../../src/js/capturer/stylesheet.js';
 
 import ExtMsg from '../mock/ext-msg.js';
@@ -26,6 +27,7 @@ function getParams() {
     },
     requestParams: RequestParams.createExample({refUrl: url}),
     cssParams: {removeUnusedRules: false},
+    whiteSpace: WhiteSpace.create({step: 2, compress: false}),
   }
 }
 

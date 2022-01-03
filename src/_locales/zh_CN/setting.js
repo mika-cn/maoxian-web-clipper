@@ -274,6 +274,7 @@
     "label.backup-assistant-data-input": "毛线助手的数据（自定义的「计划」，订阅信息 和 已下载的「计划」）",
     "label.backup-selection-data-input": "已记住的选区信息",
 
+    "label.html-compress-css-input": "压缩样式（CSS）, 所有非必须的空白（空格，换行符和缩进）都会被移除，该操作可减少裁剪下来的样式的体积。同时，压缩后的样式也会丢失可读性",
     "label.html-capture-icon-input": "Favicon - 即显示在浏览器标签上的网站图标",
     "label.html-capture-image-input": "图片 - 选中区域里的内容相关的图片",
     "label.html-capture-css-rules-input": "CSS 规则 - 定义网页上元素的样式（建议只保存已使用）",

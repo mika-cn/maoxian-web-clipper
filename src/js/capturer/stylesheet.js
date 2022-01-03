@@ -3,6 +3,7 @@
 import T     from '../lib/tool.js';
 import Asset from '../lib/asset.js';
 import Task  from '../lib/task.js';
+import WhiteSpace from '../lib/white-space.js';
 import StyleSheetSnapshot from '../snapshot/stylesheet.js';
 
 /*
@@ -25,11 +26,12 @@ import StyleSheetSnapshot from '../snapshot/stylesheet.js';
 
 async function captureStyleSheet(sheet, params) {
   const tasks = [];
-  const {baseUrl, ownerType, cssParams} = params;
+  const {baseUrl, config, ownerType, cssParams} = params;
+  const whiteSpace = WhiteSpace.create({compress: config.htmlCompressCss});
 
   const resourceHandler = getResourceHandler(Object.assign({tasks}, params));
   const cssText = await StyleSheetSnapshot.sheet2String(sheet,
-    {baseUrl, ownerType, cssParams, resourceHandler});
+    {baseUrl, ownerType, cssParams, resourceHandler, whiteSpace,});
 
   return {cssText, tasks};
 }
@@ -49,11 +51,14 @@ async function captureStyleSheet(sheet, params) {
  */
 async function captureStyleObj(styleObj, params) {
   const tasks = [];
-  const {baseUrl, ownerType} = params;
+  const {baseUrl, config, ownerType} = params;
+  const whiteSpace = WhiteSpace.create({
+    compress: (ownerType === 'styleAttr' ? true : config.htmlCompressCss)
+  });
 
   const resourceHandler = getResourceHandler(Object.assign({tasks}, params));
   const cssText = await StyleSheetSnapshot.styleObj2String(styleObj,
-    {baseUrl, ownerType, resourceHandler, renderIndent: false});
+    {baseUrl, ownerType, resourceHandler, whiteSpace});
 
   return {cssText, tasks};
 }

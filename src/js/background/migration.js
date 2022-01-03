@@ -40,6 +40,12 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.2'] = function(config) {
+  config.version = '2.3';
+  config.htmlCompressCss = false;
+  return config;
+}
+
 ConfigMigration['2.1'] = function(config) {
   config.version = '2.2';
   config.htmlCaptureCssRules = 'saveAll';
