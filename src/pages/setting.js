@@ -30,44 +30,6 @@ function updateConfig(key, value) {
 // ======================================
 
 function initSettingGeneral(config) {
-  // clipping content
-  initCheckboxInput(config,
-    'save-domain-as-tag',
-    'saveDomainAsTag'
-  );
-
-  // - html
-  initCheckboxInput(config,
-    'html-save-clipping-information',
-    'htmlSaveClippingInformation'
-  );
-  initCheckboxInput(config,
-    'save-icon',
-    'saveIcon'
-  );
-  initCheckboxInput(config,
-    'save-web-font',
-    'saveWebFont'
-  );
-  initCheckboxInput(config,
-    'save-css-image',
-    'saveCssImage'
-  );
-  initCheckboxInput(config,
-    'custom-body-bg-css-enabled',
-    'customBodyBgCssEnabled'
-  );
-  initColorInput(config,
-    'custom-body-bg-css-value',
-    'customBodyBgCssValue'
-  );
-  // - markdown
-  initTextInput(config,
-    'markdown-template',
-    'markdownTemplate'
-  );
-
-
   // control
   initCheckboxInput(config,
     'mouse-mode-enabled',
@@ -95,7 +57,98 @@ function initSettingGeneral(config) {
     'allowFileSchemeAccess'
   );
 
+  // common clipping content
+  initCheckboxInput(config,
+    'save-domain-as-tag',
+    'saveDomainAsTag'
+  );
+
 }
+
+// section: HTML
+function initSettingHtml(config) {
+  initCheckboxInput(config,
+    'html-save-clipping-information',
+    'htmlSaveClippingInformation'
+  );
+  initCheckboxInput(config,
+    'custom-body-bg-css-enabled',
+    'customBodyBgCssEnabled'
+  );
+  initColorInput(config,
+    'custom-body-bg-css-value',
+    'customBodyBgCssValue'
+  );
+
+  initCheckboxInput(config,
+    'html-compress-css',
+    'htmlCompressCss'
+  );
+
+  initRadioInput(config,
+    'html-capture-icon',
+    'htmlCaptureIcon'
+  );
+  initRadioInput(config,
+    'html-capture-css-rules',
+    'htmlCaptureCssRules',
+  );
+  initRadioInput(config,
+    'html-capture-web-font',
+    'htmlCaptureWebFont'
+  );
+  initTextInput(config,
+    'html-web-font-filter-list',
+    'htmlWebFontFilterList'
+  );
+  initRadioInput(config,
+    'html-capture-image',
+    'htmlCaptureImage'
+  );
+  initRadioInput(config,
+    'html-capture-css-image',
+    'htmlCaptureCssImage'
+  );
+  initRadioInput(config,
+    'html-capture-audio',
+    'htmlCaptureAudio'
+  );
+  initRadioInput(config,
+    'html-capture-video',
+    'htmlCaptureVideo'
+  );
+  initRadioInput(config,
+    'html-capture-applet',
+    'htmlCaptureApplet'
+  );
+  initRadioInput(config,
+    'html-capture-embed',
+    'htmlCaptureEmbed'
+  );
+  initTextInput(config,
+    'html-embed-filter',
+    'htmlEmbedFilter'
+  );
+  initRadioInput(config,
+    'html-capture-object',
+    'htmlCaptureObject'
+  );
+  initTextInput(config,
+    'html-object-filter',
+    'htmlObjectFilter'
+  );
+}
+
+
+// section: Markdown
+function initSettingMarkdown(config) {
+  // - markdown
+  initTextInput(config,
+    'markdown-template',
+    'markdownTemplate'
+  );
+}
+
 
 // section: Storage
 function initSettingStorage(config) {
@@ -352,17 +405,54 @@ function checkBoxChanged(e) {
   updateConfig(configKey, e.target.checked);
 }
 
+function initSelectInput(config, elemId, configKey) {
+  const elem = T.findElem(elemId);
+  setConfigKey(elem, configKey);
+  T.bindOnce(elem, 'change', selectInputChanged);
+  selectSelectInput(elem, config[configKey]);
+  updateBindedElemOfSelect(elem, config[configKey]);
+}
+
+function selectInputChanged(e) {
+  const configKey = getConfigKey(e.target);
+  updateConfig(configKey, e.target.value);
+  updateBindedElemOfSelect(e.target, e.target.value);
+}
+
+function selectSelectInput(select, value) {
+  const optionElems = T.queryElems('option', select);
+  optionElems.forEach((it) => {
+    if (it.value == value) {
+      it.selected = true;
+    }
+  });
+}
+
+function updateBindedElemOfSelect(select, value) {
+  const bindedElems = T.queryElems(`[data-bind-select=${select.id}]`);
+  bindedElems.forEach((it) => {
+    if (it.getAttribute('data-bind-value') == value) {
+      it.classList.add('actived');
+    } else {
+      it.classList.remove('actived');
+    }
+  });
+}
+
+
 function initRadioInput(config, elemId, configKey){
   const elem = T.findElem(elemId);
   setConfigKey(elem, configKey);
   T.bindOnce(elem, 'change', radioInputChanged)
   checkRadioInput(elem, config[configKey]);
+  updateBindedElemOfRadio(elem, config[configKey]);
 }
 
 function radioInputChanged(e) {
   const container = T.findParentById(e.target, e.target.name);
   const configKey = getConfigKey(container);
   updateConfig(configKey, e.target.value);
+  updateBindedElemOfRadio(container, e.target.value);
 }
 
 function checkRadioInput(container, value) {
@@ -370,6 +460,17 @@ function checkRadioInput(container, value) {
   radioInputs.forEach((it) => {
     if(it.value === value) {
       it.checked = true;
+    }
+  });
+}
+
+function updateBindedElemOfRadio(container, value) {
+  const bindedElems = T.queryElems(`[data-bind-radio=${container.id}]`);
+  bindedElems.forEach((it) => {
+    if (it.getAttribute('data-bind-value') == value) {
+      it.classList.add('actived');
+    } else {
+      it.classList.remove('actived');
     }
   });
 }
@@ -727,6 +828,12 @@ function renderSection(id) {
     case 'setting-storage':
       render = renderSectionStorage;
       break;
+    case 'setting-html':
+      render = renderSectionHtml;
+      break;
+    case 'setting-markdown':
+      render = renderSectionMarkdown;
+      break;
     case 'setting-assistant':
       render = renderSectionAssistant;
       break;
@@ -757,6 +864,13 @@ function renderSection(id) {
   render(id, container, template);
 }
 
+/*
+function getSectionRender(sectionId) {
+  const fnName = 'renderSection' + T.capitalize(sectionID.replace('^setting-', ''));
+  return this[fnName];
+}
+*/
+
 function getSectionTemplate(sectionId) {
   const tplId = ["section",  sectionId, "tpl"].join("-");
   return T.findElem(tplId).innerHTML;
@@ -770,6 +884,22 @@ function renderSectionGeneral(id, container, template) {
   T.setHtml(container, html);
   MxWcConfig.load().then((config) => {
     initSettingGeneral(config);
+  });
+}
+
+function renderSectionHtml(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  MxWcConfig.load().then((config) => {
+    initSettingHtml(config);
+  });
+}
+
+function renderSectionMarkdown(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  MxWcConfig.load().then((config) => {
+    initSettingMarkdown(config);
   });
 }
 
@@ -865,21 +995,18 @@ function renderSubscriptions() {
 
 function savePlanSubscription(e) {
   const text = T.getElemValue('#plan-subscription');
-  const lines = text.split(/\n+/);
   const urls = [];
   const errors = [];
-  lines.forEach((it) => {
-    const lineText = it.trim();
-    const commentRe = /^#/;
-    if (!lineText.match(commentRe) && lineText !== '') {
-      try {
-        const url = new URL(lineText);
-        urls.push(lineText);
-      } catch(e) {
-        errors.push([e.message, T.escapeHtml(lineText)].join(": "));
-      }
+
+  T.eachNonCommentLine(text, (lineText) => {
+    try {
+      const url = new URL(lineText);
+      urls.push(lineText);
+    } catch(e) {
+      errors.push([e.message, T.escapeHtml(lineText)].join(": "));
     }
   });
+
   if (errors.length > 0) {
     Notify.error(errors.join('\n'));
   } else {

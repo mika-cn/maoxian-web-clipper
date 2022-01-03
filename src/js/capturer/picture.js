@@ -15,24 +15,37 @@ import SnapshotNodeChange from '../snapshot/change.js';
 
 /**
  *
+ * @param {SnapshotNode} node
  * @param {Object} params
- *   - {String} baseUrl
- *   - {String} clipId
- *   - {Object} storageInfo
- *   - {Object} requestParams
+ * @param {String} params.baseUrl
+ * @param {String} params.clipId
+ * @param {Object} params.storageInfo
+ * @param {Object} params.requestParams
+ * @param {Object} params.config
+ *
+ * @returns {Object} result
  *
  */
 async function capture(node, params) {
+  const {config} = params;
   const tasks = [];
   const change = new SnapshotNodeChange();
 
   if (node.childNodes) {
     for (const childNode of node.childNodes) {
       if (childNode.name === 'SOURCE') {
-        const r = await CaptureTool.captureImageSrcset(childNode, params);
+        let r;
+        if (config.htmlCaptureImage === 'saveCurrent') {
+          const reason = "capture method: saveCurrent";
+          r = CaptureTool.captureRemoveNode(reason);
+        } else {
+          // saveAll
+          r = await CaptureTool.captureImageSrcset(childNode, params);
+        }
         tasks.push(...r.tasks);
         childNode.change = r.change.toObject();
       }
+      // <img> node will be handle by capturerImg.
     };
   }
 

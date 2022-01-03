@@ -39,7 +39,7 @@ function renderConfig() {
     let k = null;
     const rows = []
     CONFIG_KEYS.forEach((k) => {
-      rows.push(`<tr><th>${k}</th><td><pre>${config[k]}</pre></td></tr>`);
+      rows.push(`<tr><th>${k}</th><td><pre>${T.escapeHtml(config[k])}</pre></td></tr>`);
     });
     const html = T.renderTemplate(tpl, {
       config: rows.join('')

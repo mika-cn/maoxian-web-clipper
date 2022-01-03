@@ -277,7 +277,6 @@ function queryElem(msg, callback){
 }
 
 async function formSubmitted({elem, formInputs, config}) {
-
   const currConfig = Object.assign(config, state.tempConfig)
   const domain    = window.location.host.split(':')[0];
   const pageUrl   = window.location.href;
@@ -311,7 +310,8 @@ async function formSubmitted({elem, formInputs, config}) {
     nameConflictResolver,
   }, {
     config: currConfig,
-    win: window
+    win: window,
+    platform: getPlatform(),
   });
 
   const clipping = await Clipper.clip(elem, params);
@@ -330,6 +330,24 @@ async function formSubmitted({elem, formInputs, config}) {
   } else {
     saveClipping({clipping});
   }
+}
+
+
+function getPlatform() {
+  const platform = {name: 'unknown'};
+  if (MxWcLink.isChrome()) {
+    platform.name = 'Chrome';
+    platform.isChrome = true;
+    return platform;
+  }
+
+  if (MxWcLink.isFirefox()) {
+    platform.name = 'Firefox';
+    platform.isFirefox = true;
+    return platform;
+  }
+
+  return platform;
 }
 
 

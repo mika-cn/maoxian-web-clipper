@@ -34,9 +34,11 @@ function backgroundMessageHandler(message) {
           const blacklist = {SCRIPT: true, TEMPLATE: true};
           Snapshot.take(window.document, {
             win: window,
+            platform: message.body.platform,
             requestParams: getRequestParams(message),
             frameInfo: message.body.frameInfo,
             extMsgType: message.type,
+            cssBox: getCssBox(message),
             blacklist: blacklist,
             shadowDom: {blacklist},
             srcdocFrame: {blacklist},
@@ -63,6 +65,7 @@ function backgroundMessageHandler(message) {
             STYLE: true, SCRIPT: true, TEMPLATE: true};
           Snapshot.take(window.document, {
             win: window,
+            platform: message.body.platform,
             requestParams: getRequestParams(message),
             frameInfo: message.body.frameInfo,
             extMsgType: message.type,
@@ -76,10 +79,18 @@ function backgroundMessageHandler(message) {
   });
 }
 
+
 function getRequestParams(message) {
   const {requestParams} = message.body;
   requestParams.refUrl = window.location.href;
   return new RequestParams(requestParams);
+}
+
+
+function getCssBox(message) {
+  const {cssBoxParams} = message.body;
+  return Snapshot.createCssBox(Object.assign(
+    {node: window.document}, cssBoxParams));
 }
 
 

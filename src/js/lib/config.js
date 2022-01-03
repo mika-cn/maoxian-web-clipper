@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '1.9';
+const VERSION = '2.6';
 const state = {};
 
 /** WARNING
@@ -26,12 +26,26 @@ function getDefault(){
     // content relative
     saveDomainAsTag: false,
 
-    saveIcon: false,
-    saveWebFont: false,
-    saveCssImage: false,
     htmlSaveClippingInformation: false,
     customBodyBgCssEnabled: false,
     customBodyBgCssValue: "#000000",
+    htmlCompressCss: false,
+
+    htmlCaptureImage    : 'saveAll', // saveAll | saveCurrent
+    htmlCaptureAudio    : 'remove',  // saveAll | remove | saveCurrent
+    htmlCaptureVideo    : 'remove',  // saveAll | remove | saveCurrent
+    htmlCaptureApplet   : 'remove',  // saveAll | remove
+    htmlCaptureEmbed    : 'saveImage',  // saveAll | saveImage | remove | filter
+    htmlCaptureObject   : 'saveImage',  // saveAll | saveImage | remove | filter
+    htmlCaptureIcon     : 'remove',  // saveAll | saveFavicon | remove
+
+    htmlCaptureCssRules : 'saveUsed',// saveAll | saveUsed
+    htmlCaptureWebFont  : 'remove',  // saveAll | filterList | remove |
+    htmlCaptureCssImage : 'remove',  // saveAll | remove
+
+    htmlEmbedFilter: "<images>",
+    htmlObjectFilter: "<images>",
+    htmlWebFontFilterList: "woff2|woff|otf|ttf",
 
     markdownTemplate: "\n{{content}}\n",
 

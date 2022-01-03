@@ -3,28 +3,36 @@
 import T     from '../lib/tool.js';
 import Asset from '../lib/asset.js';
 import Task  from '../lib/task.js';
+import WhiteSpace from '../lib/white-space.js';
 import StyleSheetSnapshot from '../snapshot/stylesheet.js';
+import CaptureTool from './tool.js';
 
 /*
  * @param {Object} params
  *   - {String} ownerType 'syleNode' or 'linkNode'
  *   - {String} baseUrl
- *   - {String} docUrl
+ *   - {String} docBaseUrl - document's base url
  *   - {Object} storageInfo
  *   - {String} clipId
  *   - {Object} config
  *   - {Object} requestParams
+ *   - {Object} cssParams
+ *   - {Boolean} cssParams.needFixStyle
+ *   - {Boolean} cssParams.removeUnusedRules
+ *   - {Object}  cssParams.usedFont
+ *   - {Object}  cssParams.usedKeyFrames
  *
  * @return {Object} it {:cssText, :tasks}
  */
 
 async function captureStyleSheet(sheet, params) {
   const tasks = [];
-  const {baseUrl, ownerType} = params;
+  const {baseUrl, config, ownerType, cssParams} = params;
+  const whiteSpace = WhiteSpace.create({compress: config.htmlCompressCss});
 
   const resourceHandler = getResourceHandler(Object.assign({tasks}, params));
   const cssText = await StyleSheetSnapshot.sheet2String(sheet,
-    {baseUrl, ownerType, resourceHandler});
+    {baseUrl, ownerType, cssParams, resourceHandler, whiteSpace,});
 
   return {cssText, tasks};
 }
@@ -34,7 +42,7 @@ async function captureStyleSheet(sheet, params) {
  * @param {Object} params
  *   - {String} ownerType 'syleNode' or 'styleAttr'
  *   - {String} baseUrl
- *   - {String} docUrl
+ *   - {String} docBaseUrl - document's baseUrl
  *   - {Object} storageInfo
  *   - {String} clipId
  *   - {Object} config
@@ -44,11 +52,14 @@ async function captureStyleSheet(sheet, params) {
  */
 async function captureStyleObj(styleObj, params) {
   const tasks = [];
-  const {baseUrl, ownerType} = params;
+  const {baseUrl, config, ownerType} = params;
+  const whiteSpace = WhiteSpace.create({
+    compress: (ownerType === 'styleAttr' ? true : config.htmlCompressCss)
+  });
 
   const resourceHandler = getResourceHandler(Object.assign({tasks}, params));
   const cssText = await StyleSheetSnapshot.styleObj2String(styleObj,
-    {baseUrl, ownerType, resourceHandler, renderIndent: false});
+    {baseUrl, ownerType, resourceHandler, whiteSpace});
 
   return {cssText, tasks};
 }
@@ -56,57 +67,117 @@ async function captureStyleObj(styleObj, params) {
 
 
 function getResourceHandler(params) {
-  const {tasks, ownerType, baseUrl, docUrl, storageInfo, clipId, config, requestParams} = params;
-  // @return path;
-  return async ({ownerType, resourceType, cssText, baseUrl, url}) => {
-    const saveResource = (
-         resourceType == 'css'   && true
-      || resourceType == 'image' && config.saveCssImage
-      || resourceType == 'font'  && config.saveWebFont
+  const {tasks, ownerType, baseUrl, docBaseUrl, storageInfo, clipId, config, requestParams} = params;
+  // @return paths;
+  return async ({ownerType, resourceType, baseUrl, resourceItems}) => {
+    const boolFlags = (
+         resourceType == 'css'   && saveAll(resourceItems)
+      || resourceType == 'image' && getImageFlags(resourceItems, config)
+      || resourceType == 'font'  && getWebFontFlags(resourceItems, config)
     );
 
-    if (!saveResource) { return '' }
+    const paths = [];
+    for (let i = 0; i < resourceItems.length; i++) {
+      const {url, cssText} = resourceItems[i];
+      const saveResource = boolFlags[i];
+      if (!saveResource) {
+        paths.push('');
+        continue;
+      }
+
+      const extension = (resourceType == 'css' ? 'css' : undefined);
+
+      const mimeTypeData = {};
+      if (!cssText) {
+        // images or fonts
+        mimeTypeData.httpMimeType = await Asset.getHttpMimeType(
+          requestParams.toParams(url));
+      }
+
+      const name = Asset.getNameByLink({
+        template: storageInfo.raw.assetFileName,
+        link: url,
+        extension: extension,
+        mimeTypeData: mimeTypeData,
+        now: storageInfo.valueObj.now,
+      });
+
+      const assetName = await Asset.getUniqueName({
+        clipId: clipId,
+        id: url,
+        folder: storageInfo.assetFolder,
+        filename: name
+      });
+
+      const filename = T.joinPath(storageInfo.assetFolder, assetName);
+
+      let task;
+      switch(resourceType) {
+        case 'image': {
+          task = Task.createImageTask(filename, url, clipId, requestParams);
+          break;
+        }
+        case 'font' : {
+          task = Task.createFontTask(filename, url, clipId, requestParams);
+          break;
+        }
+        case 'css'  : {
+          task = Task.createStyleTask(filename, cssText, clipId);
+          break;
+        }
+        default:
+          throw new Error("Unknown resourceType: " + resourceType)
+      }
+      tasks.push(task);
 
 
-    const extension = (resourceType == 'css' ? 'css' : undefined);
-
-    const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-
-    const name = Asset.getNameByLink({
-      template: storageInfo.raw.assetFileName,
-      link: url,
-      extension: extension,
-      mimeTypeData: {httpMimeType},
-      now: storageInfo.valueObj.now,
-    });
-
-    const assetName = await Asset.getUniqueName({
-      clipId: clipId,
-      id: url,
-      folder: storageInfo.assetFolder,
-      filename: name
-    });
-
-    const filename = T.joinPath(storageInfo.assetFolder, assetName);
-
-    let task;
-
-    switch(resourceType) {
-      case 'image': tasks.push(Task.createImageTask(filename, url, clipId, requestParams)); break;
-      case 'font' : tasks.push(Task.createFontTask(filename, url, clipId, requestParams)); break;
-      case 'css'  : tasks.push(Task.createStyleTask(filename, cssText, clipId)); break;
-      default:
-        throw new Error("Unknown resourceType: " + resourceType)
+      if(baseUrl === docBaseUrl) {
+        // In this case, it means this asset is referred by document (top document or iframe).
+        // We need to calculate path that relative to mainFileFolder,
+        // which is the place that the document will be saved in.
+        paths.push(T.calcPath(storageInfo.mainFileFolder, filename));
+      } else {
+        // This asset is referred by an external style which is also an asset.
+        // So they will stay in same folder.
+        paths.push(assetName);
+      }
     }
+    return paths;
+  }
+}
 
+// @returns {[boolean]} flags
+function saveAll(resourceItems) { return resourceItems.map(() => true) }
+function removeAll(resourceItems) { return resourceItems.map(() => false) }
 
-    if(baseUrl === docUrl) {
-      return T.calcPath(storageInfo.mainFileFolder, filename);
-    } else {
-      return assetName;
+// @return {[Boolean]} flags
+function getImageFlags(resourceItems, config) {
+  if (config.htmlCaptureCssImage == 'saveAll') {
+    return saveAll(resourceItems);
+  } else {
+    return removeAll(resourceItems);
+  }
+}
+
+// @return {[Boolean]} flags
+function getWebFontFlags(resourceItems, config) {
+  const option = config.htmlCaptureWebFont;
+  switch(option) {
+    case 'remove': return removeAll(resourceItems);
+    case 'saveAll': return saveAll(resourceItems);
+    case 'filterList': {
+      return CaptureTool.matchFilterList(
+        config.htmlWebFontFilterList,
+        resourceItems,
+        saveAll
+      );
+    }
+    default: {
+      throw new Error(`Unknow option, htmlCaptureWebFont : ${option}`);
     }
   }
 }
+
 
 
 function fixBodyChildrenStyle(css) {

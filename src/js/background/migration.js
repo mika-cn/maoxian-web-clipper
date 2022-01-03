@@ -40,6 +40,62 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.5'] = function(config) {
+  config.version = '2.6';
+  delete config.htmlWebFontFilter;
+  config.htmlWebFontFilterList = "woff2|woff|otf|ttf";
+  return config;
+}
+
+ConfigMigration['2.4'] = function(config) {
+  config.version = '2.5';
+  config.htmlWebFontFilter = 'woff,woff2';
+  return config;
+}
+
+ConfigMigration['2.3'] = function(config) {
+  config.version = '2.4';
+  // change default value
+  config.htmlCaptureEmbed  = 'saveImage';
+  config.htmlCaptureObject = 'saveImage';
+  return config;
+}
+
+ConfigMigration['2.2'] = function(config) {
+  config.version = '2.3';
+  config.htmlCompressCss = false;
+  return config;
+}
+
+ConfigMigration['2.1'] = function(config) {
+  config.version = '2.2';
+  config.htmlCaptureCssRules = 'saveAll';
+  return config;
+}
+
+ConfigMigration['2.0'] = function(config) {
+  config.version = '2.1';
+  const getValue = (checked) => checked ? 'saveAll' : 'remove';
+  config.htmlCaptureIcon      = getValue(config.saveIcon);
+  config.htmlCaptureWebFont   = getValue(config.saveWebFont);
+  config.htmlCaptureCssImage  = getValue(config.saveCssImage);
+  config.htmlCaptureImage = 'saveAll';
+  return config;
+}
+
+ConfigMigration['1.9'] = function(config) {
+  config.version = '2.0';
+  config.htmlCaptureAudio  = 'remove';
+  config.htmlCaptureVideo  = 'remove';
+  config.htmlCaptureApplet = 'remove';
+  config.htmlCaptureEmbed  = 'filter';
+  config.htmlCaptureObject = 'filter';
+
+  config.htmlEmbedFilter   = "<images>";
+  config.htmlObjectFilter  = "<images>";
+  return config;
+}
+
 ConfigMigration['1.8'] = function(config) {
   config.version = '1.9';
   config.autoRunContentScripts = false;

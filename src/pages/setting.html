@@ -15,6 +15,8 @@
         <div class="sidebar-content">
           <a class="menu" href="#setting-general" i18n="title.general"></a>
           <a class="menu" href="#setting-storage" i18n="title.storage"></a>
+          <a class="menu" href="#setting-html" i18n="title.html"></a>
+          <a class="menu" href="#setting-markdown" i18n="title.markdown"></a>
           <a class="menu" href="#setting-offline-page" i18n="title.offline-page"></a>
           <a class="menu" href="#setting-refresh-history" i18n="title.refresh-history"></a>
           <a class="menu" href="#setting-assistant" i18n="title.assistant"></a>
@@ -31,6 +33,295 @@
       <div class="content">
       </div>
     </div>
+
+    <template id="section-setting-html-tpl">
+      <section id="setting-html">
+        <h2 class="center" i18n="title.html"></h2>
+        <div>
+          <h3 i18n="title.clipping-content"></h3>
+          <div class="input-group">
+            <input type="checkbox" id="html-save-clipping-information" />
+            <label for="html-save-clipping-information" i18n="label.clip-information-input"></label>
+          </div>
+
+          <div class="input-group">
+            <input type="checkbox" id="custom-body-bg-css-enabled" />
+            <label for="custom-body-bg-css-enabled" i18n="label.custom-body-bg-css-enabled-input"></label>
+            <input type="color" id="custom-body-bg-css-value"></input>
+          </div>
+
+          <div class="input-group">
+            <input type="checkbox" id="html-compress-css" />
+            <label for="html-compress-css" i18n="label.html-compress-css-input"></label>
+          </div>
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.icon"></legend>
+            <p i18n="notice.icon.intro"></p>
+            <div id="html-capture-icon">
+              <input type="radio" value="saveAll" name="html-capture-icon" id="save-all-icon">
+              <label for="save-all-icon" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveFavicon" name="html-capture-icon" id="save-favicon-icon">
+              <label for="save-favicon-icon" i18n="option.capture.save-favicon"></label>
+              <input type="radio" value="remove" name="html-capture-icon" id="remove-icon">
+              <label for="remove-icon" i18n="option.capture.remove"></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.image"></legend>
+            <p i18n="notice.image.intro"></p>
+            <div id="html-capture-image">
+              <input type="radio" value="saveAll" name="html-capture-image" id="save-all-image">
+              <label for="save-all-image" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveCurrent" name="html-capture-image" id="save-current-image">
+              <label for="save-current-image" i18n="option.capture.save-current"></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.css-image"></legend>
+            <p i18n="notice.css-image.intro"></p>
+            <div id="html-capture-css-image">
+              <input type="radio" value="saveAll" name="html-capture-css-image" id="save-all-css-image">
+              <label for="save-all-css-image" i18n="option.capture.save-all"></label>
+              <input type="radio" value="remove" name="html-capture-css-image" id="remove-css-image">
+              <label for="remove-css-image" i18n="option.capture.remove"></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.web-font"></legend>
+            <p i18n="notice.web-font.intro"></p>
+            <div id="html-capture-web-font">
+              <input type="radio" value="saveAll" name="html-capture-web-font" id="save-all-web-font">
+              <label for="save-all-web-font" i18n="option.capture.save-all"></label>
+
+              <input type="radio" value="filterList" name="html-capture-web-font" id="filter-list-web-font">
+              <label for="filter-list-web-font" i18n="option.capture.filter-list"></label>
+              <input type="radio" value="remove" name="html-capture-web-font" id="remove-web-font">
+              <label for="remove-web-font" i18n="option.capture.remove"></label>
+            </div>
+            <div class="binded" data-bind-radio="html-capture-web-font" data-bind-value="filterList">
+              <br />
+              <div class="notice-info">
+                <p i18n="notice.capture-filter-intro"></p>
+                <details>
+                  <summary i18n="help.how-to-write-it" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <p i18n="notice.capture-filter-format-web-font"></p>
+                  <p i18n="notice.capture-filter-list-format"></p>
+                  <p i18n="notice.capture-web-font-extra-intro"></p>
+                </div>
+                </details>
+              </div>
+              <input id="html-web-font-filter-list" type="text" i18n-attr="placeholder:placeholder.notblank" required>
+            </div>
+          </fieldset>
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.css-rules"></legend>
+            <p i18n="notice.css-rules.intro"></p>
+            <div id="html-capture-css-rules">
+              <input type="radio" value="saveAll", name="html-capture-css-rules" id="save-all-css-rules">
+              <label for="save-all-css-rules" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveUsed" name="html-capture-css-rules" id="save-used-css-rules">
+              <label for="save-used-css-rules" i18n="option.capture.save-used"></label>
+            </div>
+          </fieldset>
+
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.audio"></legend>
+            <p i18n="notice.audio.intro"></p>
+            <div id="html-capture-audio">
+              <input type="radio" value="saveAll" name="html-capture-audio" id="save-all-audio">
+              <label for="save-all-audio" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveCurrent" name="html-capture-audio" id="save-current-audio">
+              <label for="save-current-audio" i18n="option.capture.save-current"></label>
+              <input type="radio" value="remove" name="html-capture-audio" id="remove-audio">
+              <label for="remove-audio" i18n="option.capture.remove"></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.video"></legend>
+            <p i18n="notice.video.intro"></p>
+            <div id="html-capture-video">
+              <input type="radio" value="saveAll" name="html-capture-video" id="save-all-video">
+              <label for="save-all-video" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveCurrent" name="html-capture-video" id="save-current-video">
+              <label for="save-current-video" i18n="option.capture.save-current"></label>
+              <input type="radio" value="remove" name="html-capture-video" id="remove-video">
+              <label for="remove-video" i18n="option.capture.remove"></label>
+            </div>
+          </fieldset>
+
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.embed"></legend>
+            <p i18n="notice.embed.intro"></p>
+            <div id="html-capture-embed">
+              <input type="radio" value="saveAll" name="html-capture-embed" id="save-all-embed">
+              <label for="save-all-embed" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveImage" name="html-capture-embed" id="save-image-embed">
+              <label for="save-image-embed" i18n="option.capture.save-image"></label>
+
+              <input type="radio" value="filter" name="html-capture-embed" id="filter-embed">
+              <label for="filter-embed" i18n="option.capture.filter"></label>
+              <input type="radio" value="remove" name="html-capture-embed" id="remove-embed">
+              <label for="remove-embed" i18n="option.capture.remove"></label>
+            </div>
+
+            <div class="binded" data-bind-radio="html-capture-embed" data-bind-value="filter">
+              <br />
+              <div class="notice-info">
+                <p i18n="notice.capture-filter-intro"></p>
+                <details>
+                  <summary i18n="help.how-to-write-it" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <p i18n="notice.capture-filter-format"></p>
+                  <p>
+                  <span i18n="notice.capture-filter-variable.intro"></span><br /><br />
+                    <span i18n="notice.capture-filter-variable.images"></span><br />
+                    <span i18n="notice.capture-filter-variable.audios"></span><br />
+                    <span i18n="notice.capture-filter-variable.videos"></span><br />
+                  </p>
+                </div>
+                </details>
+              </div>
+              <input id="html-embed-filter" type="text" i18n-attr="placeholder:placeholder.notblank" required>
+            </div>
+          </fieldset>
+
+
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.object"></legend>
+            <p i18n="notice.object.intro"></p>
+            <div id="html-capture-object">
+              <input type="radio" value="saveAll" name="html-capture-object" id="save-all-object">
+              <label for="save-all-object" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveImage" name="html-capture-object" id="save-image-object">
+              <label for="save-image-object" i18n="option.capture.save-image"></label>
+              <input type="radio" value="filter" name="html-capture-object" id="filter-object">
+              <label for="filter-object" i18n="option.capture.filter"></label>
+              <input type="radio" value="remove" name="html-capture-object" id="remove-object">
+              <label for="remove-object" i18n="option.capture.remove"></label>
+            </div>
+            <div class="binded" data-bind-radio="html-capture-object" data-bind-value="filter">
+              <br />
+              <div class="notice-info">
+                <p i18n="notice.capture-filter-intro"></p>
+                <details>
+                  <summary i18n="help.how-to-write-it" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <p i18n="notice.capture-filter-format"></p>
+                  <p>
+                  <span i18n="notice.capture-filter-variable.intro"></span><br /><br />
+                    <span i18n="notice.capture-filter-variable.images"></span><br />
+                    <span i18n="notice.capture-filter-variable.audios"></span><br />
+                    <span i18n="notice.capture-filter-variable.videos"></span><br />
+                  </p>
+                </div>
+                </details>
+              </div>
+              <input id="html-object-filter" type="text" i18n-attr="placeholder:placeholder.notblank" required>
+            </div>
+          </fieldset>
+
+
+          <fieldset class="input-group">
+            <legend i18n="capture.target.applet"></legend>
+            <p i18n="notice.applet.intro"></p>
+            <div id="html-capture-applet">
+              <input type="radio" value="saveAll" name="html-capture-applet" id="save-all-applet">
+              <label for="save-all-applet" i18n="option.capture.save-all"></label>
+              <input type="radio" value="remove" name="html-capture-applet" id="remove-applet">
+              <label for="remove-applet" i18n="option.capture.remove"></label>
+            </div>
+          </fieldset>
+
+        </div>
+      </section>
+    </template>
+
+    <template id="section-setting-markdown-tpl">
+      <section id="setting-markdown">
+        <h2 class="center" i18n="title.markdown"></h2>
+        <div>
+            <h3 i18n="title.markdown-template"></h3>
+            <div class="notice-info">
+              <p i18n="notice.markdown-template"></p>
+              <details>
+                <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <span i18n="tpl-variable.i18n-none"></span>
+                  <span i18n="tpl-variable.i18n-access"></span>
+                  <span i18n="tpl-variable.i18n-original-url"></span>
+                  <span i18n="tpl-variable.i18n-created-at"></span>
+                  <span i18n="tpl-variable.i18n-category"></span>
+                  <span i18n="tpl-variable.i18n-tags"></span>
+                  <hr />
+
+                  <span i18n="tpl-variable.title"></span>
+                  <span i18n="tpl-variable.content"></span>
+                  <span i18n="tpl-variable.content-only"></span>
+                  <span i18n="tpl-variable.url"></span>
+                  <span i18n="tpl-variable.category"></span>
+                  <span i18n="tpl-variable.tags"></span>
+                  <span i18n="tpl-variable.created-at"></span>
+                  <span i18n="tpl-variable.year"></span>
+                  <span i18n="tpl-variable.sYear"></span>
+                  <span i18n="tpl-variable.month"></span>
+                  <span i18n="tpl-variable.day"></span>
+                  <span i18n="tpl-variable.hour"></span>
+                  <span i18n="tpl-variable.minute"></span>
+                  <span i18n="tpl-variable.second"></span>
+                  <span i18n="tpl-variable.intSec"></span>
+                  <hr />
+                  <span i18n="tpl-function.trim-fn"></span>
+                </div>
+              </details>
+
+              <details>
+                <summary i18n="help.examples" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <label class="example-label" i18n="help.md-template.example-a"></label><br />
+                  <pre class="example-code"><code>
+{{content}}
+
+---------------------------------------------------
+
+{{i18n_original_url}}: [{{i18n_access}}]({{url}})
+
+{{i18n_created_at}}: {{createdAt}}
+
+{{i18n_category}}: {{category}}{{^category}}{{i18n_none}}{{/category}}
+
+{{i18n_tags}}: {{#trimFn}}{{#tags}}`{{.}}`, {{/tags}}{{/trimFn}}{{^tags}}{{i18n_none}}{{/tags}}
+                  </code></pre>
+
+                  <label class="example-label" i18n="help.md-template.example-b"></label><br />
+                  <pre class="example-code"><code>---
+title: {{title}}{{^title}}-{{/title}}
+url: {{url}}
+clipped_at: {{createdAt}}
+category: {{category}}{{^category}}{{i18n_none}}{{/category}}
+tags: {{#tags}}
+ - {{.}}{{/tags}}{{^tags}}
+ - {{i18n_none}}{{/tags}}
+---
+
+{{content}}</code></pre>
+                </div>
+              </details>
+
+            </div>
+            <textarea id="markdown-template"></textarea>
+        </div>
+      </section>
+    </template>
 
     <template id="section-setting-reset-and-backup-tpl">
       <section id="setting-reset-and-backup">
@@ -177,95 +468,8 @@
 
           <input type="checkbox" id="save-domain-as-tag" />
           <label for="save-domain-as-tag" i18n="label.save-domain-tag-input"></label>
+
           <div>
-            <h4 i18n="title.html-content"></h4>
-            <input type="checkbox" id="html-save-clipping-information" />
-            <label for="html-save-clipping-information" i18n="label.clip-information-input"></label>
-            <br />
-            <input type="checkbox" id="save-icon" />
-            <label for="save-icon" i18n="label.save-icon-input"></label>
-            <br />
-            <input type="checkbox" id="save-web-font" />
-            <label for="save-web-font" i18n="label.save-web-font-input"></label>
-            <br />
-            <input type="checkbox" id="save-css-image" />
-            <label for="save-css-image" i18n="label.save-css-image-input"></label>
-            <br />
-            <input type="checkbox" id="custom-body-bg-css-enabled" />
-            <label for="custom-body-bg-css-enabled" i18n="label.custom-body-bg-css-enabled-input"></label>
-            <input type="color" id="custom-body-bg-css-value"></input>
-            <br />
-          </div>
-          <div>
-            <h4 i18n="title.markdown-content"></h4>
-            <div class="notice-info">
-              <p i18n="notice.markdown-template"></p>
-              <details>
-                <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
-                <div class="help-content">
-                  <span i18n="tpl-variable.i18n-none"></span>
-                  <span i18n="tpl-variable.i18n-access"></span>
-                  <span i18n="tpl-variable.i18n-original-url"></span>
-                  <span i18n="tpl-variable.i18n-created-at"></span>
-                  <span i18n="tpl-variable.i18n-category"></span>
-                  <span i18n="tpl-variable.i18n-tags"></span>
-                  <hr />
-
-                  <span i18n="tpl-variable.title"></span>
-                  <span i18n="tpl-variable.content"></span>
-                  <span i18n="tpl-variable.content-only"></span>
-                  <span i18n="tpl-variable.url"></span>
-                  <span i18n="tpl-variable.category"></span>
-                  <span i18n="tpl-variable.tags"></span>
-                  <span i18n="tpl-variable.created-at"></span>
-                  <span i18n="tpl-variable.year"></span>
-                  <span i18n="tpl-variable.sYear"></span>
-                  <span i18n="tpl-variable.month"></span>
-                  <span i18n="tpl-variable.day"></span>
-                  <span i18n="tpl-variable.hour"></span>
-                  <span i18n="tpl-variable.minute"></span>
-                  <span i18n="tpl-variable.second"></span>
-                  <span i18n="tpl-variable.intSec"></span>
-                  <hr />
-                  <span i18n="tpl-function.trim-fn"></span>
-                </div>
-              </details>
-
-              <details>
-                <summary i18n="help.examples" i18n-attr="title:help.label"></summary>
-                <div class="help-content">
-                  <label class="example-label" i18n="help.md-template.example-a"></label><br />
-                  <pre class="example-code"><code>
-{{content}}
-
----------------------------------------------------
-
-{{i18n_original_url}}: [{{i18n_access}}]({{url}})
-
-{{i18n_created_at}}: {{createdAt}}
-
-{{i18n_category}}: {{category}}{{^category}}{{i18n_none}}{{/category}}
-
-{{i18n_tags}}: {{#trimFn}}{{#tags}}`{{.}}`, {{/tags}}{{/trimFn}}{{^tags}}{{i18n_none}}{{/tags}}
-                  </code></pre>
-
-                  <label class="example-label" i18n="help.md-template.example-b"></label><br />
-                  <pre class="example-code"><code>---
-title: {{title}}{{^title}}-{{/title}}
-url: {{url}}
-clipped_at: {{createdAt}}
-category: {{category}}{{^category}}{{i18n_none}}{{/category}}
-tags: {{#tags}}
- - {{.}}{{/tags}}{{^tags}}
- - {{i18n_none}}{{/tags}}
----
-
-{{content}}</code></pre>
-                </div>
-              </details>
-
-            </div>
-            <textarea id="markdown-template"></textarea>
           </div>
         </div>
       </section>

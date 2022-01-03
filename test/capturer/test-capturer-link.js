@@ -22,10 +22,9 @@ function getNode(relList, attr = {}, sheet) {
   }
 }
 
-function getParams() {
+function getParams(change = {}) {
   const url = 'https://a.org/index.html';
-  return {
-    docUrl: url,
+  return Object.assign({
     baseUrl: url,
     storageInfo: {
       mainFileFolder: 'category-a/clippings',
@@ -35,12 +34,13 @@ function getParams() {
     },
     clipId: '001',
     config: {
-      saveWebFont: false,
-      saveCssImage: false,
-      saveIcon: true,
+      htmlCaptureWebFont: 'remove',
+      htmlCaptureCssImage: 'remove',
+      htmlCaptureIcon: 'saveAll',
     },
     requestParams: RequestParams.createExample({refUrl: url}),
-  }
+    cssParams: {removeUnusedRules: false},
+  }, change);
 }
 
 describe('Capture link', () => {
@@ -61,7 +61,18 @@ describe('Capture link', () => {
     H.assertTrue(change.getProperty('ignore'));
   });
 
-  it('capture link rel="icon"', async() => {
+  it('capture link rel="icon", option: remove', async() => {
+    const node = getNode(['icon'], {rel: 'icon', href: 'a.icon'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'remove';
+    ExtMsg.mockGetUniqueFilename();
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
+    ExtMsg.clearMocks();
+  });
+
+  it('capture link rel="icon", option: saveAll', async() => {
     const node = getNode(['icon'], {rel: 'icon', href: 'a.icon'});
     const params = getParams();
     ExtMsg.mockGetUniqueFilename();
@@ -71,7 +82,18 @@ describe('Capture link', () => {
     ExtMsg.clearMocks();
   });
 
-  it('capture link rel="shortcut icon"', async() => {
+  it('capture link rel="icon", option: saveFavicon', async() => {
+    const node = getNode(['icon'], {rel: 'icon', href: 'a.icon'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'saveFavicon';
+    ExtMsg.mockGetUniqueFilename();
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 1);
+    H.assertMatch(change.getAttr('href'), /assets\/[^\.\/]+\.icon/);
+    ExtMsg.clearMocks();
+  });
+
+  it('capture link rel="shortcut icon", option: saveAll', async() => {
     const node = getNode(['shortcut', 'icon'], {rel: 'shortcut icon', href: 'a.icon'});
     const params = getParams();
     ExtMsg.mockGetUniqueFilename();
@@ -80,8 +102,17 @@ describe('Capture link', () => {
     ExtMsg.clearMocks();
   });
 
+  it('capture link rel="shortcut icon", option: saveFavicon', async() => {
+    const node = getNode(['shortcut', 'icon'], {rel: 'shortcut icon', href: 'a.icon'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'saveFavicon';
+    ExtMsg.mockGetUniqueFilename();
+    const {tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 1);
+    ExtMsg.clearMocks();
+  });
 
-  it('capture link rel="apple-touch-icon-precomposed"', async() => {
+  it('capture link rel="apple-touch-icon-precomposed", option: saveAll', async() => {
     const node = getNode(['apple-touch-icon-precomposed'],
       {rel:'apple-touch-icon-precomposed', href: 'a', type: 'image/png'});
     const params = getParams();
@@ -93,12 +124,23 @@ describe('Capture link', () => {
     ExtMsg.clearMocks();
   });
 
+  it('capture link rel="apple-touch-icon-precomposed", option: saveFavicon', async() => {
+    const node = getNode(['apple-touch-icon-precomposed'],
+      {rel:'apple-touch-icon-precomposed', href: 'a', type: 'image/png'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'saveFavicon';
+    ExtMsg.mockGetUniqueFilename();
+    ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
+    ExtMsg.clearMocks();
+  });
+
   async function testCaptureStylesheet(linkType, href) {
     const linkTypes = [linkType.toLowerCase()];
     const sheet = {
-      href: `https://a.org/${href}`,
-      diabled: false,
-      title: 'TITLE',
+      href: `https://a.org/${href}`, diabled: false, title: 'TITLE',
       rules: [
         {
           type: CSSRULE_TYPE.STYLE,
@@ -149,6 +191,27 @@ describe('Capture link', () => {
     const node = getNode(linkTypes, attrs);
     const params = getParams();
     const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
+  });
+
+  it("should ignore when captured result is blank", async() => {
+    const linkType = 'stylesheet';
+    const attrs = {href: 'style.css', rel: linkType};
+    const sheet = {
+      href: 'https://a.org/style.css', diabled: false, title: 'TITLE',
+      rules: [{
+          type: CSSRULE_TYPE.STYLE,
+          ignore: true,
+          selectorText: 'body',
+          styleObj: {},
+        }]
+    };
+    const node = getNode([linkType], attrs, sheet);
+    const params = getParams({cssParams: {removeUnusedRules: true}});
+    ExtMsg.mockGetUniqueFilename()
+    const {change, tasks} = await Capturer.capture(node, params);
+    ExtMsg.clearMocks();
     H.assertEqual(tasks.length, 0);
     H.assertTrue(change.getProperty('ignore'));
   });

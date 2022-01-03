@@ -673,7 +673,7 @@ function isElemHasVisibleSibling(elem) {
   const children = elem.parentNode.children;
   for(let i = 0; i < children.length; i++) {
     const child = children[i];
-    if (child !== elem && T.isElemVisible(window, child)) {
+    if (child !== elem && !isBrowserExtensionIframe(child) && T.isElemVisible(window, child)) {
       return true;
     }
   }
@@ -711,10 +711,14 @@ function isIndivisible(elem, pElem) {
 function isOnBlackList(elem){
   const blackList = ["SCRIPT", "STYLE", "TEMPLATE"];
   return (blackList.indexOf(elem.tagName.toUpperCase()) > -1
-    || elem.tagName.toUpperCase() === 'IFRAME' && T.isBrowserExtensionUrl(elem.src)
+    || isBrowserExtensionIframe(elem)
     || elem.getBoundingClientRect().height === 0
     || elem.innerText.trim().length === 0
   )
+}
+
+function isBrowserExtensionIframe(elem) {
+  return elem.tagName.toUpperCase() === 'IFRAME' && T.isBrowserExtensionUrl(elem.src)
 }
 
 const selectedTarget = function(target){
@@ -827,10 +831,10 @@ function getFormInputs(elem, formInputs = {}) {
 
 function getTitle(contextElem) {
   if (contextElem.tagName.toUpperCase() == 'H1') {
-    return contextElem.textContent;
+    return contextElem.textContent.trim();
   }
   const elems = contextElem.querySelectorAll('h1');
-  return (elems.length > 0 ? elems[0].textContent : '');
+  return (elems.length > 0 ? elems[0].textContent.trim() : '');
 }
 
 state.callbacks = {};

@@ -6,47 +6,46 @@ import Task        from '../lib/task.js';
 import CaptureTool from './tool.js';
 import SnapshotNodeChange from '../snapshot/change.js';
 
+const ATTR_PARAMS_IMG = {resourceType: 'Image', attrName: 'src'}
+
 /**
  *
+ * @param {SnapshotNode} node
  * @param {Object} params
- *   - {String} saveFormat
- *   - {String} baseUrl
- *   - {String} clipId
- *   - {Object} storageInfo
- *   - {Object} requestParams
+ * @param {String} params.saveFormat
+ * @param {String} params.baseUrl
+ * @param {String} params.clipId
+ * @param {Object} params.storageInfo
+ * @param {Object} params.requestParams
+ * @param {Object} params.config
+ *
+ * @returns {Object} result
  *
  */
 async function capture(node, params) {
-  const {saveFormat, baseUrl, clipId, storageInfo, requestParams} = params;
+  const {saveFormat, baseUrl, clipId, storageInfo, requestParams, config} = params;
   const tasks = [];
-  const change = new SnapshotNodeChange();
+  let change = new SnapshotNodeChange();
 
   change.rmAttr('crossorigin');
   // referrerpolicy attribute
 
   // handle src
-  const src = node.attr.src;
-  const {isValid, url, message} = T.completeUrl(src, baseUrl);
-  if (isValid) {
-    const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url));
-    const {filename, path} = await Asset.getFilenameAndPath({
-      link: url, mimeTypeData: {httpMimeType},
-      clipId, storageInfo,
-    });
-
-    tasks.push(Task.createImageTask(filename, url, clipId, requestParams));
-    change.setAttr('src', path);
-  } else {
-    change.setAttr('data-mx-warn', message);
-    change.setAttr('data-mx-original-src', (src || ''));
-    change.setAttr('src', 'invalid-url.png');
+  let attrParams = ATTR_PARAMS_IMG;
+  if (config.htmlCaptureImage == 'saveCurrent') {
+    attrParams = Object.assign({attrValue: node.currentSrc}, attrParams);
   }
+  const r = await CaptureTool.captureAttrResource(node, params, attrParams);
+  tasks.push(...r.tasks);
+  change = change.merge(r.change);
 
   // handle srcset
-  if (saveFormat === 'html') {
+  if (saveFormat === 'html' && config.htmlCaptureImage == 'saveAll') {
     const r = await CaptureTool.captureImageSrcset(node, params);
     tasks.push(...r.tasks);
     return {change: change.merge(r.change), tasks};
+  } else {
+    change.rmAttr('srcset');
   }
 
   return {change, tasks};

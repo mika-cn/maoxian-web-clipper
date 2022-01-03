@@ -3,6 +3,7 @@
 })(this, function(root, undefined) {
   const currValues = (root.MxWcI18N_zh_CN || {}).values || {};
   const values = {
+    // labels
     "label.version": "当前版本：",
     "label.ruby-version": "Ruby 版本：",
 
@@ -14,6 +15,8 @@
 
     "title.general": "基础设置",
     "title.storage": "存储设置",
+    "title.html": "HTML",
+    "title.markdown": "Markdown",
     "title.assistant": "助手设置",
     "title.public-plan": "公开的「计划」",
     "title.subscriptions": "我的订阅（已下载）",
@@ -34,9 +37,13 @@
     "title.backup": "备份",
     "title.restore": "恢复",
 
-    "title.save-format": "保存格式",
     "title.control": "操作设置",
     "title.file-url": "本地网址",
+    "title.clipping-content": "裁剪内容",
+
+    // section markdown
+    "title.markdown-template": "Markdown 模板",
+
     "title.advanced": "高级",
     "title.request": "HTTP 请求",
     "title.request-timeout": "超时设置",
@@ -44,12 +51,10 @@
     "title.request-referrer-policy": "設置 Referrer",
     "title.request-cache": "缓存",
     "title.misc": "杂项",
-    "title.clipping-content": "裁剪内容",
-    "title.html-content": "HTML",
-    "title.markdown-content": "Markdown",
     "title.offline-page": "离线索引页面",
     "title.refresh-history": "刷新裁剪历史",
 
+    "title.save-format": "保存格式",
     "title.root-folder": "根目录",
     "title.default-category": "默认分类",
     "title.clipping-folder-name": "裁剪目录",
@@ -68,6 +73,7 @@
     "folder.clipping": "裁剪目录",
 
     "help.label": "点击显示（或隐藏）帮助信息",
+    "help.how-to-write-it": "如何编写",
     "help.avariable-variable": "可用变量",
     "help.examples": "使用样例",
     "help.md-template.example-a": "例一：在裁剪下来的内容后面追加裁剪信息",
@@ -154,10 +160,33 @@
     "handler.wiz-note-plus.warning": "<strong> 警告！ </strong><br /> 如果你启用为知笔记，你必须先 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装它</a>，并且剪裁时为知笔记必须处于启动状态，否则处理程序无法正常工作",
 
 
+
+    // options
     "option.request-referrer-policy.origin-when-cross-origin": "同域请求时，Referrer 为全路径（请求域 + 请求路径），跨域请求时，Referrer 只包含请求域（协议 + 域名 + 端口）",
     "option.request-referrer-policy.origin": "Referrer 只包含请求域（协议 + 域名 + 端口）",
     "option.request-referrer-policy.no-referrer": "不发送 Referer",
     "option.request-referrer-policy.unsafe-url": "Referrer 为全路径（请求域 + 请求路径）",
+
+    "option.capture.save-all": "保存所有",
+    "option.capture.save-current": "保存当前",
+    "option.capture.save-used": "只保存已使用的",
+    "option.capture.save-image": "只保存图片",
+    "option.capture.save-favicon": "只保存 favicon",
+    "option.capture.remove": "移除",
+    "option.capture.filter": "过滤器",
+    "option.capture.filter-list": "过滤器组",
+
+    // capture targets
+    "capture.target.icon": "网站图标",
+    "capture.target.image": "图片",
+    "capture.target.css-rules": "样式规则",
+    "capture.target.css-image": "样式图片",
+    "capture.target.web-font": "Web 字体",
+    "capture.target.audio": "声音",
+    "capture.target.video": "影片",
+    "capture.target.embed": "Embeds",
+    "capture.target.object": "Objects",
+    "capture.target.applet": "Applets",
 
 
     "notice.info.storage.browser": "使用浏览器来下载裁剪结果",
@@ -201,6 +230,18 @@
     "notice.file-url.help-msg": "你将需要以下信息:",
     "notice.file-url.ext-id": "扩展标识",
     "notice.file-url-warning": "这个设置并不会改变你浏览器本身的设置，<br />请在确保你已经设置 ‘允许插件访问文件路径’ 后才勾选此项",
+
+    "notice.capture-filter-intro": "通过下方输入框定义的规则，对引用的文件进行过滤，以选择自己想要保存的文件。",
+    "notice.capture-filter-format": "「过滤器」由多个文件后缀名组成，中间用英文逗号隔开（如：<code>pdf,doc,xls</code>）。<br>当过滤器被使用的时候，这些文件后缀名会和引用的文件的后缀名进行匹配，匹配成功则保存。",
+    "notice.capture-filter-list-format": "「过滤器组」包含一个或多个过滤器，裁剪时会依次进行匹配，当其中一个过滤器成功匹配，后面的过滤器会直接被忽略。<br />多个过滤器中间用竖杠符号（|）隔开（如：<code>过滤器A|过滤器B|过滤器C</code>。）",
+    "notice.capture-filter-format-web-font": "「过滤器」由多个文件后缀名组成，中间用英文逗号隔开（如：<code>woff,woff2,ttf</code>）。<br>当过滤器被使用的时候，这些文件后缀名会和引用的文件的后缀名进行匹配，匹配成功则保存。",
+    "notice.capture-web-font-extra-intro": "当所有过滤器都无法成功匹配时，会保存所有的字体文件。<br>如果你裁剪下来的网页始终会在现代浏览器上查看，建议使用过滤器组：<code>woff2|woff|otf|ttf</code><br>如果你裁剪下来的网页会在旧浏览器查看，建议使用过滤器组：<code>woff2,woff|otf,ttf</code>",
+    "notice.capture-filter-variable.intro": "<strong>另：</strong> 扩展内置了一些指令可方便匹配一类扩展名。其使用方式与后缀名一样（例如：<code>&lt;images&gt;,pdf</code> 可匹配到所有图片文件和 pdf 文件）。可使用的指令如下：",
+    "notice.capture-filter-variable.images": "&lt;images&gt; ： 可匹配所有图片文件后缀名",
+    "notice.capture-filter-variable.audios": "&lt;audios&gt;  ： 可匹配所有声音文件后缀名",
+    "notice.capture-filter-variable.videos": "&lt;videos&gt;  ： 可匹配所有影片文件后缀名",
+
+
     "notice.markdown-template": '使用下方的模板，控制裁剪结果的渲染。MaoXian 使用 mustache.js 来渲染这个模板，你可以在它的<a target="_blank" href="https://github.com/janl/mustache.js">项目页面</a>找到使用介绍。',
     "notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
@@ -234,10 +275,7 @@
     "label.request-cache-css-input": "缓存网页样式 （CSS）",
     "label.request-cache-image-input": "缓存图片",
     "label.request-cache-web-font-input": "缓存字体",
-    "label.clip-information-input": "裁剪文件包含裁剪信息 (原网址、时间、目录和标签)",
-    "label.save-icon-input": "保存网站图标",
-    "label.save-web-font-input": "保存Web字体(建议取消勾选)",
-    "label.save-css-image-input": "存储 CSS 背景图(建议取消勾选)",
+    "label.clip-information-input": "追加裁剪信息 （原网址、时间、目录和标签）到内容尾部",
     "label.custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",
     "label.mouse-mode-enabled-input": "鼠标友好模式",
@@ -261,6 +299,24 @@
     "label.backup-history-page-config-input": "历史页面的配置信息",
     "label.backup-assistant-data-input": "毛线助手的数据（自定义的「计划」，订阅信息 和 已下载的「计划」）",
     "label.backup-selection-data-input": "已记住的选区信息",
+
+    "label.html-compress-css-input": "压缩样式（CSS）, 所有非必须的空白（空格，换行符和缩进）都会被移除，该操作可减少裁剪下来的样式的体积。同时，压缩后的样式也会丢失可读性",
+
+
+
+
+    "notice.icon.intro": "网站图标包含显示在浏览器标签上的小图片（洋名为：favicon），也包含显示在移动设备的 Home 屏幕上或 APP 上的图标",
+    "notice.image.intro": "图片只包含那些表示内容的图片，比如：文章例图，用户头像等等，但不包括用于改变网站样式的图片（如： 背景图），对于同一张图片，网页可能会定义不同清晰度和尺寸的几个图片文件供浏览器选择（根据设备和网速）。",
+    "notice.css-rules.intro": "样式规则定义网页上每个元素的样式，一张网页通常有成百上千条规则。而由于我们只会裁剪网页的一部分，这意味着只需要保存一部分规则就足以正常显示网页。",
+    "notice.css-image.intro": "样式图片即修饰网页样式的图片，如：元素背景图，边框背景图，光标图片等等。这类图片一般与网页内容无关，可安全移除。",
+    "notice.web-font.intro": "Web 字体是网页嵌入的字体文件，常用于改变网页文本的字体样式，也会用于引入图标。网页为了兼容浏览器，会为同一个字体引入多个不同格式的字体文件。",
+    "notice.audio.intro": "声音是网页通过 HTML5 技术嵌入的音频文件，不包含通过其他方式嵌入的声音（建议移除）",
+    "notice.video.intro": "影片是网页通过 HTML5 技术嵌入的视频文件，不包含通过其他方式嵌入的影片，由于影片文件通常较大，这会导致保存流程可能会大大加长（建议移除）",
+
+    "notice.embed.intro": "EMBED 元素 - 用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件（建议只保存图片文件）",
+    "notice.object.intro": "OBJECT 元素 - 用于向网页中插入外部文件，通常需要浏览器安装对应的插件才可正常显示，有时会引入图片或媒体文件（建议只保存图片文件）",
+    "notice.applet.intro": "APPLET 元素 - 用于向网页中插入 JAVA 小程序，大多数现代浏览器都不再支持（建议移除）",
+
     "label.last-update-time": "上次更新时间",
     "label.update-now-success": "更新成功",
     "label.reset-to-default-intro": "下方列出的项目都会被重置。",

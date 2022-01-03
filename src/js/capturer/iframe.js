@@ -37,7 +37,7 @@ async function capture(node, opts) {
 
     } else {
 
-      let name;
+      let name, id;
       if (node.frame.url === 'about:srcdoc') {
         name = Asset.getNameByContent({
           template: storageInfo.raw.frameFileName,
@@ -45,6 +45,10 @@ async function capture(node, opts) {
           extension: 'frame.html',
           now: storageInfo.valueObj.now,
         })
+        // because the urls of inline frames always the same
+        // so we can't use it as id, use name instead which
+        // is depends on the html content.
+        id = name;
       } else {
         name = Asset.getNameByLink({
           template: storageInfo.raw.frameFileName,
@@ -52,11 +56,12 @@ async function capture(node, opts) {
           extension: 'frame.html',
           now: storageInfo.valueObj.now,
         });
+        id = node.frame.url;
       }
 
       const assetName = await Asset.getUniqueName({
         clipId: clipId,
-        id: node.frame.url,
+        id: id,
         folder: storageInfo.frameFileFolder,
         filename: name,
       });

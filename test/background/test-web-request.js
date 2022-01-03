@@ -30,7 +30,7 @@ describe('WebRequest', () => {
       H.assertEqual(dict[originalUrl], targetUrl);
     });
 
-    it('should store redirection that has multiply hops', () => {
+    it('should store redirection that has multiple hops', () => {
       const {StoreRedirection} = WebRequest;
       StoreRedirection.init();
       const originalUrl = 'http://a.org/origin';

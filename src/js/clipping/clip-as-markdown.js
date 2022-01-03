@@ -22,9 +22,10 @@ import * as TurndownPluginGfm from 'turndown-plugin-gfm';
 import Mustache from 'mustache';
 Mustache.escape = (text) => text;
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win}){
+async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform}){
   Log.debug("clip as markdown");
 
+  const snapshot = await takeSnapshot({elem, frames, requestParams, win, platform});
 
   const {clipId} = info;
 
@@ -41,7 +42,6 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     win          : win,
   };
 
-  const snapshot = await takeSnapshot({elem, frames, requestParams, win});
   const tasks = await captureAssets(snapshot, params);
 
   Log.debug(snapshot);
@@ -98,7 +98,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 }
 
 
-async function takeSnapshot({elem, frames, requestParams, win}) {
+async function takeSnapshot({elem, frames, requestParams, win, platform}) {
   const topFrame = frames.find((it) => it.frameId == 0);
   const frameInfo = {allFrames: frames, ancestors: [topFrame]}
   const extMsgType = 'frame.clipAsMd.takeSnapshot';
@@ -106,7 +106,7 @@ async function takeSnapshot({elem, frames, requestParams, win}) {
     STYLE: true, SCRIPT: true, TEMPLATE: true};
 
   let elemSnapshot = await Snapshot.take(elem, {
-    frameInfo, requestParams, win, extMsgType,
+    frameInfo, requestParams, win, platform, extMsgType,
     blacklist: blacklist,
     shadowDom: {blacklist},
     srcdocFrame: {blacklist},
@@ -126,7 +126,13 @@ async function captureAssets(snapshot, params) {
   const documentSnapshot = SnapshotMaker.getDocumentNode(docUrl, baseUrl);
   const ancestorDocs = [documentSnapshot];
   await Snapshot.eachElement(snapshot,
-    async(node, ancestors, ancestorDocs) => {
+    async(node, ancestors, ancestorDocs, ancestorRoots) => {
+
+      if (node.change) {
+        // processed
+        return true;
+      }
+
       const {baseUrl, docUrl} = ancestorDocs[0];
       let requestParams;
       if (ancestorDocs.length == 1) {
@@ -138,8 +144,8 @@ async function captureAssets(snapshot, params) {
       let r = {change: new SnapshotNodeChange(), tasks: []};
       switch(node.name) {
         case 'IMG':
-          r = await CapturerImg.capture(node, {
-            saveFormat, baseUrl, storageInfo, clipId, requestParams
+          r = await CapturerImg.capture(node, { saveFormat,
+            baseUrl, storageInfo, clipId, requestParams, config,
           });
           break;
 

@@ -54,7 +54,7 @@ function getValueObjectByLink({template, link, extension = null, mimeTypeData = 
     v.filename = name;
   }
   if (template.indexOf('$EXT') > -1) {
-    const ext = getFileExtension(link, extension, mimeTypeData);
+    const ext = getWebUrlExtension(link, Object.assign({extension}, mimeTypeData));
     v.ext = (ext ? `.${ext}` : '');
   }
   return v;
@@ -132,13 +132,17 @@ async function getFilenameAndPath(params) {
 }
 
 
-function getFileExtension(link, extension, mimeTypeData) {
-  const {
-    // mime type that get from http request.
-    httpMimeType,
-    // mime type that get from attribute of HTML tag.
-    attrMimeType
-  } = (mimeTypeData || {});
+/**
+ * @param {String} link
+ * @param {Object} options
+ * @param {String} [options.extension]
+ * @param {String} [options.mimeType] - if we only have one mimeType.
+ * @param {String} [options.httpMimeType] - from http request
+ * @param {String} [options.attrMimeType] - from attribute of HTML tag
+ *
+ * @returns {String|null} extension
+ */
+function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeType}) {
   try {
     let url = new URL(link);
     if (url.protocol === 'data:') {
@@ -146,20 +150,21 @@ function getFileExtension(link, extension, mimeTypeData) {
       const mimeType = url.pathname.split(/[;,]{1}/)[0];
       return T.mimeType2Extension(mimeType);
     } else {
-      // http OR https
       if (extension) { return extension }
+      if (!url.pathname) { return null }
       const urlExt = T.getUrlExtension(url.href)
       if (urlExt) {
         return urlExt;
       } else {
-        if(httpMimeType) { return T.mimeType2Extension(httpMimeType); }
-        if(attrMimeType) { return T.mimeType2Extension(attrMimeType); }
+        if (mimeType)     { return T.mimeType2Extension(mimeType) }
+        if (httpMimeType) { return T.mimeType2Extension(httpMimeType); }
+        if (attrMimeType) { return T.mimeType2Extension(attrMimeType); }
         return null;
       }
     }
   } catch(e) {
-    // invalid link
-    console.warn('mx-wc', e);
+    // invalid url
+    console.warn('invalid web url: ', link, e);
     return null;
   }
 }
@@ -172,4 +177,5 @@ export default {
   getUniqueName,
   getFilename,
   getFilenameAndPath,
+  getWebUrlExtension,
 }

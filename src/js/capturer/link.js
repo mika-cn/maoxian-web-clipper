@@ -11,14 +11,18 @@ import SnapshotNodeChange from '../snapshot/change.js';
  */
 
 /**
+ * @param {Snapshot} node
  * @param {Object} opts
- *   - {String} baseUrl
- *   - {String} docUrl
- *   - {String} clipId
- *   - {Object} storageInfo
- *   - {Object} config
- *   - {Object} requestParams
- *   - {Boolean} needFixStyle
+ * @param {String} opts.baseUrl
+ * @param {String} opts.clipId
+ * @param {Object} opts.storageInfo
+ * @param {Object} opts.config
+ * @param {Object} opts.requestParams
+ * @param {Object} opts.cssParams
+ * @param {Boolean} opts.cssParams.needFixStyle
+ * @param {Boolean} opts.cssParams.removeUnusedRules
+ * @param {Object}  opts.cssParams.usedFont
+ * @param {Object}  opts.cssParams.usedKeyFrames
  *
  */
 async function capture(node, opts) {
@@ -51,11 +55,11 @@ async function capture(node, opts) {
   } else if (linkTypes.length === 1) {
     const [linkType] = linkTypes;
     if (linkType.match(/icon/)) {
-      return await captureIcon({node, href, opts});
+      return await captureIcon({node, href, linkTypes, opts});
     }
   } else {
     if (linkTypes.indexOf('icon') > -1) {
-      return await captureIcon({node, href, opts});
+      return await captureIcon({node, href, linkTypes, opts});
     }
   }
 
@@ -65,15 +69,20 @@ async function capture(node, opts) {
   return {change, tasks};
 }
 
-async function captureIcon({node, href, opts}) {
+async function captureIcon({node, href, linkTypes, opts}) {
   //The favicon of the website.
-  const {baseUrl, docUrl, clipId, storageInfo, requestParams, config} = opts;
+  const {baseUrl, clipId, storageInfo, requestParams, config} = opts;
   const tasks = [];
   const change = new SnapshotNodeChange();
 
-  if (!config.saveIcon) {
+  const removeIcon = (
+       config.htmlCaptureIcon == 'remove'
+    || config.htmlCaptureIcon == 'saveFavicon' && linkTypes.indexOf('icon') == -1
+  );
+
+  if (removeIcon) {
     change.setProperty('ignore', true);
-    change.setProperty('ignoreReason', 'configureItemDisabled');
+    change.setProperty('ignoreReason', 'removeByUserConfigure');
     return {change, tasks};
   }
 
@@ -97,18 +106,16 @@ async function captureIcon({node, href, opts}) {
   return {change, tasks};
 }
 
+
+
+/**
+ * We don't save alternative stylesheets. they have a disabled property
+ * which value is true, disabled stylesheets won't be svaed.
+ */
 async function captureStylesheet({node, linkTypes, href, opts}) {
-  const {baseUrl, docUrl, clipId, storageInfo, requestParams, needFixStyle} = opts;
+  const {baseUrl, clipId, storageInfo, requestParams, cssParams} = opts;
   const tasks = [];
   const change = new SnapshotNodeChange();
-
-  /*
-   * TODO Shall we handle alternative style sheets?
-   * <link href="default.css" rel="stylesheet" title="Default Style">
-   * <link href="fancy.css" rel="alternate stylesheet" title="Fancy">
-   * <link href="basic.css" rel="alternate stylesheet" title="Basic">
-   *
-   */
 
   if (!node.sheet) {
     change.setProperty('ignore', true);
@@ -131,19 +138,27 @@ async function captureStylesheet({node, linkTypes, href, opts}) {
 
   const r = await CapturerStyleSheet.captureStyleSheet(
     node.sheet, Object.assign({ownerType: 'linkNode'}, opts, {
-      baseUrl: url
+      baseUrl: url,
+      docBaseUrl: baseUrl,
     }));
 
-  const {filename, path} = await Asset.getFilenameAndPath({
-    link: url, extension: 'css', clipId, storageInfo});
+  if (T.isBlankStr(r.cssText)) {
+    change.setProperty('ignore', true);
+    change.setProperty('ignoreReason', 'blank');
 
-  const cssText = (needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
+  } else {
 
-  tasks.push(...r.tasks);
-  tasks.push(Task.createStyleTask(filename, cssText, clipId));
+    const {filename, path} = await Asset.getFilenameAndPath({
+      link: url, extension: 'css', clipId, storageInfo});
 
-  change.setAttr('href', path);
-  handleOtherAttrs(change);
+    const cssText = (cssParams.needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
+
+    tasks.push(...r.tasks);
+    tasks.push(Task.createStyleTask(filename, cssText, clipId));
+
+    change.setAttr('href', path);
+    handleOtherAttrs(change);
+  }
   return {change, tasks};
 }
 
