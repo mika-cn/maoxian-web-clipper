@@ -147,36 +147,31 @@ function getRelativePath(tasks, currDir) {
 
 // Resource type is the taskType that
 // without the end ("FileTask").
-function getResourceType(url, mimeType) {
-  let r = mimeType2resourceType(mimeType);
-  if (!r) { r = url2resourceType(url) }
-  return (r || 'Misc');
+const DEFAULT_RESOURCE_TYPE = 'Misc';
+
+function getResourceType(extension, mimeType) {
+  if (mimeType) {return mimeType2resourceType(mimeType)}
+  if (extension) {return extension2resourceType(extension)}
+  return DEFAULT_RESOURCE_TYPE;
 }
 
-function getFileExtension(url, mimeType) {
-  let ext;
-  if (url) { ext = T.getUrlExtension(url) }
-  if (!ext && mimeType) { ext = T.mimeType2Extension(mimeType) }
-  return ext;
-}
 
-function url2resourceType(it) {
-  if (it) {
-    try {
-      const mimeType = T.extension2MimeType(T.getUrlExtension(it));
-      return mimeType2resourceType(mimeType);
-    } catch(e) {}
+// param "it" should not empty
+function extension2resourceType(it) {
+  const mimeType = T.extension2MimeType(it)
+  if (mimeType) {
+    return mimeType2resourceType(mimeType);
+  } else {
+    return DEFAULT_RESOURCE_TYPE;
   }
-  return null;
 }
 
+// param "it" should not empty
 function mimeType2resourceType(it) {
-  if (it) {
-    if (it.startsWith('image/')){ return  'Image'};
-    if (it.startsWith('audio/')){ return  'Audio'};
-    if (it.startsWith('video/')){ return  'Video'};
-  }
-  return null;
+  if (it.startsWith('image/')){ return  'Image'};
+  if (it.startsWith('audio/')){ return  'Audio'};
+  if (it.startsWith('video/')){ return  'Video'};
+  return DEFAULT_RESOURCE_TYPE;
 }
 
 const Task = {
@@ -194,7 +189,6 @@ const Task = {
   createMiscTask,
 
   getResourceType,
-  getFileExtension,
   rmReduplicate,
   sort,
   getRelativePath,

@@ -22,8 +22,9 @@ function getParams() {
     },
     clipId: '001',
     config: {
-      htmlCaptureWebFont: 'remove',
       htmlCaptureCssImage: 'remove',
+      htmlCaptureWebFont: 'remove',
+      htmlWebFontFilter: 'woff,woff2',
     },
     requestParams: RequestParams.createExample({refUrl: url}),
     cssParams: {removeUnusedRules: false},
@@ -124,7 +125,7 @@ describe('Capturer stylesheet', () => {
 
     const params = getParams();
     params.baseUrl = params.docBaseUrl;
-    params.ownerType = 'linkNode';
+    params.ownerType = 'styleNode';
 
     ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
@@ -139,7 +140,7 @@ describe('Capturer stylesheet', () => {
     const params = getParams();
     params.baseUrl = params.docBaseUrl;
     params.config.htmlCaptureWebFont = 'saveAll';
-    params.ownerType = 'linkNode';
+    params.ownerType = 'styleNode';
 
     ExtMsg.mockGetUniqueFilename();
     var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
@@ -181,5 +182,40 @@ describe('Capturer stylesheet', () => {
     H.assertEqual(tasks[0].url, 'https://cdn.a.org/a.woff');
     H.assertEqual(cssText.match(/url\('[^\.\/]+.woff'\)/mg).length, 3);
   });
+
+
+
+  const WEB_FONT_RULE_X = createFontRule('src', 'url(a.woff)')
+  const WEB_FONT_RULE_Y = createFontRule('src', "url('b.woff2')")
+  const WEB_FONT_RULE_Z = createFontRule('src', 'url("c.otf")')
+
+  it("capture text (web font) - option: saveWoff", async () => {
+    const sheet = createSheet([WEB_FONT_RULE_X, WEB_FONT_RULE_Y, WEB_FONT_RULE_Z]);
+    const params = getParams();
+    params.baseUrl = params.docBaseUrl;
+    params.config.htmlCaptureWebFont = 'saveWoff';
+    params.ownerType = 'styleNode';
+    ExtMsg.mockGetUniqueFilename();
+    var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
+    H.assertEqual(tasks.length, 2);
+    H.assertEqual(tasks[0].url, 'https://a.org/a.woff');
+    H.assertEqual(tasks[1].url, 'https://a.org/b.woff2');
+  });
+
+  it("capture text (web font) - option: filter", async () => {
+    const sheet = createSheet([WEB_FONT_RULE_X, WEB_FONT_RULE_Y, WEB_FONT_RULE_Z]);
+    const params = getParams();
+    params.baseUrl = params.docBaseUrl;
+    params.config.htmlCaptureWebFont = 'filter';
+    params.config.htmlWebFontFilter = 'ttf, otf';
+    params.ownerType = 'styleNode';
+    ExtMsg.mockGetUniqueFilename();
+    var {cssText, tasks} = await Capturer.captureStyleSheet(sheet, params);
+    ExtMsg.clearMocks();
+    H.assertEqual(tasks.length, 1);
+    H.assertEqual(tasks[0].url, 'https://a.org/c.otf');
+  });
+
 
 });

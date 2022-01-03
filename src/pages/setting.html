@@ -61,6 +61,8 @@
             <div id="html-capture-icon">
               <input type="radio" value="saveAll" name="html-capture-icon" id="save-all-icon">
               <label for="save-all-icon" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveFavicon" name="html-capture-icon" id="save-favicon-icon">
+              <label for="save-favicon-icon" i18n="option.capture.save-favicon"></label>
               <input type="radio" value="remove" name="html-capture-icon" id="remove-icon">
               <label for="remove-icon" i18n="option.capture.remove"></label>
             </div>
@@ -94,8 +96,26 @@
             <div id="html-capture-web-font">
               <input type="radio" value="saveAll" name="html-capture-web-font" id="save-all-web-font">
               <label for="save-all-web-font" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveWoff" name="html-capture-web-font" id="save-woff-web-font">
+              <label for="save-woff-web-font" i18n="option.capture.save-woff"></label>
+
+              <input type="radio" value="filter" name="html-capture-web-font" id="filter-web-font">
+              <label for="filter-web-font" i18n="option.capture.filter"></label>
               <input type="radio" value="remove" name="html-capture-web-font" id="remove-web-font">
               <label for="remove-web-font" i18n="option.capture.remove"></label>
+            </div>
+            <div class="binded" data-bind-radio="html-capture-web-font" data-bind-value="filter">
+              <br />
+              <div class="notice-info">
+                <p i18n="notice.capture-filter-intro"></p>
+                <details>
+                  <summary i18n="help.how-to-write-it" i18n-attr="title:help.label"></summary>
+                <div class="help-content">
+                  <p i18n="notice.capture-filter-format-web-font"></p>
+                </div>
+                </details>
+              </div>
+              <textarea id="html-web-font-filter" class="capture-filter"></textarea>
             </div>
           </fieldset>
 
@@ -143,6 +163,9 @@
             <div id="html-capture-embed">
               <input type="radio" value="saveAll" name="html-capture-embed" id="save-all-embed">
               <label for="save-all-embed" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveImage" name="html-capture-embed" id="save-image-embed">
+              <label for="save-image-embed" i18n="option.capture.save-image"></label>
+
               <input type="radio" value="filter" name="html-capture-embed" id="filter-embed">
               <label for="filter-embed" i18n="option.capture.filter"></label>
               <input type="radio" value="remove" name="html-capture-embed" id="remove-embed">
@@ -178,6 +201,8 @@
             <div id="html-capture-object">
               <input type="radio" value="saveAll" name="html-capture-object" id="save-all-object">
               <label for="save-all-object" i18n="option.capture.save-all"></label>
+              <input type="radio" value="saveImage" name="html-capture-object" id="save-image-object">
+              <label for="save-image-object" i18n="option.capture.save-image"></label>
               <input type="radio" value="filter" name="html-capture-object" id="filter-object">
               <label for="filter-object" i18n="option.capture.filter"></label>
               <input type="radio" value="remove" name="html-capture-object" id="remove-object">

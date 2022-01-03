@@ -25,13 +25,15 @@ import CssTextParser from './css-text-parser.js';
  *   - @param {RequestParams} requestParams
  *   - @param {CssBox} cssBox
  *   - @param {Window} win
+ *   - @param {Object} platform
+ *   - @param {Boolean} [alternative]  - if the ownerNode is LINK
  *
  * @return {Snapshot} it
  */
 async function handleStyleSheet(sheet, params) {
 
 
-  const {sheetInfoAncestors = [], requestParams, cssBox, win} = params;
+  const {sheetInfoAncestors = [], requestParams, cssBox, win, platform, alternative} = params;
 
   if (sheetInfoAncestors.length > 10) {
     console.error("handleStyleSheet() dead loop: ", sheetInfoAncestors);
@@ -43,6 +45,16 @@ async function handleStyleSheet(sheet, params) {
   }
 
   const snapshot = T.sliceObj(sheet, ['href', 'disabled', 'title']);
+
+  if (platform.isChrome && alternative) {
+    // Chrome can't handle alternative stylesheets. All the alternative
+    // stylesheets won't be applied, but the property "disabled" is false,
+    // which should be true according to the standard.
+    //
+    // For consistence, we fix this case.
+    snapshot.disabled = true;
+  }
+
   try {
     snapshot.mediaText = sheet.media.mediaText;
     snapshot.mediaList = mediaList2Array(sheet.media);
@@ -53,6 +65,12 @@ async function handleStyleSheet(sheet, params) {
     snapshot.mediaList = ['all'];
   }
 
+  if (snapshot.disabled) {
+    // We don't handle disabled stylesheets in this web extension.
+    // If we save these stylesheets, the definitions and references
+    // of tree-scope target(fonts, keyFrames) should be ignored.
+    return snapshot;
+  }
 
   const sheetInfo = {accessDenied: false, url: sheet.href, rules: []}
 
@@ -65,7 +83,7 @@ async function handleStyleSheet(sheet, params) {
     // @see MDN/en-US/docs/Web/API/CSSStyleSheet
     // Calling cssRules may throw SecurityError (when crossOrigin)
     snapshot.rules = await handleCssRules(sheet.cssRules,
-      {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win});
+      {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win, platform});
 
 
     if (snapshot.rules.length == 0
@@ -92,7 +110,7 @@ async function handleStyleSheet(sheet, params) {
           body: requestParams.toParams(sheetInfo.url),
         });
         snapshot.rules = await handleRulesByParsingCssText(text,
-          {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win});
+          {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win, platform});
       } catch(e) {
         console.error("fetch.text(css): ", e);
         snapshot.rules = [];
@@ -150,7 +168,7 @@ async function handleCssRules(rules, params) {
 
 async function handleCssRule(rule, params) {
 
-  const {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win} = params;
+  const {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win, platform} = params;
 
   const ruleType = getCssRuleType(rule);
   const r = {type: ruleType};
@@ -204,7 +222,7 @@ async function handleCssRule(rule, params) {
         r.sheet = await handleStyleSheet(rule.styleSheet, {
           sheetInfoAncestors: newSheetInfoAncestors,
           requestParams, cssBox,
-          win
+          win, platform,
         });
       }
       break;

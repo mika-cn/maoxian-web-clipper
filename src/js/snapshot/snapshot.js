@@ -28,6 +28,7 @@ const FRAME_URL = {
 /**
  * @param {Object} params
  * - {Window} win
+ * - {Object} platform
  * - {RequestParams} requestParams
  * - {Object} frameInfo
  *   {String} extMsgType - the message type that send to nested iframes
@@ -44,7 +45,7 @@ async function takeSnapshot(node, params) {
 
   const defaultAncestorInfo = {codeAncestor: false, preAncestor: false};
   const {
-    win, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
+    win, platform, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
     blacklist = {}, ignoreFn, ignoreHiddenElement = true, cssBox,
   } = params;
 
@@ -106,8 +107,9 @@ async function takeSnapshot(node, params) {
           // Link types are case-insensitive.
           snapshot.relList = DOMTokenList2Array(node.relList, true);
           if (node.sheet) {
+            const alternative = (snapshot.relList.indexOf('alternative') > -1);
             snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {
-              requestParams, cssBox, win});
+              requestParams, cssBox, win, platform, alternative});
           }
           break;
         }
@@ -115,7 +117,7 @@ async function takeSnapshot(node, params) {
         case 'STYLE': {
           snapshot.childNodes = await handleNodes(node.childNodes, params);
           snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {
-            requestParams, cssBox, win});
+            requestParams, cssBox, win, platform});
           break;
         }
 

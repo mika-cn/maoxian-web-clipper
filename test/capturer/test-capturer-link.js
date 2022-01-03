@@ -61,7 +61,18 @@ describe('Capture link', () => {
     H.assertTrue(change.getProperty('ignore'));
   });
 
-  it('capture link rel="icon"', async() => {
+  it('capture link rel="icon", option: remove', async() => {
+    const node = getNode(['icon'], {rel: 'icon', href: 'a.icon'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'remove';
+    ExtMsg.mockGetUniqueFilename();
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
+    ExtMsg.clearMocks();
+  });
+
+  it('capture link rel="icon", option: saveAll', async() => {
     const node = getNode(['icon'], {rel: 'icon', href: 'a.icon'});
     const params = getParams();
     ExtMsg.mockGetUniqueFilename();
@@ -71,7 +82,18 @@ describe('Capture link', () => {
     ExtMsg.clearMocks();
   });
 
-  it('capture link rel="shortcut icon"', async() => {
+  it('capture link rel="icon", option: saveFavicon', async() => {
+    const node = getNode(['icon'], {rel: 'icon', href: 'a.icon'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'saveFavicon';
+    ExtMsg.mockGetUniqueFilename();
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 1);
+    H.assertMatch(change.getAttr('href'), /assets\/[^\.\/]+\.icon/);
+    ExtMsg.clearMocks();
+  });
+
+  it('capture link rel="shortcut icon", option: saveAll', async() => {
     const node = getNode(['shortcut', 'icon'], {rel: 'shortcut icon', href: 'a.icon'});
     const params = getParams();
     ExtMsg.mockGetUniqueFilename();
@@ -80,8 +102,17 @@ describe('Capture link', () => {
     ExtMsg.clearMocks();
   });
 
+  it('capture link rel="shortcut icon", option: saveFavicon', async() => {
+    const node = getNode(['shortcut', 'icon'], {rel: 'shortcut icon', href: 'a.icon'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'saveFavicon';
+    ExtMsg.mockGetUniqueFilename();
+    const {tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 1);
+    ExtMsg.clearMocks();
+  });
 
-  it('capture link rel="apple-touch-icon-precomposed"', async() => {
+  it('capture link rel="apple-touch-icon-precomposed", option: saveAll', async() => {
     const node = getNode(['apple-touch-icon-precomposed'],
       {rel:'apple-touch-icon-precomposed', href: 'a', type: 'image/png'});
     const params = getParams();
@@ -90,6 +121,19 @@ describe('Capture link', () => {
     const {change, tasks} = await Capturer.capture(node, params);
     H.assertEqual(tasks.length, 1);
     H.assertMatch(change.getAttr('href'), /assets\/[^\.\/]+\.png/);
+    ExtMsg.clearMocks();
+  });
+
+  it('capture link rel="apple-touch-icon-precomposed", option: saveFavicon', async() => {
+    const node = getNode(['apple-touch-icon-precomposed'],
+      {rel:'apple-touch-icon-precomposed', href: 'a', type: 'image/png'});
+    const params = getParams();
+    params.config.htmlCaptureIcon = 'saveFavicon';
+    ExtMsg.mockGetUniqueFilename();
+    ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
+    const {change, tasks} = await Capturer.capture(node, params);
+    H.assertEqual(tasks.length, 0);
+    H.assertTrue(change.getProperty('ignore'));
     ExtMsg.clearMocks();
   });
 

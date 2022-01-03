@@ -170,6 +170,9 @@
     "option.capture.save-all": "Save all",
     "option.capture.save-current": "Save current",
     "option.capture.save-used": "Save used",
+    "option.capture.save-image": "Save images",
+    "option.capture.save-favicon": "Save favicons",
+    "option.capture.save-woff": "Save WOFF fonts",
     "option.capture.remove": "Remove",
     "option.capture.filter": "Filter",
 
@@ -230,6 +233,7 @@
 
     "notice.capture-filter-intro": "Use belowing input field to define rules that will filter the referred files, so that you can choose what types of files to save",
     "notice.capture-filter-format": "These rules are filter by the file extension in the URL. Those lines that starts with <code>#</code> are comments. Every line can have multiple file extensions, you can use comma to split them (e.g. <code>pdf,doc,xls</code>).",
+    "notice.capture-filter-format-web-font": "These rules are filter by the file extension in the URL. Those lines that starts with <code>#</code> are comments. Every line can have multiple file extensions, you can use comma to split them (e.g. <code>woff,woff2,ttf,otf</code>).",
     "notice.capture-filter-variable.intro": "<strong>Note：</strong> MaoXian have some built-in variables that can be used to match a tipical types of file extensions (e.g. <code>&lt;images&gt;,pdf</code> can match all images and pdf files). All variables are :",
     "notice.capture-filter-variable.images": "&lt;images&gt; : can match all image file extensions",
     "notice.capture-filter-variable.audios": "&lt;audios&gt; : can match all audio file extensions",
@@ -304,7 +308,7 @@
     "notice.image.intro": "Images only includes those that represent as content, such as article figures, profile avatars but not includes background images",
     "notice.css-rules.intro": "Style rules define how every elements on web page looks like",
     "notice.css-image.intro": "Style images are those that decrote the web page styles (generally content unrealative), suce as background images, border images, cursor images etc.",
-    "notice.web-font.intro": "Web fonts are font files that embed by web page in order to change how the text will looks like, and sometimes are also used to define icons",
+    "notice.web-font.intro": "Web fonts are font files that embed by web page in order to change how the text will looks like, and sometimes are also used to define icons. <br>Note that WOFF means Web Open File Format which are supported by most modern browsers.",
 
     "notice.audio.intro": "Audios are sound files that embed by web page using HTML5 technology, not includes those that embed through other methods",
     "notice.video.intro": "Videos are video files that embed by web page using HTML5 technology, not includes those that embed through other methods (like: Adobe Flash Player). Because video files are typically large, save these files will likely make the saving process much longer",

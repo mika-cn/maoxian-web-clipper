@@ -17,13 +17,16 @@ import CaptureTool from './tool.js';
 async function capture(node, params) {
   const {config} = params;
   switch(config.htmlCaptureObject) {
+    case 'saveImage':
+      return await captureFilter(node, {params, filterText: '<images>'});
     case 'remove':
       return CaptureTool.captureRemoveNode();
     case 'saveAll':
       return await captureSaveAll(node, params);
     case 'filter':
     default:
-      return await captureFilter(node, params);
+      return await captureFilter(node, {params,
+      filterText: params.config.htmlObjectFilter});
   }
 }
 
@@ -35,8 +38,8 @@ async function captureSaveAll(node, params) {
 }
 
 
-async function captureFilter(node, params) {
-  if (CaptureTool.isFilterMatch(params.config.htmlObjectFilter, node.attr.data, node.attr.type)) {
+async function captureFilter(node, {params, filterText}) {
+  if (CaptureTool.isFilterMatch(filterText, node.attr.data, node.attr.type)) {
     return await captureSaveAll(node, params);
   } else {
     return CaptureTool.captureRemoveNode();
