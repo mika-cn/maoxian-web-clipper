@@ -2,6 +2,7 @@
 
 import Log               from '../lib/log.js';
 import T                 from '../lib/tool.js';
+import DOMTool           from '../lib/dom-tool.js';
 import ExtApi            from '../lib/ext-api.js';
 import FrameMsg          from '../lib/frame-msg.js';
 import MxWcEvent         from '../lib/event.js';
@@ -820,21 +821,13 @@ function setFormInputs(formInputs) {
 function getFormInputs(elem, formInputs = {}) {
   const inputs = {
     format   : (formInputs.format   || state.formInputs.format   || ""),
-    title    : (formInputs.title    || state.formInputs.title    || getTitle(elem) || getTitle(document.body) || document.title),
+    title    : (formInputs.title    || state.formInputs.title    || DOMTool.getWebPageTitle(window, elem)),
     category : (formInputs.category || state.formInputs.category || ""),
     tagstr   : (formInputs.tagstr   || state.formInputs.tagstr   || "")
   };
 
   setFormInputs({}); // reset it.
   return inputs;
-}
-
-function getTitle(contextElem) {
-  if (contextElem.tagName.toUpperCase() == 'H1') {
-    return contextElem.textContent.trim();
-  }
-  const elems = contextElem.querySelectorAll('h1');
-  return (elems.length > 0 ? elems[0].textContent.trim() : '');
 }
 
 state.callbacks = {};
