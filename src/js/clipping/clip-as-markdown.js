@@ -75,7 +75,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     }
   };
 
-  const elemHasTitle = DOMTool.querySelectorIncludeSelf(elem, 'h1').length > 0;
+  const elemHasTitle = DOMTool.getElemTitle(win, elem).length > 0;
   const tObj = T.wrapDate(new Date(info.created_at));
   const view = Object.assign({trimFn}, {
     url: info.link,
