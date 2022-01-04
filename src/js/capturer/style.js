@@ -46,10 +46,12 @@ async function capture(node, params) {
         node.childNodes.push({
           type: NODE_TYPE.TEXT,
           name: '#text',
-          text: cssText
+          text: cssText,
+          needEscape: false,
         });
       } else {
         node.childNodes[0].text = cssText;
+        node.childNodes[0].needEscape = false;
       }
     }
     return {change, tasks: r.tasks};

@@ -123,6 +123,38 @@ function calcXpath(contextNode, targetNode) {
   return xpath;
 }
 
+
+function getWebPageTitle(win, contextElem) {
+  if (contextElem) {
+    let currElem = contextElem;
+    while (currElem && currElem.tagName.toUpperCase() != 'HTML') {
+      const header = getElemTitle(win, currElem);
+      if (header) { return header }
+      if (currElem.parentElement) {
+        currElem = currElem.parentElement;
+      } else {
+        // If the contextElem is inside some tree scope like shadowDOM
+        // We are not handling these cases yet
+        break;
+      }
+    }
+    return win.document.title;
+  } else {
+    return getElemTitle(win, win.document.body) || win.document.title;
+  }
+}
+
+
+function getElemTitle(win, contextElem) {
+  const elems = querySelectorIncludeSelf(contextElem, 'h1');
+  const header = (elems.length > 0 ? elems[0].textContent.trim() : '');
+  if (header && win.document.title.startsWith(header)) {
+    return header;
+  } else {
+    return '';
+  }
+}
+
 const DOMTool = {
   parseHTML,
   markHiddenNode,
@@ -135,6 +167,9 @@ const DOMTool = {
   calcXpath,
   findNodeByXpath,
   querySelectorIncludeSelf,
+
+  getWebPageTitle,
+  getElemTitle,
 }
 
 export default DOMTool;
