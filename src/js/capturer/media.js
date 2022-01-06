@@ -64,7 +64,14 @@ async function capture(node, params, [attrParamsMedia, attrParamsSource, attrPar
 async function captureMediaNode(node, params, attrParamsMedia) {
   const tasks = [];
   let change = new SnapshotNodeChange();
+  // We don't save js, so we need to
+  // add controls attribute.
+  change.setAttr('controls', "");
+  change.rmAttr('autoplay');
+  change.rmAttr('loop');
+  change.rmAttr('muted');
   change.rmAttr('crossorigin');
+
   const r = await CaptureTool.captureAttrResource(node, params, attrParamsMedia);
   tasks.push(...r.tasks);
   change = change.merge(r.change);
