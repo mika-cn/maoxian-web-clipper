@@ -36,6 +36,11 @@ describe('Capture Audio', () => {
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 1);
+    H.assertEqual(r.change.getAttr('controls'), "");
+    H.assertTrue(r.change.deletedAttr('autoplay'));
+    H.assertTrue(r.change.deletedAttr('loop'));
+    H.assertTrue(r.change.deletedAttr('muted'));
+    H.assertTrue(r.change.deletedAttr('crossorigin'));
     H.assertNotEqual(r.change.getAttr('src'), 'test.mp3');
     ExtMsg.clearMocks();
   });
