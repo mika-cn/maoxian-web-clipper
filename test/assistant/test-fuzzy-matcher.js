@@ -32,6 +32,9 @@ describe("Assistant fuzzyMatcher", () => {
   match('http://a.org?A=1&B=0', 'http://a.org?B=*&A=1');
   notMatch('http://a.org?A=1&B=0', 'http://a.org?!A=1');
 
+  match('http://a.org?A=01', 'http://a.org?A=$d');
+  notMatch('http://a.org?A=a1', 'http://a.org?A=$d');
+
   // frame
   match('http://a.org#f', 'http://a.org');
   notMatch('http://a.org', 'http://a.org#f');
@@ -59,6 +62,9 @@ describe("Assistant fuzzyMatcher", () => {
       H.assertFalse(Lib.matchUrl(url, pattern))
     })
   }
+  matchPath("/0123", "/$d");
+  notMatchPath("/abc", "/$d");
+  notMatchPath("/a123", "/$d");
 
   matchPath("/", "/")
   notMatchPath("/", "*")
