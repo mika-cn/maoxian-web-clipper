@@ -156,7 +156,8 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
  *
  * Structure of $action {Object}
  *
- * action.type {String} (required) avariable values are:
+ * action.type {String} (required) available values are:
+ *   0. "assign.from.value"
  *   1. "assign.from.self-attr"
  *   2. "assign.from.parent-attr"
  *   3. "assign.from.ancestor-attr"
@@ -191,14 +192,14 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
  *     the first one is used to select the ancestor,
  *     the second one is used to select the ancestor's children.
  *
- * action.tAtt {String} (required if type is in [1, 2, 3, 4])
+ * action.tAttr {String} (required if type is in [1, 2, 3, 4])
  *   The target attribute that will be used as value to assignment.
  *
  * action.sep {String} (required if type is 7 or 8.)
  *   The separator that will be used to split the attribute (action.attr).
  *
- * action.value {String} (required if type is 7 or 8.)
- *   The value that will be added or removed from the list.
+ * action.value {String} (required if type is in [0, 7, 8])
+ *   The value that will be assigned, added or removed from the list.
  *
  */
 
@@ -253,6 +254,9 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
 
     getValue: function(elem, action, contextElem) {
       switch(action.type) {
+        case 'assign.from.value':
+          return action.value;
+          break;
         case 'self.attr': // deprecated
         case 'assign.from.self-attr':
           return elem.getAttribute(action.tAttr);
