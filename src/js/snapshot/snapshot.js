@@ -90,7 +90,8 @@ async function takeSnapshot(node, params) {
       }
 
 
-      snapshot.attr = handleAttrs(node);
+      const {attrObj, lockedStyle} = handleAttrs(node);
+      snapshot.attr = attrObj;
 
       if (node.shadowRoot) {
         snapshot.isShadowHost = true;
@@ -306,12 +307,8 @@ async function takeSnapshot(node, params) {
       }
 
       // handle style attribute
-      if (node.style && node.style.length > 0) {
-        snapshot.styleObj = CssTextParser.parse(node.style.cssText);
-        if (cssBox && cssBox.removeUnusedRules) {
-          cssBox.scope.recordReferences(node.style);
-        }
-      }
+      handleInlineStyle(node, {snapshot, cssBox, lockedStyle});
+
       break;
     }
 
@@ -409,7 +406,8 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
     const snapshot = {name: node.nodeName, type: node.nodeType};
     switch(node.nodeType) {
       case NODE_TYPE.ELEMENT:
-        snapshot.attr = handleAttrs(node);
+        const {attrObj, lockedStyle} = handleAttrs(node);
+        snapshot.attr = attrObj;
         snapshot.childNodes = snapshots;
         if (node.shadowRoot) {
           snapshot.isShadowHost = true;
@@ -422,12 +420,8 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
         }
 
         // handle style attribute
-        if (node.style && node.style.length > 0) {
-          snapshot.styleObj = CssTextParser.parse(node.style.cssText);
-          if (cssBox && cssBox.removeUnusedRules) {
-            cssBox.scope.recordReferences(node.style);
-          }
-        }
+        handleInlineStyle(node, {snapshot, cssBox, lockedStyle});
+
         break;
       case NODE_TYPE.DOCUMENT:
         snapshot.childNodes = snapshots;
@@ -457,7 +451,25 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
 
 
 
+const LOCKED_STYLE_ATTR_PREFIX = "data-mx-locked-style-";
+const LOCKED_STYLE_START_IDX = LOCKED_STYLE_ATTR_PREFIX.length;
 function handleAttrs(elem) {
+  const attrObj = {};
+  const lockedStyle = {length: 0, obj: {}};
+
+  Array.prototype.forEach.call(elem.attributes, (attr) => {
+    if (attr.name.startsWith(LOCKED_STYLE_ATTR_PREFIX)) {
+      const propertyName = attr.name.substring(LOCKED_STYLE_START_IDX);
+      lockedStyle.length += 1;
+      lockedStyle.obj[propertyName] = attr.value;
+    } else {
+      attrObj[attr.name] = attr.value;
+    }
+  });
+
+  return {attrObj, lockedStyle};
+
+  /*
   if (elem.hasAttributes()) {
     return Array.prototype.reduce.call(elem.attributes, (obj, attr) => {
       obj[attr.name] = attr.value;
@@ -466,6 +478,28 @@ function handleAttrs(elem) {
   } else {
     return {};
   }
+  */
+}
+
+
+/**
+ * Warning:
+ *   This function will modify snapshot and cssBox
+ */
+function handleInlineStyle(node, {snapshot, cssBox, lockedStyle}) {
+  let styleObj;
+  if (node.style && node.style.length > 0) {
+    styleObj = CssTextParser.parse(node.style.cssText);
+    if (cssBox && cssBox.removeUnusedRules) {
+      cssBox.scope.recordReferences(node.style);
+    }
+  }
+
+  if (lockedStyle.length > 0) {
+    styleObj = Object.assign((styleObj || {}), lockedStyle.obj);
+  }
+
+  if (styleObj) { snapshot.styleObj = styleObj }
 }
 
 
