@@ -8,16 +8,11 @@ import Plan      from './plan.js';
 const config = {
   hideElem: true,
   showElem: true,
+  hideSibling: true,
   changeAttr: true,
 
   // 'select' 'confirm' or 'clip'
   pickAction: 'select',
-
-  // These actions will apply to whole document
-  hideAllFormElement: true,
-
-  // If our guess failed, try to detect main content.
-  detectMainContent: false,
 }
 
 function getPlan() {
@@ -36,6 +31,7 @@ function toMxPlan(plan) {
   if(config.hideElem && plan.hide) { p.hideElem = plan.hide }
   if(config.hideElem && plan.hideOnce) { p.hideElemOnce = plan.hideOnce }
   if(config.showElem && plan.show) { p.showElem = plan.show }
+  if(config.hideSibling && plan.hideSibling) { p.hideSibling = plan.hideSibling }
   if(config.changeAttr && plan.chAttr) { p.chAttr = plan.chAttr }
   return p;
 }
