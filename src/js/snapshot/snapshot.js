@@ -26,6 +26,7 @@ const FRAME_URL = {
 
 
 /**
+ * @param {Node} node
  * @param {Object} params
  * - {Window} win
  * - {Object} platform
@@ -42,8 +43,10 @@ const FRAME_URL = {
  * @return {Snapshot|undefined} node
  */
 async function takeSnapshot(node, params) {
-
-  const defaultAncestorInfo = {codeAncestor: false, preAncestor: false};
+  const defaultAncestorInfo = {
+    mathAncestor: false, svgAncestor: false,
+    codeAncestor: false, preAncestor: false,
+  };
   const {
     win, platform, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
     blacklist = {}, ignoreFn, ignoreHiddenElement = true, cssBox,
@@ -70,10 +73,20 @@ async function takeSnapshot(node, params) {
         }
       }
 
-      if (ignoreHiddenElement && !isElemVisible(win, node, VISIBLE_WHITE_LIST)) {
-        snapshot.ignore = true;
-        snapshot.ignoreReason = 'isHidden';
-        return snapshot;
+      if (ignoreHiddenElement) {
+        let hidden;
+        if (ancestorInfo.mathAncestor || ancestorInfo.svgAncestor) {
+          // The current node is descendent of <math> or <svg>
+          // Don't ignore it. (There might be side effects)
+          hidden = false;
+        } else {
+          hidden = !isElemVisible(win, node, VISIBLE_WHITE_LIST);
+        }
+        if (hidden) {
+          snapshot.ignore = true;
+          snapshot.ignoreReason = 'isHidden';
+          return snapshot;
+        }
       }
 
 
@@ -138,7 +151,9 @@ async function takeSnapshot(node, params) {
         }
 
         case 'CODE':
-        case 'PRE': {
+        case 'PRE':
+        case 'MATH':
+        case 'SVG': {
           const key = `${node.nodeName.toLowerCase()}Ancestor`;
           const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
           const newParams = Object.assign({}, params, {ancestorInfo: newAncestorInfo});
