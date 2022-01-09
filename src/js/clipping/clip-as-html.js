@@ -32,8 +32,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
 
   const calculatedStyle = StyleHelper.calcStyle(elem, win);
 
-  if (config.customBodyBgCssEnabled && config.customBodyBgCssValue){
-    calculatedStyle.bodyStyleObj['background-color'] = `${config.customBodyBgCssValue} !important`;
+  if (config.htmlCustomBodyBgCssEnabled && config.htmlCustomBodyBgCssValue){
+    calculatedStyle.bodyStyleObj['background-color'] = `${config.htmlCustomBodyBgCssValue} !important`;
   }
 
   const v = Object.assign({info, config}, calculatedStyle, i18nLabel)

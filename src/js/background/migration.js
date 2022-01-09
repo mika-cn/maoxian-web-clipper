@@ -40,6 +40,15 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+
+
+ConfigMigration['2.6'] = function(config) {
+  config.version = '2.7';
+  config.htmlCustomBodyBgCssEnabled = config.customBodyBgCssEnabled;
+  config.htmlCustomBodyBgCssValue = config.customBodyBgCssValue;
+  return config;
+}
+
 ConfigMigration['2.5'] = function(config) {
   config.version = '2.6';
   delete config.htmlWebFontFilter;

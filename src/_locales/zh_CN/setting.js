@@ -276,7 +276,7 @@
     "label.request-cache-image-input": "缓存图片",
     "label.request-cache-web-font-input": "缓存字体",
     "label.clip-information-input": "追加裁剪信息 （原网址、时间、目录和标签）到内容尾部",
-    "label.custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
+    "label.html-custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",
     "label.mouse-mode-enabled-input": "鼠标友好模式",
     "label.input-field-save-format-enabled": "启用表单上的格式选择",

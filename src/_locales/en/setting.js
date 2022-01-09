@@ -279,7 +279,7 @@
     "label.request-cache-image-input": "Cache images",
     "label.request-cache-web-font-input": "Cache web fonts",
     "label.clip-information-input": "Append clipping information (original url, time, category and tags) to clippted content",
-    "label.custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
+    "label.html-custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
     "label.input-field-save-format-enabled": "Enable selecting save format in form",

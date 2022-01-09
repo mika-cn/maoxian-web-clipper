@@ -72,12 +72,12 @@ function initSettingHtml(config) {
     'htmlSaveClippingInformation'
   );
   initCheckboxInput(config,
-    'custom-body-bg-css-enabled',
-    'customBodyBgCssEnabled'
+    'html-custom-body-bg-css-enabled',
+    'htmlCustomBodyBgCssEnabled'
   );
   initColorInput(config,
-    'custom-body-bg-css-value',
-    'customBodyBgCssValue'
+    'html-custom-body-bg-css-value',
+    'htmlCustomBodyBgCssValue'
   );
 
   initCheckboxInput(config,
