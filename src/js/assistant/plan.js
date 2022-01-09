@@ -30,9 +30,15 @@ function getActions(type) {
 
 
 function bindListener() {
+  MxWcEvent.listenInternal('actived', performWhenActived);
   MxWcEvent.listenInternal('selecting', performWhenSelecting);
   MxWcEvent.listenInternal('completed', performWhenCompleted);
   MxWcEvent.listenInternal('idle', performWhenIdle);
+}
+
+function performWhenActived(e) {
+  const detail = {};
+  perform('actived', detail);
 }
 
 function performWhenSelecting(e) {
@@ -501,11 +507,24 @@ Action.setForm = function(inputs) {
     inputs: inputs,
     perform: function(detail={}) {
       MxWcEvent.dispatchInternal('set-form-inputs', {
-        options: inputs
+        formInputs: inputs
       });
     }
   }
 };
+
+Action.setConfig = function(config) {
+  return {
+    name: 'setConfig',
+    isPerformOnce: true,
+    config: config,
+    perform: function(detail={}) {
+      MxWcEvent.dispatchInternal('overwrite-config', {
+        config: config
+      });
+    }
+  }
+}
 
 Action.completed = function(fn) {
   return {
@@ -715,10 +734,6 @@ const Selector = {
   }
 }
 
-function setFormInputs(inputs) {
-  listen('selecting', Action.setForm(inputs));
-}
-
 function onClipCompleted(callback) {
   listen('completed', Action.completed(callback));
 }
@@ -771,7 +786,9 @@ function applyGlobal(plan) {
 }
 
 function handleNormalAttr(plan, contextSelectorInput) {
-  const {hideElem, hideElemOnce, hideSibling, showElem, chAttr} = plan;
+  const {hideElem, hideElemOnce, hideSibling, showElem, chAttr,
+    setForm, setConfig} = plan;
+
   if (hasSelector(hideElem)) {
     const selectorInput = hideElem;
     listen('selecting', Action.hideElem(selectorInput, contextSelectorInput));
@@ -800,6 +817,15 @@ function handleNormalAttr(plan, contextSelectorInput) {
     listen('selecting', Action.chAttr(chAttr, contextSelectorInput));
     listen('idle', Action.undoChAttr(chAttr, contextSelectorInput));
   }
+
+  if (setForm) {
+    listen('actived', Action.setForm(setForm));
+  }
+
+  if (setConfig) {
+    listen('actived', Action.setConfig(setConfig));
+  }
+
 }
 
 const hasSelector = function(it) { return it && it.length > 0; }
@@ -810,7 +836,6 @@ bindListener();
 const PublicApi = {
   apply: apply,
   applyGlobal: applyGlobal,
-  setFormInputs: setFormInputs
 }
 
 export default PublicApi;

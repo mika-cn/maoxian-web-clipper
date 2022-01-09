@@ -90,6 +90,8 @@ function stopMutationObserver() {
 }
 
 function listenInternalMessage() {
+  MxWcEvent.listenInternal('set-form-inputs'   , wrapToEventHandler(setFormInputs));
+  MxWcEvent.listenInternal('overwrite-config'  , wrapToEventHandler(overwriteConfig));
   MxWcEvent.listenInternal('focus-elem'   , wrapToEventHandler(selectElem));
   MxWcEvent.listenInternal('select-elem'  , wrapToEventHandler(selectElem));
   MxWcEvent.listenInternal('confirm-elem' , wrapToEventHandler(confirmElem));
@@ -397,6 +399,7 @@ function pageContentChanged(){
 function activeUI(e) {
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
+    MxWcEvent.dispatchInternal('actived');
     // we're going to active UI
     if (state.config && state.config.communicateWithThirdParty) {
       MxWcEvent.dispatchPublic('actived');
