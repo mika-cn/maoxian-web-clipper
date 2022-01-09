@@ -187,6 +187,8 @@ function getDefault(){
 export const CONFIG_KEYS = Object.keys(getDefault())
 
 export const API_SETTABLE_KEYS = [
+
+  // storage keys
   'rootFolder',
 
   'defaultCategory',
@@ -204,7 +206,38 @@ export const API_SETTABLE_KEYS = [
   'titleFileName',
 
   'frameFileFolder',
+  'frameFileName',
+
   'assetFolder',
+  'assetFileName',
+
+  // html content relative keys
+  "htmlSaveClippingInformation",
+  "htmlCustomBodyBgCssEnabled",
+  "htmlCustomBodyBgCssValue",
+  "htmlCompressCss",
+
+  "htmlCaptureImage",
+  "htmlCaptureAudio",
+  "htmlCaptureVideo",
+  "htmlCaptureApplet",
+  "htmlCaptureEmbed",
+  "htmlCaptureObject",
+  "htmlCaptureIcon",
+
+  "htmlCaptureCssRules",
+  "htmlCaptureWebFont",
+  "htmlCaptureCssImage",
+
+  "htmlEmbedFilter",
+  "htmlObjectFilter",
+  "htmlWebFontFilterList",
+
+
+  // request keys
+  'requestTimeout',
+  'requestMaxTries',
+  'requestReferrerPolicy',
 ];
 
 
