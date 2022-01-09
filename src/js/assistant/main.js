@@ -10,6 +10,8 @@ const config = {
   showElem: true,
   hideSibling: true,
   changeAttr: true,
+  setForm: true,
+  setConfig: true,
 
   // 'select' 'confirm' or 'clip'
   pickAction: 'select',
@@ -33,6 +35,8 @@ function toMxPlan(plan) {
   if(config.showElem && plan.show) { p.showElem = plan.show }
   if(config.hideSibling && plan.hideSibling) { p.hideSibling = plan.hideSibling }
   if(config.changeAttr && plan.chAttr) { p.chAttr = plan.chAttr }
+  if(config.setForm && plan.form) { p.setForm = plan.form }
+  if(config.setConfig && plan.config) { p.setConfig = plan.config }
   return p;
 }
 
