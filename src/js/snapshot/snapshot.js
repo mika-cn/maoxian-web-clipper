@@ -12,8 +12,10 @@
 // should capture shadowDom and iframe
 
 import T                  from '../lib/tool.js';
+import SortedArray        from '../lib/sorted-array.js';
 import ExtMsg             from '../lib/ext-msg.js';
 import {NODE_TYPE}        from '../lib/constants.js';
+import MxAttribute        from './mx-attribute.js';
 import StyleSheetSnapshot from './stylesheet.js';
 import StyleScope         from './style-scope.js';
 import CssTextParser      from './css-text-parser.js';
@@ -90,7 +92,9 @@ async function takeSnapshot(node, params) {
       }
 
 
-      snapshot.attr = handleAttrs(node);
+      const {attrObj, mxAttrObj} = handleAttrs(node);
+      snapshot.attr = attrObj;
+      if (mxAttrObj) { snapshot.mxAttr = mxAttrObj }
 
       if (node.shadowRoot) {
         snapshot.isShadowHost = true;
@@ -107,10 +111,12 @@ async function takeSnapshot(node, params) {
           // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLSlotElement
           if (node.assignedNodes().length > 0) {
             snapshot.assigned = true;
-            snapshot.childNodes = await handleNodes(node.assignedNodes(), params);
+            snapshot.childNodes = await handleNodes(
+              node.assignedNodes(), params, mxAttrObj);
           } else {
             snapshot.assigned = false;
-            snapshot.childNodes = await handleNodes(node.childNodes, params);
+            snapshot.childNodes = await handleNodes(
+              node.childNodes, params, mxAttrObj);
           }
           break;
         }
@@ -157,13 +163,15 @@ async function takeSnapshot(node, params) {
           const key = `${node.nodeName.toLowerCase()}Ancestor`;
           const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
           const newParams = Object.assign({}, params, {ancestorInfo: newAncestorInfo});
-          snapshot.childNodes = await handleNodes(node.childNodes, newParams);
+          snapshot.childNodes = await handleNodes(
+            node.childNodes, newParams, mxAttrObj);
           break;
         }
 
         case 'AUDIO':
         case 'VIDEO': {
-          snapshot.childNodes = await handleNodes(node.childNodes, params);
+          snapshot.childNodes = await handleNodes(
+            node.childNodes, params, mxAttrObj);
           snapshot.currentSrc = node.currentSrc;
           break;
         }
@@ -302,16 +310,13 @@ async function takeSnapshot(node, params) {
         }
 
         default:
-          snapshot.childNodes = await handleNodes(node.childNodes, params);
+          snapshot.childNodes = await handleNodes(
+            node.childNodes, params, mxAttrObj);
       }
 
       // handle style attribute
-      if (node.style && node.style.length > 0) {
-        snapshot.styleObj = CssTextParser.parse(node.style.cssText);
-        if (cssBox && cssBox.removeUnusedRules) {
-          cssBox.scope.recordReferences(node.style);
-        }
-      }
+      handleInlineStyle(node, {snapshot, cssBox});
+
       break;
     }
 
@@ -409,7 +414,10 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
     const snapshot = {name: node.nodeName, type: node.nodeType};
     switch(node.nodeType) {
       case NODE_TYPE.ELEMENT:
-        snapshot.attr = handleAttrs(node);
+
+        const {attrObj, mxAttrObj} = handleAttrs(node);
+        snapshot.attr = attrObj;
+        if (mxAttrObj) { snapshot.mxAttr = mxAttrObj }
         snapshot.childNodes = snapshots;
         if (node.shadowRoot) {
           snapshot.isShadowHost = true;
@@ -422,12 +430,8 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
         }
 
         // handle style attribute
-        if (node.style && node.style.length > 0) {
-          snapshot.styleObj = CssTextParser.parse(node.style.cssText);
-          if (cssBox && cssBox.removeUnusedRules) {
-            cssBox.scope.recordReferences(node.style);
-          }
-        }
+        handleInlineStyle(node, {snapshot, cssBox});
+
         break;
       case NODE_TYPE.DOCUMENT:
         snapshot.childNodes = snapshots;
@@ -456,25 +460,87 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
 }
 
 
-
 function handleAttrs(elem) {
-  if (elem.hasAttributes()) {
-    return Array.prototype.reduce.call(elem.attributes, (obj, attr) => {
-      obj[attr.name] = attr.value;
-      return obj;
-    }, {});
-  } else {
-    return {};
+  const attrObj = {};
+  const mxAttr = new MxAttribute();
+
+  Array.prototype.forEach.call(elem.attributes, (attr) => {
+    if (MxAttribute.is(attr)) {
+      mxAttr.add(attr);
+    } else {
+      attrObj[attr.name] = attr.value;
+    }
+  });
+
+  const result = {attrObj};
+  if (mxAttr.exist) {
+    result.mxAttrObj = mxAttr.toObject();
   }
+
+  return result;
 }
 
 
-async function handleNodes(nodes, params) {
-  const r = [];
-  for (let i = 0; i < nodes.length; i++) {
-    r.push(await takeSnapshot(nodes[i], params));
+
+
+/**
+ * Warning:
+ *   This function will modify snapshot and cssBox
+ */
+function handleInlineStyle(node, {snapshot, cssBox}) {
+
+  let styleObj;
+  if (node.style && node.style.length > 0) {
+    styleObj = CssTextParser.parse(node.style.cssText);
+    if (cssBox && cssBox.removeUnusedRules) {
+      cssBox.scope.recordReferences(node.style);
+    }
   }
-  return r;
+
+  const {lockedStyle} = (snapshot.mxAttr || {})
+  if (lockedStyle) {
+    styleObj = Object.assign((styleObj || {}), lockedStyle);
+  }
+
+  if (styleObj) { snapshot.styleObj = styleObj }
+}
+
+
+async function handleNodes(nodes, params, mxAttrObj = {}) {
+  const {orderByIndex = false} = mxAttrObj;
+
+  if (orderByIndex) {
+    const r = [];
+    const elemIndexes = [];
+    const arr = new SortedArray();
+
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      const snapshot = await takeSnapshot(node, params);
+      if (node.nodeType == NODE_TYPE.ELEMENT) {
+        elemIndexes.push(i);
+        const index = (snapshot.mxAttr || {}).index;
+        arr.push(snapshot, index);
+        r.push(null);
+      } else {
+        r.push(snapshot);
+      }
+    }
+
+    for (const snapshot of arr) {
+      const idx = elemIndexes.shift();
+      r[idx] = snapshot;
+    }
+
+    return r;
+
+  } else {
+    const r = [];
+    for (const node of nodes) {
+      r.push(await takeSnapshot(node, params));
+    }
+    return r;
+  }
 }
 
 
