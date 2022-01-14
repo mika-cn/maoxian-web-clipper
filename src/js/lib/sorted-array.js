@@ -18,8 +18,13 @@ class SortedArray {
       if (isNaN(v)) {
         this._noIndexed.push(value);
       } else {
-        this._dict[index] = value;
-        this._dictLength++;
+        if (this._dict[index]) {
+          // shouldn't have value (index conflict)
+          this._noIndexed.push(value);
+        } else {
+          this._dict[index] = value;
+          this._dictLength++;
+        }
       }
     }
   }
