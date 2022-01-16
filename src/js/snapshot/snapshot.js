@@ -26,7 +26,7 @@ const FRAME_URL = {
   SRCDOC : 'about:srcdoc',
 };
 
-// @see handleCurrNode()
+// @params - @see handleCurrNode()
 // @returns {Snapshot}
 async function take(node, params) {
   const virtualSnapshot = {childNodes: []};
@@ -685,42 +685,78 @@ function each(node, fn, ancestors = [], ancestorDocs = []) {
   }
 }
 
+
+
+
 /**
- * @param {Snapshot} node
- * @param {Function} fn - element handler
- * @param {[Snapshot]} ancestors - node's ancestor nodes.
- * @param {[Snapshot]} ancestorDocs - node's ancestor Document nodes.
- * @param {[Snapshot]} ancestorRoots - node's ancestor Document or ShadowRoot nodes
+ * @params @see applyFnToElem()
  */
 async function eachElement(node, fn, ancestors = [], ancestorDocs = [], ancestorRoots = []) {
+  let stack = [{node, ancestors, ancestorDocs, ancestorRoots}];
+
+  while (stack.length > 0) {
+    const [currItem, ...restItems] = stack;
+    const {node, ancestors, ancestorDocs, ancestorRoots} = currItem;
+    const {children, ancestorParams} = await applyFnToElem(node, fn,
+      {ancestors, ancestorDocs, ancestorRoots});
+    if (children.length > 0) {
+      const childItems = [];
+      for (const child of children) {
+        childItems.push(Object.assign({node: child}, ancestorParams));
+      }
+      stack = childItems.concat(restItems);
+    } else {
+      stack = restItems;
+    }
+  }
+}
+
+
+/**
+ * @param {Snapshot} node
+ * @param {Function} fn - element handler (return true if iterateChildren)
+ * @param {Object}   ancestorParams
+ * @param {[Snapshot]} ancestorParams.ancestors
+ * @param {[Snapshot]} ancestorParams.ancestorDocs - Document nodes.
+ * @param {[Snapshot]} ancestorParams.ancestorRoots - Document or ShadowRoot nodes
+ *
+ * @returns {Object} it {:children, :ancestorParams}
+ */
+async function applyFnToElem(node, fn, ancestorParams) {
+
+  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = ancestorParams;
 
   switch(node.type) {
 
     case NODE_TYPE.ELEMENT: {
-      if (node.ignore) {
-        // donothing
-      } else {
-        const iterateChildren = await fn(node, ancestors, ancestorDocs, ancestorRoots);
-        if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
-          const newAncestors = [node, ...ancestors];
-          for (const childNode of node.childNodes) {
-            await eachElement(childNode, fn, newAncestors, ancestorDocs, ancestorRoots);
-          }
-        }
+      if (node.ignore) { break }
+
+      const iterateChildren = await fn(node, ancestors, ancestorDocs, ancestorRoots);
+      if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
+        const newAncestors = [node, ...ancestors];
+        return {
+          children: node.childNodes,
+          ancestorParams: Object.assign({}, ancestorParams, {ancestors: newAncestors}),
+        };
       }
       break;
     }
 
     case NODE_TYPE.DOCUMENT: {
       if (node.childNodes) {
-        const newAncestor = [node, ...ancestors];
+        const newAncestors = [node, ...ancestors];
         const newAncestorDocs = [node, ...ancestorDocs];
         const newAncestorRoots = [node, ...ancestorRoots];
-        for (const childNode of node.childNodes) {
-          await eachElement(childNode, fn, newAncestor, newAncestorDocs, newAncestorRoots);
-        }
+        return {
+          children: node.childNodes,
+          ancestorParams: {
+            ancestors: newAncestors,
+            ancestorDocs: newAncestorDocs,
+            ancestorRoots: newAncestorRoots,
+          }
+        };
       }
-      break
+      break;
     }
 
     case NODE_TYPE.DOCUMENT_FRAGMENT: {
@@ -730,15 +766,22 @@ async function eachElement(node, fn, ancestors = [], ancestorDocs = [], ancestor
         // is shadowRoot?
         if (node.host) { newAncestorRoots.unshift(node) }
 
-        for (const childNode of node.childNodes) {
-          await eachElement(childNode, fn, newAncestors, ancestorDocs, newAncestorRoots);
-        }
+        return {
+          children: node.childNodes,
+          ancestorParams: {
+            ancestors: newAncestors,
+            ancestorDocs: ancestorDocs,
+            ancestorRoots: newAncestorRoots,
+          }
+        };
       }
-      break
+
+      break;
     }
 
   }
 
+  return {children: []};
 }
 
 
