@@ -165,6 +165,7 @@ function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeTy
   } catch(e) {
     // invalid url
     console.warn('invalid web url: ', link, e);
+    console.trace();
     return null;
   }
 }
