@@ -1274,6 +1274,28 @@ T.retryAction = function(action, n = 3, errObjs = []) {
 }
 
 
+T.stackReduce = async function(firstItem, itemFn, initValue) {
+  let stack = [firstItem], accValue = initValue;
+
+  while (stack.length > 0) {
+    const [currItem, ...restItems] = stack;
+    const itemResult = await itemFn(currItem, accValue);
+    const it = (itemResult || {});
+
+    if (it.hasOwnProperty('newValue')) {
+      accValue = it.newValue;
+    }
+
+    if (it.newItems && it.newItems.length > 0) {
+      stack = it.newItems.concat(restItems);
+    } else {
+      stack = restItems;
+    }
+  }
+
+  return accValue;
+}
+
 
 // ====================================
 // HTTP relative

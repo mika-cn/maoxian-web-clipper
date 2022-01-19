@@ -2,7 +2,7 @@
 class StyleScope {
 
   constructor() {
-    this.childScopes = [];
+    this.childScopeObjs = [];
 
     // definitions
     this.definedFonts = new Set();
@@ -19,10 +19,10 @@ class StyleScope {
   }
 
   /*
-   * @param {Object} scope - child scope.
+   * @param {Object} scopeObj - child scope.
    */
-  addChildScope(scope) {
-    this.childScopes.push(scope);
+  addChildScopeObj(scopeObj) {
+    this.childScopeObjs.push(scopeObj);
   }
 
   defineFont(fontName) {
@@ -106,9 +106,9 @@ class StyleScope {
     handleReferencedFonts(this.definedFonts, this.referencedFonts);
     handleReferencedKeyFrames(this.definedKeyFrames, this.referencedKeyFrames);
 
-    for (const childScope of this.childScopes) {
-      handleReferencedFonts(this.definedFonts, childScope.referencedAncestorFonts);
-      handleReferencedKeyFrames(this.definedKeyFrames, childScope.referencedAncestorKeyFrames);
+    for (const childScopeObj of this.childScopeObjs) {
+      handleReferencedFonts(this.definedFonts, childScopeObj.referencedAncestorFonts);
+      handleReferencedKeyFrames(this.definedKeyFrames, childScopeObj.referencedAncestorKeyFrames);
     }
 
     for (const keyFramesName in this.keyFrameFontMap) {

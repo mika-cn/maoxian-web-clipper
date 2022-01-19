@@ -141,7 +141,7 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
     currLayerSnapshots.unshift(commentSnapshot);
   }
 
-  const snapshot = Snapshot.takeAncestorsSnapshot(
+  const result = Snapshot.takeAncestorsSnapshot(
     elem, currLayerSnapshots, cssBox, (ancestorNode, ancestorSnapshot) => {
 
       if (ancestorSnapshot.name == 'HTML') {
@@ -171,7 +171,10 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
       }
     });
 
-  return await addShadowDomLoader2snapshot(snapshot);
+  // assign styleScope to it's snapshot.
+  result.cssBox.finalize();
+
+  return await addShadowDomLoader2snapshot(result.snapshot);
 }
 
 
