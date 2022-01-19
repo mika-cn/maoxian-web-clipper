@@ -72,7 +72,7 @@ async function take(node, params) {
  * - {Boolean} ignoreHiddenElement (default: true)
  * - {CssBox} cssBox
  *
- * @return {Snapshot|undefined} node
+ * @return {Object} {:snapshot, :children, :childParams}
  */
 async function handleCurrNode(node, params) {
   const defaultAncestorInfo = {
@@ -377,9 +377,9 @@ async function handleCurrNode(node, params) {
       snapshot.baseUrl = node.baseURI;
       let childParams = params;
       if (cssBox) {
-        childParams = Object.assign({}, params,
-          {cssBox: cssBox.createChildBox({node})});
-        cssBox.setSnapshot(snapshot);
+        const childCssBox = cssBox.createChildBox({node});
+        childCssBox.setSnapshot(snapshot);
+        childParams = Object.assign({}, params, {cssBox: childCssBox});
       }
 
       return { snapshot, childParams, children: node.childNodes };
@@ -400,7 +400,7 @@ async function handleCurrNode(node, params) {
         snapshot.docUrl = node.host.ownerDocument.location.href;
         snapshot.baseUrl = node.host.baseURI;
         if (cssBox) {
-          childCssBox = cssBox.createCssBox({node});
+          childCssBox = cssBox.createChildBox({node});
           childCssBox.setSnapshot(snapshot);
           childParams = Object.assign({}, params, {cssBox: childCssBox});
         }
@@ -853,6 +853,83 @@ class SnapshotAccessor {
 // serialization
 // ============================================
 
+async function toHTML(snapshot, subHtmlHandler, params = {}) {
+  const SNAPSHOT = 1, STR = 2, FUNCTION = 3;
+
+  let stack = [{type: SNAPSHOT, snapshot: snapshot, params}];
+
+
+  const htmlStack = [];
+  let currHTML = "";
+
+  while (stack.length > 0) {
+    const [currItem, ...restItems] = stack;
+
+    if (currItem.type == SNAPSHOT) {
+      const result = await snapshotToHTML(currItem.snapshot,
+        subHtmlHandler, currItem.params);
+
+      const [first, second] = T.toArray(result);
+      const {html, startTag, endTag, children, childParams, fn, fnParams} = first;
+
+      if (html) {
+        currHTML += html;
+        stack = restItems;
+        continue;
+      }
+
+      if (startTag) { currHTML += startTag }
+
+      const newItems = [];
+
+      const handleChildren = function({children, childParams}) {
+        if (children && children.length > 0) {
+          for (const child of children) {
+            newItems.push({type: SNAPSHOT, snapshot: child, params: childParams});
+          }
+        }
+      }
+      handleChildren(first);
+
+
+      if (endTag) {
+        newItems.push({type: STR, str: endTag});
+      }
+
+      if (fn) {
+        htmlStack.push(currHTML);
+        newItems.push({type: FUNCTION, fn, fnParams})
+        currHTML = "";
+      }
+
+      if (second) { handleChildren(second) }
+
+      stack = newItems.concat(restItems);
+      continue;
+    }
+
+    if (currItem.type == STR) {
+      currHTML += currItem.str;
+      stack = restItems;
+      continue;
+    }
+
+    if (currItem.type == FUNCTION) {
+      const subHtml = currHTML;
+      const result = await currItem.fn(Object.assign({subHtml}, currItem.fnParams));
+      currHTML = htmlStack.pop() + result;
+      stack = restItems;
+      continue;
+    }
+
+  }
+
+  return currHTML;
+}
+
+
+
+
 // @see: @mdn/en-US/docs/Glossary/Empty_element
 const EMPTY_ELEMENT = {
   AREA   : true,
@@ -877,95 +954,127 @@ const EMPTY_ELEMENT = {
  * @param {Function} subHtmlHandler({});
  * @param {Object} params
  *   - {array} ancestorDocs
- *   - {String} shadowDomRenderMethod (DeclarativeShadowDom or Tree)
+ *   - {String} shadowDomRenderMethod ("DeclarativeShadowDom" or "Tree")
  */
-async function toHTML(snapshot, subHtmlHandler, params = {}) {
+async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
   const {ancestorDocs = [], shadowDomRenderMethod = 'DeclarativeShadowDom'} = params;
   const it = new SnapshotAccessor(snapshot);
+
   switch(it.type) {
     case NODE_TYPE.ELEMENT:
-      if (it.ignore) { return ''}
-
+      if (it.ignore) { return {html: ''}}
       const isEmptyElement = EMPTY_ELEMENT[it.name];
-      let content = '';
-      if (!isEmptyElement) {
+
+      if (isEmptyElement) {
+        // empty element only needs start tag.
+        return {startTag: getStartTag(it)};
+
+      } else {
+
         switch(it.name) {
           case 'FRAME':
-          case 'IFRAME':
-            if (snapshot.render == 'ignore') { return '' }
+          case 'IFRAME': {
+            if (snapshot.render == 'ignore') { return {html: ''}}
 
-            let subHtml = '';
-            if (!snapshot.errorMessage) {
-              subHtml = await children2HTML(it.childNodes, subHtmlHandler, params);
-            }
-            const change = await subHtmlHandler({snapshot, subHtml, ancestorDocs});
-            if (change.type || change.name) {
-              // is a new snapshot
-              snapshot.change = change;
-              return await toHTML(snapshot, subHtmlHandler, params);
+            const fnParams = {snapshot, ancestorDocs};
+            let children = [];
+            if (snapshot.errorMessage) {
+              fnParams.subHtml = ''
             } else {
-              if (change.ignore) {
-                return '';
+              children = snapshot.childNodes;
+            }
+            const fn = async function(params) {
+              const {snapshot, subHtml, ancestorDocs} = params;
+              const change = await subHtmlHandler(params);
+              if (change.type || change.name) {
+                // is a new snapshot (html string node)
+                snapshot.change = change;
+                const tmp = new SnapshotAccessor(snapshot);
+                return tmp.html;
               } else {
-                it.change = change;
-                return `<${it.tagName}${it.getAttrHTML()}></${it.tagName}>`
+                if (change.ignore) {
+                  return '';
+                } else {
+                  it.change = change;
+                  return getStartTag(it) + getEndTag(it);
+                }
               }
             }
-            break;
-          case 'SLOT':
+            return {fn, fnParams, children, childParams: params};
+          }
+
+          case 'SLOT': {
+
+            const result = {startTag: getStartTag(it), endTag: getEndTag(it)};
+            let children = [];
             if (shadowDomRenderMethod == 'DeclarativeShadowDom') {
               if (snapshot.assigned) {
                 // ChildNodes have handled in shadowRoot
-                content = '';
               } else {
-                content = await children2HTML(it.childNodes, subHtmlHandler, params);
+                children = it.childNodes;
               }
             } else {
               // Tree
-              content = await children2HTML(it.childNodes, subHtmlHandler, params);
+              children = it.childNodes;
             }
-            break;
+            result.children = children;
+            result.childParams = params;
+            return result;
+          }
+
           default:
-            content = await children2HTML(it.childNodes, subHtmlHandler, params);
-            break;
+            return {
+              startTag: getStartTag(it),
+              endTag: getEndTag(it),
+              children: it.childNodes,
+              childParams: params,
+            }
         }
       }
 
-      if (isEmptyElement) {
-        return `<${it.tagName}${it.getAttrHTML()}>`
-      } else {
-        return `<${it.tagName}${it.getAttrHTML()}>${content}</${it.tagName}>`
-      }
-
     case NODE_TYPE.TEXT:
-      return it.needEscape && escapeText(it.text) || it.text;
+      return {html: it.needEscape && escapeText(it.text) || it.text};
 
     case NODE_TYPE.PROCESSING_INSTRUCTION:
       break;
+
     case NODE_TYPE.COMMENT:
-      return `<!-- ${it.text} -->`;
-    case NODE_TYPE.DOCUMENT:
-      {
-        const newAncestorDocs = [snapshot, ...ancestorDocs];
-        return await children2HTML(it.childNodes, subHtmlHandler,
-          {ancestorDocs: newAncestorDocs, shadowDomRenderMethod});
-      }
+      return {html: `<!-- ${it.text} -->`};
+
+    case NODE_TYPE.DOCUMENT: {
+      const newAncestorDocs = [snapshot, ...ancestorDocs];
+      return {
+        children: it.childNodes,
+        childParams: {ancestorDocs: newAncestorDocs, shadowDomRenderMethod},
+      };
+    }
+
     case NODE_TYPE.DOCUMENT_TYPE:
-      return `<!DOCTYPE ${it.name || 'html'}>\n`;
+      return {html: `<!DOCTYPE ${it.name || 'html'}>\n`}
+
     case NODE_TYPE.DOCUMENT_FRAGMENT:
       {
         if (snapshot.isShadowRoot) {
           if (shadowDomRenderMethod == 'DeclarativeShadowDom') {
-            const shadowDomHTML = await children2HTML(it.childNodes, subHtmlHandler, params);
-            const lightDomHTML = await children2HTML(getAssignedNodes(snapshot), subHtmlHandler, params);
-            return `<template shadowroot="${snapshot.mode}">${shadowDomHTML}</template>${lightDomHTML}`;
+            // handle shadowDOM
+            const first = {children: it.childNodes, childParams: params};
+            first.fnParams = {snapshot};
+            first.fn = function({snapshot, subHtml}) {
+              // subHtml is shadowDOM html
+              return `<template shadowroot="${snapshot.mode}">${subHtml}</template>`;
+            }
+
+            // handle lightDOM
+            const second = {children: getAssignedNodes(snapshot), childParams: params};
+            return [first, second];
           } else {
-            return await children2HTML(it.childNodes, subHtmlHandler, params);
+            return {children: it.childNodes, childParams: params};
           }
         } else {
-          return await children2HTML(it.childNodes, subHtmlHandler, params);
+          return {children: it.childNodes, childParams: params};
         }
       }
+
     case NODE_TYPE.ATTRIBUTE:
     case NODE_TYPE.CDATA_SECTION:
     case NODE_TYPE.ENTITY_REFERENCE:
@@ -975,11 +1084,22 @@ async function toHTML(snapshot, subHtmlHandler, params = {}) {
       break;
 
     case NODE_TYPE.HTML_STR:
-      return it.html;
-    default: return "";
+      return {html: it.html};
+    default: break;
   }
-  return '';
+  return {html: ''};
 }
+
+// @param {SnapshotAccessor} it
+function getStartTag(it) {
+  return '<' + it.tagName + it.getAttrHTML() + '>';
+}
+
+// @param {SnapshotAccessor} it
+function getEndTag(it) {
+  return '</' + it.tagName + '>';
+}
+
 
 // @see toHTML
 async function children2HTML(nodes = [], subHtmlHandler, params) {
@@ -989,6 +1109,7 @@ async function children2HTML(nodes = [], subHtmlHandler, params) {
   }
   return r.join('');
 }
+
 
 function getAssignedNodes(shadowRootSnapshot) {
   const assignedNodes = [];
@@ -1032,6 +1153,7 @@ function getAssignedNodes(shadowRootSnapshot) {
   // console.log("~>", assignedNodes);
   return assignedNodes;
 }
+
 
 function escapeText(text) {
   return (text || "").replace(/[&<>]/g, function (s) {
