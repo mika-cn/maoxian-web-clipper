@@ -125,57 +125,53 @@ async function captureAssets(snapshot, params) {
   const ancestors = [];
   const documentSnapshot = SnapshotMaker.getDocumentNode(docUrl, baseUrl);
   const ancestorDocs = [documentSnapshot];
-  await Snapshot.eachElement(snapshot,
-    async(node, ancestors, ancestorDocs, ancestorRoots) => {
-
-      if (node.change) {
-        // processed
-        return true;
-      }
-
-      const {baseUrl, docUrl} = ancestorDocs[0];
-      let requestParams;
-      if (ancestorDocs.length == 1) {
-        requestParams = params.requestParams;
-      } else {
-        requestParams = params.requestParams.changeRefUrl(docUrl);
-      }
-
-      let r = {change: new SnapshotNodeChange(), tasks: []};
-      switch(node.name) {
-        case 'IMG':
-          r = await CapturerImg.capture(node, { saveFormat,
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-
-        case 'A':
-          r = await CapturerA.capture(node, {baseUrl, docUrl});
-          break;
-
-        case 'CANVAS':
-          r = await CapturerCanvas.capture(node, {
-            saveFormat, storageInfo, clipId, requestParams,
-          });
-          break;
-
-        case 'IFRAME':
-        case 'FRAME':
-          // Frame's html will be captured when serialization
-          break;
-      }
-
-      node.change = r.change.toObject();
-      tasks.push(...r.tasks);
-
+  const ancestorParams = {ancestors, ancestorDocs};
+  const captureFn = async (node, ancestors, ancestorDocs, ancestorRoots) => {
+    if (node.change) {
+      // processed
       return true;
-    },
-    ancestors,
-    ancestorDocs
-  );
+    }
 
+    const {baseUrl, docUrl} = ancestorDocs[0];
+    let requestParams;
+    if (ancestorDocs.length == 1) {
+      requestParams = params.requestParams;
+    } else {
+      requestParams = params.requestParams.changeRefUrl(docUrl);
+    }
+
+    let r = {change: new SnapshotNodeChange(), tasks: []};
+    switch(node.name) {
+      case 'IMG':
+        r = await CapturerImg.capture(node, { saveFormat,
+          baseUrl, storageInfo, clipId, requestParams, config,
+        });
+        break;
+
+      case 'A':
+        r = await CapturerA.capture(node, {baseUrl, docUrl});
+        break;
+
+      case 'CANVAS':
+        r = await CapturerCanvas.capture(node, {
+          saveFormat, storageInfo, clipId, requestParams,
+        });
+        break;
+
+      case 'IFRAME':
+      case 'FRAME':
+        // Frame's html will be captured when serialization
+        break;
+    }
+
+    node.change = r.change.toObject();
+    tasks.push(...r.tasks);
+
+    return true;
+  };
+
+  await Snapshot.eachElement(snapshot, captureFn, ancestorParams);
   return tasks;
-
 }
 
 function doExtraWork({html, win}) {

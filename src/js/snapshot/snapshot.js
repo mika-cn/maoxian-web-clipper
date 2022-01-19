@@ -26,34 +26,36 @@ const FRAME_URL = {
   SRCDOC : 'about:srcdoc',
 };
 
-// @params - @see handleCurrNode()
+// @params - @see takeSnapshotOfCurrNode()
 // @returns {Snapshot}
 async function take(node, params) {
   const virtualSnapshot = {childNodes: []};
-  let stack = [{node, params, parentSnapshot: virtualSnapshot}];
+  const firstItem = {node, params, parentSnapshot: virtualSnapshot};
+  const initValue = virtualSnapshot;
 
-  while (stack.length > 0) {
-    const [currItem, ...restItems] = stack;
+  const itemFn = async (currItem) => {
     const {node: currNode, params: currParams, parentSnapshot} = currItem;
-    const {snapshot, children, childParams} = await handleCurrNode(currNode, currParams);
+    const {snapshot, children, childParams} = await takeSnapshotOfCurrNode(currNode, currParams);
 
     if (!parentSnapshot.hasOwnProperty('childNodes')) {
       parentSnapshot.childNodes = [];
     }
     parentSnapshot.childNodes.push(snapshot);
 
+    const result = {};
     if (children) {
-      const childItems = [];
+      const newItems = [];
       for (const child of children) {
-        childItems.push({node: child, params: childParams, parentSnapshot: snapshot});
+        newItems.push({node: child, params: childParams, parentSnapshot: snapshot});
       }
-      stack = childItems.concat(restItems);
-    } else {
-      stack = restItems;
+      result.newItems = newItems;
     }
+    return result;
   }
 
-  return virtualSnapshot.childNodes[0];
+  const snapshot = await T.stackReduce(firstItem, itemFn, initValue);
+  // snapshot is virtualSnapshot.
+  return snapshot.childNodes[0];
 }
 
 
@@ -72,9 +74,13 @@ async function take(node, params) {
  * - {Boolean} ignoreHiddenElement (default: true)
  * - {CssBox} cssBox
  *
- * @return {Object} {:snapshot, :children, :childParams}
+ * @returns {Object} it
+ * - {Snapshot} snapshot
+ * - {[Node]}   [children] - the child nodes of current node
+ * - {Object}   [childParams] @see @param.params
+ *
  */
-async function handleCurrNode(node, params) {
+async function takeSnapshotOfCurrNode(node, params) {
   const defaultAncestorInfo = {
     mathAncestor: false, svgAncestor: false,
     codeAncestor: false, preAncestor: false,
@@ -670,6 +676,7 @@ function isElemVisible(win, elem, whiteList = []) {
 
 // ===================================
 
+// This function is not used.
 function each(node, fn, ancestors = [], ancestorDocs = []) {
   const iterateChildren = fn(node, ancestors, ancestorDocs);
   if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
@@ -691,24 +698,24 @@ function each(node, fn, ancestors = [], ancestorDocs = []) {
 /**
  * @params @see applyFnToElem()
  */
-async function eachElement(node, fn, ancestors = [], ancestorDocs = [], ancestorRoots = []) {
-  let stack = [{node, ancestors, ancestorDocs, ancestorRoots}];
+async function eachElement(node, fn, ancestorParams = {}) {
+  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = ancestorParams;
+  const firstItem = {node, ancestorParams: {ancestors, ancestorDocs, ancestorRoots}};
+  const itemFn = async (currItem) => {
+    const {node, ancestorParams: currAncestorParams} = currItem;
+    const {children, ancestorParams} = await applyFnToElem(node, fn, currAncestorParams);
 
-  while (stack.length > 0) {
-    const [currItem, ...restItems] = stack;
-    const {node, ancestors, ancestorDocs, ancestorRoots} = currItem;
-    const {children, ancestorParams} = await applyFnToElem(node, fn,
-      {ancestors, ancestorDocs, ancestorRoots});
+    const result = {};
     if (children.length > 0) {
-      const childItems = [];
+      const newItems = [];
       for (const child of children) {
-        childItems.push(Object.assign({node: child}, ancestorParams));
+        newItems.push({node: child, ancestorParams});
       }
-      stack = childItems.concat(restItems);
-    } else {
-      stack = restItems;
+      result.newItems = newItems;
     }
+    return result;
   }
+  await T.stackReduce(firstItem, itemFn);
 }
 
 
@@ -855,30 +862,26 @@ class SnapshotAccessor {
 
 async function toHTML(snapshot, subHtmlHandler, params = {}) {
   const SNAPSHOT = 1, STR = 2, FUNCTION = 3;
+  const firstItem = {type: SNAPSHOT, snapshot, params};
+  const initValue = {htmlStack: [], currHTML: ""};
 
-  let stack = [{type: SNAPSHOT, snapshot: snapshot, params}];
-
-
-  const htmlStack = [];
-  let currHTML = "";
-
-  while (stack.length > 0) {
-    const [currItem, ...restItems] = stack;
+  const itemFn = async (currItem, value) => {
 
     if (currItem.type == SNAPSHOT) {
-      const result = await snapshotToHTML(currItem.snapshot,
-        subHtmlHandler, currItem.params);
+      const {snapshot, params} = currItem;
+      const result = await snapshotToHTML(snapshot, subHtmlHandler, params);
 
       const [first, second] = T.toArray(result);
       const {html, startTag, endTag, children, childParams, fn, fnParams} = first;
 
       if (html) {
-        currHTML += html;
-        stack = restItems;
-        continue;
+        value.currHTML += html;
+        return {newValue: value};
       }
 
-      if (startTag) { currHTML += startTag }
+      if (startTag) {
+        value.currHTML += startTag
+      }
 
       const newItems = [];
 
@@ -897,34 +900,33 @@ async function toHTML(snapshot, subHtmlHandler, params = {}) {
       }
 
       if (fn) {
-        htmlStack.push(currHTML);
+        value.htmlStack.push(value.currHTML);
         newItems.push({type: FUNCTION, fn, fnParams})
-        currHTML = "";
+        value.currHTML = "";
       }
 
+      // currently the second can only contains children.
       if (second) { handleChildren(second) }
 
-      stack = newItems.concat(restItems);
-      continue;
+      return {newItems, newValue: value};
     }
 
     if (currItem.type == STR) {
-      currHTML += currItem.str;
-      stack = restItems;
-      continue;
+      value.currHTML += currItem.str;
+      return {newValue: value};
     }
 
     if (currItem.type == FUNCTION) {
-      const subHtml = currHTML;
-      const result = await currItem.fn(Object.assign({subHtml}, currItem.fnParams));
-      currHTML = htmlStack.pop() + result;
-      stack = restItems;
-      continue;
+      const {fn, fnParams} = currItem;
+      const subHtml = value.currHTML;
+      const html = await fn(Object.assign({subHtml}, fnParams));
+      value.currHTML = value.htmlStack.pop() + html;
+      return {newValue: value};
     }
-
   }
 
-  return currHTML;
+  const result = await T.stackReduce(firstItem, itemFn, initValue);
+  return result.currHTML;
 }
 
 
@@ -955,6 +957,15 @@ const EMPTY_ELEMENT = {
  * @param {Object} params
  *   - {array} ancestorDocs
  *   - {String} shadowDomRenderMethod ("DeclarativeShadowDom" or "Tree")
+ *
+ * @returns {Object|[Object,Object]} it - may be Array if snapshot is shadow root.
+ * - {String}     [html] - the snapshot can render to html directly
+ * - {String}     [startTag] - HTML start tag
+ * - {[Snapshot]} [children] - the snapshot's childNodes.
+ * - {Object}     [childParams] - @see @param.params
+ * - {String}     [endTag] - HTML end tag
+ * - {Function}   [fn] - the snapshot can only be rendered by this function
+ * - {Object}     [fnParams] - params of fn
  */
 async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
   const {ancestorDocs = [], shadowDomRenderMethod = 'DeclarativeShadowDom'} = params;
@@ -989,8 +1000,7 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
               if (change.type || change.name) {
                 // is a new snapshot (html string node)
                 snapshot.change = change;
-                const tmp = new SnapshotAccessor(snapshot);
-                return tmp.html;
+                return (new SnapshotAccessor(snapshot)).html;
               } else {
                 if (change.ignore) {
                   return '';
@@ -1039,7 +1049,7 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
       break;
 
     case NODE_TYPE.COMMENT:
-      return {html: `<!-- ${it.text} -->`};
+      return {html: it.text.length > 0 ? `<!-- ${it.text} -->` : ""};
 
     case NODE_TYPE.DOCUMENT: {
       const newAncestorDocs = [snapshot, ...ancestorDocs];
@@ -1098,16 +1108,6 @@ function getStartTag(it) {
 // @param {SnapshotAccessor} it
 function getEndTag(it) {
   return '</' + it.tagName + '>';
-}
-
-
-// @see toHTML
-async function children2HTML(nodes = [], subHtmlHandler, params) {
-  const r = [];
-  for (let i = 0; i < nodes.length; i++) {
-    r.push(await toHTML(nodes[i], subHtmlHandler, params));
-  }
-  return r.join('');
 }
 
 
