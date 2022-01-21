@@ -314,6 +314,7 @@ async function formSubmitted({elem, formInputs, config}) {
     config: currConfig,
     win: window,
     platform: getPlatform(),
+    pageMetas: getPageMetas(),
   });
 
   const clipping = await Clipper.clip(elem, params);
@@ -350,6 +351,25 @@ function getPlatform() {
   }
 
   return platform;
+}
+
+
+function getPageMetas() {
+  let metaKeywords = [];
+  const prefix = 'meta_';
+  const dict = {};
+  document.querySelectorAll('head meta[name]').forEach((it) => {
+    if (it.name) {
+      const metaName = it.name.toLowerCase();
+      const metaValue = (it.content || "");
+      dict[prefix + metaName] = metaValue
+      if (metaName == 'keywords') {
+        metaKeywords = T.splitKeywordStr(metaValue);
+      }
+    }
+  });
+  dict.metaKeywords = metaKeywords;
+  return dict;
 }
 
 

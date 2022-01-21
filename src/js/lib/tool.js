@@ -293,6 +293,22 @@ T.splitTagstr = function(str){
   }
 }
 
+// split keywork string by comma.
+T.splitKeywordStr = function(str) {
+  str = str.replace(/^[ ,，]+/, '');
+  str = str.replace(/[ ,，]+$/, '');
+  if (str.length === 0) {
+    return [];
+  } else {
+    str = str.trim().replace(/[,，]+/g, ',');
+    const items = T.map(
+      str.split(","),
+      function(it){ return it.trim()}
+    );
+    return T.unique(items);
+  }
+}
+
 // collection
 
 T.toArray = function(it) {
