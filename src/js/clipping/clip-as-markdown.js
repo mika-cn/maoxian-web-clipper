@@ -22,7 +22,7 @@ import * as TurndownPluginGfm from 'turndown-plugin-gfm';
 import Mustache from 'mustache';
 Mustache.escape = (text) => text;
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform}){
+async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, pageMetas, frames, win, platform}){
   Log.debug("clip as markdown");
 
   const snapshot = await takeSnapshot({elem, frames, requestParams, win, platform});
@@ -82,7 +82,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     createdAt: info.created_at,
     content: (elemHasTitle ? markdown : `\n# ${info.title}\n\n${markdown}`),
     contentOnly: markdown,
-  } , info, i18nLabel, tObj);
+    tagsNKeywords: T.unique(info.tags.concat(pageMetas.metaKeywords)),
+  } , info, i18nLabel, pageMetas, tObj);
   try {
     markdown = Mustache.render(config.markdownTemplate, view);
   } catch(e) {

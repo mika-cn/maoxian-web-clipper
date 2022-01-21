@@ -25,7 +25,7 @@ import StyleHelper           from './style-helper.js';
 import RequestParams         from '../lib/request-params.js'
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform}) {
+async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, pageMetas, frames, win, platform}) {
   Log.debug("html parser");
 
   const {clipId} = info;
@@ -36,7 +36,7 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     calculatedStyle.bodyStyleObj['background-color'] = `${config.htmlCustomBodyBgCssValue} !important`;
   }
 
-  const v = Object.assign({info, config}, calculatedStyle, i18nLabel)
+  const v = Object.assign({info, config}, calculatedStyle, i18nLabel, pageMetas)
 
   const snapshot = await takeSnapshot({elem, frames, requestParams, win, platform, v});
 
