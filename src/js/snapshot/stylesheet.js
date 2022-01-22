@@ -201,6 +201,8 @@ async function handleCssRule(rule, params) {
     }
 
     case CSSRULE_TYPE.IMPORT: {
+
+      // rule.href could be a relative url, be careful
       r.url = rule.href;
       try {
         r.mediaText = rule.media.mediaText;
@@ -405,7 +407,7 @@ async function rule2String(rule, params) {
         ownerType: newOwnerType,
         resourceType: resourceType,
         baseUrl: params.baseUrl,
-        resourceItems: [{cssText, url: rule.url}]
+        resourceItems: [{cssText, url: rule.sheet.href}]
       });
       return `@import url("${path}")${whiteSpace.pad(rule.mediaText)};`;
     }

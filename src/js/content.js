@@ -90,6 +90,8 @@ function stopMutationObserver() {
 }
 
 function listenInternalMessage() {
+  MxWcEvent.listenInternal('set-form-inputs'   , wrapToEventHandler(setFormInputs));
+  MxWcEvent.listenInternal('overwrite-config'  , wrapToEventHandler(overwriteConfig));
   MxWcEvent.listenInternal('focus-elem'   , wrapToEventHandler(selectElem));
   MxWcEvent.listenInternal('select-elem'  , wrapToEventHandler(selectElem));
   MxWcEvent.listenInternal('confirm-elem' , wrapToEventHandler(confirmElem));
@@ -312,6 +314,7 @@ async function formSubmitted({elem, formInputs, config}) {
     config: currConfig,
     win: window,
     platform: getPlatform(),
+    pageMetas: getPageMetas(),
   });
 
   const clipping = await Clipper.clip(elem, params);
@@ -348,6 +351,25 @@ function getPlatform() {
   }
 
   return platform;
+}
+
+
+function getPageMetas() {
+  let metaKeywords = [];
+  const prefix = 'meta_';
+  const dict = {};
+  document.querySelectorAll('head meta[name]').forEach((it) => {
+    if (it.name) {
+      const metaName = it.name.toLowerCase();
+      const metaValue = (it.content || "");
+      dict[prefix + metaName] = metaValue
+      if (metaName == 'keywords') {
+        metaKeywords = T.splitKeywordStr(metaValue);
+      }
+    }
+  });
+  dict.metaKeywords = metaKeywords;
+  return dict;
 }
 
 
@@ -397,6 +419,7 @@ function pageContentChanged(){
 function activeUI(e) {
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
+    MxWcEvent.dispatchInternal('actived');
     // we're going to active UI
     if (state.config && state.config.communicateWithThirdParty) {
       MxWcEvent.dispatchPublic('actived');

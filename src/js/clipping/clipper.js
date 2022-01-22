@@ -99,18 +99,21 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
  *
  * @param {Element} elem
  * @param {Object} params
- *   - {Object} info - meta information
+ *   - {Object} config
+ *   - {Object} info - current clpping information (metas)
  *   - {Object} storageInfo
  *   - {Object} storageconfig
  *   - {Object} i18nLabel : some translated labels
  *   - {Object} requestParams
- *   - {Window} window object
- *   - {Object} platform
+ *   - {Object} pageMetas (fetch from <meta> tags)
+ *   - {Array}  frames
+ *   - {Window} win - window object
+ *   - {Object} platform (browser info)
  *   - {FilenameConflictResolver} nameConflictResolver
  *
  * @return {Promise} a Promise that will resolve with clipping
  */
-async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, requestParams, frames, win, platform, nameConflictResolver}) {
+async function clip(elem, {config, info, storageInfo, storageConfig, i18nLabel, requestParams, pageMetas, frames, win, platform, nameConflictResolver}) {
 
   let Clipper = null;
   switch(info.format){
@@ -126,7 +129,7 @@ async function clip(elem, {info, storageInfo, config, storageConfig, i18nLabel, 
     }
   });
 
-  let tasks = await Clipper.clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform});
+  let tasks = await Clipper.clip(elem, {config, info, storageInfo, i18nLabel, requestParams, pageMetas, frames, win, platform});
 
   if (storageConfig.saveTitleFile) {
     const filename = T.joinPath(storageInfo.titleFileFolder, storageInfo.titleFileName);

@@ -293,6 +293,22 @@ T.splitTagstr = function(str){
   }
 }
 
+// split keywork string by comma.
+T.splitKeywordStr = function(str) {
+  str = str.replace(/^[ ,，]+/, '');
+  str = str.replace(/[ ,，]+$/, '');
+  if (str.length === 0) {
+    return [];
+  } else {
+    str = str.trim().replace(/[,，]+/g, ',');
+    const items = T.map(
+      str.split(","),
+      function(it){ return it.trim()}
+    );
+    return T.unique(items);
+  }
+}
+
 // collection
 
 T.toArray = function(it) {
@@ -1273,6 +1289,28 @@ T.retryAction = function(action, n = 3, errObjs = []) {
   }
 }
 
+
+T.stackReduce = async function(firstItem, itemFn, initValue) {
+  let stack = [firstItem], accValue = initValue;
+
+  while (stack.length > 0) {
+    const [currItem, ...restItems] = stack;
+    const itemResult = await itemFn(currItem, accValue);
+    const it = (itemResult || {});
+
+    if (it.hasOwnProperty('newValue')) {
+      accValue = it.newValue;
+    }
+
+    if (it.newItems && it.newItems.length > 0) {
+      stack = it.newItems.concat(restItems);
+    } else {
+      stack = restItems;
+    }
+  }
+
+  return accValue;
+}
 
 
 // ====================================

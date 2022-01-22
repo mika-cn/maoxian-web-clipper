@@ -20,6 +20,11 @@ class CssBox {
     this._node = node;
     this.selectorTextMatcher = new SelectorTextMatcher(node);
     this.scope = new StyleScope();
+    this.childBoxes = [];
+  }
+
+  setSnapshot(snapshot) {
+    this._snapshot = snapshot;
   }
 
   get removeUnusedRules() {
@@ -28,11 +33,24 @@ class CssBox {
 
   /**
    * @param {Node} node - same as constructor
-   * @returns a new CssBox instance
+   * @returns a new child CssBox instance
    */
-  change({node}) {
+  createChildBox({node}) {
     const params = Object.assign(this.toParams(), {node});
-    return new CssBox(params);
+    const childBox = new CssBox(params);
+    this.childBoxes.push(childBox);
+    return childBox;
+  }
+
+  /**
+   * @param {Node} node - same as constructor
+   * @returns a new parent CssBox instance
+   */
+  createParentBox({node}) {
+    const params = Object.assign(this.toParams(), {node});
+    const parentBox = new CssBox(params);
+    parentBox.childBoxes.push(this);
+    return parentBox;
   }
 
   /**
@@ -43,12 +61,29 @@ class CssBox {
     return {removeUnusedRules: this._removeUnusedRules};
   }
 
-  scopeToObject() {
-    return Object.assign(
+  /**
+   * will be called when the whole takeSnapshot process completed.
+   */
+  finalize() {
+    if (!this._snapshot) {
+      throw new Error("snapshot not exist! Did you forget to setSnapshot()");
+    }
+
+    for (const childBox of this.childBoxes) {
+      childBox.finalize();
+      this.scope.addChildScopeObj(childBox.scopeObj);
+    }
+
+    // scope to object
+    this.scopeObj = Object.assign(
       {removeUnusedRules: this._removeUnusedRules},
       this.scope.toObject()
     );
+
+    // assign scope obj to snapshot
+    this._snapshot.styleScope = this.scopeObj;
   }
+
 }
 
 export default CssBox;

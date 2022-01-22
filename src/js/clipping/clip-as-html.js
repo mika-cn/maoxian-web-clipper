@@ -25,18 +25,18 @@ import StyleHelper           from './style-helper.js';
 import RequestParams         from '../lib/request-params.js'
 
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform}) {
+async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, pageMetas, frames, win, platform}) {
   Log.debug("html parser");
 
   const {clipId} = info;
 
   const calculatedStyle = StyleHelper.calcStyle(elem, win);
 
-  if (config.customBodyBgCssEnabled && config.customBodyBgCssValue){
-    calculatedStyle.bodyStyleObj['background-color'] = `${config.customBodyBgCssValue} !important`;
+  if (config.htmlCustomBodyBgCssEnabled && config.htmlCustomBodyBgCssValue){
+    calculatedStyle.bodyStyleObj['background-color'] = `${config.htmlCustomBodyBgCssValue} !important`;
   }
 
-  const v = Object.assign({info, config}, calculatedStyle, i18nLabel)
+  const v = Object.assign({info, config}, calculatedStyle, i18nLabel, pageMetas)
 
   const snapshot = await takeSnapshot({elem, frames, requestParams, win, platform, v});
 
@@ -141,7 +141,7 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
     currLayerSnapshots.unshift(commentSnapshot);
   }
 
-  const snapshot = Snapshot.takeAncestorsSnapshot(
+  const result = Snapshot.takeAncestorsSnapshot(
     elem, currLayerSnapshots, cssBox, (ancestorNode, ancestorSnapshot) => {
 
       if (ancestorSnapshot.name == 'HTML') {
@@ -171,7 +171,10 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
       }
     });
 
-  return await addShadowDomLoader2snapshot(snapshot);
+  // assign styleScope to it's snapshot.
+  result.cssBox.finalize();
+
+  return await addShadowDomLoader2snapshot(result.snapshot);
 }
 
 

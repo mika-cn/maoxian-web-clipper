@@ -33,9 +33,18 @@ describe('Capture Video', () => {
     ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
+    H.assertEqual(r.change.getAttr('controls'), "");
+    H.assertTrue(r.change.deletedAttr('controlslist'));
+    H.assertTrue(r.change.deletedAttr('autoplay'));
+    H.assertTrue(r.change.deletedAttr('loop'));
+    H.assertTrue(r.change.deletedAttr('muted'));
+    H.assertTrue(r.change.deletedAttr('crossorigin'));
+    H.assertTrue(r.change.deletedAttr('disablepictureinpicture'));
+    H.assertTrue(r.change.deletedAttr('autopictureinpicture'));
     H.assertEqual(r.tasks.length, 2);
     H.assertNotEqual(r.change.getAttr('src'), 'test.mp4');
     H.assertNotEqual(r.change.getAttr('poster'), 'test.jpg');
+
     ExtMsg.clearMocks();
   });
 

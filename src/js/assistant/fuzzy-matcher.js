@@ -29,6 +29,8 @@ function matchText(str, pattern) {
           return str.startsWith(startPart) && str.endsWith(endPart);
       }
     }
+  } else if (pattern == "$d") {
+    return (/^\d+$/).test(str);
   } else {
     return str === pattern;
   }

@@ -22,7 +22,7 @@ import * as TurndownPluginGfm from 'turndown-plugin-gfm';
 import Mustache from 'mustache';
 Mustache.escape = (text) => text;
 
-async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, frames, win, platform}){
+async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, pageMetas, frames, win, platform}){
   Log.debug("clip as markdown");
 
   const snapshot = await takeSnapshot({elem, frames, requestParams, win, platform});
@@ -82,7 +82,8 @@ async function clip(elem, {info, storageInfo, config, i18nLabel, requestParams, 
     createdAt: info.created_at,
     content: (elemHasTitle ? markdown : `\n# ${info.title}\n\n${markdown}`),
     contentOnly: markdown,
-  } , info, i18nLabel, tObj);
+    tagsNKeywords: T.unique(info.tags.concat(pageMetas.metaKeywords)),
+  } , info, i18nLabel, pageMetas, tObj);
   try {
     markdown = Mustache.render(config.markdownTemplate, view);
   } catch(e) {
@@ -125,57 +126,53 @@ async function captureAssets(snapshot, params) {
   const ancestors = [];
   const documentSnapshot = SnapshotMaker.getDocumentNode(docUrl, baseUrl);
   const ancestorDocs = [documentSnapshot];
-  await Snapshot.eachElement(snapshot,
-    async(node, ancestors, ancestorDocs, ancestorRoots) => {
-
-      if (node.change) {
-        // processed
-        return true;
-      }
-
-      const {baseUrl, docUrl} = ancestorDocs[0];
-      let requestParams;
-      if (ancestorDocs.length == 1) {
-        requestParams = params.requestParams;
-      } else {
-        requestParams = params.requestParams.changeRefUrl(docUrl);
-      }
-
-      let r = {change: new SnapshotNodeChange(), tasks: []};
-      switch(node.name) {
-        case 'IMG':
-          r = await CapturerImg.capture(node, { saveFormat,
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-
-        case 'A':
-          r = await CapturerA.capture(node, {baseUrl, docUrl});
-          break;
-
-        case 'CANVAS':
-          r = await CapturerCanvas.capture(node, {
-            saveFormat, storageInfo, clipId, requestParams,
-          });
-          break;
-
-        case 'IFRAME':
-        case 'FRAME':
-          // Frame's html will be captured when serialization
-          break;
-      }
-
-      node.change = r.change.toObject();
-      tasks.push(...r.tasks);
-
+  const ancestorParams = {ancestors, ancestorDocs};
+  const captureFn = async (node, ancestors, ancestorDocs, ancestorRoots) => {
+    if (node.change) {
+      // processed
       return true;
-    },
-    ancestors,
-    ancestorDocs
-  );
+    }
 
+    const {baseUrl, docUrl} = ancestorDocs[0];
+    let requestParams;
+    if (ancestorDocs.length == 1) {
+      requestParams = params.requestParams;
+    } else {
+      requestParams = params.requestParams.changeRefUrl(docUrl);
+    }
+
+    let r = {change: new SnapshotNodeChange(), tasks: []};
+    switch(node.name) {
+      case 'IMG':
+        r = await CapturerImg.capture(node, { saveFormat,
+          baseUrl, storageInfo, clipId, requestParams, config,
+        });
+        break;
+
+      case 'A':
+        r = await CapturerA.capture(node, {baseUrl, docUrl});
+        break;
+
+      case 'CANVAS':
+        r = await CapturerCanvas.capture(node, {
+          saveFormat, storageInfo, clipId, requestParams,
+        });
+        break;
+
+      case 'IFRAME':
+      case 'FRAME':
+        // Frame's html will be captured when serialization
+        break;
+    }
+
+    node.change = r.change.toObject();
+    tasks.push(...r.tasks);
+
+    return true;
+  };
+
+  await Snapshot.eachElement(snapshot, captureFn, ancestorParams);
   return tasks;
-
 }
 
 function doExtraWork({html, win}) {

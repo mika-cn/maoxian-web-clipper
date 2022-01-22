@@ -30,11 +30,16 @@ async function capture(node, params) {
       attrParamsMedia[0]
     );
   }
-  return await CapturerMedia.capture(node, params, [
+  const r = await CapturerMedia.capture(node, params, [
     attrParamsMedia,
     ATTR_PARAMS_SOURCE,
     ATTR_PARAMS_TRACK,
   ]);
+
+  r.change.rmAttr("controlslist");
+  r.change.rmAttr("disablepictureinpicture");
+  r.change.rmAttr("autopictureinpicture");
+  return r;
 }
 
 export default {capture};

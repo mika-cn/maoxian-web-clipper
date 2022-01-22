@@ -32,13 +32,15 @@ function backgroundMessageHandler(message) {
       case 'frame.clipAsHtml.takeSnapshot':
         {
           const blacklist = {SCRIPT: true, TEMPLATE: true};
+          const cssBox = getCssBox(message);
+
           Snapshot.take(window.document, {
             win: window,
             platform: message.body.platform,
             requestParams: getRequestParams(message),
             frameInfo: message.body.frameInfo,
             extMsgType: message.type,
-            cssBox: getCssBox(message),
+            cssBox: cssBox,
             blacklist: blacklist,
             shadowDom: {blacklist},
             srcdocFrame: {blacklist},
@@ -54,7 +56,11 @@ function backgroundMessageHandler(message) {
                 return {isIgnore: false}
               }
             }
-          }).then(resolve, reject).catch(reject);
+          }).then((snapshot) => {
+            cssBox.setSnapshot(snapshot);
+            cssBox.finalize();
+            resolve(snapshot);
+          }, reject).catch(reject);
         }
 
         break;

@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.6';
+const VERSION = '2.7';
 const state = {};
 
 /** WARNING
@@ -27,8 +27,8 @@ function getDefault(){
     saveDomainAsTag: false,
 
     htmlSaveClippingInformation: false,
-    customBodyBgCssEnabled: false,
-    customBodyBgCssValue: "#000000",
+    htmlCustomBodyBgCssEnabled: false,
+    htmlCustomBodyBgCssValue: "#000000",
     htmlCompressCss: false,
 
     htmlCaptureImage    : 'saveAll', // saveAll | saveCurrent
@@ -187,6 +187,8 @@ function getDefault(){
 export const CONFIG_KEYS = Object.keys(getDefault())
 
 export const API_SETTABLE_KEYS = [
+
+  // storage keys
   'rootFolder',
 
   'defaultCategory',
@@ -204,7 +206,38 @@ export const API_SETTABLE_KEYS = [
   'titleFileName',
 
   'frameFileFolder',
+  'frameFileName',
+
   'assetFolder',
+  'assetFileName',
+
+  // html content relative keys
+  "htmlSaveClippingInformation",
+  "htmlCustomBodyBgCssEnabled",
+  "htmlCustomBodyBgCssValue",
+  "htmlCompressCss",
+
+  "htmlCaptureImage",
+  "htmlCaptureAudio",
+  "htmlCaptureVideo",
+  "htmlCaptureApplet",
+  "htmlCaptureEmbed",
+  "htmlCaptureObject",
+  "htmlCaptureIcon",
+
+  "htmlCaptureCssRules",
+  "htmlCaptureWebFont",
+  "htmlCaptureCssImage",
+
+  "htmlEmbedFilter",
+  "htmlObjectFilter",
+  "htmlWebFontFilterList",
+
+
+  // request keys
+  'requestTimeout',
+  'requestMaxTries',
+  'requestReferrerPolicy',
 ];
 
 

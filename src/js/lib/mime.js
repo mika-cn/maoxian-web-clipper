@@ -8265,6 +8265,13 @@ const MyMimeDB = {
     "compressible": true,
     "extensions": ["bmp"]
   },
+
+  /* add extensions */
+  "application/font-woff": {
+    "source": "iana",
+    "compressible": false,
+    "extensions": ["woff"]
+  },
 };
 
 // return a dictionary (key is extension, value is mimeType)

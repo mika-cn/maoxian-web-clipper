@@ -30,9 +30,15 @@ function getActions(type) {
 
 
 function bindListener() {
+  MxWcEvent.listenInternal('actived', performWhenActived);
   MxWcEvent.listenInternal('selecting', performWhenSelecting);
   MxWcEvent.listenInternal('completed', performWhenCompleted);
   MxWcEvent.listenInternal('idle', performWhenIdle);
+}
+
+function performWhenActived(e) {
+  const detail = {};
+  perform('actived', detail);
 }
 
 function performWhenSelecting(e) {
@@ -84,19 +90,19 @@ function createSetDisplayAction(params) {
       perform: function(detail={}) {
         const selectorStrs = T.toArray(this.selectorInput);
         const contextElem = getContextElem(this.contextSelectorInput);
+        const queryFn = params.querySiblings ? querySiblingsBySelector : queryElemsBySelector;
         selectorStrs.forEach(function(it) {
-          queryElemsBySelector(it, contextElem)
-            .forEach(function(elem) {
-              const style = window.getComputedStyle(elem);
-              if(style.display != params.display) {
-                elem.setAttribute("data-mx-original-display-value", elem.style.getPropertyValue('display'));
-                elem.setAttribute("data-mx-original-display-priority", elem.style.getPropertyPriority('display'));
-                elem.style.setProperty('display', params.display, params.priority);
-              }
-            });
-        })
-      }
-    }
+          queryFn(it, contextElem).forEach(function(elem) {
+            const style = window.getComputedStyle(elem);
+            if(style.display != params.display) {
+              elem.setAttribute("data-mx-original-display-value", elem.style.getPropertyValue('display'));
+              elem.setAttribute("data-mx-original-display-priority", elem.style.getPropertyPriority('display'));
+              elem.style.setProperty('display', params.display, params.priority);
+            }
+          });
+        });
+      },
+    };
   }
 }
 
@@ -119,18 +125,38 @@ Action.hideElemOnce = createSetDisplayAction({
   performOnce: true
 });
 
-Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') {
-  return {
-    name: 'undoDisplay',
-    isPerformOnce: false,
-    selectorInput: selectorInput,
-    contextSelectorInput: contextSelectorInput,
-    perform: function(detail={}) {
-      const selectorStrs = T.toArray(this.selectorInput);
-      const contextElem = getContextElem(this.contextSelectorInput);
-      selectorStrs.forEach(function(it) {
-        queryElemsBySelector(it, contextElem)
-          .forEach(function(elem) {
+Action.hideSibling = createSetDisplayAction({
+  name: 'hideSibling',
+  display: 'none',
+  priority: 'important',
+  querySiblings: true,
+});
+
+Action.undoHideSibling = createUndoDisplayAction({
+  name: 'undoHideSibling',
+  performOnce: false,
+  querySiblings: true,
+});
+
+Action.undoDisplay = createUndoDisplayAction({
+  name: 'undoDisplay',
+  performOnce: false,
+});
+
+
+function createUndoDisplayAction(params) {
+  return function(selectorInput, contextSelectorInput = 'document') {
+    return {
+      name: params.name,
+      isPerformOnce: params.performOnce,
+      selectorInput: selectorInput,
+      contextSelectorInput: contextSelectorInput,
+      perform: function(detail={}) {
+        const selectorStrs = T.toArray(this.selectorInput);
+        const contextElem = getContextElem(this.contextSelectorInput);
+        const queryFn = params.querySiblings ? querySiblingsBySelector : queryElemsBySelector;
+        selectorStrs.forEach(function(it) {
+          queryFn(it, contextElem).forEach(function(elem) {
             const attrNameOfValue = "data-mx-original-display-value";
             const attrNameOfPriority = "data-mx-original-display-priority";
 
@@ -145,8 +171,9 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
               }
             }
           });
-      })
-    }
+        });
+      },
+    };
   }
 }
 
@@ -156,7 +183,8 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
  *
  * Structure of $action {Object}
  *
- * action.type {String} (required) avariable values are:
+ * action.type {String} (required) available values are:
+ *   0. "assign.from.value"
  *   1. "assign.from.self-attr"
  *   2. "assign.from.parent-attr"
  *   3. "assign.from.ancestor-attr"
@@ -191,14 +219,14 @@ Action.undoDisplay = function(selectorInput, contextSelectorInput = 'document') 
  *     the first one is used to select the ancestor,
  *     the second one is used to select the ancestor's children.
  *
- * action.tAtt {String} (required if type is in [1, 2, 3, 4])
+ * action.tAttr {String} (required if type is in [1, 2, 3, 4])
  *   The target attribute that will be used as value to assignment.
  *
  * action.sep {String} (required if type is 7 or 8.)
  *   The separator that will be used to split the attribute (action.attr).
  *
- * action.value {String} (required if type is 7 or 8.)
- *   The value that will be added or removed from the list.
+ * action.value {String} (required if type is in [0, 7, 8])
+ *   The value that will be assigned, added or removed from the list.
  *
  */
 
@@ -253,6 +281,9 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
 
     getValue: function(elem, action, contextElem) {
       switch(action.type) {
+        case 'assign.from.value':
+          return action.value;
+          break;
         case 'self.attr': // deprecated
         case 'assign.from.self-attr':
           return elem.getAttribute(action.tAttr);
@@ -397,6 +428,7 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
   }
 }
 
+
 Action.undoChAttr = function(params, contextSelectorInput = 'document') {
   const actions = initChAttrActions(params);
   return {
@@ -475,11 +507,24 @@ Action.setForm = function(inputs) {
     inputs: inputs,
     perform: function(detail={}) {
       MxWcEvent.dispatchInternal('set-form-inputs', {
-        options: inputs
+        formInputs: inputs
       });
     }
   }
 };
+
+Action.setConfig = function(config) {
+  return {
+    name: 'setConfig',
+    isPerformOnce: true,
+    config: config,
+    perform: function(detail={}) {
+      MxWcEvent.dispatchInternal('overwrite-config', {
+        config: config
+      });
+    }
+  }
+}
 
 Action.completed = function(fn) {
   return {
@@ -568,21 +613,81 @@ function queryElemsBySelector(selectorStr, contextElem) {
   }
 }
 
+function querySiblingsBySelector(selectorStr, contextElem) {
+  const selector = Selector.parse(selectorStr);
+  if(selector) {
+    if(selector.type === 'C') {
+      return querySiblingsByCss(selector.q, contextElem);
+    } else {
+      return querySiblingsByXpath(selector.q, contextElem);
+    }
+  } else {
+    return [];
+  }
+}
+
+
+// ---------- query by CSS ------------
+
+
 function queryElemsByCss(cssSelector, contextElem = document) {
   const elems = [];
+  iterateElemsByCss(contextElem, cssSelector, (elem) => elems.push(elem));
+  return elems;
+}
+
+
+function querySiblingsByCss(cssSelector, contextElem = document) {
+  const siblings = new Set();
+  iterateElemsByCss(contextElem, cssSelector, (elem) => {
+    if (elem.parentElement) {
+      [].forEach.call(elem.parentElement.children, function(child) {
+        if (child !== elem) {
+          siblings.add(child);
+        }
+      });
+    }
+  });
+  return Array.from(siblings);
+}
+
+
+function iterateElemsByCss(contextElem, cssSelector, fn) {
   try {
-    [].forEach.call(contextElem.querySelectorAll(cssSelector), function(elem) {
-      elems.push(elem)
-    });
+    [].forEach.call(contextElem.querySelectorAll(cssSelector), fn);
   } catch(e) {
     console.warn("[Mx assistant] invalid selector: ", cssSelector);
     console.warn(e.message);
     console.warn(e);
   }
+}
+
+
+// ---------- query by Xpath ------------
+
+
+function queryElemsByXpath(xpath, contextElem = document) {
+  const elems = [];
+  iterateElemsByXpath(contextElem, xpath, (elem) => elems.push(elem));
   return elems;
 }
 
-function queryElemsByXpath(xpath, contextElem = document) {
+
+function querySiblingsByXpath(xpath, contextElem = document) {
+  const siblings = new Set();
+  iterateElemsByXpath(contextElem, xpath, (elem) => {
+    if (elem.parentElement) {
+      [].forEach.call(elem.parentElement.children, function(child) {
+        if (child !== elem) {
+          siblings.add(child);
+        }
+      });
+    }
+  });
+  return [];
+}
+
+function iterateElemsByXpath(contextElem, xpath, fn) {
   try {
     const xpathResult = document.evaluate(
       xpath,
@@ -597,14 +702,14 @@ function queryElemsByXpath(xpath, contextElem = document) {
     console.warn(e);
     return [];
   }
-  const elems = [];
   let elem = xpathResult.iterateNext();
   while(elem){
-    elems.push(elem);
+    fn(elem);
     elem = xpathResult.iterateNext();
   }
-  return elems;
 }
+
+
 
 /*
  * Selector $type||$q
@@ -629,10 +734,6 @@ const Selector = {
   }
 }
 
-function setFormInputs(inputs) {
-  listen('selecting', Action.setForm(inputs));
-}
-
 function onClipCompleted(callback) {
   listen('completed', Action.completed(callback));
 }
@@ -647,6 +748,7 @@ function isTopWindow() {
  *   pickAction: 'select' or 'confirm', or 'clip'
  *   hideElem: $SelectorInput,
  *   hideElemOnce: $SelectorInput,
+ *   hideSibling: $SelectorInput,
  *   showElem: $SelectorInput,
  *   chAttr: [$action, ...]
  * }
@@ -665,6 +767,7 @@ function apply(plan) {
         listen('selecting', Action.confirmElem(selectorInput));
         break;
       case 'clip':
+        // Do we really need this?
         break;
       default: break;
     }
@@ -683,29 +786,46 @@ function applyGlobal(plan) {
 }
 
 function handleNormalAttr(plan, contextSelectorInput) {
-  const {hideElem, hideElemOnce, showElem, chAttr} = plan;
-  if(hasSelector(hideElem)) {
+  const {hideElem, hideElemOnce, hideSibling, showElem, chAttr,
+    setForm, setConfig} = plan;
+
+  if (hasSelector(hideElem)) {
     const selectorInput = hideElem;
     listen('selecting', Action.hideElem(selectorInput, contextSelectorInput));
     listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
   }
 
-  if(hasSelector(hideElemOnce)) {
+  if (hasSelector(hideElemOnce)) {
     const selectorInput = hideElemOnce;
     listen('selecting', Action.hideElemOnce(selectorInput, contextSelectorInput));
     listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
   }
 
-  if(hasSelector(showElem)) {
+  if (hasSelector(hideSibling)) {
+    const selectorInput = hideSibling;
+    listen('selecting', Action.hideSibling(selectorInput, contextSelectorInput));
+    listen('idle', Action.undoHideSibling(selectorInput, contextSelectorInput));
+  }
+
+  if (hasSelector(showElem)) {
     const selectorInput = showElem;
     listen('selecting', Action.showElem(selectorInput, contextSelectorInput));
     listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
   }
 
-  if(chAttr) {
+  if (chAttr) {
     listen('selecting', Action.chAttr(chAttr, contextSelectorInput));
     listen('idle', Action.undoChAttr(chAttr, contextSelectorInput));
   }
+
+  if (setForm) {
+    listen('actived', Action.setForm(setForm));
+  }
+
+  if (setConfig) {
+    listen('actived', Action.setConfig(setConfig));
+  }
+
 }
 
 const hasSelector = function(it) { return it && it.length > 0; }
@@ -716,7 +836,6 @@ bindListener();
 const PublicApi = {
   apply: apply,
   applyGlobal: applyGlobal,
-  setFormInputs: setFormInputs
 }
 
 export default PublicApi;
