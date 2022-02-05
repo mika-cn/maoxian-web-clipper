@@ -30,6 +30,12 @@ describe("CSS selector text", () => {
   unchange("[attr^=value]");
   unchange("[attr$=value]");
   unchange("[attr*=value]");
+  unchange("[attr*=value i]");
+  changeTo("[open]", "*");
+  changeTo("A[open]", "A");
+  changeTo("A[attr][open]", "A[attr]");
+  changeTo("A[open][attr]", "A[attr]");
+  changeTo("A[open][attr=value s]", "A[attr=value s]");
 
   unchange("A,B");
   unchange("A B");
@@ -53,6 +59,9 @@ describe("CSS selector text", () => {
   changeTo("it::before", "it");
   changeTo("it::first-line", "it");
 
+  changeTo("it:before[attr]", "it[attr]");
+  changeTo("it[attr]:after", "it[attr]");
+
   changeTo(":actived", "*");
   changeTo("it :actived", "it *");
   changeTo("it, :actived", "it, *");
@@ -69,5 +78,6 @@ describe("CSS selector text", () => {
   changeTo(":has(> img)", '*');
   changeTo("it:unknown-class-name", "it");
   changeTo("::unknown-element-name", "*");
+  changeTo(":host(#id)[attr=value]:first-child[open]", "[attr=value]:first-child");
 
 });

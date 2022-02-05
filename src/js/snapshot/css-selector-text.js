@@ -1,6 +1,11 @@
 
 import {NODE_TYPE} from '../lib/constants.js';
 
+// These attributes will be removed from selector (won't be used)
+const ATTR_WHITELIST = new Set([
+  "open", // <details>
+]);
+
 // Pseudo-classes
 //   @see MDN/en-US/docs/Web/CSS/Pseudo-classes
 //
@@ -138,31 +143,39 @@ const PSEUDO_ELEMENTS_DICT = {
  * 2. using the universal selector(*) if the edited selector become empty.
  *
  */
-function simplify(selectorText, ancestorPseudoNames = []) {
-  /*
-  if (ancestorPseudoNames.length > 0) {
-    console.log("^^^^^^^^^^^^^^^^^^^^ > ", ancestorPseudoNames)
-  }
-  */
-  const pseudoModifier = function({lastPseudo, basicSelector, pseudoType, pseudoName, pseudoArgsStr}) {
-    if (keepPseudo(pseudoType, pseudoName)) {
-      if (pseudoArgsStr) {
-        // We haven't use the ancestorPseudoNames yet,
-        // Is it needed here? (reconsider me)
-        return renderPseudo(pseudoType, pseudoName,
-          simplify(pseudoArgsStr, [pseudoName, ...ancestorPseudoNames])
-        );
-      } else {
-        return renderPseudo(pseudoType, pseudoName);
-      }
-    } else {
-      return (basicSelector ? '' : (lastPseudo ? '*' : ''));
-    }
-  }
-
-  return editSelectorText(selectorText, pseudoModifier);
+function simplify(selectorText) {
+  return editSelectorText(selectorText, attrModifier, pseudoModifier);
 }
 
+
+function attrModifier({currPart, isLastPart, attrName, attrOperator, attrValue, attrSuffix}) {
+  if (ATTR_WHITELIST.has(attrName)) {
+    return (currPart ? '' : (isLastPart ? '*' : ''));
+  } else {
+    // render attribute
+    const r = [attrName];
+    if (attrOperator && attrValue) {
+      r.push(attrOperator);
+      r.push(attrValue);
+    }
+    if (attrSuffix) {
+      r.push(' ' + attrSuffix)
+    }
+    return "[" + r.join('') + "]";
+  }
+}
+
+function pseudoModifier({currPart, isLastPart, pseudoType, pseudoName, pseudoArgsStr}) {
+  if (keepPseudo(pseudoType, pseudoName)) {
+    if (pseudoArgsStr) {
+      return renderPseudo(pseudoType, pseudoName, simplify(pseudoArgsStr));
+    } else {
+      return renderPseudo(pseudoType, pseudoName);
+    }
+  } else {
+    return (currPart ? '' : (isLastPart ? '*' : ''));
+  }
+}
 
 function keepPseudo(pseudoType, pseudoName) {
   if (pseudoType === PSEUDO_ELEMENT) {
@@ -186,17 +199,19 @@ function renderPseudo(pseudoType, pseudoName, pseudoArgsStr) {
 
 // @see mdn/en-US/docs/Web/CSS/CSS_Selectors
 //
-// Universal selector
-//   `*`, `ns|*`, `*|*`
+// Basic Selector
 //
-// Type selector
-//   `elementname`
+//   Universal selector
+//     `*`, `ns|*`, `*|*`
 //
-// Class selector
-//   `.classname`
+//   Type selector
+//     `elementname`
 //
-// ID selector
-//   `#idname`
+//   Class selector
+//     `.classname`
+//
+//   ID selector
+//     `#idname`
 //
 // Attribute Selector
 //
@@ -207,7 +222,12 @@ function renderPseudo(pseudoType, pseudoName, pseudoArgsStr) {
 //   * [attr^=value]
 //   * [attr$=value]
 //   * [attr*=value]
+//   * [attr operator value suffixMode]
 //
+// Pseudoes
+//
+//   pseudoClasses(:*)
+//   pseudoElements(::*)
 //
 // Grouping:
 //   `,`
@@ -216,34 +236,36 @@ function renderPseudo(pseudoType, pseudoName, pseudoArgsStr) {
 // Combinators:
 //   ` `, `>`, `~`, `+`, `||`
 //
-// Pseudoes
-//
-//   pseudoClasses(:*)
-//   pseudoElements(::*)
 
-const [PSEUDO_KLASS, PSEUDO_ELEMENT] = [1, 2];
+const [ATTR_UNKNOW, ATTR_NAME, ATTR_VALUE, ATTR_SUFFIX] = [0, 1, 2, 3];
+const [PSEUDO_UNKNOWN, PSEUDO_KLASS, PSEUDO_ELEMENT] = [0, 1, 2];
+const [OUTSIDE, INSIDE_BASIC, INSIDE_ATTR, INSIDE_PSEUDO] = [1, 2, 3, 4];
 
 // leftChar => rightChar
 const DICT = {'(' : ')', '[': ']', '"': '"', "'": "'"};
 
-function editSelectorText(selectorText, pseudoModifier) {
+function editSelectorText(selectorText, attrModifier, pseudoModifier) {
   const removeNamespace = true;
-  // MODE_IN means we're inside something.
-  const [MODE_OUT, MODE_IN] = [1, 2];
+  let pointer = OUTSIDE;
 
-  // Flag, whether we're inside a pseudo or not.
-  let pseudoMode = MODE_OUT;
-  let pseudoType;
-  let pseudoName = '';
-  let pseudoArgsStr = '';
-
-  // Flag, whether we're inside basicSelector or not.
-  let basicSelectorMode = MODE_OUT;
   let basicSelector = '';
   let basicSelectorAdded = false;
 
+  let attrPointer = ATTR_UNKNOW;
+  let attrName     = '';
+  let attrOperator = '';
+  let attrValue    = '';
+  let attrSuffix   = '';
+
+  let pseudoType = PSEUDO_UNKNOWN;
+  let pseudoName = '';
+  let pseudoArgsStr = '';
+
   // stack, push direction: left to right;
   let leftChars = [];
+
+  // store str of current selector
+  let currPart = '';
   let result = '';
 
   const len = selectorText.length;
@@ -251,17 +273,220 @@ function editSelectorText(selectorText, pseudoModifier) {
   for (let i = 0; i < len; i++) {
     const ch = selectorText[i];
 
-    if (pseudoMode === MODE_OUT) {
+    // outside selector
+    if (pointer == OUTSIDE) {
+      switch(ch) {
+        case ' ':
+        case '\t':
+        case '\n':
+        case ',':
+        case '>':
+        case '~':
+        case '+':
+        case '|': {
+          // in the middle of two selectors
+          result += ch;
+          break;
+        }
+        case ':': {
+          pointer = INSIDE_PSEUDO;
+          // step back one index, so the other branch of code
+          // can identify it as a pseudo.
+          i--;
+          break;
+        }
+        case '[': {
+          // attribute
+          pointer = INSIDE_ATTR;
+          i--; // step back
+          break;
+        }
+        default: {
+          pointer = INSIDE_BASIC;
+          basicSelector += ch;
+          break;
+        }
+      }
+      continue;
+    }
 
-      if (ch == ':') {
-        pseudoMode = MODE_IN;
-        basicSelectorMode = MODE_OUT;
 
+    // =========================================================
+    // handle basic selector
+    // =========================================================
+
+    if (pointer == INSIDE_BASIC) {
+      switch(ch) {
+        case ' ':
+        case '\t':
+        case '\n':
+        case ',':
+        case '>':
+        case '~':
+        case '+': {
+          result += `${basicSelector}${ch}`;
+          basicSelector = '';
+          pointer = OUTSIDE;
+          basicSelectorAdded = false;
+          break;
+        }
+        case ':': {
+          pointer = INSIDE_PSEUDO;
+          i--; // step back
+          break;
+        }
+        case '[': {
+          pointer = INSIDE_ATTR;
+          i--; // step back
+          break;
+        }
+        case '|': {
+          if (i + 1 < len) {
+            const nextChar = selectorText[i + 1];
+            if (nextChar === ch) {
+              // is `||` (column combinator)
+              result += `${basicSelector}${ch}`;
+              basicSelector = '';
+              pointer = OUTSIDE;
+              basicSelectorAdded = false;
+            } else {
+              // is `|` (namespace selector)
+              if (removeNamespace) {
+                basicSelector = '';
+              } else {
+                basicSelector += ch;
+              }
+            }
+          } else {
+            const msg = `editSelectorText(): should not reach here: ${selectorText}`;
+            throw new Error(msg);
+          }
+          break;
+        }
+        default:
+          basicSelector += ch;
+          break;
+      }
+      continue;
+    }
+
+    // =========================================================
+    // handle attribute selector
+    // =========================================================
+    if (pointer == INSIDE_ATTR) {
+      // this is the begining of attribute
+      if (ch == '[') {
+        attrPointer = ATTR_NAME;
         if (!basicSelectorAdded) {
           result += basicSelector
+          currPart += basicSelector;
+          basicSelector = '';
           basicSelectorAdded = true;
         }
+        continue;
+      }
 
+      if (leftChars.length == 0) {
+        switch(ch) {
+          case ']': {
+            // end of attribute
+
+            const nextIsAttr   = i + 1 < len && selectorText[i + 1] == '[';
+            const nextIsPseudo = i + 1 < len && selectorText[i + 1] == ':';
+            const isLastPart = !(nextIsAttr || nextIsPseudo);
+            const it = attrModifier({currPart, isLastPart, attrName, attrOperator, attrValue, attrSuffix});
+
+            result += it;
+            if (isLastPart) {
+              currPart = '';
+              pointer = OUTSIDE;
+              basicSelectorAdded = false;
+            }
+
+            if (nextIsAttr)   {currPart += it; pointer = INSIDE_ATTR}
+            if (nextIsPseudo) {currPart += it; pointer = INSIDE_PSEUDO}
+
+            attrPointer = ATTR_UNKNOW;
+            attrName     = '';
+            attrOperator = '';
+            attrValue    = '';
+            attrSuffix   = '';
+            break;
+          }
+          case ' ': {
+            if (attrPointer == ATTR_VALUE) {
+              attrPointer = ATTR_SUFFIX;
+            }
+            break;
+          }
+          case '"':
+          case "'": {
+            leftChars.push(ch);
+            if (attrOperator) {
+              attrValue += ch;
+            } else {
+              throw new Error("Should not reach here, operator isn't exists");
+            }
+            break;
+          }
+          case '=': // [attr=value]
+          case '~': // [attr~=value]
+          case '|': // [attr|=value]
+          case '^': // [attr^=value]
+          case '$': // [attr$=value]
+          case '*': // [attr*=value]
+          {
+            // is a operator
+            if (ch !== '=') {
+              if (i + 1 >= len) {
+                throw new Error("Should not reach the end of selector text");
+              }
+              const nextCh = selectorText[i + 1];
+              if (nextCh !== '=') {
+                throw new Error(`Attribute selector invalid: expect "${ch}=" but got "${ch}${nextCh}"`);
+              }
+              attrOperator = ch + '=';
+              i++; // skip next char;
+            } else {
+              attrOperator = ch;
+            }
+            attrPointer = ATTR_VALUE;
+            break;
+          }
+          default: {
+            if (attrPointer == ATTR_NAME)   {attrName   += ch; break}
+            if (attrPointer == ATTR_VALUE)  {attrValue  += ch; break}
+            if (attrPointer == ATTR_SUFFIX) {attrSuffix += ch; break}
+          }
+        }
+
+
+      } else {
+        // inside value String
+
+        if ((ch == '"' || ch == "'") && leftChars[0] == ch) {
+          leftChars.shift();
+        }
+        attrValue += ch;
+      }
+
+      continue;
+    }
+
+    // =========================================================
+    // handle pseudo
+    // =========================================================
+
+    if (pointer == INSIDE_PSEUDO) {
+
+      // this is the begining of pseudo
+      if (ch == ':' && pseudoType == PSEUDO_UNKNOWN) {
+        if (!basicSelectorAdded) {
+          result += basicSelector
+          currPart += basicSelector;
+          basicSelector = '';
+          basicSelectorAdded = true;
+        }
         // Is next char a colon?
         if (i + 1 < len && selectorText[i + 1] == ':') {
           pseudoType = PSEUDO_ELEMENT;
@@ -269,84 +494,67 @@ function editSelectorText(selectorText, pseudoModifier) {
         } else {
           pseudoType = PSEUDO_KLASS;
         }
-        pseudoName = '';
-
-      } else {
-
-        if (basicSelectorMode === MODE_OUT) {
-          switch(ch) {
-            case ' ':
-            case '\t':
-            case '\n':
-            case ',':
-            case '>':
-            case '~':
-            case '+':
-            case '|': {
-              result += ch;
-              break;
-            }
-            default: {
-              basicSelectorMode = MODE_IN;
-              basicSelector += ch;
-              break;
-            }
-          }
-
-        } else {
-          // inside basic selector
-          switch(ch) {
-            case ' ':
-            case '\t':
-            case '\n':
-            case ',':
-            case '>':
-            case '~':
-            case '+': {
-              result += `${basicSelector}${ch}`;
-              basicSelector = '';
-              basicSelectorMode = MODE_OUT;
-              basicSelectorAdded = false;
-              break;
-            }
-            case '|': {
-              if (i + 1 < len) {
-                const nextChar = selectorText[i + 1];
-                if (nextChar === ch) {
-                  // is `||` (column combinator)
-                  result += `${basicSelector}${ch}`;
-                  basicSelector = '';
-                  basicSelectorMode = MODE_OUT;
-                  basicSelectorAdded = false;
-                } else if (nextChar === '=') {
-                  // is `|= (inside attribute selector)
-                  basicSelector += ch;
-                } else {
-                  // is `|` (namespace selector)
-                  if (removeNamespace) {
-                    basicSelector = '';
-                  } else {
-                    basicSelector += ch;
-                  }
-                }
-              } else {
-                const msg = `editSelectorText(): should not reach here: ${selectorText}`;
-                throw new Error(msg);
-              }
-              break;
-            }
-            default:
-              basicSelector += ch;
-              break;
-          }
-        }
+        continue;
       }
 
+      // collecting pseudo chars
 
-    } else {
-      // inside pseudo
-      if (leftChars.length > 0) {
+      if (leftChars.length == 0) {
+        // outside pseudo arguments
+        switch(ch) {
+          case '(' : {
+            leftChars.unshift('(');
+            pseudoArgsStr = '';
+            break;
+          }
+          case ' ':
+          case '\t':
+          case '\n':
+          case ',':
+          case '>':
+          case '~':
+          case '+':
+          case '|':
+          case '[':
+          case ':' : {
+            // end of current pseudo.
+            let isLastPart = true;
+            if (ch == ':') {
+              isLastPart = false;
+              const it = pseudoModifier({currPart, isLastPart, pseudoType, pseudoName});
+              currPart += it;
+              result   += it;
+              pointer = INSIDE_PSEUDO;
+              i--; // step back
+            } else if (ch == '[') {
+              isLastPart = false;
+              const it = pseudoModifier({currPart, isLastPart, pseudoType, pseudoName});
+              currPart += it;
+              result   += it;
+              pointer = INSIDE_ATTR;
+              i--; // step back
+            } else {
+              result += pseudoModifier({currPart, isLastPart, pseudoType, pseudoName});
+              result += ch;
+              pointer = OUTSIDE;
+              currPart = '';
+              basicSelectorAdded = false;
+            }
+            pseudoType = PSEUDO_UNKNOWN;
+            pseudoName = '';
+            break;
+          }
+          default: {
+            pseudoName += ch;
+            break;
+          }
+        }
+        continue;
+
+
+      } else {
         // inside pseudo arguments
+
         switch(ch) {
           case '(':
           case '[': {
@@ -363,17 +571,27 @@ function editSelectorText(selectorText, pseudoModifier) {
               leftChars.shift();
 
               if (leftChars.length == 0) {
-                // stack is empty
-                const lastPseudo = !(i + 1 < len && selectorText[i + 1] == ':')
+                // stack is empty, reach the end of arguments
+                const nextIsAttr   = (i + 1 < len && selectorText[i + 1] == '[');
+                const nextIsPseudo = (i + 1 < len && selectorText[i + 1] == ':');
+                const isLastPart = !(nextIsAttr || nextIsPseudo);
 
-                result += pseudoModifier({basicSelector, pseudoType, pseudoName, pseudoArgsStr, lastPseudo});
-                if (lastPseudo) {
-                  basicSelector = ''
+                const it = pseudoModifier({currPart, isLastPart, pseudoType, pseudoName, pseudoArgsStr});
+
+                result += it;
+                if (isLastPart) {
+                  currPart = '';
                   basicSelectorAdded = false;
+                  pointer = OUTSIDE;
                 }
+
+                if (nextIsAttr)   {currPart += it; pointer = INSIDE_ATTR}
+                if (nextIsPseudo) {currPart += it; pointer = INSIDE_PSEUDO}
+
+                pseudoType = PSEUDO_UNKNOWN;
                 pseudoName = '';
                 pseudoArgsStr = '';
-                pseudoMode = MODE_OUT;
+
               } else {
                 pseudoArgsStr += ch;
               }
@@ -391,61 +609,29 @@ function editSelectorText(selectorText, pseudoModifier) {
             break;
           }
         }
-
-      } else {
-        // outside pseudo arguments
-        switch(ch) {
-          case '(' : {
-            leftChars.unshift('(');
-            pseudoArgsStr = '';
-            break;
-          }
-          case ' ':
-          case '\t':
-          case '\n':
-          case ',':
-          case '>':
-          case '~':
-          case '+':
-          case '|':
-          case ':' : {
-            // end of current pseudo.
-            let lastPseudo = true;
-            if (ch == ':') {
-              lastPseudo = false;
-              result += pseudoModifier({basicSelector, pseudoType, pseudoName, lastPseudo});
-              // step back one index, so that the other branch of code
-              // can identify it as a pseudo.
-              i -= 1
-            } else {
-              result += pseudoModifier({basicSelector, pseudoType, pseudoName, lastPseudo});
-              result += ch;
-              basicSelector = '';
-              basicSelectorAdded = false;
-            }
-            pseudoName = '';
-            pseudoMode = MODE_OUT;
-            continue;
-          }
-          default: {
-            pseudoName += ch;
-          }
-        }
+        continue;
       }
+
     }
 
   }
 
-  if (pseudoMode === MODE_IN && pseudoName) {
-    const lastPseudo = true;
-    result += pseudoModifier({basicSelector, pseudoType, pseudoName, lastPseudo});
-    pseudoMode = MODE_OUT;
-    basicSelectorMode = MODE_OUT;
+  // reach the end.
+
+  if (pointer == INSIDE_BASIC && basicSelector) {
+    result += basicSelector;
+    return result;
   }
 
-  if (basicSelectorMode === MODE_IN && basicSelector) {
-    result += basicSelector;
-    basicSelectorMode = MODE_OUT;
+  if (pointer == INSIDE_ATTR && attrName) {
+    const isLastPart = true;
+    result += attrModifier({currPart, isLastPart, attrName, attrOperator, attrValue, attrSuffix});
+    return result;
+  }
+
+  if (pointer == INSIDE_PSEUDO && pseudoName) {
+    const isLastPart = true;
+    result += pseudoModifier({currPart, isLastPart, pseudoType, pseudoName});
   }
 
   return result;
@@ -476,7 +662,7 @@ class Matcher {
     }
 
     const firstNode = this.nodesToMatch[0];
-    let selectorTextInvalid = false;
+    let selectorTextArgInvalid = false;
     try {
       if (firstNode.querySelector(selectorText)) {
         return true;
@@ -487,14 +673,14 @@ class Matcher {
       // For example, namespaced selectors are valid selectors, but they
       // are not supported by querySelector().
       //
-      selectorTextInvalid = true;
+      selectorTextArgInvalid = true;
     }
 
     // FIXME adding catch ?
     const simplifiedSelectorText = simplify(selectorText);
 
     if (simplifiedSelectorText === selectorText) {
-      if (selectorTextInvalid) {
+      if (selectorTextArgInvalid) {
         // both selector texts are invalid for querySelector() or matches();
         // We can't detect it, just return true for safety.
         //
@@ -517,7 +703,7 @@ class Matcher {
         simplifiedSelectorTextInvalid = true;
       }
 
-      if (selectorTextInvalid && simplifiedSelectorTextInvalid) {
+      if (selectorTextArgInvalid && simplifiedSelectorTextInvalid) {
         // both selector texts are invalid for querySelector() or matches();
         // We can't detect it, just return true for safety.
         //
@@ -526,7 +712,7 @@ class Matcher {
 
       for (const node of this.nodesToMatch) {
         if (node.matches) {
-          if ((!selectorTextInvalid) && node.matches(selectorText)) {
+          if ((!selectorTextArgInvalid) && node.matches(selectorText)) {
             return true;
           }
           if ((!simplifiedSelectorTextInvalid) && node.matches(simplifiedSelectorText)) {
