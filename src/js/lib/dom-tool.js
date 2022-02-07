@@ -146,7 +146,7 @@ function getWebPageTitle(win, contextElem) {
 
 
 function getElemTitle(win, contextElem) {
-  const elems = querySelectorIncludeSelf(contextElem, 'h1');
+  const elems = querySelectorIncludeSelf(contextElem, 'h1,h2');
   const header = (elems.length > 0 ? elems[0].textContent.trim() : '');
   if (header && win.document.title.startsWith(header)) {
     return header;
