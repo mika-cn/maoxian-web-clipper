@@ -66,7 +66,7 @@ function listenMessage(){
   MxWcEvent.listenInternal('clipping', stopMutationObserver);
   MxWcEvent.listenInternal('idle', stopMutationObserver);
 
-  MxWcEvent.listenInternal('selecting', lockScroller);
+  MxWcEvent.listenInternal('actived', lockScroller);
   MxWcEvent.listenInternal('clipped', unlockScroller);
   MxWcEvent.listenInternal('idle', unlockScroller);
 }
