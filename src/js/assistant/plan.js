@@ -556,18 +556,32 @@ Action.clipElem = createPickedElemAction({
   options: {}
 });
 
-Action.setForm = function(inputs) {
+/*
+ * @param {Object} form
+ *   - {SelectorInput} [title]
+ *   - {String} [category]
+ *   - {String} [tagstr]
+ */
+Action.setForm = function(form = {}) {
   return {
     name: 'setForm',
     isPerformOnce: true,
-    inputs: inputs,
+    form: form,
     perform: function(detail={}) {
+      const selectorInput = this.form.title;
+      const inputs = T.sliceObj(this.form, ['category', 'tagstr']);
+      const change = {};
+      if (selectorInput) {
+        const [elem, selector] = queryFirstElem(selectorInput, document);
+        if(elem) {change.title = elem.textContent.trim()}
+      }
       MxWcEvent.dispatchInternal('set-form-inputs', {
-        formInputs: inputs
+        formInputs: Object.assign({}, inputs, change)
       });
     }
   }
 };
+
 
 Action.setConfig = function(config) {
   return {
