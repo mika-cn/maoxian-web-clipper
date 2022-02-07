@@ -184,17 +184,23 @@ function createUndoDisplayAction(params) {
  * Structure of $action {Object}
  *
  * action.type {String} (required) available values are:
- *   0. "assign.from.value"
- *   1. "assign.from.self-attr"
- *   2. "assign.from.parent-attr"
- *   3. "assign.from.ancestor-attr"
- *   4. "assign.from.ancestor.child-attr"
+ *   T01 = "assign.from.value"
+ *   T02 = "assign.from.self-attr"
  *
- *   5. "replace.last-match"
- *   6. "replace.all"
+ *   T11 = "assign.from.parent-attr"
+ *   T12 = "assign.from.ancestor-attr"
+ *   T13 = "assign.from.ancestor.child-attr"
  *
- *   7. "split2list.add"
- *   8. "split2list.remove"
+ *   T21 = "assign.from.first-child-attr"
+ *   T22 = "assign.from.child-attr"
+ *   T23 = "assign.from.descendent-attr"
+ *
+ *   T71 = "replace.last-match"
+ *   T72 = "replace.all"
+ *
+ *   T91 = "split2list.add"
+ *   T92 = "split2list.remove"
+ *
  *
  * action.pick {SelectorInput} (required)
  *   Which element to operator.
@@ -202,30 +208,30 @@ function createUndoDisplayAction(params) {
  * action.attr {String} (required)
  *   Which attribute to operator.
  *
- * action.subStr {String|Array} (required if type is 5 or 6)
+ * action.subStr {String|Array} (required if type is T71 or T72)
  *   The String that is to be replaced by newStr. not interpreted as a regular expression.
  *
  *
- * action.newStr {String} (required if type is 5 or 6)
+ * action.newStr {String} (required if type is T71 or T72)
  *   The String that replaces the substring specified by the subStr parameter.
  *
- * action.tElem {Array} (required if type is 3 or 4)
+ * action.tElem {Array} (required if type is in [T12, T13, T22, T23])
  *   The CSS selector(s) that will be used to select the target element.
- *   if type is 3 it contains one or two selectors,
+ *   if type is T12, it contains one or two selectors,
  *     the first one is used to select the ancestor,
  *     if the first one is not enough to identify the ancestor,
  *     provide the second one which select the ancestor's children to help the identification.
- *   if type is 4 it should contains two CSS selectors,
+ *   if type is T13 it should contains two CSS selectors,
  *     the first one is used to select the ancestor,
  *     the second one is used to select the ancestor's children.
  *
- * action.tAttr {String} (required if type is in [1, 2, 3, 4])
+ * action.tAttr {String} (required if type is in [T02, T11, T12, T13, T21, T22, T23])
  *   The target attribute that will be used as value to assignment.
  *
- * action.sep {String} (required if type is 7 or 8.)
+ * action.sep {String} (required if type is T91 or T92.)
  *   The separator that will be used to split the attribute (action.attr).
  *
- * action.value {String} (required if type is in [0, 7, 8])
+ * action.value {String} (required if type is in [T01, T91, T92])
  *   The value that will be assigned, added or removed from the list.
  *
  */
@@ -267,10 +273,18 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
           .forEach(function(elem) {
             const value = This.getValue(elem, action, contextElem);
             if(value) {
-              const attrName = ['data-mx-original-attr', action.attr].join('-');
-              let attrOldValue = elem.getAttribute(action.attr);
-              attrOldValue = attrOldValue == null ? "" : attrOldValue;
-              elem.setAttribute(attrName, attrOldValue);
+              if (!action.attr.startsWith('data-mx-')) {
+                // Not a MaoXian attribute
+                const attrName = ['data-mx-original-attr', action.attr].join('-');
+                if (elem.hasAttribute(attrName)) {
+                  // Do nothing, avoid overwriting the original attribute.
+                } else {
+                  // Save original attribute
+                  let attrOldValue = elem.getAttribute(action.attr);
+                  attrOldValue = attrOldValue == null ? "" : attrOldValue;
+                  elem.setAttribute(attrName, attrOldValue);
+                }
+              }
               elem.setAttribute(action.attr, value);
             }
           });
@@ -307,25 +321,15 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
             // out of scope, stop iterating
             if (ancestor == contextElem) { return false }
 
-            if (isElemMatchesSelector(ancestor, ancestorSelector)) {
-              if (childSelector) {
-                // both selector were provided.
-                const children = queryElemsByCss(childSelector, ancestor);
-                if (children.length > 0) {
-                  // both selector can match elements, this is the target.
-                  result = ancestor.getAttribute(action.tAttr);
-                  return false;
-                } else {
-                  // the second selector can't match any elements,
-                  // this is not the target, keep iterating.
-                  return true;
-                }
-              } else {
-                // only ancestorSelector was provided, this is the target.
-                result = ancestor.getAttribute(action.tAttr);
-                return false;
-              }
+            const selectorGroup = [ancestorSelector, childSelector];
+            const options = {pick: "self"};
+            const r = matchesSelectorGroup(ancestor, selectorGroup, options);
+            if (r.matches) {
+              result = r.elem.getAttribute(action.tAttr);
+              // stop iterating, found the result
+              return false;
             } else {
+              // keep iterating
               return true;
             }
           });
@@ -342,20 +346,66 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
             // out of scope, stop iterating
             if (ancestor == contextElem) { return false }
 
-            if (isElemMatchesSelector(ancestor, ancestorSelector)) {
-              const children = queryElemsByCss(action.tSelector, ancestor);
-
-              // it's the wrong ancestor, keep iterating.
-              if (children.length == 0) { return true }
-
-              // Should not select the picked elem, keep iterating.
-              if (children[0] == elem) { return true }
-
-              result = children[0].getAttribute(action.tAttr);
+            const selectorGroup = [ancestorSelector, childSelector];
+            const options = {pick: "child", childBlacklist: [elem]};
+            const r = matchesSelectorGroup(ancestor, selectorGroup, options);
+            if (r.matches) {
+              result = r.elem.getAttribute(action.tAttr);
+              // stop iterating, found the result
               return false;
+            } else {
+              // keep iterating
+              return true;
             }
-            return true;
           });
+          return result;
+        }
+
+        case 'assign.from.first-child-attr': {
+          const children = elem.children;
+          if (children && children.length > 0) {
+            return children[0].getAttribute(action.tAttr);
+          } else {
+            return undefined;
+          }
+        }
+
+        case 'assign.from.child-attr': {
+          let result = undefined;
+          const [selectorA, selectorB] = action.tElem;
+          if (!selectorA) { return result }
+
+          iterateChildren(elem, (child) => {
+            const selectorGroup = [selectorA, selectorB];
+            const options = {pick: "self"};
+            const r = matchesSelectorGroup(child, selectorGroup, options);
+            if (r.matches) {
+              result = r.elem.getAttribute(action.tAttr);
+              // stop iterating, found the result
+              return false;
+            } else {
+              // keep iterating
+              return true;
+            }
+          });
+
+          return result;
+        }
+
+        case 'assign.from.descendant-attr': {
+          let result = undefined;
+          const [selectorA, selectorB] = action.tElem;
+          if (!selectorA) { return result }
+          const elems = queryElemsByCss(selectorA, elem);
+          if (elems.length == 0) { return result }
+          if (selectorB) {
+            const target = elems.find((it) => queryElemsBySelector(selectorB, it).length > 0);
+            if (target) {
+              result = target.getAttribute(action.tAttr);
+            }
+          } else {
+            result = elems[0].getAttribute(action.tAttr);
+          }
           return result;
         }
 
@@ -443,11 +493,17 @@ Action.undoChAttr = function(params, contextSelectorInput = 'document') {
         selectorStrs.forEach(function(it) {
           queryElemsBySelector(it, contextElem)
             .forEach(function(elem) {
-              const attrName = ['data-mx-original-attr', action.attr].join('-');
-              const originalValue = elem.getAttribute(attrName);
-              if(originalValue != null) {
-                elem.setAttribute(action.attr, originalValue);
-                elem.removeAttribute(attrName);
+              if (action.attr.startsWith('data-mx-')) {
+                // maoxian attribute, remove it
+                elem.removeAttribute(action.attr);
+              } else {
+                // not a maoxian attribute, restore old value
+                const attrName = ['data-mx-original-attr', action.attr].join('-');
+                const originalValue = elem.getAttribute(attrName);
+                if(originalValue != null) {
+                  elem.setAttribute(action.attr, originalValue);
+                  elem.removeAttribute(attrName);
+                }
               }
             });
         });
@@ -500,18 +556,33 @@ Action.clipElem = createPickedElemAction({
   options: {}
 });
 
-Action.setForm = function(inputs) {
+/*
+ * @param {Object} form
+ *   - {String} [format]
+ *   - {SelectorInput} [title]
+ *   - {String} [category]
+ *   - {String} [tagstr]
+ */
+Action.setForm = function(form = {}) {
   return {
     name: 'setForm',
     isPerformOnce: true,
-    inputs: inputs,
+    form: form,
     perform: function(detail={}) {
+      const selectorInput = this.form.title;
+      const inputs = T.sliceObj(this.form, ['format', 'category', 'tagstr']);
+      const change = {};
+      if (selectorInput) {
+        const [elem, selector] = queryFirstElem(selectorInput, document);
+        if(elem) {change.title = elem.textContent.trim()}
+      }
       MxWcEvent.dispatchInternal('set-form-inputs', {
-        formInputs: inputs
+        formInputs: Object.assign({}, inputs, change)
       });
     }
   }
 };
+
 
 Action.setConfig = function(config) {
   return {
@@ -541,6 +612,13 @@ Action.completed = function(fn) {
 // Tool functions
 //=========================================
 
+function iterateChildren(elem, action) {
+  for (const child of elem.children) {
+    const continueIterate = action(child);
+    if (!continueIterate) { break }
+  }
+}
+
 function iterateAncestors(elem, action) {
   let currElem = elem;
   let pElem;
@@ -555,6 +633,62 @@ function iterateAncestors(elem, action) {
     }
   }
 }
+
+
+
+/**
+ *
+ * @param {Array} selectorGroup - one or two selector.
+ * @param {Object} options
+ * @param {String} options.pick - "self" or "child"
+ * @param {[Element]} options.childBlacklist
+ *
+ * @returns {Object} result
+ *        - {boolean} result.matches
+ *        - {Element|undefined} result.elem
+ */
+function matchesSelectorGroup(elem, selectorGroup, options = {}) {
+  const [selfSelector, childSelector] = selectorGroup;
+  const {pick = "self", childBlacklist = []} = options;
+  const result = {matches: false, elem: undefined};
+  if (!selfSelector) { return result }
+  if (pick == "child" && !childSelector) { return result }
+  if (!isElemMatchesSelector(elem, selfSelector)) {
+    // selfSelector not matches
+    return result;
+  }
+
+  // -- selfSelector matches --
+  if (!childSelector) {
+    // in this case, pick is "self" and
+    // only the selfSelector was provided.
+    result.matches = true;
+    result.elem = elem;
+    return result;
+  }
+
+  // -- childSelector exists --
+
+  const children = queryElemsByCss(childSelector, elem);
+  if (children.length == 0) {
+    // childSelector can't matches
+    return result;
+  }
+
+  const firstChild = children[0];
+  if ( childBlacklist
+    && childBlacklist.length > 0
+    && childBlacklist.indexOf(firstChild) > -1) {
+    // on black list
+    return result;
+  }
+
+  // -- childSelector matches --
+  result.matches = true;
+  result.elem = (pick == "self" ? elem : firstChild);
+  return result;
+}
+
 
 function isElemMatchesSelector(elem, selector) {
   try {
@@ -833,9 +967,6 @@ const hasSelector = function(it) { return it && it.length > 0; }
 /* initialize */
 bindListener();
 
-const PublicApi = {
-  apply: apply,
-  applyGlobal: applyGlobal,
-}
+const PublicApi = {apply, applyGlobal}
 
 export default PublicApi;

@@ -61,9 +61,14 @@ function messageHandler(msg) {
 
 function listenMessage(){
   ExtMsg.listen('content', messageHandler);
+
   MxWcEvent.listenInternal('selecting', initMutationObserver);
   MxWcEvent.listenInternal('clipping', stopMutationObserver);
   MxWcEvent.listenInternal('idle', stopMutationObserver);
+
+  MxWcEvent.listenInternal('actived', lockScroller);
+  MxWcEvent.listenInternal('clipped', unlockScroller);
+  MxWcEvent.listenInternal('idle', unlockScroller);
 }
 
 let observer = undefined;
@@ -88,6 +93,25 @@ function stopMutationObserver() {
     Log.debug("stop mutation observer");
   }
 }
+
+function lockScroller() {
+  const options = {capture: true};
+  T.bindOnce(document, 'scroll', stopEvent, options);
+  Log.debug("lock scroller");
+}
+
+function unlockScroller() {
+  const options = {capture: true};
+  T.unbind(document, 'scroll', stopEvent, options);
+  Log.debug("unlock scroller");
+}
+
+function stopEvent(e) {
+  e.stopPropagation();
+  e.preventDefault();
+  // Log.debug("stopEvent: ", e.type);
+}
+
 
 function listenInternalMessage() {
   MxWcEvent.listenInternal('set-form-inputs'   , wrapToEventHandler(setFormInputs));

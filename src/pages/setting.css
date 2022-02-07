@@ -285,8 +285,6 @@ div.binded.actived {display: block;}
 table {
   width: 100%;
   padding: 5px;
-  border-radius: 3px;
-  border-collapse: collapse;
   font-size: 13px;
 }
 
@@ -295,6 +293,7 @@ table > thead {
 }
 
 table th, td {
+  text-align: left;
   line-height: 25px;
   border: 1px solid #ccc;
   padding: 2px 5px 2px 5px;

@@ -84,6 +84,7 @@ async function takeSnapshotOfCurrNode(node, params) {
   const defaultAncestorInfo = {
     mathAncestor: false, svgAncestor: false,
     codeAncestor: false, preAncestor: false,
+    detailsAncestor: false,
   };
   const {
     win, platform, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
@@ -113,8 +114,11 @@ async function takeSnapshotOfCurrNode(node, params) {
 
       if (ignoreHiddenElement) {
         let hidden;
-        if (ancestorInfo.mathAncestor || ancestorInfo.svgAncestor) {
-          // The current node is descendent of <math> or <svg>
+        if ( ancestorInfo.detailsAncestor
+          || ancestorInfo.mathAncestor
+          || ancestorInfo.svgAncestor
+        ) {
+          // The current node is descendent of<details>, <math>, <svg>
           // Don't ignore it. (There might be side effects)
           hidden = false;
         } else {
@@ -196,6 +200,7 @@ async function takeSnapshotOfCurrNode(node, params) {
           return {snapshot};
         }
 
+        case 'DETAILS':
         case 'CODE':
         case 'PRE':
         case 'MATH':
