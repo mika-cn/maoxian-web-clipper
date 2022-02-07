@@ -77,7 +77,11 @@ async function getGlobalPlan() {
 
 // WARNING: the returned page plan may be disabled.
 async function getPagePlan(url) {
-  const fn = (plan) => FuzzyMatcher.matchUrl(url, plan.pattern);
+  const fn = (plan) => {
+    return T.any(T.toArray(plan.pattern), (pattern) => {
+      return FuzzyMatcher.matchUrl(url, pattern);
+    });
+  }
 
   // find from cachedPlans
   const cachedPlan = state.cachedPlans.find(fn);
