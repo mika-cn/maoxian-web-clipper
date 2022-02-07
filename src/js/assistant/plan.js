@@ -558,6 +558,7 @@ Action.clipElem = createPickedElemAction({
 
 /*
  * @param {Object} form
+ *   - {String} [format]
  *   - {SelectorInput} [title]
  *   - {String} [category]
  *   - {String} [tagstr]
@@ -569,7 +570,7 @@ Action.setForm = function(form = {}) {
     form: form,
     perform: function(detail={}) {
       const selectorInput = this.form.title;
-      const inputs = T.sliceObj(this.form, ['category', 'tagstr']);
+      const inputs = T.sliceObj(this.form, ['format', 'category', 'tagstr']);
       const change = {};
       if (selectorInput) {
         const [elem, selector] = queryFirstElem(selectorInput, document);
