@@ -234,6 +234,8 @@ function createUndoDisplayAction(params) {
  * action.value {String} (required if type is in [T01, T91, T92])
  *   The value that will be assigned, added or removed from the list.
  *
+ *   if type is T91 or T92, it counld be an array.
+ *
  */
 
 function initChAttrActions(params) {
@@ -457,22 +459,23 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
         case 'self.add': //deprecated
         case 'self.remove': //deprecated
         case 'split2list.add':
-        case 'split2list.remove':
+        case 'split2list.remove': {
           let parts = [];
           const attrValue = elem.getAttribute(action.attr);
-          if(attrValue) {
+          if (attrValue) {
             parts = attrValue.trim().split(action.sep);
           }
-          const idx = parts.indexOf(action.value);
-          if((action.type == 'split2list.add' || action.type == 'self.add') && idx == -1) {
-            parts.push(action.value);
-            return parts.join(action.sep);
-          }
-          if((action.type == 'split2list.remove' || action.type == 'self.remove') && idx > -1) {
-            parts.splice(idx, 1);
-            return parts.join(action.sep);
-          }
-          break;
+
+          const isAdd = (action.type == 'split2list.add' || action.type == 'self.add');
+          const isRm  = (action.type == 'split2list.remove' || action.type == 'self.remove');
+
+          T.toArray(action.value).forEach((it) => {
+            const idx = parts.indexOf(it);
+            if(isAdd && idx == -1) { parts.push(it) }
+            if(isRm  && idx >  -1) { parts.splice(idx, 1) }
+          });
+          return parts.join(action.sep);
+        }
       }
       return undefined;
     }
