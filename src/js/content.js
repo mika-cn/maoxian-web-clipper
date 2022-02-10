@@ -1,4 +1,3 @@
-
 import Log               from './lib/log.js';
 import T                 from './lib/tool.js';
 import ExtMsg            from './lib/ext-msg.js';
@@ -63,12 +62,12 @@ function listenMessage(){
   ExtMsg.listen('content', messageHandler);
 
   MxWcEvent.listenInternal('selecting', initMutationObserver);
-  MxWcEvent.listenInternal('clipping', stopMutationObserver);
-  MxWcEvent.listenInternal('idle', stopMutationObserver);
+  MxWcEvent.listenInternal('clipping' , stopMutationObserver);
+  MxWcEvent.listenInternal('idle'     , stopMutationObserver);
 
-  MxWcEvent.listenInternal('actived', lockScroller);
-  MxWcEvent.listenInternal('clipped', unlockScroller);
-  MxWcEvent.listenInternal('idle', unlockScroller);
+  MxWcEvent.listenInternal('actived', lockWebPage);
+  MxWcEvent.listenInternal('clipped', unlockWebPage);
+  MxWcEvent.listenInternal('idle'   , unlockWebPage);
 }
 
 let observer = undefined;
@@ -94,22 +93,14 @@ function stopMutationObserver() {
   }
 }
 
-function lockScroller() {
-  const options = {capture: true};
-  T.bindOnce(document, 'scroll', stopEvent, options);
-  Log.debug("lock scroller");
+function lockWebPage() {
+  MxWcEvent.dispatchPageScript('lock');
+  Log.debug("lock web page");
 }
 
-function unlockScroller() {
-  const options = {capture: true};
-  T.unbind(document, 'scroll', stopEvent, options);
-  Log.debug("unlock scroller");
-}
-
-function stopEvent(e) {
-  e.stopPropagation();
-  e.preventDefault();
-  // Log.debug("stopEvent: ", e.type);
+function unlockWebPage() {
+  MxWcEvent.dispatchPageScript('unlock');
+  Log.debug("lock web page");
 }
 
 
@@ -461,9 +452,9 @@ function activeUI(e) {
 }
 
 function initialize(){
-  T.bind(window, 'resize', function(e){
-    UI.windowSizeChanged(e);
-  });
+  const resizeListener = () => UI.windowSizeChanged();
+  T.bind(document, 'resize', resizeListener);
+  MxWcEvent.listenPageScript('resize', resizeListener);
   Log.debug("content init...");
 }
 

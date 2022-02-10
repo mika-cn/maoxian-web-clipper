@@ -27,64 +27,77 @@
  *
  */
 
+// event scope
+const [PUBLIC, PAGE_SCRIPT, INTERNAL] = [1,2,3];
+
 function dispatchInternal(name, data) {
-  const evType = getType(name, true);
-  dispatch('internal', evType, data);
+  const evType = getType(name, INTERNAL);
+  dispatch(INTERNAL, evType, data);
 }
+
 
 function dispatchPublic(name, data) {
-  const evType = getType(name);
-  dispatch('public', evType, data);
+  const evType = getType(name, PUBLIC);
+  dispatch(PUBLIC, evType, data);
 }
 
+function dispatchPageScript(name, data) {
+  const evType = getType(name, PAGE_SCRIPT);
+  dispatch(PAGE_SCRIPT, evType, data);
+}
+
+
 function listenInternal(name, listener) {
-  const evType = getType(name, true);
-  listen('internal', evType, listener);
+  const evType = getType(name, INTERNAL);
+  listen(INTERNAL, evType, listener);
+}
+
+function listenPageScript(name, listener) {
+  const evType = getType(name, PAGE_SCRIPT);
+  listen(PAGE_SCRIPT, evType, listener);
 }
 
 function listenPublic(name, listener) {
-  const evType = getType(name);
-  listen('public', evType, listener);
+  const evType = getType(name, PUBLIC);
+  listen(PUBLIC, evType, listener);
 }
 
 function broadcastPublic(name, data) {
-  const evType   = getType(name);
+  const evType   = getType(name, PUBLIC);
   const topFrameId = 0;
   performBroadcast({
     type: evType,
     msg: (data || {}),
-    evTargetName: 'public',
     extMsgType: 'broadcast-event.public',
     frameId: topFrameId,
   })
 }
 
 function broadcastInternal(name, data) {
-  const evType = getType(name, true);
+  const evType = getType(name, INTERNAL);
   const topFrameId = 0;
   performBroadcast({
     type: evType,
     msg: (data || {}),
-    evTargetName: 'internal',
     extMsgType: 'broadcast-event.internal',
     frameId: topFrameId,
   })
 }
 
 const BROADCASTABLE_PUBLIC_EVENTS = [
-  getType('idle'),
-  getType('selecting'),
-  getType('selected'),
-  getType('confirmed'),
-  getType('clipping'),
+  getType('idle'      , PUBLIC) ,
+  getType('selecting' , PUBLIC) ,
+  getType('selected'  , PUBLIC) ,
+  getType('confirmed' , PUBLIC) ,
+  getType('clipping'  , PUBLIC) ,
 ];
 
 const BROADCASTABLE_INTERNAL_EVENTS = [
-  getType('idle'      , true) ,
-  getType('selecting' , true) ,
-  getType('selected'  , true) ,
-  getType('confirmed' , true) ,
-  getType('clipping'  , true) ,
+  getType('idle'      , INTERNAL) ,
+  getType('selecting' , INTERNAL) ,
+  getType('selected'  , INTERNAL) ,
+  getType('confirmed' , INTERNAL) ,
+  getType('clipping'  , INTERNAL) ,
 ];
 
 const state = {};
@@ -100,26 +113,26 @@ function extMsgReceived(msgBody, {isInternal}) {
   }
 }
 
+
 function handleBroadcastInternal(msgBody) {
   if (BROADCASTABLE_INTERNAL_EVENTS.indexOf(msgBody.evType) > -1) {
-    dispatch('internal', msgBody.evType, msgBody.message);
+    dispatch(INTERNAL, msgBody.evType, msgBody.message);
     performBroadcast({
       msg: msgBody.message,
       type: msgBody.evType,
-      evTargetName: 'internal',
       extMsgType: 'broadcast-event.internal',
       frameId: (msgBody.frameId || 0),
     })
   }
 }
 
+
 function handleBroadcastPublic(msgBody) {
   if (BROADCASTABLE_PUBLIC_EVENTS.indexOf(msgBody.evType) > -1) {
-    dispatch('public', msgBody.evType, msgBody.message);
+    dispatch(PUBLIC, msgBody.evType, msgBody.message);
     performBroadcast({
       msg: msgBody.message,
       type: msgBody.evType,
-      evTargetName: 'public',
       extMsgType: 'broadcast-event.public',
       frameId: (msgBody.frameId || 0),
     })
@@ -130,7 +143,7 @@ function handleBroadcastPublic(msgBody) {
 
 //=================
 
-function performBroadcast({msg, type, evTargetName, extMsgType, frameId = 0}) {
+function performBroadcast({msg, type, extMsgType, frameId = 0}) {
   // Continue broadcast this message.
   state.ExtMsg.sendToBackend('clipping', {
     type: extMsgType,
@@ -142,38 +155,45 @@ function performBroadcast({msg, type, evTargetName, extMsgType, frameId = 0}) {
   });
 }
 
-function listen(evTargetName, type, listener) {
-  const evTarget = getEvTarget(evTargetName);
+
+function listen(evScope, type, listener) {
+  const evTarget = getEvTarget(evScope);
   evTarget.removeEventListener(type, listener);
   evTarget.addEventListener(type, listener);
 }
 
-function dispatch(evTargetName, type, data) {
-  const evTarget = getEvTarget(evTargetName);
+
+function dispatch(evScope, type, data) {
+  const evTarget = getEvTarget(evScope);
   const detailJson = JSON.stringify(data || {})
   const e = new CustomEvent(type, {detail: detailJson});
   evTarget.dispatchEvent(e);
 }
 
-function getEvTarget(evTargetName) {
-  if (evTargetName === 'public') {
-    return document;
-  }
-
-  if (evTargetName === 'internal') {
-    let target = document.___mx_wc_internal__;
-    if (!target) {
-      target = document.createElement('mx-wc-internal');
-      document.___mx_wc_internal__=target;
+function getEvTarget(evScope) {
+  switch(evScope) {
+    case PUBLIC:
+    case PAGE_SCRIPT:
+      return document;
+    case INTERNAL: {
+      let target = document.___mx_wc_internal__;
+      if (!target) {
+        target = document.createElement('mx-wc-internal');
+        document.___mx_wc_internal__ = target;
+      }
+      return target;
     }
-    return target;
   }
 }
 
-function getType(name, isInternal) {
-  const r = ['mx-wc', name]
-  if(isInternal) { r.unshift('___') }
-  return r.join('.');
+function getType(name, evScope) {
+  let prefix;
+  switch (evScope) {
+    case INTERNAL    : prefix = '___.mx-wc.'; break;
+    case PAGE_SCRIPT : prefix = '___.mx-wc.page.'; break
+    case PUBLIC      : prefix = 'mx-wc.'; break;
+  }
+  return (prefix + name)
 }
 
 function getData(e) {
@@ -203,8 +223,10 @@ const MxWcEvent = {
   broadcastInternal,
   dispatchInternal,
   dispatchPublic,
+  dispatchPageScript,
   listenInternal,
   listenPublic,
+  listenPageScript,
 }
 
 export default MxWcEvent;

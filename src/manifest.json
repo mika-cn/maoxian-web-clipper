@@ -23,6 +23,14 @@
     "downloads.open",
     "nativeMessaging"
   ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/page-scripts-loader.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
   "background": {
     "page": "pages/background.html"
   },
