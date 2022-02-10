@@ -272,7 +272,8 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
         queryElemsBySelector(it, contextElem)
           .forEach(function(elem) {
             const value = This.getValue(elem, action, contextElem);
-            if(value) {
+            if(value !== null && value !== undefined) {
+              // has value ('' or other)
               if (!action.attr.startsWith('data-mx-')) {
                 // Not a MaoXian attribute
                 const attrName = ['data-mx-original-attr', action.attr].join('-');
