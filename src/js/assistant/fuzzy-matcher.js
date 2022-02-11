@@ -44,10 +44,13 @@ function matchAddress(address, pattern) {
 
 function splitAndSanitizeInput(input) {
   const arr = input.replace("\\", '/').trim().split(/\/+/);
-  const rmHead = arr.length > 0 && arr[0] === '';
-  const rmEnd  = arr.length > 1 && arr[arr.length - 1] === '';
-  if(rmHead) { arr.shift(); }
-  if(rmEnd) {arr.pop(); }
+  const handleHead = arr.length > 0 && arr[0] === '';
+  const handleEnd  = arr.length > 1 && arr[arr.length - 1] === '';
+  if (handleHead) { arr.shift(); }
+  if (handleEnd) {
+    // the path end with "/"
+    arr[arr.length - 1] = '___DEFAULT___';
+  }
   return arr;
 }
 
@@ -62,11 +65,14 @@ function matchTwoCollection(names, subPtns) {
   }
 
   if(subPtns.length === 0) {
-    // still have names
-    return true;
+    return false;
   }
 
   const subPtn = subPtns.shift();
+  if (subPtn === '___DEFAULT___') {
+    // pattern ends with "/" (prefix pattern)
+    return true;
+  }
   let match = false;
   if(subPtn === '**') {
     let nextPtn = undefined;
