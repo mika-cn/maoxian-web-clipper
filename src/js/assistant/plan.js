@@ -518,6 +518,73 @@ Action.undoChAttr = function(params, contextSelectorInput = 'document') {
 }
 
 
+Action.rmAttr = function(params, contextSelectorInput = 'document') {
+  return {
+    name: 'rmAttr',
+    isPerformOnce: false,
+    actions: params,
+    contextSelectorInput: contextSelectorInput,
+    perform: function(detail={}) {
+      this.actions.forEach(this.rmAttr.bind(this));
+    },
+    rmAttr(action) {
+      const This = this;
+      const selectorStrs = T.toArray(action.pick);
+      const contextElem = getContextElem(this.contextSelectorInput);
+      selectorStrs.forEach(function(it) {
+        queryElemsBySelector(it, contextElem)
+          .forEach(function(elem) {
+            T.toArray(action.attr).forEach((attrName) => {
+              if (attrName) {
+                // attrName isn't empty
+                const attrValue = elem.getAttribute(attrName);
+                if (attrValue !== null && attrValue !== undefined) {
+                  const key = "data-mx-removed-attr-" + attrName
+                  elem.setAttribute(key, attrValue);
+                  elem.removeAttribute(attrName);
+                }
+              }
+            });
+          });
+      });
+    }
+  }
+}
+
+
+Action.undoRmAttr = function(params, contextSelectorInput = 'document') {
+  return {
+    name: 'undoRmAttr',
+    isPerformOnce: false,
+    actions: params,
+    contextSelectorInput: contextSelectorInput,
+    perform: function(detail={}) {
+      this.actions.forEach(this.undoRmAttr.bind(this));
+    },
+    undoRmAttr(action) {
+      const This = this;
+      const selectorStrs = T.toArray(action.pick);
+      const contextElem = getContextElem(this.contextSelectorInput);
+      selectorStrs.forEach(function(it) {
+        queryElemsBySelector(it, contextElem)
+          .forEach(function(elem) {
+            T.toArray(action.attr).forEach((attrName) => {
+              if (attrName) {
+                const key = "data-mx-removed-attr-" + attrName
+                if (elem.hasAttribute(key)) {
+                  const attrValue = elem.getAttribute(key);
+                  elem.setAttribute(attrName, attrValue);
+                  elem.removeAttribute(key);
+                }
+              }
+            });
+          });
+      });
+    }
+  }
+}
+
+
 function createPickedElemAction(params) {
   return function(selectorInput) {
     return {
@@ -924,8 +991,8 @@ function applyGlobal(plan) {
 }
 
 function handleNormalAttr(plan, contextSelectorInput) {
-  const {hideElem, hideElemOnce, hideSibling, showElem, chAttr,
-    setForm, setConfig} = plan;
+  const {hideElem, hideElemOnce, hideSibling, showElem,
+    chAttr, rmAttr, setForm, setConfig} = plan;
 
   if (hasSelector(hideElem)) {
     const selectorInput = hideElem;
@@ -954,6 +1021,11 @@ function handleNormalAttr(plan, contextSelectorInput) {
   if (chAttr) {
     listen('selecting', Action.chAttr(chAttr, contextSelectorInput));
     listen('idle', Action.undoChAttr(chAttr, contextSelectorInput));
+  }
+
+  if (rmAttr) {
+    listen('selecting', Action.rmAttr(rmAttr, contextSelectorInput));
+    listen('idle', Action.undoRmAttr(rmAttr, contextSelectorInput));
   }
 
   if (setForm) {
