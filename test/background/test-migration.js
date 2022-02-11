@@ -10,7 +10,23 @@ describe('Migration', () => {
       let config = {};
       config = Migration.migrateConfig(config)
       H.assertEqual(config.version, Config.version);
-      H.assertEqual(Object.keys(config).length, CONFIG_KEYS.length);
+      const migratedKeys = Object.keys(config);
+
+      if (migratedKeys.length !== CONFIG_KEYS.length) {
+        migratedKeys.forEach((name) => {
+          if (CONFIG_KEYS.indexOf(name) == -1) {
+            console.log("useless key => ", name);
+          }
+        });
+
+        CONFIG_KEYS.forEach((name) => {
+          if (migratedKeys.indexOf(name) == -1) {
+            console.log("noMigrated key => ", name);
+          }
+        });
+      }
+
+      H.assertEqual(migratedKeys.length, CONFIG_KEYS.length);
     });
 
     it('should fix keys from provided config', () => {

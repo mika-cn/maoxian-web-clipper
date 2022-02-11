@@ -41,8 +41,8 @@ describe("Style Scope", () => {
     cScopeA.recordReferences(cStyleA);
     cScopeB.recordReferences(cStyleB);
 
-    scope.addChildScope(cScopeA.toObject());
-    scope.addChildScope(cScopeB.toObject());
+    scope.addChildScopeObj(cScopeA.toObject());
+    scope.addChildScopeObj(cScopeB.toObject());
 
     const obj = scope.toObject();
 
@@ -91,8 +91,8 @@ describe("Style Scope", () => {
     cScopeA.recordReferences(cStyleA);
     cScopeB.recordReferences(cStyleB);
 
-    scope.addChildScope(cScopeA.toObject());
-    scope.addChildScope(cScopeB.toObject());
+    scope.addChildScopeObj(cScopeA.toObject());
+    scope.addChildScopeObj(cScopeB.toObject());
 
     const obj = scope.toObject();
 
