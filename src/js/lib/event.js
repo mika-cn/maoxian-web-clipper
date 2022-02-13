@@ -24,6 +24,8 @@
  *
  * Events that we use internally only.
  *   mx-wc.assistant.not-plan-matched
+ *   mx-wc.assistant.plan-disabled
+ *   mx-wc.assistant.plan-has-not-pick
  *
  */
 

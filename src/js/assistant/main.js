@@ -70,19 +70,26 @@ function init() {
     if (pagePlan) {
       if (pagePlan.disabled) {
         Log.debug("The page plan is disabled");
+        sendAssistantEv('plan-disabled');
       } else {
         Plan.apply(toMxPlan(pagePlan));
         Log.debug("the page plan has been applied");
         Log.debug(pagePlan);
+        if (!pagePlan.pick) {
+          sendAssistantEv('plan-has-not-pick');
+        }
       }
     } else {
       Log.debug("No page plan matched");
-      setTimeout(() => {
-        MxWcEvent.dispatchInternal('assistant.not-plan-matched');
-      }, 0);
+      sendAssistantEv('not-plan-matched');
     }
   });
 }
+
+function sendAssistantEv(name) {
+  setTimeout(() => {MxWcEvent.dispatchInternal('assistant.' + name)}, 0);
+}
+
 
 const AssistantMain = {
   init: init,
