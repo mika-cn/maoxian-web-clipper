@@ -1036,7 +1036,7 @@ function apply(plan) {
   const {pickElem, pickAction = 'select'} = plan;
   if(isTopWindow() && hasSelector(pickElem)) {
     const selectorInput = pickElem;
-    handleNormalAttr(plan, selectorInput);
+    handleNormalAttr(plan, 'document');
     switch(pickAction) {
       case 'select':
         listen('selecting', Action.selectElem(selectorInput));
