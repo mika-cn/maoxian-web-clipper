@@ -11,6 +11,7 @@ const config = {
   hideSibling: true,
   changeAttr: true,
   removeAttr: true,
+  execCmd: true,
   setForm: true,
   setConfig: true,
 
@@ -31,6 +32,7 @@ function toMxPlan(plan) {
     p.pickElem = plan.pick;
     p.pickAction = (plan.pickAction || config.pickAction);
   }
+  if(config.execCmd && plan.command) { p.command = plan.command }
   if(config.hideElem && plan.hide) { p.hideElem = plan.hide }
   if(config.hideElem && plan.hideOnce) { p.hideElemOnce = plan.hideOnce }
   if(config.showElem && plan.show) { p.showElem = plan.show }
@@ -71,6 +73,7 @@ function init() {
       } else {
         Plan.apply(toMxPlan(pagePlan));
         Log.debug("the page plan has been applied");
+        Log.debug(pagePlan);
       }
     } else {
       Log.debug("No page plan matched");
