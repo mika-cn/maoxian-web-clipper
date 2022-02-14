@@ -962,12 +962,13 @@ function querySiblingsByXpath(xpath, contextElem = document) {
       });
     }
   });
-  return [];
+  return Array.from(siblings);
 }
 
 function iterateElemsByXpath(contextElem, xpath, fn) {
+  let xpathResult;
   try {
-    const xpathResult = document.evaluate(
+    xpathResult = document.evaluate(
       xpath,
       contextElem,
       null,
@@ -980,6 +981,7 @@ function iterateElemsByXpath(contextElem, xpath, fn) {
     console.warn(e);
     return [];
   }
+
   let elem = xpathResult.iterateNext();
   while(elem){
     fn(elem);
