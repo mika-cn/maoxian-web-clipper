@@ -9,11 +9,10 @@ import {getCssSelector} from 'css-selector-generator';
 
 const state = {appliedSelection: null};
 
-function save(elem, deletedElems) {
+function save(elem) {
   try {
     const selector = getCssSelector(elem);
-    if ( deletedElems.length == 0
-      && state.appliedSelection
+    if ( state.appliedSelection
       && state.appliedSelection.selector == selector
     ) {
       // Applied selection was accepted.
@@ -23,11 +22,6 @@ function save(elem, deletedElems) {
         tagName: elem.tagName.toUpperCase(),
         selector: selector,
         ancestors: getAncestors(elem),
-        deletion: {
-          selectors: deletedElems.map((it) => {
-            return getCssSelector(it)
-          })
-        }
       }
       Log.debug(selection);
       ExtMsg.sendToBackend('selection', {
@@ -105,12 +99,6 @@ function chooseSelection(selections) {
 }
 
 function applySelection(selection) {
-  if (selection.deletion) {
-    // The first implementation didn't include deletion
-    MxWcEvent.dispatchInternal('assistant.apply-plan-global', {
-      hideOnce: selection.deletion.selectors
-    });
-  }
   MxWcEvent.dispatchInternal('assistant.apply-plan', {
     pick: selection.selector
   });
