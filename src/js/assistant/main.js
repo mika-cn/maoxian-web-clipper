@@ -87,7 +87,9 @@ function init() {
 }
 
 function sendAssistantEv(name) {
-  setTimeout(() => {MxWcEvent.dispatchInternal('assistant.' + name)}, 0);
+  if (window.parent == window) {
+    setTimeout(() => {MxWcEvent.dispatchInternal('assistant.' + name)}, 0);
+  }
 }
 
 

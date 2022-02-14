@@ -1108,11 +1108,11 @@ function handleNormalAttr(plan, contextSelectorInput) {
     listen('idle', Action.undoRmAttr(rmAttr, contextSelectorInput));
   }
 
-  if (setForm) {
+  if (isTopWindow() && setForm) {
     listen('actived', Action.setForm(setForm));
   }
 
-  if (setConfig) {
+  if (isTopWindow() && setConfig) {
     listen('actived', Action.setConfig(setConfig));
   }
 
