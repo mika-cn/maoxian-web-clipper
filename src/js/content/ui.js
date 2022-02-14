@@ -14,7 +14,6 @@ const state = {
   clippingState: 'idle',
   currElem: null,
   config: null,
-  deletedElems: []
 };
 
 // ifarme common functions
@@ -442,7 +441,7 @@ function submitForm(msg){
       eraseHigtlightStyle();
       setStateClipping();
       if (config.rememberSelection) {
-        MxWcSelectionMain.save(state.currElem, state.deletedElems);
+        MxWcSelectionMain.save(state.currElem);
       }
      const formSubmitted = state.callbacks['submitted'];
      formSubmitted({
@@ -612,7 +611,6 @@ function pressEnter(msg){
 function pressDelete(msg) {
   if(state.clippingState === 'selected'){
     const elem = state.currElem;
-    state.deletedElems.push(elem);
     // FIXME
     elem.style.display = 'none';
 
