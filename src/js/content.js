@@ -100,7 +100,7 @@ function lockWebPage() {
 
 function unlockWebPage() {
   MxWcEvent.dispatchPageScript('unlock');
-  Log.debug("lock web page");
+  Log.debug("unlock web page");
 }
 
 

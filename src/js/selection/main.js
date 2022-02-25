@@ -186,10 +186,13 @@ function init(config) {
   if (config.rememberSelection) {
     // listen message
     if (config.assistantEnabled) {
-      MxWcEvent.listenInternal('assistant.not-plan-matched', () => {
+      const fn = () => {
         apply();
         Log.debug("MxWcSelectionInited (assistant)");
-      });
+      }
+      MxWcEvent.listenInternal('assistant.not-plan-matched', fn);
+      MxWcEvent.listenInternal('assistant.plan-disabled', fn);
+      MxWcEvent.listenInternal('assistant.plan-has-not-pick', fn);
     } else {
       apply();
       Log.debug("MxWcSelectionInited");

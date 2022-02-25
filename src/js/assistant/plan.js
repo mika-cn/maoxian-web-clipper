@@ -12,6 +12,7 @@
 
 import T from '../lib/tool.js';
 import MxWcEvent from '../lib/event.js';
+import UrlEditor from './url-editor.js';
 
 let listeners = {};
 
@@ -85,22 +86,21 @@ function createSetDisplayAction(params) {
     return {
       name: params.name,
       isPerformOnce: (params.performOnce || false),
-      selectorInput: selectorInput,
-      contextSelectorInput: contextSelectorInput,
       perform: function(detail={}) {
-        const selectorStrs = T.toArray(this.selectorInput);
-        const contextElem = getContextElem(this.contextSelectorInput);
-        const queryFn = params.querySiblings ? querySiblingsBySelector : queryElemsBySelector;
-        selectorStrs.forEach(function(it) {
-          queryFn(it, contextElem).forEach(function(elem) {
-            const style = window.getComputedStyle(elem);
-            if(style.display != params.display) {
-              elem.setAttribute("data-mx-original-display-value", elem.style.getPropertyValue('display'));
-              elem.setAttribute("data-mx-original-display-priority", elem.style.getPropertyPriority('display'));
-              elem.style.setProperty('display', params.display, params.priority);
-            }
-          });
-        });
+        const queryType = params.querySiblings ? 'siblings' : 'elems';
+        const Q = createSelectorQuery(contextSelectorInput, queryType);
+        const attrNameA = "data-mx-original-display-value";
+        const attrNameB = "data-mx-original-display-priority";
+
+        const fn = (elem) => {
+          const style = window.getComputedStyle(elem);
+          if(style.display != params.display) {
+            elem.setAttribute(attrNameA, elem.style.getPropertyValue('display'));
+            elem.setAttribute(attrNameB, elem.style.getPropertyPriority('display'));
+            elem.style.setProperty('display', params.display, params.priority);
+          }
+        }
+        Q.eachElem(selectorInput, fn);
       },
     };
   }
@@ -149,29 +149,25 @@ function createUndoDisplayAction(params) {
     return {
       name: params.name,
       isPerformOnce: params.performOnce,
-      selectorInput: selectorInput,
-      contextSelectorInput: contextSelectorInput,
       perform: function(detail={}) {
-        const selectorStrs = T.toArray(this.selectorInput);
-        const contextElem = getContextElem(this.contextSelectorInput);
-        const queryFn = params.querySiblings ? querySiblingsBySelector : queryElemsBySelector;
-        selectorStrs.forEach(function(it) {
-          queryFn(it, contextElem).forEach(function(elem) {
-            const attrNameOfValue = "data-mx-original-display-value";
-            const attrNameOfPriority = "data-mx-original-display-priority";
+        const queryType = params.querySiblings ? 'siblings' : 'elems';
+        const Q = createSelectorQuery(contextSelectorInput, queryType);
+        const attrNameA = "data-mx-original-display-value";
+        const attrNameB = "data-mx-original-display-priority";
 
-            if (elem.hasAttribute(attrNameOfValue)) {
-              const originalValue = elem.getAttribute(attrNameOfValue);
-              const originalPriority = elem.getAttribute(attrNameOfPriority);
-              elem.style.setProperty('display', originalValue, originalPriority);
-              elem.removeAttribute(attrNameOfValue);
-              elem.removeAttribute(attrNameOfPriority);
-              if (elem.style.length === 0) {
-                elem.removeAttribute('style');
-              }
+        const fn = (elem) => {
+          if (elem.hasAttribute(attrNameA)) {
+            const originalValue    = elem.getAttribute(attrNameA);
+            const originalPriority = elem.getAttribute(attrNameB);
+            elem.style.setProperty('display', originalValue, originalPriority);
+            elem.removeAttribute(attrNameA);
+            elem.removeAttribute(attrNameB);
+            if (elem.style.length === 0) {
+              elem.removeAttribute('style');
             }
-          });
-        });
+          }
+        };
+        Q.eachElem(selectorInput, fn);
       },
     };
   }
@@ -194,6 +190,12 @@ function createUndoDisplayAction(params) {
  *   T21 = "assign.from.first-child-attr"
  *   T22 = "assign.from.child-attr"
  *   T23 = "assign.from.descendent-attr"
+ *
+ *   T51 = "url.file.set-ext-suffix"
+ *   T52 = "url.file.rm-ext-suffix"
+ *   T53 = "url.file.set-name-suffix"
+ *   T54 = "url.file.rm-name-suffix"
+ *   T55 = "url.search.edit"
  *
  *   T71 = "replace.last-match"
  *   T72 = "replace.all"
@@ -234,6 +236,8 @@ function createUndoDisplayAction(params) {
  * action.value {String} (required if type is in [T01, T91, T92])
  *   The value that will be assigned, added or removed from the list.
  *
+ *   if type is T91 or T92, it counld be an array.
+ *
  */
 
 function initChAttrActions(params) {
@@ -255,41 +259,34 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
     name: 'chAttr',
     isPerformOnce: false,
     actions: actions,
-    contextSelectorInput: contextSelectorInput,
+
     perform: function(detail={}) {
-      const This = this;
-      this.actions.forEach(function(action) {
-        This.changeAttr(action);
-      })
-      //console.debug("MxWcTool.changeAttr", document.location.href);
+      const Q = createSelectorQuery(contextSelectorInput);
+      const fn = (action) => this.changeAttr(action, Q);
+      this.actions.forEach(fn)
     },
 
-    changeAttr: function(action) {
-      const This = this;
-      const selectorStrs = T.toArray(action.pick);
-      const contextElem = getContextElem(this.contextSelectorInput);
-      selectorStrs.forEach(function(it) {
-        queryElemsBySelector(it, contextElem)
-          .forEach(function(elem) {
-            const value = This.getValue(elem, action, contextElem);
-            if(value) {
-              if (!action.attr.startsWith('data-mx-')) {
-                // Not a MaoXian attribute
-                const attrName = ['data-mx-original-attr', action.attr].join('-');
-                if (elem.hasAttribute(attrName)) {
-                  // Do nothing, avoid overwriting the original attribute.
-                } else {
-                  // Save original attribute
-                  let attrOldValue = elem.getAttribute(action.attr);
-                  attrOldValue = attrOldValue == null ? "" : attrOldValue;
-                  elem.setAttribute(attrName, attrOldValue);
-                }
-              }
-              elem.setAttribute(action.attr, value);
+    changeAttr: function(action, Q) {
+      const fn = ((elem, contextElem) => {
+        const value = this.getValue(elem, action, contextElem);
+        if(value !== null && value !== undefined) {
+          // has value ('' or other)
+          if (!action.attr.startsWith('data-mx-')) {
+            // Not a MaoXian attribute
+            const attrName = ['data-mx-original-attr', action.attr].join('-');
+            if (elem.hasAttribute(attrName)) {
+              // Do nothing, avoid overwriting the original attribute.
+            } else {
+              // Save original attribute
+              let attrOldValue = elem.getAttribute(action.attr);
+              attrOldValue = attrOldValue == null ? "" : attrOldValue;
+              elem.setAttribute(attrName, attrOldValue);
             }
-          });
-      })
-
+          }
+          elem.setAttribute(action.attr, value);
+        }
+      }).bind(this);
+      Q.eachElem(action.pick, fn);
     },
 
 
@@ -452,26 +449,47 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
           break;
         }
 
+        case 'url.file.set-ext-suffix':
+        case 'url.file.rm-ext-suffix':
+        case 'url.file.set-name-suffix':
+        case 'url.file.rm-name-suffix': {
+          try {
+            const attrValue = elem.getAttribute(action.attr);
+            if (!attrValue) { break; }
+            return UrlEditor.editFile(attrValue, action);
+          } catch(e) { console.warn(e)}
+          break;
+        }
 
+        case 'url.search.edit': {
+          try {
+            const attrValue = elem.getAttribute(action.attr);
+            if (!attrValue) { break; }
+            const deleteNames = T.toArray(action.delete);
+            return UrlEditor.editSearch(attrValue, action.change, deleteNames);
+          } catch(e) { console.warn(e), console.stack()}
+          break;
+        }
         case 'self.add': //deprecated
         case 'self.remove': //deprecated
         case 'split2list.add':
-        case 'split2list.remove':
+        case 'split2list.remove': {
           let parts = [];
           const attrValue = elem.getAttribute(action.attr);
-          if(attrValue) {
+          if (attrValue) {
             parts = attrValue.trim().split(action.sep);
           }
-          const idx = parts.indexOf(action.value);
-          if((action.type == 'split2list.add' || action.type == 'self.add') && idx == -1) {
-            parts.push(action.value);
-            return parts.join(action.sep);
-          }
-          if((action.type == 'split2list.remove' || action.type == 'self.remove') && idx > -1) {
-            parts.splice(idx, 1);
-            return parts.join(action.sep);
-          }
-          break;
+
+          const isAdd = (action.type == 'split2list.add' || action.type == 'self.add');
+          const isRm  = (action.type == 'split2list.remove' || action.type == 'self.remove');
+
+          T.toArray(action.value).forEach((it) => {
+            const idx = parts.indexOf(it);
+            if(isAdd && idx == -1) { parts.push(it) }
+            if(isRm  && idx >  -1) { parts.splice(idx, 1) }
+          });
+          return parts.join(action.sep);
+        }
       }
       return undefined;
     }
@@ -485,33 +503,160 @@ Action.undoChAttr = function(params, contextSelectorInput = 'document') {
     name: 'undoChAttr',
     isPerformOnce: false,
     actions: actions,
-    contextSelectorInput: contextSelectorInput,
-    perform: function(detail={}) {
-      const contextElem = getContextElem(this.contextSelectorInput);
-      this.actions.forEach(function(action) {
-        const selectorStrs = T.toArray(action.pick);
-        selectorStrs.forEach(function(it) {
-          queryElemsBySelector(it, contextElem)
-            .forEach(function(elem) {
-              if (action.attr.startsWith('data-mx-')) {
-                // maoxian attribute, remove it
-                elem.removeAttribute(action.attr);
-              } else {
-                // not a maoxian attribute, restore old value
-                const attrName = ['data-mx-original-attr', action.attr].join('-');
-                const originalValue = elem.getAttribute(attrName);
-                if(originalValue != null) {
-                  elem.setAttribute(action.attr, originalValue);
-                  elem.removeAttribute(attrName);
-                }
-              }
-            });
-        });
-      })
-      //console.debug("MxWcTool.undoChangeAttr");
+
+    perform(detail={}) {
+      const Q = createSelectorQuery(contextSelectorInput);
+      const fn = (action) => this.undo(action, Q);
+      this.actions.forEach(fn)
+    },
+
+    undo(action, Q) {
+      const fn = (elem) => {
+        if (action.attr.startsWith('data-mx-')) {
+          // maoxian attribute, remove it
+          elem.removeAttribute(action.attr);
+        } else {
+          // not a maoxian attribute, restore old value
+          const attrName = ['data-mx-original-attr', action.attr].join('-');
+          const originalValue = elem.getAttribute(attrName);
+          if(originalValue != null) {
+            elem.setAttribute(action.attr, originalValue);
+            elem.removeAttribute(attrName);
+          }
+        }
+      }
+      Q.eachElem(action.pick, fn);
     }
   }
 }
+
+
+Action.rmAttr = function(params, contextSelectorInput = 'document') {
+  return {
+    name: 'rmAttr',
+    isPerformOnce: false,
+    actions: params,
+    perform: function(detail={}) {
+      const Q = createSelectorQuery(contextSelectorInput)
+      const fn = (action) => this.rmAttr(action, Q);
+      this.actions.forEach(fn);
+    },
+    rmAttr(action, Q) {
+      const fn = elem => {
+        T.toArray(action.attr).forEach((attrName) => {
+          if (attrName) { // attrName isn't empty
+            const attrValue = elem.getAttribute(attrName);
+            if (attrValue !== null && attrValue !== undefined) {
+              const key = "data-mx-removed-attr-" + attrName
+              elem.setAttribute(key, attrValue);
+              elem.removeAttribute(attrName);
+            }
+          }
+        });
+      }
+      Q.eachElem(action.pick, fn);
+    }
+  }
+}
+
+
+Action.undoRmAttr = function(params, contextSelectorInput = 'document') {
+  return {
+    name: 'undoRmAttr',
+    isPerformOnce: false,
+    actions: params,
+    perform: function(detail={}) {
+      const Q = createSelectorQuery(contextSelectorInput)
+      const fn = (action) => this.undo(action, Q);
+      this.actions.forEach(fn);
+    },
+    undo(action, Q) {
+      const fn = (elem) => {
+        T.toArray(action.attr).forEach((attrName) => {
+          if (attrName) {
+            const key = "data-mx-removed-attr-" + attrName
+            if (elem.hasAttribute(key)) {
+              const attrValue = elem.getAttribute(key);
+              elem.setAttribute(attrName, attrValue);
+              elem.removeAttribute(key);
+            }
+          }
+        });
+      }
+      Q.eachElem(action.pick, fn);
+    }
+  }
+}
+
+Action.command = function(commands, contextSelectorInput = 'document') {
+  return {
+    name: 'command',
+    isPerformOnce: false,
+    commands: commands,
+    perform: function(detail={}) {
+      const Q = createSelectorQuery(contextSelectorInput)
+      const fn = (command) => this.execute(command, Q);
+      this.commands.forEach(fn);
+    },
+
+    execute(command, Q) {
+      switch(command.name) {
+        case 'click': {
+          const fn = (elem) => {if (elem.click) {elem.click()}};
+          Q.eachElem(command.pick, fn);
+          break;
+        }
+        case 'open':
+        case 'close': {
+          const v = ({'open': true, 'close': false})[command.name];
+          const fn = (elem) => {
+            if (elem.open !== v) {
+              elem.setAttribute('data-mx-property-open', elem.open);
+              elem.open = v;
+            }
+          }
+          Q.eachElem(command.pick, fn);
+          break;
+        }
+      }
+    },
+
+  };
+}
+
+Action.undoCommand = function(commands, contextSelectorInput = 'document') {
+  return {
+    name: 'undoCommand',
+    isPerformOnce: false,
+    commands: commands,
+    perform: function(detail={}) {
+      const Q = createSelectorQuery(contextSelectorInput)
+      const fn = (command) => this.undo(command, Q);
+      this.commands.forEach(fn);
+    },
+
+    undo(command, Q) {
+      switch(command.name) {
+        case 'click': break;
+        case 'open':
+        case 'close': {
+          const fn = (elem) => {
+            const originalValue = (elem.getAttribute('data-mx-property-open'))
+            if (originalValue != null && originalValue != undefined) {
+              const oldValue = ('true' == originalValue);
+              if (elem.open !== oldValue) {
+                elem.open = oldValue;
+              }
+            }
+          }
+          Q.eachElem(command.pick, fn);
+          break;
+        }
+      }
+    }
+  };
+}
+
 
 
 function createPickedElemAction(params) {
@@ -611,6 +756,32 @@ Action.completed = function(fn) {
 //=========================================
 // Tool functions
 //=========================================
+
+function createSelectorQuery(contextSelectorInput,  queryType = 'elems') {
+  return {
+    eachElem(selectorInput, callback) {
+      if (!this.contextElem) {
+        this.contextElem = getContextElem(contextSelectorInput)
+      }
+      if (!this.queryFn) {
+        if (queryType == 'elems')    {this.queryFn = queryElemsBySelector}
+        if (queryType == 'siblings') {this.queryFn = querySiblingsBySelector}
+      }
+      const selectorStrs = T.toArray(selectorInput);
+      const {contextElem, queryFn} = this;
+      if (queryFn) {
+        selectorStrs.forEach((it) => {
+          queryFn(it, contextElem).forEach((elem) => {
+            callback(elem, contextElem);
+          });
+        });
+      } else {
+        console.warn('unknow queryType : ', queryType);
+      }
+    }
+  };
+}
+
 
 function iterateChildren(elem, action) {
   for (const child of elem.children) {
@@ -818,12 +989,13 @@ function querySiblingsByXpath(xpath, contextElem = document) {
       });
     }
   });
-  return [];
+  return Array.from(siblings);
 }
 
 function iterateElemsByXpath(contextElem, xpath, fn) {
+  let xpathResult;
   try {
-    const xpathResult = document.evaluate(
+    xpathResult = document.evaluate(
       xpath,
       contextElem,
       null,
@@ -836,6 +1008,7 @@ function iterateElemsByXpath(contextElem, xpath, fn) {
     console.warn(e);
     return [];
   }
+
   let elem = xpathResult.iterateNext();
   while(elem){
     fn(elem);
@@ -892,7 +1065,7 @@ function apply(plan) {
   const {pickElem, pickAction = 'select'} = plan;
   if(isTopWindow() && hasSelector(pickElem)) {
     const selectorInput = pickElem;
-    handleNormalAttr(plan, selectorInput);
+    handleNormalAttr(plan, 'document');
     switch(pickAction) {
       case 'select':
         listen('selecting', Action.selectElem(selectorInput));
@@ -920,8 +1093,13 @@ function applyGlobal(plan) {
 }
 
 function handleNormalAttr(plan, contextSelectorInput) {
-  const {hideElem, hideElemOnce, hideSibling, showElem, chAttr,
-    setForm, setConfig} = plan;
+  const {command, hideElem, hideElemOnce, hideSibling, showElem,
+    chAttr, rmAttr, setForm, setConfig} = plan;
+
+  if (command) {
+    listen('selecting', Action.command(command, contextSelectorInput));
+    listen('idle', Action.undoCommand(command, contextSelectorInput));
+  }
 
   if (hasSelector(hideElem)) {
     const selectorInput = hideElem;
@@ -952,11 +1130,16 @@ function handleNormalAttr(plan, contextSelectorInput) {
     listen('idle', Action.undoChAttr(chAttr, contextSelectorInput));
   }
 
-  if (setForm) {
+  if (rmAttr) {
+    listen('selecting', Action.rmAttr(rmAttr, contextSelectorInput));
+    listen('idle', Action.undoRmAttr(rmAttr, contextSelectorInput));
+  }
+
+  if (isTopWindow() && setForm) {
     listen('actived', Action.setForm(setForm));
   }
 
-  if (setConfig) {
+  if (isTopWindow() && setConfig) {
     listen('actived', Action.setConfig(setConfig));
   }
 
