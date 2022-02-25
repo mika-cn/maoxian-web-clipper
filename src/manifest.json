@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*",
@@ -22,6 +22,14 @@
     "downloads",
     "downloads.open",
     "nativeMessaging"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/page-scripts-loader.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
   ],
   "background": {
     "page": "pages/background.html"

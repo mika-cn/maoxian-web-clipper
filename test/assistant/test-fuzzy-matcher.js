@@ -17,10 +17,13 @@ describe("Assistant fuzzyMatcher", () => {
 
   // scheme
   notMatch('http://a.org', 'https://a.org')
-  match('https://a.org/a', 'https://a.org')
+  match('https://a.org', 'https://a.org')
+  match('http://a.org', 'http*://a.org')
+  match('https://a.org', 'http*://a.org')
 
   // host
   match('http://a.org', 'http://*.org');
+  match('http://a.b.c.org', 'http://*.org');
   notMatch('http://a.com', 'http://*.org');
 
   // search
@@ -44,7 +47,10 @@ describe("Assistant fuzzyMatcher", () => {
   // paths
 
   const prefix = function(it) {
-    return it.startsWith('/') ? `http://a.org${it}` : `http://a.org/${it}`;
+    if (!it.startsWith('/')) {
+      throw new Error("path should starts with '/'");
+    }
+    return `http://a.org${it}`
   }
 
   const matchPath = function(path, pathPattern) {
@@ -62,60 +68,75 @@ describe("Assistant fuzzyMatcher", () => {
       H.assertFalse(Lib.matchUrl(url, pattern))
     })
   }
+
+  // digital
   matchPath("/0123", "/$d");
   notMatchPath("/abc", "/$d");
   notMatchPath("/a123", "/$d");
+  matchPath("/0123/a", "/$d/a");
 
+  // pattern that ends with "/" (prefix pattern)
   matchPath("/", "/")
-  notMatchPath("/", "*")
-  notMatchPath("/", "/*")
+  matchPath("/a", "/");
+  matchPath("/a/b/c", "/a/");
+
+  // pattern that ends with "/a"
+  notMatchPath("/", "/a")
+  notMatchPath("/b", "/a")
+  matchPath("/a", "/a")
+  notMatchPath("/a/", "/a")
+
+  // pattern that ends with "/*"
+  matchPath("/", "/*")
   matchPath("/a", "/*")
-  matchPath("/a/b/c", "/")
+  notMatchPath("/a/", "/*")
+  notMatchPath("/a/b", "/*")
+  notMatchPath("/a", "/a/*")
+  matchPath("/a/b", "/a/*")
 
-  matchPath("/", "**")
-  matchPath("a.html", "*")
-  matchPath("a.html", "*.html")
-  matchPath("a.html", "a.*")
-  matchPath("a.html", "**")
-  matchPath("/a.html", "*.html")
-  matchPath("a.html", "/*.html")
+  // "*" in the middle
+  matchPath("/a/b", "/*/b")
+  notMatchPath("/a/b/c", "/*/b")
+  matchPath("/a/b/c", "/a/*/c")
 
-  matchPath("a/b", "*/b")
-  matchPath("a/b", "*/*")
-  matchPath("a/b/", "a/")
-  matchPath("a/b/", "a/*")
-  matchPath("a/b/", "a/b") // ?
-  notMatchPath("a/b/", "a/b/*")
-  notMatchPath("a/", "a/b")
+  // "*" in filename
+  matchPath("/a.html", "/*.html")
+  matchPath("/a.html", "/a.*")
 
-  matchPath("a/b/c", "**")
-  matchPath("a/b/c", "**/*")
-  notMatchPath("a/b/c", "**/*/*/*/*")
-  matchPath("a/b/c", "**/c")
-  matchPath("a/b/c", "**/*/c")
-  matchPath("a/b/c", "**/*/*/c")
-  notMatchPath("a/b/c", "**/*/*/*/c")
-  matchPath("a/b/c", "**/*/b/*")
-  matchPath("a/b/c", "**/*/b/c")
 
-  matchPath("a/b/c", "*/**")
-  matchPath("a/b/c", "a/**")
-  matchPath("a/b/c", "*/*/**")
-  matchPath("a/b/c", "*/*/*/**")
-  matchPath("a/b/c", "a/b/c/**")
-  notMatchPath("a/b/c", "a/b/c/*")
-  notMatchPath("a/b/c", "*/*/*/*/**")
+  // "**" in the end, swallow everything
+  matchPath("/", "/**")
+  matchPath("/a", "/**")
+  matchPath("/a/b/c", "/**")
+  matchPath("/a/b/c", "/a/**")
+  matchPath("/a/b/c", "/a/b/c/**")
+  matchPath("/a/b/c", "/*/**")
+  matchPath("/a/b/c", "/*/*/*/**")
+  notMatchPath("/a/b/c", "/*/*/*/*/**")
 
-  const pattern = "a/**/b/**/c"
-  matchPath("a/b/x/y/z/c", pattern)
-  matchPath("a/x/y/z/b/c", pattern)
-  matchPath("a/b/x/b/x/c", pattern)
-  matchPath("a/b/c", pattern)
+  // "**" at the beginning
+  matchPath("/a", "/**/*")
+  matchPath("/a/b/c", "/**/*")
+  notMatchPath("/a/b/c", "/**/x")
+  notMatchPath("/a/b/c", "/**/*/*/*/*")
+  matchPath("/a/b/c", "/**/c")
+  matchPath("/a/b/c", "/**/*/c")
+  matchPath("/a/b/c", "/**/*/*/c")
+  notMatchPath("/a/b/c", "/**/*/*/*/c")
+  matchPath("/a/b/c", "/**/*/b/*")
+  matchPath("/a/b/c", "/**/*/b/c")
 
-  matchPath("a/x/y/b/z/z/c", "a/**/b/**/c")
-  matchPath("a/x/y/b/z/z/c", "a/**/*/**/c")
-  notMatchPath("a/b", "**/*/*/a")
-  matchPath("a/b", "**/*/*/**")
-  notMatchPath("a/b", "**/*/*/*/**")
+
+  const pattern = "/a/**/b/**/c"
+  matchPath("/a/b/x/y/z/c", pattern)
+  matchPath("/a/x/y/z/b/c", pattern)
+  matchPath("/a/b/x/b/x/c", pattern)
+  matchPath("/a/b/c", pattern)
+
+  matchPath("/a/x/y/b/z/z/c", "/a/**/b/**/c")
+  notMatchPath("/a/x/y/b/z/z/c", "/a/**/k/**/c")
+  matchPath("/a/x/y/b/z/z/c", "/a/**/*/**/c")
+  matchPath("/a/b", "/**/*/*/**")
+  notMatchPath("/a/b", "/**/*/*/*/**")
 });
 

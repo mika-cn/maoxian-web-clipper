@@ -41,6 +41,21 @@ function migrateConfig(config, fromConfig = {}) {
 const ConfigMigration = {};
 
 
+ConfigMigration['2.7'] = function(config) {
+  config.version = '2.8';
+
+  // renamed on version 2.1
+  delete config.saveIcon;
+  delete config.saveWebFont;
+  delete config.saveCssImage;
+
+  // renamed on version 2.7
+  delete config.customBodyBgCssEnabled
+  delete config.customBodyBgCssValue
+
+  return config;
+}
+
 
 ConfigMigration['2.6'] = function(config) {
   config.version = '2.7';

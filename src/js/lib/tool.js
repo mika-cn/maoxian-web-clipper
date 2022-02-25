@@ -312,6 +312,7 @@ T.splitKeywordStr = function(str) {
 // collection
 
 T.toArray = function(it) {
+  if (!it) { return [] }
   if (it.constructor == Array) {
     return it;
   } else {

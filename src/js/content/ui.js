@@ -14,7 +14,6 @@ const state = {
   clippingState: 'idle',
   currElem: null,
   config: null,
-  deletedElems: []
 };
 
 // ifarme common functions
@@ -166,8 +165,8 @@ function dispatchFrameLoadedEvent(frameId) {
 
 
 // append UI layers
-function append(){
-  remove();
+function appendUI(){
+  removeUI();
   selectionIframe.append();
   controlIframe.append();
   Log.debug("UI appened");
@@ -186,12 +185,14 @@ function removeFriendly(){
 }
 
 // remove UI layers
-function remove(){
+function removeUI(){
   controlIframe.remove();
   selectionIframe.remove();
   state.currElem = null;
-  Log.debug("UI remove");
+  Log.debug("UI removed");
 }
+
+
 
 
 function updateFrameSize(frame){
@@ -296,8 +297,12 @@ function getElementFromPoint(x, y) {
 
 // TODO changeNameHere
 function cancelForm(msg){
-  disable();
-  remove();
+  ignoreFrameMsg();
+  unbindListener();
+  hideForm();
+  eraseHigtlightStyle();
+  setStateIdle();
+  removeUI();
 }
 
 function hideForm(){
@@ -375,20 +380,32 @@ function sendFrameMsgToSelection(type, msg) {
   FrameMsg.send({to: selectionIframe.id, type: type, msg: (msg || {})});
 }
 
-// ----------------------------
+// ===========================================
+// entry btn (ON/OFF)
+// ===========================================
 function entryClick(e){
   if(state.clippingState === 'idle'){
+    // switch to ON
     listenFrameMsg();
-    T.bindOnce(document, 'all-iframe-loaded', enable)
-    append();
+    T.bindOnce(document, 'all-iframe-loaded', () => {
+      bindListener();
+      setStateSelecting();
+    })
+    appendUI();
   }else{
     if(state.clippingState !== 'clipping') {
+      // switch to OFF
       ignoreFrameMsg();
-      disable();
-      remove();
+      hideForm();
+      unbindListener();
+      eraseHigtlightStyle();
+      setStateIdle();
+      removeUI();
     }
   }
 }
+
+// ---------------------
 
 function listenFrameMsg(){
   const extFrameOrigin = (new URL(ExtApi.getURL('/'))).origin;
@@ -424,7 +441,7 @@ function submitForm(msg){
       eraseHigtlightStyle();
       setStateClipping();
       if (config.rememberSelection) {
-        MxWcSelectionMain.save(state.currElem, state.deletedElems);
+        MxWcSelectionMain.save(state.currElem);
       }
      const formSubmitted = state.callbacks['submitted'];
      formSubmitted({
@@ -435,32 +452,25 @@ function submitForm(msg){
        console.error(error);
        Notify.error(error.message);
        ignoreFrameMsg();
-       disable();
-       remove();
+       unbindListener();
+       eraseHigtlightStyle();
+       setStateIdle();
+       removeUI();
      });
     } else {
       Notify.error(message);
       T.emitPageChangedEvent();
       ignoreFrameMsg();
-      disable();
-      remove();
+      unbindListener();
+      eraseHigtlightStyle();
+      setStateIdle();
+      removeUI();
     }
   });
 }
 
 function ignoreFrameMsg(){
   FrameMsg.clearListener();
-}
-
-function enable(){
-  bindListener();
-  setStateSelecting();
-}
-
-function disable(){
-  hideForm();
-  unbindListener();
-  setStateIdle();
 }
 
 function clickSelectedArea(msg){
@@ -524,7 +534,6 @@ function bindListener(){
 
 function unbindListener(){
   sendFrameMsgToControl('unbindListener');
-  eraseHigtlightStyle();
 };
 
 function clickHandler(msg){
@@ -553,15 +562,21 @@ MxWc.selector = {
 
 function pressEsc(msg){
   if(state.clippingState === 'selected'){
-    Log.debug('back');
+    Log.debug('Esc: selected ~> selecting');
     // 选中状态, 退回可选择状态
-    disable();
-    enable();
+    state.currElem = null;
+    eraseHigtlightStyle();
+    sendFrameMsgToControl('bindMouseMove');
+    setStateSelecting();
     return;
   }
   if(state.clippingState === 'selecting'){
-    disable();
-    remove();
+    Log.debug("Esc: selecting ~> idle")
+    ignoreFrameMsg();
+    eraseHigtlightStyle();
+    unbindListener();
+    setStateIdle();
+    removeUI();
   }
 }
 
@@ -584,8 +599,10 @@ function pressEnter(msg){
         Notify.error(message);
         T.emitPageChangedEvent();
         ignoreFrameMsg();
-        disable();
-        remove();
+        unbindListener();
+        eraseHigtlightStyle();
+        setStateIdle();
+        removeUI();
       }
     });
   }
@@ -594,11 +611,14 @@ function pressEnter(msg){
 function pressDelete(msg) {
   if(state.clippingState === 'selected'){
     const elem = state.currElem;
-    state.deletedElems.push(elem);
     // FIXME
     elem.style.display = 'none';
-    disable();
-    enable();
+
+    Log.debug('Delete: selected ~> selecting');
+    state.currElem = null;
+    eraseHigtlightStyle();
+    sendFrameMsgToControl('bindMouseMove');
+    setStateSelecting();
     return;
   }
 }
@@ -755,7 +775,10 @@ function setSavingHint(hint) {
 
 function friendlyExit(timeout) {
   setTimeout(function(){
-    disable();
+    hideForm();
+    unbindListener();
+    eraseHigtlightStyle();
+    setStateIdle();
     removeFriendly();
   }, timeout);
 }
@@ -845,7 +868,7 @@ function init(config) {
 
 const UI = {
   init: init,
-  remove: remove,
+  remove: removeUI,
   setCallback: setCallback,
   entryClick: entryClick,
   windowSizeChanged: windowSizeChanged,

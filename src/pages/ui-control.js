@@ -124,6 +124,7 @@ function initFrameMsg(){
 function listenFrameMsg(){
   FrameMsg.addListener('bindListener', bindListener);
   FrameMsg.addListener('unbindListener', unbindListener);
+  FrameMsg.addListener('bindMouseMove', bindMouseMove);
   FrameMsg.addListener('unbindMouseMove', unbindMouseMove);
   FrameMsg.addListener('setStateIdle', setStateIdle);
   FrameMsg.addListener('setStateSelecting', setStateSelecting);
@@ -143,7 +144,7 @@ function listenFrameMsg(){
 /************** event listener ****************/
 
 function bindListener(msg) {
-  T.bind(document, 'mousemove', mouseMoveHandler, true);
+  bindMouseMove();
   T.bind(document, 'click', clickHandler, true);
   T.bind(document, 'keydown', keyDownHandler, true);
 };
@@ -152,6 +153,10 @@ function unbindListener(msg) {
   unbindMouseMove();
   T.unbind(document, 'click', clickHandler, true);
   T.unbind(document, 'keydown', keyDownHandler, true);
+}
+
+function bindMouseMove(msg) {
+  T.bind(document, 'mousemove', mouseMoveHandler, true);
 }
 
 function unbindMouseMove(msg){
@@ -218,6 +223,8 @@ function setStateSelecting(msg){
   btn.innerText = "ON";
   btn.title = I18N.t('switch.title');
   gbox.classList.remove('idle');
+  gbox.classList.remove('selected');
+  gbox.classList.remove('confirmed');
   gbox.classList.add('selecting');
   setHint(I18N.t('hint.selecting'));
 }
@@ -227,6 +234,7 @@ function setStateSelected(msg){
   btn.innerText = "ON";
   btn.title = I18N.t('switch.title');
   gbox.classList.remove('selecting');
+  gbox.classList.remove('confirmed');
   gbox.classList.add('selected');
   setHint(I18N.t('hint.selected'));
 }
