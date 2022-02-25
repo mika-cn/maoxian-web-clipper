@@ -80,7 +80,9 @@ async function getPagePlan(url) {
   const fn = (plan) => {
     return T.any(T.toArray(plan.pattern), (pattern) => {
       return FuzzyMatcher.matchUrl(url, pattern);
-    });
+    }) && !T.any(T.toArray(plan.excludePattern), (pattern) => {
+      return FuzzyMatcher.matchUrl(url, pattern);
+    })
   }
 
   // find from cachedPlans
