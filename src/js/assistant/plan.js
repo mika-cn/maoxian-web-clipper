@@ -12,6 +12,7 @@
 
 import T from '../lib/tool.js';
 import MxWcEvent from '../lib/event.js';
+import UrlEditor from './url-editor.js';
 
 let listeners = {};
 
@@ -189,6 +190,12 @@ function createUndoDisplayAction(params) {
  *   T21 = "assign.from.first-child-attr"
  *   T22 = "assign.from.child-attr"
  *   T23 = "assign.from.descendent-attr"
+ *
+ *   T51 = "url.file.set-ext-suffix"
+ *   T52 = "url.file.rm-ext-suffix"
+ *   T53 = "url.file.set-name-suffix"
+ *   T54 = "url.file.rm-name-suffix"
+ *   T55 = "url.search.edit"
  *
  *   T71 = "replace.last-match"
  *   T72 = "replace.all"
@@ -442,7 +449,27 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
           break;
         }
 
+        case 'url.file.set-ext-suffix':
+        case 'url.file.rm-ext-suffix':
+        case 'url.file.set-name-suffix':
+        case 'url.file.rm-name-suffix': {
+          try {
+            const attrValue = elem.getAttribute(action.attr);
+            if (!attrValue) { break; }
+            return UrlEditor.editFile(attrValue, action);
+          } catch(e) { console.warn(e)}
+          break;
+        }
 
+        case 'url.search.edit': {
+          try {
+            const attrValue = elem.getAttribute(action.attr);
+            if (!attrValue) { break; }
+            const deleteNames = T.toArray(action.delete);
+            return UrlEditor.editSearch(attrValue, action.change, deleteNames);
+          } catch(e) { console.warn(e), console.stack()}
+          break;
+        }
         case 'self.add': //deprecated
         case 'self.remove': //deprecated
         case 'split2list.add':
@@ -543,7 +570,7 @@ Action.undoRmAttr = function(params, contextSelectorInput = 'document') {
       const fn = (action) => this.undo(action, Q);
       this.actions.forEach(fn);
     },
-    undo(action) {
+    undo(action, Q) {
       const fn = (elem) => {
         T.toArray(action.attr).forEach((attrName) => {
           if (attrName) {
