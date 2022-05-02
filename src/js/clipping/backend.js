@@ -67,6 +67,9 @@ function messageHandler(message, sender) {
         ActionCache.removeByKeyPrefix(sessionId);
         resolve();
         break;
+      default:
+        reject(new Error(`clipping/backend.js: Unknown message: ${message.type}`));
+        break;
     }
   });
 }

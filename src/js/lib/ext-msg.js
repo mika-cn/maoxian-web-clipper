@@ -39,7 +39,10 @@ function listen(target, listener) {
       return listener(msg, sender);
     } else {
       // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
-      // ignore msg
+
+      // Returns false or undefined means this message listener
+      // don't care this message and let other listeners handle it.
+      return false;
     }
   });
 }

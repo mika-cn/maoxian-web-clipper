@@ -81,6 +81,9 @@ function backgroundMessageHandler(message) {
           }).then(resolve, reject).catch(reject);
         }
         break;
+      default:
+        reject(new Error(`content-frame.js: Unknown message: ${message.type}`));
+        break;
     }
   });
 }

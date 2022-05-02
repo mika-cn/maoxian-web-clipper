@@ -27,6 +27,9 @@ function messageHandler(message, sender) {
         PlanRepository.restart();
         resolve();
         break;
+      default:
+        reject(new Error(`assistant/backend.js: Unknown message: ${message.type}`));
+        break;
     }
   });
 }

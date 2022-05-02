@@ -19,6 +19,9 @@ function messageHandler(message, sender){
         retryTask(sender.tab.id, message.body)
         resolve();
         break;
+      default:
+        reject(new Error(`saving/backend.js: Unknown message: ${message.type}`));
+        break;
     }
   });
 }

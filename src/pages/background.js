@@ -109,6 +109,7 @@ function messageHandler(message, sender){
         resolve();
         break;
       default:
+        reject(new Error(`background.js: Unknown message: ${message.type}`));
         break;
     }
   });

@@ -21,6 +21,9 @@ function messageHandler(message, sender) {
         restart();
         resolve();
         break;
+      default:
+        reject(new Error(`selection/backend.js: Unknown message: ${message.type}`));
+        break;
     }
   });
 }
