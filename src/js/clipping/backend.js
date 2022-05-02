@@ -32,7 +32,7 @@ function messageHandler(message, sender) {
         }
         break;
       case 'get.allFrames':
-        getAllFrames(sender.tab.id).then(resolve);
+        getAllFrames(sender.tab.id).then(resolve, reject);
         break;
       case 'get.mimeType':
         getMimeType(message.body).then(resolve, reject);
