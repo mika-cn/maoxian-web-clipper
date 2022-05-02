@@ -15,6 +15,7 @@ import CapturerA             from '../capturer/a.js';
 import CapturerImg           from '../capturer/img.js';
 import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
+import CapturerTable         from '../capturer/table.js';
 
 import TurndownService from 'turndown';
 import * as TurndownPluginGfm from 'turndown-plugin-gfm';
@@ -151,6 +152,10 @@ async function captureAssets(snapshot, params) {
 
       case 'A':
         r = await CapturerA.capture(node, {baseUrl, docUrl});
+        break;
+
+      case 'TABLE':
+        r = await CapturerTable.capture(node, {saveFormat});
         break;
 
       case 'CANVAS':
