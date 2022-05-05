@@ -51,7 +51,7 @@ function exec({storageConfig: config, now, domain,
   // storageInfo.raw stores storageConfig Items that can't be decided now.
   storageInfo.raw = {};
   // storageInfo.valueObj stores values that will be used to asset/iframe filename rendering.
-  storageInfo.valueObj = {now};
+  storageInfo.valueObj = {now, domain};
 
   // ====================================
   // render folders
