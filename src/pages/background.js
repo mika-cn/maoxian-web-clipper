@@ -520,9 +520,15 @@ async function init(){
   const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
   Global.assetCache = T.createResourceCache({size: config.requestCacheSize});
   Fetcher.init({token: REQUEST_TOKEN, cache: Global.assetCache});
+
+  const isChrome = MxWcLink.isChrome();
+  const isFirefox = MxWcLink.isFirefox();
+
+
   WebRequest.init(Object.assign({
     evTarget: Global.evTarget,
-    requestToken: REQUEST_TOKEN
+    requestToken: REQUEST_TOKEN,
+    isFirefox: isFirefox,
   }, T.sliceObj(config, [
     'requestCacheSize',
     'requestCacheCss',
@@ -533,7 +539,7 @@ async function init(){
   WebRequest.listen();
 
 
-  Handler_Browser.init(Object.assign({Fetcher}, {isChrome: MxWcLink.isChrome()}));
+  Handler_Browser.init(Object.assign({Fetcher}, {isChrome}));
   Handler_NativeApp.init({Fetcher});
   Handler_WizNotePlus.init({Fetcher});
 

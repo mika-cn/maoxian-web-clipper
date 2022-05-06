@@ -5,6 +5,7 @@ import T      from '../lib/tool.js';
 import ExtMsg from '../lib/ext-msg.js';
 
 
+
 const StoreRedirection = (function() {
   const state = {};
 
@@ -18,9 +19,10 @@ const StoreRedirection = (function() {
     return {
       dict: {}, // url => {resourceType, targetUrl}
       redirectStatus: {}, // targetUrl => status
-      add(resourceType, url, targetUrl) {
+      add(type, url, targetUrl) {
         if (url && targetUrl) {
           Log.info("Store Redirection", url, " => ", targetUrl);
+          const resourceType = getResourceType(type);
           this.dict[url] = {resourceType, targetUrl};
           this.redirectStatus[targetUrl] = FINAL;
           if (this.redirectStatus[url] === FINAL) {
@@ -74,11 +76,9 @@ const StoreRedirection = (function() {
 
   function listen() {
     init();
-    const filter = {
-      urls: ["http://*/*", "https://*/*"],
-      types: ["image", "sub_frame"]
-    };
-
+    const types = ["image", "sub_frame"];
+    if (Global.isFirefox) {types.push("imageset")}
+    const filter = {urls: ["http://*/*", "https://*/*"], types: types};
     browser.webRequest.onBeforeRedirect.removeListener(listener);
     browser.webRequest.onBeforeRedirect.addListener(listener, filter);
   }
@@ -205,13 +205,9 @@ const StoreMimeType = (function() {
 
   function listen() {
     init();
-    const filter = {
-      urls: ["http://*/*", "https://*/*"],
-      types: [
-        "xmlhttprequest",
-        "image"
-      ]
-    };
+    const types = ["xmlhttprequest", "image"];
+    if (Global.isFirefox) {types.push("imageset")}
+    const filter = {urls: ["http://*/*", "https://*/*"], types: types};
     browser.webRequest.onHeadersReceived.removeListener(listener);
     browser.webRequest.onHeadersReceived.addListener(
       listener,
@@ -255,9 +251,18 @@ const StoreResource = (function() {
     if (browser.webRequest.filterResponseData) {
 
       const cacheTypes = [];
-      if (Global.requestCacheCss)     { cacheTypes.push('stylesheet') }
-      if (Global.requestCacheImage)   { cacheTypes.push('image') }
-      if (Global.requestCacheWebFont) { cacheTypes.push('font') }
+      if (Global.requestCacheCss) {
+        cacheTypes.push('stylesheet');
+      }
+      if (Global.requestCacheImage) {
+        cacheTypes.push('image');
+        if (Global.isFirefox) {
+          cacheTypes.push('imageset');
+        }
+      }
+      if (Global.requestCacheWebFont) {
+        cacheTypes.push('font')
+      }
 
       const filter = {types: cacheTypes, urls: ["http://*/*", "https://*/*"]};
 
@@ -308,7 +313,7 @@ const StoreResource = (function() {
 
         Global.evTarget.dispatchEvent({
           type: "resource.loaded",
-          resourceType: details.type,
+          resourceType: getResourceType(details.type),
           url: details.url,
           responseHeaders: [...details.responseHeaders],
           data: combinedArray,
@@ -448,6 +453,10 @@ const UnescapeHeader = (function(){
   }
 })();
 
+
+function getResourceType(requestType) {
+  return requestType === 'imageset' ? 'image' : requestType;
+}
 
 
 function listen() {
