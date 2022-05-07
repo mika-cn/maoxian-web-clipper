@@ -1,14 +1,17 @@
 "user strict";
 (function (root, factory) {
-  factory(root);
-})(this, function(root) {
+  let apiRoot;
+  try {apiRoot = browser} catch (e) {}
+  try {apiRoot = chrome } catch (e) {}
+  factory(root, apiRoot);
+})(this, function(root, browser) {
 
   const PAGE_SCRIPTS = [
     "js/page-scripts/page-locker.js",
   ];
 
   function getUrl(filePath) {
-    return (browser || chrome).runtime.getURL(filePath);
+    return browser.runtime.getURL(filePath);
   }
 
   function injectScript(url) {

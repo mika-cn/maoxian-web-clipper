@@ -22,7 +22,10 @@ function listenMessage() {
         case 'history.reseted':
           resetHistory();
           resolve();
-        default: break;
+          break;
+        default:
+          reject(new Error(`history.js: Unknown message: ${msg.type}`));
+          break;
       }
     });
   });

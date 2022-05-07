@@ -39,7 +39,10 @@ function listen(target, listener) {
       return listener(msg, sender);
     } else {
       // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
-      // ignore msg
+
+      // Returns false or undefined means this message listener
+      // don't care this message and let other listeners handle it.
+      return false;
     }
   });
 }
@@ -103,7 +106,7 @@ function addTarget(target, msg) {
 }
 
 
-const IGNORE_MSG_ERROR = {ping: true};
+const IGNORE_MSG_ERROR = {ping: true, 'page_content.changed': true};
 
 // private
 function sendToTab(msg, tabId, frameId) {
@@ -111,23 +114,37 @@ function sendToTab(msg, tabId, frameId) {
   const options = {frameId: defaultFrameId};
   if(frameId) { options.frameId = frameId }
   return new Promise(function(resolve, reject){
-    const handleError = (errMsg) => {
-      if (!IGNORE_MSG_ERROR[msg.type]) {
-        console.warn(tabId, options.frameId);
-        console.warn(msg);
-        console.warn(errMsg);
-        console.trace();
+    const createErrorHandler = (msg, tabId, frameId) => {
+      return (errMsg) => {
+        if (IGNORE_MSG_ERROR[msg.type]) {
+          console.debug('ignored tab msg: ', msg.type)
+          resolve('ignored');
+        } else {
+          console.warn(tabId, options.frameId);
+          console.warn(msg);
+          console.warn(errMsg);
+          console.trace();
+          reject(errMsg);
+        }
       }
-      reject(errMsg);
     }
     if(tabId){
+      const errorHandler = createErrorHandler(msg, tabId, options.frameId);
       browser.tabs.sendMessage(tabId, msg, options)
-        .then(resolve, handleError)
+        .then(resolve, errorHandler)
     } else {
+      let errorHandler = () => { resolve() };
       ExtApi.getCurrentTab().then((tab) => {
-        browser.tabs.sendMessage(tab.id, msg, options)
-          .then(resolve, handleError);
-      }, handleError)
+        if (tab) {
+          errorHandler = createErrorHandler(msg, tab.id, options.frameId);
+          browser.tabs.sendMessage(tab.id, msg, options)
+            .then(resolve, errorHandler);
+        } else {
+          console.debug("Error, Can't get current tab");
+          console.debug("Ignore this tab msg: ", msg.type);
+          resolve("ignored");
+        }
+      }, errorHandler)
     }
   })
 }

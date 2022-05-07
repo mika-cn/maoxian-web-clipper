@@ -32,7 +32,7 @@ function messageHandler(message, sender) {
         }
         break;
       case 'get.allFrames':
-        getAllFrames(sender.tab.id).then(resolve);
+        getAllFrames(sender.tab.id).then(resolve, reject);
         break;
       case 'get.mimeType':
         getMimeType(message.body).then(resolve, reject);
@@ -66,6 +66,9 @@ function messageHandler(message, sender) {
         const sessionId = clipping.info.clipId;
         ActionCache.removeByKeyPrefix(sessionId);
         resolve();
+        break;
+      default:
+        reject(new Error(`clipping/backend.js: Unknown message: ${message.type}`));
         break;
     }
   });

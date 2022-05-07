@@ -29,6 +29,8 @@ async function getHttpMimeType(params) {
   }
 }
 
+
+
 async function getUniqueName({clipId, id, folder, filename}) {
   const name = await ExtMsg.sendToBackend('clipping', {
     type: 'get.uniqueFilename',
@@ -36,6 +38,7 @@ async function getUniqueName({clipId, id, folder, filename}) {
   });
   return name;
 }
+
 
 
 function getValueObjectByLink({template, link, extension = null, mimeTypeData = {}}) {
@@ -61,6 +64,7 @@ function getValueObjectByLink({template, link, extension = null, mimeTypeData = 
 }
 
 
+
 function getValueObjectByContent({template, content, name = "untitle", extension = null}) {
   let v = {};
 
@@ -78,17 +82,40 @@ function getValueObjectByContent({template, content, name = "untitle", extension
   return v;
 }
 
-// link http:, https: or data:
-function getNameByLink({template, link, extension, mimeTypeData = {}, now}) {
+
+/**
+ * handle linked assets (external styles, images, audios, videos, pdf...)
+ *
+ * @param {String} template (the configured assetFileName)
+ * @param {Object} valueObj (contains value that will used to render the template)
+ * @param {String} link (http:, https: or data:)
+ * @param {String} [extension] (the filename extension)
+ * @param {Object} mimeTypeData
+ *
+ * @returns {String} name
+ */
+function getNameByLink({template, valueObj, link, extension, mimeTypeData = {}}) {
   const v = getValueObjectByLink({template, link, extension, mimeTypeData});
-  const name = VariableRender.exec(template, Object.assign({now}, v),
+  const name = VariableRender.exec(template, Object.assign(v, valueObj),
     VariableRender.AssetFilenameVariables);
   return name
 }
 
-function getNameByContent({template, content, name, extension, now}) {
+
+/**
+ * handle text assets (inline style, srcdoc frames...)
+ *
+ * @param {String} template (the configured assetFileName)
+ * @param {Object} valueObj (contains value that will used to render the template)
+ * @param {String} content (text assets' content)
+ * @param {String} [name]  (the filename without extension)
+ * @param {String} [extension] (the filename extension)
+ *
+ * @returns {String} name
+ */
+function getNameByContent({template, valueObj, content, name, extension}) {
   const v = getValueObjectByContent({template, content, name, extension});
-  return VariableRender.exec(template, Object.assign({now}, v),
+  return VariableRender.exec(template, Object.assign(v, valueObj),
     VariableRender.AssetFilenameVariables);
 }
 
@@ -113,10 +140,10 @@ async function getFilenameAndPath(params) {
 
   const name = getNameByLink({
     template: storageInfo.raw.assetFileName,
+    valueObj: storageInfo.valueObj,
     link: link,
     extension: extension,
     mimeTypeData: mimeTypeData,
-    now: storageInfo.valueObj.now,
   });
 
   const assetName = await getUniqueName({

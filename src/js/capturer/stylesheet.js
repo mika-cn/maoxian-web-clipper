@@ -96,10 +96,10 @@ function getResourceHandler(params) {
 
       const name = Asset.getNameByLink({
         template: storageInfo.raw.assetFileName,
+        valueObj: storageInfo.valueObj,
         link: url,
         extension: extension,
         mimeTypeData: mimeTypeData,
-        now: storageInfo.valueObj.now,
       });
 
       const assetName = await Asset.getUniqueName({

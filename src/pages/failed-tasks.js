@@ -13,7 +13,10 @@ function listenMessage() {
           logFeedback(msg.body);
           // update task
           updateTask(msg.body);
-        break;
+          break;
+        default:
+          reject(new Error(`failed-tasks.js: Unknown message: ${msg.type}`));
+          break;
       }
     });
   });
