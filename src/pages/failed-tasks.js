@@ -15,7 +15,7 @@ function listenMessage() {
           updateTask(msg.body);
           break;
         default:
-          reject(new Error(`failed-tasks.js: Unknown message: ${message.type}`));
+          reject(new Error(`failed-tasks.js: Unknown message: ${msg.type}`));
           break;
       }
     });

@@ -24,7 +24,7 @@ function listenMessage() {
           resolve();
           break;
         default:
-          reject(new Error(`history.js: Unknown message: ${message.type}`));
+          reject(new Error(`history.js: Unknown message: ${msg.type}`));
           break;
       }
     });
