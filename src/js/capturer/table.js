@@ -19,7 +19,7 @@ function capture(node, params) {
   let change = new SnapshotNodeChange();
 
   if (saveFormat === 'md') {
-    const isEmpty = true;
+    let isEmpty = true;
     for (const it of (node.childNodes || [])) {
       if (it.type == NODE_TYPE.ELEMENT) {
         isEmpty = false;
