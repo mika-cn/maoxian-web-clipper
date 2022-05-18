@@ -148,8 +148,9 @@ async function captureStylesheet({node, linkTypes, href, opts}) {
 
   } else {
 
+    const id = (cssParams.removeUnusedRules ? (url + '#' + Asset.md5(r.cssText)) : url);
     const {filename, path} = await Asset.getFilenameAndPath({
-      link: url, extension: 'css', clipId, storageInfo});
+      link: url, extension: 'css', id, clipId, storageInfo});
 
     const cssText = (cssParams.needFixStyle ? CapturerStyleSheet.fixBodyChildrenStyle(r.cssText) : r.cssText);
 
