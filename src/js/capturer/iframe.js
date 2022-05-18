@@ -38,14 +38,15 @@ async function capture(node, opts) {
     } else {
 
       let name, id;
-      if (node.frame.url === 'about:srcdoc') {
+      if ( node.frame.url === 'about:srcdoc'
+        || node.frame.url === 'about:blank') {
         name = Asset.getNameByContent({
           template: storageInfo.raw.frameFileName,
           valueObj: storageInfo.valueObj,
           content: html,
           extension: 'frame.html',
         })
-        // because the urls of inline frames always the same
+        // because the urls of local frames are always the same
         // so we can't use it as id, use name instead which
         // is depends on the html content.
         id = name;
