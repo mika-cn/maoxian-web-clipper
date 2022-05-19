@@ -18,17 +18,9 @@ function capture(node, params) {
   const tasks = [];
   let change = new SnapshotNodeChange();
 
-  if (saveFormat === 'md') {
-    let isEmpty = true;
-    for (const it of (node.childNodes || [])) {
-      if (it.type == NODE_TYPE.ELEMENT) {
-        isEmpty = false;
-        break;
-      }
-    }
-    if (isEmpty) {
-      change.setProperty('ignore', true);
-    }
+  if (saveFormat === 'md' && node.rowSize == 0) {
+    // empty table
+    change.setProperty('ignore', true);
   }
 
   return {change, tasks};

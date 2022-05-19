@@ -224,6 +224,15 @@ async function takeSnapshotOfCurrNode(node, params) {
           };
         }
 
+        case 'TABLE': {
+          snapshot.rowSize = node.rows.length;
+          return {
+            snapshot: snapshot,
+            children: node.childNodes,
+            childParams: params,
+          };
+        }
+
 
         case 'TEMPLATE': {
           return {
