@@ -390,6 +390,7 @@ function getWrapperNodeCssRules(v) {
         'background-color' : v.outerElemBgCss,
         'margin'           : '0 auto',
         'max-width'        : `${v.elemWidth}px`,
+        'min-height'       : `${v.elemHeight}px`,
       })
     ),
 

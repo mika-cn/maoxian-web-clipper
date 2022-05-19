@@ -41,6 +41,7 @@ function calcStyle(elem, win){
       }
     }
     const elemWidth = getFitWidth(elem, win);
+    const elemHeight = elem.getBoundingClientRect().height;
 
     bodyStyleObj = setImportantPriority({
       'background-color': bodyBgCss,
@@ -55,6 +56,7 @@ function calcStyle(elem, win){
       htmlStyleObj,
       bodyStyleObj,
       elemWidth,
+      elemHeight,
       outerElemBgCss,
     }
   }
