@@ -43,7 +43,7 @@ function backgroundMessageHandler(message) {
             cssBox: cssBox,
             blacklist: blacklist,
             shadowDom: {blacklist},
-            srcdocFrame: {blacklist},
+            localFrame: {blacklist},
             ignoreFn: (node) => {
               if (node.nodeName == 'LINK' && node.rel) {
                 const rel = node.rel.toLowerCase();
@@ -77,7 +77,7 @@ function backgroundMessageHandler(message) {
             extMsgType: message.type,
             blacklist: blacklist,
             shadowDom: {blacklist},
-            srcdocFrame: {blacklist},
+            localFrame: {blacklist},
           }).then(resolve, reject).catch(reject);
         }
         break;

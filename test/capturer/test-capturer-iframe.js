@@ -43,19 +43,25 @@ describe("Capture iframe", async () => {
     ExtMsg.clearMocks();
   });
 
-  it('capture html', async () => {
-    ExtMsg.mockGetUniqueFilename();
-    const params = getParams();
-    const node = {type: 1, name: 'IFRAME',
-      url: 'https://a.org',
-      frame: {url: 'https://a.org'},
-    };
-    const r = await Capturer.capture(node, params);
-    H.assertEqual(r.tasks.length, 1);
-    H.assertTrue(r.change.hasAttr('src'));
-    H.assertTrue(r.change.deletedAttr('srcdoc'));
-    H.assertTrue(r.change.deletedAttr('referrerpolicy'));
-    ExtMsg.clearMocks();
-  });
+
+  function testCaptureFrame(url) {
+    it(`capture frame, url: ${url}`, async () => {
+      ExtMsg.mockGetUniqueFilename();
+      const params = getParams();
+      const node = {type: 1, name: 'IFRAME', url: url, frame: {url}};
+      const r = await Capturer.capture(node, params);
+      H.assertEqual(r.tasks.length, 1);
+      H.assertTrue(r.change.hasAttr('src'));
+      H.assertTrue(r.change.deletedAttr('srcdoc'));
+      H.assertTrue(r.change.deletedAttr('referrerpolicy'));
+      ExtMsg.clearMocks();
+    });
+  }
+
+  testCaptureFrame('https://a.org');
+  testCaptureFrame('about:srcdoc');
+  testCaptureFrame('about:blank');
+
+
 
 })

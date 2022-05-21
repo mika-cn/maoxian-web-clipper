@@ -111,7 +111,7 @@ async function takeSnapshot({elem, frames, requestParams, win, platform}) {
     frameInfo, requestParams, win, platform, extMsgType,
     blacklist: blacklist,
     shadowDom: {blacklist},
-    srcdocFrame: {blacklist},
+    localFrame: {blacklist},
   });
 
   Snapshot.appendClassName(elemSnapshot, 'mx-wc-selected');

@@ -70,10 +70,18 @@ function getResourceHandler(params) {
   const {tasks, ownerType, baseUrl, docBaseUrl, storageInfo, clipId, config, requestParams} = params;
   // @return paths;
   return async ({ownerType, resourceType, baseUrl, resourceItems}) => {
+
+    const [isCSS, isImage, isFont] = [
+      resourceType == 'css',
+      resourceType == 'image',
+      resourceType == 'font',
+    ];
+    const removeUnusedRules = (config.htmlCaptureCssRules === 'saveUsed');
+
     const boolFlags = (
-         resourceType == 'css'   && saveAll(resourceItems)
-      || resourceType == 'image' && getImageFlags(resourceItems, config)
-      || resourceType == 'font'  && getWebFontFlags(resourceItems, config)
+         isCSS   && saveAll(resourceItems)
+      || isImage && getImageFlags(resourceItems, config)
+      || isFont  && getWebFontFlags(resourceItems, config)
     );
 
     const paths = [];
@@ -85,7 +93,7 @@ function getResourceHandler(params) {
         continue;
       }
 
-      const extension = (resourceType == 'css' ? 'css' : undefined);
+      const extension = (isCSS ? 'css' : undefined);
 
       const mimeTypeData = {};
       if (!cssText) {
@@ -102,9 +110,28 @@ function getResourceHandler(params) {
         mimeTypeData: mimeTypeData,
       });
 
+      let id = url;
+      if (isCSS && removeUnusedRules) {
+        // If there are more than one external stylesheet (on different frame)
+        // reference to the same URL.
+        // Then these stylesheets may have different content due to
+        // the "removeUnusedRules" behavier.
+        //
+        // It's better to merge these stylesheets to one file (for a small size saving)
+        // but it's too complecated.
+        //
+        //   * It needs to travese the whole tree.
+        //   * One stylesheet may import another stylesheet, and the imported one may
+        //     have different content too.
+        //
+        // Currently, we only save these different stylesheets as differnet files
+
+        id = url + '#' + Asset.md5(cssText || "-");
+      }
+
       const assetName = await Asset.getUniqueName({
         clipId: clipId,
-        id: url,
+        id: id,
         folder: storageInfo.assetFolder,
         filename: name
       });

@@ -129,6 +129,7 @@ function getFilename({storageInfo, assetName}) {
  *   - {String} extension
  *   - {Object} mimeTypeData
  *   - {Object} storageInfo
+ *   - {String} [id]
  *   - {String} clipId
  *
  * @return {Object} {:filename, :path}
@@ -136,7 +137,7 @@ function getFilename({storageInfo, assetName}) {
 async function getFilenameAndPath(params) {
 
   const {link, storageInfo, extension = null,
-    mimeTypeData = {}, clipId} = params;
+    mimeTypeData = {}, id, clipId} = params;
 
   const name = getNameByLink({
     template: storageInfo.raw.assetFileName,
@@ -148,7 +149,7 @@ async function getFilenameAndPath(params) {
 
   const assetName = await getUniqueName({
     clipId: clipId,
-    id: link,
+    id: (id || link),
     folder: storageInfo.assetFolder,
     filename: name
   });

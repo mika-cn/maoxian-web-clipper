@@ -95,8 +95,8 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
   let elemSnapshot = await Snapshot.take(elem, {
     frameInfo, requestParams, win, platform, extMsgType, cssBox,
     blacklist: {SCRIPT: true, LINK: true, STYLE: true, TEMPLATE: true},
-    shadowDom:    {blacklist: {SCRIPT: true, TEMPLATE: true}},
-    srcdocFrame:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
+    shadowDom:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
+    localFrame: {blacklist: {SCRIPT: true, TEMPLATE: true}},
   });
 
   Snapshot.appendClassName(elemSnapshot, 'mx-wc-selected');
@@ -390,6 +390,7 @@ function getWrapperNodeCssRules(v) {
         'background-color' : v.outerElemBgCss,
         'margin'           : '0 auto',
         'max-width'        : `${v.elemWidth}px`,
+        'min-height'       : `${v.elemHeight}px`,
       })
     ),
 
