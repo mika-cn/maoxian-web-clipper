@@ -300,10 +300,10 @@ body {
 
   /* btn group */
   .gbox.selecting .state-bar + .op-btn-panel {display: block;}
-  .gbox.selected .state-bar + .op-btn-panel {display: block;}
+  .gbox.selected  .state-bar + .op-btn-panel {display: block;}
   .gbox.selecting .op-btn-group.group-a {display: block;}
   .gbox.selecting .op-btn-group.group-b {display: none;}
-  .gbox.selected .op-btn-group.group-a {display: none;}
+  .gbox.selected  .op-btn-group.group-a {display: none;}
 
   .op-btn-panel {
     position: fixed;

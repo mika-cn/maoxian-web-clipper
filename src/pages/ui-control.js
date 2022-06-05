@@ -209,11 +209,7 @@ function setStateIdle(msg){
   const gbox = getGbox();
   const btn = getEntryBtn();
   btn.title = I18N.t('switch.title');
-  gbox.classList.remove('selected');
-  gbox.classList.remove('selecting');
-  gbox.classList.remove('confirmed');
-  gbox.classList.remove('clipping');
-  gbox.classList.remove('saving');
+  gbox.classList.remove('selecting', 'selected', 'confirmed', 'clipping', 'saving');
   gbox.classList.add('idle');
   setHint('-');
 }
@@ -222,9 +218,7 @@ function setStateSelecting(msg){
   const btn = getEntryBtn();
   btn.innerText = "ON";
   btn.title = I18N.t('switch.title');
-  gbox.classList.remove('idle');
-  gbox.classList.remove('selected');
-  gbox.classList.remove('confirmed');
+  gbox.classList.remove('idle', 'selected', 'confirmed');
   gbox.classList.add('selecting');
   setHint(I18N.t('hint.selecting'));
 }
@@ -233,21 +227,19 @@ function setStateSelected(msg){
   const btn = getEntryBtn();
   btn.innerText = "ON";
   btn.title = I18N.t('switch.title');
-  gbox.classList.remove('selecting');
-  gbox.classList.remove('confirmed');
+  gbox.classList.remove('idle', 'selecting', 'confirmed');
   gbox.classList.add('selected');
   setHint(I18N.t('hint.selected'));
 }
 function setStateConfirmed(msg){
   const gbox = getGbox();
-  gbox.classList.remove('selecting');
-  gbox.classList.remove('selected');
+  gbox.classList.remove('idle', 'selecting', 'selected');
   gbox.classList.add('confirmed');
   setHint('-');
 }
 function setStateClipping(msg){
   const gbox = getGbox();
-  gbox.classList.remove('confirmed');
+  gbox.classList.remove('idle', 'selecting', 'selected', 'confirmed');
   gbox.classList.add('clipping');
   setHint(I18N.t('hint.clipping'));
 }
