@@ -34,6 +34,7 @@ const IFRAME_STYLE_ITEMS =  [
 ];
 
 function appendIframe(){
+  this.loading = true;
   this.element = document.createElement("iframe");
   this.element.id = this.id;
   this.element.src = this.src();
@@ -47,6 +48,7 @@ function appendIframe(){
 
 function removeIframe(){
   this.ready = false;
+  this.loading = false;
   if(this.element){
     document.body.parentElement.removeChild(this.element);
     this.element = null;
@@ -98,6 +100,7 @@ function stopMutationObserver() {
 const selectionIframe = {
   id: 'mx-wc-iframe-selection',
   ready: false,
+  loading: false,
   src: function(){
     const url =  ExtApi.getURL('/pages/ui-selection.html');
     return url + "?t=" + btoa(window.location.origin)
@@ -117,6 +120,7 @@ const selectionIframe = {
   remove: removeIframe,
   frameLoaded: function(){
     this.ready = true;
+    this.loading = false;
     dispatchFrameLoadedEvent(this.id);
   },
   startMutationObserver: startMutationObserver,
@@ -127,6 +131,7 @@ const selectionIframe = {
 const controlIframe = {
   id: 'mx-wc-iframe-control',
   ready: false,
+  loading: false,
   src: function(){
     const url =  ExtApi.getURL('/pages/ui-control.html');
     return url + "?t=" + btoa(window.location.origin)
@@ -147,11 +152,13 @@ const controlIframe = {
   frameLoaded: function(){
     this.element.focus();
     this.ready = true;
+    this.loading = false;
     dispatchFrameLoadedEvent(this.id);
   },
   startMutationObserver: startMutationObserver,
   stopMutationObserver: stopMutationObserver,
 }
+
 
 function dispatchFrameLoadedEvent(frameId) {
   Log.debug(frameId, 'loaded');
@@ -162,6 +169,10 @@ function dispatchFrameLoadedEvent(frameId) {
   }
 }
 
+
+function isUILoading() {
+  return selectionIframe.loading || controlIframe.loading;
+}
 
 
 // append UI layers
@@ -384,14 +395,18 @@ function sendFrameMsgToSelection(type, msg) {
 // entry btn (ON/OFF)
 // ===========================================
 function entryClick(e){
-  if(state.clippingState === 'idle'){
-    // switch to ON
-    listenFrameMsg();
-    T.bindOnce(document, 'all-iframe-loaded', () => {
-      bindListener();
-      setStateSelecting();
-    })
-    appendUI();
+  if (state.clippingState === 'idle') {
+    if (isUILoading()) {
+      Log.debug("UI is loading, clippingState is changing from 'idle' to 'selecting'");
+    } else {
+      // switch to ON
+      listenFrameMsg();
+      T.bindOnce(document, 'all-iframe-loaded', () => {
+        bindListener();
+        setStateSelecting();
+      })
+      appendUI();
+    }
   }else{
     if(state.clippingState !== 'clipping') {
       // switch to OFF
@@ -434,38 +449,26 @@ function listenFrameMsg(){
 
 function submitForm(msg){
   const formInputs = msg;
-  MxWcHandler.isReady('config.clippingHandler')
-  .then(function(result) {
-    const {ok, config, message} = result;
-    if(ok) {
-      eraseHigtlightStyle();
-      setStateClipping();
-      if (config.rememberSelection) {
-        MxWcSelectionMain.save(state.currElem);
-      }
-     const formSubmitted = state.callbacks['submitted'];
-     formSubmitted({
-       elem: state.currElem,
-       formInputs: formInputs,
-       config: config,
-     }).catch((error) => {
-       console.error(error);
-       Notify.error(error.message);
-       ignoreFrameMsg();
-       unbindListener();
-       eraseHigtlightStyle();
-       setStateIdle();
-       removeUI();
-     });
-    } else {
-      Notify.error(message);
-      T.emitPageChangedEvent();
+  performIfClippingHandlerReady(({config}) => {
+    eraseHigtlightStyle();
+    setStateClipping();
+    if (config.rememberSelection) {
+      MxWcSelectionMain.save(state.currElem);
+    }
+    const formSubmitted = state.callbacks['submitted'];
+    formSubmitted({
+      elem: state.currElem,
+      formInputs: formInputs,
+      config: config,
+    }).catch((error) => {
+      console.error(error);
+      Notify.error(error.message);
       ignoreFrameMsg();
       unbindListener();
       eraseHigtlightStyle();
       setStateIdle();
       removeUI();
-    }
+    });
   });
 }
 
@@ -586,27 +589,35 @@ function pressEnter(msg){
     return;
   }
   if(state.clippingState === 'selected'){
-    MxWcHandler.isReady('config.clippingHandler')
-    .then((result) => {
-      const {ok, message, handlerInfo, config} = result;
-      if(ok) {
-        setStateConfirmed();
-        const params = Object.assign({
-          handlerInfo: handlerInfo, config: config
-        }, getFormInputs(state.currElem, msg));
-        sendFrameMsgToControl('showForm', params);
-      } else {
-        Notify.error(message);
-        T.emitPageChangedEvent();
-        ignoreFrameMsg();
-        unbindListener();
-        eraseHigtlightStyle();
-        setStateIdle();
-        removeUI();
-      }
+    performIfClippingHandlerReady(({handlerInfo, config}) => {
+      setStateConfirmed();
+      const params = Object.assign({
+        handlerInfo: handlerInfo, config: config
+      }, getFormInputs(state.currElem, msg));
+      sendFrameMsgToControl('showForm', params);
     });
   }
 }
+
+
+function performIfClippingHandlerReady(action) {
+  MxWcHandler.isReady('config.clippingHandler')
+  .then((result) => {
+    const {ok, message, handlerInfo, config} = result;
+    if(ok) {
+      action({handlerInfo, config});
+    } else {
+      Notify.error(message);
+      T.emitPageChangedEvent();
+      ignoreFrameMsg();
+      unbindListener();
+      eraseHigtlightStyle();
+      setStateIdle();
+      removeUI();
+    }
+  });
+}
+
 
 function pressDelete(msg) {
   if(state.clippingState === 'selected'){
@@ -792,6 +803,7 @@ function selectElem(elem, callback){
     entryClick({});
   }
   state.currElem = getOutermostWrapper(elem);
+
   if(selectionIframe.ready && controlIframe.ready) {
     Log.debug("[selectElem] Iframe Ready...");
     setTimeout(() => {

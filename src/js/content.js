@@ -150,6 +150,10 @@ function tellTpWeAreReady(){
     const timeout = timeouts.shift();
     if (timeout) {
       setTimeout(function(){
+        MxWcEvent.dispatchPageScript('set-state', {
+          name: '___mxwc_is_ready___',
+          value: true
+        });
         MxWcEvent.dispatchPublic('ready');
         emitEvent();
       }, timeout);

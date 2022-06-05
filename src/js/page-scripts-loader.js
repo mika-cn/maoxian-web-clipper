@@ -7,6 +7,7 @@
 })(this, function(root, browser) {
 
   const PAGE_SCRIPTS = [
+    "js/page-scripts/page-state.js",
     "js/page-scripts/page-locker.js",
   ];
 

@@ -35,7 +35,7 @@ import MxMarkdownClipper from './clip-as-markdown.js';
  */
 function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
 
-  const userInput = dealFormInputs(formInputs);
+  const userInput = dealFormInputs(formInputs, config);
   const i18nLabel = getI18nLabel();
 
   const now = Date.now();
@@ -119,6 +119,7 @@ async function clip(elem, {config, info, storageInfo, storageConfig, i18nLabel, 
   switch(info.format){
     case 'html' : Clipper = MxHtmlClipper; break;
     case 'md'   : Clipper = MxMarkdownClipper; break;
+    default     : Clipper = MxHtmlClipper; break;
   }
 
   await ExtMsg.sendToBackend('clipping', {
@@ -166,10 +167,12 @@ async function clip(elem, {config, info, storageInfo, storageConfig, i18nLabel, 
 
 
 //private
-function dealFormInputs({format, title, category, tagstr}) {
-  title = title.trim();
-  category = category.trim();
+function dealFormInputs({format, title, category, tagstr}, config) {
+  format   = (format   || "").trim();
+  title    = (title    || "").trim();
+  category = (category || "").trim();
 
+  if (format === "") { format = (config.saveFormat || 'html') }
   if (title === "") { title = 'Untitled' }
   const tags = T.splitTagstr(tagstr);
 
