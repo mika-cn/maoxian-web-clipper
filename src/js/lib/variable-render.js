@@ -11,7 +11,7 @@ Render.FilenameVariables = Render.TimeVariables.concat([
   '$TITLE', '$FORMAT', '$DOMAIN']);
 
 Render.AssetFilenameVariables = Render.TimeVariables.concat([
-  '$DOMAIN', '$MD5URL', '$FILENAME', '$EXT']);
+  '$DOMAIN', '$TITLE', '$MD5URL', '$FILENAME', '$EXT']);
 
 
 Render['$TITLE'] = function(str, v) {
