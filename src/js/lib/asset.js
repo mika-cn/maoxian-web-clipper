@@ -51,7 +51,7 @@ function getValueObjectByLink({template, link, extension = null, mimeTypeData = 
     if (T.isDataUrl(link)) {
       filename = 'dataurl';
     } else {
-      filename = T.getUrlFilename(link);
+      filename = T.removeFileExtensionTail(T.getUrlFilename(link));
     }
     const [name, _] = T.splitFilename(filename);
     v.filename = name;
