@@ -14,34 +14,39 @@ Render.AssetFilenameVariables = Render.TimeVariables.concat([
   '$DOMAIN', '$TITLE', '$MD5URL', '$FILENAME', '$EXT']);
 
 
-Render['$TITLE'] = function(str, v) {
-  return str.replace(/\$TITLE/mg, () => {
+Render['$TITLE'] = function(template, v) {
+  return template.replace(/\$TITLE/mg, () => {
     return T.sanitizeFilename(v.title);
   });
 }
 
+Render.sanitizeTemplate = function(template) {
+  // % is a special character in URL
+  return template.replace(/%/mg, '_');
+}
+
 Render.getTimeVariableRender = function(variable) {
-  return function(str, v) {
+  return function(template, v) {
     const name = variable.replace('$', '');
     const re = new RegExp(variable.replace('$', '\\$'), 'mg');
-    return str.replace(re, () => {
+    return template.replace(re, () => {
       return v.now.str[name];
     })
   }
 }
 
 Render.getDefaultRender = function(variable) {
-  return function(str, v) {
+  return function(template, v) {
     const name = T.toJsVariableName(variable.replace('$', ''));
     const re = new RegExp(variable.replace('$', '\\$'), 'mg');
-    return str.replace(re, () => {
+    return template.replace(re, () => {
       return v[name];
     });
   }
 }
 
-Render.exec = function(str, v, variables) {
-  let s = str;
+Render.exec = function(template, v, variables) {
+  let s = Render.sanitizeTemplate(template);
   let nowWrapped = false;
   variables.forEach((variable) => {
     let renderFn = Render[variable];
