@@ -84,7 +84,7 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
     content: (elemHasTitle ? markdown : `\n# ${info.title}\n\n${markdown}`),
     contentOnly: markdown,
     tagsNKeywords: T.unique(info.tags.concat(pageMetas.metaKeywords)),
-  } , info, i18nLabel, pageMetas, tObj);
+  } , info, i18nLabel, pageMetas, tObj.str);
   try {
     markdown = Mustache.render(config.markdownTemplate, view);
   } catch(e) {

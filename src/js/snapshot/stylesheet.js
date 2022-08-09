@@ -45,6 +45,7 @@ async function handleStyleSheet(sheet, params) {
   }
 
   const snapshot = T.sliceObj(sheet, ['href', 'disabled', 'title']);
+  snapshot.rules = [];
 
   if (platform.isChrome && alternative) {
     // Chrome can't handle alternative stylesheets. All the alternative
@@ -385,7 +386,7 @@ async function rule2String(rule, params) {
         return `/*@import url("${rule.url}"); Error: circular stylesheet.*/`;
       }
 
-      if (!rule.sheet || rule.sheet.rules.length == 0) {
+      if (!rule.sheet || rule.sheet.rules === undefined || rule.sheet.rules.length == 0) {
         return `/*@import url("${rule.url}"); Error: empty stylesheet(maybe 404).*/`;
       }
 
