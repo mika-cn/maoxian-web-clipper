@@ -174,7 +174,15 @@ describe('Tool', () => {
     let url = 'https://a.org/example.jpeg';
     H.assertEqual(T.getUrlFilename(url), 'example.jpeg')
     url = 'https://a.org/example.jpeg!large?a=1&b=2#h';
-    H.assertEqual(T.getUrlFilename(url), 'example.jpeg')
+    H.assertEqual(T.getUrlFilename(url), 'example.jpeg!large')
+  });
+
+  it("removeFileExtensionTail", () => {
+    let name  = "example.jpeg"
+    let nameA = name + "!large";
+    let nameB = name + "@400w_200h";
+    H.assertEqual(T.removeFileExtensionTail(nameA), name);
+    H.assertEqual(T.removeFileExtensionTail(nameB), name);
   });
 
   it('FilenameConflictResolver: addFolder(folder)', () => {

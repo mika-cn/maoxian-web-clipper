@@ -539,42 +539,68 @@ T.replaceAll = function(str, subStr, newSubStr){
 }
 
 
+// Note that the output (filename) may contains file extension tail
+// @see T.removeFileExtensionTail
 T.getUrlFilename = function(urlOrPath){
   const urlBody = urlOrPath.split('?')[0].split('#')[0]
   const lastPart = decodeURI(urlBody).split('/').pop();
-  const idxA = lastPart.lastIndexOf('.');
-  const idxB = lastPart.lastIndexOf('!');
-  if (idxA > -1 && idxB > -1 && idxA < idxB) {
-    // remove "!large" of "name.ext!large"
-    return lastPart.substring(0, idxB);
-  } else {
-    return lastPart
-  }
+  return lastPart;
 }
+
 
 // not support data protocol URLs
 T.getUrlExtension = function(url){
-  return T.getFileExtension(T.getUrlFilename(url));
+  return T.getFileExtension(T.removeFileExtensionTail(T.getUrlFilename(url)));
 }
 
 
 T.getFileExtension = function(filename){
-  if(filename.indexOf('.') > -1){
-    return filename.split('.').pop();
-  }else{
+  const idx = filename.lastIndexOf('.');
+  if (idx > 0) {
+    return filename.substring(idx + 1);
+  } else {
+    // starts with ".", or not contains "."
     return '';
   }
 }
 
+
+// Some stupy libraries use file extension tail
+// to represent file properties ( version, width, height ...).
+//
+// such as:
+//   * a-picture.png!large
+//   * a-picture.png@400w_200h
+//
+T.removeFileExtensionTail = function(name) {
+  const dotIdx = name.lastIndexOf('.');
+
+  // starts with ".", or not contains "."
+  if (dotIdx < 1) { return name; }
+
+  let newName = name;
+  const seperators = ['!', '@'];
+  seperators.forEach((seperator) => {
+    const sepIdx = name.lastIndexOf(seperator);
+    if (sepIdx > 0 && dotIdx < sepIdx) {
+      newName = newName.substring(0, sepIdx);
+    }
+  });
+
+  return newName;
+}
+
+
 // return [name, extension]
 T.splitFilename = function(filename) {
   const idx = filename.lastIndexOf('.');
-  if (idx > -1) {
+  if (idx > 0) {
     return [
       filename.substring(0, idx),
       filename.substring(idx + 1)
     ]
   } else {
+    // starts with ".", or not contains "."
     return [filename, null];
   }
 }

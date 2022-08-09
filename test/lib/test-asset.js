@@ -4,16 +4,17 @@ import Asset from '../../src/js/lib/asset.js';
 
 describe("Asset", () => {
 
-  const template = '$DOMAIN_$TIME-INTSEC-$MD5URL$EXT';
+  const template = '$DOMAIN_$TITLE_$TIME-INTSEC-$MD5URL$EXT';
   const valueObj = {
     now: Date.now(),
     domain: 'a.org',
+    title: 'awesomeTitle',
   }
 
   it("getNameByLink: link only", () => {
     const link = 'https://a.org/foo.jpg';
     const name = Asset.getNameByLink({template, valueObj, link});
-    H.assertMatch(name, /^a.org_[^\.\/]+\.jpg$/);
+    H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+\.jpg$/);
   });
 
   it("getNameByLink: with extension", () => {
@@ -24,13 +25,13 @@ describe("Asset", () => {
       link: link,
       extension: 'txt',
     });
-    H.assertMatch(name, /^a.org_[^\.\/]+\.txt$/);
+    H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+\.txt$/);
   });
 
   it("getNameByLink: link doesn't has an extension", () => {
     const link = 'https://a.org/foo';
     const name = Asset.getNameByLink({template, valueObj, link});
-    H.assertMatch(name, /^a.org_[^\.\/]+$/);
+    H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+$/);
   })
 
 
@@ -45,7 +46,7 @@ describe("Asset", () => {
         attrMimeType: 'image/png'
       },
     });
-    H.assertMatch(name, /^a.org_[^\.\/]+\.bmp$/);
+    H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+\.bmp$/);
   });
 
   it("getNameByLink: with attrMimeType", () => {
@@ -58,7 +59,7 @@ describe("Asset", () => {
         attrMimeType: 'image/png'
       },
     });
-    H.assertMatch(name, /^a.org_[^\.\/]+\.bmp$/);
+    H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+\.bmp$/);
   });
 
   it("getNameByLink: data link", () => {
@@ -71,7 +72,7 @@ describe("Asset", () => {
         httpMimeType: 'image/jpeg'
       }
     });
-    H.assertMatch(nameA, /^a.org_[^\.\/]+\.png$/);
+    H.assertMatch(nameA, /^a.org_awesomeTitle_[^\.\/]+\.png$/);
 
     const nameB = Asset.getNameByLink({
       template: template,
@@ -79,7 +80,7 @@ describe("Asset", () => {
       link: link,
       extension: 'ico'
     });
-    H.assertMatch(nameB, /^a.org_[^\.\/]+\.png$/);
+    H.assertMatch(nameB, /^a.org_awesomeTitle_[^\.\/]+\.png$/);
   });
 
 });
