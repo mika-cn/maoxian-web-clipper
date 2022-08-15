@@ -28,6 +28,10 @@ T.toJsVariableName = function(str) {
   return char1.toLowerCase() + rest;
 }
 
+T.capitalize1st = function(str) {
+  return str[0].toUpperCase() + str.substr(1);
+}
+
 T.capitalize = function(str) {
   const arr = str.split(/[-_]+/)
   return arr.map((it) => {
@@ -1522,7 +1526,7 @@ T.parseContentType = function(value) {
 
 T.resourceType2MimeType = function(type) {
   switch(type) {
-    case 'stylesheet': return 'text/css';
+    case 'style': return 'text/css';
     case 'image':
     case 'font':
       return 'application/octet-binary';

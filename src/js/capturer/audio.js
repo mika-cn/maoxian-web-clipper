@@ -1,9 +1,9 @@
 
 import CapturerMedia from './media.js';
 
-const ATTR_PARAMS_AUDIO  = {resourceType: 'Audio', attrName: 'src', canEmpty: true};
-const ATTR_PARAMS_SOURCE = {resourceType: 'Audio', attrName: 'src', mimeTypeAttrName: 'type'};
-const ATTR_PARAMS_TRACK  = {resourceType: 'TextTrack', attrName: 'src', extension: 'vtt'};
+const ATTR_PARAMS_AUDIO  = {resourceType: 'audio', attrName: 'src', canEmpty: true};
+const ATTR_PARAMS_SOURCE = {resourceType: 'audio', attrName: 'src', mimeTypeAttrName: 'type'};
+const ATTR_PARAMS_TRACK  = {resourceType: 'textTrack', attrName: 'src', extension: 'vtt'};
 
 /*!
  * Capture SnapshotNode AUDIO

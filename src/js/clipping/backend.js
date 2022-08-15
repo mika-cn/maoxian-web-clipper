@@ -131,7 +131,7 @@ async function getCurrentLayerFrames(tabId, parentFrameId) {
 
 async function getAllFrames(tabId) {
   // get frame redirections
-  const dict = Global.WebRequest.getRedirectionDict('sub_frame');
+  const dict = Global.WebRequest.getRedirectionDict('frame');
   const redirectFrom = {};
   for (let url in dict) {
     const targetUrl = dict[url];

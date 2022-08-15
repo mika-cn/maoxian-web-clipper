@@ -147,7 +147,7 @@ function getRelativePath(tasks, currDir) {
 
 // Resource type is the taskType that
 // without the end ("FileTask").
-const DEFAULT_RESOURCE_TYPE = 'Misc';
+const DEFAULT_RESOURCE_TYPE = 'misc';
 
 function getResourceType(extension, mimeType) {
   if (mimeType) {return mimeType2resourceType(mimeType)}
@@ -168,9 +168,9 @@ function extension2resourceType(it) {
 
 // param "it" should not empty
 function mimeType2resourceType(it) {
-  if (it.startsWith('image/')){ return  'Image'};
-  if (it.startsWith('audio/')){ return  'Audio'};
-  if (it.startsWith('video/')){ return  'Video'};
+  if (it.startsWith('image/')){ return  'image'};
+  if (it.startsWith('audio/')){ return  'audio'};
+  if (it.startsWith('video/')){ return  'video'};
   return DEFAULT_RESOURCE_TYPE;
 }
 

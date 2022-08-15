@@ -6,7 +6,7 @@ import Task        from '../lib/task.js';
 import CaptureTool from './tool.js';
 import SnapshotNodeChange from '../snapshot/change.js';
 
-const ATTR_PARAMS_IMG = {resourceType: 'Image', attrName: 'src'}
+const ATTR_PARAMS_IMG = {resourceType: 'image', attrName: 'src'}
 
 /**
  *

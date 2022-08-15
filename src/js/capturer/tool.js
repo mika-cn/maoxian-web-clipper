@@ -20,7 +20,7 @@ async function captureBackgroundAttr(node, {baseUrl, storageInfo, config, reques
       return {change, tasks};
     }
     const params = {baseUrl, clipId, storageInfo, requestParams};
-    const attrParams = {resourceType: 'Image', attrName: 'background'};
+    const attrParams = {resourceType: 'image', attrName: 'background'};
     const r = await captureAttrResource(node, params, attrParams);
     tasks.push(...r.tasks);
     change = change.merge(r.change);
@@ -49,7 +49,7 @@ async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, cl
       const [itemSrc] = item;
       const {isValid, url, message} = T.completeUrl(itemSrc, baseUrl);
       if (isValid) {
-        const resourceType = 'Image';
+        const resourceType = 'image';
         const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url), resourceType);
         const {filename, path} = await Asset.getFilenameAndPath({
           link: url, mimeTypeData: {httpMimeType, attrMimeType},
@@ -130,7 +130,7 @@ function parseSrcset(srcset) {
  * @param {Snapshot} node
  * @param {Object} params
  * @param {Object|Array} attrParams
- *   - {String}  resourceType -  Avariable values are "Image", "Audio", "Video", "TextTrack" and "Misc"
+ *   - {String}  resourceType -  "image", "audio", "video" etc @see task.js
  *   - {String}  attrName - The name of target attribute
  *   - {String}  attrValue (optional) - The value to use instead of getting it from node.
  *   - {String}  baseUrl (optional) - The baseUrl to use instead of getting it from params
@@ -176,7 +176,8 @@ async function captureAttrResource(node, params, attrParams) {
       const {filename, path} = await Asset.getFilenameAndPath({
         link: url, extension, mimeTypeData, clipId, storageInfo, resourceType});
 
-      tasks.push(Task[`create${resourceType}Task`](filename, url, clipId, requestParams));
+      const taskFnName = `create${T.capitalize1st(resourceType)}Task`;
+      tasks.push(Task[taskFnName](filename, url, clipId, requestParams));
       change.setAttr(attrName, path);
 
 
@@ -222,11 +223,11 @@ async function captureAttrResource(node, params, attrParams) {
 
 function getInvalidValue(resourceType) {
   const [invalidUrl, invalidMimeType] = ({
-    "Image": ["invalid-image.png", "image/png"],
-    "Audio": ["invalid-audio.mp3", "audio/mp3"],
-    "Video": ["invalid-video.mp4", "video/mp4"],
-    "TextTrack": ["invalid-text-track.vtt", "text/vtt"],
-    "Misc": ["invalid-url.misc", "custom/misc"],
+    "image": ["invalid-image.png", "image/png"],
+    "audio": ["invalid-audio.mp3", "audio/mp3"],
+    "video": ["invalid-video.mp4", "video/mp4"],
+    "textTrack": ["invalid-text-track.vtt", "text/vtt"],
+    "misc": ["invalid-url.misc", "custom/misc"],
   }[resourceType]);
   return {invalidUrl, invalidMimeType};
 }
@@ -256,15 +257,15 @@ function isFilterMatch(filterText, url, mimeType) {
       const it = item.trim();
       switch (it) {
         case '<images>':
-          match = resourceType == 'Image';
+          match = resourceType == 'image';
           if (match) { return true }
           break;
         case '<audios>':
-          match = resourceType == 'Audio';
+          match = resourceType == 'audio';
           if (match) { return true }
           break;
         case '<videos>':
-          match = resourceType == 'Video';
+          match = resourceType == 'video';
           if (match) { return true }
           break;
         default:

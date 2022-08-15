@@ -15,7 +15,7 @@ import ExtMsg from './ext-msg.js';
  *
  * @returns {String|null} mimeType
  */
-async function getHttpMimeType(params, resourceType = 'Misc') {
+async function getHttpMimeType(params, resourceType = 'misc') {
   try {
     if (T.isDataUrl(params.url)) { return null }
     if(T.isUrlHasFileExtension(params.url) && isResourceTypeUrl({resourceType, url: params.url})) {
@@ -53,8 +53,7 @@ async function getUniqueName({clipId, id, folder, filename}) {
 
 function isResourceTypeUrl({resourceType, url, urlExt}) {
   switch (resourceType) {
-    case 'Image':
-    case 'image': //FIXME should only keep one value
+    case 'image':
       {
       const extension = (urlExt || T.getUrlExtension(url));
       if (extension) {
@@ -70,7 +69,7 @@ function isResourceTypeUrl({resourceType, url, urlExt}) {
 }
 
 
-function getValueObjectByLink({template, link, extension = null, mimeTypeData = {}, resourceType = 'Misc'}) {
+function getValueObjectByLink({template, link, extension = null, mimeTypeData = {}, resourceType = 'misc'}) {
   let v = {};
   if (template.indexOf('$MD5URL') > -1) {
     v.md5url = md5(link);
@@ -124,7 +123,7 @@ function getValueObjectByContent({template, content, name = "untitle", extension
  *
  * @returns {String} name
  */
-function getNameByLink({template, valueObj, link, extension, mimeTypeData = {}, resourceType = 'Misc'}) {
+function getNameByLink({template, valueObj, link, extension, mimeTypeData = {}, resourceType = 'misc'}) {
   const v = getValueObjectByLink({template, link, extension, mimeTypeData, resourceType});
   const name = VariableRender.exec(template, Object.assign(v, valueObj),
     VariableRender.AssetFilenameVariables);
@@ -168,7 +167,7 @@ function getFilename({storageInfo, assetName}) {
 async function getFilenameAndPath(params) {
 
   const {link, storageInfo, extension = null,
-    mimeTypeData = {}, id, clipId, resourceType = 'Misc'} = params;
+    mimeTypeData = {}, id, clipId, resourceType = 'misc'} = params;
 
   const name = getNameByLink({
     template: storageInfo.raw.assetFileName,
@@ -203,7 +202,7 @@ async function getFilenameAndPath(params) {
  *
  * @returns {String|null} extension
  */
-function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeType, resourceType = 'Misc'}) {
+function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeType, resourceType = 'misc'}) {
   try {
     let url = new URL(link);
     if (url.protocol === 'data:') {

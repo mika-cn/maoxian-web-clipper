@@ -71,7 +71,7 @@ describe("Asset", () => {
       mimeTypeData: {
         attrMimeType: 'image/png'
       },
-      resourceType: 'Image'
+      resourceType: 'image'
     });
     H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+\.png$/);
   });

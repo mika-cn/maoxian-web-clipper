@@ -72,7 +72,7 @@ function getResourceHandler(params) {
   return async ({ownerType, resourceType, baseUrl, resourceItems}) => {
 
     const [isCSS, isImage, isFont] = [
-      resourceType == 'css',
+      resourceType == 'style',
       resourceType == 'image',
       resourceType == 'font',
     ];
@@ -149,7 +149,7 @@ function getResourceHandler(params) {
           task = Task.createFontTask(filename, url, clipId, requestParams);
           break;
         }
-        case 'css'  : {
+        case 'style'  : {
           task = Task.createStyleTask(filename, cssText, clipId);
           break;
         }
