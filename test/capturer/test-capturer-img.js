@@ -117,6 +117,20 @@ describe('Capture Img', () => {
     H.assertEqual(r.tasks.length, 1);
     H.assertTrue(r.change.deletedAttr('srcset'));
     ExtMsg.clearMocks();
-  })
+  });
 
+  it('capture img src with no image file extension', async () => {
+    const params = getParams();
+    const src = "https://o.org/cover.image?id=xxx";
+    const node = getNode(src);
+    node.attr.mime_type = "image/png";
+    ExtMsg.mockGetUniqueFilename();
+    ExtMsg.mockMsgResult('get.mimeType', 'image/gif');
+    const r = await Capturer.capture(node, params);
+    const newSrc = r.change.getAttr('src');
+    H.assertEqual(r.tasks.length, 1);
+    // the attribute mimetype should be used
+    H.assertMatch(newSrc, /\.png$/);
+    ExtMsg.clearMocks();
+  });
 });

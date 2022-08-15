@@ -7,9 +7,9 @@ WebRequest.init({requestToken: REQUEST_TOKEN});
 
 describe('WebRequest', () => {
 
-  function getRedirectionEvDetails(resourceType, url, targetUrl) {
+  function getRedirectionEvDetails(requestType, url, targetUrl) {
     return {
-      type: resourceType,
+      type: requestType,
       url: url,
       redirectUrl: targetUrl,
     }

@@ -54,17 +54,17 @@ const StoreRedirection = (function() {
         }
       },
       /**
-       * @param {String} resourceType: 'image' or 'sub_frame'
+       * @param {String} query: 'all' or 'image' or 'frame'
        * @return {Object} dict : {url => targetUrl}
        */
-      getRedirectionDict(resourceType = 'all') {
+      getRedirectionDict(query = 'all') {
         const r = {};
         for (let url in this.dict) {
           if (this.isMiddleTarget(url)) {
             // Do nothing
           } else {
             const detail = this.getFinalDetail(url);
-            if (resourceType === 'all' || detail.resourceType === resourceType ) {
+            if (query === 'all' || detail.resourceType === query ) {
               r[url] = detail.targetUrl;
             }
           }
@@ -95,9 +95,9 @@ const StoreRedirection = (function() {
     }
   }
 
-  function getRedirectionDict(resourceType = 'all') {
+  function getRedirectionDict(query = 'all') {
     if (state.redirectionStore) {
-      return state.redirectionStore.getRedirectionDict(resourceType);
+      return state.redirectionStore.getRedirectionDict(query);
     } else {
       return {};
     }
@@ -454,8 +454,29 @@ const UnescapeHeader = (function(){
 })();
 
 
+//  @see MDN/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/ResourceType
+//
+//  Note that the resourceType we use are different from WebRequest API's ResourceType
+//  We call them requestType instead.
+//
+//  possible request types are:
+//
+//     beacon, csp_report, ping,
+//     main_frame, sub_frame, stylesheet, font, image, imageset, script,
+//     media, object, object_subrequest,  speculative,
+//     web_manifest, websocket, xmlhttprequest, xbl, xml_dtd, xslt, other
+//
 function getResourceType(requestType) {
-  return requestType === 'imageset' ? 'image' : requestType;
+  switch (requestType) {
+    case 'imageset'  : return 'image';
+    case 'stylesheet': return 'style';
+    case 'sub_frame' : return 'frame';
+    case 'image':
+    case 'font':
+      return requestType;
+    default: break;
+  }
+  return 'Misc';
 }
 
 
@@ -470,8 +491,8 @@ function getMimeType(url) {
   return StoreMimeType.getMimeType(url);
 }
 
-function getRedirectionDict(resourceType = 'all') {
-  return StoreRedirection.getRedirectionDict(resourceType);
+function getRedirectionDict(query = 'all') {
+  return StoreRedirection.getRedirectionDict(query);
 }
 
 

@@ -62,6 +62,20 @@ describe("Asset", () => {
     H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+\.bmp$/);
   });
 
+  it("getNameByLink: invalid image file extension", () => {
+    const link = 'https://a.org/foo.image?id=xxx';
+    const name = Asset.getNameByLink({
+      template: template,
+      valueObj: valueObj,
+      link: link,
+      mimeTypeData: {
+        attrMimeType: 'image/png'
+      },
+      resourceType: 'image'
+    });
+    H.assertMatch(name, /^a.org_awesomeTitle_[^\.\/]+\.png$/);
+  });
+
   it("getNameByLink: data link", () => {
     const link = 'data:image/png;base64,imagedata';
     const nameA = Asset.getNameByLink({

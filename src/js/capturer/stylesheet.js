@@ -72,7 +72,7 @@ function getResourceHandler(params) {
   return async ({ownerType, resourceType, baseUrl, resourceItems}) => {
 
     const [isCSS, isImage, isFont] = [
-      resourceType == 'css',
+      resourceType == 'style',
       resourceType == 'image',
       resourceType == 'font',
     ];
@@ -99,7 +99,7 @@ function getResourceHandler(params) {
       if (!cssText) {
         // images or fonts
         mimeTypeData.httpMimeType = await Asset.getHttpMimeType(
-          requestParams.toParams(url));
+          requestParams.toParams(url), resourceType);
       }
 
       const name = Asset.getNameByLink({
@@ -108,6 +108,7 @@ function getResourceHandler(params) {
         link: url,
         extension: extension,
         mimeTypeData: mimeTypeData,
+        resourceType: resourceType,
       });
 
       let id = url;
@@ -148,7 +149,7 @@ function getResourceHandler(params) {
           task = Task.createFontTask(filename, url, clipId, requestParams);
           break;
         }
-        case 'css'  : {
+        case 'style'  : {
           task = Task.createStyleTask(filename, cssText, clipId);
           break;
         }

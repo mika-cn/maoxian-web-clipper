@@ -128,7 +128,7 @@ describe('CaptureTool', () => {
     it('attribute is not exist', async () => {
       const node = getNode();
       const params = getParams();
-      const attrParams = {resourceType: 'Image', attrName: 'src'}
+      const attrParams = {resourceType: 'image', attrName: 'src'}
       let r, change;
 
       r = await CaptureTool.captureAttrResource(node, params, attrParams);
@@ -148,7 +148,7 @@ describe('CaptureTool', () => {
     it('attribute is ""', async() => {
       const node = getNode({src: ''});
       const params = getParams();
-      const attrParams = {resourceType: 'Image', attrName: 'src'}
+      const attrParams = {resourceType: 'image', attrName: 'src'}
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
       H.assertEqual(r.tasks.length, 0);
@@ -159,7 +159,7 @@ describe('CaptureTool', () => {
     it('attribute has invalid value', async() => {
       const node = getNode({src: 'http://:300', type: 'video/mp4'});
       const params = getParams();
-      const attrParams = {resourceType: 'Video', attrName: 'src', mimeTypeAttrName: 'type'}
+      const attrParams = {resourceType: 'video', attrName: 'src', mimeTypeAttrName: 'type'}
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
       H.assertEqual(r.tasks.length, 0);
@@ -171,7 +171,7 @@ describe('CaptureTool', () => {
     it('attribute has value', async () => {
       const node = getNode({src: 'test.mp3'});
       const params = getParams();
-      const attrParams = {resourceType: 'Audio', attrName: 'src'}
+      const attrParams = {resourceType: 'audio', attrName: 'src'}
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
       H.assertEqual(r.tasks.length, 1);
@@ -184,7 +184,7 @@ describe('CaptureTool', () => {
     it('attribute has value, with attrValue', async () => {
       const node = getNode({src: 'test.png'});
       const params = getParams();
-      const attrParams = {resourceType: 'Image', attrName: 'src', attrValue: 'test.svg'};
+      const attrParams = {resourceType: 'image', attrName: 'src', attrValue: 'test.svg'};
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
       H.assertEqual(r.tasks.length, 1);
@@ -195,7 +195,7 @@ describe('CaptureTool', () => {
     it('attribute has value, with extension', async () => {
       const node = getNode({src: 'test'});
       const params = getParams();
-      const attrParams = {resourceType: 'TextTrack', attrName: 'src', extension: 'vtt'};
+      const attrParams = {resourceType: 'textTrack', attrName: 'src', extension: 'vtt'};
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
       H.assertEqual(r.tasks.length, 1);
@@ -207,7 +207,7 @@ describe('CaptureTool', () => {
     it('attribute has value, with mimeTypeAttrName', async () => {
       const node = getNode({src: 'test', type: 'image/svg+xml'});
       const params = getParams();
-      const attrParams = {resourceType: 'Image', attrName: 'src', mimeTypeAttrName: 'type'};
+      const attrParams = {resourceType: 'image', attrName: 'src', mimeTypeAttrName: 'type'};
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
       H.assertEqual(r.tasks.length, 1);
@@ -218,7 +218,7 @@ describe('CaptureTool', () => {
     it('attribute has value, target mimeTypeAttr has not value', async () => {
       const node = getNode({src: 'test'});
       const params = getParams();
-      const attrParams = {resourceType: 'Image', attrName: 'src', mimeTypeAttrName: 'type'};
+      const attrParams = {resourceType: 'image', attrName: 'src', mimeTypeAttrName: 'type'};
       ExtMsg.mockMsgResult('get.mimeType', 'image/svg+xml');
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
@@ -230,8 +230,8 @@ describe('CaptureTool', () => {
       const node = getNode({src: 'test.mp4', poster: 'poster.jpg'});
       const params = getParams();
       const attrParams = [
-        {resourceType: 'Video', attrName: 'src'},
-        {resourceType: 'Image', attrName: 'poster'},
+        {resourceType: 'video', attrName: 'src'},
+        {resourceType: 'image', attrName: 'poster'},
       ];
       const r = await CaptureTool.captureAttrResource(node, params, attrParams);
       const change = r.change.toChangeObjectAccessor();
