@@ -5,10 +5,20 @@ import md5 from 'blueimp-md5';
 import VariableRender from './variable-render.js'
 import ExtMsg from './ext-msg.js';
 
-// params: {:url, :headers, :timeout, :tries}
-async function getHttpMimeType(params) {
+/**
+ * @param {Object} params
+ * @param {String} params.url
+ * @param {String} params.headers
+ * @param {Integer} params.timeout (unit: seconds)
+ * @param {Integer} params.tries
+ * @param {String} [resourceType]
+ *
+ * @returns {String|null} mimeType
+ */
+async function getHttpMimeType(params, resourceType = 'Misc') {
   try {
-    if (T.isDataUrl(params.url) || T.isUrlHasFileExtension(params.url)) {
+    if (T.isDataUrl(params.url)) { return null }
+    if(T.isUrlHasFileExtension(params.url) && isResourceTypeUrl({resourceType, url: params.url})) {
       // in these cases, we don't need httpMimeType.
       return null;
     }
@@ -41,7 +51,26 @@ async function getUniqueName({clipId, id, folder, filename}) {
 
 
 
-function getValueObjectByLink({template, link, extension = null, mimeTypeData = {}}) {
+function isResourceTypeUrl({resourceType, url, urlExt}) {
+  switch (resourceType) {
+    case 'Image':
+    case 'image': //FIXME should only keep one value
+      {
+      const extension = (urlExt || T.getUrlExtension(url));
+      if (extension) {
+        const mimeType = T.extension2MimeType(extension);
+        return mimeType.startsWith('image/');
+      } else {
+        // We don't know
+        return true;
+      }
+    }
+    default: return true;
+  }
+}
+
+
+function getValueObjectByLink({template, link, extension = null, mimeTypeData = {}, resourceType = 'Misc'}) {
   let v = {};
   if (template.indexOf('$MD5URL') > -1) {
     v.md5url = md5(link);
@@ -57,7 +86,7 @@ function getValueObjectByLink({template, link, extension = null, mimeTypeData = 
     v.filename = name;
   }
   if (template.indexOf('$EXT') > -1) {
-    const ext = getWebUrlExtension(link, Object.assign({extension}, mimeTypeData));
+    const ext = getWebUrlExtension(link, Object.assign({extension, resourceType}, mimeTypeData));
     v.ext = (ext ? `.${ext}` : '');
   }
   return v;
@@ -91,11 +120,12 @@ function getValueObjectByContent({template, content, name = "untitle", extension
  * @param {String} link (http:, https: or data:)
  * @param {String} [extension] (the filename extension)
  * @param {Object} mimeTypeData
+ * @param {String} resourceType
  *
  * @returns {String} name
  */
-function getNameByLink({template, valueObj, link, extension, mimeTypeData = {}}) {
-  const v = getValueObjectByLink({template, link, extension, mimeTypeData});
+function getNameByLink({template, valueObj, link, extension, mimeTypeData = {}, resourceType = 'Misc'}) {
+  const v = getValueObjectByLink({template, link, extension, mimeTypeData, resourceType});
   const name = VariableRender.exec(template, Object.assign(v, valueObj),
     VariableRender.AssetFilenameVariables);
   return name
@@ -131,13 +161,14 @@ function getFilename({storageInfo, assetName}) {
  *   - {Object} storageInfo
  *   - {String} [id]
  *   - {String} clipId
+ *   - {String} resourceType
  *
  * @return {Object} {:filename, :path}
  */
 async function getFilenameAndPath(params) {
 
   const {link, storageInfo, extension = null,
-    mimeTypeData = {}, id, clipId} = params;
+    mimeTypeData = {}, id, clipId, resourceType = 'Misc'} = params;
 
   const name = getNameByLink({
     template: storageInfo.raw.assetFileName,
@@ -145,6 +176,7 @@ async function getFilenameAndPath(params) {
     link: link,
     extension: extension,
     mimeTypeData: mimeTypeData,
+    resourceType: resourceType,
   });
 
   const assetName = await getUniqueName({
@@ -167,10 +199,11 @@ async function getFilenameAndPath(params) {
  * @param {String} [options.mimeType] - if we only have one mimeType.
  * @param {String} [options.httpMimeType] - from http request
  * @param {String} [options.attrMimeType] - from attribute of HTML tag
+ * @param {String} [options.resourceType]
  *
  * @returns {String|null} extension
  */
-function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeType}) {
+function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeType, resourceType = 'Misc'}) {
   try {
     let url = new URL(link);
     if (url.protocol === 'data:') {
@@ -181,7 +214,7 @@ function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeTy
       if (extension) { return extension }
       if (!url.pathname) { return null }
       const urlExt = T.getUrlExtension(url.href)
-      if (urlExt) {
+      if (urlExt && isResourceTypeUrl({resourceType, urlExt})) {
         return urlExt;
       } else {
         if (mimeType)     { return T.mimeType2Extension(mimeType) }

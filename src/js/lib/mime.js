@@ -8252,11 +8252,16 @@ const MimeDB = {
 
 // MyMimeDB has more priority than MimeDB
 const MyMimeDB = {
-  /* adjust extensions' order */
+  /* complete extension list and adjust order*/
   "image/jpeg": {
     "source": "iana",
     "compressible": false,
-    "extensions": ["jpg","jpeg","jpe"]
+    "extensions": ["jpg","jpeg","jpe", "jfif", "pjpeg", "pjp"]
+  },
+  "image/x-icon": {
+    "source": "apache",
+    "compressible": true,
+    "extensions": ["ico", "icon", "cur"]
   },
 
   /* against image/x-ms-bmp */

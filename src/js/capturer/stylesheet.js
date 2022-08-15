@@ -99,7 +99,7 @@ function getResourceHandler(params) {
       if (!cssText) {
         // images or fonts
         mimeTypeData.httpMimeType = await Asset.getHttpMimeType(
-          requestParams.toParams(url));
+          requestParams.toParams(url), resourceType);
       }
 
       const name = Asset.getNameByLink({
@@ -108,6 +108,7 @@ function getResourceHandler(params) {
         link: url,
         extension: extension,
         mimeTypeData: mimeTypeData,
+        resourceType: resourceType,
       });
 
       let id = url;
