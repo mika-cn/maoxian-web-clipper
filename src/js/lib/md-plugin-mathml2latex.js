@@ -1,5 +1,6 @@
 "use strict";
 
+import T from './tool.js';
 import MathML2LaTeX from 'mathml2latex';
 
 
@@ -25,7 +26,7 @@ function toLaTeXNode(doc, math) {
   const latex = MathML2LaTeX.convert(math.outerHTML);
   // use code tag to avoid turndown escape '\';
   const newNode = doc.createElement('code');
-  newNode.innerText = "LATEX___" + latex + "___LATEX";
+  newNode.innerText = "LATEX___" + T.escapeCodeNodeText(latex) + "___LATEX";
   return newNode;
 }
 

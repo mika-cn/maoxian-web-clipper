@@ -1,5 +1,6 @@
 "use strict";
 
+import T from './tool.js';
 import MathML2LaTeX from 'mathml2latex';
 
 function handle(doc, elem) {
@@ -41,7 +42,7 @@ function mathMLHtml2TeXNode(doc, mathMLHtml) {
 
 function toTeXNode(doc, teX) {
   const newNode = doc.createElement('code');
-  newNode.innerText = "MATHJAX_TEX___" + teX + "___MATHJAX_TEX";
+  newNode.innerText = "MATHJAX_TEX___" + T.escapeCodeNodeText(teX) + "___MATHJAX_TEX";
   return newNode;
 }
 
