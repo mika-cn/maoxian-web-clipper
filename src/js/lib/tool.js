@@ -1549,6 +1549,7 @@ T.escapeHtmlAttr = function(string) {
   });
 }
 
+
 T.escapeHtml = function(string) {
   return String(string).replace(/[&<>"'`=\/]/g, function (s) {
     return ({
@@ -1564,6 +1565,18 @@ T.escapeHtml = function(string) {
   });
 
 }
+
+
+T.escapeCodeNodeText = function(str) {
+  return String(str).replace(/[&<>]/mg, function (s) {
+    return ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+    })[s];
+  });
+}
+
 
 T.escapeRegExp = function(str) {
   const re = /[.*+?^${}()|[\]\\]/g

@@ -9,6 +9,7 @@ import SnapshotMaker         from '../snapshot/maker.js';
 import SnapshotNodeChange    from '../snapshot/change.js';
 import MdPluginCode          from '../lib/md-plugin-code.js';
 import MdPluginMathJax       from '../lib/md-plugin-mathjax.js';
+import MdPluginKatex         from '../lib/md-plugin-katex.js';
 import MdPluginMathML2LaTeX  from '../lib/md-plugin-mathml2latex.js';
 import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
@@ -67,6 +68,7 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
   Log.debug('generateMarkDown');
   let markdown = getTurndownService().turndown(html);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
+  markdown = MdPluginKatex.unEscapeKatex(markdown);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
 
 
@@ -186,6 +188,7 @@ function doExtraWork({html, win}) {
   let selectedNode = r.node;
   selectedNode = MdPluginCode.handle(doc, selectedNode);
   selectedNode = MdPluginMathJax.handle(doc, selectedNode);
+  selectedNode = MdPluginKatex.handle(doc, selectedNode);
   selectedNode = MdPluginMathML2LaTeX.handle(doc, selectedNode);
 
   return selectedNode.outerHTML;
