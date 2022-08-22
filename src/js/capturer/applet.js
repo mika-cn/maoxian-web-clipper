@@ -37,8 +37,8 @@ async function captureSaveAll(node, params) {
   change.rmAttr('codebase');
 
   const attrParams = [
-    {resourceType: 'Misc', attrName: 'code', baseUrl},
-    {resourceType: 'Misc', attrName: 'archive', canEmpty: true},
+    {resourceType: 'misc', attrName: 'code', baseUrl},
+    {resourceType: 'misc', attrName: 'archive', canEmpty: true},
   ];
 
   const r = await CaptureTool.captureAttrResource(node, params, attrParams);

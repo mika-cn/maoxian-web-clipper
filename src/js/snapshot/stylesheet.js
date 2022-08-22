@@ -403,7 +403,7 @@ async function rule2String(rule, params) {
         return `/*@import url("${rule.sheet.href}"); reason: blank content.*/`;
       }
 
-      const resourceType = 'css';
+      const resourceType = 'style';
       const path = await resourceHandler({
         ownerType: newOwnerType,
         resourceType: resourceType,

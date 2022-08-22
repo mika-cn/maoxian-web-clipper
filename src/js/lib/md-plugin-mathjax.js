@@ -1,5 +1,6 @@
 "use strict";
 
+import T from './tool.js';
 import MathML2LaTeX from 'mathml2latex';
 
 function handle(doc, elem) {
@@ -41,12 +42,12 @@ function mathMLHtml2TeXNode(doc, mathMLHtml) {
 
 function toTeXNode(doc, teX) {
   const newNode = doc.createElement('code');
-  newNode.innerText = "MathJaxTeX " + teX + " MathJaxTeX";
+  newNode.innerText = "MATHJAX_TEX___" + T.escapeCodeNodeText(teX) + "___MATHJAX_TEX";
   return newNode;
 }
 
 function unEscapeMathJax(markdown){
-  return markdown.replace(/`MathJaxTeX /mg, '$ ').replace(/ MathJaxTeX`/mg, ' $');
+  return markdown.replace(/`MATHJAX_TEX___/mg, '$').replace(/___MATHJAX_TEX`/mg, '$');
 }
 
 const MdPluginMathjax = {
