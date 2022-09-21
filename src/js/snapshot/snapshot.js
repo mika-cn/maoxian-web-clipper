@@ -1,7 +1,7 @@
 
 // EventTarget <-- Node <-- Element
 //
-// Node.nodeName
+// Node.nodeName is not always upper case, be careful (@see @MDN/en-US/docs/Web/API/Node/nodeName)
 // Node.nodeType
 // Node.hasChildNodes()
 // Node.childNodes
@@ -67,9 +67,9 @@ async function take(node, params) {
  * - {RequestParams} requestParams
  * - {Object} frameInfo
  *   {String} extMsgType - the message type that send to nested iframes
- * - {Object} blacklist  - {nodeName => isIgnore}
- *   {Object} shadowDom  - {blacklist: {nodeName => isIgnore}}
- *   {Object} localFrame - {blacklist: {nodeName => isIgnore}}
+ * - {Object} blacklist  - {upperCasedNodeName => isIgnore}
+ *   {Object} shadowDom  - {blacklist: {upperCasedNodeName => isIgnore}}
+ *   {Object} localFrame - {blacklist: {upperCasedNodeName => isIgnore}}
  * - {Function} ignoreFn - whether to ignore this element or not.
  * - {Boolean} ignoreHiddenElement (default: true)
  * - {CssBox} cssBox
@@ -91,13 +91,15 @@ async function takeSnapshotOfCurrNode(node, params) {
     blacklist = {}, ignoreFn, ignoreHiddenElement = true, cssBox,
   } = params;
 
+
   const snapshot = {name: node.nodeName, type: node.nodeType};
 
   switch(node.nodeType) {
 
     case NODE_TYPE.ELEMENT: {
+      const upperCasedNodeName = node.nodeName.toUpperCase();
 
-      if (blacklist[snapshot.name]) {
+      if (blacklist[upperCasedNodeName]) {
         snapshot.ignore = true;
         snapshot.ignoreReason = 'onBlacklist';
         return {snapshot};
@@ -151,7 +153,7 @@ async function takeSnapshotOfCurrNode(node, params) {
         }
       }
 
-      switch(node.nodeName) {
+      switch(upperCasedNodeName) {
         case 'SLOT': {
           let children;
           // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLSlotElement
@@ -489,7 +491,7 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
           break;
         }
 
-        if (node.nodeName == 'SLOT') {
+        if (node.nodeName.toUpperCase() == 'SLOT') {
           snapshot.assigned = node.assignedNodes().length > 0;
           break;
         }

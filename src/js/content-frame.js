@@ -45,7 +45,7 @@ function backgroundMessageHandler(message) {
             shadowDom: {blacklist},
             localFrame: {blacklist},
             ignoreFn: (node) => {
-              if (node.nodeName == 'LINK' && node.rel) {
+              if (node.nodeName.toUpperCase() == 'LINK' && node.rel) {
                 const rel = node.rel.toLowerCase();
                 if (rel.match(/icon/) || rel.match(/stylesheet/)) {
                   return {isIgnore: false};
