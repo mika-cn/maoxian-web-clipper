@@ -168,7 +168,7 @@ function mouseMoveHandler(e) {
 }
 
 function clickHandler(e) {
-  if(['HTML', 'BODY'].indexOf(e.target.nodeName) > -1){
+  if(['HTML', 'BODY'].indexOf(e.target.tagName.toUpperCase()) > -1){
     sendFrameMsgToTop('click', {x: e.clientX, y: e.clientY});
   }
 }

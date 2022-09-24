@@ -179,7 +179,7 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
 
 
 function wrapOutermostElem(elem, snapshot, v) {
-  const isOutermost = elem.parentNode && elem.parentNode.nodeName === 'BODY';
+  const isOutermost = elem.parentNode && elem.parentNode.nodeName.toUpperCase() === 'BODY';
   if (isOutermost) {
     const wrapper = SnapshotMaker.getElementNode('DIV',
       {class: 'mx-wc-main'}, [snapshot, getClippingInformationSnapshot(v)]);
