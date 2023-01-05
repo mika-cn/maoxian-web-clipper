@@ -87,7 +87,7 @@ function createSetDisplayAction(params) {
       name: params.name,
       isPerformOnce: (params.performOnce || false),
       perform: function(detail={}) {
-        const queryType = params.querySiblings ? 'siblings' : 'elems';
+        const queryType = (params.queryType || 'elems');
         const Q = createSelectorQuery(contextSelectorInput, queryType);
         const attrNameA = "data-mx-original-display-value";
         const attrNameB = "data-mx-original-display-priority";
@@ -129,13 +129,27 @@ Action.hideSibling = createSetDisplayAction({
   name: 'hideSibling',
   display: 'none',
   priority: 'important',
-  querySiblings: true,
+  queryType: 'siblings',
 });
 
 Action.undoHideSibling = createUndoDisplayAction({
   name: 'undoHideSibling',
   performOnce: false,
-  querySiblings: true,
+  queryType: 'siblings',
+});
+
+Action.hideExcept = createSetDisplayAction({
+  name: 'hideExcept',
+  display: 'none',
+  priority: 'important',
+  queryType: 'reverseQuery',
+});
+
+
+Action.undoHideExcept = createUndoDisplayAction({
+  name: 'undoHideExcept',
+  performOnce: false,
+  queryType: 'reverseQuery',
 });
 
 Action.undoDisplay = createUndoDisplayAction({
@@ -150,7 +164,7 @@ function createUndoDisplayAction(params) {
       name: params.name,
       isPerformOnce: params.performOnce,
       perform: function(detail={}) {
-        const queryType = params.querySiblings ? 'siblings' : 'elems';
+        const queryType = (params.queryType || 'elems');
         const Q = createSelectorQuery(contextSelectorInput, queryType);
         const attrNameA = "data-mx-original-display-value";
         const attrNameB = "data-mx-original-display-priority";
@@ -763,17 +777,27 @@ function createSelectorQuery(contextSelectorInput,  queryType = 'elems') {
       if (!this.contextElem) {
         this.contextElem = getContextElem(contextSelectorInput)
       }
+
       if (!this.queryFn) {
-        if (queryType == 'elems')    {this.queryFn = queryElemsBySelector}
-        if (queryType == 'siblings') {this.queryFn = querySiblingsBySelector}
+        switch(queryType) {
+          case 'elems':
+            this.queryFn = createQueryEachSelectorFn(queryElemsBySelector);
+            break;
+          case 'siblings':
+            this.queryFn = createQueryEachSelectorFn(querySiblingsBySelector);
+            break;
+          case 'reverseQuery':
+            this.queryFn = querySelectorsReversed;
+            break;
+          default: break;
+        }
       }
-      const selectorStrs = T.toArray(selectorInput);
+
       const {contextElem, queryFn} = this;
       if (queryFn) {
-        selectorStrs.forEach((it) => {
-          queryFn(it, contextElem).forEach((elem) => {
-            callback(elem, contextElem);
-          });
+        const selectorStrs = T.toArray(selectorInput);
+        queryFn(selectorStrs, contextElem).forEach((elem) => {
+          callback(elem, contextElem);
         });
       } else {
         console.warn('unknow queryType : ', queryType);
@@ -783,12 +807,85 @@ function createSelectorQuery(contextSelectorInput,  queryType = 'elems') {
 }
 
 
+function querySelectorsReversed(selectorStrs, contextElem) {
+  const foundElems = new Set();
+  const ancestorElems = new Set([contextElem]);
+  const queryFn = createQueryEachSelectorFn(queryElemsBySelector);
+  const continueIterate = true, stopIterate = false;
+  queryFn(selectorStrs, contextElem).forEach((it) => {
+    foundElems.add(it);
+    iterateAncestors(it, (ancestorElem) => {
+      if (ancestorElem == contextElem) {
+        return stopIterate;
+      } else {
+        ancestorElems.add(ancestorElem);
+        return continueIterate;
+      }
+    });
+  });
+
+  const result = [];
+  iterateDescendents(contextElem, (it) => {
+    if (foundElems.has(it)) {
+      // The found elements' descendents are all
+      // treated as found elements.
+      return stopIterate;
+    }
+
+    if (ancestorElems.has(it)) {
+      // Current element is an ancestor of found element.
+      // it's descendents might have elements that not
+      // belongs to foundElems.
+      return continueIterate;
+    } else {
+      result.push(it);
+      return stopIterate;
+    }
+
+  });
+
+  return result;
+}
+
+
+function createQueryEachSelectorFn(queryElemsFn) {
+  return function(selectorStrs, contextElem) {
+    const elems = [];
+    selectorStrs.forEach((it) => {
+      queryElemsFn(it, contextElem).forEach((elem) => {
+        elems.push(elem);
+      });
+    });
+    return elems;
+  }
+}
+
+
 function iterateChildren(elem, action) {
   for (const child of elem.children) {
     const continueIterate = action(child);
     if (!continueIterate) { break }
   }
 }
+
+function iterateDescendents(elem, action) {
+  const queue = [];
+  queue.push(elem);
+
+  let currElem;
+  while(currElem = queue.shift()) {
+    const continueIterate = action(currElem);
+    if (continueIterate) {
+      for (const child of currElem.children) {
+        queue.push(child);
+      }
+    } else {
+      // do nothing
+    }
+  }
+}
+
+
 
 function iterateAncestors(elem, action) {
   let currElem = elem;
@@ -1093,7 +1190,7 @@ function applyGlobal(plan) {
 }
 
 function handleNormalAttr(plan, contextSelectorInput) {
-  const {command, hideElem, hideElemOnce, hideSibling, showElem,
+  const {command, hideElem, hideElemOnce, hideSibling, hideExcept, showElem,
     chAttr, rmAttr, setForm, setConfig} = plan;
 
   if (command) {
@@ -1117,6 +1214,16 @@ function handleNormalAttr(plan, contextSelectorInput) {
     const selectorInput = hideSibling;
     listen('selecting', Action.hideSibling(selectorInput, contextSelectorInput));
     listen('idle', Action.undoHideSibling(selectorInput, contextSelectorInput));
+  }
+
+  if (hideExcept) {
+    const items = T.toArray(hideExcept);
+    items.forEach((it) => {
+      if (it.inside && it.except) {
+        listen('selecting', Action.hideExcept(it.except, it.inside));
+        listen('idle', Action.undoHideExcept(it.except, it.inside));
+      }
+    });
   }
 
   if (hasSelector(showElem)) {
