@@ -9,6 +9,7 @@ const config = {
   hideElem: true,
   showElem: true,
   hideSibling: true,
+  hideExcept: true,
   changeAttr: true,
   removeAttr: true,
   execCmd: true,
@@ -37,6 +38,7 @@ function toMxPlan(plan) {
   if(config.hideElem && plan.hideOnce) { p.hideElemOnce = plan.hideOnce }
   if(config.showElem && plan.show) { p.showElem = plan.show }
   if(config.hideSibling && plan.hideSibling) { p.hideSibling = plan.hideSibling }
+  if(config.hideExcept && plan.hideExcept) { p.hideExcept = plan.hideExcept }
   if(config.changeAttr && plan.chAttr) { p.chAttr = plan.chAttr }
   if(config.removeAttr && plan.rmAttr) { p.rmAttr = plan.rmAttr }
   if(config.setForm && plan.form) { p.setForm = plan.form }
