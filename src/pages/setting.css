@@ -217,6 +217,27 @@ details > summary {
   overflow-x: auto;
 }
 
+.label-box {
+  cursor: pointer;
+}
+
+.label-box > div {
+  display: inline-block;
+}
+
+.label-box > div > .title {
+  strong: bold;
+}
+
+.label-box > div > pre {
+  background-color: #f0f0f0;
+  padding: 3px;
+}
+.label-box > div code {
+  color: #333;
+  border: none;
+}
+
 .example-code > code {
   background-color: #f0f0f0;
   color: #333;

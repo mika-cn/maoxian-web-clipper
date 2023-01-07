@@ -147,6 +147,38 @@ function initSettingMarkdown(config) {
     'markdown-template',
     'markdownTemplate'
   );
+  initRadioInput(config,
+    'markdown-option-heading-style',
+    'markdownOptionHeadingStyle'
+  );
+  initRadioInput(config,
+    'markdown-option-hr',
+    'markdownOptionHr'
+  );
+  initRadioInput(config,
+    'markdown-option-bullet-list-marker',
+    'markdownOptionBulletListMarker'
+  );
+  initRadioInput(config,
+    'markdown-option-code-block-style',
+    'markdownOptionCodeBlockStyle'
+  );
+  initRadioInput(config,
+    'markdown-option-fence',
+    'markdownOptionFence'
+  );
+  initRadioInput(config,
+    'markdown-option-em-delimiter',
+    'markdownOptionEmDelimiter'
+  );
+  initRadioInput(config,
+    'markdown-option-strong-delimiter',
+    'markdownOptionStrongDelimiter'
+  );
+  initRadioInput(config,
+    'markdown-option-link-style',
+    'markdownOptionLinkStyle'
+  );
 }
 
 

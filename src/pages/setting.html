@@ -324,6 +324,86 @@ tags: {{#tags}}
             </div>
             <textarea id="markdown-template"></textarea>
         </div>
+        <div>
+          <h3 i18n="title.markdown-options"></h3>
+
+          <div id="markdown-option-heading-style">
+            <h4 i18n="title.markdown-option-heading-style"></h4>
+            <input type="radio" value="setext" id="markdown-option-heading-style-a" name="markdown-option-heading-style">
+            <label class="label-box" for="markdown-option-heading-style-a"><div><strong class="title">Setext-Style heads</strong><pre><code>A awesome header
+----------------</code></pre></div></label>
+            <input type="radio" value="atx" id="markdown-option-heading-style-b" name="markdown-option-heading-style">
+            <label class="label-box" for="markdown-option-heading-style-b"><div><strong class="title">Atx-Style heads</strong><pre><code># A awesome header</code></pre></div></label>
+          </div>
+
+          <div id="markdown-option-hr">
+            <h4 i18n="title.markdown-option-hr"></h4>
+            <input type="radio" value="* * *" id="markdown-option-hr-a" name="markdown-option-hr">
+            <label for="markdown-option-hr-a"><code>* * *</code></label>
+            <input type="radio" value="- - -" id="markdown-option-hr-b" name="markdown-option-hr">
+            <label for="markdown-option-hr-b"><code>- - -</code></label>
+            <input type="radio" value="_ _ _" id="markdown-option-hr-c" name="markdown-option-hr">
+            <label for="markdown-option-hr-c"><code>_ _ _</code></label>
+          </div>
+
+          <div id="markdown-option-bullet-list-marker">
+            <h4 i18n="title.markdown-option-bullet-list-marker"></h4>
+            <input type="radio" value="*" id="markdown-option-bullet-list-marker-a" name="markdown-option-bullet-list-marker">
+            <label for="markdown-option-bullet-list-marker-a"><code>* list item</code></label>
+            <input type="radio" value="-" id="markdown-option-bullet-list-marker-b" name="markdown-option-bullet-list-marker">
+            <label for="markdown-option-bullet-list-marker-b"><code>- list item</code></label>
+            <input type="radio" value="+" id="markdown-option-bullet-list-marker-c" name="markdown-option-bullet-list-marker">
+            <label for="markdown-option-bullet-list-marker-c"><code>+ list item</code></label>
+          </div>
+
+          <div id="markdown-option-code-block-style">
+            <h4 i18n="title.markdown-option-code-block-style"></h4>
+            <input type="radio" value="fenced" id="markdown-option-code-block-style-a" name="markdown-option-code-block-style">
+            <label class="label-box" for="markdown-option-code-block-style-a"><div><strong class="title">Fenced</strong><pre><code>```
+const hello = () =&gt; {
+    console.log("hello world");
+}
+```</code></pre></div></label>
+            <input type="radio" value="indented" id="markdown-option-code-block-style-b" name="markdown-option-code-block-style">
+            <label class="label-box" for="markdown-option-code-block-style-b"><div><strong class="title">Indented</strong><pre><code>    const hello = () =&gt; {
+        console.log("hello world");
+    }
+</code></pre></div></label>
+          </div>
+
+          <div id="markdown-option-fence">
+            <h4 i18n="title.markdown-option-fence"></h4>
+            <input type="radio" value="```" id="markdown-option-fence-a" name="markdown-option-fence">
+            <label for="markdown-option-fence-a"><code>```</code></label>
+            <input type="radio" value="~~~" id="markdown-option-fence-b" name="markdown-option-fence">
+            <label for="markdown-option-fence-b"><code>~~~</code></label>
+          </div>
+
+          <div id="markdown-option-em-delimiter">
+            <h4 i18n="title.markdown-option-em-delimiter"></h4>
+            <input type="radio" value="_" id="markdown-option-em-delimiter-a" name="markdown-option-em-delimiter">
+            <label for="markdown-option-em-delimiter-a"><code>_italics_</code></label>
+            <input type="radio" value="*" id="markdown-option-em-delimiter-b" name="markdown-option-em-delimiter">
+            <label for="markdown-option-em-delimiter-b"><code>*italics*</code></label>
+          </div>
+
+          <div id="markdown-option-strong-delimiter">
+            <h4 i18n="title.markdown-option-strong-delimiter"></h4>
+            <input type="radio" value="__" id="markdown-option-strong-delimiter-a" name="markdown-option-strong-delimiter">
+            <label for="markdown-option-strong-delimiter-a"><code>__bold__</code></label>
+            <input type="radio" value="**" id="markdown-option-strong-delimiter-b" name="markdown-option-strong-delimiter">
+            <label for="markdown-option-strong-delimiter-b"><code>**bold**</code></label>
+          </div>
+
+          <div id="markdown-option-link-style">
+            <h4 i18n="title.markdown-option-link-style"></h4>
+            <input type="radio" value="inlined" id="markdown-option-link-style-a" name="markdown-option-link-style">
+            <label class="label-box" for="markdown-option-link-style-a"><div><strong class="title">Inlined</strong><pre><code>[example](https://example.org)</code></pre></div></label>
+            <input type="radio" value="referenced" id="markdown-option-link-style-b" name="markdown-option-link-style">
+            <label class="label-box" for="markdown-option-link-style-b"><div><strong class="title">referenced</strong><pre><code>[example][1]
+[1]: https://example.org</code></pre></div></label>
+          </div>
+        </div>
       </section>
     </template>
 

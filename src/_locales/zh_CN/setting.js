@@ -43,6 +43,15 @@
 
     // section markdown
     "title.markdown-template": "Markdown 模板",
+    "title.markdown-options": "Markdown 格式配置",
+    "title.markdown-option-heading-style": "标题格式",
+    "title.markdown-option-hr": "水平分割线",
+    "title.markdown-option-bullet-list-marker": "子弹列表的行头符",
+    "title.markdown-option-code-block-style": "代码块格式",
+    "title.markdown-option-fence": "代码块分隔符",
+    "title.markdown-option-em-delimiter": "强调（斜体）分隔符",
+    "title.markdown-option-strong-delimiter": "加重（粗体）分隔符",
+    "title.markdown-option-link-style": "链接格式",
 
     "title.advanced": "高级",
     "title.request": "HTTP 请求",
