@@ -66,7 +66,7 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
   const html = doExtraWork({html: elemHTML, win});
 
   Log.debug('generateMarkDown');
-  let markdown = getTurndownService().turndown(html);
+  let markdown = getTurndownService(config).turndown(html);
   markdown = MdPluginMathJax.unEscapeMathJax(markdown);
   markdown = MdPluginKatex.unEscapeKatex(markdown);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
@@ -194,11 +194,22 @@ function doExtraWork({html, win}) {
   return selectedNode.outerHTML;
 }
 
-function getTurndownService(){
-  const service = new TurndownService({
-    headingStyle: 'atx',
-    codeBlockStyle: 'fenced'
-  });
+function getTurndownService(config){
+
+  const turndownOptions = {
+    headingStyle       : config.markdownOptionHeadingStyle,
+    hr                 : config.markdownOptionHr,
+    bulletListMarker   : config.markdownOptionBulletListMarker,
+    codeBlockStyle     : config.markdownOptionCodeBlockStyle,
+    fence              : config.markdownOptionFence,
+    emDelimiter        : config.markdownOptionEmDelimiter,
+    strongDelimiter    : config.markdownOptionStrongDelimiter,
+    linkStyle          : config.markdownOptionLinkStyle,
+    linkReferenceStyle : config.markdownOptionLinkReferenceStyle,
+    preformattedCode   : config.markdownOptionPreformattedCode,
+  }
+
+  const service = new TurndownService(turndownOptions);
 
   service.use([
     TurndownPluginGfm.tables,
