@@ -264,7 +264,7 @@
     "notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 
     // label
-    "label.storage-folder": "存储目录",
+    "label.storage-folder": "存储目录（该路径必须以「根目录」开头，否则将无法计算出存储位置）",
     "label.storage-filename": "文件名",
     "label.save-info-file-input": "保存元信息文件",
     "label.save-info-file-link": "（如何修改?）",

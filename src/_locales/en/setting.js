@@ -267,7 +267,7 @@
 
 
     // label
-    "label.storage-folder": "Saving Folder",
+    "label.storage-folder": "Saving Folder (Note: this path should starts with root folder, otherwise MaoXian can't calculate the correct path to save)",
     "label.storage-filename": "Filename",
     "label.save-info-file-input": "Save Information File",
     "label.save-info-file-link": "(How to change it?)",
