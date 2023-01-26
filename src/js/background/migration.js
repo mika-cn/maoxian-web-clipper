@@ -40,6 +40,22 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.8'] = function(config) {
+  config.version = '2.9';
+
+  config.markdownOptionHeadingStyle = "atx";
+  config.markdownOptionHr = "* * *";
+  config.markdownOptionBulletListMarker = "*";
+  config.markdownOptionCodeBlockStyle = "fenced";
+  config.markdownOptionFence = "```";
+  config.markdownOptionEmDelimiter = "_";
+  config.markdownOptionStrongDelimiter = "**";
+  config.markdownOptionLinkStyle = "inlined";
+  config.markdownOptionLinkReferenceStyle = "full";
+  config.markdownOptionPreformattedCode = false;
+  return config;
+}
+
 
 ConfigMigration['2.7'] = function(config) {
   config.version = '2.8';

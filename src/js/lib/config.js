@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.8';
+const VERSION = '2.9';
 const state = {};
 
 /** WARNING
@@ -48,6 +48,16 @@ function getDefault(){
     htmlWebFontFilterList: "woff2|woff|otf|ttf",
 
     markdownTemplate: "\n{{content}}\n",
+    markdownOptionHeadingStyle: "atx",      // setext | atx
+    markdownOptionHr: "* * *",              // Any [Thematic break](http://spec.commonmark.org/0.27/#thematic-breaks)
+    markdownOptionBulletListMarker: "*",    // - | + | *
+    markdownOptionCodeBlockStyle: "fenced", // indented | fenced
+    markdownOptionFence: "```",             // ``` | ~~~
+    markdownOptionEmDelimiter: "_",         // _ | *
+    markdownOptionStrongDelimiter: "**",    // ** | __
+    markdownOptionLinkStyle: "inlined",     // inlined | referenced
+    markdownOptionLinkReferenceStyle: "full", // full | collapsed | shortcut
+    markdownOptionPreformattedCode: false,  // false | true
 
     // control
     mouseModeEnabled: false,

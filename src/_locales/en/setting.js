@@ -43,6 +43,15 @@
 
     // section markdown
     "title.markdown-template": "Markdown Template",
+    "title.markdown-options": "Markdown Options",
+    "title.markdown-option-heading-style": "Heading Style",
+    "title.markdown-option-hr": "Horizontal Rule Style",
+    "title.markdown-option-bullet-list-marker": "Bullet List Marker",
+    "title.markdown-option-code-block-style": "Code Block Style",
+    "title.markdown-option-fence": "Code Block Fence",
+    "title.markdown-option-em-delimiter": "Emphesis (italics) Delimiter",
+    "title.markdown-option-strong-delimiter": "Strong (bold) Delimiter",
+    "title.markdown-option-link-style": "Link Style",
 
     "title.advanced": "Advanced",
     "title.request": "HTTP Request",
@@ -267,7 +276,7 @@
 
 
     // label
-    "label.storage-folder": "Saving Folder",
+    "label.storage-folder": "Saving Folder (Note: this path should starts with root folder, otherwise MaoXian can't calculate the correct path to save)",
     "label.storage-filename": "Filename",
     "label.save-info-file-input": "Save Information File",
     "label.save-info-file-link": "(How to change it?)",

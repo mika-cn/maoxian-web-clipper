@@ -43,6 +43,15 @@
 
     // section markdown
     "title.markdown-template": "Markdown 模板",
+    "title.markdown-options": "Markdown 格式配置",
+    "title.markdown-option-heading-style": "标题格式",
+    "title.markdown-option-hr": "水平分割线",
+    "title.markdown-option-bullet-list-marker": "子弹列表的行头符",
+    "title.markdown-option-code-block-style": "代码块格式",
+    "title.markdown-option-fence": "代码块分隔符",
+    "title.markdown-option-em-delimiter": "强调（斜体）分隔符",
+    "title.markdown-option-strong-delimiter": "加重（粗体）分隔符",
+    "title.markdown-option-link-style": "链接格式",
 
     "title.advanced": "高级",
     "title.request": "HTTP 请求",
@@ -264,14 +273,14 @@
     "notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 
     // label
-    "label.storage-folder": "存储目录",
+    "label.storage-folder": "存储目录（该路径必须以「根目录」开头，否则将无法计算出存储位置）",
     "label.storage-filename": "文件名",
     "label.save-info-file-input": "保存元信息文件",
     "label.save-info-file-link": "（如何修改?）",
     "label.save-title-file-input": "保存标题文件",
 
     "label.enable-handler": "启用该处理程序",
-    "label.file-url-input": "我设置好了 ‘允许插件访问文件路径’",
+    "label.file-url-input": "我设置好了 ‘允许插件访问本地文件路径’",
     "label.request-timeout-input": "请求的超时时长 (秒, 5 ~ 86400)",
     "label.request-max-tries-input": "请求的最大尝试次数，当该值大于 1 时，会在请求失败时进行重试，比如该值为 3，则会在失败时，最多重试 2 次。",
     "label.request-cache-size-input": "缓存容量（缓存多少个请求，0 ~ 500）",
