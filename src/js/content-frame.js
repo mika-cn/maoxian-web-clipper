@@ -113,6 +113,24 @@ function initMxWcAssistant() {
   });
 }
 
+
+/*
+ * This global plan will be always applied on every frame.
+ */
+function getInternalGlobalPlan() {
+  return {
+    "chAttr": [
+      {
+        "type": "assign.from.value",
+        "pick": "script[id^=MathJax-Element-]",
+        "attr": "data-mx-keep",
+        "value": "1",
+      }
+    ]
+  };
+}
+
+
 // The background script will send a "ping" message to test
 // if the content scirpts have loaded.
 function initPingPong() {
@@ -135,16 +153,20 @@ function init() {
 
   if (document) {
     if (document.documentElement.tagName.toUpperCase() === 'HTML') {
-      if(window === window.top){
-        // Main window
-        MxWcAssistantMain.listenInternalEvent();
-        initMxWcAssistant();
-      }else{
-        // Iframe
-        initMxWcAssistant();
+      const isTopFrame = (window === window.top);
+      MxWcAssistantMain.listenInternalEvent(isTopFrame);
+      initMxWcAssistant();
+
+      if (!isTopFrame) {
         ExtMsg.listen('content-frame', backgroundMessageHandler);
         MxWcEvent.init(ExtMsg);
       }
+
+      MxWcEvent.dispatchInternal(
+        'assistant.apply-plan-global',
+        getInternalGlobalPlan()
+      );
+
     } else {
       // feed or others
     }

@@ -8,9 +8,11 @@ function handle(doc, elem) {
   Array.prototype.forEach.call(mathJaxScripts, (mathJaxScript) => {
     const mathJaxFrameId = [mathJaxScript.id, 'Frame'].join('-');
     const mathJaxFrame = elem.querySelector('#' + mathJaxFrameId);
+    // type: "math/tex", "math/tex;" or "math/tex; xxx"
+    const mathJaxType = mathJaxScript.type.split(";")[0];
     if(mathJaxFrame) {
       let newNode = null;
-      switch(mathJaxScript.type){
+      switch(mathJaxType){
         case "math/tex":
           newNode = toTeXNode(doc, mathJaxScript.innerText)
           break;
