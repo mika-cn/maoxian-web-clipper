@@ -99,37 +99,43 @@ async function takeSnapshotOfCurrNode(node, params) {
     case NODE_TYPE.ELEMENT: {
       const upperCasedNodeName = node.nodeName.toUpperCase();
 
-      if (blacklist[upperCasedNodeName]) {
-        snapshot.ignore = true;
-        snapshot.ignoreReason = 'onBlacklist';
-        return {snapshot};
-      }
+      if (node.hasAttribute(MxAttribute.KEEP)) {
+        // Treat this node as an exception
+        // do nothing
+      } else {
 
-      if (ignoreFn) {
-        const {isIgnore, reason} = ignoreFn(node);
-        if (isIgnore) {
+        if (blacklist[upperCasedNodeName]) {
           snapshot.ignore = true;
-          snapshot.ignoreReason = reason;
+          snapshot.ignoreReason = 'onBlacklist';
           return {snapshot};
         }
-      }
 
-      if (ignoreHiddenElement) {
-        let hidden;
-        if ( ancestorInfo.detailsAncestor
-          || ancestorInfo.mathAncestor
-          || ancestorInfo.svgAncestor
-        ) {
-          // The current node is descendent of<details>, <math>, <svg>
-          // Don't ignore it. (There might be side effects)
-          hidden = false;
-        } else {
-          hidden = !isElemVisible(win, node, VISIBLE_WHITE_LIST);
+        if (ignoreFn) {
+          const {isIgnore, reason} = ignoreFn(node);
+          if (isIgnore) {
+            snapshot.ignore = true;
+            snapshot.ignoreReason = reason;
+            return {snapshot};
+          }
         }
-        if (hidden) {
-          snapshot.ignore = true;
-          snapshot.ignoreReason = 'isHidden';
-          return {snapshot};
+
+        if (ignoreHiddenElement) {
+          let hidden;
+          if ( ancestorInfo.detailsAncestor
+            || ancestorInfo.mathAncestor
+            || ancestorInfo.svgAncestor
+          ) {
+            // The current node is descendent of<details>, <math>, <svg>
+            // Don't ignore it. (There might be side effects)
+            hidden = false;
+          } else {
+            hidden = !isElemVisible(win, node, VISIBLE_WHITE_LIST);
+          }
+          if (hidden) {
+            snapshot.ignore = true;
+            snapshot.ignoreReason = 'isHidden';
+            return {snapshot};
+          }
         }
       }
 
@@ -169,8 +175,8 @@ async function takeSnapshotOfCurrNode(node, params) {
 
         case 'LINK': {
           snapshot.childNodes = [];
-          // Link types are case-insensitive.
-          snapshot.relList = DOMTokenList2Array(node.relList, true);
+          const caseInsensitive = true;
+          snapshot.relList = DOMTokenList2Array(node.relList, caseInsensitive);
           if (node.sheet) {
             const alternative = (snapshot.relList.indexOf('alternative') > -1);
             snapshot.sheet = await StyleSheetSnapshot.take(node.sheet, {
@@ -585,7 +591,7 @@ function sortChildren(nodes, mxAttrObj = {}) {
       const node = nodes[i];
       if (node.nodeType == NODE_TYPE.ELEMENT) {
         elemIndexes.push(i);
-        const index = node.getAttribute('data-mx-index');
+        const index = node.getAttribute(MxAttribute.INDEX);
         tmpArr.push(node, index);
         r.push(null);
       } else {

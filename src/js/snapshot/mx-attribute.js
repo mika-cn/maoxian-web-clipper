@@ -3,6 +3,7 @@ const PREFIX              = "data-mx-";
 const ORDER_BY_INDEX      = "order-by-index";
 const INDEX               = "index";
 const LOCKED_STYLE_PREFIX = "locked-style-";
+const KEEP                = "keep";
 
 class MxAttribute {
 
@@ -50,5 +51,7 @@ class MxAttribute {
 }
 
 MxAttribute.is = (attr) => { return (attr.name.startsWith(PREFIX)) };
+MxAttribute.KEEP  = PREFIX + KEEP;
+MxAttribute.INDEX = PREFIX + INDEX;
 
 export default MxAttribute;

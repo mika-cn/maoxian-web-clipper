@@ -99,7 +99,9 @@ function chooseSelection(selections) {
 }
 
 function applySelection(selection) {
-  MxWcEvent.dispatchInternal('assistant.apply-plan', {
+  // We current don't support select element inside nested frame,
+  // So we only apply selection on top frame.
+  MxWcEvent.dispatchInternal('assistant.apply-plan.top-frame', {
     pick: selection.selector
   });
 }
