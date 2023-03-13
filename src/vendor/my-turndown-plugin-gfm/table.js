@@ -1,7 +1,6 @@
 // Based on turndown-plugin-gfm (v1.0.2)
 //
 // New: Skip empty tables and layout tables (it will render without border)
-// New: Always render tables even if they don't have a header.
 // New: Replace newlines (\n) with <br> inside table cells so that multi-line content is displayed correctly as Markdown.
 // New: Table cells are at least three characters long (padded with spaces) so that they render correctly in GFM-compliant renderers.
 // New: Handle colspan in TD tags
@@ -53,7 +52,7 @@ rules.tableRow = {
 
 rules.table = {
   filter: function (node) {
-    return node.nodeName === 'TABLE'
+    return node.nodeName === 'TABLE' && isHeadingRow(node.rows[0])
   },
 
   replacement: function (content, node) {
@@ -61,19 +60,7 @@ rules.table = {
 
     // Ensure there are no blank lines
     content = content.replace(/\n+/g, '\n');
-
-    // If table has no heading, add an empty one so as to get a valid Markdown table
-    var secondLine = content.trim().split('\n');
-    if (secondLine.length >= 2) secondLine = secondLine[1]
-    var secondLineIsDivider = secondLine.indexOf('| ---') === 0
-
-    var columnCount = tableColCount(node);
-    var emptyHeader = ''
-    if (columnCount && !secondLineIsDivider) {
-      emptyHeader = '|' + '     |'.repeat(columnCount) + '\n' + '|' + ' --- |'.repeat(columnCount)
-    }
-
-    return '\n\n' + emptyHeader + content + '\n\n'
+    return '\n\n' + content + '\n\n'
 
   }
 };
@@ -132,6 +119,8 @@ function cell (content, node = null, index = null) {
 
 // ********** functions that add by us **********
 
+
+
 // returns the nearest one.
 function getTableNode(node) {
   let currNode = node;
@@ -147,33 +136,15 @@ function shouldSkipTable(it) {
   return isEmptyTable(it) || isLayoutTable(it);
 }
 
-
 // @param {HTMLTableElement} it
 function isLayoutTable(it) {
-  return it.hasAttribute('data-layout-table') || isOneCellTable(it);
+  return it.hasAttribute('data-layout-table')
 }
-
 
 // @param {HTMLTableElement} it
 function isEmptyTable(it) {
   return !(it && it.rows.length > 0);
 }
-
-// @param {HTMLTableElement} it
-function isOneCellTable(it) {
-  if(!hasOneBodyOnly(it)) { return false }
-  return it.rows.length == 1 && it.rows[0].cells.length == 1;
-}
-
-
-// @param {HTMLTableElement} it
-function hasOneBodyOnly(it) {
-  return (
-    it.tHead === null && it.tFoot === null && it.caption == null
-    && it.tBodies && it.tBodies.length == 1
-  );
-}
-
 
 // @param {HTMLTableElement} node
 function tableColCount(node) {
@@ -201,7 +172,7 @@ function handleColSpan(content, node, emptyChar) {
 
 export default function tables (turndownService) {
   turndownService.keep(function (node) {
-    return node.nodeName === 'TABLE'
+    return node.nodeName === 'TABLE' && !isHeadingRow(node.rows[0])
   });
   for (var key in rules) turndownService.addRule(key, rules[key]);
 }
