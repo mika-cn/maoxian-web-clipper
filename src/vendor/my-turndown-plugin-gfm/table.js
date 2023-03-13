@@ -1,6 +1,7 @@
 // Based on turndown-plugin-gfm (v1.0.2)
 //
-// [new] skip empty tables and layout tables (it will render without border)
+// New: Skip empty tables and layout tables (it will render without border)
+// New: Always render tables even if they don't have a header.
 
 var indexOf = Array.prototype.indexOf;
 var every = Array.prototype.every;
@@ -39,18 +40,29 @@ rules.tableRow = {
 };
 
 rules.table = {
-  // Only convert tables with a heading row.
-  // Tables with no heading row are kept using `keep` (see below).
   filter: function (node) {
-    return node.nodeName === 'TABLE' && isHeadingRow(node.rows[0])
+    return node.nodeName === 'TABLE'
   },
 
   replacement: function (content, node) {
     if (shouldSkipTable(node)) return content;
 
     // Ensure there are no blank lines
-    content = content.replace('\n\n', '\n');
-    return '\n\n' + content + '\n\n'
+    content = content.replace(/\n+/g, '\n');
+
+    // If table has no heading, add an empty one so as to get a valid Markdown table
+    var secondLine = content.trim().split('\n');
+    if (secondLine.length >= 2) secondLine = secondLine[1]
+    var secondLineIsDivider = secondLine.indexOf('| ---') === 0
+
+    var columnCount = tableColCount(node);
+    var emptyHeader = ''
+    if (columnCount && !secondLineIsDivider) {
+      emptyHeader = '|' + '     |'.repeat(columnCount) + '\n' + '|' + ' --- |'.repeat(columnCount)
+    }
+
+    return '\n\n' + emptyHeader + content + '\n\n'
+
   }
 };
 
@@ -142,12 +154,26 @@ function hasOneBodyOnly(it) {
   );
 }
 
+
+// @param {HTMLTableElement} node
+function tableColCount(node) {
+  let maxColCount = 0;
+  for (let i = 0; i < node.rows.length; i++) {
+    const row = node.rows[i]
+    const colCount = row.childNodes.length
+    if (colCount > maxColCount) maxColCount = colCount
+  }
+  return maxColCount
+}
+
+
 // ********** end **********
 
 export default function tables (turndownService) {
-  turndownService.keep(function (node) {
-    return node.nodeName === 'TABLE' && !isHeadingRow(node.rows[0])
-  });
+  // FIXME
+  // turndownService.keep(function (node) {
+  //   return node.nodeName === 'TABLE'
+  // });
   for (var key in rules) turndownService.addRule(key, rules[key]);
 }
 
