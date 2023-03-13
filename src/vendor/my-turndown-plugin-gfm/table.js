@@ -1,4 +1,6 @@
 // Based on turndown-plugin-gfm (v1.0.2)
+//
+// [new] skip empty tables and layout tables (it will render without border)
 
 var indexOf = Array.prototype.indexOf;
 var every = Array.prototype.every;
@@ -7,6 +9,7 @@ var rules = {};
 rules.tableCell = {
   filter: ['th', 'td'],
   replacement: function (content, node) {
+    if (shouldSkipTable(getTableNode(node))) return content;
     return cell(content, node)
   }
 };
@@ -14,6 +17,8 @@ rules.tableCell = {
 rules.tableRow = {
   filter: 'tr',
   replacement: function (content, node) {
+    if (shouldSkipTable(getTableNode(node))) return content;
+
     var borderCells = '';
     var alignMap = { left: ':--', right: '--:', center: ':-:' };
 
@@ -40,7 +45,9 @@ rules.table = {
     return node.nodeName === 'TABLE' && isHeadingRow(node.rows[0])
   },
 
-  replacement: function (content) {
+  replacement: function (content, node) {
+    if (shouldSkipTable(node)) return content;
+
     // Ensure there are no blank lines
     content = content.replace('\n\n', '\n');
     return '\n\n' + content + '\n\n'
@@ -90,6 +97,52 @@ function cell (content, node) {
   if (index === 0) prefix = '| ';
   return prefix + content + ' |'
 }
+
+// ********** functions that add by us **********
+
+// returns the nearest one.
+function getTableNode(node) {
+  let currNode = node;
+  while (currNode && currNode.nodeName !== 'TABLE') {
+    currNode = currNode.parentNode;
+  }
+  return currNode;
+}
+
+
+// @param {HTMLTableElement} it
+function shouldSkipTable(it) {
+  return isEmptyTable(it) || isLayoutTable(it);
+}
+
+
+// @param {HTMLTableElement} it
+function isLayoutTable(it) {
+  return it.hasAttribute('data-layout-table') || isOneCellTable(it);
+}
+
+
+// @param {HTMLTableElement} it
+function isEmptyTable(it) {
+  return !(it && it.rows.length > 0);
+}
+
+// @param {HTMLTableElement} it
+function isOneCellTable(it) {
+  if(!hasOneBodyOnly(it)) { return false }
+  return it.rows.length == 1 && it.rows[0].cells.length == 1;
+}
+
+
+// @param {HTMLTableElement} it
+function hasOneBodyOnly(it) {
+  return (
+    it.tHead === null && it.tFoot === null && it.caption == null
+    && it.tBodies && it.tBodies.length == 1
+  );
+}
+
+// ********** end **********
 
 export default function tables (turndownService) {
   turndownService.keep(function (node) {
