@@ -20,6 +20,7 @@ import CapturerTable         from '../capturer/table.js';
 
 import TurndownService from 'turndown';
 import * as TurndownPluginGfm from 'turndown-plugin-gfm';
+import myTurndownPluginGfmTables from '../../vendor/my-turndown-plugin-gfm/table.js'
 
 import Mustache from 'mustache';
 Mustache.escape = (text) => text;
@@ -212,8 +213,9 @@ function getTurndownService(config){
   const service = new TurndownService(turndownOptions);
 
   service.use([
-    TurndownPluginGfm.tables,
-    TurndownPluginGfm.strikethrough
+    TurndownPluginGfm.strikethrough,
+    TurndownPluginGfm.taskListItems,
+    myTurndownPluginGfmTables,
   ]);
 
   service.addRule('ignoreTag', {
