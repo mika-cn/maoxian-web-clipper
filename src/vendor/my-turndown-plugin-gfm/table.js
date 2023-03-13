@@ -2,6 +2,12 @@
 //
 // New: Skip empty tables and layout tables (it will render without border)
 // New: Always render tables even if they don't have a header.
+// New: Replace newlines (\n) with <br> inside table cells so that multi-line content is displayed correctly as Markdown.
+// New: Table cells are at least three characters long (padded with spaces) so that they render correctly in GFM-compliant renderers.
+// New: Handle colspan in TD tags
+// Fixed: Ensure there are no blank lines inside tables (due for example to an empty <tr> tag)
+// Fixed: Fixed importing tables that contain pipes.
+
 
 var indexOf = Array.prototype.indexOf;
 var every = Array.prototype.every;
@@ -18,21 +24,27 @@ rules.tableCell = {
 rules.tableRow = {
   filter: 'tr',
   replacement: function (content, node) {
-    if (shouldSkipTable(getTableNode(node))) return content;
+    const table = getTableNode(node);
+    if (shouldSkipTable(table)) return content;
 
     var borderCells = '';
     var alignMap = { left: ':--', right: '--:', center: ':-:' };
 
     if (isHeadingRow(node)) {
-      for (var i = 0; i < node.childNodes.length; i++) {
+      const colCount = tableColCount(table);
+
+      for (var i = 0; i < colCount; i++) {
+        const childNode = colCount >= node.childNodes.length ? null : node.childNodes[i];
         var border = '---';
-        var align = (
-          node.childNodes[i].getAttribute('align') || ''
-        ).toLowerCase();
+        var align = childNode ? (childNode.getAttribute('align') || '').toLowerCase() : '';
 
         if (align) border = alignMap[align] || border;
 
-        borderCells += cell(border, node.childNodes[i]);
+        if (childNode) {
+          borderCells += cell(border, node.childNodes[i])
+        } else {
+          borderCells += cell(border, null, i);
+        }
       }
     }
     return '\n' + content + (borderCells ? '\n' + borderCells : '')
@@ -103,12 +115,20 @@ function isFirstTbody (element) {
   )
 }
 
-function cell (content, node) {
-  var index = indexOf.call(node.parentNode.childNodes, node);
-  var prefix = ' ';
-  if (index === 0) prefix = '| ';
-  return prefix + content + ' |'
+
+// get from joplin
+function cell (content, node = null, index = null) {
+  if (index === null) index = indexOf.call(node.parentNode.childNodes, node)
+  var prefix = ' '
+  if (index === 0) prefix = '| '
+  let filteredContent = content.trim().replace(/\n\r/g, '<br>').replace(/\n/g, "<br>");
+  filteredContent = filteredContent.replace(/\|+/g, '\\|')
+  while (filteredContent.length < 3) filteredContent += ' ';
+  if (node) filteredContent = handleColSpan(filteredContent, node, ' ');
+  return prefix + filteredContent + ' |'
 }
+
+
 
 // ********** functions that add by us **********
 
@@ -166,14 +186,23 @@ function tableColCount(node) {
   return maxColCount
 }
 
+// get from joplin
+function handleColSpan(content, node, emptyChar) {
+  const colspan = node.getAttribute('colspan') || 1;
+  for (let i = 1; i < colspan; i++) {
+    content += ' | ' + emptyChar.repeat(3);
+  }
+  return content
+}
+
+
 
 // ********** end **********
 
 export default function tables (turndownService) {
-  // FIXME
-  // turndownService.keep(function (node) {
-  //   return node.nodeName === 'TABLE'
-  // });
+  turndownService.keep(function (node) {
+    return node.nodeName === 'TABLE'
+  });
   for (var key in rules) turndownService.addRule(key, rules[key]);
 }
 
