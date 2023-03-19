@@ -52,7 +52,7 @@ rules.tableRow = {
 
 rules.table = {
   filter: function (node) {
-    return node.nodeName === 'TABLE' && isHeadingRow(node.rows[0])
+    return node.nodeName === 'TABLE' && (isLayoutTable(node) || isHeadingRow(node.rows[0]));
   },
 
   replacement: function (content, node) {
@@ -172,7 +172,7 @@ function handleColSpan(content, node, emptyChar) {
 
 export default function tables (turndownService) {
   turndownService.keep(function (node) {
-    return node.nodeName === 'TABLE' && !isHeadingRow(node.rows[0])
+    return node.nodeName === 'TABLE' && !isLayoutTable(node) && !isHeadingRow(node.rows[0])
   });
   for (var key in rules) turndownService.addRule(key, rules[key]);
 }
