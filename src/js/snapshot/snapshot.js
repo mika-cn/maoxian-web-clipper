@@ -850,10 +850,10 @@ class SnapshotAccessor {
 
   getAttrHTML() {
     const deletedAttr = ((this._change || {}).deletedAttr || {});
-    const attrObj = Object.assign( {},
-      (this.node.attr || {}),
-      ((this._change || {}).attr || {})
-    );
+    const changedAttr = ((this._change || {}).attr || {});
+    const mxHTMLAttr  = MxAttribute.toHTMLAttrObject(this.node.mxAttr)
+    const attrObj = Object.assign( {}, (this.node.attr || {}), changedAttr, mxHTMLAttr);
+
     let attrHTML = '';
     for (let name in attrObj) {
       if (!deletedAttr[name]) {

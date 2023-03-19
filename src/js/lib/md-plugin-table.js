@@ -2,7 +2,7 @@
 import Log     from './log.js';
 import DOMTool from './dom-tool.js';
 
-const LAYOUT_TABLE = 'data-layout-table';
+const LAYOUT_TABLE = 'data-mx-layout-table';
 
 function handle(doc, contextNode) {
   const nodes = DOMTool.querySelectorIncludeSelf(contextNode, 'table');

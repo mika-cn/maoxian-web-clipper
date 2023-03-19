@@ -15,7 +15,7 @@ var rules = {};
 rules.tableCell = {
   filter: ['th', 'td'],
   replacement: function (content, node) {
-    if (shouldSkipTable(getTableNode(node))) return content;
+    if (shouldSkipTable(getTableNode(node))) return "\n\n" + content;
     return cell(content, node)
   }
 };
@@ -24,7 +24,7 @@ rules.tableRow = {
   filter: 'tr',
   replacement: function (content, node) {
     const table = getTableNode(node);
-    if (shouldSkipTable(table)) return content;
+    if (shouldSkipTable(table)) return "\n\n" + content;
 
     var borderCells = '';
     var alignMap = { left: ':--', right: '--:', center: ':-:' };
@@ -138,7 +138,7 @@ function shouldSkipTable(it) {
 
 // @param {HTMLTableElement} it
 function isLayoutTable(it) {
-  return it.hasAttribute('data-layout-table')
+  return it.hasAttribute('data-mx-layout-table')
 }
 
 // @param {HTMLTableElement} it
