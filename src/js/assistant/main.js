@@ -48,16 +48,33 @@ function toMxPlan(plan) {
 
 // Other components can call assistant to apply plan,
 // such as the remember selection component.
-function listenInternalEvent() {
-  MxWcEvent.listenInternal('assistant.apply-plan', (e) => {
+/*
+ * @param {Boolean} isTopFrame ~ listen on top frame?
+ */
+function listenInternalEvent(isTopFrame) {
+  const evNameA = 'assistant.apply-plan';
+  const evNameB = 'assistant.apply-plan-global';
+  const evNameC = 'assistant.apply-plan.top-frame';
+  const evNameD = 'assistant.apply-plan-global.top-frame';
+
+  const applyPlanFn = (e) => {
     const plan = MxWcEvent.getData(e);
     Plan.apply(toMxPlan(plan));
-  });
-  MxWcEvent.listenInternal('assistant.apply-plan-global', (e) => {
+  };
+
+  const applyGlobalPlanFn = (e) => {
     const plan = MxWcEvent.getData(e);
     Plan.applyGlobal(toMxPlan(plan));
-  });
+  };
+
+  if (isTopFrame) {
+    MxWcEvent.listenInternal(evNameC, applyPlanFn)
+    MxWcEvent.listenInternal(evNameD, applyGlobalPlanFn);
+  }
+  MxWcEvent.listenInternal(evNameA, applyPlanFn)
+  MxWcEvent.listenInternal(evNameB, applyGlobalPlanFn);
 }
+
 
 function init() {
   getPlan().then(({globalPlan, pagePlan}) => {

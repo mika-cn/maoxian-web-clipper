@@ -11,6 +11,7 @@ import MdPluginCode          from '../lib/md-plugin-code.js';
 import MdPluginMathJax       from '../lib/md-plugin-mathjax.js';
 import MdPluginKatex         from '../lib/md-plugin-katex.js';
 import MdPluginMathML2LaTeX  from '../lib/md-plugin-mathml2latex.js';
+import MdPluginTable         from '../lib/md-plugin-table.js';
 import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerImg           from '../capturer/img.js';
@@ -20,6 +21,7 @@ import CapturerTable         from '../capturer/table.js';
 
 import TurndownService from 'turndown';
 import * as TurndownPluginGfm from 'turndown-plugin-gfm';
+import myTurndownPluginGfmTables from '../../vendor/my-turndown-plugin-gfm/table.js'
 
 import Mustache from 'mustache';
 Mustache.escape = (text) => text;
@@ -190,6 +192,7 @@ function doExtraWork({html, win}) {
   selectedNode = MdPluginMathJax.handle(doc, selectedNode);
   selectedNode = MdPluginKatex.handle(doc, selectedNode);
   selectedNode = MdPluginMathML2LaTeX.handle(doc, selectedNode);
+  selectedNode = MdPluginTable.handle(doc, selectedNode);
 
   return selectedNode.outerHTML;
 }
@@ -212,8 +215,9 @@ function getTurndownService(config){
   const service = new TurndownService(turndownOptions);
 
   service.use([
-    TurndownPluginGfm.tables,
-    TurndownPluginGfm.strikethrough
+    TurndownPluginGfm.strikethrough,
+    TurndownPluginGfm.taskListItems,
+    myTurndownPluginGfmTables,
   ]);
 
   service.addRule('ignoreTag', {
