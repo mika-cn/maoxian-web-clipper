@@ -138,12 +138,6 @@
     "tpl-variable.page-metas"   : '<pre>{{meta_*}}      => meta data of web page, "*" is the keywork name. Keyword names are always lower case (e.g. {{meta_author}}).<br>                   NOTE that meta datas are optional for web page.</pre>',
     "tpl-variable.meta-keywords": "<pre>{{metaKeywords}}  => keywords, this is an array. It may has multiple keywords or empty.</pre>",
     "tpl-variable.tags-and-keywords": "<pre>{{tagsNKeywords}} => tags + keywords, this is an array. It may has multiple items or empty.</pre>",
-    "tpl-variable.i18n-none"         : "<pre>{{i18n_none}}         => text: none</pre>",
-    "tpl-variable.i18n-access"       : "<pre>{{i18n_access}}       => text: access</pre>",
-    "tpl-variable.i18n-original-url" : "<pre>{{i18n_original_url}} => text: Original Url</pre>",
-    "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => text: Created At</pre>",
-    "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => text: Category</pre>",
-    "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => text: Tags</pre>",
     "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => This function remove commas and spaces from the two ends of the content.",
 
 
@@ -255,7 +249,7 @@
     "notice.capture-filter-variable.videos": "&lt;videos&gt; : can match all video file extensions",
 
 
-    "notice.markdown-template": 'Using template below to configure which information you want to save. MaoXian uses mustache.js to render this template, you can go to their <a target="_blank" href="https://github.com/janl/mustache.js">project</a> to see the usage.',
+    "notice.markdown-template": 'Using template below to configure which information you want to save. MaoXian uses mustache.js (V4.2.0) to render this template, you can go to their <a target="_blank" href="https://github.com/janl/mustache.js">project</a> to see the usage.',
 
     "notice.root-folder": "<strong>Notice:</strong><br /> This folder is used as storage entry, We suggest you don't change it after you set it right. If you do want to change it, you should change the name of folder in your file system too. So that you won't get two storage entry.",
     "notice.default-category": "Default category is the value that will be used if you don't specify a category in saving form.<br />Use <strong>/</strong> to separate sub category<br />",

@@ -27,6 +27,8 @@ git checkout -b feat/my-own-branch
 
 ### step 1. install dependencies
 
+Note that the develop environment of node is 18.15.0 (with npm 9.5.0). You better installing a latest stable one.
+
 ```shell
 npm install
 ```
