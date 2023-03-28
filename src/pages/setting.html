@@ -256,14 +256,6 @@
               <details>
                 <summary i18n="help.avariable-variable" i18n-attr="title:help.label"></summary>
                 <div class="help-content">
-                  <span i18n="tpl-variable.i18n-none"></span>
-                  <span i18n="tpl-variable.i18n-access"></span>
-                  <span i18n="tpl-variable.i18n-original-url"></span>
-                  <span i18n="tpl-variable.i18n-created-at"></span>
-                  <span i18n="tpl-variable.i18n-category"></span>
-                  <span i18n="tpl-variable.i18n-tags"></span>
-                  <hr />
-
                   <span i18n="tpl-variable.title"></span>
                   <span i18n="tpl-variable.content"></span>
                   <span i18n="tpl-variable.content-only"></span>
@@ -562,19 +554,14 @@ const hello = () =&gt; {
     <template id="section-setting-assistant-tpl">
       <section id="setting-assistant">
         <h2 class="center" i18n="title.assistant"></h2>
+
         <div class="intro">
           <h3 i18n="title.intro"></h3>
           <div class="notice-info" i18n="notice.assistant-intro"></div>
           <input type="checkbox" id="assistant-enabled"/>
           <label for="assistant-enabled" i18n="label.assistant-enabled-input"></label>
         </div>
-        <div class="global-plan">
-          <h3 i18n="title.global-plan"></h3>
-          <div class="notice-info" i18n="notice.global-plan-intro"></div>
-          <textarea id="global-plan"></textarea>
-          <br />
-          <button id="save-global-plan" i18n="button.save"></button>
-        </div>
+
         <div class="custom-plan">
           <h3 i18n="title.custom-plan"></h3>
           <div class="notice-info" i18n="notice.custom-plan-intro"></div>
@@ -582,6 +569,7 @@ const hello = () =&gt; {
           <br />
           <button id="save-custom-plan" i18n="button.save"></button>
         </div>
+
         <div class="public-plan">
           <h3 i18n="title.public-plan"></h3>
           <div class="notice-info" i18n="notice.public-plan-intro"></div>
@@ -613,6 +601,14 @@ const hello = () =&gt; {
             <input type="checkbox" id="auto-update-public-plan"/>
             <label for="auto-update-public-plan" i18n="label.auto-update-public-plan-input"></label>
           </div>
+        </div>
+
+        <div class="global-plan">
+          <h3 i18n="title.global-plan"></h3>
+          <div class="notice-info" i18n="notice.global-plan-intro"></div>
+          <textarea id="global-plan"></textarea>
+          <br />
+          <button id="save-global-plan" i18n="button.save"></button>
         </div>
       </section>
     </template>

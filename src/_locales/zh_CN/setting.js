@@ -138,12 +138,6 @@
     "tpl-variable.page-metas"   : '<pre>{{meta_*}}      => 网页元数据, "*" 是元数据的名字。 名字使用的都是小写字母。例如： 名字为 "Author"，则用 {{meta_author}} 来引用。<br>                   注意：元数据对于网页是可选的，也就是说，并不是所有网页都具有某一个元数据。',
     "tpl-variable.meta-keywords": "<pre>{{metaKeywords}}  => 网页关键字，为元组，即可能包含零个值，也可能包含多个值。",
     "tpl-variable.tags-and-keywords": "<pre>{{tagsNKeywords}} => 标签 + 网页关键字,，为元组，即可能包含零个值，也可能包含多个值。",
-    "tpl-variable.i18n-none"         : "<pre>{{i18n_none}}         => 文本: 无</pre>",
-    "tpl-variable.i18n-access"       : "<pre>{{i18n_access}}       => 文本: 访问</pre>",
-    "tpl-variable.i18n-original-url" : "<pre>{{i18n_original_url}} => 文本: 原网址</pre>",
-    "tpl-variable.i18n-created-at"   : "<pre>{{i18n_created_at}}   => 文本: 创建时间</pre>",
-    "tpl-variable.i18n-category"     : "<pre>{{i18n_category}}     => 文本: 目录</pre>",
-    "tpl-variable.i18n-tags"         : "<pre>{{i18n_tags}}         => 文本: 标签</pre>",
     "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => 修剪函数：将内容两端的逗号（含英文逗号）和空格删除。",
 
 
@@ -254,7 +248,7 @@
     "notice.capture-filter-variable.videos": "&lt;videos&gt;  ： 可匹配所有影片文件后缀名",
 
 
-    "notice.markdown-template": '使用下方的模板，控制裁剪结果的渲染。MaoXian 使用 mustache.js 来渲染这个模板，你可以在它的<a target="_blank" href="https://github.com/janl/mustache.js">项目页面</a>找到使用介绍。',
+    "notice.markdown-template": '使用下方的模板，控制裁剪结果的渲染。MaoXian 使用 mustache.js (V4.2.0) 来渲染这个模板，你可以在它的<a target="_blank" href="https://github.com/janl/mustache.js">项目页面</a>找到使用介绍。',
     "notice.root-folder": "<strong>注意：</strong><br />该项作为存储入口，最好一但设定好就不要变更它，如果你修改了这个值，文件系统里对应的文件夹名字也需要做对应的修改，以避免产生一旧一新两个存储入口。",
     "notice.clipping-folder-name": "MaoXian 可以为每次裁剪都创建一个目录，以用于存储裁剪结果，我们把这个目录叫做裁剪目录。",
     "notice.default-category": "默认分类指的是你在裁剪过程中，没有输入分类的情况下使用的值<br />使用 <strong>/</strong> 来分隔子文件夹<br />",
