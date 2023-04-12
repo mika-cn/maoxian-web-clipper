@@ -215,20 +215,13 @@ function analyzeWrapper(wrapper, _paths) {
 function removeUselessPath(paths, wrapper) {
   if (paths.length < 1) { return paths }
   return paths.filter((path) => {
-
-    // remove block that render as highlighted lines.
-    if (path.match(/highlight-lines/i)) {
-      const parts = path.split('>');
-      const isNotDescendantOfCode = parts.find((part) => part.startsWith('code') || part.startsWith('pre')) === undefined;
-      const nodes = wrapper.querySelectorAll(path);
-      const allNodeIsBlank = T.all(nodes, (node) => {
-        return node.textContent.trim() === "";
-      });
-      if (isNotDescendantOfCode && allNodeIsBlank) {
-        return false;
-      }
-    }
-    return true;
+    // remove elements that are used as component
+    // (highlights, placeholder etc).
+    const nodes = wrapper.querySelectorAll(path);
+    const allNodeAreBlank = T.all(nodes, (node) => {
+      return node.textContent.trim() === "";
+    });
+    return !allNodeAreBlank;
   });
 }
 

@@ -251,6 +251,30 @@ describe('MdPluginCode', () => {
     testPreCodeWithButtons(html);
   }
 
+  function testPreCodeWithBlankComponent(html) {
+    it("remove blank component", () => {
+      const {doc, node} = DOMTool.parseHTML(win, html);
+      let contextNode = node;
+      contextNode = mdPlugin.handle(doc, contextNode);
+      const components = contextNode.querySelectorAll('.component')
+      H.assertEqual(components.length, 0);
+      const code = contextNode.querySelector('code');
+      H.assertNotEqual(code, null);
+      H.assertEqual(code.textContent, 'code text')
+    });
+  }
+
+  {
+    const html = `
+      <pre>
+        <span class="component"></span>
+        <code>code text</code>
+        <span class="component"></span>
+      </pre>
+    `;
+    testPreCodeWithBlankComponent(html);
+  }
+
 
 
   // ============================================================
