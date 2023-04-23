@@ -56,8 +56,8 @@ function exec({storageConfig: config, now, domain,
   // ====================================
   // render folders
   // ====================================
-  const savingFolderVariables = [...pathVariables, ...VariableRender.TimeVariables, '$DOMAIN'];
-  const savingFolderValueHash = Object.assign({now, domain}, pathValueHash);
+  const savingFolderVariables = [...pathVariables, ...VariableRender.TimeVariables, '$DOMAIN', '$TITLE', '$FORMAT'];
+  const savingFolderValueHash = Object.assign({now, domain, title}, pathValueHash);
 
   storageInfo.mainFileFolder = VariableRender.exec(
     fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
