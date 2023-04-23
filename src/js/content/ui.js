@@ -41,9 +41,20 @@ function appendIframe(){
   this.element.scrolling = 'no';
   this.setStyle();
   this.element.addEventListener('load', () => { this.frameLoaded() });
+  this.element.addEventListener('error', (e) => { this.throwIframeError(e) });
   this.startMutationObserver();
   document.body.parentElement.appendChild(this.element);
   Log.debug(this.id, 'append');
+}
+
+function throwIframeError(error) {
+  console.error("MXWC.UI: ", error);
+  const message = [
+    "Unexpected error accured when loading MaoXian UI (frame) " + this.element.id,
+    error.message,
+    "Please force refresh current web page (Ctrl + F5) and try again. If it still not work, try restart your browser"
+  ].join(", ");
+  Notify.error(message);
 }
 
 function removeIframe(){
@@ -123,6 +134,7 @@ const selectionIframe = {
     this.loading = false;
     dispatchFrameLoadedEvent(this.id);
   },
+  throwIframeError: throwIframeError,
   startMutationObserver: startMutationObserver,
   stopMutationObserver: stopMutationObserver,
 }
@@ -155,6 +167,7 @@ const controlIframe = {
     this.loading = false;
     dispatchFrameLoadedEvent(this.id);
   },
+  throwIframeError: throwIframeError,
   startMutationObserver: startMutationObserver,
   stopMutationObserver: stopMutationObserver,
 }

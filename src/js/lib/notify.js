@@ -15,7 +15,7 @@ function style(){
       width: auto;
       height: auto;
       right: 10px;
-      top: 88px;
+      top: 111px;
       z-index: 9999999;
     }
     .notify {
