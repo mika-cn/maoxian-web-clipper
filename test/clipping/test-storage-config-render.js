@@ -50,7 +50,7 @@ describe("StorageConfigRender", () => {
     ];
     const timeVariables = ['$YYYY', '$YY', '$MM', '$DD', '$HH', '$mm', '$SS', '$TIME-INTSEC'];
     const pathVariables = ['$ROOT-FOLDER', '$CATEGORY-FOLDER', '$CLIPPING-FOLDER'];
-    const variables = [...timeVariables, ...pathVariables, '$DOMAIN'];
+    const variables = [...timeVariables, ...pathVariables, '$DOMAIN', '$TITLE', '$FORMAT'];
     SavingFolderKeys.forEach((key) => {
       assetRenderSavingFolderVariables(key, variables);
     });
@@ -73,12 +73,12 @@ describe("StorageConfigRender", () => {
     H.assertEqual(storageInfo.mainFileName, 'A-awesome-title.md');
   });
 
-  it('should generate title style clipping folder $YYYY-$MM-$DD-$TIME-INTSEC-$TITLE', () => {
+  it('should generate title style clipping folder $YYYY-$MM-$DD-$TIME-INTSEC-$TITLE-$FORMAT', () => {
     const params = getParams();
-    params.storageConfig.clippingFolderName = '$YYYY-$MM-$DD-$TIME-INTSEC-$TITLE';
+    params.storageConfig.clippingFolderName = '$YYYY-$MM-$DD-$TIME-INTSEC-$TITLE-$FORMAT';
     const {storageInfo} = Render.exec(params);
     const clippingFolderName = storageInfo.mainFileFolder.split('/').pop();
-    H.assertNotEqual(clippingFolderName.match(/\d{9,}-A-awesome-title/), null)
+    H.assertMatch(clippingFolderName, /\d{9,}-A-awesome-title-html/);
   });
 
   it('should generate title style clipping folder $TITLE', () => {
