@@ -604,9 +604,11 @@ function pressEnter(msg){
   if(state.clippingState === 'selected'){
     performIfClippingHandlerReady(({handlerInfo, config}) => {
       setStateConfirmed();
+      const formInputs = getFormInputs(state.currElem, msg);
+      const titleCandidates = getTitleCandidates(formInputs.title);
       const params = Object.assign({
-        handlerInfo: handlerInfo, config: config
-      }, getFormInputs(state.currElem, msg));
+        handlerInfo: handlerInfo, config: config, titleCandidates,
+      }, formInputs);
       sendFrameMsgToControl('showForm', params);
     });
   }
@@ -876,6 +878,12 @@ function getFormInputs(elem, formInputs = {}) {
 
   setFormInputs({}); // reset it.
   return inputs;
+}
+
+function getTitleCandidates(currTitle) {
+  const candidates = DOMTool.getWebPageTitleCandidates(window);
+  candidates.unshift(currTitle);
+  return T.unique(candidates);
 }
 
 state.callbacks = {};

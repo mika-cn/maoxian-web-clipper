@@ -123,6 +123,23 @@ function calcXpath(contextNode, targetNode) {
   return xpath;
 }
 
+// Note that the returned candidates could be duplicated.
+function getWebPageTitleCandidates(win) {
+  const docTitle = win.document.title;
+  const body = win.document
+  const getTitleValue = (it) => it.textContent.trim();
+  const getTitles = (selector, limit = -1) => {
+    const elements = win.document.body.querySelectorAll(selector)
+    if (limit < 0) {
+      return [].map.call(elements, getTitleValue);
+    } else {
+      return [].slice.call(elements, 0, limit).map(getTitleValue);
+    }
+  }
+  const h1Titles = getTitles('h1');
+  const otherTitles = getTitles('h2,h3', 5);
+  return [docTitle, ...h1Titles, ...otherTitles];
+}
 
 function getWebPageTitle(win, contextElem) {
   if (contextElem) {
@@ -168,6 +185,7 @@ const DOMTool = {
   findNodeByXpath,
   querySelectorIncludeSelf,
 
+  getWebPageTitleCandidates,
   getWebPageTitle,
   getElemTitle,
 }
