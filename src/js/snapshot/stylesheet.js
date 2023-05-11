@@ -75,8 +75,15 @@ async function handleStyleSheet(sheet, params) {
 
   const sheetInfo = {accessDenied: false, url: sheet.href, rules: []}
 
-  if (sheetInfo.url && !sheetInfo.url.match(/^http/i)) {
-    // not starts with http (about:blank, about:invalid etc.)
+  // Note:
+  // Some stylesheets are from browser extensions (decentraeye) or from browser internal (chrome://xxxxxx)
+  // And there might be more cases.
+  //
+  // So we use black list here.
+  if (sheetInfo.url && (
+       sheetInfo.url.match(/^about:blank/i)
+    || sheetInfo.url.match(/^about:invalid/i)
+  )) {
     return snapshot;
   }
 

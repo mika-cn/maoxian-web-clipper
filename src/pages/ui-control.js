@@ -357,7 +357,7 @@ async function initSaveFormatOption(format, config, handlerInfo) {
 
 async function showForm(params){
   Log.debug('showForm');
-  const {format, title, category, tagstr,
+  const {format, title, category, tagstr, titleCandidates,
     handlerInfo, config} = params;
   const form = T.firstElem(CLASS_FORM);
   if(form.style.display == 'block'){ return false}
@@ -373,6 +373,16 @@ async function showForm(params){
   tagstrInput.value = tagstr;
   MxWc.form.clearAutoComplete();
   const doNotSort = function(a, b) { return 0 };
+
+  MxWc.form.titleAutoComplete = new Lib.Awesomplete(titleInput, {
+    autoFirst: true,
+    minChars: 1,
+    maxItems: 10000,
+    list: titleCandidates,
+    sort: doNotSort,
+  });
+  MxWc.form.titleAutoComplete.ul.setAttribute('tabindex', '-1');
+
   MxWcStorage.get('categories', [])
     .then((v) => {
       MxWc.form.categoryAutoComplete = new Lib.Awesomplete(categoryInput, {
@@ -481,16 +491,21 @@ function sendFrameMsgToTop(type, msg){
 
 const MxWc = {}
 MxWc.form = {
+  titleAutoComplete: null,
   categoryAutoComplete: null,
   tagstrAutoComplete: null,
   clearAutoComplete: function(){
-    if(this.categoryAutoComplete){
-      this.categoryAutoComplete.destroy();
-      this.categoryAutoComplete = null;
-    }
-    if(this.tagstrAutoComplete){
-      this.tagstrAutoComplete.destroy();
-      this.tagstrAutoComplete = null;
+    const names = [
+      'titleAutoComplete',
+      'categoryAutoComplete',
+      'tagstrAutoComplete',
+    ];
+
+    for (const name of names) {
+      if (this[name]) {
+        this[name].destroy();
+        this[name] = null;
+      }
     }
   }
 }
