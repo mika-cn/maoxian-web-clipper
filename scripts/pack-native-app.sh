@@ -19,9 +19,13 @@ fi
 # pack native app
 #================================================
 
+
 dir=$root_dir
 src=$(realpath "$dir/native-app")
 dist=$(realpath "$dir/dist/native-app")
+version=$(grep -e "APP_VERSION =" $src/lib/app_env.rb | cut -d \' -f 2)
+
+echo "Packing NativeApp: V$version"
 
 rm -rf $dist/tmp
 rm -f $dist/*.zip
@@ -42,6 +46,10 @@ rm -r $dist/tmp/test
 echo "Create production file"
 mv $dist/tmp/config.yaml.production $dist/tmp/config.yaml
 mv $dist/tmp/pack.yaml.production $dist/tmp/pack.yaml
+
+tmp_path="$dist/tmp/__new_version_tmp_file__"
+cat $dist/tmp/pack.yaml | sed -E "s/NATIVE_APP_VERSION/$version/" > $tmp_path
+mv $tmp_path $dist/tmp/pack.yaml
 
 echo "Native app folder ready"
 
