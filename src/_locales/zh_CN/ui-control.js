@@ -30,10 +30,11 @@
     // form
     "save-format": "格式",
     "title": "标题",
-    "category": "目录",
+    "category": "分类",
     "tags": "标签",
-    "hint.category": "子目录使用'/'分隔, 比如: It/js",
-    "hint.tags": "多个标签用空格或逗号分隔",
+    "hint.title": "空格弹出选择项",
+    "hint.category": "空格弹出选择项，子分类使用'/'分隔, 如: It/js",
+    "hint.tags": "空格弹出选择项，使用空格或逗号分隔标签",
   };
   return { values: Object.assign({}, currValues, values) }
 });

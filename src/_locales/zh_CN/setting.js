@@ -231,7 +231,7 @@
     "notice.info-file-intro": "元信息文件是用来记录整个裁剪过程所涉及的信息的，内容包括保存格式，裁剪时间，原网址，分类，标签等等。",
     "notice.title-file-intro": "标题文件是一个包含空内容的文件，其特点是文件名包含标题，如果你的主文件的路径不包含标题信息，则可以在主文件的同级目录中保存该文件，以便浏览，该文件为可选。",
 
-    "notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
+    "notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)。<br> 允许访问本地网址后，你可以更方便地打开裁剪下来的文件",
     "notice.file-url.link-label": "查看如何设置",
     "notice.file-url.help-msg": "你将需要以下信息:",
     "notice.file-url.ext-id": "扩展标识",

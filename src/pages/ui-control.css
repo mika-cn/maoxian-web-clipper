@@ -75,7 +75,7 @@ body {
 .input-group input:focus{
   border: 2px solid rgb(77, 144, 254);
   outline: unset;
-  background-color: #f0f0f0;
+  background-color: lightyellow;
 }
 
 .actions{

@@ -232,7 +232,7 @@
     "notice.info-file-intro": "Information file (or meta file) is used to save clipping information (includes saving format, clipping time, original url, category, tags etc.)",
     "notice.title-file-intro": "Title file is just an empty file with a filename that contains the title. it's useful, expecially when the path of main file doesn't contains title information, save this file alongside the main file for more conviniently browser.",
 
-    "notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
+    "notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://)<br>Allowing MaoXian to access file URLs enables you to conveniently browser clipped files",
     "notice.file-url.link-label": "Learn how to setting",
     "notice.file-url.help-msg": "Your will need message below:",
     "notice.file-url.ext-id": "Extension identify",

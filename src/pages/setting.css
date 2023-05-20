@@ -182,7 +182,9 @@ fieldset.input-group {
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f5f5f5;
-  margin-top: 35px;
+  margin-top: 40px;
+  padding:15px;
+  padding-top: 5px;
 }
 fieldset.input-group > legend {
   font-weight: bold;
@@ -297,7 +299,7 @@ input[type=text]:hover, textarea:hover {
 input[type=text]:focus, textarea:focus {
   border: 2px solid rgb(77, 144, 254);
   outline: unset;
-  background-color: #f0f0f0;
+  background-color: lightyellow;
 }
 
 select {

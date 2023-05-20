@@ -71,7 +71,7 @@ function getDefault(){
     // Advanced
     //=====================================
     /* unit: seconds */
-    requestTimeout: 60,
+    requestTimeout: 300,
     requestMaxTries: 3,
     /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
     requestReferrerPolicy: 'originWhenCrossOrigin',
