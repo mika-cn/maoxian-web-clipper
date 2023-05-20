@@ -852,11 +852,13 @@ T.expandPath = function(relativePath, currentPath) {
  */
 T.joinPath = function(...paths){
   const arr = [];
-  T.each(paths, function(path){
+  T.each(paths, function(path, index){
     path = T.sanitizePath(path);
     path = path.replace(/(\.\.\/)+/g, '');
     path = path.replace(/(\.\/)+/g, '');
-    path = path.replace(/^\//, '');
+    if (index > 0) {
+      path = path.replace(/^\//, '');
+    }
     path = path.replace(/\/$/, '');
     path = path.replace(/\/+/g, '/');
     arr.push(path);
@@ -876,10 +878,12 @@ T.joinPath = function(...paths){
  *
  */
 T.calcPath = function(currDir, destPath) {
-  const strA = currDir.replace(/\/$/, '');
-  const strB = destPath.replace(/\/$/, '')
+  const pathA = T.sanitizePath(currDir);
+  const pathB = T.sanitizePath(destPath);
+  const strA = pathA.replace(/\/$/, '');
+  const strB = pathB.replace(/\/$/, '')
   const throwError = function() {
-    throw new Error(`Couldn't calculate ${currDir} and ${destPath}`);
+    throw new Error(`Couldn't calculate ${pathA} and ${pathB}`);
   }
   if (strA == '' || strB == '') { throwError() }
   const partA = strA.split('/');
@@ -1024,9 +1028,10 @@ T.createFilenameConflictResolver = function() {
     dict: {}, // id => resolvedName
     nameResolver: T.createNameConflictResolver(),
     addedFolder: [],
-    addFolder(folder) {
+    addFolder(folderStr) {
+      const folder = T.sanitizePath(folderStr);
       if (folder.startsWith('/')) {
-        throw new Error("this method can't handle absolute path");
+        throw new Error("FilenameConflictResolver can't handle absolute path: " + folder);
       }
       const parts = folder.split('/');
       let name = null;
@@ -1045,7 +1050,8 @@ T.createFilenameConflictResolver = function() {
         this.addedFolder.push(currFolder);
       }
     },
-    resolveFile(id, folder, filename) {
+    resolveFile(id, folderStr, filename) {
+      const folder = T.sanitizePath(folderStr);
       if (this.dict[id]) {
         return this.dict[id];
       }

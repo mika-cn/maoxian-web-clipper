@@ -39,6 +39,12 @@ describe("StorageConfigRender", () => {
     H.assertTrue(it.hasOwnProperty('frameFileName'));
   }
 
+  it('should sanitize storageConfig', () => {
+    const params = getParams();
+    params.storageConfig.assetFolder = '$CLIPPING-PATH\\assets';
+    const {storageInfo} = Render.exec(params)
+    H.assertTrue(storageInfo.assetFolder.indexOf("\\") == -1)
+  });
 
   it('should render Saving Folder variables', () => {
     const SavingFolderKeys = [

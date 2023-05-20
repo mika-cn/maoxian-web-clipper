@@ -130,7 +130,7 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
   const headSnapshot = SnapshotMaker.getHeadNode([
     SnapshotMaker.getCharsetMeta(),
     SnapshotMaker.getViewportMeta(),
-    SnapshotMaker.getTitleNode(win.document.title),
+    SnapshotMaker.getTitleNode(v.info.title || win.document.title),
   ].concat(headChildrenSnapshots));
 
   const commentSnapshot = SnapshotMaker.getCommentNode(`OriginalSrc: ${v.info.link}`);

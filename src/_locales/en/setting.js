@@ -232,7 +232,7 @@
     "notice.info-file-intro": "Information file (or meta file) is used to save clipping information (includes saving format, clipping time, original url, category, tags etc.)",
     "notice.title-file-intro": "Title file is just an empty file with a filename that contains the title. it's useful, expecially when the path of main file doesn't contains title information, save this file alongside the main file for more conviniently browser.",
 
-    "notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://).",
+    "notice.file-url.intro": "This item is to tell extension that your allow it to access file URLs (file://)<br>Allowing MaoXian to access file URLs enables you to conveniently browser clipped files",
     "notice.file-url.link-label": "Learn how to setting",
     "notice.file-url.help-msg": "Your will need message below:",
     "notice.file-url.ext-id": "Extension identify",
@@ -270,7 +270,7 @@
 
 
     // label
-    "label.storage-folder": "Saving Folder (Note: this path should starts with root folder, otherwise MaoXian can't calculate the correct path to save)",
+    "label.storage-folder": "Saving Folder",
     "label.storage-filename": "Filename",
     "label.save-info-file-input": "Save Information File",
     "label.save-info-file-link": "(How to change it?)",
@@ -335,7 +335,11 @@
 
 
     // placeholder
-    "placeholder.notblank": "This value can not be blank!",
+    "placeholder.notblank": "This value can not be blank! Auto reset to default value if it's blank",
+
+    // errors
+    "error.not-empty": "Should not be blank",
+    "error.saving-folder-prefix":  "Should starts with root folder (any of $ROOT-FOLDER, $CLIPPING-PATH, $CATEGORY-PATH or $STORAGE-PATH)",
   };
   return { values: Object.assign({}, currValues, values) }
 });

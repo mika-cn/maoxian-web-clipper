@@ -71,7 +71,7 @@ function getDefault(){
     // Advanced
     //=====================================
     /* unit: seconds */
-    requestTimeout: 60,
+    requestTimeout: 300,
     requestMaxTries: 3,
     /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
     requestReferrerPolicy: 'originWhenCrossOrigin',
@@ -341,10 +341,77 @@ function isMigratable(config) {
   }
 }
 
+
+// ======================================
+// validations
+// ======================================
+
+/*
+ * @returns {Object} it
+ *   {Boolean} it.ok
+ *   {String} it.errI18n
+ */
+function validate(key, value, config) {
+  const it = (config || state.config)
+  if (it) {
+    switch(key) {
+      case 'rootFolder':
+      case 'defaultCategory':
+      case 'clippingFolderName':
+      case 'mainFileName':
+      case 'assetFileName':
+      case 'frameFileName':
+      case 'infoFileName':
+      case 'titleFileName':
+      case 'markdownTemplate':
+      case 'clippingJsPath':
+      case "htmlEmbedFilter":
+      case "htmlObjectFilter":
+      case "htmlWebFontFilterList":
+        return shouldNotEmpty(value);
+      case 'mainFileFolder':
+      case 'assetFolder':
+      case 'frameFileFolder':
+      case 'infoFileFolder':
+      case 'titleFileFolder':
+        return shouldStartsWithRootFolder(it.rootFolder, value);
+      default: {
+        return {ok: true}
+      }
+    }
+  } else {
+    throw new Error("MxWcConfig: must load config first or pass config as third argument");
+  }
+}
+
+function shouldNotEmpty(value) {
+  if (typeof value == 'string' && value.trim() == "") {
+    return {ok: false, errI18n: 'error.not-empty'}
+  } else {
+    return {ok: true}
+  }
+}
+
+function shouldStartsWithRootFolder(rootFolder, value) {
+  const prefixes = [
+    '$CLIPPING-PATH',
+    '$CATEGORY-PATH',
+    '$STORAGE-PATH',
+    '$ROOT-FOLDER',
+    rootFolder,
+  ];
+  if (prefixes.findIndex((it) => value.startsWith(it)) > -1) {
+    return {ok: true}
+  } else {
+    return {ok: false, errI18n: "error.saving-folder-prefix"}
+  }
+}
+
 const Config = {
   defaultVersion: '0.0',
   version: VERSION,
   load: load,
+  validate: validate,
   update: update,
   reset: reset,
   getDefault: getDefault,

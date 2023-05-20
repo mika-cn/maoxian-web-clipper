@@ -42,6 +42,20 @@ describe('Tool', () => {
     H.assertFalse(T.isBrowserExtensionUrl("http://example.org/index"));
   })
 
+  it("joinPath(...paths)", () => {
+
+    // keep the first "/"
+    H.assertEqual(T.joinPath("/a"), "/a");
+    H.assertEqual(T.joinPath("//a"), "/a");
+
+    H.assertEqual(T.joinPath("a", "b/"), "a/b");
+    H.assertEqual(T.joinPath("a/", "/b/"), "a/b");
+
+    // should sanitize windows path.
+    H.assertEqual(T.joinPath("a", "b\\c"), "a/b/c");
+  })
+
+
   it("calcPath(currDir, destPath)", () => {
 
     H.assertThrowError(() => T.calcPath('', ''));
@@ -51,6 +65,9 @@ describe('Tool', () => {
     H.assertThrowError(() => T.calcPath('', '/a'));
     H.assertThrowError(() => T.calcPath('a', 'd'));
     H.assertThrowError(() => T.calcPath('a/b', 'c/d'));
+
+    // should sanitize windows path.
+    H.assertEqual(T.calcPath('/a', '\\a/b'), 'b')
 
     H.assertEqual(T.calcPath('/a', '/a'), '');
     H.assertEqual(T.calcPath('/a/', '/a'), '');

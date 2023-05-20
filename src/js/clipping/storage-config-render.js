@@ -16,8 +16,10 @@ import VariableRender from '../lib/variable-render.js'
  *
  * @return {storageInfo, nameConflictResolver}
  */
-function exec({storageConfig: config, now, domain,
+function exec({storageConfig, now, domain,
   format, title, category: originalCategory, nameConflictResolver}) {
+
+  const config = sanitizeStorageConfig(storageConfig);
 
   const filenameValueHash = {now, title, format, domain};
 
@@ -60,33 +62,44 @@ function exec({storageConfig: config, now, domain,
   const savingFolderValueHash = Object.assign({now, domain, title}, pathValueHash);
 
   storageInfo.mainFileFolder = VariableRender.exec(
-    fixPathVariable(config.mainFileFolder, 'mainFileFolder'),
-    savingFolderValueHash, savingFolderVariables);
+    config.mainFileFolder,
+    savingFolderValueHash,
+    savingFolderVariables
+  );
   nameConflictResolver.addFolder(storageInfo.mainFileFolder);
 
+
   storageInfo.assetFolder= VariableRender.exec(
-    fixPathVariable(config.assetFolder, 'assetFolder'),
-    savingFolderValueHash, savingFolderVariables);
+    config.assetFolder,
+    savingFolderValueHash,
+    savingFolderVariables
+  );
   nameConflictResolver.addFolder(storageInfo.assetFolder);
 
   if (config.saveInfoFile) {
     storageInfo.infoFileFolder = VariableRender.exec(
-      fixPathVariable(config.infoFileFolder, 'infoFileFolder'),
-      savingFolderValueHash, savingFolderVariables);
+      config.infoFileFolder,
+      savingFolderValueHash,
+      savingFolderVariables
+    );
     nameConflictResolver.addFolder(storageInfo.infoFileFolder);
   }
 
   if (config.saveTitleFile) {
     storageInfo.titleFileFolder= VariableRender.exec(
-      fixPathVariable(config.titleFileFolder, 'titleFileFolder'),
-      savingFolderValueHash, savingFolderVariables);
+      config.titleFileFolder,
+      savingFolderValueHash,
+      savingFolderVariables
+    );
     nameConflictResolver.addFolder(storageInfo.titleFileFolder);
   }
 
   if (format === 'html') {
     storageInfo.frameFileFolder = VariableRender.exec(
-      fixPathVariable(config.frameFileFolder, 'frameFileFolder'),
-      savingFolderValueHash, savingFolderVariables);
+      config.frameFileFolder,
+      savingFolderValueHash,
+      savingFolderVariables
+    );
     nameConflictResolver.addFolder(storageInfo.frameFileFolder);
   } else {
     // md don't need to store frame files
@@ -99,7 +112,8 @@ function exec({storageConfig: config, now, domain,
 
   const mainFileName = VariableRender.exec(config.mainFileName,
     filenameValueHash, VariableRender.FilenameVariables);
-  storageInfo.mainFileName = nameConflictResolver.resolveFile('__mainFileName__', storageInfo.mainFileFolder, mainFileName);
+  storageInfo.mainFileName = nameConflictResolver.resolveFile(
+    '__mainFileName__', storageInfo.mainFileFolder, mainFileName);
 
   storageInfo.raw.assetFileName = config.assetFileName;
 
@@ -107,13 +121,15 @@ function exec({storageConfig: config, now, domain,
     const infoFileName = VariableRender.exec(config.infoFileName,
       filenameValueHash, VariableRender.FilenameVariables);
 
-    storageInfo.infoFileName = nameConflictResolver.resolveFile('__infoFileName__', storageInfo.infoFileFolder, infoFileName);
+    storageInfo.infoFileName = nameConflictResolver.resolveFile(
+      '__infoFileName__', storageInfo.infoFileFolder, infoFileName);
   }
 
   if (config.saveTitleFile) {
     const titleFileName = VariableRender.exec(config.titleFileName,
       filenameValueHash, VariableRender.FilenameVariables);
-    storageInfo.titleFileName = nameConflictResolver.resolveFile('__titleFileName__', storageInfo.titleFileFolder, titleFileName);
+    storageInfo.titleFileName = nameConflictResolver.resolveFile(
+      '__titleFileName__', storageInfo.titleFileFolder, titleFileName);
   }
 
   if (format === 'html') {
@@ -122,6 +138,7 @@ function exec({storageConfig: config, now, domain,
 
   return {storageInfo, nameConflictResolver};
 }
+
 
 function dealCategory(config, category, now, domain) {
   if (category === '') {
@@ -143,6 +160,7 @@ function dealCategory(config, category, now, domain) {
   }
   return category;
 }
+
 
 function dealCategoryPath(config, category, now, domain, storagePath) {
   let categoryPath;
@@ -167,15 +185,20 @@ function dealCategoryPath(config, category, now, domain, storagePath) {
   return categoryPath
 }
 
-function fixPathVariable(value, key) {
+
+function sanitizeStorageConfig(it) {
   const DefaultConfig = Config.getDefault();
-  if (value === '') {
-    // user didn't specify any path, then we use default
-    return DefaultConfig[key];
-  } else {
-    return value;
+  const result = {};
+  for (const name in it) {
+    let value = it[name];
+    if (typeof value === 'string') {
+      value = value.trim() === '' ? DefaultConfig[name] : T.sanitizePath(value);
+    }
+    result[name] = value;
   }
+  return result;
 }
+
 
 const StorageConfigRender = {exec};
 export default StorageConfigRender;

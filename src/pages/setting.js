@@ -511,6 +511,7 @@ function initTextInput(config, elemId, configKey){
   const elem = T.findElem(elemId);
   elem.value = config[configKey];
   setConfigKey(elem, configKey);
+  validateInputElem(elem, configKey, config[configKey]);
   T.bindOnce(elem, 'blur', saveTextValueByEvent);
 }
 
@@ -523,10 +524,45 @@ function initColorInput(config, elemId, configKey) {
 
 function saveTextValueByEvent(e) {
   const configKey = getConfigKey(e.target);
-  const value = e.target.value.trim();
+  let value = e.target.value;
+  if (e.target.tagName.toUpperCase() != 'TEXTAREA') {
+    value = value.trim();
+  }
   e.target.value = value;
-  if(updateConfig(configKey, value)){
-    Notify.success(I18N.t('g.hint.update-success'));
+  validateInputElem(e.target, configKey, value, () => {
+    if (updateConfig(configKey, value)){
+      Notify.success(I18N.t('g.hint.update-success'));
+    }
+  });
+}
+
+
+function validateInputElem(elem, configKey, value, okCallback) {
+  hideInputError(elem.id);
+  const {ok, errI18n} = MxWcConfig.validate(configKey, value)
+  if (ok) {
+    if (okCallback) { okCallback() }
+  } else {
+    if (value.match(/^\s*$/)) {
+      elem.value = MxWcConfig.getDefault()[configKey];
+    } else {
+      showInputError(elem.id, errI18n);
+    }
+  }
+}
+
+function hideInputError(inputElemId) {
+  const elem = T.queryElem('.input-error' + '.' + inputElemId)
+  if (elem) {elem.classList.remove('show')}
+}
+
+function showInputError(inputElemId, errI18n) {
+  const elem = T.queryElem('.input-error' + '.' + inputElemId)
+  if (elem) {
+    elem.children[0].innerText = I18N.t(errI18n);
+    elem.classList.add('show');
+  } else {
+    Notify.error(I18N.t(errI18n));
   }
 }
 

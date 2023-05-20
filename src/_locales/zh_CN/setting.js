@@ -25,7 +25,7 @@
     "title.subscription.size": "记录数",
     "title.subscription.plans": "查看计划",
     "title.subscription.url": "网址",
-    "title.subscription.detail": "细节",
+    "title.subscription.detail": "详情",
     "title.custom-plan": "自定义「计划」",
     "title.global-plan": "全局「计划」",
     "title.handler": "处理程序",
@@ -53,7 +53,7 @@
     "title.markdown-option-strong-delimiter": "加重（粗体）分隔符",
     "title.markdown-option-link-style": "链接格式",
 
-    "title.advanced": "高级",
+    "title.advanced": "高级设置",
     "title.request": "HTTP 请求",
     "title.request-timeout": "超时设置",
     "title.request-max-tries": "最大尝试次数",
@@ -137,7 +137,7 @@
     "tpl-variable.intSec"       : "<pre>{{intSec}}      => 以秒表示的裁剪时间（例：1578712781）.</pre>",
     "tpl-variable.page-metas"   : '<pre>{{meta_*}}      => 网页元数据, "*" 是元数据的名字。 名字使用的都是小写字母。例如： 名字为 "Author"，则用 {{meta_author}} 来引用。<br>                   注意：元数据对于网页是可选的，也就是说，并不是所有网页都具有某一个元数据。',
     "tpl-variable.meta-keywords": "<pre>{{metaKeywords}}  => 网页关键字，为元组，即可能包含零个值，也可能包含多个值。",
-    "tpl-variable.tags-and-keywords": "<pre>{{tagsNKeywords}} => 标签 + 网页关键字,，为元组，即可能包含零个值，也可能包含多个值。",
+    "tpl-variable.tags-and-keywords": "<pre>{{tagsNKeywords}} => 标签 + 网页关键字，为元组，即可能包含零个值，也可能包含多个值。",
     "tpl-function.trim-fn"           : "<pre>{{trimFn}}  => 修剪函数：将内容两端的逗号（含英文逗号）和空格删除。",
 
 
@@ -231,7 +231,7 @@
     "notice.info-file-intro": "元信息文件是用来记录整个裁剪过程所涉及的信息的，内容包括保存格式，裁剪时间，原网址，分类，标签等等。",
     "notice.title-file-intro": "标题文件是一个包含空内容的文件，其特点是文件名包含标题，如果你的主文件的路径不包含标题信息，则可以在主文件的同级目录中保存该文件，以便浏览，该文件为可选。",
 
-    "notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)",
+    "notice.file-url.intro": "这一设置项，是用来告知浏览器扩展，你允许它访问本地网址 (file://打头的网址)。<br> 允许访问本地网址后，你可以更方便地打开裁剪下来的文件",
     "notice.file-url.link-label": "查看如何设置",
     "notice.file-url.help-msg": "你将需要以下信息:",
     "notice.file-url.ext-id": "扩展标识",
@@ -267,7 +267,7 @@
     "notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 
     // label
-    "label.storage-folder": "存储目录（该路径必须以「根目录」开头，否则将无法计算出存储位置）",
+    "label.storage-folder": "存储目录",
     "label.storage-filename": "文件名",
     "label.save-info-file-input": "保存元信息文件",
     "label.save-info-file-link": "（如何修改?）",
@@ -286,7 +286,7 @@
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",
     "label.mouse-mode-enabled-input": "鼠标友好模式",
     "label.input-field-save-format-enabled": "启用表单上的格式选择",
-    "label.auto-input-last-category": "自动输入上次使用的目录",
+    "label.auto-input-last-category": "自动输入上次使用的分类",
     "label.remember-selection-input": "记住选区，并在下次尝试自动选中",
     "label.autogenerate-clipping-js-input": "自动生成脚本文件",
     "label.not-generated-yet": "还没有生成过",
@@ -331,7 +331,11 @@
     "label.restore-from-file-success": "数据导入成功",
 
     // placeholder
-    "placeholder.notblank": "此项不能为空",
+    "placeholder.notblank": "此项不能为空，留空会重置成默认值",
+
+    // errors
+    "error.not-empty": "此项不能为空",
+    "error.storage.saving-folder":  "必须以毛线的根目录开头，即以： $ROOT-FOLDER、$CLIPPING-PATH 、$CATEGORY-PATH 或 $STORAGE-PATH 开头"
   };
   return { values: Object.assign({}, currValues, values) }
 });
