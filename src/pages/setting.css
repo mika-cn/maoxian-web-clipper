@@ -244,6 +244,13 @@ details > summary {
   border: none;
 }
 
+.input-error {
+  display: none;
+}
+
+.input-error.show {
+  display: block;
+}
 
 input[type=text] {
   display: block;

@@ -314,7 +314,7 @@ tags: {{#tags}}
               </details>
 
             </div>
-            <textarea id="markdown-template"></textarea>
+            <textarea id="markdown-template" i18n-attr="placeholder:placeholder.notblank"></textarea>
         </div>
         <div>
           <h3 i18n="title.markdown-options"></h3>
@@ -747,6 +747,7 @@ const hello = () =&gt; {
               </div>
               <div class="input-group">
                 <label i18n="label.storage-folder"></label>
+                <div class="input-error main-file-folder"><div class="notice-danger"></div></div>
                 <input type="text" id="main-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">
@@ -796,6 +797,7 @@ const hello = () =&gt; {
               </div>
               <div class="input-group">
                 <label i18n="label.storage-folder"></label>
+                <div class="input-error asset-folder"><div class="notice-danger"></div></div>
                 <input type="text" id="asset-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">
@@ -846,6 +848,7 @@ const hello = () =&gt; {
               </div>
               <div class="input-group">
                 <label i18n="label.storage-folder"></label>
+                <div class="input-error frame-file-folder"><div class="notice-danger"></div></div>
                 <input type="text" id="frame-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">
@@ -892,6 +895,7 @@ const hello = () =&gt; {
               </div>
               <div class="input-group">
                 <label i18n="label.storage-folder"></label>
+                <div class="input-error info-file-folder"><div class="notice-danger"></div></div>
                 <input type="text" id="info-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">
@@ -937,6 +941,7 @@ const hello = () =&gt; {
               </div>
               <div class="input-group">
                 <label i18n="label.storage-folder"></label>
+                <div class="input-error title-file-folder"><div class="notice-danger"></div></div>
                 <input type="text" id="title-file-folder" i18n-attr="placeholder:placeholder.notblank"/>
               </div>
               <div class="input-group">

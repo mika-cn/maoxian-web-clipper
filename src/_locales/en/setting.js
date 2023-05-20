@@ -270,7 +270,7 @@
 
 
     // label
-    "label.storage-folder": "Saving Folder (Note: this path should starts with root folder, otherwise MaoXian can't calculate the correct path to save)",
+    "label.storage-folder": "Saving Folder",
     "label.storage-filename": "Filename",
     "label.save-info-file-input": "Save Information File",
     "label.save-info-file-link": "(How to change it?)",
@@ -335,7 +335,11 @@
 
 
     // placeholder
-    "placeholder.notblank": "This value can not be blank!",
+    "placeholder.notblank": "This value can not be blank! Auto reset to default value if it's blank",
+
+    // errors
+    "error.not-empty": "Should not be blank",
+    "error.saving-folder-prefix":  "Should starts with root folder (any of $ROOT-FOLDER, $CLIPPING-PATH, $CATEGORY-PATH or $STORAGE-PATH)",
   };
   return { values: Object.assign({}, currValues, values) }
 });

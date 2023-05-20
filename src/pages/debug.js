@@ -71,7 +71,7 @@ async function renderStorage() {
   const tags = (data.tags || []);
   const failedTasks = (data.failedTasks || []);
 
-  T.setHtml('.storage .config code', T.toJson(MxWcConfig.unsort(config)));
+  T.setHtml('.storage .config code', T.escapeHtml(T.toJson(MxWcConfig.unsort(config))));
   T.setHtml('.storage .assistant code', T.toJson(assistantData));
   T.setHtml('.storage .selection code', T.toJson(selectionData));
   T.setHtml('.storage .misc code', T.toJson(miscData));
