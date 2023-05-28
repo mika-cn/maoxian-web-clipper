@@ -35,6 +35,7 @@
     "title": "Title",
     "category": "Category",
     "tags": "Tags",
+    "hint.title": "press Space to prompt options",
     "hint.category": "Subcategory use '/', eg: It/js",
     "hint.tags": "Tag is seperate by space or comma",
   };
