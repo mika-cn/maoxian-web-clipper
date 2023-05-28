@@ -243,6 +243,17 @@ export const API_SETTABLE_KEYS = [
   "htmlObjectFilter",
   "htmlWebFontFilterList",
 
+  // markdown relative keys
+  "markdownTemplate",
+  "markdownOptionHeadingStyle",
+  "markdownOptionHr",
+  "markdownOptionBulletListMarker",
+  "markdownOptionCodeBlockStyle",
+  "markdownOptionFence",
+  "markdownOptionEmDelimiter",
+  "markdownOptionStrongDelimiter",
+  "markdownOptionLinkStyle",
+
 
   // request keys
   'requestTimeout',
