@@ -29,7 +29,7 @@ const IFRAME_STYLE_ITEMS =  [
     ["clip"    , "auto"]  ,
     ["z-index" , "2147483647"],
     ["background-color", "transparent"],
-    ["color-scheme", "normal"],
+    ["color-scheme", "only light"],
     ["forced-color-adjust", "none"],
 ];
 
