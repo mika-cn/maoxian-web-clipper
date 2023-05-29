@@ -511,7 +511,9 @@ function initTextInput(config, elemId, configKey){
   const elem = T.findElem(elemId);
   elem.value = config[configKey];
   setConfigKey(elem, configKey);
-  validateInputElem(elem, configKey, config[configKey]);
+  validateInputElem(elem, configKey, config[configKey], (newValue) => {
+    updateConfig(configKey, newValue);
+  });
   T.bindOnce(elem, 'blur', saveTextValueByEvent);
 }
 
@@ -529,8 +531,8 @@ function saveTextValueByEvent(e) {
     value = value.trim();
   }
   e.target.value = value;
-  validateInputElem(e.target, configKey, value, () => {
-    if (updateConfig(configKey, value)){
+  validateInputElem(e.target, configKey, value, (newValue) => {
+    if (updateConfig(configKey, newValue)){
       Notify.success(I18N.t('g.hint.update-success'));
     }
   });
@@ -541,10 +543,11 @@ function validateInputElem(elem, configKey, value, okCallback) {
   hideInputError(elem.id);
   const {ok, errI18n} = MxWcConfig.validate(configKey, value)
   if (ok) {
-    if (okCallback) { okCallback() }
+    if (okCallback) { okCallback(value) }
   } else {
     if (value.match(/^\s*$/)) {
       elem.value = MxWcConfig.getDefault()[configKey];
+      if (okCallback) { okCallback(elem.value) }
     } else {
       showInputError(elem.id, errI18n);
     }
