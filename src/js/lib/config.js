@@ -91,8 +91,11 @@ function getDefault(){
 
     // "clippingHandlerName" is the old key
     // and it's not be used anymore.
+    //
+    // 'Browser', 'NativeApp' or 'WizNotePlus'
     clippingHandler: 'Browser',
 
+    // 'html' or 'md'
     saveFormat: 'html',
 
     // ======== Local path ==========
@@ -199,8 +202,10 @@ export const CONFIG_KEYS = Object.keys(getDefault())
 export const API_SETTABLE_KEYS = [
 
   // storage keys
-  'rootFolder',
+  'clippingHandler',
+  'saveFormat',
 
+  'rootFolder',
   'defaultCategory',
   'clippingFolderName',
 
