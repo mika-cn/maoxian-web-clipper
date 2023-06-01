@@ -352,10 +352,16 @@ function setStateSelected(){
   sendFrameMsgToControl('setStateSelected');
   dispatchMxEvent('selected');
 }
-function setStateConfirmed(){
+function setStateConfirmed(elem){
   state.clippingState = 'confirmed';
+  const klass = 'mx-wc-confirmed-elem';
+  const selector = "." + klass;
+  const oldElem = document.querySelector(selector);
+  if (oldElem) { oldElem.classList.remove(klass); }
+  elem.classList.add(klass);
+  const msg = {elem: {selector}};
   sendFrameMsgToControl('setStateConfirmed');
-  dispatchMxEvent('confirmed');
+  dispatchMxEvent('confirmed', msg);
 }
 function setStateClipping(){
   state.clippingState = 'clipping';
@@ -603,7 +609,7 @@ function pressEnter(msg){
   }
   if(state.clippingState === 'selected'){
     performIfClippingHandlerReady(({handlerInfo, config}) => {
-      setStateConfirmed();
+      setStateConfirmed(state.currElem);
 
       const formInputs  = getFormInputs(state.currElem, msg);
       const formOptions = getFormOptions(formInputs);
