@@ -127,6 +127,7 @@ function listenTpMessage(){
   MxWcEvent.listenPublic('confirm-elem'      , wrapToEventHandler(confirmElem));
   MxWcEvent.listenPublic('clip-elem'         , wrapToEventHandler(clipElem));
   MxWcEvent.listenPublic('set-form-inputs'   , wrapToEventHandler(setFormInputs));
+  MxWcEvent.listenPublic('set-form-options'  , wrapToEventHandler(setFormOptions));
   MxWcEvent.listenPublic('overwrite-config'  , wrapToEventHandler(overwriteConfig));
   MxWcEvent.listenPublic('set-yielding'      , wrapToEventHandler(setYielding));
   MxWcEvent.listenPublic('unset-yielding'    , wrapToEventHandler(unsetYielding));
@@ -205,6 +206,10 @@ function clipElem(msg) {
 function setFormInputs(msg) {
   // deprecated: msg.options
   UI.setFormInputs(msg.formInputs || msg.options || {});
+}
+
+function setFormOptions(msg) {
+  UI.setFormOptions(msg.formOptions || {});
 }
 
 function overwriteConfig(msg) {

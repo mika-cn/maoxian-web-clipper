@@ -604,11 +604,14 @@ function pressEnter(msg){
   if(state.clippingState === 'selected'){
     performIfClippingHandlerReady(({handlerInfo, config}) => {
       setStateConfirmed();
-      const formInputs = getFormInputs(state.currElem, msg);
-      const titleCandidates = getTitleCandidates(formInputs.title);
+
+      const formInputs  = getFormInputs(state.currElem, msg);
+      const formOptions = getFormOptions(formInputs);
+
+
       const params = Object.assign({
-        handlerInfo: handlerInfo, config: config, titleCandidates,
-      }, formInputs);
+        handlerInfo, config,
+      }, formInputs, formOptions);
       sendFrameMsgToControl('showForm', params);
     });
   }
@@ -868,6 +871,17 @@ function setFormInputs(formInputs) {
   state.formInputs = formInputs;
 }
 
+
+/*
+ * 3rd party interface
+ * formOptions: {titles, categories, tags}
+ */
+state.formOptions = {};
+function setFormOptions(formOptions) {
+  state.formOptions = formOptions;
+}
+
+
 function getFormInputs(elem, formInputs = {}) {
   const inputs = {
     format   : (formInputs.format   || state.formInputs.format   || ""),
@@ -879,6 +893,24 @@ function getFormInputs(elem, formInputs = {}) {
   setFormInputs({}); // reset it.
   return inputs;
 }
+
+
+// @returns {Object} it {titles, [categories], [tags]}
+function getFormOptions(formInputs) {
+  const it = {};
+  it.titles = (state.formOptions.titles ? state.formOptions.titles : getTitleCandidates(formInputs.title));
+
+  if (state.formOptions.categories) {
+    it.categories = state.formOptions.categories;
+  }
+
+  if (state.formOptions.tags) {
+    it.tags = state.formOptions.tags;
+  }
+
+  return it;
+}
+
 
 function getTitleCandidates(currTitle) {
   const candidates = DOMTool.getWebPageTitleCandidates(window);
@@ -918,6 +950,7 @@ const UI = {
   confirmElem: confirmElem,
   clipElem: clipElem,
   setFormInputs: setFormInputs,
+  setFormOptions: setFormOptions,
   setSavingHint: setSavingHint,
   friendlyExit: friendlyExit,
 }

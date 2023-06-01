@@ -357,8 +357,22 @@ async function initSaveFormatOption(format, config, handlerInfo) {
 
 async function showForm(params){
   Log.debug('showForm');
-  const {format, title, category, tagstr, titleCandidates,
-    handlerInfo, config} = params;
+  const {
+    // formInputs
+    format,
+    title,
+    category,
+    tagstr,
+
+    // formOptions
+    titles,
+    categories,
+    tags,
+
+    handlerInfo,
+    config
+  } = params;
+
   const form = T.firstElem(CLASS_FORM);
   if(form.style.display == 'block'){ return false}
   setStateConfirmed();
@@ -374,63 +388,47 @@ async function showForm(params){
   MxWc.form.clearAutoComplete();
   const doNotSort = function(a, b) { return 0 };
 
-  MxWc.form.titleAutoComplete = new Lib.Awesomplete(titleInput, {
-    autoFirst: true,
-    minChars: 1,
-    maxItems: 10000,
-    list: titleCandidates,
-    sort: doNotSort,
-  });
-  MxWc.form.titleAutoComplete.ul.setAttribute('tabindex', '-1');
+  // ===== title =====
+  const titleList = (titles || []);
+  MxWc.form.addAutoComplete(titleInput, titleList);
 
-  MxWcStorage.get('categories', [])
-    .then((v) => {
-      MxWc.form.categoryAutoComplete = new Lib.Awesomplete(categoryInput, {
-        autoFirst: true,
-        minChars: 1,
-        maxItems: 10000,
-        list: v,
-        sort: doNotSort,
-      })
-      MxWc.form.categoryAutoComplete.ul.setAttribute('tabindex', '-1');
+  // ===== category =====
+  const categoryList = (categories || (await MxWcStorage.get('categories', [])));
+  MxWc.form.addAutoComplete(categoryInput, categoryList);
 
-      if(category === ''){
-        if (config.autoInputLastCategory && v.length > 0) {
-          categoryInput.value = v[0];
-          categoryInput.select();
-        }
-        categoryInput.focus();
-      }
-    })
-  MxWcStorage.get('tags', [])
-    .then((v) => {
-      MxWc.form.tagstrAutoComplete =  new Lib.Awesomplete(tagstrInput, {
-        autoFirst: true,
-        minChars: 1,
-        maxItems: 10000,
-        list: v,
-        sort: doNotSort,
-        filter: function(text, input) {
-          return Lib.Awesomplete.FILTER_CONTAINS(text, input.match(/[^ ,，]*$/)[0]);
-        },
+  if(category === ''){
+    if (config.autoInputLastCategory && categoryList.length > 0) {
+      categoryInput.value = categoryList[0];
+      categoryInput.select();
+    }
+    categoryInput.focus();
+  }
 
-        item: function(text, input) {
-          return Lib.Awesomplete.ITEM(text, input.match(/[^ ,，]*$/)[0]);
-        },
+  // ===== tag =====
+  const tagList = (tags || (await MxWcStorage.get('tags', [])))
+  const extraAwesompleteOptions = {
+    filter: function(text, input) {
+      return Lib.Awesomplete.FILTER_CONTAINS(text, input.match(/[^ ,，]*$/)[0]);
+    },
 
-        replace: function(text) {
-          const before = this.input.value.match(/^.+[ ,，]{1}\s*|/)[0];
-          this.input.value = before + text + " ";
-        }
-      });
-      MxWc.form.tagstrAutoComplete.ul.setAttribute('tabindex', '-1');
+    item: function(text, input) {
+      return Lib.Awesomplete.ITEM(text, input.match(/[^ ,，]*$/)[0]);
+    },
 
-      if(category !== '') {
-        tagstrInput.focus();
-      }
-    })
+    replace: function(text) {
+      const before = this.input.value.match(/^.+[ ,，]{1}\s*|/)[0];
+      this.input.value = before + text + " ";
+    }
+  };
+  MxWc.form.addAutoComplete(tagstrInput, tagList, extraAwesompleteOptions);
+  if(category !== '') {
+    tagstrInput.focus();
+  }
+
   return true;
 }
+
+
 
 function submitForm(){
   hideForm();
@@ -489,24 +487,39 @@ function sendFrameMsgToTop(type, msg){
 }
 
 
+
+
 const MxWc = {}
 MxWc.form = {
+  autoCompleteObjs: [],
+
   titleAutoComplete: null,
   categoryAutoComplete: null,
   tagstrAutoComplete: null,
-  clearAutoComplete: function(){
-    const names = [
-      'titleAutoComplete',
-      'categoryAutoComplete',
-      'tagstrAutoComplete',
-    ];
 
-    for (const name of names) {
-      if (this[name]) {
-        this[name].destroy();
-        this[name] = null;
-      }
-    }
+  addAutoComplete: function(inputElem, list, extraAwesompleteOptions = {}) {
+    const doNotSort = function(a, b) { return 0 };
+    const defaultOptions = {
+      autoFirst: true,
+      minChars: 1,
+      maxItems: 10000,
+      list: (list || []),
+      sort: doNotSort,
+    };
+
+    const it = new Lib.Awesomplete(inputElem, Object.assign(
+      {}, defaultOptions, extraAwesompleteOptions));
+
+    it.ul.setAttribute('tabindex', '-1');
+    this.autoCompleteObjs.push(it);
+  },
+
+  clearAutoComplete: function(){
+    this.autoCompleteObjs.forEach((it) => {
+      it.destroy();
+      it = undefined;
+    });
+    this.autoCompleteObjs = [];
   }
 }
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1408996
