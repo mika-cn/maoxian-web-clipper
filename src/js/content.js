@@ -14,7 +14,7 @@ let state = {state: null};
 function resetClippingState() {
   /* only avariable in current clipping */
   state.tempConfig = {};
-  state.yieldPoints = new Set();
+  YieldPoint.reset();
   /* information of current clipping */
   state.storageConfig = null;
   state.storageInfo = null;
@@ -122,21 +122,23 @@ function listenInternalMessage() {
  * ThirdParty: userScript or other Extension.
  */
 function listenTpMessage(){
-  MxWcEvent.listenPublic('focus-elem'        , wrapToEventHandler(selectElem));
-  MxWcEvent.listenPublic('select-elem'       , wrapToEventHandler(selectElem));
-  MxWcEvent.listenPublic('confirm-elem'      , wrapToEventHandler(confirmElem));
-  MxWcEvent.listenPublic('clip-elem'         , wrapToEventHandler(clipElem));
-  MxWcEvent.listenPublic('set-form-inputs'   , wrapToEventHandler(setFormInputs));
-  MxWcEvent.listenPublic('set-form-options'  , wrapToEventHandler(setFormOptions));
-  MxWcEvent.listenPublic('overwrite-config'  , wrapToEventHandler(overwriteConfig));
-  MxWcEvent.listenPublic('set-yielding'      , wrapToEventHandler(setYielding));
-  MxWcEvent.listenPublic('unset-yielding'    , wrapToEventHandler(unsetYielding));
+  const getTpEventHandler = (action) => {
+    return wrapToEventHandler(guardEventHandler(action));
+  }
+  MxWcEvent.listenPublic('focus-elem'        , getTpEventHandler(selectElem));
+  MxWcEvent.listenPublic('select-elem'       , getTpEventHandler(selectElem));
+  MxWcEvent.listenPublic('confirm-elem'      , getTpEventHandler(confirmElem));
+  MxWcEvent.listenPublic('clip-elem'         , getTpEventHandler(clipElem));
+  MxWcEvent.listenPublic('set-form-inputs'   , getTpEventHandler(setFormInputs));
+  MxWcEvent.listenPublic('set-form-options'  , getTpEventHandler(setFormOptions));
+  MxWcEvent.listenPublic('overwrite-config'  , getTpEventHandler(overwriteConfig));
+  MxWcEvent.listenPublic('set-yielding'      , getTpEventHandler(setYielding));
+  MxWcEvent.listenPublic('unset-yielding'    , getTpEventHandler(unsetYielding));
+  MxWcEvent.listenPublic('yield-back'        , getTpEventHandler(yieldBack));
 
-  MxWcEvent.listenPublic('resume-actived'    , wrapToEventHandler(resumeActived));
-  MxWcEvent.listenPublic('set-saving-hint'   , wrapToEventHandler(setSavingHint));
-  MxWcEvent.listenPublic('save-clipping'     , wrapToEventHandler(saveClipping));
-  MxWcEvent.listenPublic('exit-clipping'     , wrapToEventHandler(exitClipping));
-  MxWcEvent.listenPublic('complete-clipping' , wrapToEventHandler(completeClipping));
+  MxWcEvent.listenPublic('resume-actived'    , getTpEventHandler(resumeActived));
+  MxWcEvent.listenPublic('set-saving-hint'   , getTpEventHandler(setSavingHint));
+
   Log.debug('listenTpMessage');
 }
 
@@ -179,7 +181,7 @@ function tellTpCompleted(detail) {
 function wrapToEventHandler(action) {
   return function(e) {
     const msg = MxWcEvent.getData(e);
-    action(msg);
+    action(msg, e.type);
   }
 }
 
@@ -222,23 +224,191 @@ function overwriteConfig(msg) {
   }
 }
 
-const YIELDABLE_POINTS = ['actived', 'clipped'];
+
+const YieldPoint = {
+  yieldablePoints: ['actived', 'confirmed', 'clipped'],
+  allowedEventsWhenYield: {
+    'actived'   : ['mx-wc.yield-back', 'mx-wc.resume-actived'],
+    'confirmed' : ['mx-wc.yield-back'],
+    'clipped'   : ['mx-wc.yield-back', 'mx-wc.set-saving-hint'],
+  },
+  allowedActionsWhenYieldBack: {
+    'actived'   : ['exit', 'selecting'],
+    'confirmed' : ['exit', 'showForm', 'clipElem'],
+    'clipped'   : ['saveClipping', 'completeClipping', 'exitClipping'],
+  },
+  list: new Set(),
+  current: null,
+  reset() {
+    this.list = new Set();
+    this.current = null;
+  },
+  isValid(name) {
+    return this.yieldablePoints.indexOf(name) > -1
+  },
+  has(name) {
+    return this.list.has(name);
+  },
+  set(name) {
+    Log.debug("yieldpoint.set: ", name);
+    if (this.isValid(name)) {
+      this.list.add(name)
+    }
+  },
+  unset(name) {
+    if (this.isValid(name)) {
+      this.list.delete(name);
+    }
+  },
+  yield(name) {
+    Log.debug("yieldpoint.yield", name);
+    if (this.isValid(name)) {
+      this.current = name;
+    }
+  },
+  yieldBack(action) {
+    Log.debug("yieldback: ", action.name);
+    if (this.isValidAction(action.name)) {
+      this.current = null;
+    } else {
+      Log.debug("invalid action: ", action.name);
+    }
+  },
+  isValidEvent(evName) {
+    if (this.current) {
+      const whiteList = this.allowedEventsWhenYield[this.current];
+      return whiteList.indexOf(evName) > -1;
+    } else {
+      return evName != 'mx-wc.yield-back';
+    }
+  },
+  isValidAction(actionName) {
+    if (this.current) {
+      const whiteList = this.allowedActionsWhenYieldBack[this.current];
+      return whiteList.indexOf(actionName) > -1;
+    } else {
+      throw new Error("Current yield point is not exist.");
+    }
+  },
+};
+
+
 function setYielding(msg) {
-  if (YIELDABLE_POINTS.indexOf(msg.name) > -1) {
-    state.yieldPoints.add(msg.name);
-  }
+  YieldPoint.set(msg.name);
 }
 
 function unsetYielding(msg) {
-  if (YIELDABLE_POINTS.indexOf(msg.name) > -1) {
-    state.yieldPoints.delete(msg.name);
+  YieldPoint.unset(msg.name);
+}
+
+function yieldBack(msg) {
+  const action = msg.nextAction;
+  if (YieldPoint.isValidAction(action.name)) {
+    const yieldPoint = YieldPoint.current;
+    YieldPoint.yieldBack(action);
+    switch(action.name) {
+      case 'exit':
+        executeYieldBackActionExit(yieldPoint);
+        break;
+      case 'selecting':
+        executeYieldBackActionSelecting(yieldPoint);
+        break;
+      case 'showForm':
+        executeYieldBackActionShowForm(yieldPoint);
+        break;
+      case 'clipElem':
+        executeYieldBackActionClipElem(yieldPoint, action.msg);
+        break;
+      case 'saveClipping':
+        executeYieldBackActionSaveClipping(yieldPoint, action.msg);
+        break;
+      case 'completeClipping':
+        executeYieldBackActionCompleteClipping(yieldPoint, action.msg);
+        break;
+      case 'exitClipping':
+        executeYieldBackActionExitClipping(yieldPoint);
+        break;
+      default: break;
+    }
   }
 }
 
+function hasYieldPoint(name) {
+  return YieldPoint.has(name);
+}
+
+function setCurrYieldPoint(name) {
+  YieldPoint.yield(name)
+}
+
+
+function guardEventHandler(action) {
+  return function(msg, evType) {
+    if (YieldPoint.isValidEvent(evType)) {
+      action(msg, evType);
+    } else {
+      Log.debug("W > current event: ", evType, " is not valid in current yield point: ", YieldPoint.current);
+    }
+  }
+}
+
+
 // FIXME rename me :(
 function resumeActived(msg) {
-  UI.entryClick(msg);
+  executeYieldBackActionSelecting();
+  const action = {name: 'selecting'};
+  YieldPoint.yieldBack(action);
 }
+
+function executeYieldBackActionSelecting(yieldPoint) {
+  Log.debug("Yieldback.selecting from: ", yieldPoint);
+  UI.entryClick({});
+}
+
+function executeYieldBackActionExit(yieldPoint) {
+  Log.debug("Yieldback.exit from: ", yieldPoint);
+  backToIdleState();
+}
+
+function executeYieldBackActionSaveClipping(yitldPoint, msg) {
+  Log.debug("Yieldback.saveClipping from: ", yieldPoint);
+  saveClipping(msg)
+}
+
+function executeYieldBackActionExitClipping(yieldPoint) {
+  Log.debug("Yieldback.exitClipping from: ", yieldPoint);
+  backToIdleState();
+}
+
+function executeYieldBackActionCompleteClipping(yieldPoint, msg) {
+  Log.debug("Yieldback.completeClipping from: ", yieldPoint);
+  const {result} = msg;
+  ExtMsg.sendToBackend('saving', {
+    type: 'complete',
+    body: result
+  });
+}
+
+function executeYieldBackActionShowForm(yieldPoint) {
+  Log.debug("Yieldback.showForm from: ", yieldPoint);
+  UI.recoverFromConfirmedYieldPoint();
+  UI.showFormFromYieldPoint();
+}
+
+
+function executeYieldBackActionClipElem(yieldPoint, msg) {
+  Log.debug("Yieldback.clipElem from: ", yieldPoint);
+  UI.recoverFromConfirmedYieldPoint();
+  clipElem(msg);
+}
+
+
+function backToIdleState() {
+  const timeout = 500;
+  UI.friendlyExit(timeout);
+  resetClippingState();
+}
+
 
 function setSavingHint(msg) {
   UI.setSavingHint(msg.hint);
@@ -253,19 +423,7 @@ function saveClipping(msg) {
   saveClippingHistory(clipping);
 }
 
-function exitClipping(msg) {
-  const timeout = 500;
-  UI.friendlyExit(timeout);
-  resetClippingState();
-}
 
-function completeClipping(msg) {
-  const {result} = msg;
-  ExtMsg.sendToBackend('saving', {
-    type: 'complete',
-    body: result
-  });
-}
 
 
 // ======================================
@@ -345,13 +503,16 @@ async function formSubmitted({elem, formInputs, config}) {
 
   Log.debug(clipping);
 
+  if (hasYieldPoint('clipped')) {
+    setCurrYieldPoint('clipped');
+  }
   UI.setStateClipped({clipping})
   ExtMsg.sendToBackend('clippibng', {
     type: 'clipped',
     body: clipping,
   });
 
-  if (state.yieldPoints.has('clipped')) {
+  if (hasYieldPoint('clipped')) {
     Log.debug("clipped: yield to 3rd party");
     saveClippingHistory(clipping);
   } else {
@@ -446,10 +607,11 @@ function activeUI(e) {
     MxWcEvent.dispatchInternal('actived');
     // we're going to active UI
     if (state.config && state.config.communicateWithThirdParty) {
-      MxWcEvent.dispatchPublic('actived');
-      if (state.yieldPoints.has('actived')) {
-        // Do nothing, yield control to 3rd party.
+      if (hasYieldPoint('actived')) {
+        setCurrYieldPoint('actived');
+        MxWcEvent.dispatchPublic('actived');
       } else {
+        MxWcEvent.dispatchPublic('actived');
         UI.entryClick(e);
       }
     } else {
@@ -485,7 +647,9 @@ function run(){
           state.config = config;
           MxWcSelectionMain.init(config);
           UI.init(config);
-          UI.setCallback('submitted', formSubmitted);
+          UI.setContentFn('submitted', formSubmitted);
+          UI.setContentFn('hasYieldPoint', hasYieldPoint);
+          UI.setContentFn('setCurrYieldPoint', setCurrYieldPoint);
           initialize();
           listenMessage();
           listenPopState();

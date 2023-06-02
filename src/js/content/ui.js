@@ -68,27 +68,52 @@ function removeIframe(){
   this.stopMutationObserver();
 }
 
+function showIframe() {
+  this.applyStyle('display', 'block', true);
+}
+
+function hideIframe() {
+  this.applyStyle('display', 'none', true);
+}
+
+
+function applyIframeStyle(name, value, isImportant) {
+  this.observingStyle = false;
+  const important = isImportant ? 'important' : undefined;
+  this.element.style.setProperty(name, value, important)
+  this.appliedStyleItems[name] = [value, important]
+  this.observingStyle = true;
+}
+
 function startMutationObserver() {
   if (window.MutationObserver && !this.observer) {
     this.mutationCount = 0;
+    this.observingStyle = true;
     this.observer = new window.MutationObserver((mutationRecords) => {
       if (this.mutationCount > 20) {
         // avoid infinite mutation.
         return;
       }
-      let mutationByPage = false;
-      [].forEach.call(mutationRecords, (record) => {
-        if (record.type == 'attributes' && record.attributeName == 'style') {
-          this.getStyleItems().forEach(([name, value]) => {
-            if ( this.element.style.getPropertyValue(name) != value
-              || this.element.style.getPropertyPriority(name) != 'important') {
-              mutationByPage = true;
-              this.element.style.setProperty(name, value, 'important');
+
+      if (this.observingStyle) {
+        let mutationByPage = false;
+        [].forEach.call(mutationRecords, (record) => {
+          if (record.type == 'attributes' && record.attributeName == 'style') {
+            for (const name in this.appliedStyleItems) {
+              const [value, important] = this.appliedStyleItems[name];
+              if ( this.element.style.getPropertyValue(name) != value
+                || this.element.style.getPropertyPriority(name) != important) {
+                mutationByPage = true;
+                // console.debug("MxWc: UI style modified: ", name, this.element.style.getPropertyValue(name));
+                this.element.style.setProperty(name, value, important);
+              }
             }
-          });
-        }
-      });
-      if (mutationByPage) { this.mutationCount++ }
+          }
+        });
+        if (mutationByPage) { this.mutationCount++ }
+      } else {
+        console.debug("not observing...");
+      }
     });
 
     this.observer.observe(this.element, {
@@ -102,6 +127,7 @@ function startMutationObserver() {
 function stopMutationObserver() {
   if (window.MutationObserver && this.observer) {
     this.observer.disconnect();
+    this.observing = false;
     this.observer = undefined;
   }
 }
@@ -117,16 +143,17 @@ const selectionIframe = {
     return url + "?t=" + btoa(window.location.origin)
   },
   append: appendIframe,
+  show: showIframe,
+  hide: hideIframe,
+  appliedStyleItems: {},
+  applyStyle: applyIframeStyle,
   setStyle: function() {
-    this.getStyleItems().forEach((it) => {
-      this.element.style.setProperty(it[0], it[1], "important");
-    });
-    this.element = updateFrameSize(this.element);
-  },
-  getStyleItems() {
-    return IFRAME_STYLE_ITEMS.concat([
+    IFRAME_STYLE_ITEMS.concat([
       ["position", "absolute"],
-    ]);
+    ]).forEach(([name, value]) => {
+      this.applyStyle(name, value, true);
+    })
+    this.element = updateFrameSize(this.element);
   },
   remove: removeIframe,
   frameLoaded: function(){
@@ -149,16 +176,17 @@ const controlIframe = {
     return url + "?t=" + btoa(window.location.origin)
   },
   append: appendIframe,
+  show: showIframe,
+  hide: hideIframe,
+  appliedStyleItems: {},
+  applyStyle: applyIframeStyle,
   setStyle: function() {
-    this.getStyleItems().forEach((it) => {
-      this.element.style.setProperty(it[0], it[1], "important");
-    });
-  },
-  getStyleItems() {
-    return IFRAME_STYLE_ITEMS.concat([
+    IFRAME_STYLE_ITEMS.concat([
       ["height", "100%"],
       ["position", "fixed"],
-    ]);
+    ]).forEach(([name, value]) => {
+      this.applyStyle(name, value, true);
+    });
   },
   remove: removeIframe,
   frameLoaded: function(){
@@ -474,7 +502,7 @@ function submitForm(msg){
     if (config.rememberSelection) {
       MxWcSelectionMain.save(state.currElem);
     }
-    const formSubmitted = state.callbacks['submitted'];
+    const formSubmitted = state.contentFn.submitted;
     formSubmitted({
       elem: state.currElem,
       formInputs: formInputs,
@@ -609,18 +637,47 @@ function pressEnter(msg){
   }
   if(state.clippingState === 'selected'){
     performIfClippingHandlerReady(({handlerInfo, config}) => {
-      setStateConfirmed(state.currElem);
 
-      const formInputs  = getFormInputs(state.currElem, msg);
-      const formOptions = getFormOptions(formInputs);
+      const showFormParams = {handlerInfo, config, msg};
 
+      if (state.contentFn.hasYieldPoint('confirmed')) {
+        state.contentFn.setCurrYieldPoint('confirmed');
+        setStateConfirmed(state.currElem);
+        // hide UI
+        selectionIframe.hide();
+        controlIframe.hide();
 
-      const params = Object.assign({
-        handlerInfo, config,
-      }, formInputs, formOptions);
-      sendFrameMsgToControl('showForm', params);
+        // keep current state and yield
+        state.yieldPointStorage = showFormParams;
+      } else {
+        setStateConfirmed(state.currElem);
+        showForm(showFormParams);
+      }
     });
   }
+}
+
+
+function recoverFromConfirmedYieldPoint() {
+  selectionIframe.show();
+  controlIframe.show();
+}
+
+
+state.yieldPointStorage = {};
+function showFormFromYieldPoint() {
+  showForm(state.yieldPointStorage);
+  state.yieldPointStorage = {};
+}
+
+
+function showForm({handlerInfo, config, msg}) {
+  const formInputs  = getFormInputs(state.currElem, msg);
+  const formOptions = getFormOptions(formInputs);
+  const params = Object.assign({
+    handlerInfo, config,
+  }, formInputs, formOptions);
+  sendFrameMsgToControl('showForm', params);
 }
 
 
@@ -924,9 +981,9 @@ function getTitleCandidates(currTitle) {
   return T.unique(candidates);
 }
 
-state.callbacks = {};
-function setCallback(name, callback) {
-  state.callbacks[name] = callback;
+state.contentFn = {};
+function setContentFn(name, fn) {
+  state.contentFn[name] = fn;
 }
 
 function getCurrState() {
@@ -940,7 +997,7 @@ function init(config) {
 const UI = {
   init: init,
   remove: removeUI,
-  setCallback: setCallback,
+  setContentFn: setContentFn,
   entryClick: entryClick,
   windowSizeChanged: windowSizeChanged,
   getCurrState: getCurrState,
@@ -959,6 +1016,8 @@ const UI = {
   setFormOptions: setFormOptions,
   setSavingHint: setSavingHint,
   friendlyExit: friendlyExit,
+  recoverFromConfirmedYieldPoint,
+  showFormFromYieldPoint,
 }
 
 export default UI;
