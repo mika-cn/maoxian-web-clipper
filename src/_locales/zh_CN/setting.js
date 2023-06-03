@@ -10,6 +10,7 @@
     // title
     "title.intro": "简介",
     "title.feature": "功能",
+    "title.testing": "测试",
     "title.status": "当前状态",
     "title.detail": "详情",
 
@@ -194,6 +195,7 @@
     "capture.target.object": "Objects",
     "capture.target.applet": "Applets",
 
+    "notice.success.download-request-test": "成功! 下载请求被正常处理，可使用浏览器来下载裁剪下来的文件。",
 
     "notice.info.storage.browser": "使用浏览器来下载裁剪结果",
     "notice.info.storage.native-app": "通过本地安装的程序，来下载裁剪结果（如果你安装了某个管理下载的扩展，可通过该方式，绕过扩展互相冲突的问题）<br /><a href='go.page:native-app' target='_blank'>选择本选项需先安装「本地程序」</a>",
@@ -210,6 +212,7 @@
     "notice.warning.offline-page.native-app": "$BLANK",
     "notice.warning.refresh-history.native-app": "$BLANK",
 
+    "notice.danger.download-request-intercepted": "下载请求被拦截或修改，当前无法使用浏览器的下载功能来保存裁剪下来的文件。通常情况是你的浏览器开发了特殊的下载管理功能（这个管理功能拦截了所有下载请求），或者是你安装了某个下载管理扩展（这个扩展拦截所有的下载请求）。错误信息： $MESSAGE",
     "notice.danger.native-app-not-ready": "「本地程序」当前不可用 <br />错误信息： $MESSAGE",
 
     "notice.danger.wiz-note-plus-ready": "成功连接为知笔记。",
@@ -223,8 +226,10 @@
     "button.reset-to-default": "恢复到默认设置",
     "button.backup-to-file": "备份设置到文件",
     "button.restore-from-file": "从文件中恢复设置",
+    "button.test": "测试",
 
     // notice
+    "notice.browser-download-testing": "点击下方按钮，发送一个下载请求给浏览器，测试一下这个下载请求是否被拦截修改。",
     "notice.main-file-intro": "主文件是你裁剪下来的 HTML 文件（即网页文件）或者是 Markdown 文件（取决于保存格式是什么）",
     "notice.asset-file-intro": "资源文件指的是跟随网页的图片，样式，字体和网站图标（注：不包含脚本文件，居于安全考虑，MaoXian 不保存脚本文件）。",
     "notice.frame-file-intro": "顾名思意，这些网页内嵌在主网页中。在裁剪的过程中，如果保存格式为 HTML，则会把这些内嵌的网页另存为一个文件，并在主文件中引入。如果保存格式为 Markdown，则会把这些内嵌的网页的内容嵌入到主文件中。",

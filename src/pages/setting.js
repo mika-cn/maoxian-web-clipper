@@ -797,6 +797,27 @@ function refreshHistoryNow(e) {
   Notify.success(I18N.t('label.refresh-now-msg-sent'));
 }
 
+
+function testDownloadRequest(e) {
+
+  const section = T.findElem('setting-handler-browser');
+  ExtMsg.sendToBackground({
+    type: 'test.downloadRequest'
+  }).then(
+    () => {
+      // success
+      const msg = I18N.t('notice.success.download-request-test');
+      renderNoticeBox(section, 'success', msg);
+    },
+    (errMsg) => {
+      // render errors
+      let msg = I18N.t('notice.danger.download-request-intercepted');
+      msg = msg.replace('$MESSAGE', errMsg);
+      renderNoticeBox(section, 'danger', msg);
+    }
+  );
+}
+
 async function resetToDefault(e) {
   const confirmed = window.confirm(I18N.t('label.reset-to-default-warning'));
   if (confirmed) {
@@ -1217,6 +1238,7 @@ function renderSectionHandlerBrowser(id, container, template) {
   MxWcConfig.load().then((config) => {
     initSettingHandlerBrowser(config);
   });
+  bindClickListener('test-download-request', testDownloadRequest);
 }
 
 function renderSectionHandlerNativeApp(id, container, template) {

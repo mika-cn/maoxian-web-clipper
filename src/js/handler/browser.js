@@ -8,6 +8,25 @@ import SavingTool  from '../saving/new-saving-tool.js';
 import Download    from '../saving/browser-download.js';
 
 
+function testDownloadRequest(config, resolve, reject) {
+  const filename = [config.rootFolder, 'mx-wc-test.txt'].join('/');
+  downloadText({
+    filename: filename,
+    text: "useless file, delete me :)",
+    mimeType: 'text/plain',
+  }).then(
+    ({id, filename: filePath}) => {
+      if (T.sanitizePath(filePath).endsWith(filename)) {
+        resolve();
+      } else {
+        reject("Download path is not ends with " + filename)
+      }
+      ExtApi.eraseDownloadItem(id)
+    },
+    reject
+  );;
+}
+
 
 function initDownloadFolder(config){
   const filename = [config.rootFolder, 'mx-wc-touch.txt'].join('/');
@@ -186,6 +205,7 @@ const ClippingHandler_Browser = Object.assign({name: 'Browser'}, {
   retryTask,
   handleClippingResult,
   initDownloadFolder,
+  testDownloadRequest,
 });
 
 export default ClippingHandler_Browser;

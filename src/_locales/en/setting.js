@@ -10,6 +10,7 @@
     // title
     "title.intro": "Intro",
     "title.feature": "Features",
+    "title.testing": "Testing",
     "title.status": "Status",
     "title.detail": "Detail",
 
@@ -195,6 +196,7 @@
     "capture.target.object": "Objects",
     "capture.target.applet": "Applets",
 
+    "notice.success.download-request-test": "Success! we can use the browser to download clipped files",
 
     "notice.info.storage.browser": "Use browser to download clipping result.<br />",
     "notice.info.storage.native-app": "Use a native application to save clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to <a href='go.page:native-app' target='_blank'>install a native application</a>.",
@@ -211,6 +213,7 @@
     "notice.warning.offline-page.native-app": "$BLANK",
     "notice.warning.refresh-history.native-app": "$BLANK",
 
+    "notice.danger.download-request-intercepted": "The download request was intercepted, We can't use the browser to download clipped files. This happens when the browser you are using have developed some download manager function (which intercept all download requests) or you have installed a download manager extension (which intercept all download requests). ErrMsg: $MESSAGE",
     "notice.danger.native-app-not-ready": "Native App is not ready yet.<br />ErrorMessage: $MESSAGE",
 
     "notice.danger.wiz-note-plus-ready": "Connected to WizNotePlus successfully.",
@@ -224,8 +227,10 @@
     "button.reset-to-default": "Reset to default settings",
     "button.backup-to-file": "Backup to file",
     "button.restore-from-file": "Restore from file",
+    "button.test": "Test",
 
     // notices
+    "notice.browser-download-testing": "Click belowing button to send a download request to the browser to test whether download requests will be intercepted or not",
     "notice.main-file-intro": "Main file is the HTML file or the Markdown file (depends on which format that you configure to save) that you clip",
     "notice.asset-file-intro": "Asset files are image files, style files, web font files and website icon files (notice that this doesn't include script files, MaoXian won't save script files due to security reason)",
     "notice.frame-file-intro": "Frame file is another webpage that is embedded in a webpage. In the process of clipping, MaoXian will save these files if your saving format is HTML. on the other hand, MaoXian will embed it's content into main file if saving format is Markdown",

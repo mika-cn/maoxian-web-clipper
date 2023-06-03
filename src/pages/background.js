@@ -55,6 +55,7 @@ function messageHandler(message, sender){
         handler.getInfo(resolve);
         break;
 
+      case 'test.downloadRequest': testDownloadRequest(resolve, reject); break;
       case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
@@ -240,6 +241,11 @@ function generateClippingJs(callback) {
   });
 }
 
+function testDownloadRequest(resolve, reject) {
+  MxWcConfig.load().then((config) => {
+    Handler_Browser.testDownloadRequest(config, resolve, reject);
+  });
+}
 
 function initDownloadFolder(){
   MxWcStorage.get('downloadFolder').then((root) => {
