@@ -113,7 +113,7 @@ async function handleStyleSheet(sheet, params) {
   } catch(e) {
 
     sheetInfo.accessDenied = true;
-    console.log("AccessDenied: ", e.message, sheetInfo.url);
+    console.debug("AccessDenied: ", e.message, sheetInfo.url);
 
     if (sheetInfo.url) {
 
@@ -129,6 +129,17 @@ async function handleStyleSheet(sheet, params) {
         snapshot.rules = [];
       }
 
+    } else if (sheet.ownerNode && sheet.ownerNode.nodeName.toUpperCase() === 'STYLE'){
+      // Some <style> nodes are inserted by browser extensions (e.g: yawas)
+      // will cause SecurityError as well.
+      const text = sheet.ownerNode.innerText;
+      try {
+        snapshot.rules = await handleRulesByParsingCssText(text,
+          {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win, platform});
+      } catch(e) {
+        console.error("capture <style> (insert by browser extension): ", e);
+        snapshot.rules = [];
+      }
     } else {
       // Shouldn't reach here!
       snapshot.rules = [];
@@ -146,7 +157,7 @@ async function handleRulesByParsingCssText(text, params) {
   const base = doc.createElement('base');
   const style = doc.createElement('style');
 
-  base.href = sheetInfo.url;
+  base.href = (sheetInfo.url || win.document.baseURI);
   style.textContent = text;
 
   doc.head.appendChild(base);
