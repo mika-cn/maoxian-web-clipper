@@ -28,10 +28,14 @@ import CssTextParser from './css-text-parser.js';
  *   - @param {Object} platform
  *   - @param {Boolean} [alternative]  - if the ownerNode is LINK
  *
- * @return {Snapshot} it
+ * @return {Snapshot|null} it
  */
 async function handleStyleSheet(sheet, params) {
 
+  if (!sheet) {
+    console.debug("handleStyleSheet sheet is null");
+    return null;
+  }
 
   const {sheetInfoAncestors = [], requestParams, cssBox, win, platform, alternative} = params;
 
@@ -41,6 +45,7 @@ async function handleStyleSheet(sheet, params) {
   }
 
   if (sheet.type !== 'text/css') {
+    console.debug("handleStylesheet type is not 'text/css'");
     return null;
   }
 
@@ -355,7 +360,12 @@ function mediaList2Array(mediaList) {
  * @param {Object}  params.cssParams.usedKeyFrames
  */
 async function sheet2String(sheet, params) {
-  return await rules2String(sheet.rules, params);
+  if (sheet) {
+    return await rules2String(sheet.rules, params);
+  } else {
+    console.debug("sheet2String sheet is null");
+    return "";
+  }
 }
 
 async function rules2String(rules = [], params) {
