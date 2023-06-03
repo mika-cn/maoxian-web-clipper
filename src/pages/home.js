@@ -31,6 +31,7 @@ function renderRemoteLinks() {
   const names = [
     'home',
     'faq',
+    'assistant',
     'native-app',
     'offline-page',
     'project.index',
