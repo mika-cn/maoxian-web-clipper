@@ -20,7 +20,9 @@
     "unlimitedStorage",
     "tabs",
     "downloads",
-    "downloads.open",
+    "downloads.open"
+  ],
+  "optional_permissions": [
     "nativeMessaging"
   ],
   "content_scripts": [

@@ -15,8 +15,17 @@ import {
 } from '../saving/native-app-message.js';
 
 
-const typesToCache = ['get.version'];
+// After we change NativeMessage as an optional permission,
+// we shouldn't cache the 'get.version' message,
+// so we always get the latest state of NativeApp.
+//
+// const typesToCache = ['get.version'];
+const typesToCache = [];
 const Client = new NativeAppClient(browser.runtime, typesToCache);
+
+function disconnect(callback) {
+  Client.disconnect(callback);
+}
 
 function getVersion(callback) {
   getVersionAsync().then(callback,
@@ -41,13 +50,24 @@ async function getVersionAsync() {
 
 
 function initDownloadFolder(config){
+  getDownloadFolder((r) => {
+    if (r.ok) {
+      updateDownloadFolder(r.downloadFolder);
+    } else {
+      // FIXME
+    }
+  });
+}
+
+
+function getDownloadFolder(callback) {
   const msg = {type: 'get.downloadFolder'};
   (new NativeMessage(Client, msg)).send().then(
     (resp) => {
-      updateDownloadFolder(T.sanitizePath(resp.downloadFolder));
+      callback({ok: true, downloadFolder: T.sanitizePath(resp.downloadFolder)});
     },
     (error) => {
-      //FIXME
+      callback({ok: false, message: error.message});
     }
   );
 }
@@ -232,8 +252,10 @@ const ClippingHandler_NativeApp = Object.assign({name: 'NativeApp'}, {
   saveTextFile,
   retryTask,
   handleClippingResult,
+  getDownloadFolder,
   initDownloadFolder,
 
+  disconnect,
   getInfo,
   getVersion,
   deleteClipping,

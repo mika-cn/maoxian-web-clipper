@@ -100,6 +100,17 @@ class NativeAppClient {
       this.port.onDisconnect.addListener(this.disconnectHandler.bind(this));
     }
   }
+
+  disconnect(callback) {
+    if (this.port) {
+      // It will cause onDisconnect to be fired at the other end,
+      // that is close the native application
+      this.port.disconnect();
+      this.reset();
+    }
+    callback();
+  }
+
 }
 
 

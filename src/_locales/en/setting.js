@@ -6,6 +6,11 @@
     // labels
     "label.version": "Current Version: ",
     "label.ruby-version": "Ruby Version: ",
+    "label.download-dir": "Download Directory: ",
+
+    // hints
+    "hint.native-app-reload": "restart the NativeApp, so that it reloads the configuration",
+
 
     // title
     "title.intro": "Intro",
@@ -13,6 +18,7 @@
     "title.testing": "Testing",
     "title.status": "Status",
     "title.detail": "Detail",
+    "title.permissions": "Permissions",
 
     "title.general": "General",
     "title.storage": "Storage",
@@ -197,6 +203,7 @@
     "capture.target.applet": "Applets",
 
     "notice.success.download-request-test": "Success! we can use the browser to download clipped files",
+    "notice.success.permissions-granted": "Permissions granted",
 
     "notice.info.storage.browser": "Use browser to download clipping result.<br />",
     "notice.info.storage.native-app": "Use a native application to save clipping result ( If you already install some download manage extension, your can choose this option to avoid conflic between extension), You need to <a href='go.page:native-app' target='_blank'>install a native application</a>.",
@@ -214,6 +221,7 @@
     "notice.warning.refresh-history.native-app": "$BLANK",
 
     "notice.danger.download-request-intercepted": "The download request was intercepted, We can't use the browser to download clipped files. This happens when the browser you are using have developed some download manager function (which intercept all download requests) or you have installed a download manager extension (which intercept all download requests). ErrMsg: $MESSAGE",
+    "notice.danger.native-app-permissions-not-granted": "Native App require a permission called \"<strong>Exchange messages with programs other than the browser</strong>\" to work correctly, you must grant this permission first",
     "notice.danger.native-app-not-ready": "Native App is not ready yet.<br />ErrorMessage: $MESSAGE",
 
     "notice.danger.wiz-note-plus-ready": "Connected to WizNotePlus successfully.",
@@ -228,6 +236,10 @@
     "button.backup-to-file": "Backup to file",
     "button.restore-from-file": "Restore from file",
     "button.test": "Test",
+    "button.request-native-app-permissions": "Grant permissions",
+    "button.remove-native-app-permissions": "Remove permissions",
+    "button.native-app-reload": "Reload",
+
 
     // notices
     "notice.browser-download-testing": "Click belowing button to send a download request to the browser to test whether download requests will be intercepted or not",

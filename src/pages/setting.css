@@ -142,14 +142,7 @@ section {
   display: block;
 }
 
-.hidden {
-  display: none;
-}
-
 #setting-handler-native-app .version {
-  display: none
-}
-#setting-handler-native-app .version.active {
   display: block;
 }
 
@@ -333,7 +326,6 @@ button {
   padding: 4px 8px;
 }
 
-
 /********** options(radio input) ***********/
 .options {
   margin-bottom: 20px;
@@ -380,3 +372,6 @@ button {
 }
 .logs > .log.success { color: green; }
 .logs > .log.failure { color: red; }
+
+/********** common ***********/
+.hidden {display: none !important}
