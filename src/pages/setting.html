@@ -1038,6 +1038,15 @@ const hello = () =&gt; {
             <li i18n="handler.browser.feature.b"></li>
           </ul>
         </div>
+        <div class="testing">
+          <h3 i18n="title.testing"></h3>
+          <div class="notice-info"><p i18n="notice.browser-download-testing"></p></div>
+          <div class="info-box"></div>
+          <div class="success-box"></div>
+          <div class="danger-box"></div>
+          <button id="test-download-request" i18n="button.test"></button>
+        </div>
+        <hr>
         <div class="switch">
           <input type="checkbox" id="handler-browser-enabled" disabled/>
           <label for="handler-browser-enabled" i18n="label.enable-handler"></label>
@@ -1052,17 +1061,30 @@ const hello = () =&gt; {
           <h3 i18n="title.intro"></h3>
           <p i18n="handler.native-app.intro"></p>
         </div>
+        <div class="permissions">
+          <h3 i18n="title.permissions"></h3>
+          <div class="success-box"></div>
+          <div class="danger-box"></div>
+          <button class="hide" id="request-native-app-permissions" i18n="button.request-native-app-permissions"></button>
+          <button class="hide" id="remove-native-app-permissions" i18n="button.remove-native-app-permissions"></button>
+        </div>
         <div class="status">
           <h3 i18n="title.status"></h3>
-          <div class="version app-version">
+          <div class="item hidden app-version">
             <span i18n="label.version"></span>
-            <span class="version-value"></span>
+            <span class="value"></span>
           </div>
-          <div class="version ruby-version">
+          <div class="item hidden ruby-version">
             <span i18n="label.ruby-version"></span>
-            <span class="version-value"></span>
+            <span class="value"></span>
+          </div>
+          <div class="item hidden download-dir">
+            <span i18n="label.download-dir"></span>
+            <span class="value"></span>
           </div>
           <div class="danger-box"></div>
+          <br>
+          <button class="hidden" id="native-app-reload" i18n="button.native-app-reload" i18n-attr="title:hint.native-app-reload"></button>
         </div>
         <div class="features">
           <h3 i18n="title.feature"></h3>

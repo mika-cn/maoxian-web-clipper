@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.4.23",
+  "version": "0.4.24",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*",
@@ -20,7 +20,9 @@
     "unlimitedStorage",
     "tabs",
     "downloads",
-    "downloads.open",
+    "downloads.open"
+  ],
+  "optional_permissions": [
     "nativeMessaging"
   ],
   "content_scripts": [

@@ -744,8 +744,8 @@ function getNoticeMsg(type, names) {
   return I18N.t('notice', type, ...names);
 }
 
-function renderNoticeBox(section, type, msg) {
-  const box = T.queryElem(`.${type}-box`, section);
+function renderNoticeBox(wrapper, type, msg) {
+  const box = T.queryElem(`.${type}-box`, wrapper);
   if(msg === "$BLANK") {
     T.setHtml(box, '');
   } else {
@@ -795,6 +795,27 @@ function refreshHistoryNow(e) {
     }
   });
   Notify.success(I18N.t('label.refresh-now-msg-sent'));
+}
+
+
+function testDownloadRequest(e) {
+
+  const section = T.findElem('setting-handler-browser');
+  ExtMsg.sendToBackground({
+    type: 'test.downloadRequest'
+  }).then(
+    () => {
+      // success
+      const msg = I18N.t('notice.success.download-request-test');
+      renderNoticeBox(section, 'success', msg);
+    },
+    (errMsg) => {
+      // render errors
+      let msg = I18N.t('notice.danger.download-request-intercepted');
+      msg = msg.replace('$MESSAGE', errMsg);
+      renderNoticeBox(section, 'danger', msg);
+    }
+  );
 }
 
 async function resetToDefault(e) {
@@ -1217,28 +1238,109 @@ function renderSectionHandlerBrowser(id, container, template) {
   MxWcConfig.load().then((config) => {
     initSettingHandlerBrowser(config);
   });
+  bindClickListener('test-download-request', testDownloadRequest);
 }
 
-function renderSectionHandlerNativeApp(id, container, template) {
+async function renderSectionHandlerNativeApp(id, container, template) {
   const html = template;
   T.setHtml(container, html);
   MxWcConfig.load().then((config) => {
     initSettingHandlerNativeApp(config);
   });
-  ExtMsg.sendToBackground({
-    type: 'handler.get-info',
-    body: {name: 'NativeApp'}
-  }).then((info) => {
-    const section = T.findElem(id);
+
+  const granted = await renderNativeAppPermissions();
+  if (granted) {
+    renderNativeAppStatus();
+  }
+}
+
+const NATIVE_APP_PERMISSIONS = {permissions: ["nativeMessaging"]};
+async function renderNativeAppPermissions() {
+  const granted = await browser.permissions.contains(NATIVE_APP_PERMISSIONS);
+
+  const wrapper = T.queryElem('#setting-handler-native-app .permissions');
+  const requestBtn = T.findElem('request-native-app-permissions');
+  const removeBtn = T.findElem('remove-native-app-permissions');
+
+  if (granted) {
+    const msg = I18N.t('notice.success.permissions-granted');
+    renderNoticeBox(wrapper, 'success', msg);
+    renderNoticeBox(wrapper, 'danger', '$BLANK');
+    hideElement(requestBtn);
+    showElement(removeBtn);
+    T.bindOnce(removeBtn, 'click', removeNativeAppPermissionsAndRerender);
+  } else {
+    const msg = I18N.t('notice.danger.native-app-permissions-not-granted');
+    renderNoticeBox(wrapper, 'success', '$BLANK');
+    renderNoticeBox(wrapper, 'danger', msg);
+    showElement(requestBtn);
+    hideElement(removeBtn);
+    T.bindOnce(requestBtn, 'click', requestNativeAppPermissionsAndRerender);
+  }
+
+  return granted;
+}
+
+
+async function requestNativeAppPermissionsAndRerender() {
+  const granted = await browser.permissions.request(NATIVE_APP_PERMISSIONS);
+  if (granted) {
+    // rerender
+    renderNativeAppPermissions();
+    renderNativeAppStatus();
+  }
+}
+
+
+async function removeNativeAppPermissionsAndRerender() {
+  const removed = await browser.permissions.remove(NATIVE_APP_PERMISSIONS);
+  if (removed) {
+    // disconnect Native App
+    try {
+      const message = {type: 'handler.native-app.disconnect'};
+      await ExtMsg.sendToBackground(message);
+    } catch(e){}
+    // rerender
+    renderNativeAppPermissions();
+    hideNativeAppStatus();
+  }
+}
+
+
+async function reloadNativeApp() {
+  const message = {type: 'handler.native-app.disconnect'};
+  await ExtMsg.sendToBackground(message);
+  renderNativeAppStatus();
+}
+
+function hideNativeAppStatus() {
+  const wrapper = T.queryElem('#setting-handler-native-app .status');
+  renderNoticeBox(wrapper, 'danger', '$BLANK');// hide error msg
+  hideElement('#setting-handler-native-app .item');
+  hideElement('#native-app-reload');
+  return wrapper;
+}
+
+
+async function renderNativeAppStatus() {
+  const wrapper = hideNativeAppStatus();
+
+  try {
+    const info = await ExtMsg.sendToBackground({
+      type: 'handler.get-info',
+      body: {name: 'NativeApp'}
+    })
+
+
     if(info.ready) {
-      showVersion(
-        '#setting-handler-native-app .version.app-version',
+      showNativeAppItem(
+        '#setting-handler-native-app .item.app-version',
         info.version
       );
 
       if (info.rubyVersion) {
-        showVersion(
-          '#setting-handler-native-app .version.ruby-version',
+        showNativeAppItem(
+          '#setting-handler-native-app .item.ruby-version',
           info.rubyVersion
         );
       }
@@ -1246,19 +1348,61 @@ function renderSectionHandlerNativeApp(id, container, template) {
       // render errors
       let msg = I18N.t('notice.danger.native-app-not-ready');
       msg = msg.replace('$MESSAGE', info.message);
-      renderNoticeBox(section, 'danger', msg);
+      renderNoticeBox(wrapper, 'danger', msg);
     }
-  });
+
+
+    const result = await ExtMsg.sendToBackground({
+      type: 'handler.native-app.getDownloadFolder'
+    });
+
+
+    if (result.ok) {
+      showNativeAppItem(
+        '#setting-handler-native-app .item.download-dir',
+        result.downloadFolder
+      );
+    } else {
+      console.debug("failed to getDownloadFolder: ", result.message);
+    }
+
+
+    const reloadBtn = T.findElem('native-app-reload');
+    showElement(reloadBtn);
+    T.bindOnce(reloadBtn, 'click', reloadNativeApp);
+  } catch (e) {
+    console.debug(e)
+  }
 }
 
-function showVersion(wrapSelector, value) {
-  const wrapper = T.queryElem(wrapSelector);
+function showNativeAppItem(wrapperSelector, value) {
+  const wrapper = T.queryElem(wrapperSelector);
   if (wrapper) {
-    const elem = T.queryElem('.version-value', wrapper);
+    const elem = T.queryElem('.value', wrapper);
     if (elem) {
-      elem.innerText = value;
-      wrapper.classList.add('active');
+      elem.innerHTML = `<code>${value}</code>`;
+      showElement(wrapper);
     }
+  }
+}
+
+
+// @param {String|Element} selector or element
+function showElement(it) {
+  accessElement(it, (elem) => elem.classList.remove('hidden'));
+}
+
+
+// @param {String|Element} selector or element
+function hideElement(it) {
+  accessElement(it, (elem) => elem.classList.add('hidden'));
+}
+
+function accessElement(it, action) {
+  if (typeof it === 'string') {
+    [].forEach.call(T.queryElems(it), action);
+  } else {
+    action(it);
   }
 }
 

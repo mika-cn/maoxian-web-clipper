@@ -23,6 +23,7 @@
     // remote pages
     "page.remote.home": "Home",
     "page.remote.faq": "FAQ",
+    "page.remote.assistant": "MaoXian Asistant",
     "page.remote.native-app": "Native Application",
     "page.remote.offline-page": "Offline Index Page",
     "page.remote.project.index": "project source code",
@@ -30,6 +31,7 @@
 
     "desc.remote.home": "Home page of website",
     "desc.remote.faq": "Frequently Asked Question",
+    "desc.remote.assistant": "The assistant function can help you modify the state of the web page before the clipping, So you can get a better clipped result",
     "desc.remote.native-app": "A native application that can enhance the abilities of MaoXian",
     "desc.remote.offline-page": "A static HTML page which can be used to browse your clippings without MaoXian or network",
     "desc.remote.project.index": "This is the project page of Maoxian. yes, it's open source.",
