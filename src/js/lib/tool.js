@@ -1530,6 +1530,43 @@ T.parseContentType = function(value) {
 }
 
 
+/*
+ *
+ * Content-Disposition: inline
+ * Content-Disposition: attachment
+ * Content-Disposition: attachment; filename="filename.jpg"
+ *
+ */
+T.parseContentDisposition = function(headerValue) {
+  const [value, ...rests] = headerValue.split(';').map(it => it.trim());
+  const parameters = {};
+  rests.forEach((it) => {
+    const [k, v] = it.split('=');
+    if (k && v) {
+      const name = k.toLowerCase();
+      let value = v.replace(/"/g, '');
+      parameters[name] = value;
+    }
+  });
+  return {value, parameters}
+}
+
+T.contentDisposition2MimeType = function(headerValue) {
+  const {value, parameters} = T.parseContentDisposition(headerValue);
+  if ("attachment" === value && parameters.filename) {
+    const [_, extension] = T.splitFilename(parameters.filename);
+    if (extension) {
+      const mimeType = T.extension2MimeType(extension);
+      return mimeType === '' ? null : mimeType;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+}
+
+
 T.resourceType2MimeType = function(type) {
   switch(type) {
     case 'style': return 'text/css';

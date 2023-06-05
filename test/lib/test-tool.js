@@ -187,6 +187,36 @@ describe('Tool', () => {
     H.assertEqual(r.parameters.foo, 'Bar');
   });
 
+
+  it('parseContentDisposition', () => {
+    let r;
+    r = T.parseContentDisposition('inline');
+    H.assertEqual(r.value, 'inline');
+    r = T.parseContentDisposition('attachment; filename="filename.jpg"');
+    H.assertEqual(r.value, 'attachment');
+    H.assertEqual(r.parameters.filename, 'filename.jpg');
+    r = T.parseContentDisposition('attachment; filename=filename with space.jpg');
+    H.assertEqual(r.parameters.filename, 'filename with space.jpg');
+    r = T.parseContentDisposition('form-data; name="fieldName"; filename="filename.jpg"');
+    H.assertEqual(r.value, 'form-data');
+    H.assertEqual(r.parameters.name, 'fieldName');
+    H.assertEqual(r.parameters.filename, 'filename.jpg');
+  });
+
+
+  it('contentDisposition2MimeType', () => {
+    let r;
+    r = T.contentDisposition2MimeType('inline');
+    H.assertEqual(r, null);
+    r = T.contentDisposition2MimeType('attachment');
+    H.assertEqual(r, null);
+    r = T.contentDisposition2MimeType('attachment; filename="filename.png"');
+    H.assertEqual(r, 'image/png');
+    r = T.contentDisposition2MimeType('attachment; filename="filename"');
+    H.assertEqual(r, null);
+  });
+
+
   it('getUrlFilename', () => {
     let url = 'https://a.org/example.jpeg';
     H.assertEqual(T.getUrlFilename(url), 'example.jpeg')
