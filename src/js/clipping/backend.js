@@ -96,22 +96,28 @@ function removeNameConflictResolver(clipId) {
 
 
 async function getMimeType({url, headers, timeout, tries}) {
+
+  // try get it from cache
   let mimeType = Global.WebRequest.getMimeType(url);
   if (mimeType) {
     return mimeType;
   } else {
+    const EMPTY = '__EMPTY__';
     try {
       //get mimeType by sending a HEAD request
       const respHeaders = await Global.Fetcher.head(url, {headers, timeout, tries});
       const contentType = respHeaders.get('Content-Type');
+      const contentDisposition = respHeaders.get('Content-Disposition');
       if (contentType) {
         return T.parseContentType(contentType).mimeType;
+      } else if (contentDisposition) {
+        return T.contentDisposition2MimeType(contentDisposition) || EMPTY;
       } else {
-        return '__EMPTY__';
+        return EMPTY;
       }
     } catch(e) {
       console.error(e);
-      return '__EMPTY__';
+      return EMPTY;
     }
   }
 }

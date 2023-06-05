@@ -185,14 +185,17 @@ const StoreMimeType = (function() {
    * @return {String} mimeType or '__EMPTY__'
    */
   function findMimeTypeFromHeaders(headers){
-    const header = T.getHeader(headers, 'content-type');
+    const headerA = T.getHeader(headers, 'content-type');
+    const headerB = T.getHeader(headers, 'content-disposition');
     // [firefox]
     //  will trigger two times sameUrl(notAll);
     //  one with Content-Type head, anotherOne is not
     // [Strange] attension or bug...
     // fixit.
-    if (header) {
-      return T.parseContentType(header.value).mimeType;
+    if (headerA) {
+      return T.parseContentType(headerA.value).mimeType;
+    } else if (headerB) {
+      return T.contentDisposition2MimeType(headerB.value) || '__EMPTY__';
     } else {
       return '__EMPTY__';
     }
@@ -333,6 +336,7 @@ const StoreResource = (function() {
     // if an error has occurred in initializing and operating the filter.
     filter.onerror = (event) => {
       Log.debug("error...");
+      Log.error(details.url);
       Log.error(filter.error);
       filter.disconnect();
     };
