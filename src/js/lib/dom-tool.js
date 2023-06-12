@@ -127,7 +127,7 @@ function calcXpath(contextNode, targetNode) {
 function getWebPageTitleCandidates(win) {
   const docTitle = win.document.title;
   const body = win.document
-  const getTitleValue = (it) => it.textContent.trim();
+  const getTitleValue = (it) => it.innerText.trim();
   const getTitles = (selector, limit = -1) => {
     const elements = win.document.body.querySelectorAll(selector)
     if (limit < 0) {
@@ -137,8 +137,9 @@ function getWebPageTitleCandidates(win) {
     }
   }
   const h1Titles = getTitles('h1');
-  const otherTitles = getTitles('h2,h3', 5);
-  return [docTitle, ...h1Titles, ...otherTitles];
+  const h2Titles = getTitles('h2', 5);
+  const h3Titles = getTitles('h3', 5);
+  return [docTitle, ...h1Titles, ...h2Titles, ...h3Titles];
 }
 
 function getWebPageTitle(win, contextElem) {
