@@ -1,14 +1,13 @@
 
 import T           from '../js/lib/tool.js';
 import ExtMsg      from '../js/lib/ext-msg.js';
-import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig  from '../js/lib/config.js';
-import MxWcLink    from '../js/lib/link.js';
+import Inspector   from '../js/lib/inspector.js';
 
 function initListener() {
   const btn = T.findElem('clear-asset-cache');
   T.bindOnce(btn, 'click', clearAssetCache);
 }
+
 
 function clearAssetCache() {
   ExtMsg.sendToBackground({
@@ -16,6 +15,12 @@ function clearAssetCache() {
   }).then(() => {
     renderAssetCache();
   });
+}
+
+
+async function renderEnvironment() {
+  const env = await Inspector.environment();
+  T.setHtml('.environment .content code', T.toJson(env));
 }
 
 function renderAssetCache() {
@@ -40,38 +45,31 @@ function renderAssetCache() {
 }
 
 async function renderStorage() {
-  const logErrMsg = function(errMsg) { console.log(errMsg) }
-  MxWcStorage.getTotalBytes().then((n) => {
-      const html = `<h4>total used: <em>${n}</em> Bytes</h4>`;
-      T.setHtml('.storage .usedBytes', html);
-    }, logErrMsg
-  );
-  MxWcStorage.getBytesInUse('clips').then((n) => {
-      const html = `<em>${n}</em> Bytes`
-      T.setHtml('.storage .clippings .usedBytes', html);
-    }, logErrMsg
-  );
-  const config = await MxWcConfig.load();
-  const data = await MxWcStorage.getAll();
+  const {
+    totalBytes,
+    clipsBytes,
+    config,
+    assistantData,
+    selectionData,
+    miscData,
+    categories,
+    clippings,
+    tags,
+    failedTasks,
+  } = await Inspector.storage();
 
-  const assistantData = T.sliceObjByFilter(data, T.prefixFilter('assistant', true));
-  const selectionData = T.sliceObjByFilter(data, T.prefixFilter('selectionStore', true));
-  const miscData = T.sliceObjByFilter(data, ...[
-    T.attributeFilter('config', false),
-    T.attributeFilter('clips', false),
-    T.attributeFilter('categories', false),
-    T.attributeFilter('tags', false),
-    T.prefixFilter('assistant', false),
-    T.prefixFilter('selectionStore', false),
-    (key) => { return true },
-  ])
+  if (!isNaN(totalBytes)) {
+    const html = `<h4>total used: <em>${totalBytes}</em> Bytes</h4>`;
+    T.setHtml('.storage .usedBytes', html);
+  }
 
-  const categories = (data.categories || []);
-  const clippings = (data.clips || []);
-  const tags = (data.tags || []);
-  const failedTasks = (data.failedTasks || []);
 
-  T.setHtml('.storage .config code', T.escapeHtml(T.toJson(MxWcConfig.unsort(config))));
+  if (!isNaN(clipsBytes)) {
+    const html = `<em>${clipsBytes}</em> Bytes`
+    T.setHtml('.storage .clippings .usedBytes', html);
+  }
+
+  T.setHtml('.storage .config code', T.escapeHtml(T.toJson(config)));
   T.setHtml('.storage .assistant code', T.toJson(assistantData));
   T.setHtml('.storage .selection code', T.toJson(selectionData));
   T.setHtml('.storage .misc code', T.toJson(miscData));
@@ -87,8 +85,8 @@ async function renderStorage() {
 
 
 function init() {
-  MxWcLink.listen();
   initListener();
+  renderEnvironment();
   renderAssetCache();
   renderStorage();
 }
