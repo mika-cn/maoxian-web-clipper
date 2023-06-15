@@ -11,13 +11,13 @@
     "page.setting": "Setting",
     "page.history": "History",
     "page.reset-history": "Reset history",
-    "page.support": "Support",
+    "page.debug": "Debugging information",
     "page.failed-tasks": "Failed tasks",
 
     "desc.setting": "Setting: save format, save path etc.",
     "desc.history": "Where to see what you have clipped.",
     "desc.reset-history": "Where you reset your clipping history when you install MaoXian in a new device.",
-    "desc.support": "This page contains technical information that might be useful when you’re trying to solve a problem or report a bug",
+    "desc.debug": "This page contains technical information that might be useful when you’re trying to solve a problem or report a bug",
     "desc.failed-tasks": "This page collect all failed tasks (files that failed to save), you can retry saving these tasks on this page.",
 
     // remote pages

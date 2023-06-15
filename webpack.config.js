@@ -61,7 +61,7 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath));
 // extension page names
 const pages = [
   'background', 'popup', 'welcome', 'history', 'home', 'last-clipping-result',
-  'plan-subscription', 'reset-history', 'setting', 'support',
+  'plan-subscription', 'reset-history', 'setting',
   'ui-control', 'ui-selection', 'failed-tasks',  'debug'];
 
 function getCopyItems() {
