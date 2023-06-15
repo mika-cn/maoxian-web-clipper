@@ -11,13 +11,13 @@
     "page.setting": "设置",
     "page.history": "历史",
     "page.reset-history": "重置历史",
-    "page.support": "支持页",
+    "page.debug": "Debug 页面",
     "page.failed-tasks": "失败的存储任务",
 
     "desc.setting": "设置：存储格式、存储路径等等",
     "desc.history": "查看、检索你已裁剪的信息",
     "desc.reset-history": "重置裁剪历史，当你在一个新设备上安装 MaoXian 时使用",
-    "desc.support": "这个页面包含了 MaoXian 的运行信息、当前配置信息，这些信息有利于找出问题或者反馈bug",
+    "desc.debug": "这个页面包含了 MaoXian 的运行信息、当前配置信息，这些信息有利于找出问题或者反馈bug",
     "desc.failed-tasks": "这个页面收集了所有保存失败的存储任务，你可以对这些存储任务进行重新保存",
 
     // remote pages

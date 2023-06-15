@@ -3,36 +3,43 @@
   max-width: 1240px;
   min-height: 800px;
   margin: 0 auto;
-  padding: 50px 20px 200px 20px;
+  padding: 40px 40px 200px 40px;
   /*
   border: 1px solid #ccc;*/
-  background-color: black;
-  color: #aaa;
+  border: solid 1px #ccc;
+  background-color: #eeeeee;
 }
 
 a { color: #3af555;  }
 
 section {
   padding: 20px;
-  border: 1px solid #869c64;
+  border: 1px solid #333;
   margin-bottom: 40px;
+}
+
+section > .content {
+  margin: 0px 25px;
 }
 
 details > summary {
   cursor: pointer;
 }
 
+
 .num {
-  color: #3af555;
+  color: blue;
 }
 
 pre {
   width: 100%;
   overflow-x: auto;
+  background-color: white;
+  padding: 5px;
 }
 
 pre > code {
-  background-color: black;
+  background-color: white;
   border: 0px;
   line-height: 18px;
 }

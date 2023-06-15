@@ -61,7 +61,7 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath));
 // extension page names
 const pages = [
   'background', 'popup', 'welcome', 'history', 'home', 'last-clipping-result',
-  'plan-subscription', 'reset-history', 'setting', 'support',
+  'plan-subscription', 'reset-history', 'setting',
   'ui-control', 'ui-selection', 'failed-tasks',  'debug'];
 
 function getCopyItems() {
@@ -103,6 +103,7 @@ function getCopyItems() {
     ['src/js/lib/storage.js'           , 'js/lib/storage.js']           ,
     ['src/js/lib/config.js'            , 'js/lib/config.js']            ,
     ['src/js/lib/link.js'              , 'js/lib/link.js']              ,
+    ['src/js/lib/inspector.js'         , 'js/lib/inspector.js']         ,
     ['src/js/lib/template.js'          , 'js/lib/template.js']          ,
     ['src/js/lib/handler.js'           , 'js/lib/handler.js']           ,
     ['src/js/lib/frame-msg.js'         , 'js/lib/frame-msg.js']         ,

@@ -291,24 +291,24 @@
 
 ---------------------------------------------------
 
-{{i18n_original_url}}: [{{i18n_access}}]({{url}})
+Original URL : [Access]({{url}})
 
-{{i18n_created_at}}: {{createdAt}}
+Created at: {{createdAt}}
 
-{{i18n_category}}: {{category}}{{^category}}{{i18n_none}}{{/category}}
+Category: {{category}}{{^category}}none{{/category}}
 
-{{i18n_tags}}: {{#trimFn}}{{#tags}}`{{.}}`, {{/tags}}{{/trimFn}}{{^tags}}{{i18n_none}}{{/tags}}
+Tags: {{#trimFn}}{{#tags}}`{{.}}`, {{/tags}}{{/trimFn}}{{^tags}}none{{/tags}}
                   </code></pre>
 
                   <label class="example-label" i18n="help.md-template.example-b"></label><br />
                   <pre class="example-code"><code>---
-title: {{title}}{{^title}}-{{/title}}
+title: {{title}}{{^title}}Untitled{{/title}}
 url: {{url}}
 clipped_at: {{createdAt}}
-category: {{category}}{{^category}}{{i18n_none}}{{/category}}
+category: {{category}}{{^category}}none{{/category}}
 tags: {{#tags}}
  - {{.}}{{/tags}}{{^tags}}
- - {{i18n_none}}{{/tags}}
+ - none{{/tags}}
 ---
 
 {{content}}</code></pre>
