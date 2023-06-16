@@ -31,6 +31,8 @@ const IFRAME_STYLE_ITEMS =  [
     ["background-color", "transparent"],
     ["color-scheme", "only light"],
     ["forced-color-adjust", "none"],
+    ["max-width", "none"],
+    ["max-height", "none"],
 ];
 
 function appendIframe(){
