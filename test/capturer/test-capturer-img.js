@@ -72,7 +72,7 @@ describe('Capture Img', () => {
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
     H.assertEqual(r.tasks.length, 3);
-    const srcsetItems = r.change.getAttr('srcset').split(',');
+    const srcsetItems = r.change.getAttr('srcset').split(', ');
     H.assertMatch(srcsetItems[0], /^assets\/[^\/]+.png 200w$/);
     H.assertMatch(srcsetItems[1], /^assets\/[^\/]+.png 400w$/);
     ExtMsg.clearMocks();

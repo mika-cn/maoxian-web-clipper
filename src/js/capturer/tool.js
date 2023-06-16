@@ -63,7 +63,7 @@ async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, cl
       }
       newArr.push(item.join(' '));
     }
-    change.setAttr('srcset', newArr.join(','));
+    change.setAttr('srcset', newArr.join(', '));
   }
   return {change, tasks};
 }

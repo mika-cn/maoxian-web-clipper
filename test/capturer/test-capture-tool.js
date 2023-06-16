@@ -22,7 +22,10 @@ describe('CaptureTool', () => {
         valueObj: {now: Date.now()},
       },
       clipId: '001',
-      config: { htmlCaptureCssImage: 'saveAll' },
+      config: {
+        htmlCaptureImage: 'saveAll',
+        htmlCaptureCssImage: 'saveAll',
+      },
       requestParams: RequestParams.createExample({refUrl: url}),
     }
   }
@@ -55,6 +58,27 @@ describe('CaptureTool', () => {
       params.config.htmlCaptureCssImage = 'remove';
       const r = await CaptureTool.captureBackgroundAttr(node, params);
       H.assertEqual(r.tasks.length, 0);
+    });
+
+  });
+
+  describe('captureImageSrcset', () => {
+
+    function getNode() {
+      return {type: 1, name: 'img',
+        attr: { src: 'https://a.org/a.jpg' }
+      };
+    }
+
+    it('should capture srcset', async () => {
+      const node = getNode();
+      node.attr.srcset = "https://a.org/a.jpg 1x, https://a.org/b.jpg 2x";
+      const params = getParams();
+      const r = await CaptureTool.captureImageSrcset(node, params);
+      const change = r.change.toChangeObjectAccessor();
+      H.assertEqual(r.tasks.length, 2);
+      // should join value with comma and space;
+      H.assertTrue(change.getAttr('srcset').indexOf(', ') > -1);
     });
 
   });
