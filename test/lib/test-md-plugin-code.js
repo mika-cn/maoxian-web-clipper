@@ -188,11 +188,14 @@ describe('MdPluginCode', () => {
       const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
-      const buttons = contextNode.querySelectorAll('button');
+      const buttons = contextNode.querySelectorAll('.button');
       H.assertEqual(buttons.length, 0);
       const code = contextNode.querySelector('code');
       H.assertNotEqual(code, null);
-      H.assertEqual(code.textContent, 'code text')
+      H.assertEqual(code.textContent, 'hello\nworld')
+
+      const wrapper = code.parentNode;
+      H.assertEqual(wrapper.children.length, 1)
     });
   }
 
@@ -202,15 +205,15 @@ describe('MdPluginCode', () => {
     //   nested pre node
     //   buttons inside pre node
     const html = `
-      <pre>
+      <div>
         <pre class="playpen">
           <div class="buttons">
             <button></button>
             <button></button>
           </div>
-          <code class="language-rust hljs">code <span>text</span></code>
+        <code class="language-rust hljs">hello\n<span>world</span></code>
         </pre>
-      </pre>
+      </div>
     `;
     testPreCodeWithButtons(html);
   }
@@ -218,15 +221,15 @@ describe('MdPluginCode', () => {
   {
     // button at the bottom
     const html = `
-      <pre>
+      <div>
         <pre class="playpen">
-          <code class="language-rust hljs">code <span>text</span></code>
+        <code class="language-rust hljs">hello\n<span>world</span></code>
           <div class="buttons">
             <button></button>
             <button></button>
           </div>
         </pre>
-      </pre>
+      </div>
     `;
     testPreCodeWithButtons(html);
   }
@@ -234,22 +237,47 @@ describe('MdPluginCode', () => {
   {
     // button at both sides.
     const html = `
-      <pre>
+      <div>
         <pre class="playpen">
           <div class="buttons">
             <button></button>
             <button></button>
           </div>
-          <code class="language-rust hljs">code <span>text</span></code>
+          <code class="language-rust hljs">hello\n<span>world</span></code>
           <div class="buttons">
             <button></button>
             <button></button>
           </div>
         </pre>
-      </pre>
+      </div>
     `;
     testPreCodeWithButtons(html);
   }
+
+
+  {
+    // juejin code
+    const html = ""
+      + '<div>'
+      +   '<pre>'
+      +    '<div class="code-block-extention-head">'
+      +      '<div class="code-block-extention-head-left button">'
+      +        '<svg></svg>'
+      +      '</div>'
+      +      '<div class="code-block-extention-head-right">'
+      +        '<span class="code-block-extention-lang">javascript</span>'
+      +        '<span class="code-block-extension-copyCodeBtn button">Copy</span>'
+      +      '</div>'
+      +    '</div>'
+      +    '<code class="hljs language-javascript">'
+      +      '<span class="code-block-extention-codeline">hello\nworld</span>'
+      +    '</code>'
+      +   '</pre>'
+      + '</div>'
+    ;
+    testPreCodeWithButtons(html);
+  }
+
 
   function testPreCodeWithBlankComponent(html) {
     it("remove blank component", () => {
@@ -380,7 +408,7 @@ describe('MdPluginCode', () => {
 
   {
     // get from jquery doc (Zeal)
-    const desc = "code tabblw with gutter and code C";
+    const desc = "code tabble with gutter and code C";
     const language = "python";
     const lineNumberSelector  = ".line";
     const html = `

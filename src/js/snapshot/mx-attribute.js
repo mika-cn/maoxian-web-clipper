@@ -33,7 +33,11 @@ class MxAttribute {
         break;
       case LAYOUT_TABLE:
         this.attr.layoutTable = true;
-        this.attrLen++
+        this.attrLen++;
+        break;
+      case KEEP:
+        this.attr.keep = true;
+        this.attrLen++;
         break;
       default: {
         if (mxAttrName.startsWith(LOCKED_STYLE_PREFIX)) {
@@ -70,6 +74,9 @@ MxAttribute.toHTMLAttrObject = (mxAttrObj) => {
   const r = {};
   if (mxAttrObj.hasOwnProperty('layoutTable')) {
     r[MxAttribute.LAYOUT_TABLE] = mxAttrObj.layoutTable;
+  }
+  if (mxAttrObj.hasOwnProperty('keep')) {
+    r[MxAttribute.KEEP] = mxAttrObj.keep;
   }
   return r;
 }
