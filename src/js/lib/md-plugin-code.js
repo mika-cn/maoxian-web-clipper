@@ -587,6 +587,8 @@ function handlePreNodes(doc, contextNode) {
 
       } else {
 
+        removeCodeBlockActions(node);
+
         const paths = groupLeafNode(node);
         const isContextNode = (node === contextNode);
         let newNode;
@@ -621,6 +623,42 @@ function handlePreNodes(doc, contextNode) {
     }
   }
   return contextNode;
+}
+
+
+/**!
+ * remove action nodes (buttons, footer etc.) that
+ * inside <pre> node and sibling with <code> node
+ *
+ * The problem:
+ *   Some developers insert these code block actions into <pre> nodes.
+ * even worse, they using `div` to act as buttons which make it so hard
+ * to detect. But we should remove these nodes so that turndown can recognize
+ * them as code blocks.
+ *
+ * WARNING:
+ *   This function is dangerous, it could lead to content lost in some rare cases.
+ * to handle it, we provide a MxAttribute called "data-mx-keep" that can be set
+ * using MaoXian Assistant.
+ *
+ *
+ * @param {Node} node <pre> node
+ */
+function removeCodeBlockActions(node) {
+  if (node.nodeName.toUpperCase() !== 'PRE') { return }
+  const codeNodes = node.querySelectorAll('code');
+  if (codeNodes.length !== 1) { return }
+
+  const count = countChildrenByNodeType(node, {abortOnTextNode: true});
+  if (count.textNode !== 0 || count.otherNode !== 0) { return }
+  if (count.elementNode > 1) {
+    const codeNode = codeNodes[0];
+    [].forEach.call(node.children, (child) => {
+      if (child !== codeNode && !child.hasAttribute('data-mx-keep')) {
+        node.removeChild(child);
+      }
+    });
+  }
 }
 
 

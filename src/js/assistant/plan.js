@@ -773,10 +773,18 @@ Action.completed = function(fn) {
 
 function createSelectorQuery(contextSelectorInput,  queryType = 'elems') {
   return {
-    eachElem(selectorInput, callback) {
-      if (!this.contextElem) {
-        this.contextElem = getContextElem(contextSelectorInput)
+    _getContextElems() {
+      if (!this.contextElems) {
+        if (queryType == 'reverseQuery') {
+          this.contextElems = getContextElems(contextSelectorInput);
+        } else {
+          this.contextElems = [getContextElem(contextSelectorInput)];
+        }
       }
+    },
+
+    eachElem(selectorInput, callback) {
+      this._getContextElems();
 
       if (!this.queryFn) {
         switch(queryType) {
@@ -793,11 +801,13 @@ function createSelectorQuery(contextSelectorInput,  queryType = 'elems') {
         }
       }
 
-      const {contextElem, queryFn} = this;
+      const {contextElems, queryFn} = this;
       if (queryFn) {
         const selectorStrs = T.toArray(selectorInput);
-        queryFn(selectorStrs, contextElem).forEach((elem) => {
-          callback(elem, contextElem);
+        contextElems.forEach((contextElem) => {
+          queryFn(selectorStrs, contextElem).forEach((elem) => {
+            callback(elem, contextElem);
+          });
         });
       } else {
         console.warn('unknow queryType : ', queryType);
@@ -985,22 +995,53 @@ function getContextElem(selectorInput) {
   }
 }
 
+function getContextElems(selectorInput) {
+  if (selectorInput === 'document') {
+    return [document];
+  } else {
+    return queryAllElems(selectorInput, document);
+  }
+}
+
+
 function queryFirstElem(selectorInput, contextElem) {
-  const selectorStrs = T.toArray(selectorInput);
   let elem = undefined;
   let selector = undefined;
+  const continueIterate = true, stopIterate = false;
+  iterateSelectorInput(selectorInput, contextElem, (elems, currentSelector) => {
+    if(elems && elems[0]) {
+      elem = elems[0];
+      selector = currentSelector;
+      return stopIterate;
+    } else {
+      return continueIterate;
+    }
+  });
+  return [elem, selector];
+}
+
+function queryAllElems(selectorInput, contextElem) {
+  const result = new Set();
+  iterateSelectorInput(selectorInput, contextElem, (elems) => {
+    elems.forEach((elem) => result.add(elem));
+  });
+  return Array.from(result);
+}
+
+
+function iterateSelectorInput(selectorInput, contextElem, action) {
+  const selectorStrs = T.toArray(selectorInput);
   for(let i = 0; i < selectorStrs.length; i++) {
     const selectorStr = selectorStrs[i];
     const elems = queryElemsBySelector(selectorStr, contextElem);
-    const first = elems[0];
-    if(first) {
-      elem = first;
-      selector = Selector.parse(selectorStr);
-      break;
-    }
+    const selector = Selector.parse(selectorStr);
+    const isContinue = action(elems, selector);
+    if (!isContinue) { break }
   }
-  return [elem, selector];
 }
+
+
+
 
 function queryElemsBySelector(selectorStr, contextElem) {
   const selector = Selector.parse(selectorStr);
