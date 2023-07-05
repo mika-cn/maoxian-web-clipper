@@ -24,8 +24,35 @@ import Log     from './log.js';
 import T       from './tool.js';
 import DOMTool from './dom-tool.js';
 
-const KEYWORDS = ['highlight', 'syntax', 'code', 'language-'];
 const DEFAULT_LANGUAGE = 'plain';
+
+const CodeBlock = {
+  klassKeywords: ['highlight', 'syntax', 'code', 'language-'],
+  languageAttrs: ['data-code-language', 'data-codelanguage', 'data-code-lang'],
+  get attrKeywords() {
+    return [].concat(this.languageAttrs);
+  },
+  isKeywordAttr(attrName) {
+    return attrName && this.attrKeywords.indexOf(attrName.toLowerCase()) > -1;
+  },
+  getSelector(tagName = '') {
+    const parts = [];
+    this.klassKeywords.forEach((keyword) => parts.push(`${tagName}[class*="${keyword}"]`));
+    this.attrKeywords.forEach((keyword) => parts.push(`${tagName}[${keyword}]`));
+    return parts.join(",");
+  }
+}
+
+const CodeLine = {
+  attr_name_keywords: ['data-code-line', 'data-codeline'],
+  attr_value_keywords: ['code-line', 'codeline'],
+  isKeywordAttrName(name) {
+    return name && this.attr_name_keywords.indexOf(name.toLowerCase()) > -1;
+  },
+  isKeywordAttrValue(value) {
+    return value && this.attr_value_keywords.indexOf(value.trim().toLowerCase()) > -1;
+  }
+}
 
 const state = {
   nodeTypeCounterCache: T.createArrayCache('reverselySeek'),
@@ -58,19 +85,17 @@ function handleTableNodes(doc, contextNode) {
 
 function handleDivNodes(doc, contextNode) {
   const wrappers = new Set();
-  for(let i = 0; i < KEYWORDS.length; i++) {
-    const selector = `div[class*=${KEYWORDS[i]}]`;
-    const nodes = DOMTool.querySelectorIncludeSelf(contextNode, selector);
-    [].forEach.call(nodes, (node) => {
-      if (isDescendantOfPreNode(node)) {
-        // these <div>s are more like code line wrappers than code blocks
-        // should handle it in handlePreNodes();
-      } else {
-        const wrapper = getCodeWrapper(node);
-        wrappers.add(wrapper);
-      }
-    });
-  }
+  const selector = CodeBlock.getSelector('div');
+  const nodes = DOMTool.querySelectorIncludeSelf(contextNode, selector);
+  [].forEach.call(nodes, (node) => {
+    if (isDescendantOfPreNode(node)) {
+      // these <div>s are more like code line wrappers than code blocks
+      // should handle it in handlePreNodes();
+    } else {
+      const wrapper = getCodeWrapper(node);
+      wrappers.add(wrapper);
+    }
+  });
 
   wrappers.forEach((wrapper) => {
     if (contextNode === wrapper) {
@@ -86,15 +111,10 @@ function handleDivNodes(doc, contextNode) {
 function getCodeWrapper(node) {
   const nodes = getNearNodesByRange(node, 0, 1, 2, 3);
   let wrapper = null;
+  const selector = CodeBlock.getSelector();
   for (let i = 0; i < nodes.length; i++) {
-    const currNode = nodes[i];
-
-    for(let j = 0; j < KEYWORDS.length; j++) {
-      const selector = `[class*=${KEYWORDS[j]}]`;
-      if (currNode.matches(selector)) {
-        wrapper = currNode;
-        break;
-      }
+    if (nodes[i].matches(selector)) {
+      wrapper = nodes[i];
     }
   }
   return wrapper;
@@ -118,7 +138,7 @@ function handleCodeWrapper(doc, wrapper, params = {}) {
     return handleCodeContainer(wrapper, codePath, codeNodes[0], doc);
   }
 
-  Log.debug("Wrapper Paths: ", paths);
+  // Log.debug("Wrapper Paths: ", paths);
 
   return wrapper;
 }
@@ -132,6 +152,7 @@ function analyzeWrapper(wrapper, _paths) {
   };
 
   const paths = removeUselessPath(_paths, wrapper);
+  Log.debug("Paths: ", paths);
 
   if (paths.length == 0 || paths.length > 2) {
     // if length of paths bigger than two,
@@ -216,7 +237,7 @@ function removeUselessPath(paths, wrapper) {
   if (paths.length < 1) { return paths }
   return paths.filter((path) => {
     // remove elements that are used as component
-    // (highlights, placeholder etc).
+    // (buttons, highlights, placeholder etc).
     const nodes = wrapper.querySelectorAll(path);
     const allNodeAreBlank = T.all(nodes, (node) => {
       return node.textContent.trim() === "";
@@ -237,6 +258,7 @@ function isCodePath(path) {
         path.match(/highlight/i)
      || path.match(/syntax/i)
      || path.match(/language-/)
+     || path.match(/code-language/)
      || path.match(/hljs/i)
     )
   );
@@ -251,7 +273,15 @@ function isLineNumber(path, nodes) {
   let allNodeHaveNotChild = true; // child elements
 
   [].forEach.call(nodes, (node, idx) => {
-    if (!(node.hasAttribute('data-line-number') || node.hasAttribute('data-line-num'))) {
+    if (!( node.hasAttribute('data-line-number')
+        || node.hasAttribute('data-line-num')
+        || node.hasAttribute('data-code-line-number')
+        || node.hasAttribute('data-code-line-num')
+        || node.hasAttribute('data-linenumber')
+        || node.hasAttribute('data-linenum')
+        || node.hasAttribute('data-code-linenumber')
+        || node.hasAttribute('data-code-linenum')
+    )) {
       allNodeHaveDataLineNumAttr = false;
     }
 
@@ -357,9 +387,12 @@ function getLanguageFromInside2Wrapper(wrapper, codePath, counter) {
 function path2klasses(path) {
   const arr = [];
   path.split('>').forEach((it) => {
-    const idx = it.indexOf('.');
-    if (idx > -1) {
-      arr.push(...it.substring(idx).split('.'));
+    const dotIdx = it.indexOf('.');
+    if (dotIdx > -1) {
+      // attribute selector [xxx]
+      const attrIdx = it.indexOf('[');
+      const klassesStr = (attrIdx > -1 ? it.substring(dotIdx, attrIdx) : it.substring(dotIdx));
+      arr.push(...klassesStr.split('.'));
     }
   })
   return arr;
@@ -387,7 +420,23 @@ function node2Str(node) {
       }
     });
   }
-  return arr.join('.');
+  const mainPart = arr.join('.');
+
+  let extraPart = "";
+  if (node.hasAttributes()) {
+    const blacklist = ["id", "class"];
+    [].forEach.call(node.attributes, ({name, value}) => {
+      if (blacklist.indexOf(name) == -1) {
+        if (CodeBlock.isKeywordAttr(name) || CodeLine.isKeywordAttrName(name)) {
+          extraPart += `[${name}]`;
+        } else if (CodeLine.isKeywordAttrValue(value)) {
+          extraPart += `[${name}=${value}]`;
+        }
+      }
+    });
+  }
+
+  return mainPart + extraPart;
 }
 
 
@@ -692,9 +741,18 @@ function getLanguageFromNearNodes(node, ...range) {
 
 function getLanguageFromNodes(nodes) {
   for (let i = 0; i < nodes.length; i ++) {
-    const language = Language.getByKlassStr(nodes[i].getAttribute('class'));
-    if (language) {
-      return language;
+    const node = nodes[i];
+    let language = Language.getByKlassStr(node.getAttribute('class'));
+    if (language) { return language }
+
+    if (node.hasAttributes()) {
+      for (let j = 0; j < CodeBlock.languageAttrs.length; j++) {
+        const attrName = CodeBlock.languageAttrs[j];
+        if (node.hasAttribute(attrName)) {
+          language = node.getAttribute(attrName);
+          if (language) { return language }
+        }
+      }
     }
   }
   return DEFAULT_LANGUAGE;
@@ -867,6 +925,7 @@ const Language = (function() {
     Agora
     awk
     BASIC
+    Bash
     BETA
     BennuGD
     BeanShell
@@ -896,6 +955,7 @@ const Language = (function() {
     Curl
     D
     DASL
+    Dash
     DIBOL
     E
     Eiffel
@@ -1008,6 +1068,7 @@ const Language = (function() {
     XHTML
     XOTcl
     YAML
+    Zsh
   `);
 
   // init language dictionary
