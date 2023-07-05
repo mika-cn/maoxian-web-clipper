@@ -665,6 +665,56 @@ describe('MdPluginCode', () => {
   }
 
 
+  {
+    // https://time.geekbang.org/column/article/381193
+    const desc = "code div that is contains code-language in other attribute than class";
+    const language = "bash";
+    const lineNumberSelector = "[data-code-line-number]";
+    const html = (
+      `<div>`
+      + `<div class="klassContainer" data-code-language="bash">`
+      +   `<div class="klassBtn"><span></span></div>`
+      +   `<div class="klassB">`
+      +     `<div class="NA NB" data-code-line-number="1"></div>`
+      +     `<div class="NA NB" data-code-line-number="2"></div>`
+      +     `<div class="NA NB" data-code-line-number="3"></div>`
+      +   `</div>`
+      +   `<div class="se-97c4f043">`
+      +     `<div data-simplebar="init">`
+      +       `<div class="simplebar-wrapper">`
+      +         `<div class="simplebar-height-auto-observer-wrapper">`
+      +           `<div class="simplebar-height-auto-observer"></div>`
+      +         `</div>`
+      +         `<div class="simplebar-mask">`
+      +           `<div class="simplebar-offset">`
+      +             `<div class="simplebar-content-wrapper">`
+      +               `<div class="simplebar-content">`
+      +                 `<div data-origin="pm_code_preview">`
+      +                   `<div class="LA LB" data-slate-type="code-line">line 1</div>`
+      +                   `<div class="LA LB" data-slate-type="code-line">line 2</div>`
+      +                   `<div class="LA LB" data-slate-type="code-line">line 3</div>`
+      +                 `</div>`
+      +               `</div>`
+      +             `</div>`
+      +           `</div>`
+      +         `</div>`
+      +         `<div class="simplebar-placeholder"></div>`
+      +       `</div>`
+      +       `<div class="simplebar-track simplebar-horizontal">`
+      +         `<div class="simplebar-scrollbar"></div>`
+      +       `</div>`
+      +       `<div class="simplebar-track simplebar-vertical">`
+      +         `<div class="simplebar-scrollbar"></div>`
+      +       `</div>`
+      +     `</div>`
+      +   `</div>`
+      + `</div>`
+      +`</div>`
+    );
+    testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
+  }
+
+
   const normalTable_A = `
     <div class="highlight">
       <table>
