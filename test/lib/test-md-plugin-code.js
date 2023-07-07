@@ -279,12 +279,12 @@ describe('MdPluginCode', () => {
   }
 
 
-  function testPreCodeWithBlankComponent(html) {
+  function testPreCodeWithBlankComponent(html, componentSelector) {
     it("remove blank component", () => {
       const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
-      const components = contextNode.querySelectorAll('.component')
+      const components = contextNode.querySelectorAll(componentSelector)
       H.assertEqual(components.length, 0);
       const code = contextNode.querySelector('code');
       H.assertNotEqual(code, null);
@@ -293,6 +293,7 @@ describe('MdPluginCode', () => {
   }
 
   {
+    const componentSelector = '.component';
     const html = `
       <pre>
         <span class="component"></span>
@@ -300,7 +301,43 @@ describe('MdPluginCode', () => {
         <span class="component"></span>
       </pre>
     `;
-    testPreCodeWithBlankComponent(html);
+    testPreCodeWithBlankComponent(html, componentSelector);
+  }
+
+  {
+    // Test one path includes another path's node.
+    const componentSelector = '[data-role="component"]';
+    const html = `
+      <div>
+        <div class="highlight code">
+          <div class="wrapper">
+            <div data-role="component"><div data-role="button"></div></div>
+            <div class="cblock">
+              <div><code class="language-ruby">code text</code></div>
+            </div>
+            <div data-role="component"><div data-role="button"></div></div>
+        </div>
+      </div>
+    `;
+    testPreCodeWithBlankComponent(html, componentSelector);
+  }
+
+  {
+    // Test hex-like class
+    const componentSelector = '[data-role="component"]';
+    const html = `
+      <div>
+        <div class="highlight code">
+          <div class="wrapper">
+            <div class="xx-54xy0" data-role="component"><div class="xx-55xy0" data-role="button"></div></div>
+            <div class="cblock">
+              <div><code class="language-ruby">code text</code></div>
+            </div>
+            <div class="xx-54xy1" data-role="component"><div data-role="button"></div></div>
+        </div>
+      </div>
+    `;
+    testPreCodeWithBlankComponent(html, componentSelector);
   }
 
 
@@ -370,7 +407,6 @@ describe('MdPluginCode', () => {
 
 
   {
-
     // get from http://gavinmiller.io
     const desc = "code table with gutter and code B";
     const language = "ruby";
@@ -688,11 +724,19 @@ describe('MdPluginCode', () => {
       +         `<div class="simplebar-mask">`
       +           `<div class="simplebar-offset">`
       +             `<div class="simplebar-content-wrapper">`
-      +               `<div class="simplebar-content">`
+      +               `<div class="simplebar-content code-lines">`
       +                 `<div data-origin="pm_code_preview">`
-      +                   `<div class="LA LB" data-slate-type="code-line">line 1</div>`
-      +                   `<div class="LA LB" data-slate-type="code-line">line 2</div>`
-      +                   `<div class="LA LB" data-slate-type="code-line">line 3</div>`
+      +                   `<div class="LA LB" data-slate-type="code-line">`
+      +                      `<span data-type="text"><span data-higtlight="true">line</span></span>`
+      +                      `<span data-type="text"><span data-plain="true"> 1</span></span>`
+      +                   `</div>`
+      +                   `<div class="LA LB" data-slate-type="code-line">`
+      +                      `<span data-type="text"><span data-plain="true">line </span></span>`
+      +                      `<span data-type="text"><span data-highlight="true">2</span></span>`
+      +                   `</div>`
+      +                   `<div class="LA LB" data-slate-type="code-line">`
+      +                      `<span data-type="text"><span data-plain="true">line 3</span></span>`
+      +                    `</div>`
       +                 `</div>`
       +               `</div>`
       +             `</div>`
