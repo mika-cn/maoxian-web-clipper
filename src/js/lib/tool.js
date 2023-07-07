@@ -60,10 +60,14 @@ T.deCapitalize = function(str, sep = '-') {
 
 T.splitByFirstSeparator = function(str, sep) {
   const idx = str.indexOf(sep);
-  return [
-    str.substring(0, idx),
-    str.substring(idx + sep.length)
-  ];
+  if (idx > -1) {
+    return [
+      str.substring(0, idx),
+      str.substring(idx + sep.length)
+    ];
+  } else {
+    return [str, undefined]
+  }
 }
 
 T.replaceLastMatch = function(str, regExp, replacement) {

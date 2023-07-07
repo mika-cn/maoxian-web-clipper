@@ -138,8 +138,6 @@ function handleCodeWrapper(doc, wrapper, params = {}) {
     return handleCodeContainer(wrapper, codePath, codeNodes[0], doc);
   }
 
-  // Log.debug("Wrapper Paths: ", paths);
-
   return wrapper;
 }
 
@@ -151,6 +149,7 @@ function analyzeWrapper(wrapper, _paths) {
     isNormalCodeBlock: false,
   };
 
+  // Log.debug("bPaths: ", _paths);
   const paths = removeUselessPath(_paths, wrapper);
   Log.debug("Paths: ", paths);
 
@@ -163,9 +162,9 @@ function analyzeWrapper(wrapper, _paths) {
   if (paths.length === 1) {
     // line numbers should appear with code, it's not possible when paths.length is 1
     const [path] = paths;
-    const nodes = wrapper.querySelectorAll(path);
+    const nodes = safeQuerySelectorAll(wrapper, path);
 
-    if (isCodeLinePath(path)) {
+    if (isCodeLineStr(path)) {
       return {
         isNormalCodeBlock: false,
         isCodeWrappedByLineNode: true,
@@ -174,7 +173,7 @@ function analyzeWrapper(wrapper, _paths) {
       }
     }
 
-    if (isCodePath(path) && nodes.length == 1) {
+    if (isCodeStr(path) && nodes.length == 1) {
       return {
         isNormalCodeBlock: true,
         isCodeWrappedByLineNode: false,
@@ -189,8 +188,8 @@ function analyzeWrapper(wrapper, _paths) {
   } else {
     // probally is code (with line numbers)
     const [pathA, pathB] = paths;
-    const pathA_nodes = wrapper.querySelectorAll(pathA);
-    const pathB_nodes = wrapper.querySelectorAll(pathB);
+    const pathA_nodes = safeQuerySelectorAll(wrapper, pathA);
+    const pathB_nodes = safeQuerySelectorAll(wrapper, pathB);
 
     let lineNumberPath, otherPath;
     let lineNumberNodes, otherPathNodes;
@@ -210,14 +209,14 @@ function analyzeWrapper(wrapper, _paths) {
 
 
     if (lineNumberPath) {
-      if (isCodeLinePath(otherPath) && lineNumberNodes.length == otherPathNodes.length) {
+      if (isCodeLineStr(otherPath) && lineNumberNodes.length == otherPathNodes.length) {
         return {
           isCodeWrappedByLineNode: true,
           isNormalCodeBlock: false,
           codePath: otherPath,
           codeNodes: otherPathNodes,
         }
-      } else if (isCodePath(otherPath) && otherPathNodes.length == 1) {
+      } else if (isCodeStr(otherPath) && otherPathNodes.length == 1) {
         return {
           isCodeWrappedByLineNode: false,
           isNormalCodeBlock: true,
@@ -233,12 +232,15 @@ function analyzeWrapper(wrapper, _paths) {
 }
 
 
+/*
+ * @param {Array} paths should exclude each other.
+ */
 function removeUselessPath(paths, wrapper) {
   if (paths.length < 1) { return paths }
   return paths.filter((path) => {
     // remove elements that are used as component
     // (buttons, highlights, placeholder etc).
-    const nodes = wrapper.querySelectorAll(path);
+    const nodes = safeQuerySelectorAll(wrapper, path);
     const allNodeAreBlank = T.all(nodes, (node) => {
       return node.textContent.trim() === "";
     });
@@ -247,19 +249,40 @@ function removeUselessPath(paths, wrapper) {
 }
 
 
-function isCodeLinePath(path) {
-  return isCodePath(path) && path.match(/line/i);
+function safeQuerySelectorAll(contextElem, selector) {
+  try {
+    return contextElem.querySelectorAll(selector);
+  } catch(e) {
+    Log.warn("Selector is not supported: ", selector);
+    return [];
+  }
 }
 
 
-function isCodePath(path) {
-  return path.match(/code/i) || (
-    path.match(/pre/i) && (
-        path.match(/highlight/i)
-     || path.match(/syntax/i)
-     || path.match(/language-/)
-     || path.match(/code-language/)
-     || path.match(/hljs/i)
+function isLineNumberStr(it) {
+  return it.match(/line-num/i) || it.match(/linenum/i);
+}
+
+function isCodeLineStr(it) {
+  let isCodeLine = false;
+  if (it.match(/lines/i)) {
+    // should not only contains codelines
+    isCodeLine = it.match(/line/ig).length > 1
+  } else {
+    isCodeLine = it.match(/line/i);
+  }
+  return isCodeStr(it) && isCodeLine && !isLineNumberStr(it);
+}
+
+
+function isCodeStr(it) {
+  return it.match(/code/i) || (
+    it.match(/pre/i) && (
+        it.match(/highlight/i)
+     || it.match(/syntax/i)
+     || it.match(/language-/i)
+     || it.match(/code-language/i)
+     || it.match(/hljs/i)
     )
   );
 }
@@ -389,9 +412,10 @@ function path2klasses(path) {
   path.split('>').forEach((it) => {
     const dotIdx = it.indexOf('.');
     if (dotIdx > -1) {
-      // attribute selector [xxx]
-      const attrIdx = it.indexOf('[');
-      const klassesStr = (attrIdx > -1 ? it.substring(dotIdx, attrIdx) : it.substring(dotIdx));
+      // nodeStr: tagName.klassA.klassB[attrA]:pseudo
+      const [_type, _rest] = T.splitByFirstSeparator(it, '.');
+      const [_head, _pseudo] = T.splitByFirstSeparator(_rest, ':');
+      const [klassesStr, _attr] = T.splitByFirstSeparator(_head, '[');
       arr.push(...klassesStr.split('.'));
     }
   })
@@ -400,43 +424,78 @@ function path2klasses(path) {
 
 
 function node2CodeLine(node) {
-  return node.textContent.replace(/\n+/mg, '');
+  return node.textContent
+    .replace(/\n+/mg, '')
+    .replace(/\s+$/mg, '');
 }
 
 
 function node2Str(node) {
-  const arr = [];
-  arr.push(node.tagName.toLowerCase());
-  const klass = node.getAttribute('class');
-  if (klass) {
-    klass.trim().split(/\s+/).forEach((it) => {
-      if (it.match(/\d+$/) || it === '') {
-        // ends with number
-      } else if (it.match(/^[,\.:\*"'0-9]/)) {
-        // invalid klass
-      } else {
-        // sanitize it
-        arr.push(T.sanitizeSelectorItem(it));
-      }
-    });
+  const nodeName = node.tagName.toLowerCase();
+  const arr = [nodeName];
+
+  let pseudoPart = "";
+
+  if (node.hasAttribute('class')) {
+    const klass = node.getAttribute('class');
+    if (klass) {
+      klass.trim().split(/\s+/).forEach((it) => {
+        if ( it === '') {
+          // empty
+        } else if (
+             it.match(/-\d+$/)
+          || it.match(/^n\d+$/i)
+          || it.match(/^(?:n|num|number|i|idx|index)\d+$/i)
+        ) {
+          // ignore some number classes
+        } else if (it.match(/^[,\.:\*"'0-9]/)) {
+          // invalid klass
+        } else {
+          // sanitize it
+          arr.push(T.sanitizeSelectorItem(it));
+        }
+      });
+    }
+  } else {
+    if (nodeName == 'div') {
+      // We only add this to div node, because :not() pseudo selector
+      // is not well supportted. This will cover not all but most of cases.
+      // TODO: We can add it to all node types in the future.
+      //
+      // This is to avoid confliction of 'div' and 'div.xxx' ('div' can
+      // selecte both 'div' and 'div.xxx')
+      //
+      pseudoPart = ":not([class])";
+    }
   }
   const mainPart = arr.join('.');
 
-  let extraPart = "";
+  let attrPart = "";
   if (node.hasAttributes()) {
-    const blacklist = ["id", "class"];
+    const blacklist = ["id", "class", "style"];
+    const isSpanNode = nodeName === 'span';
     [].forEach.call(node.attributes, ({name, value}) => {
       if (blacklist.indexOf(name) == -1) {
         if (CodeBlock.isKeywordAttr(name) || CodeLine.isKeywordAttrName(name)) {
-          extraPart += `[${name}]`;
+          attrPart += `[${name}]`;
         } else if (CodeLine.isKeywordAttrValue(value)) {
-          extraPart += `[${name}=${value}]`;
+          attrPart += `[${name}="${T.sanitizeSelectorItem(value)}"]`;
+        } else if (isSpanNode
+          && name.startsWith('data-')
+          && !value.match(/^[\d,.:]+$/) // exclude number value attributes
+        ) {
+          // some developers use span as highlight container
+          // and they put it in "data-" attribute
+          // rather than in "class" attribute.
+          //
+          // we need to include it, so these nodes won't be grouped.
+          attrPart += `[${name}="${T.sanitizeSelectorItem(value)}"]`;
         }
       }
     });
   }
 
-  return mainPart + extraPart;
+  return mainPart + attrPart + pseudoPart;
 }
 
 
@@ -450,7 +509,6 @@ function groupLeafNode(node) {
   let currIdx = 1;
   const dict = { __ROOT__: paths }
   while(true) {
-
 
     let allGroupEmpty = true;
     for (let k in dict) {
@@ -478,6 +536,7 @@ function groupLeafNode(node) {
           const leafPath = pathGroup[j];
           if (leafPath.length > 0) {
             const nodeStr = leafPath.shift();
+
             if (nodeStr.startsWith('code')) {
               codeNodeStrs.push(nodeStr);
             } else if (nodeStr.startsWith('span')) {
@@ -510,6 +569,14 @@ function groupLeafNode(node) {
           // do not iterate further
           dict[k] = [];
 
+        } else if (spanNodeStrs.length === pathGroup.length
+            && T.unique(spanNodeStrs).length == 1
+            && isCodeLineStr(k)
+        ) {
+          // all current layer nodes are SPAN node and they have same nodeStr
+          // and the parent path is code line.
+          // do not iterate further
+          dict[k] = [];
         } else {
           // continue iterate,
           delete dict[k];
@@ -649,7 +716,7 @@ function handlePreNodes(doc, contextNode) {
             // then it's a normal code block
             codeNodes.push(node);
           } else {
-            codeNodes.push(...node.querySelectorAll(path));
+            codeNodes.push(...safeQuerySelectorAll(node, path));
           }
 
           if (codeNodes.length === 1) {
