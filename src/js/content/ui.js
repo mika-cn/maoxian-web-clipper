@@ -9,6 +9,7 @@ import MxWcEvent         from '../lib/event.js';
 import MxWcHandler       from '../lib/handler.js';
 import Notify            from '../lib/notify.js';
 import MxWcSelectionMain from '../selection/main.js';
+import {getCssSelector} from 'css-selector-generator';
 
 const state = {
   clippingState: 'idle',
@@ -369,7 +370,6 @@ function hideForm(){
 
 function setStateIdle(){
   state.clippingState = 'idle';
-  unmarkConfirmedElem();
   sendFrameMsgToControl('setStateIdle');
   dispatchMxEvent('idle');
 }
@@ -385,10 +385,14 @@ function setStateSelected(){
 }
 function setStateConfirmed(elem){
   state.clippingState = 'confirmed';
-  const {selector} = markConfirmedElem(elem);
-  const msg = {elem: {selector}};
   sendFrameMsgToControl('setStateConfirmed');
-  dispatchMxEvent('confirmed', msg);
+  try {
+    const selector = getCssSelector(elem);
+    const msg = {elem: {selector}};
+    dispatchMxEvent('confirmed', msg);
+  } catch(e) {
+    Log.error("before dispatchMxEvent(confirmed)", e.mesasge, e);
+  }
 }
 function setStateClipping(){
   state.clippingState = 'clipping';
@@ -414,23 +418,6 @@ function dispatchMxEvent(name, data) {
     MxWcEvent.dispatchPublic(name, data);
     MxWcEvent.broadcastPublic(name, data);
   }
-}
-
-// mark the confirmed element so API can use it as selector
-function markConfirmedElem(it) {
-  const {attrName, selector} = unmarkConfirmedElem();
-  it.setAttribute(attrName, '1');
-  return {attrName, selector};
-}
-
-
-function unmarkConfirmedElem() {
-  const attrName = 'data-mx-wc-confirmed-element';
-  const selector = `[${attrName}]`;
-  [].forEach.call(document.querySelectorAll(selector), (it) => {
-    it.removeAttribute(attrName);
-  });
-  return {attrName, selector};
 }
 
 // ===========================================
@@ -517,7 +504,6 @@ function submitForm(msg){
     setStateClipping();
     if (config.rememberSelection) {
       MxWcSelectionMain.save(state.currElem);
-      unmarkConfirmedElem();
     }
     const formSubmitted = state.contentFn.submitted;
     formSubmitted({
