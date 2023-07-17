@@ -483,6 +483,7 @@ async function formSubmitted({elem, formInputs, config}) {
 
   if (userInput.category != '')  { saveInputHistory('category', userInput.category); }
   if (userInput.tags.length > 0) { saveInputHistory('tags', userInput.tags); }
+  if (currConfig.autoInputLastTags) { rememberLastInputTags(userInput.tags); }
 
   const params = Object.assign({
     info,
@@ -557,6 +558,10 @@ function getPageMetas() {
   return dict;
 }
 
+
+function rememberLastInputTags(tags) {
+  ExtMsg.sendToBackground({type: 'save.last-tags', body: tags});
+}
 
 function saveInputHistory(k, v){
   const body = {}

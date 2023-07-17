@@ -71,6 +71,9 @@ function initUIListener() {
   T.bindOnce(tagstrInput , 'keypress' , formEnterKeyHandler);
   T.bindOnce(titleInput  , 'keypress' , formEnterKeyHandler);
   T.bindOnce(categoryInput, 'keypress', formEnterKeyHandler);
+  T.bindOnce(tagstrInput , 'focus' , selectInputFieldValue);
+  T.bindOnce(titleInput  , 'focus' , selectInputFieldValue);
+  T.bindOnce(categoryInput, 'focus', selectInputFieldValue);
 
 
   window.focus();
@@ -293,6 +296,10 @@ function getContextNode() {
 
 /************** Form relative ****************/
 
+function selectInputFieldValue(e) {
+  if (e.target) { e.target.select() }
+}
+
 function formEnterKeyHandler(e){
   if(e.keyCode === 13){
     e.preventDefault();
@@ -384,7 +391,13 @@ async function showForm(params){
   await initSaveFormatOption(format, config, handlerInfo);
   titleInput.value = title;
   categoryInput.value= category;
-  tagstrInput.value = tagstr;
+  if (tagstr !== "") {
+    tagstrInput.value = tagstr;
+  } else if (config.autoInputLastTags) {
+    const lastTags = (await MxWcStorage.get('last-tags', []));
+    tagstrInput.value = lastTags.join(" ");
+  }
+
   MxWc.form.clearAutoComplete();
   const doNotSort = function(a, b) { return 0 };
 
@@ -399,7 +412,6 @@ async function showForm(params){
   if(category === ''){
     if (config.autoInputLastCategory && categoryList.length > 0) {
       categoryInput.value = categoryList[0];
-      categoryInput.select();
     }
     categoryInput.focus();
   }

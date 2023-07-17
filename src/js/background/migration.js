@@ -40,6 +40,13 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+
+ConfigMigration['2.9'] = function(config) {
+  config.version = '2.10';
+  config.autoInputLastTags = true;
+  return config;
+}
+
 ConfigMigration['2.8'] = function(config) {
   config.version = '2.9';
 

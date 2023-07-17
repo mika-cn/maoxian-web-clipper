@@ -9,6 +9,7 @@ import MxWcEvent         from '../lib/event.js';
 import MxWcHandler       from '../lib/handler.js';
 import Notify            from '../lib/notify.js';
 import MxWcSelectionMain from '../selection/main.js';
+import {getCssSelector} from 'css-selector-generator';
 
 const state = {
   clippingState: 'idle',
@@ -384,14 +385,14 @@ function setStateSelected(){
 }
 function setStateConfirmed(elem){
   state.clippingState = 'confirmed';
-  const klass = 'mx-wc-confirmed-elem';
-  const selector = "." + klass;
-  const oldElem = document.querySelector(selector);
-  if (oldElem) { oldElem.classList.remove(klass); }
-  elem.classList.add(klass);
-  const msg = {elem: {selector}};
   sendFrameMsgToControl('setStateConfirmed');
-  dispatchMxEvent('confirmed', msg);
+  try {
+    const selector = getCssSelector(elem);
+    const msg = {elem: {selector}};
+    dispatchMxEvent('confirmed', msg);
+  } catch(e) {
+    Log.error("before dispatchMxEvent(confirmed)", e.mesasge, e);
+  }
 }
 function setStateClipping(){
   state.clippingState = 'clipping';
@@ -632,6 +633,7 @@ function pressEsc(msg){
   }
 }
 
+// @param {Object} msg {:format, :title, :category, :tagstr}
 function pressEnter(msg){
   if(state.clippingState === 'selecting' && state.currElem){
     selectedTarget(state.currElem);
