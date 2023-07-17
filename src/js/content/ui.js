@@ -647,6 +647,7 @@ function pressEsc(msg){
   }
 }
 
+// @param {Object} msg {:format, :title, :category, :tagstr}
 function pressEnter(msg){
   if(state.clippingState === 'selecting' && state.currElem){
     selectedTarget(state.currElem);

@@ -67,6 +67,7 @@ function messageHandler(message, sender){
       case 'init.downloadFolder': initDownloadFolder()                  ; resolve() ; break ;
       case 'save.category'    : saveCategory(message.body)              ; resolve() ; break ;
       case 'save.tags'        : saveTags(message.body)                  ; resolve() ; break ;
+      case 'save.last-tags'   : resetStates('last-tags', message.body)  ; resolve() ; break ;
       case 'save.clippingHistory' : saveClippingHistory(message.body)   ; resolve() ; break ;
 
       case 'reset.clips'      : resetStates('clips', message.body)      ; resolve() ; break ;

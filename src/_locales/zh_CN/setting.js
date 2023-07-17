@@ -302,6 +302,7 @@
     "label.mouse-mode-enabled-input": "鼠标友好模式",
     "label.input-field-save-format-enabled": "启用表单上的格式选择",
     "label.auto-input-last-category": "自动输入上次使用的分类",
+    "label.auto-input-last-tags": "自动输入上次使用的标签",
     "label.remember-selection-input": "记住裁剪区域，并在下次尝试自动选中",
     "label.autogenerate-clipping-js-input": "自动生成脚本文件",
     "label.not-generated-yet": "还没有生成过",

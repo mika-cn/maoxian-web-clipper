@@ -47,6 +47,11 @@ function initSettingGeneral(config) {
   );
 
   initCheckboxInput(config,
+    'auto-input-last-tags',
+    'autoInputLastTags',
+  );
+
+  initCheckboxInput(config,
     'remember-selection',
     'rememberSelection',
   );

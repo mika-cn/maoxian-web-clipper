@@ -307,6 +307,7 @@
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
     "label.input-field-save-format-enabled": "Select save format on saving form",
     "label.auto-input-last-category": "Auto input the last category",
+    "label.auto-input-last-tags": "Auto input the last tag(s)",
     "label.remember-selection-input": "Remember the selection (the clipped area) and try to automatically select it next time (If they have the same URL pattern)",
     "label.autogenerate-clipping-js-input": "Autogenerate javascript file",
     "label.not-generated-yet": "Not generated yet",
