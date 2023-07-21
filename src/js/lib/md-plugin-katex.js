@@ -22,9 +22,6 @@
  */
 
 
-import T       from './tool.js';
-
-
 function handle(doc, elem) {
   [].forEach.call(elem.querySelectorAll('.katex-mathml'), (mathmlNode) => {
     const {match, formula} = matchStructure(mathmlNode);
@@ -74,7 +71,7 @@ function replaceFormula(mathmlNode, formula, doc) {
   }
 
   const code = doc.createElement('code');
-  code.innerHTML = markerL + T.escapeCodeNodeText(formula) + markerR;
+  code.textContent = markerL + formula + markerR;
 
   const katexNode = mathmlNode.parentNode;
   const nodes = [];

@@ -59,7 +59,7 @@ function toTeXNode(doc, teX, isBlockFormula = false) {
     markerL = "MATHJAX_TEX_INLINE___";
     markerR = "___MATHJAX_TEX_INLINE";
   }
-  newNode.textContent = markerL + T.escapeCodeNodeText(teX) + markerR;
+  newNode.textContent = markerL + teX + markerR;
   return newNode;
 }
 
