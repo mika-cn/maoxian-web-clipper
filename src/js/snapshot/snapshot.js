@@ -84,7 +84,7 @@ async function takeSnapshotOfCurrNode(node, params) {
   const defaultAncestorInfo = {
     mathAncestor: false, svgAncestor: false,
     codeAncestor: false, preAncestor: false,
-    detailsAncestor: false,
+    detailsAncestor: false, scriptAncestor: false,
   };
   const {
     win, platform, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
@@ -212,7 +212,8 @@ async function takeSnapshotOfCurrNode(node, params) {
         case 'CODE':
         case 'PRE':
         case 'MATH':
-        case 'SVG': {
+        case 'SVG':
+        case 'SCRIPT': {
           const key = `${node.nodeName.toLowerCase()}Ancestor`;
           const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
           return {
@@ -389,9 +390,14 @@ async function takeSnapshotOfCurrNode(node, params) {
       snapshot.text = node.data;
       if (ancestorInfo.codeAncestor) { snapshot.codeAncestor = true }
       if (ancestorInfo.preAncestor) { snapshot.preAncestor = true }
+      if (ancestorInfo.scriptAncestor) { snapshot.scriptAncestor = true }
       const {blank, needEscape} = parseText(node.data);
       if (blank) { snapshot.blank = true }
-      if (needEscape) { snapshot.needEscape = true }
+      if (needEscape && !ancestorInfo.scriptAncestor) {
+        // Should not escape text that in <script> tag
+        // <script type="math/tex">2x + 3y > z</script>
+        snapshot.needEscape = true
+      }
       break;
     }
 
