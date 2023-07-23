@@ -133,6 +133,12 @@ function getInternalGlobalPlan() {
         "pick": "mjx-assistive-mml > math",
         "attr": "data-mx-formula-display",
         "tAttr": "display"
+      },
+      // Normal MathML
+      {
+        "type": "assign.from-fn.get-math-display",
+        "pick": "math",
+        "attr": "data-mx-formula-display",
       }
     ]
   };
