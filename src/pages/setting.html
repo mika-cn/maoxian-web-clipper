@@ -397,6 +397,22 @@ const hello = () =&gt; {
             <label class="label-box" for="markdown-option-link-style-b"><div><strong class="title">referenced</strong><pre><code>[example][1]
 [1]: https://example.org</code></pre></div></label>
           </div>
+
+          <div id="markdown-option-formula-block-wrapper">
+            <h4 i18n="title.markdown-option-formula-block-wrapper"></h4>
+            <input type="radio" value="sameLine" id="markdown-option-formula-block-wrapper-a" name="markdown-option-formula-block-wrapper">
+            <label class="label-box" for="markdown-option-formula-block-wrapper-a"><div><strong class="title">Same Line</strong><pre><code>$$x + y = z$$</code></pre></div></label>
+
+            <input type="radio" value="padSameLine" id="markdown-option-formula-block-wrapper-b" name="markdown-option-formula-block-wrapper">
+            <label class="label-box" for="markdown-option-formula-block-wrapper-b"><div><strong class="title">Pad Same Line</strong><pre><code>$$ x + y = z $$</code></pre></div></label>
+
+            <input type="radio" value="multipleLine" id="markdown-option-formula-block-wrapper-c" name="markdown-option-formula-block-wrapper">
+            <label class="label-box" for="markdown-option-formula-block-wrapper-c"><div><strong class="title">Multiple Line</strong><pre><code>$$<br>x + y = z<br>$$</code></pre></div></label>
+
+            <input type="radio" value="mathCodeBlock" id="markdown-option-formula-block-wrapper-d" name="markdown-option-formula-block-wrapper">
+            <label class="label-box" for="markdown-option-formula-block-wrapper-d"><div><strong class="title">Math Code Block</strong><pre><code>```math<br>x + y = z<br>```</code></pre></div></label>
+          </div>
+
         </div>
       </section>
     </template>

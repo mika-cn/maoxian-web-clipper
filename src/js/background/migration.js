@@ -40,6 +40,11 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.10'] = function(config) {
+  config.version = '2.11';
+  config.markdownOptionFormulaBlockWrapper = "padSameLine";
+  return config;
+}
 
 ConfigMigration['2.9'] = function(config) {
   config.version = '2.10';

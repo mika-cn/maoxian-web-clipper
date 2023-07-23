@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.10';
+const VERSION = '2.11';
 const state = {};
 
 /** WARNING
@@ -58,6 +58,7 @@ function getDefault(){
     markdownOptionLinkStyle: "inlined",     // inlined | referenced
     markdownOptionLinkReferenceStyle: "full", // full | collapsed | shortcut
     markdownOptionPreformattedCode: false,  // false | true
+    markdownOptionFormulaBlockWrapper: "padSameLine", // sameLine, padSameLine, multipleLine, mathCodeBlock
 
     // control
     mouseModeEnabled: false,
@@ -259,6 +260,7 @@ export const API_SETTABLE_KEYS = [
   "markdownOptionEmDelimiter",
   "markdownOptionStrongDelimiter",
   "markdownOptionLinkStyle",
+  "markdownOptionFormulaBlockWrapper",
 
 
   // request keys

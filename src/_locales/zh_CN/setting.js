@@ -58,6 +58,7 @@
     "title.markdown-option-em-delimiter": "强调（斜体）分隔符",
     "title.markdown-option-strong-delimiter": "加重（粗体）分隔符",
     "title.markdown-option-link-style": "链接格式",
+    "title.markdown-option-formula-block-wrapper": "块状（非行内）公式的格式",
 
     "title.advanced": "高级设置",
     "title.request": "HTTP 请求",

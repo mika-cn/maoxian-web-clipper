@@ -184,6 +184,10 @@ function initSettingMarkdown(config) {
     'markdown-option-link-style',
     'markdownOptionLinkStyle'
   );
+  initRadioInput(config,
+    'markdown-option-formula-block-wrapper',
+    'markdownOptionFormulaBlockWrapper'
+  );
 }
 
 
