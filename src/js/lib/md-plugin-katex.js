@@ -88,12 +88,12 @@ function isCodeBlock(mathmlNode) {
 }
 
 
-function unEscapeKatex(markdown) {
+function unEscapeKatex(markdown, [blockWrapperL, blockWrapperR]) {
   return markdown
     .replace(/`KATEX___/mg, '$')
     .replace(/___KATEX`/mg, '$')
-    .replace(/`KATEX_BLOCK___/mg, '\n\n$$$')
-    .replace(/___KATEX_BLOCK`/mg, '$$$\n\n');
+    .replace(/`KATEX_BLOCK___/mg, blockWrapperL)
+    .replace(/___KATEX_BLOCK`/mg, blockWrapperR);
 }
 
 const MdPluginKatex = {handle, unEscapeKatex};

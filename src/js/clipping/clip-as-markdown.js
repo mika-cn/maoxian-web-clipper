@@ -69,9 +69,11 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
 
   Log.debug('generateMarkDown');
   let markdown = getTurndownService(config).turndown(html);
-  markdown = MdPluginMathJax.unEscapeMathJax(markdown);
-  markdown = MdPluginKatex.unEscapeKatex(markdown);
-  markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown);
+
+  const formulaBlockWrapper = getFormulaBlockWrapper(config.markdownOptionFormulaBlockWrapper);
+  markdown = MdPluginMathJax.unEscapeMathJax(markdown, formulaBlockWrapper);
+  markdown = MdPluginKatex.unEscapeKatex(markdown, formulaBlockWrapper);
+  markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown, formulaBlockWrapper);
 
 
   const trimFn = function() {
@@ -195,6 +197,21 @@ function doExtraWork({html, win}) {
   selectedNode = MdPluginTable.handle(doc, selectedNode);
 
   return selectedNode.outerHTML;
+}
+
+function getFormulaBlockWrapper(configValue) {
+  switch (configValue) {
+    case 'sameLine':
+      return ["\n\n$$$", "$$$\n\n"];
+    case 'padSameLine':
+      return ["\n\n$$$ ", " $$$\n\n"];
+    case 'multipleLine':
+      return ["\n\n$$$\n", "\n$$$\n\n"];
+    case 'mathCodeBlock':
+      return ["\n\n```math\n", "\n...\n\n"];
+    default:
+      return ["\n\n$$$ ", " $$$\n\n"];
+  }
 }
 
 function getTurndownService(config){

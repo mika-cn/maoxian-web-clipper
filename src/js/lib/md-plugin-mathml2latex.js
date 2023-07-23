@@ -41,12 +41,12 @@ function toLaTeXNode(doc, math) {
 }
 
 // unescape from code tag
-function unEscapeLaTex(markdown){
+function unEscapeLaTex(markdown, [blockWrapperL, blockWrapperR]) {
   return markdown
     .replace(/`LATEX_INLINE___/mg, '$')
     .replace(/___LATEX_INLINE`/mg, '$')
-    .replace(/`LATEX_BLOCK___/mg, '\n\n$$$')
-    .replace(/___LATEX_BLOCK`/mg, '$$$\n\n');
+    .replace(/`LATEX_BLOCK___/mg, blockWrapperL)
+    .replace(/___LATEX_BLOCK`/mg, blockWrapperR);
 }
 
 const MdPluginMathML2LaTeX = { handle, handle, unEscapeLaTex: unEscapeLaTex}
