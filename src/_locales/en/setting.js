@@ -59,6 +59,7 @@
     "title.markdown-option-em-delimiter": "Emphesis (italics) Delimiter",
     "title.markdown-option-strong-delimiter": "Strong (bold) Delimiter",
     "title.markdown-option-link-style": "Link Style",
+    "title.markdown-option-formula-block-wrapper": "Formula Block Wrapper",
 
     "title.advanced": "Advanced",
     "title.request": "HTTP Request",

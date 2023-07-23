@@ -63,12 +63,12 @@ function toTeXNode(doc, teX, isBlockFormula = false) {
   return newNode;
 }
 
-function unEscapeMathJax(markdown){
+function unEscapeMathJax(markdown, [blockWrapperL, blockWrapperR]) {
   return markdown
     .replace(/`MATHJAX_TEX_INLINE___/mg, '$')
     .replace(/___MATHJAX_TEX_INLINE`/mg, '$')
-    .replace(/`MATHJAX_TEX_BLOCK___/mg, '\n\n$$$')
-    .replace(/___MATHJAX_TEX_BLOCK`/mg, '$$$\n\n');
+    .replace(/`MATHJAX_TEX_BLOCK___/mg, blockWrapperL)
+    .replace(/___MATHJAX_TEX_BLOCK`/mg, blockWrapperR);
 }
 
 const MdPluginMathjax = {

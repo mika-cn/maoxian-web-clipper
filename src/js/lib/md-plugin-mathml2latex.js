@@ -2,6 +2,7 @@
 
 import MathML2LaTeX from 'mathml2latex';
 
+// This plugin recognize MaoXian attribute: 'data-mx-formula-display'
 
 function handle(doc, elem) {
   if(elem.tagName.toUpperCase() === 'MATH') {
@@ -22,16 +23,30 @@ function handle(doc, elem) {
 }
 
 function toLaTeXNode(doc, math) {
+  const formulaDisplay = (math.getAttribute('data-mx-formula-display') || 'inline')
+  const isFormulaBlock = (formulaDisplay == 'block');
   const latex = MathML2LaTeX.convert(math.outerHTML);
   // use code tag to avoid turndown escape '\';
   const newNode = doc.createElement('code');
-  newNode.textContent = "LATEX___" + latex + "___LATEX";
+  let markerL, markerR;
+  if (isFormulaBlock) {
+    markerL = "LATEX_BLOCK___";
+    markerR = "___LATEX_BLOCK";
+  } else {
+    markerL = "LATEX_INLINE___";
+    markerR = "___LATEX_INLINE";
+  }
+  newNode.textContent = markerL + latex + markerR;
   return newNode;
 }
 
 // unescape from code tag
-function unEscapeLaTex(markdown){
-  return markdown.replace(/`LATEX___/mg, '$').replace(/___LATEX`/mg, '$');
+function unEscapeLaTex(markdown, [blockWrapperL, blockWrapperR]) {
+  return markdown
+    .replace(/`LATEX_INLINE___/mg, '$')
+    .replace(/___LATEX_INLINE`/mg, '$')
+    .replace(/`LATEX_BLOCK___/mg, blockWrapperL)
+    .replace(/___LATEX_BLOCK`/mg, blockWrapperR);
 }
 
 const MdPluginMathML2LaTeX = { handle, handle, unEscapeLaTex: unEscapeLaTex}

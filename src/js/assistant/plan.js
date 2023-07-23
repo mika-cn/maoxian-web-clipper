@@ -205,6 +205,8 @@ function createUndoDisplayAction(params) {
  *   T22 = "assign.from.child-attr"
  *   T23 = "assign.from.descendent-attr"
  *
+ *   T31 = "assign.from-fn.get-math-display"
+ *
  *   T51 = "url.file.set-ext-suffix"
  *   T52 = "url.file.rm-ext-suffix"
  *   T53 = "url.file.set-name-suffix"
@@ -421,6 +423,12 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
         }
 
 
+        case 'assign.from-fn.get-math-display': {
+          const result = getMathDisplay(elem, action.attr);
+          return result;
+        }
+
+
         case 'self.replace': //deprecated
         case 'replace.last-match': {
           const attr = elem.getAttribute(action.attr);
@@ -507,6 +515,45 @@ Action.chAttr = function(params, contextSelectorInput = 'document') {
       }
       return undefined;
     }
+  }
+}
+
+
+// === assign.from-fn ====
+
+function getMathDisplay(elem, attrName) {
+  if (elem.hasAttribute(attrName)) {
+    return (elem.getAttribute(attrName) || 'inline')
+  }
+
+
+  // check if the element has block style
+  const style = window.getComputedStyle(elem);
+  if (style.getPropertyValue('display') === 'block') {
+    return 'block';
+  }
+
+  // math elem is inline, test it's wrapper is block or not?
+  const pElem = elem.parentElement;
+
+  if (pElem && pElem.children.length == 1) {
+    const NODE_TYPE_TEXT = 3;
+    for (const childNode of pElem.childNodes) {
+      if (childNode.nodeType == NODE_TYPE_TEXT && !childNode.textContent.match(/^\s*$/)) {
+        // Parent element has text node that isn't blank,
+        // this is not a wrapper.
+        return 'inline';
+      }
+    }
+    // it's a wrapper
+    const wrapperStyle = window.getComputedStyle(pElem);
+    if (wrapperStyle.getPropertyValue('display') === 'block') {
+      return 'block';
+    } else {
+      return 'inline';
+    }
+  } else {
+    return 'inline';
   }
 }
 

@@ -47,12 +47,13 @@ describe('MdPluginKatex', () => {
   it("should escape formula wrapper", () => {
     const textA = "`KATEX___FORMULA___KATEX`";
     const textB = "`KATEX_BLOCK___FORMULA___KATEX_BLOCK`";
+    const formulaBlockWrapper = ["\n\n$$$", "$$$\n\n"]
     H.assertEqual(
-      mdPlugin.unEscapeKatex(textA),
+      mdPlugin.unEscapeKatex(textA, formulaBlockWrapper),
       '$FORMULA$'
     );
     H.assertEqual(
-      mdPlugin.unEscapeKatex(textB),
+      mdPlugin.unEscapeKatex(textB, formulaBlockWrapper),
       '\n\n$$FORMULA$$\n\n'
     );
   });

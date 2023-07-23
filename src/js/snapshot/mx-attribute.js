@@ -6,6 +6,8 @@ const ORDER_BY_INDEX      = "order-by-index";
 const INDEX               = "index";
 const KEEP                = "keep";
 const LAYOUT_TABLE        = "layout-table";
+const FORMULA_DISPLAY       = "formula-display";
+
 
 class MxAttribute {
 
@@ -35,6 +37,9 @@ class MxAttribute {
         this.attr.layoutTable = true;
         this.attrLen++;
         break;
+      case FORMULA_DISPLAY:
+        this.attr.formulaDisplay = (attr.value || 'inline');
+        this.attrLen++;
       case KEEP:
         this.attr.keep = true;
         this.attrLen++;
@@ -78,12 +83,17 @@ MxAttribute.toHTMLAttrObject = (mxAttrObj) => {
   if (mxAttrObj.hasOwnProperty('keep')) {
     r[MxAttribute.KEEP] = mxAttrObj.keep;
   }
+  if (mxAttrObj.hasOwnProperty('formulaDisplay')) {
+    r[MxAttribute.FORMULA_DISPLAY] = mxAttrObj.formulaDisplay;
+  }
   return r;
 }
 
+
 MxAttribute.is = (attr) => { return (attr.name.startsWith(PREFIX)) };
-MxAttribute.KEEP  = PREFIX + KEEP;
-MxAttribute.INDEX = PREFIX + INDEX;
-MxAttribute.LAYOUT_TABLE = PREFIX + LAYOUT_TABLE;
+MxAttribute.KEEP            = PREFIX + KEEP;
+MxAttribute.INDEX           = PREFIX + INDEX;
+MxAttribute.LAYOUT_TABLE    = PREFIX + LAYOUT_TABLE;
+MxAttribute.FORMULA_DISPLAY = PREFIX + FORMULA_DISPLAY
 
 export default MxAttribute;

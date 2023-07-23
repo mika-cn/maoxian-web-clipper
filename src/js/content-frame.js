@@ -120,11 +120,25 @@ function initMxWcAssistant() {
 function getInternalGlobalPlan() {
   return {
     "chAttr": [
+      // MathJax V2
       {
         "type": "assign.from.value",
         "pick": "script[id^=MathJax-Element-]",
         "attr": "data-mx-keep",
         "value": "1",
+      },
+      // MathJax V3
+      {
+        "type": "assign.from.parent-attr",
+        "pick": "mjx-assistive-mml > math",
+        "attr": "data-mx-formula-display",
+        "tAttr": "display"
+      },
+      // Normal MathML
+      {
+        "type": "assign.from-fn.get-math-display",
+        "pick": "math",
+        "attr": "data-mx-formula-display",
       }
     ]
   };
