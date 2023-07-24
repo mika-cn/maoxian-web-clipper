@@ -139,7 +139,7 @@ function getInternalGlobalPlan() {
         "type": "assign.from-fn.get-math-display",
         "pick": "math",
         "attr": "data-mx-formula-display",
-      }
+      },
     ]
   };
 }
