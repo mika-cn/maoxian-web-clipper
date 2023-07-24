@@ -4,6 +4,7 @@ import T                     from '../lib/tool.js';
 import DOMTool               from '../lib/dom-tool.js';
 import Log                   from '../lib/log.js';
 import Task                  from '../lib/task.js';
+import SVG                   from '../lib/svg.js';
 import Snapshot              from '../snapshot/snapshot.js';
 import SnapshotMaker         from '../snapshot/maker.js';
 import SnapshotNodeChange    from '../snapshot/change.js';
@@ -110,6 +111,18 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
       frameInfo, requestParams, win, platform, extMsgType, cssBox}));
   }
 
+  const globalDefinedSVGNodes = SVG.getGlobalDefinedElements();
+  const globalDefinedSVGSnapshots = [];
+  for (const node of globalDefinedSVGNodes) {
+    globalDefinedSVGSnapshots.push(await Snapshot.take(node, {
+      frameInfo, requestParams, win, platform, extMsgType, cssBox,
+      ignoreHiddenElement: false}));
+  }
+  const clippingInfoSnapshot = getClippingInformationSnapshot(v);
+  const svgWrapperSnapshot = SnapshotMaker.getSvgSnapshotsWrapper(globalDefinedSVGSnapshots);
+
+  const tailSnapshots = [clippingInfoSnapshot, svgWrapperSnapshot];
+
   if (elemSnapshot.name == 'BODY') {
     headChildrenSnapshots.push(
       SnapshotMaker.getStyleNode(
@@ -117,14 +130,14 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
         getClippingInformationCssRules(v.config)
       )
     );
-    elemSnapshot.childNodes.push(getClippingInformationSnapshot(v));
+    elemSnapshot.childNodes.push(...tailSnapshots);
     Snapshot.appendStyleObj(elemSnapshot, v.bodyStyleObj);
 
   } else {
 
     headChildrenSnapshots.push(getWrapperNodeStyleSnapshot(v));
     Snapshot.appendStyleObj(elemSnapshot, StyleHelper.getSelectedNodeStyle(elem, win));
-    elemSnapshot = wrapOutermostElem(elem, elemSnapshot, v);
+    elemSnapshot = wrapOutermostElem(elem, elemSnapshot, tailSnapshots);
   }
 
   const headSnapshot = SnapshotMaker.getHeadNode([
@@ -166,7 +179,7 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
         if (styleObj) {
           Snapshot.appendStyleObj(ancestorSnapshot, styleObj);
         }
-        ancestorSnapshot = wrapOutermostElem(ancestorNode, ancestorSnapshot, v);
+        ancestorSnapshot = wrapOutermostElem(ancestorNode, ancestorSnapshot, tailSnapshots);
         return [ancestorSnapshot];
       }
     });
@@ -178,11 +191,11 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
 }
 
 
-function wrapOutermostElem(elem, snapshot, v) {
+function wrapOutermostElem(elem, snapshot, tailSnapshots) {
   const isOutermost = elem.parentNode && elem.parentNode.nodeName.toUpperCase() === 'BODY';
   if (isOutermost) {
     const wrapper = SnapshotMaker.getElementNode('DIV',
-      {class: 'mx-wc-main'}, [snapshot, getClippingInformationSnapshot(v)]);
+      {class: 'mx-wc-main'}, [snapshot, ...tailSnapshots]);
     return wrapper;
   } else {
     return snapshot;

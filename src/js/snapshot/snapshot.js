@@ -214,6 +214,7 @@ async function takeSnapshotOfCurrNode(node, params) {
         case 'MATH':
         case 'SVG':
         case 'SCRIPT': {
+          // Note that we currently only keep scripts that has "data-mx-keep" attribute
           const key = `${node.nodeName.toLowerCase()}Ancestor`;
           const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
           return {
