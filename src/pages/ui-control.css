@@ -371,3 +371,15 @@ body {
   max-height: 260px;
   overflow-y: auto;
 }
+
+.awesomeplete-helper-btn {
+  background: url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z" fill="rgba(0,0,0,0.5)"></path></svg>');
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  margin: 6px;
+  cursor: pointer;
+  user-select: none;
+}
