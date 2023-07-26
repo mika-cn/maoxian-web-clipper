@@ -146,6 +146,14 @@ function getCssMediaRule(conditionText, rules) {
   }
 }
 
+function getSvgSnapshotsWrapper(svgSnapshots) {
+  if (svgSnapshots.length > 0) {
+    return getElementNode('DIV', {style: 'display: none !important'}, svgSnapshots);
+  } else {
+    return getHtmlStrNode("");
+  }
+}
+
 
 export default {
   getDocumentNode,
@@ -160,6 +168,7 @@ export default {
   getIndentNode,
   getCommentNode,
   getShadowDomLoader,
+  getSvgSnapshotsWrapper,
 
   getCssStyleRule,
   getCssMediaRule,
