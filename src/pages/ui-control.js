@@ -407,9 +407,8 @@ async function showForm(params){
 
   // ===== category =====
   const categoryList = (categories || (await MxWcStorage.get('categories', [])));
-  MxWc.form.addAutoComplete(categoryInput, categoryList);
-  const categoryAwesomepleteElem = T.findElem(ID_CATEGORY).parentElement;
-  addAwesompleteHelper(categoryAwesomepleteElem);
+  const categoryAwesomepleteObj = MxWc.form.addAutoComplete(categoryInput, categoryList);
+  MxWc.form.addAwesompleteHelper(categoryAwesomepleteObj);
 
   if(category === ''){
     if (config.autoInputLastCategory && categoryList.length > 0) {
@@ -434,9 +433,8 @@ async function showForm(params){
       this.input.value = before + text + " ";
     }
   };
-  MxWc.form.addAutoComplete(tagstrInput, tagList, extraAwesompleteOptions);
-  const tagAwesomepleteElem = T.findElem(ID_TAGSTR).parentElement;
-  addAwesompleteHelper(tagAwesomepleteElem);
+  const tagAwesomepleteObj = MxWc.form.addAutoComplete(tagstrInput, tagList, extraAwesompleteOptions);
+  MxWc.form.addAwesompleteHelper(tagAwesomepleteObj);
   if(category !== '') {
     tagstrInput.focus();
   }
@@ -502,21 +500,6 @@ function sendFrameMsgToTop(type, msg){
   FrameMsg.send({ to: 'top', type: type, msg: (msg || {}) });
 }
 
-function addAwesompleteHelper(awesomepleteElem) {
-  const btn = document.createElement('div');
-  btn.classList.add('awesomeplete-helper-btn');
-  btn.onclick = triggerAwesomplete;
-  awesomepleteElem.append(btn);
-}
-
-function triggerAwesomplete(ev) {
-  const input = ev.target.parentElement.querySelector('input');
-  if (input.value.endsWith(' ') == false) {
-    input.value += ' ';
-  }
-  input.focus();
-  input.dispatchEvent(new Event('input', { bubbles: true }));
-}
 
 const MxWc = {}
 MxWc.form = {
@@ -530,7 +513,7 @@ MxWc.form = {
     const doNotSort = function(a, b) { return 0 };
     const defaultOptions = {
       autoFirst: true,
-      minChars: 1,
+      minChars: 0,
       maxItems: 10000,
       list: (list || []),
       sort: doNotSort,
@@ -541,7 +524,18 @@ MxWc.form = {
 
     it.ul.setAttribute('tabindex', '-1');
     this.autoCompleteObjs.push(it);
+    return it;
   },
+  addAwesompleteHelper: function(awesomepleteObj) {
+    const btn = document.createElement('div');
+    btn.classList.add('awesomeplete-helper-btn');
+    btn.onclick = function(){
+      awesomepleteObj.input.focus();
+      awesomepleteObj.evaluate();
+    };
+    awesomepleteObj.container.append(btn);
+  },
+
 
   clearAutoComplete: function(){
     this.autoCompleteObjs.forEach((it) => {
