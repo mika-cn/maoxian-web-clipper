@@ -38,6 +38,7 @@
     "hint.title": "press Space to prompt options",
     "hint.category": "Subcategory use '/', eg: It/js",
     "hint.tags": "Tag is seperate by space or comma",
+    "hint.show-options": "Show options",
   };
   return { values: Object.assign({}, currValues, values) }
 });

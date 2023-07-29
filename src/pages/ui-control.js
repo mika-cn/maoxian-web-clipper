@@ -7,6 +7,7 @@ import MxWcTemplate from '../js/lib/template.js';
 import MxWcStorage  from '../js/lib/storage.js';
 import MxWcConfig   from '../js/lib/config.js';
 import FrameMsg     from '../js/lib/frame-msg.js';
+import AutoComplete from '../js/lib/auto-complete.js';
 
 const ID = 'mx-wc-iframe-control';
 
@@ -407,8 +408,7 @@ async function showForm(params){
 
   // ===== category =====
   const categoryList = (categories || (await MxWcStorage.get('categories', [])));
-  const categoryAwesomepleteObj = MxWc.form.addAutoComplete(categoryInput, categoryList);
-  MxWc.form.addAwesompleteHelper(categoryAwesomepleteObj);
+  MxWc.form.addAutoComplete(categoryInput, categoryList);
 
   if(category === ''){
     if (config.autoInputLastCategory && categoryList.length > 0) {
@@ -419,22 +419,8 @@ async function showForm(params){
 
   // ===== tag =====
   const tagList = (tags || (await MxWcStorage.get('tags', [])))
-  const extraAwesompleteOptions = {
-    filter: function(text, input) {
-      return Lib.Awesomplete.FILTER_CONTAINS(text, input.match(/[^ ,，]*$/)[0]);
-    },
+  MxWc.form.addAutoComplete(tagstrInput, tagList, true);
 
-    item: function(text, input) {
-      return Lib.Awesomplete.ITEM(text, input.match(/[^ ,，]*$/)[0]);
-    },
-
-    replace: function(text) {
-      const before = this.input.value.match(/^.+[ ,，]{1}\s*|/)[0];
-      this.input.value = before + text + " ";
-    }
-  };
-  const tagAwesomepleteObj = MxWc.form.addAutoComplete(tagstrInput, tagList, extraAwesompleteOptions);
-  MxWc.form.addAwesompleteHelper(tagAwesomepleteObj);
   if(category !== '') {
     tagstrInput.focus();
   }
@@ -509,33 +495,13 @@ MxWc.form = {
   categoryAutoComplete: null,
   tagstrAutoComplete: null,
 
-  addAutoComplete: function(inputElem, list, extraAwesompleteOptions = {}) {
-    const doNotSort = function(a, b) { return 0 };
-    const defaultOptions = {
-      autoFirst: true,
-      minChars: 0,
-      maxItems: 10000,
-      list: (list || []),
-      sort: doNotSort,
-    };
-
-    const it = new Lib.Awesomplete(inputElem, Object.assign(
-      {}, defaultOptions, extraAwesompleteOptions));
-
-    it.ul.setAttribute('tabindex', '-1');
+  addAutoComplete: function(inputElem, list, multiple = false) {
+    const buttonCSSKlass = 'awesomplete-helper-btn';
+    const buttonTitle = I18N.t('hint.show-options');
+    const options = {multiple, buttonCSSKlass, buttonTitle};
+    const it = new AutoComplete(inputElem, list, options);
     this.autoCompleteObjs.push(it);
-    return it;
   },
-  addAwesompleteHelper: function(awesomepleteObj) {
-    const btn = document.createElement('div');
-    btn.classList.add('awesomeplete-helper-btn');
-    btn.onclick = function(){
-      awesomepleteObj.input.focus();
-      awesomepleteObj.evaluate();
-    };
-    awesomepleteObj.container.append(btn);
-  },
-
 
   clearAutoComplete: function(){
     this.autoCompleteObjs.forEach((it) => {
@@ -544,11 +510,6 @@ MxWc.form = {
     });
     this.autoCompleteObjs = [];
   }
-}
-// https://bugzilla.mozilla.org/show_bug.cgi?id=1408996
-// save reference
-const Lib = {
-  Awesomplete: Awesomplete
 }
 
 initUI();
