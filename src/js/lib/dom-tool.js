@@ -156,17 +156,27 @@ function getWebPageTitle(win, contextElem) {
         break;
       }
     }
-    return win.document.title;
+    return getDocTitleOrFirstHeader(win);
   } else {
-    return getElemTitle(win, win.document.body) || win.document.title;
+    return getElemTitle(win, win.document.body) || getDocTitleOrFirstHeader(win);
   }
 }
 
+function getDocTitleOrFirstHeader(win) {
+  if (win.document.title.match(/^\s*$/)) {
+    const elems = T.queryElems('h1,h2', win.document);
+    return elems.length > 0 ? elems[0].textContent.trim() : '';
+  } else {
+    win.document.title;
+  }
+}
 
-function getElemTitle(win, contextElem) {
+// @param {String} docTitle - if we've already obtained the title.
+function getElemTitle(win, contextElem, docTitle) {
   const elems = querySelectorIncludeSelf(contextElem, 'h1,h2');
   const header = (elems.length > 0 ? elems[0].textContent.trim() : '');
-  if (header && win.document.title.startsWith(header)) {
+  const title = (docTitle || win.document.title.trim());
+  if (header && title.startsWith(header)) {
     return header;
   } else {
     return '';

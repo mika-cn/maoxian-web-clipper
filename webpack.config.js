@@ -112,6 +112,7 @@ function getCopyItems() {
     ['src/js/lib/event-target.js'      , 'js/lib/event-target.js']      ,
     ['src/js/lib/fetcher-using-xhr.js' , 'js/lib/fetcher-using-xhr.js'] ,
     ['src/js/lib/action-cache.js'      , 'js/lib/action-cache.js']      ,
+    ['src/js/lib/auto-complete.js'     , 'js/lib/auto-complete.js']      ,
     ['src/js/lib/qwebchannel.js'       , 'js/lib/qwebchannel.js']       ,
 
     /* page scripts */

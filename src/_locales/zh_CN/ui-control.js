@@ -35,6 +35,7 @@
     "hint.title": "空格弹出选择项",
     "hint.category": "空格弹出选择项，子分类使用'/'分隔, 如: It/js",
     "hint.tags": "空格弹出选择项，使用空格或逗号分隔标签",
+    "hint.show-options": "弹出选择项",
   };
   return { values: Object.assign({}, currValues, values) }
 });

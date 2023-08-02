@@ -371,3 +371,23 @@ body {
   max-height: 260px;
   overflow-y: auto;
 }
+
+.awesomplete-helper-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  margin: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+
+#title ~ .awesomplete-helper-btn, #category ~ .awesomplete-helper-btn {
+  background: url('data:image/svg+xml;utf8, <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M0 0h24v24H0z" fill="none"/><path d="M12 15l-4.243-4.243 1.415-1.414L12 12.172l2.828-2.829 1.415 1.414z" /></g></svg>');
+}
+
+#tagstr ~ .awesomplete-helper-btn {
+  background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12H15" stroke="%23323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9L12 15" stroke="%23323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
