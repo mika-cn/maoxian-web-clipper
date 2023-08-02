@@ -167,7 +167,7 @@ function getDocTitleOrFirstHeader(win) {
     const elems = T.queryElems('h1,h2', win.document);
     return elems.length > 0 ? elems[0].textContent.trim() : '';
   } else {
-    win.document.title;
+    return win.document.title;
   }
 }
 
