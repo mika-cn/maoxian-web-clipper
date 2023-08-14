@@ -482,6 +482,36 @@ describe('MdPluginCode', () => {
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
+  {
+    // get from https://learnopencv.com/drone-programming-with-computer-vision/
+    const desc = "code table with gutter and code D";
+    const language = "python";
+    const lineNumberSelector  = ".gutter .line";
+
+    const html = `
+      <div id="highlighter_878300" class="syntaxhighlighter code-blk python">
+        <table cellspacing="0" cellpadding="0" border="0">
+          <tbody>
+            <tr>
+              <td class="gutter">
+                <div class="line number1 index0 alt2">1</div>
+                <div class="line number2 index1 alt1">2</div>
+                <div class="line number3 index2 alt2">3</div>
+              </td>
+              <td class="code">
+                <div class="container">
+                  <div class="line number1 index0 alt2"><code class="plain">line </code><code class="number">1</code></div>
+                  <div class="line number2 index1 alt1"><code class="keyword">line</code><code class="plain"> 2</code></div>
+                  <div class="line number3 index2 alt2"><code class="python">line</code> <code class="number">3</code></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>`;
+    testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
+  }
+
 
 
   {
