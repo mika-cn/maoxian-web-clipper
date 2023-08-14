@@ -444,10 +444,27 @@ function node2Str(node) {
           // empty
         } else if (
              it.match(/-\d+$/)
-          || it.match(/^n\d+$/i)
-          || it.match(/^(?:n|num|number|i|idx|index)\d+$/i)
+          || it.match(/^(?:n|num|number|i|idx|index|o|order|alt|alternative)\d+$/i)
+          || it.match(/(?:num|number|idx|index|order|alt|alternative)\d+$/i)
         ) {
           // ignore some number classes
+          //
+          // Note that here we are not removing all classes
+          // that ends with numbers,
+          // because some frontend frameworks will generate
+          // dynamic class names that end with numbers.
+          //
+          // like: jz54xy0
+          //
+          // if we remove these dynamic classes too, we lost
+          // the group ability.
+          //
+          // TODO enhance these regexp, it's far from perfect,
+          // and may be it'll never reach perfect.
+          //
+          // Maybe we can find a way to detect random class names.
+          // then we could solve this problem.
+          //
         } else if (it.match(/^[,\.:\*"'0-9]/)) {
           // invalid klass
         } else {

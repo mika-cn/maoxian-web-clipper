@@ -231,6 +231,30 @@ function getTurndownService(config){
     preformattedCode   : config.markdownOptionPreformattedCode,
   }
 
+  // WARNING : This list should be reconsider very carefully.
+  // @see blockElements and meaningfulWhenBlankElements in turndown project.
+  const blockElementsBlackList = [
+    'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TD',
+    'IFRAME', 'SCRIPT',
+    'AUDIO', 'VIDEO',
+    'PRE',
+  ];
+
+  // most of blank block elements could be safely converted as empty string.
+  turndownOptions.blankReplacement = (content, node) => {
+    if (node.isBlock) {
+      if (blockElementsBlackList.indexOf(node.nodeName) > -1) {
+        return '\n\n';
+      } else {
+        // in case this blank block element is inside anchor tags "<a>"
+        return '';
+      }
+    } else {
+      return '';
+    }
+  };
+
+
   turndownOptions.defaultReplacement = (content, node) => {
     if (node.nodeType == 1 && node.hasAttribute('data-mx-ignore-me')) {
       // marked element node
