@@ -233,17 +233,18 @@ function getTurndownService(config){
 
   // WARNING : This list should be reconsider very carefully.
   // @see blockElements and meaningfulWhenBlankElements in turndown project.
-  const blockElementsBlackList = [
+  const meaningfulWhenBlankBlockElements = [
     'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TD',
     'IFRAME', 'SCRIPT',
     'AUDIO', 'VIDEO',
     'PRE',
   ];
 
+
   // most of blank block elements could be safely converted as empty string.
   turndownOptions.blankReplacement = (content, node) => {
     if (node.isBlock) {
-      if (blockElementsBlackList.indexOf(node.nodeName) > -1) {
+      if (meaningfulWhenBlankBlockElements.indexOf(node.nodeName) > -1) {
         return '\n\n';
       } else {
         // in case this blank block element is inside anchor tags "<a>"
@@ -254,16 +255,6 @@ function getTurndownService(config){
     }
   };
 
-
-  turndownOptions.defaultReplacement = (content, node) => {
-    if (node.nodeType == 1 && node.hasAttribute('data-mx-ignore-me')) {
-      // marked element node
-      return content;
-    } else {
-      // default turndown handler
-      return node.isBlock ? '\n\n' + content + '\n\n' : content;
-    }
-  }
 
   const service = new TurndownService(turndownOptions);
 
@@ -277,6 +268,17 @@ function getTurndownService(config){
     filter: ['style', 'script', 'noscript', 'noframes', 'canvas', 'template'],
     replacement: function(content, node, options){return ''}
   })
+
+  service.addRule('ignoreWrapper', {
+    filter(node, options) {
+      // marked element nodes
+      return node.nodeType == 1 && node.hasAttribute('data-mx-ignore-me');
+    },
+    replacement(content, node, options) {
+      return content;
+    }
+  });
+
   return service;
 }
 
