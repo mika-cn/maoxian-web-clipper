@@ -9,7 +9,9 @@ require_relative 'lib/application'
 
 def run
   begin
-    config = Config.load('./config.yaml')
+    config_path = File.expand_path('../config.yaml', __FILE__)
+    config = Config.load(config_path)
+
     # init logger
     log_level = nil
     case config.environment
@@ -26,21 +28,21 @@ def run
 
     unless config.valid?
       if !config.data_dir_valid?
-        errMsg = "Config Invalid, data_dir not exist: #{config.data_dir}"
-        Log.error(errMsg)
-        feedback_error(errMsg)
+        err_msg = "Config Invalid, data_dir not exist: #{config.data_dir}"
+        Log.error(err_msg)
+        feedback_error(err_msg)
       end
 
       if !config.proxy_url_valid?
-        errMsg = "Proxy url invalid: #{config.proxy_url}"
-        Log.error(errMsg)
-        feedback_error(errMsg)
+        err_msg = "Proxy url invalid: #{config.proxy_url}"
+        Log.error(err_msg)
+        feedback_error(err_msg)
       end
 
       if !config.proxy_user_valid?
-        errMsg = "Proxy user info invalid, or you forget to config proxy url"
-        Log.error(errMsg)
-        feedback_error(errMsg)
+        err_msg = "Proxy user info invalid, or you forget to config proxy url"
+        Log.error(err_msg)
+        feedback_error(err_msg)
       end
       exit 1
     end
@@ -60,9 +62,18 @@ def run
     app = Application.new(config)
     app.start
     Log.info("App Stop(naturally)")
+    exit 0
   rescue => err
-    Log.init(Logger::DEBUG)
-    Log.fatal(err)
+    begin
+      Log.init(Logger::DEBUG)
+      Log.fatal(err)
+      err_msg = "FATAL: #{err.to_s}"
+      feedback_error(err_msg)
+    rescue => log_err
+      err_msg = ["LogErr", err.to_s, log_err.to_s].join(", ")
+      feedback_error(err_msg)
+    end
+    exit 1
   end
 end
 
