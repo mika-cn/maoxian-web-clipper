@@ -1,7 +1,7 @@
 
 module AppEnv
 
-  APP_VERSION = '0.2.11'
+  APP_VERSION = '0.2.12'
   RUBY_VERSION = defined?(RUBY_VERSION) ? RUBY_VERSION : VERSION
 
   def self.ruby_version_gteq?(version)
