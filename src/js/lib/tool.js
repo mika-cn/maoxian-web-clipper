@@ -465,6 +465,14 @@ T.isDataUrl = function(url){
   }
 }
 
+T.isBlobUrl = function(url){
+  if (url.match(/^blob:/i)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 T.isHttpUrl = function(url){
   if (url.match(/^https:/i) || url.match(/^http:/i)) {
     return true;
@@ -556,9 +564,12 @@ T.getUrlFilename = function(urlOrPath){
 }
 
 
-// not support data protocol URLs
 T.getUrlExtension = function(url){
-  return T.getFileExtension(T.removeFileExtensionTail(T.getUrlFilename(url)));
+  if (T.isDataUrl(url) || T.isBlobUrl(url)) {
+    return ''
+  } else {
+    return T.getFileExtension(T.removeFileExtensionTail(T.getUrlFilename(url)));
+  }
 }
 
 
