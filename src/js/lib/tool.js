@@ -1398,7 +1398,14 @@ T.createResourceCache = function({size = 80}) {
         return decoder.decode(this.data);
       },
       readAsBlob: function() {
-        const mimeType = T.resourceType2MimeType(this.resourceType);
+        const header = T.getHeader(this.responseHeaders, 'content-type');
+        let mimeType;
+        if (header) {
+          const r = T.parseContentType(header.value);
+          mimeType = r.mimeType;
+        } else {
+          mimeType = T.resourceType2MimeType(this.resourceType);
+        }
         return new Blob([this.data], {type: mimeType});
       },
       readAsResponse: function(opts = {}) {
