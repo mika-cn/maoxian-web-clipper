@@ -8,6 +8,16 @@ import MxWcIcon    from '../lib/icon.js';
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type) {
+      case 'sync.blob-url-data':
+        //  so we can access them in background
+        const {clipId, blobUrlObj} = message.body;
+        const {url, mimeType, base64Data} = blobUrlObj;
+        Log.debug("sync.blob: ", url);
+        setClippingBlobUrl(clipId, url);
+        Global.blobUrlStorage.add(
+          url, {mimeType, base64Data});
+        resolve();
+        break;
       case 'save':
         saveClipping(sender.tab.id, message.body);
         resolve();
@@ -102,6 +112,7 @@ function progress(tabId, msg) {
   }, tabId);
 }
 
+
 function completed(tabId, result, handler){
   Log.debug('completed');
   // compatible with old message
@@ -130,6 +141,7 @@ function completeSaving(tabId, result) {
   }
   MxWcIcon.flicker(3);
   Global.evTarget.dispatchEvent({type: type, result: result})
+  deleteClippingBlobUrlStorage(result.clipId);
 }
 
 function updateClippingHistory(result) {
@@ -152,10 +164,35 @@ async function getClippingHandler() {
   return Global[name] || Global.Handler_Browser;
 }
 
+
+// delete blob url content
+function deleteClippingBlobUrlStorage(clipId) {
+  const blobUrls = Global.clippingBlobUrls.get(clipId) || [];
+  blobUrls.forEach((url) => {
+    Global.blobUrlStorage.delete(url)
+    Log.debug("delete: ", url);
+  });
+
+  Log.debug("blobUrlStorage size: ", Global.blobUrlStorage.size);
+  Global.clippingBlobUrls.delete(clipId);
+}
+
+
+// remember which clipping these blob urls belongs to
+function setClippingBlobUrl(clipId, blobUrl) {
+  const blobUrls = Global.clippingBlobUrls.get(clipId) || [];
+  if (blobUrls.indexOf(blobUrl) == -1) {
+    blobUrls.push(blobUrl);
+    Global.clippingBlobUrls.set(clipId, blobUrls);
+  }
+}
+
+
 /*
  *
  * @param {Object} global {
  *   :evTarget,
+ *   :blobUrlStorage,
  *   :Handler_Browser,
  *   :Handler_NativeApp,
  *   :Handler_WizNotePlus
@@ -164,6 +201,7 @@ async function getClippingHandler() {
 let Global = null;
 export default function init(global) {
   Global = global;
+  Global.clippingBlobUrls = new Map(); // clipId => blobUrls;
   ExtMsg.listen('backend.saving', messageHandler);
   Log.debug("MX backend: Saving initialized");
 }

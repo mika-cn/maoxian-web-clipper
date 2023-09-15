@@ -947,6 +947,26 @@ T.blob2BinaryString = function(blob) {
 }
 
 
+T.blobToBase64Str = async function(blob) {
+  const buffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const binStr = Array.from(bytes, (x) => String.fromCodePoint(x)).join("");
+  return window.btoa(binStr);
+}
+
+
+T.base64StrToBlob = function(base64Str, mimeType) {
+  const binStr = window.atob(base64Str);
+  const bytes  = Uint8Array.from(binStr, (m) => m.codePointAt(0));
+  if (mimeType) {
+    return new Blob([bytes], {type: mimeType});
+  } else {
+    return new Blob([bytes]);
+  }
+}
+
+
+
 // ====================================
 
 T.createIdxTool = function(start) {
@@ -1380,6 +1400,37 @@ T.extension2MimeType = function(extension) {
   const mimeType = mime.getType(extension)
   return mimeType || '';
 }
+
+
+T.createBlobUrlStorage = function() {
+  return {
+    map: new Map(), // blobUrl => {mimeType, base64Data}
+    get size() {
+      return this.map.size;
+    },
+    add(url, it) {
+      this.map.set(url, it);
+    },
+
+    delete(url) {
+      this.map.delete(url);
+    },
+
+    has(url) {
+      return this.map.has(url);
+    },
+
+    getBlob(url) {
+      if (this.map.has(url)) {
+        const {base64Data, mimeType} = this.map.get(url);
+        return T.base64StrToBlob(base64Data, mimeType);
+      } else {
+        return null;
+      }
+    }
+  };
+}
+
 
 T.createResourceCache = function({size = 80}) {
 

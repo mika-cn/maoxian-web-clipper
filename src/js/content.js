@@ -416,11 +416,45 @@ function setSavingHint(msg) {
 
 function saveClipping(msg) {
   const {clipping} = msg;
-  ExtMsg.sendToBackend('saving',{
-    type: 'save',
-    body: clipping
-  });
-  saveClippingHistory(clipping);
+  syncDataOfBlobUrlsToBackend(clipping).then(
+    () => {
+      ExtMsg.sendToBackend('saving',{
+        type: 'save',
+        body: clipping
+      });
+      saveClippingHistory(clipping);
+    },
+    (err) => {
+      Log.error(err);
+    }
+  );
+}
+
+
+
+async function syncDataOfBlobUrlsToBackend(clipping) {
+  // sync data of blob URLs to backend
+  for (const task of clipping.tasks) {
+    if (task.type == 'url' && T.isBlobUrl(task.url)) {
+      const blobUrlObj = await fetchBlobUrlAsTransferableObject(task.url);
+      await ExtMsg.sendToBackend('saving', {
+        type: 'sync.blob-url-data',
+        body: {
+          clipId: clipping.info.clipId,
+          blobUrlObj,
+        }
+      });
+    }
+  }
+}
+
+
+async function fetchBlobUrlAsTransferableObject(url) {
+  const resp = await window.fetch(url);
+  const blob = await resp.blob();
+  const mimeType = blob.type;
+  const base64Data = await T.blobToBase64Str(blob);
+  return {url, mimeType, base64Data}
 }
 
 
