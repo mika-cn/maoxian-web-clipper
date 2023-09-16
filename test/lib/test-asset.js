@@ -4,8 +4,11 @@ global.browser = browser;
 import H from '../helper.js';
 import Asset from '../../src/js/lib/asset.js';
 
+
 import ExtMsg from '../mock/ext-msg.js';
 ExtMsg.initBrowser(browser);
+
+import Window from '../mock/window.js';
 
 describe("Asset", () => {
 
@@ -100,12 +103,42 @@ describe("Asset", () => {
 
 
   describe('getWebUrlMimeType', () => {
+    const getSamplePngBytes = () => new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+    const getSamplePngBinStr = () => {
+      return Array.from(getSamplePngBytes(), (x) => String.fromCodePoint(x)).join('')
+    }
+
+    const getSamplePngBlob = () => {
+      const bytes = getSamplePngBytes();
+      return new Blob([bytes]);
+    }
+
     it("getWebUrlMimeType - data url", async () => {
       const url = 'data:image/png;base64,imagedata';
       const params = {url};
       const mimeType = await Asset.getWebUrlMimeType(params);
       H.assertEqual(mimeType, 'image/png');
+    });
 
+    it("getWebUrlMimeType - data url(unknown type)", async () => {
+      const pngBinStr = getSamplePngBinStr();
+      const base64Data = btoa(pngBinStr);
+      const url = `data:application/octet-stream;base64,${base64Data}`;
+      const params = {url};
+      const mimeType = await Asset.getWebUrlMimeType(params);
+      H.assertEqual(mimeType, 'image/png');
+    });
+
+
+    it("getWebUrlMimeType - blob url", async () => {
+      const blob = getSamplePngBlob();
+      const url = 'blob:https://a.org/blobID';
+      const params = {url};
+      Window.mockFetchBlob(url, blob);
+      const mimeType = await Asset.getWebUrlMimeType(params);
+      H.assertEqual(mimeType, 'image/png');
+      Window.clearMocks();
     });
 
     it("getWebUrlMimeType - http url", async () => {
@@ -132,15 +165,6 @@ describe("Asset", () => {
     });
 
 
-
-    // How can we mock fetch API ?
-    // it("getWebUrlMimeType - blob url", async () => {
-    //   const url = 'blob:https://a.org/blobID';
-    //   const params = {url};
-    //   // mock fetch API here
-    //   const mimeType = await Asset.getWebUrlMimeType(params);
-    //   H.assertEqual(mimeType, 'image/png');
-    // });
   });
 
 });

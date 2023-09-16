@@ -4,6 +4,7 @@ import T   from './tool.js';
 import md5 from 'blueimp-md5';
 import VariableRender from './variable-render.js'
 import ExtMsg from './ext-msg.js';
+import {filetypemime} from 'magic-bytes.js';
 
 /**
  * @param {Object} params
@@ -19,7 +20,7 @@ async function getWebUrlMimeType(params, resourceType = 'misc') {
   try {
     const {url} = params;
     if (T.isDataUrl(url)) {
-      return getDataUrlMimeType(url);
+      return (await getDataUrlMimeType(url));
     }
 
     if (T.isBlobUrl(url)) {
@@ -243,19 +244,47 @@ function getWebUrlExtension(link, {extension, mimeType, webUrlMimeType, attrMime
   }
 }
 
-function getDataUrlMimeType(url) {
+const BIN_STREAM = 'application/octet-stream';
+
+async function getDataUrlMimeType(url) {
   //data:[<mediatype>][;base64],<data>
-  const mimeType = (new URL(url)).pathname.split(/[;,]{1}/)[0];
-  // FIXME detect file type through magic number
-  return (mimeType === 'application/octet-stream' ? null : mimeType);
+  const [mimeType, encoding, data] = (new URL(url)).pathname.split(/[;,]{1}/);
+  if (mimeType && mimeType !== BIN_STREAM) {
+    return mimeType;
+  }
+  if (encoding && encoding == 'base64') {
+    const blob = T.base64StrToBlob(data);
+    return await getBlobMimeType(blob);
+  } else {
+    return null;
+  }
 }
 
+
 async function getBlobUrlMimeType(url) {
-  const resp = await fetch(url);
+  const resp = await window.fetch(url);
   const blob = await resp.blob();
+  return await getBlobMimeType(blob);
+}
+
+
+async function getBlobMimeType(blob) {
   const mimeType = blob.type;
-  // FIXME detect file type through magic number
-  return (mimeType === 'application/octet-stream' ? null : mimeType);
+  if (mimeType && mimeType !== BIN_STREAM) {
+    return mimeType;
+  }
+
+  // try detect mime type through magic number (file signatrue)
+  const buffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const mimeTypes = filetypemime(bytes);
+  if (mimeTypes.length > 0) {
+    if (mimeTypes.length > 1) {console.debug(mimeTypes)}
+    const it = mimeTypes[0];
+    return (it && it !== BIN_STREAM ? it : null);
+  } else {
+    return null;
+  }
 }
 
 export default {

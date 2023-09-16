@@ -951,12 +951,12 @@ T.blobToBase64Str = async function(blob) {
   const buffer = await blob.arrayBuffer();
   const bytes = new Uint8Array(buffer);
   const binStr = Array.from(bytes, (x) => String.fromCodePoint(x)).join("");
-  return window.btoa(binStr);
+  return btoa(binStr);
 }
 
 
 T.base64StrToBlob = function(base64Str, mimeType) {
-  const binStr = window.atob(base64Str);
+  const binStr = atob(base64Str);
   const bytes  = Uint8Array.from(binStr, (m) => m.codePointAt(0));
   if (mimeType) {
     return new Blob([bytes], {type: mimeType});
