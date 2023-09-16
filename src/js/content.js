@@ -449,12 +449,25 @@ async function syncDataOfBlobUrlsToBackend(clipping) {
 }
 
 
+// @see @MDN/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
 async function fetchBlobUrlAsTransferableObject(url) {
   const resp = await window.fetch(url);
   const blob = await resp.blob();
   const mimeType = blob.type;
-  const base64Data = await T.blobToBase64Str(blob);
-  return {url, mimeType, base64Data}
+  if (MxWcLink.isFirefox()) {
+    // on Firefox,
+    // The Structured clone algorithm is used.
+    // so we can send blob directly to background
+    const dataType = 'blob';
+    return {url, mimeType, dataType, data: blob};
+  } else {
+    // on Chromium
+    // The JSON serialization algorithm is used
+    // so we encode the data use base64.
+    const dataType = 'base64';
+    const data = await T.blobToBase64Str(blob);
+    return {url, mimeType, dataType, data}
+  }
 }
 
 

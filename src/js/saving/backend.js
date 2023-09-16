@@ -11,11 +11,11 @@ function messageHandler(message, sender){
       case 'sync.blob-url-data':
         //  so we can access them in background
         const {clipId, blobUrlObj} = message.body;
-        const {url, mimeType, base64Data} = blobUrlObj;
+        const {url, mimeType, dataType, data} = blobUrlObj;
         Log.debug("sync.blob: ", url);
         setClippingBlobUrl(clipId, url);
         Global.blobUrlStorage.add(
-          url, {mimeType, base64Data});
+          url, {mimeType, dataType, data});
         resolve();
         break;
       case 'save':

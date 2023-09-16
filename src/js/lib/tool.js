@@ -1403,8 +1403,10 @@ T.extension2MimeType = function(extension) {
 
 
 T.createBlobUrlStorage = function() {
+  // map: blobUrl => {mimeType, dataType, data}
+  // dataType: 'blob' or 'base64'
   return {
-    map: new Map(), // blobUrl => {mimeType, base64Data}
+    map: new Map(),
     get size() {
       return this.map.size;
     },
@@ -1422,8 +1424,13 @@ T.createBlobUrlStorage = function() {
 
     getBlob(url) {
       if (this.map.has(url)) {
-        const {base64Data, mimeType} = this.map.get(url);
-        return T.base64StrToBlob(base64Data, mimeType);
+        const {mimeType, dataType, data} = this.map.get(url);
+        if (dataType == 'blob') {
+          return data;
+        } else {
+          // base64
+          return T.base64StrToBlob(data, mimeType);
+        }
       } else {
         return null;
       }
