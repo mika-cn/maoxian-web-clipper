@@ -78,10 +78,23 @@ function getResourceHandler(params) {
     ];
     const removeUnusedRules = (config.htmlCaptureCssRules === 'saveUsed');
 
+    // collect webUrlMimeType in case any url doesn't have extension
+    const webUrlMimeTypes = [];
+    for (let i = 0; i < resourceItems.length; i++) {
+      const {url} = resourceItems[i];
+      if (url) {
+        const webUrlMimeType = await Asset.getWebUrlMimeType(
+          requestParams.toParams(url), resourceType);
+        webUrlMimeTypes.push(webUrlMimeType);
+      } else {
+        webUrlMimeTypes.push(undefined);
+      }
+    }
+
     const boolFlags = (
          isCSS   && saveAll(resourceItems)
       || isImage && getImageFlags(resourceItems, config)
-      || isFont  && getWebFontFlags(resourceItems, config)
+      || isFont  && getWebFontFlags(resourceItems, webUrlMimeTypes, config)
     );
 
     const paths = [];
@@ -98,8 +111,7 @@ function getResourceHandler(params) {
       const mimeTypeData = {};
       if (!cssText) {
         // images or fonts
-        mimeTypeData.httpMimeType = await Asset.getHttpMimeType(
-          requestParams.toParams(url), resourceType);
+        mimeTypeData.webUrlMimeType = webUrlMimeTypes[i];
       }
 
       const name = Asset.getNameByLink({
@@ -188,7 +200,7 @@ function getImageFlags(resourceItems, config) {
 }
 
 // @return {[Boolean]} flags
-function getWebFontFlags(resourceItems, config) {
+function getWebFontFlags(resourceItems, webUrlMimeTypes, config) {
   const option = config.htmlCaptureWebFont;
   switch(option) {
     case 'remove': return removeAll(resourceItems);
@@ -197,6 +209,7 @@ function getWebFontFlags(resourceItems, config) {
       return CaptureTool.matchFilterList(
         config.htmlWebFontFilterList,
         resourceItems,
+        webUrlMimeTypes,
         saveAll
       );
     }

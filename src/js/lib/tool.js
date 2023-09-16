@@ -465,6 +465,14 @@ T.isDataUrl = function(url){
   }
 }
 
+T.isBlobUrl = function(url){
+  if (url.match(/^blob:/i)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 T.isHttpUrl = function(url){
   if (url.match(/^https:/i) || url.match(/^http:/i)) {
     return true;
@@ -556,9 +564,12 @@ T.getUrlFilename = function(urlOrPath){
 }
 
 
-// not support data protocol URLs
 T.getUrlExtension = function(url){
-  return T.getFileExtension(T.removeFileExtensionTail(T.getUrlFilename(url)));
+  if (T.isDataUrl(url) || T.isBlobUrl(url)) {
+    return ''
+  } else {
+    return T.getFileExtension(T.removeFileExtensionTail(T.getUrlFilename(url)));
+  }
 }
 
 
@@ -934,6 +945,26 @@ T.blob2BinaryString = function(blob) {
     reader.readAsBinaryString(blob);
   });
 }
+
+
+T.blobToBase64Str = async function(blob) {
+  const buffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const binStr = Array.from(bytes, (x) => String.fromCodePoint(x)).join("");
+  return btoa(binStr);
+}
+
+
+T.base64StrToBlob = function(base64Str, mimeType) {
+  const binStr = atob(base64Str);
+  const bytes  = Uint8Array.from(binStr, (m) => m.codePointAt(0));
+  if (mimeType) {
+    return new Blob([bytes], {type: mimeType});
+  } else {
+    return new Blob([bytes]);
+  }
+}
+
 
 
 // ====================================
@@ -1370,6 +1401,44 @@ T.extension2MimeType = function(extension) {
   return mimeType || '';
 }
 
+
+T.createBlobUrlStorage = function() {
+  // map: blobUrl => {mimeType, dataType, data}
+  // dataType: 'blob' or 'base64'
+  return {
+    map: new Map(),
+    get size() {
+      return this.map.size;
+    },
+    add(url, it) {
+      this.map.set(url, it);
+    },
+
+    delete(url) {
+      this.map.delete(url);
+    },
+
+    has(url) {
+      return this.map.has(url);
+    },
+
+    getBlob(url) {
+      if (this.map.has(url)) {
+        const {mimeType, dataType, data} = this.map.get(url);
+        if (dataType == 'blob') {
+          return data;
+        } else {
+          // base64
+          return T.base64StrToBlob(data, mimeType);
+        }
+      } else {
+        return null;
+      }
+    }
+  };
+}
+
+
 T.createResourceCache = function({size = 80}) {
 
   function addCacheDataReaders(cache) {
@@ -1387,7 +1456,14 @@ T.createResourceCache = function({size = 80}) {
         return decoder.decode(this.data);
       },
       readAsBlob: function() {
-        const mimeType = T.resourceType2MimeType(this.resourceType);
+        const header = T.getHeader(this.responseHeaders, 'content-type');
+        let mimeType;
+        if (header) {
+          const r = T.parseContentType(header.value);
+          mimeType = r.mimeType;
+        } else {
+          mimeType = T.resourceType2MimeType(this.resourceType);
+        }
         return new Blob([this.data], {type: mimeType});
       },
       readAsResponse: function(opts = {}) {

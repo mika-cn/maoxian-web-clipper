@@ -4,6 +4,7 @@ import T   from './tool.js';
 import md5 from 'blueimp-md5';
 import VariableRender from './variable-render.js'
 import ExtMsg from './ext-msg.js';
+import {filetypemime} from 'magic-bytes.js';
 
 /**
  * @param {Object} params
@@ -15,11 +16,19 @@ import ExtMsg from './ext-msg.js';
  *
  * @returns {String|null} mimeType
  */
-async function getHttpMimeType(params, resourceType = 'misc') {
+async function getWebUrlMimeType(params, resourceType = 'misc') {
   try {
-    if (T.isDataUrl(params.url)) { return null }
-    if(T.isUrlHasFileExtension(params.url) && isResourceTypeUrl({resourceType, url: params.url})) {
-      // in these cases, we don't need httpMimeType.
+    const {url} = params;
+    if (T.isDataUrl(url)) {
+      return (await getDataUrlMimeType(url));
+    }
+
+    if (T.isBlobUrl(url)) {
+      return (await getBlobUrlMimeType(url));
+    }
+
+    if(T.isUrlHasFileExtension(url) && isResourceTypeUrl({resourceType, url: url})) {
+      // in these cases, we don't need webUrlMimeType.
       return null;
     }
     const mimeType = await ExtMsg.sendToBackend('clipping', {
@@ -192,33 +201,38 @@ async function getFilenameAndPath(params) {
 
 
 /**
+ * WARNING: This function don't handle data urls and blob urls inside,
+ *          you should handle it beforehand and pass it as webUrlMimeType
+ *
  * @param {String} link
  * @param {Object} options
  * @param {String} [options.extension]
  * @param {String} [options.mimeType] - if we only have one mimeType.
- * @param {String} [options.httpMimeType] - from http request
+ * @param {String} [options.webUrlMimeType] - from http request, data url, blob url ...
  * @param {String} [options.attrMimeType] - from attribute of HTML tag
  * @param {String} [options.resourceType]
  *
  * @returns {String|null} extension
  */
-function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeType, resourceType = 'misc'}) {
+function getWebUrlExtension(link, {extension, mimeType, webUrlMimeType, attrMimeType, resourceType = 'misc'}) {
   try {
+    if (extension) { return extension }
+
     let url = new URL(link);
-    if (url.protocol === 'data:') {
-      //data:[<mediatype>][;base64],<data>
-      const mimeType = url.pathname.split(/[;,]{1}/)[0];
-      return T.mimeType2Extension(mimeType);
+    if (url.protocol === 'data:' || url.protocol == 'blob:') {
+      if (mimeType)       { return T.mimeType2Extension(mimeType) }
+      if (webUrlMimeType) { return T.mimeType2Extension(webUrlMimeType); }
+      if (attrMimeType)   { return T.mimeType2Extension(attrMimeType); }
+      return null;
     } else {
-      if (extension) { return extension }
       if (!url.pathname) { return null }
       const urlExt = T.getUrlExtension(url.href)
       if (urlExt && isResourceTypeUrl({resourceType, urlExt})) {
         return urlExt;
       } else {
-        if (mimeType)     { return T.mimeType2Extension(mimeType) }
-        if (httpMimeType) { return T.mimeType2Extension(httpMimeType); }
-        if (attrMimeType) { return T.mimeType2Extension(attrMimeType); }
+        if (mimeType)       { return T.mimeType2Extension(mimeType) }
+        if (webUrlMimeType) { return T.mimeType2Extension(webUrlMimeType); }
+        if (attrMimeType)   { return T.mimeType2Extension(attrMimeType); }
         return null;
       }
     }
@@ -230,13 +244,56 @@ function getWebUrlExtension(link, {extension, mimeType, httpMimeType, attrMimeTy
   }
 }
 
+const BIN_STREAM = 'application/octet-stream';
+
+async function getDataUrlMimeType(url) {
+  //data:[<mediatype>][;base64],<data>
+  const [mimeType, encoding, data] = (new URL(url)).pathname.split(/[;,]{1}/);
+  if (mimeType && mimeType !== BIN_STREAM) {
+    return mimeType;
+  }
+  if (encoding && encoding == 'base64') {
+    const blob = T.base64StrToBlob(data);
+    return await getBlobMimeType(blob);
+  } else {
+    return null;
+  }
+}
+
+
+async function getBlobUrlMimeType(url) {
+  const resp = await window.fetch(url);
+  const blob = await resp.blob();
+  return await getBlobMimeType(blob);
+}
+
+
+async function getBlobMimeType(blob) {
+  const mimeType = blob.type;
+  if (mimeType && mimeType !== BIN_STREAM) {
+    return mimeType;
+  }
+
+  // try detect mime type through magic number (file signatrue)
+  const buffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const mimeTypes = filetypemime(bytes);
+  if (mimeTypes.length > 0) {
+    if (mimeTypes.length > 1) {console.debug(mimeTypes)}
+    const it = mimeTypes[0];
+    return (it && it !== BIN_STREAM ? it : null);
+  } else {
+    return null;
+  }
+}
+
 export default {
   md5,
-  getHttpMimeType,
   getNameByLink,
   getNameByContent,
   getUniqueName,
   getFilename,
   getFilenameAndPath,
+  getWebUrlMimeType,
   getWebUrlExtension,
 }
