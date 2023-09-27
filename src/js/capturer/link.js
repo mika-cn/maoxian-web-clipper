@@ -94,10 +94,10 @@ async function captureIcon({node, href, linkTypes, opts}) {
   }
 
   const resourceType = 'image';
-  const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url), resourceType);
+  const webUrlMimeType = await Asset.getWebUrlMimeType(requestParams.toParams(url), resourceType);
   const attrMimeType = node.attr.type;
   const {filename, path} = await Asset.getFilenameAndPath({
-    link: url, mimeTypeData: {httpMimeType, attrMimeType},
+    link: url, mimeTypeData: {webUrlMimeType, attrMimeType},
     clipId,  storageInfo, resourceType,
   });
 

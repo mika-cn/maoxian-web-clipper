@@ -416,11 +416,58 @@ function setSavingHint(msg) {
 
 function saveClipping(msg) {
   const {clipping} = msg;
-  ExtMsg.sendToBackend('saving',{
-    type: 'save',
-    body: clipping
-  });
-  saveClippingHistory(clipping);
+  syncDataOfBlobUrlsToBackend(clipping).then(
+    () => {
+      ExtMsg.sendToBackend('saving',{
+        type: 'save',
+        body: clipping
+      });
+      saveClippingHistory(clipping);
+    },
+    (err) => {
+      Log.error(err);
+    }
+  );
+}
+
+
+
+async function syncDataOfBlobUrlsToBackend(clipping) {
+  // sync data of blob URLs to backend
+  for (const task of clipping.tasks) {
+    if (task.type == 'url' && T.isBlobUrl(task.url)) {
+      const blobUrlObj = await fetchBlobUrlAsTransferableObject(task.url);
+      await ExtMsg.sendToBackend('saving', {
+        type: 'sync.blob-url-data',
+        body: {
+          clipId: clipping.info.clipId,
+          blobUrlObj,
+        }
+      });
+    }
+  }
+}
+
+
+// @see @MDN/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
+async function fetchBlobUrlAsTransferableObject(url) {
+  const resp = await window.fetch(url);
+  const blob = await resp.blob();
+  const mimeType = blob.type;
+  if (MxWcLink.isFirefox()) {
+    // on Firefox,
+    // The Structured clone algorithm is used.
+    // so we can send blob directly to background
+    const dataType = 'blob';
+    return {url, mimeType, dataType, data: blob};
+  } else {
+    // on Chromium
+    // The JSON serialization algorithm is used
+    // so we encode the data use base64.
+    const dataType = 'base64';
+    const data = await T.blobToBase64Str(blob);
+    return {url, mimeType, dataType, data}
+  }
 }
 
 

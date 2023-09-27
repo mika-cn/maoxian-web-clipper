@@ -50,9 +50,9 @@ async function captureImageSrcset(node, {baseUrl, storageInfo, requestParams, cl
       const {isValid, url, message} = T.completeUrl(itemSrc, baseUrl);
       if (isValid) {
         const resourceType = 'image';
-        const httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url), resourceType);
+        const webUrlMimeType = await Asset.getWebUrlMimeType(requestParams.toParams(url), resourceType);
         const {filename, path} = await Asset.getFilenameAndPath({
-          link: url, mimeTypeData: {httpMimeType, attrMimeType},
+          link: url, mimeTypeData: {webUrlMimeType, attrMimeType},
           clipId, storageInfo, resourceType,
         });
 
@@ -169,7 +169,7 @@ async function captureAttrResource(node, params, attrParams) {
           mimeTypeData.attrMimeType = node.attr[mimeTypeAttrName];
         }
         if (!mimeTypeData.attrMimeType) {
-          mimeTypeData.httpMimeType = await Asset.getHttpMimeType(requestParams.toParams(url), resourceType);
+          mimeTypeData.webUrlMimeType = await Asset.getWebUrlMimeType(requestParams.toParams(url), resourceType);
         }
       }
 
@@ -245,9 +245,10 @@ function captureRemoveNode(reason) {
 }
 
 // @returns {boolean}
-function isFilterMatch(filterText, url, mimeType) {
+function isFilterMatch(filterText, url, mimeTypeData = {}) {
   if (!filterText) { return false }
-  const extension = Asset.getWebUrlExtension(url, {mimeType});
+  const mimeType = (mimeTypeData.mimeType || mimeTypeData.webUrlMimeType)
+  const extension = Asset.getWebUrlExtension(url, mimeTypeData);
   const resourceType = Task.getResourceType(extension, mimeType);
   let match = false;
 
@@ -282,11 +283,12 @@ function isFilterMatch(filterText, url, mimeType) {
 /**
  * @param {String} filterListText
  * @param {[Object]} resourceItems
- * @param {String} resourceItem.url
+ *   @param {String} resourceItem.url
+ * @param {Array} webUrlMimeTypes
  * @param {Function} defaultHandler - execute if all filters can't match.
  */
 // @returns {[boolean]} boolFlags
-function matchFilterList(filterListText, resourceItems, defaultHandler) {
+function matchFilterList(filterListText, resourceItems, webUrlMimeTypes, defaultHandler) {
   const text = filterListText.trim();
   if (!text) { return defaultHandler(resourceItems)}
   const filterTexts = text.split('|').map((it) => it.trim());
@@ -294,8 +296,10 @@ function matchFilterList(filterListText, resourceItems, defaultHandler) {
   for (const filterText of filterTexts) {
     const tmpArr = [];
     let matches = false;
-    for (const resourceItem of resourceItems) {
-      if (isFilterMatch(filterText, resourceItem.url)) {
+    for (let i = 0; i < resourceItems.length; i++) {
+      const resourceItem = resourceItems[i];
+      const mimeTypeData = {webUrlMimeType: webUrlMimeTypes[i]};
+      if (isFilterMatch(filterText, resourceItem.url, mimeTypeData)) {
         matches = true;
         tmpArr.push(true);
       } else {

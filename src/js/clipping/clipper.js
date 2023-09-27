@@ -68,7 +68,7 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
   }
 
   const {storageInfo, nameConflictResolver} = StorageConfigRender.exec(Object.assign(
-    { storageConfig, now, domain, nameConflictResolver},
+    { storageConfig, now, domain},
     T.sliceObj(userInput, ['format', 'title', 'category']),
     {nameConflictResolver: T.createFilenameConflictResolver()})
   );

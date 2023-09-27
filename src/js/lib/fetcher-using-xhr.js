@@ -40,14 +40,27 @@ function head(url, {headers = {}, timeout = 40, tries = 3}) {
  */
 function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
   return new Promise((resolve, reject) => {
-    const cache = state.Cache.get(url);
-    if (cache) {
-      const resp = cache.readAsResponse();
-      resp[respType]().then(resolve);
+    if (T.isBlobUrl(url)) {
+      if (respType !== 'blob') {
+        const message = `Invalid respType: ${respType}, should be 'blob'`;
+        reject({message, retry: false});
+      } else if (state.BlobUrlStorage.has(url)) {
+        const blob = state.BlobUrlStorage.getBlob(url);
+        resolve(blob);
+      } else {
+        const errorMessage = `Target blob url hasn't sync to background yet : ${url}`;
+        reject({message: errorMessage, retry: false});
+      }
     } else {
-      doXhr('GET', url, {respType, headers, timeout}).then((resp) => {
+      const cache = state.Cache.get(url);
+      if (cache) {
+        const resp = cache.readAsResponse();
         resp[respType]().then(resolve);
-      }, reject);
+      } else {
+        doXhr('GET', url, {respType, headers, timeout}).then((resp) => {
+          resp[respType]().then(resolve);
+        }, reject);
+      }
     }
   });
 }
@@ -227,9 +240,10 @@ function appendToken(headers) {
 
 // We should set request token first.
 const state = {};
-function init({token, cache}) {
+function init({token, cache, blobUrlStorage}) {
   state.requestToken = token;
   state.Cache = cache;
+  state.BlobUrlStorage = blobUrlStorage;
 }
 
 export default {init, get, head};

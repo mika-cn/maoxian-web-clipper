@@ -47,6 +47,39 @@ describe('WebRequest', () => {
       H.assertEqual(dict[originalUrl], targetUrl);
     });
 
+    it('should store circle redirection', () => {
+      const {StoreRedirection} = WebRequest;
+      StoreRedirection.init();
+      const urlA = 'https://a.org/a';
+      const urlB = 'https://a.org/b';
+
+      const evDetailsA = getRedirectionEvDetails('sub_frame', urlA, urlB);
+      const evDetailsB = getRedirectionEvDetails('sub_frame', urlB, urlA);
+
+      StoreRedirection.perform(evDetailsA);
+      StoreRedirection.perform(evDetailsB);
+
+      const dict = StoreRedirection.getRedirectionDict();
+      H.assertEqual(dict[urlA], urlB);
+    });
+
+    it('should store self redirection', () => {
+      const {StoreRedirection} = WebRequest;
+      StoreRedirection.init();
+      const urlA = 'https://a.org/a';
+      const urlB = 'https://a.org/b';
+
+      const evDetailsA = getRedirectionEvDetails('sub_frame', urlA, urlB);
+      const evDetailsB = getRedirectionEvDetails('sub_frame', urlB, urlB); // self loop redirect
+
+      StoreRedirection.perform(evDetailsA);
+      StoreRedirection.perform(evDetailsB);
+      StoreRedirection.perform(evDetailsB);
+
+      const dict = StoreRedirection.getRedirectionDict();
+      H.assertEqual(dict[urlA], urlB);
+    });
+
   });
 
   describe('StoreMimeType', () => {

@@ -21,16 +21,34 @@ const StoreRedirection = (function() {
       redirectStatus: {}, // targetUrl => status
       add(type, url, targetUrl) {
         if (url && targetUrl) {
-          Log.info("Store Redirection", url, " => ", targetUrl);
-          const resourceType = getResourceType(type);
-          this.dict[url] = {resourceType, targetUrl};
-          this.redirectStatus[targetUrl] = FINAL;
-          if (this.redirectStatus[url] === FINAL) {
-            this.redirectStatus[url] = MIDDLE;
+          if (this.isLoopRedirection(url, targetUrl)) {
+            Log.info("Loop Redirection", url, " => ", targetUrl);
+            this.redirectStatus[url] = FINAL;
+          } else {
+            Log.info("Store Redirection", url, " => ", targetUrl);
+            const resourceType = getResourceType(type);
+            this.dict[url] = {resourceType, targetUrl};
+            this.redirectStatus[targetUrl] = FINAL;
+            if (this.redirectStatus[url] === FINAL) {
+              this.redirectStatus[url] = MIDDLE;
+            }
           }
         } else {
           Log.warn("Invalid Redirection", url, targetUrl);
         }
+      },
+      isLoopRedirection(url, targetUrl) {
+        if (url === targetUrl) {
+          // self loop redirection
+          // 1st hop: a -> a -> a -> a...
+          // 2st hop: a -> b -> b -> b...
+          return true;
+        }
+
+        // a -> b -> a
+        if (this.redirectStatus[url] !== FINAL) { return false }
+        const detail = this.getFinalDetail(targetUrl)
+        return detail && detail.targetUrl === url;
       },
       isTarget(url) {
         return this.redirectStatus[url];

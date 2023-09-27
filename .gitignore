@@ -1,6 +1,7 @@
 
 .vscode
 .ignore/
+yarn-error.log
 node_modules/
 dist/extension/maoxian-web-clipper
 dist/extension/*.zip
