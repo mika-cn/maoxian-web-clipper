@@ -272,7 +272,7 @@ function getTurndownService(config){
   service.addRule('ignoreWrapper', {
     filter(node, options) {
       // marked element nodes
-      return node.nodeType == 1 && node.hasAttribute('data-mx-ignore-me');
+      return node.nodeType == 1 && node.hasAttribute('data-mx-ignore-md');
     },
     replacement(content, node, options) {
       return content;

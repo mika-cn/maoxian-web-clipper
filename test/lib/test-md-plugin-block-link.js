@@ -8,7 +8,7 @@ import mdPlugin from '../../src/js/lib/md-plugin-block-link.js';
 
 describe('MdPluginBlockLink', () => {
 
-  const ATTR_MARKER = 'data-mx-ignore-me';
+  const ATTR_IGNORE_MD = 'data-mx-ignore-md';
 
   function getParams(html) {
     const {doc, node} = DOMTool.parseHTML(win, `<div class="context">${html}</div>`,);
@@ -29,7 +29,7 @@ describe('MdPluginBlockLink', () => {
     const originHTML = contextNode.innerHTML;
     const node = mdPlugin.handle(doc, contextNode);
     const emptyBlock = node.querySelector('.empty');
-    H.assertTrue(emptyBlock.hasAttribute(ATTR_MARKER));
+    H.assertTrue(emptyBlock.hasAttribute(ATTR_IGNORE_MD));
   });
 
   it('Should handle normal wrapper', () => {
@@ -37,7 +37,15 @@ describe('MdPluginBlockLink', () => {
     const {doc, contextNode} = getParams(html);
     const node = mdPlugin.handle(doc, contextNode);
     const div = node.querySelector('.wrapper');
-    H.assertTrue(div.hasAttribute(ATTR_MARKER));
+    H.assertTrue(div.hasAttribute(ATTR_IGNORE_MD));
+  });
+
+  it('Should handle external link with svg icon', () => {
+    const html = '<a href="x">link text<svg class="external-link"><circle cx="50" cy="50" r="40" /></svg></a>';
+    const {doc, contextNode} = getParams(html);
+    const originHTML = contextNode.innerHTML;
+    const node = mdPlugin.handle(doc, contextNode);
+    H.assertEqual(node.innerHTML, originHTML);
   });
 
   it('Should handle deep wrapper', () => {
@@ -45,7 +53,7 @@ describe('MdPluginBlockLink', () => {
     const {doc, contextNode} = getParams(html);
     const node = mdPlugin.handle(doc, contextNode);
     const wrappers = node.querySelectorAll('.wrapper');
-    [].forEach.call(wrappers, (it) => H.assertTrue(it.hasAttribute(ATTR_MARKER)));
+    [].forEach.call(wrappers, (it) => H.assertTrue(it.hasAttribute(ATTR_IGNORE_MD)));
   });
 
   it('should handle picture block links', () => {
@@ -53,7 +61,7 @@ describe('MdPluginBlockLink', () => {
     const {doc, contextNode} = getParams(html);
     const node = mdPlugin.handle(doc, contextNode);
     const div = node.querySelector('.wrapper');
-    H.assertTrue(div.hasAttribute(ATTR_MARKER));
+    H.assertTrue(div.hasAttribute(ATTR_IGNORE_MD));
   });
 
   it('should handle figure', () => {
@@ -61,14 +69,14 @@ describe('MdPluginBlockLink', () => {
     const {doc, contextNode} = getParams(html);
     const node = mdPlugin.handle(doc, contextNode);
     const div = node.querySelector('.wrapper');
-    H.assertTrue(div.hasAttribute(ATTR_MARKER));
+    H.assertTrue(div.hasAttribute(ATTR_IGNORE_MD));
   });
 
   it('should handle figure with figcaption', () => {
     const html = '<a href="x"><figure class="wrapper"><img src="x.png"><figcaption>caption</figcaption></figure></a>';
     const extraAssetFn = (node) => {
       const figure = node.querySelector('.wrapper');
-      H.assertFalse(figure.hasAttribute(ATTR_MARKER));
+      H.assertFalse(figure.hasAttribute(ATTR_IGNORE_MD));
     };
 
     shouldWrapContentWithLinks(html, extraAssetFn);
@@ -97,6 +105,25 @@ describe('MdPluginBlockLink', () => {
     const html = '<a href="x">line A<br>line B<br>line C</a>';
     shouldWrapContentWithLinks(html);
   });
+
+  it('should handle custom element as block element', () => {
+    const html = '<a href="x"><mycard>TEXT</mycard></a>';
+    shouldWrapContentWithLinks(html);
+  });
+
+  it('should handle attribute data-mx-md-display-block', () => {
+    const html = '<a href="x"><span data-mx-md-display-block="1">TEXT</span></a>';
+    shouldWrapContentWithLinks(html);
+  });
+
+  it('should handle attribute data-mx-md-display-inline', () => {
+    const html = '<a href="x"><mycard data-mx-md-display-inline="1">TEXT</mycard></a>';
+    const {doc, contextNode} = getParams(html);
+    const originHTML = contextNode.innerHTML;
+    const node = mdPlugin.handle(doc, contextNode);
+    H.assertEqual(node.innerHTML, originHTML);
+  });
+
 
   function shouldWrapContentWithLinks(html, extraAssetFn) {
     const {doc, contextNode} = getParams(html);

@@ -14,7 +14,21 @@
  * Which is not a valid markdown link.
  *
  * this plugin preprocess these block links to solve the problem.
+ *
+ * Because developers can use a block element as inline or otherwise,
+ * We can't figure an element is block or not just by it's tag name.
+ *
+ * And we can't figure custom elements (treat as block element by default) too.
+ *
+ * So we depend on two MaoXian attribute:
+ *
+ *   - If a block element being used as inline,
+ *     mark it with attribute "data-mx-md-display-inline"
+ *
+ *   - if a inline element beging used as block
+ *     mark it with attribute "data-mx-md-display-block"
  */
+
 
 // node types
 const NODE_ELEMENT = 1, NODE_TEXT = 3;
@@ -25,32 +39,6 @@ const NODE_ELEMENT = 1, NODE_TEXT = 3;
 //
 // html, body, thead, tbody, tfoot, tr, th, td
 //
-const blockElements = [
-  'CENTER', 'DIV',
-  'P', 'PRE',
-
-  'BLOCKQUOTE',
-  'FIGCAPTION', 'FIGURE', 'CANVAS',
-
-  'FORM','FIELDSET', 'OUTPUT',
-
-  'FRAMESET', 'NOSCRIPT', 'NOFRAMES',
-
-  'HEADER', 'FOOTER', 'MAIN', 'ASIDE', 'NAV', 'MENU',
-  'ARTICLE', 'SECTION', 'ADDRESS',
-
-  'HGROUP',
-  'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
-
-  'TABLE',
-
-  'OL', 'UL', 'LI',
-  'DIR',
-
-  'DL', 'DT', 'DD',
-
-  'AUDIO', 'VIDEO',
-];
 
 // get from chatGPT...
 const inlineElements = [
@@ -88,7 +76,11 @@ const inlineElements = [
   'VAR'
 ].concat([
   // added by us
+  'DEL',
+  'INS',
   'PICTURE',
+  'SVG',
+  'MATHML',
 ]);
 
 
@@ -119,21 +111,17 @@ const voidElements = [
 const inlineTextWrappers = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
 
 
-function isBlockNode(node) {
-  return node.nodeType == NODE_ELEMENT && blockElements.indexOf(node.nodeName) > -1;
-}
-
-function isInlineNode(node) {
-  return node.nodeType == NODE_ELEMENT && inlineElements.indexOf(node.nodeName) > -1;
+function isInlineElement(node) {
+  return node.nodeType == NODE_ELEMENT && inlineElements.indexOf(node.nodeName.toUpperCase()) > -1;
 }
 
 function needDeepAnalyze(node) {
-  return node.nodeType == NODE_ELEMENT && blockElementsThatNeedDeeplyAnalyze.indexOf(node.nodeName) > -1
+  return node.nodeType == NODE_ELEMENT && blockElementsThatNeedDeeplyAnalyze.indexOf(node.nodeName.toUpperCase()) > -1
 }
 
 
 function isInlineTextWrapper(node) {
-  return node.nodeType == NODE_ELEMENT && inlineTextWrappers.indexOf(node.nodeName) > -1
+  return node.nodeType == NODE_ELEMENT && inlineTextWrappers.indexOf(node.nodeName.toUpperCase()) > -1
 }
 
 
@@ -371,7 +359,7 @@ function markAllWrappers(doc, anchor, wrappers) {
 
 
 function ignoreNodes(nodes) {
-  nodes.forEach((it) => it.setAttribute('data-mx-ignore-me', '1'));
+  nodes.forEach((it) => it.setAttribute('data-mx-ignore-md', '1'));
 }
 
 
@@ -397,7 +385,10 @@ function countChildNodes(node) {
         break;
       }
       case NODE_ELEMENT: {
-        if (isInlineNode(childNode)) {
+
+        if (  childNode.hasAttribute('data-mx-md-display-inline')
+          || !childNode.hasAttribute('data-mx-md-display-block') && isInlineElement(childNode)
+        ) {
           inlineNodeNum++;
         } else {
           // block element

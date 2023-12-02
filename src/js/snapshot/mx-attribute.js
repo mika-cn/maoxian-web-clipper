@@ -6,7 +6,10 @@ const ORDER_BY_INDEX      = "order-by-index";
 const INDEX               = "index";
 const KEEP                = "keep";
 const LAYOUT_TABLE        = "layout-table";
-const FORMULA_DISPLAY       = "formula-display";
+const FORMULA_DISPLAY     = "formula-display";
+
+const MD_DISPLAY_BLOCK    = "md-display-block";
+const MD_DISPLAY_INLINE   = "md-display-inline";
 
 
 class MxAttribute {
@@ -39,6 +42,12 @@ class MxAttribute {
         break;
       case FORMULA_DISPLAY:
         this.attr.formulaDisplay = (attr.value || 'inline');
+        this.attrLen++;
+      case MD_DISPLAY_BLOCK:
+        this.attr.mdDisplayBlock = true;
+        this.attrLen++;
+      case MD_DISPLAY_INLINE:
+        this.attr.mdDisplayInline = true;
         this.attrLen++;
       case KEEP:
         this.attr.keep = true;
@@ -86,6 +95,13 @@ MxAttribute.toHTMLAttrObject = (mxAttrObj) => {
   if (mxAttrObj.hasOwnProperty('formulaDisplay')) {
     r[MxAttribute.FORMULA_DISPLAY] = mxAttrObj.formulaDisplay;
   }
+
+  if (mxAttrObj.hasOwnProperty('mdDisplayBlock')) {
+    r[MxAttribute.MD_DISPLAY_BLOCK] = mxAttrObj.mdDisplayBlock
+  }
+  if (mxAttrObj.hasOwnProperty('mdDisplayInline')) {
+    r[MxAttribute.MD_DISPLAY_INLINE] = mxAttrObj.mdDisplayBlock
+  }
   return r;
 }
 
@@ -94,6 +110,8 @@ MxAttribute.is = (attr) => { return (attr.name.startsWith(PREFIX)) };
 MxAttribute.KEEP            = PREFIX + KEEP;
 MxAttribute.INDEX           = PREFIX + INDEX;
 MxAttribute.LAYOUT_TABLE    = PREFIX + LAYOUT_TABLE;
-MxAttribute.FORMULA_DISPLAY = PREFIX + FORMULA_DISPLAY
+MxAttribute.FORMULA_DISPLAY = PREFIX + FORMULA_DISPLAY;
+MxAttribute.MD_DISPLAY_BLOCK = PREFIX + MD_DISPLAY_BLOCK;
+MxAttribute.MD_DISPLAY_INLINE = PREFIX + MD_DISPLAY_INLINE;
 
 export default MxAttribute;
