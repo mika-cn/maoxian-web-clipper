@@ -1,8 +1,11 @@
 
 import T      from '../lib/tool.js';
 import ExtMsg from '../lib/ext-msg.js';
-import {CSSRULE_TYPE} from '../lib/constants.js';
 import CssTextParser from './css-text-parser.js';
+import {
+  CSSRULE_TYPE,
+  CSSRULE_TYPE_DICT,
+} from '../lib/constants.js';
 
 /**!
  * There are some rules that generage by javascript (using CSSOM)
@@ -301,7 +304,21 @@ async function handleCssRule(rule, params) {
       break;
     }
 
+    case CSSRULE_TYPE.LAYER_BLOCK: {
+      r.name = rule.name;
+      r.rules = await handleCssRules(rule.cssRules, params);
+      break;
+    }
+
+    case CSSRULE_TYPE.LAYER_STATEMENT: {
+      r.nameList = [...rule.nameList];
+      break;
+    }
+
     default: {
+      // CSSFontFeatureValuesRule
+      // CSSFontPaletteValuesRule
+      // CSSPropertyRule
       r.text = rule.cssText;
       break;
     }
@@ -310,36 +327,25 @@ async function handleCssRule(rule, params) {
 }
 
 
+
 function getCssRuleType(rule) {
+  // try get from constructor
+  for (const className in CSSRULE_TYPE_DICT) {
+    // The constructor.name in content script is undefined (20231001)
+    // so we use instanceof
+    if (window[className] && (rule instanceof window[className])) {
+      return CSSRULE_TYPE_DICT[className];
+    }
+  }
+
+  // get from the "type" attribute (Deprecated)
   if (rule.type && typeof rule.type === 'number') {
     return rule.type;
   } else {
-    const name = rule.constructor.name;
-    if (name) {
-      switch(name) {
-        case 'CSSStyleRule'             : return CSSRULE_TYPE.STYLE;
-        case 'CSSCharsetRule'           : return CSSRULE_TYPE.CHARSET;
-        case 'CSSImportRule'            : return CSSRULE_TYPE.IMPORT;
-        case 'CSSMediaRule'             : return CSSRULE_TYPE.MEDIA;
-        case 'CSSFontFaceRule'          : return CSSRULE_TYPE.FONT_FACE;
-        case 'CSSPageRule'              : return CSSRULE_TYPE.PAGE;
-        case 'CSSKeyframesRule'         : return CSSRULE_TYPE.KEYFRAMES;
-        case 'CSSKeyframeRule'          : return CSSRULE_TYPE.KEYFRAME;
-        case 'CSSMarginRule'            : return CSSRULE_TYPE.MARGIN;
-        case 'CSSNamespaceRule'         : return CSSRULE_TYPE.NAMESPACE;
-        case 'CSSCounterStyleRule'      : return CSSRULE_TYPE.COUNTER_STYLE;
-        case 'CSSSupportsRule'          : return CSSRULE_TYPE.SUPPORTS;
-        case 'CSSFontFeatureValuesRule' : return CSSRULE_TYPE.FONT_FEATURE_VALUES;
-        case 'CSSViewportRule'          : return CSSRULE_TYPE.VIEWPORT;
-        default:
-          return CSSRULE_TYPE.UNKNOWN;
-      }
-    } else {
-      //FIXME
-      throw new Error("getCssRuleType(): Why constructor.name is undefined in content script");
-    }
+    return CSSRULE_TYPE.UNKNOWN;
   }
 }
+
 
 function isCircularSheet(sheet, sheetInfoAncestors) {
   return sheetInfoAncestors.find((it) => it.url && it.url == sheet.href);
@@ -492,6 +498,17 @@ async function rule2String(rule, params) {
       return `${whiteSpace.indent0}${rule.keyText}${whiteSpace}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}${whiteSpace.indent0}}`;
     }
 
+    case CSSRULE_TYPE.LAYER_BLOCK: {
+      const newParams = Object.assign({}, params, {whiteSpace: whiteSpace.nextLevel()})
+      cssText = await rules2String(rule.rules, newParams);
+      if (T.isBlankStr(cssText)) { return '' }
+      return `@layer${whiteSpace.pad(rule.name)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
+    }
+
+    case CSSRULE_TYPE.LAYER_STATEMENT: {
+      return `@layer${whiteSpace.pad(rule.nameList.join(', '))};`;
+    }
+
     case CSSRULE_TYPE.MARGIN: {
         /*
       r.name = rule.name;
@@ -502,9 +519,12 @@ async function rule2String(rule, params) {
     }
 
     default: {
-        //FIXME
-      //r.text = rule.cssText;
-      return "";
+      // CSSFontFeatureValuesRule
+      // CSSFontPaletteValuesRule
+      // CSSPropertyRule
+      //
+      // or new type of css rules
+      return r.text;
     }
   }
 }

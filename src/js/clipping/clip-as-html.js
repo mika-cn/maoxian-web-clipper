@@ -384,6 +384,16 @@ function getWrapperNodeStyleSnapshot(v) {
 }
 
 function getWrapperNodeCssRules(v) {
+  // Because the wrapper div could be styled by page stylesheets.
+  // It could have the value "border-box" as box-sizing, and we want to
+  // add padding to the wrapper, so if we don't add padding to
+  // the max width, the rest width to the selected element would
+  // be not enough (it's value will be v.elemWidth - 2 * wrapperPadding)
+  //
+  // We add padding to max-width to avoid overflow.
+  const wrapperMaxWidth  = v.elemWidth + 2 * 15;
+  const wrapperMinHeight = v.elemHeight;
+
   const rules = [
     SnapshotMaker.getCssStyleRule('body',
       StyleHelper.setImportantPriority({
@@ -399,11 +409,10 @@ function getWrapperNodeCssRules(v) {
       StyleHelper.setImportantPriority({
         'position'         : 'relative',
         'z-index'          : '0',
-        'box-sizing'       : 'content-box',
         'background-color' : v.outerElemBgCss,
         'margin'           : '0 auto',
-        'max-width'        : `${v.elemWidth}px`,
-        'min-height'       : `${v.elemHeight}px`,
+        'max-width'        : `${wrapperMaxWidth}px`,
+        'min-height'       : `${wrapperMinHeight}px`,
       })
     ),
 
@@ -475,7 +484,6 @@ function getClippingInformationCssRules(config) {
           'font-size'        : '14px',
           'line-height'      : '22px',
           'min-height'       : '50px',
-          'max-height'       : '100px',
           'height'           : 'auto',
         })
       ),

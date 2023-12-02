@@ -1,7 +1,8 @@
 
-// @see https://developer.mozilla.org/en-US/docs/Web/API/CSSRule
+// Deprecated
 // @see https://developer.mozilla.org/en-US/docs/Web/API/CSSRule/type
-export const CSSRULE_TYPE = defineEnum([
+// Belowing values are equal to cssRule.type.
+const CSS_RULE_TYPE_NUM = defineEnum([
   'UNKNOWN',
   'STYLE',
   'CHARSET',
@@ -20,6 +21,43 @@ export const CSSRULE_TYPE = defineEnum([
   'VIEWPORT',
   'REGION_STYLE',
 ], 0);
+
+
+// @see https://developer.mozilla.org/en-US/docs/Web/API/CSSRule
+// these are new CSS rules that don't have a type value (they may have a default: 0)
+const CSS_RULE_TYPE_NEW = defineEnum([
+  'FONT_PALETTE_VALUES',
+  'LAYER_STATEMENT',
+  'LAYER_BLOCK',
+  'PROPERTY',
+], 1000);
+
+export const CSSRULE_TYPE = Object.freeze(
+  Object.assign({}, CSS_RULE_TYPE_NUM, CSS_RULE_TYPE_NEW)
+)
+
+
+// css rule class name => type value
+export const CSSRULE_TYPE_DICT = {
+  CSSStyleRule             : CSSRULE_TYPE.STYLE,
+  CSSCharsetRule           : CSSRULE_TYPE.CHARSET,
+  CSSImportRule            : CSSRULE_TYPE.IMPORT,
+  CSSMediaRule             : CSSRULE_TYPE.MEDIA,
+  CSSFontFaceRule          : CSSRULE_TYPE.FONT_FACE,
+  CSSPageRule              : CSSRULE_TYPE.PAGE,
+  CSSKeyframesRule         : CSSRULE_TYPE.KEYFRAMES,
+  CSSKeyframeRule          : CSSRULE_TYPE.KEYFRAME,
+  CSSMarginRule            : CSSRULE_TYPE.MARGIN,
+  CSSNamespaceRule         : CSSRULE_TYPE.NAMESPACE,
+  CSSCounterStyleRule      : CSSRULE_TYPE.COUNTER_STYLE,
+  CSSSupportsRule          : CSSRULE_TYPE.SUPPORTS,
+  CSSFontFeatureValuesRule : CSSRULE_TYPE.FONT_FEATURE_VALUES,
+  CSSFontPaletteValuesRule : CSSRULE_TYPE.FONT_PALETTE_VALUES,
+  CSSViewportRule          : CSSRULE_TYPE.VIEWPORT,
+  CSSLayerStatementRule    : CSSRULE_TYPE.LAYER_STATEMENT,
+  CSSLayerBlockRule        : CSSRULE_TYPE.LAYER_BLOCK,
+  CSSPropertyRule          : CSSRULE_TYPE.PROPERTY,
+};
 
 
 // @see https://developer.mozilla.org/en-US/docs/Web/API/Node
