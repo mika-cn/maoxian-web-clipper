@@ -267,7 +267,9 @@ async function handleCssRule(rule, params) {
     }
 
     case CSSRULE_TYPE.MEDIA:
-    case CSSRULE_TYPE.SUPPORTS: {
+    case CSSRULE_TYPE.SUPPORTS:
+    case CSSRULE_TYPE.CONTAINER: {
+      // CSSConditionRule
       r.conditionText = (rule.conditionText || "");
       r.rules = await handleCssRules(rule.cssRules, params);
       break;
@@ -463,18 +465,16 @@ async function rule2String(rule, params) {
       return `@font-face${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
-    case CSSRULE_TYPE.MEDIA: {
+    case CSSRULE_TYPE.MEDIA     :
+    case CSSRULE_TYPE.SUPPORTS  :
+    case CSSRULE_TYPE.CONTAINER : {
+      // CSSConditionRule
+      const atRuleIdentifier = getConditionRuleIdentifier(rule.type);
+      const prefix = "@" + atRuleIdentifier;
       const newParams = Object.assign({}, params, {whiteSpace: whiteSpace.nextLevel()})
       cssText = await rules2String(rule.rules, newParams);
       if (T.isBlankStr(cssText)) { return '' }
-      return `@media${whiteSpace.pad(rule.conditionText)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
-    }
-
-    case CSSRULE_TYPE.SUPPORTS: {
-      const newParams = Object.assign({}, params, {whiteSpace: whiteSpace.nextLevel()})
-      cssText = await rules2String(rule.rules, newParams);
-      if (T.isBlankStr(cssText)) { return '' }
-      return `@supports${whiteSpace.pad(rule.conditionText)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
+      return `${prefix}${whiteSpace.pad(rule.conditionText)}${whiteSpace.space}{${whiteSpace.nLine}${cssText}${whiteSpace.nLine}}`;
     }
 
     case CSSRULE_TYPE.NAMESPACE: {
@@ -530,6 +530,13 @@ async function rule2String(rule, params) {
 }
 
 
+function getConditionRuleIdentifier(cssRuleType) {
+  switch(cssRuleType) {
+    case CSSRULE_TYPE.MEDIA     : return 'media';
+    case CSSRULE_TYPE.SUPPORTS  : return 'supports';
+    case CSSRULE_TYPE.CONTAINER : return 'container';
+  }
+}
 
 
 async function styleObj2String(styleObj, {baseUrl, ownerType, resourceHandler, whiteSpace}) {
