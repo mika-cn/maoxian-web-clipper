@@ -23,13 +23,18 @@ const CSS_RULE_TYPE_NUM = defineEnum([
 ], 0);
 
 
+// We should update belowing list regularly.
+//  goto http://developer.mozilla.org/en-US/docs/Web/API , and search "Rule".
+//
 // @see https://developer.mozilla.org/en-US/docs/Web/API/CSSRule
+// @see https://developer.mozilla.org/en-US/docs/Web/API/CSSConditionRule
 // these are new CSS rules that don't have a type value (they may have a default: 0)
 const CSS_RULE_TYPE_NEW = defineEnum([
   'FONT_PALETTE_VALUES',
   'LAYER_STATEMENT',
   'LAYER_BLOCK',
   'PROPERTY',
+  'CONTAINER',
 ], 1000);
 
 export const CSSRULE_TYPE = Object.freeze(
@@ -57,6 +62,7 @@ export const CSSRULE_TYPE_DICT = {
   CSSLayerStatementRule    : CSSRULE_TYPE.LAYER_STATEMENT,
   CSSLayerBlockRule        : CSSRULE_TYPE.LAYER_BLOCK,
   CSSPropertyRule          : CSSRULE_TYPE.PROPERTY,
+  CSSContainerRule         : CSSRULE_TYPE.CONTAINER,
 };
 
 
