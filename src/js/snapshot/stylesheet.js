@@ -524,7 +524,7 @@ async function rule2String(rule, params) {
       // CSSPropertyRule
       //
       // or new type of css rules
-      return r.text;
+      return (rule.text || "");
     }
   }
 }
