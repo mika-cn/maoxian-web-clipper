@@ -278,6 +278,20 @@ describe('MdPluginCode', () => {
     testPreCodeWithButtons(html);
   }
 
+  {
+    // 52pojie.cn (discus forum)
+    const html = ""
+      + '<pre>'
+      +   '<em class="CopyMyCode">Copy</em>'
+      +   '<em class="hideMyCode">Hide</em>'
+      +   '<code class="language-javascript">'
+      +     '<span>hello\nworld</span>'
+      +   '</code>'
+      +  '</pre>'
+    ;
+    testPreCodeWithButtons(html);
+  }
+
 
   function testPreCodeWithBlankComponent(html, componentSelector) {
     it("remove blank component", () => {
