@@ -786,11 +786,9 @@ function removeCodeBlockActions(node) {
   if (count.textNode !== 0 || count.otherNode !== 0) { return }
   if (count.elementNode > 1) {
     const codeNode = codeNodes[0];
-    [].forEach.call(node.children, (child) => {
-      if (child !== codeNode && !child.hasAttribute('data-mx-keep')) {
-        node.removeChild(child);
-      }
-    });
+    const isActionNode = (it) => it !== codeNode && !it.hasAttribute('data-mx-keep');
+    // find these action nodes and remove them.
+    [].filter.call(node.children, isActionNode).forEach((it) => node.removeChild(it));
   }
 }
 
