@@ -15,6 +15,7 @@ function renderExtensionLinks(){
     'history',
     'failed-tasks',
     'reset-history',
+    'welcome',
     'debug'
   ]
   const links = names.map((name) => {

@@ -11,9 +11,11 @@
     "page.setting": "Setting",
     "page.history": "History",
     "page.reset-history": "Reset history",
+    "page.welcome": "Welcome",
     "page.debug": "Debugging information",
     "page.failed-tasks": "Failed tasks",
 
+    "desc.welcome": "This is the popup page after your installation",
     "desc.setting": "Setting: save format, save path etc.",
     "desc.history": "Where to see what you have clipped.",
     "desc.reset-history": "Where you reset your clipping history when you install MaoXian in a new device.",
