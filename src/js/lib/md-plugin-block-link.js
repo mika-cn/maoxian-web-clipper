@@ -472,7 +472,8 @@ function isBlankStr(str) {
 
 function copyAttributes(elem, fromElem) {
   [].forEach.call(fromElem.attributes, function (attr) {
-    elem.setAttribute(attr.name, attr.value);
+    // ignore illegal attribute names
+    try { elem.setAttribute(attr.name, attr.value) } catch (e) {}
   });
 }
 
