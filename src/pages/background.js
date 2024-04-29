@@ -36,8 +36,8 @@ function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type){
 
-      case 'popup-menu.clip':
-        const msg = {type: message.type};
+      case 'popup-menu.clip-command':
+        const msg = {type: "clip-command", body: message.body};
         loadContentScriptsAndSendMsg(msg).then(resolve, reject);
         break;
 
@@ -323,17 +323,18 @@ function welcomeNewUser(){
 
 function commandListener(command) {
   switch (command) {
-    case 'open-clipping':
-      openClipping();
-      break;
-    default: {
-      // toggle-clip
-      const msg = {type: "command", body: {command}};
+    case 'clip-as-default':
+    case 'clip-as-html':
+    case 'clip-as-md':
+      const msg = {type: "clip-command", body: {command}};
       const handleError = (errMsg) => console.error(errMsg);
       loadContentScriptsAndSendMsg(msg).then(
         () => {}, handleError);
       break;
-    }
+    case 'open-clipping':
+      openClipping();
+      break;
+    default: break;
   }
 }
 

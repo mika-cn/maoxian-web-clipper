@@ -14,13 +14,23 @@
     "description": "Tooltip for the icon, displayed when the user moves their mouse over it."
   },
 
-  "commandToggleClip": {
-    "message": "开始裁剪",
-    "description": "Send a toggle clip event"
+  "commandClipAsDefault": {
+    "message": "裁剪为默认格式",
+    "description": "快捷键提示语"
+  },
+
+  "commandClipAsHtml": {
+    "message": "裁剪为 HTML 格式",
+    "description": "快捷键提示语"
+  },
+
+  "commandClipAsMd": {
+    "message": "裁剪为 Markdown 格式",
+    "description": "快捷键提示语"
   },
 
   "commandOpenClipping": {
     "message": "查看裁剪结果",
-    "description": "Open current clipping result"
+    "description": "快捷键提示语"
   }
 }

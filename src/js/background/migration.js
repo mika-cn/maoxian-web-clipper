@@ -40,6 +40,13 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.11'] = function(config) {
+  config.version = '2.12';
+  config.selectSaveFormatOnMenus = config.inputFieldSaveFormatEnabled;
+  delete config.inputFieldSaveFormatEnabled;
+  return config;
+}
+
 ConfigMigration['2.10'] = function(config) {
   config.version = '2.11';
   config.markdownOptionFormulaBlockWrapper = "padSameLine";

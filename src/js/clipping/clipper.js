@@ -170,9 +170,9 @@ async function clip(elem, {config, info, storageInfo, storageConfig, i18nLabel, 
 function dealFormInputs({title, category, tagstr}, config) {
   title    = (title    || "").trim();
   category = (category || "").trim();
-  format = (config.saveFormat || 'html')
 
   if (title === "") { title = 'Untitled' }
+  const format = (config.saveFormat || 'html');
   const tags = T.splitTagstr(tagstr);
 
   return {format, title, category, tags}

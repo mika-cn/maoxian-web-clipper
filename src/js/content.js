@@ -14,6 +14,7 @@ let state = {state: null};
 function resetClippingState() {
   /* only avariable in current clipping */
   state.tempConfig = {};
+  state.saveFormat = null;
   YieldPoint.reset();
   /* information of current clipping */
   state.storageConfig = null;
@@ -21,19 +22,35 @@ function resetClippingState() {
   state.clipping = null;
 }
 
+function toggleClip() {
+  window.focus();
+  activeUI({});
+}
+
+function handleClipCommand({command}) {
+  switch(command) {
+    case 'clip-as-default':
+      state.saveFormat = null;
+      toggleClip();
+      break;
+    case 'clip-as-html':
+      state.saveFormat = 'html';
+      toggleClip();
+      break;
+    case 'clip-as-md':
+      state.saveFormat = 'md';
+      toggleClip();
+      break;
+    default: break;
+  }
+}
+
 function messageHandler(msg) {
   return new Promise(function(resolve, reject){
     switch(msg.type){
-      case 'popup-menu.clip':
-        window.focus();
-        activeUI({});
-        break;
-      case 'command':
-        const {command} = msg.body;
-        if (command === 'toggle-clip')  {
-          window.focus();
-          activeUI({});
-        }
+      case 'clip-command':
+        // browser shortcuts or clicked popup menu
+        handleClipCommand(msg.body);
         break;
       case 'saving.started':
         UI.savingStarted(msg.body);
@@ -508,7 +525,7 @@ function queryElem(msg, callback){
 }
 
 async function formSubmitted({elem, formInputs, config}) {
-  const currConfig = Object.assign(config, state.tempConfig)
+  const currConfig = getCurrentConfig(config);
   const domain    = window.location.host.split(':')[0];
   const pageUrl   = window.location.href;
   const userAgent = window.navigator.userAgent;
@@ -566,6 +583,13 @@ async function formSubmitted({elem, formInputs, config}) {
   } else {
     saveClipping({clipping});
   }
+}
+
+
+function getCurrentConfig(config) {
+  const it = Object.assign(config, state.tempConfig)
+  if (state.saveFormat) {it.saveFormat = state.saveFormat}
+  return it;
 }
 
 

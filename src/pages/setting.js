@@ -37,8 +37,8 @@ function initSettingGeneral(config) {
   );
 
   initCheckboxInput(config,
-    'input-field-save-format-enabled',
-    'inputFieldSaveFormatEnabled',
+    'select-save-format-on-menus',
+    'selectSaveFormatOnMenus',
   );
 
   initCheckboxInput(config,

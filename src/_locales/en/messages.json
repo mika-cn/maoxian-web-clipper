@@ -14,14 +14,24 @@
     "description": "Tooltip for the icon, displayed when the user moves their mouse over it."
   },
 
-  "commandToggleClip": {
-    "message": "Start clip",
-    "description": "Send a toggle clip event"
+  "commandClipAsDefault": {
+    "message": "Clip as default format",
+    "description": "Shortcut label"
+  },
+
+  "commandClipAsHtml": {
+    "message": "Clip as HTML",
+    "description": "Shortcut label"
+  },
+
+  "commandClipAsMd": {
+    "message": "Clip as Markdown",
+    "description": "Shortcut label"
   },
 
   "commandOpenClipping": {
     "message": "Open current clipping",
-    "description": "Open current clipping result"
+    "description": "Shortcut label"
   }
 
 }
