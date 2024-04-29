@@ -593,6 +593,12 @@ function getCurrentConfig(config) {
 }
 
 
+function getExposableConfig(config) {
+  const currConfig = getCurrentConfig(config);
+  return T.sliceObj(currConfig, ['saveFormat'])
+}
+
+
 function getPlatform() {
   const platform = {name: 'unknown'};
   if (MxWcLink.isChrome()) {
@@ -726,6 +732,7 @@ function run(){
           UI.setContentFn('submitted', formSubmitted);
           UI.setContentFn('hasYieldPoint', hasYieldPoint);
           UI.setContentFn('setCurrYieldPoint', setCurrYieldPoint);
+          UI.setContentFn('getExposableConfig', getExposableConfig);
           initialize();
           listenMessage();
           listenPopState();

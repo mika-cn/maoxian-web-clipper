@@ -43,7 +43,7 @@ function performWhenActived(e) {
 }
 
 function performWhenSelecting(e) {
-  const detail = {};
+  const detail = MxWcEvent.getData(e);
   perform('selecting', detail);
 }
 

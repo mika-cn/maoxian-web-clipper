@@ -375,20 +375,23 @@ function setStateIdle(){
 }
 function setStateSelecting(){
   state.clippingState = 'selecting';
+  const msg = {config: state.contentFn.getExposableConfig(state.config)};
   sendFrameMsgToControl('setStateSelecting');
-  dispatchMxEvent('selecting');
+  dispatchMxEvent('selecting', msg);
 }
 function setStateSelected(){
   state.clippingState = 'selected';
+  const msg = {config: state.contentFn.getExposableConfig(state.config)};
   sendFrameMsgToControl('setStateSelected');
-  dispatchMxEvent('selected');
+  dispatchMxEvent('selected', msg);
 }
 function setStateConfirmed(elem){
   state.clippingState = 'confirmed';
+  const msg = {config: state.contentFn.getExposableConfig(state.config)};
   sendFrameMsgToControl('setStateConfirmed');
   try {
     const selector = getCssSelector(elem);
-    const msg = {elem: {selector}};
+    msg.elem = {selector};
     dispatchMxEvent('confirmed', msg);
   } catch(e) {
     Log.error("before dispatchMxEvent(confirmed)", e.mesasge, e);
