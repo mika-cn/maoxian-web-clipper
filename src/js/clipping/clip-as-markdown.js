@@ -11,6 +11,7 @@ import MdPluginCode          from '../lib/md-plugin-code.js';
 import MdPluginMathJax       from '../lib/md-plugin-mathjax.js';
 import MdPluginKatex         from '../lib/md-plugin-katex.js';
 import MdPluginMathML2LaTeX  from '../lib/md-plugin-mathml2latex.js';
+import MdPluginMxFormula     from '../lib/md-plugin-mx-formula.js';
 import MdPluginTable         from '../lib/md-plugin-table.js';
 import MdPluginBlockLink     from '../lib/md-plugin-block-link.js';
 import CaptureTool           from '../capturer/tool.js';
@@ -75,6 +76,7 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
   markdown = MdPluginMathJax.unEscapeMathJax(markdown, formulaBlockWrapper);
   markdown = MdPluginKatex.unEscapeKatex(markdown, formulaBlockWrapper);
   markdown = MdPluginMathML2LaTeX.unEscapeLaTex(markdown, formulaBlockWrapper);
+  markdown = MdPluginMxFormula.unEscapeMxFormula(markdown, formulaBlockWrapper);
 
 
   const trimFn = function() {
@@ -195,6 +197,7 @@ function doExtraWork({html, win}) {
   selectedNode = MdPluginMathJax.handle(doc, selectedNode);
   selectedNode = MdPluginKatex.handle(doc, selectedNode);
   selectedNode = MdPluginMathML2LaTeX.handle(doc, selectedNode);
+  selectedNode = MdPluginMxFormula.handle(doc, selectedNode);
   selectedNode = MdPluginTable.handle(doc, selectedNode);
   selectedNode = MdPluginBlockLink.handle(doc, selectedNode);
 
