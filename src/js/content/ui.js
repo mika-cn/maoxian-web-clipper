@@ -633,7 +633,7 @@ function pressEsc(msg){
   }
 }
 
-// @param {Object} msg {:format, :title, :category, :tagstr}
+// @param {Object} msg {:title, :category, :tagstr}
 function pressEnter(msg){
   if(state.clippingState === 'selecting' && state.currElem){
     selectedTarget(state.currElem);
@@ -911,7 +911,7 @@ function selectElem(elem, callback){
 
 /*
  * 3rd party interface
- * formInputs: {:format, :title, :category, :tagstr}
+ * formInputs: {:title, :category, :tagstr}
  */
 function confirmElem(elem, formInputs){
   selectElem(elem, function(){
@@ -921,7 +921,7 @@ function confirmElem(elem, formInputs){
 
 /*
  * 3rd party interface
- * formInputs: {:format, :title, :category, :tagstr}
+ * formInputs: {:title, :category, :tagstr}
  */
 function clipElem(elem, formInputs){
   selectElem(elem, function(){
@@ -931,7 +931,7 @@ function clipElem(elem, formInputs){
 
 /*
  * 3rd party interface
- * formInputs: {:format, :title, :category, :tagstr}
+ * formInputs: {:title, :category, :tagstr}
  */
 state.formInputs = {};
 function setFormInputs(formInputs) {
@@ -951,7 +951,6 @@ function setFormOptions(formOptions) {
 
 function getFormInputs(elem, formInputs = {}) {
   const inputs = {
-    format   : (formInputs.format   || state.formInputs.format   || ""),
     title    : (formInputs.title    || state.formInputs.title    || DOMTool.getWebPageTitle(window, elem)),
     category : (formInputs.category || state.formInputs.category || ""),
     tagstr   : (formInputs.tagstr   || state.formInputs.tagstr   || "")

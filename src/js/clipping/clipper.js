@@ -16,7 +16,7 @@ import MxMarkdownClipper from './clip-as-markdown.js';
 
 /**
  *
- * @param {Object} formInputs: {:format, :title, :category, :tagstr}
+ * @param {Object} formInputs: {:title, :category, :tagstr}
  * @param {Object} config
  * @param {Object} params
  *   - {String} domain
@@ -167,12 +167,11 @@ async function clip(elem, {config, info, storageInfo, storageConfig, i18nLabel, 
 
 
 //private
-function dealFormInputs({format, title, category, tagstr}, config) {
-  format   = (format   || "").trim();
+function dealFormInputs({title, category, tagstr}, config) {
   title    = (title    || "").trim();
   category = (category || "").trim();
+  format = (config.saveFormat || 'html')
 
-  if (format === "") { format = (config.saveFormat || 'html') }
   if (title === "") { title = 'Untitled' }
   const tags = T.splitTagstr(tagstr);
 
