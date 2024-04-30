@@ -100,9 +100,16 @@ async function takeSnapshotOfCurrNode(node, params) {
       const upperCasedNodeName = node.nodeName.toUpperCase();
 
       if (node.hasAttribute(MxAttribute.KEEP)) {
+        // marked by maoxian attribute data-mx-keep
         // Treat this node as an exception
         // do nothing
       } else {
+
+        if (node.hasAttribute(MxAttribute.IGNORE)) {
+          snapshot.ignore = true;
+          snapshot.ignoreReason = 'marker: data-mx-ignore';
+          return {snapshot}
+        }
 
         if (blacklist[upperCasedNodeName]) {
           snapshot.ignore = true;
