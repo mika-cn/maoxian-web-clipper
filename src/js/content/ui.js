@@ -371,7 +371,8 @@ function hideForm(){
 function setStateIdle(){
   state.clippingState = 'idle';
   sendFrameMsgToControl('setStateIdle');
-  dispatchMxEvent('idle');
+  const msg = {config: state.contentFn.getExposableConfig(state.config)};
+  dispatchMxEvent('idle', msg);
 }
 function setStateSelecting(){
   state.clippingState = 'selecting';
@@ -449,27 +450,41 @@ function sendFrameMsgToSelection(type, msg) {
 // ===========================================
 function entryClick(e){
   if (state.clippingState === 'idle') {
-    if (isUILoading()) {
-      Log.debug("UI is loading, clippingState is changing from 'idle' to 'selecting'");
-    } else {
-      // switch to ON
-      listenFrameMsg();
-      T.bindOnce(document, 'all-iframe-loaded', () => {
-        bindListener();
-        setStateSelecting();
-      })
-      appendUI();
-    }
-  }else{
-    if(state.clippingState !== 'clipping') {
-      // switch to OFF
-      ignoreFrameMsg();
-      hideForm();
-      unbindListener();
-      eraseHigtlightStyle();
-      setStateIdle();
-      removeUI();
-    }
+    startNewClipping();
+  } else {
+    cancelCurrentClipping();
+  }
+}
+
+
+function startNewClipping() {
+  if (isUILoading()) {
+    Log.debug("UI is loading, clippingState is changing from 'idle' to 'selecting'");
+  } else {
+    // Load UI and start selecting
+    listenFrameMsg();
+    T.bindOnce(document, 'all-iframe-loaded', () => {
+      bindListener();
+      setStateSelecting();
+    })
+    appendUI();
+  }
+}
+
+
+function cancelCurrentClipping() {
+  if (state.clippingState == 'clipping') {
+    // Not able to cancel in this state
+    // Do nothing
+    // Let the current clipping process
+  } else {
+    // cancel the current clipping.
+    ignoreFrameMsg();
+    hideForm();
+    unbindListener();
+    eraseHigtlightStyle();
+    setStateIdle();
+    remveUI();
   }
 }
 
@@ -888,7 +903,7 @@ function friendlyExit(timeout) {
 function selectElem(elem, callback){
   if(state.clippingState === 'idle') {
     Log.debug("[selectElem] State Idle...");
-    entryClick({});
+    startNewClipping();
   }
   state.currElem = getOutermostWrapper(elem);
 
@@ -901,7 +916,7 @@ function selectElem(elem, callback){
   } else {
     Log.debug("[selectElem] Iframe Loading...");
     const allIframeLoad = function(e){
-      // when all iframe loaded, there's some initialization should finish.
+      // when all iframe loaded, there's some initialization should finish, so we select element next tick.
       setTimeout(() => {
         selectedTarget(state.currElem);
         if(callback){ callback()}
@@ -1001,27 +1016,28 @@ function init(config) {
 }
 
 const UI = {
-  init: init,
-  remove: removeUI,
-  setContentFn: setContentFn,
-  entryClick: entryClick,
-  windowSizeChanged: windowSizeChanged,
-  getCurrState: getCurrState,
+  init,
+  removeUI,
+  setContentFn,
+  startNewClipping,
+  cancelCurrentClipping,
+  windowSizeChanged,
+  getCurrState,
 
-  setStateClipped: setStateClipped,
+  setStateClipped,
 
-  savingStarted: savingStarted,
-  savingProgress: savingProgress,
-  savingCompleted: savingCompleted,
+  savingStarted,
+  savingProgress,
+  savingCompleted,
 
   // 3rd party interface
-  selectElem: selectElem,
-  confirmElem: confirmElem,
-  clipElem: clipElem,
-  setFormInputs: setFormInputs,
-  setFormOptions: setFormOptions,
-  setSavingHint: setSavingHint,
-  friendlyExit: friendlyExit,
+  selectElem,
+  confirmElem,
+  clipElem,
+  setFormInputs,
+  setFormOptions,
+  setSavingHint,
+  friendlyExit,
   recoverFromConfirmedYieldPoint,
   showFormFromYieldPoint,
 }

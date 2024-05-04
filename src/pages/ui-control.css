@@ -84,7 +84,7 @@ body {
 }
 
 /* state bar */
-.state-bar {display: block;}
+.state-bar {display: block; text-align: right;}
 .gbox.idle .state-bar { display: none }
 .gbox.confirmed .state-bar { display: none }
 

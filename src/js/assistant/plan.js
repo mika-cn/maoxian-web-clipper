@@ -1,3 +1,4 @@
+
 /*!
  * MaoXian Web Clipper Tool
  *   apply function is used to apply a plan. Plan describes some operators include hiding DOM element, picking DOM element etc.
@@ -16,56 +17,98 @@ import UrlEditor from './url-editor.js';
 
 let listeners = {};
 
-function listen(type, action) {
+function appendAction(type, action) {
   const actions = getActions(type);
   actions.push(action);
+  listeners[type] = actions;
+}
+
+function prependAction(type, action) {
+  const actions = getActions(type);
+  actions.unshift(action);
   listeners[type] = actions;
 }
 
 function getActions(type) {
   return listeners[type] || [];
 }
+
+
 //=========================================
 // perform && undo
 //=========================================
 
-
 function bindListener() {
   MxWcEvent.listenInternal('actived', performWhenActived);
   MxWcEvent.listenInternal('selecting', performWhenSelecting);
-  MxWcEvent.listenInternal('completed', performWhenCompleted);
   MxWcEvent.listenInternal('idle', performWhenIdle);
 }
 
 function performWhenActived(e) {
   const detail = {};
-  perform('actived', detail);
+  const tagFilter = getTagFilter(detail)
+  perform('actived', tagFilter);
 }
 
 function performWhenSelecting(e) {
   const detail = MxWcEvent.getData(e);
-  perform('selecting', detail);
-}
-
-function performWhenCompleted(e) {
-  const detail = MxWcEvent.getData(e);
-  perform('completed', detail);
+  const tagFilter = getTagFilter(detail)
+  perform('selecting', tagFilter);
 }
 
 function performWhenIdle(e) {
-  const detail = {};
-  perform('idle', detail);
+  const detail = MxWcEvent.getData(e);
+  const tagFilter = getTagFilter(detail)
+  perform('idle', tagFilter);
 }
 
-function perform(msgType, detail) {
-  const r = [];
+/*
+ * tagFilter(tagName => boolean)
+ * if an action contains tags
+ * only all tags in tagFilter are true
+ * then this action can perform
+ *
+ * current tags:
+ *  - disabled
+ *  - html-only
+ *  - md-only
+ */
+function getTagFilter(detail) {
+  const tagFilter = {disabled: false}
+  if (detail.config) {
+    const {config} = detail;
+    if (config.saveFormat == 'html') {
+      tagFilter['html-only'] = true;
+    }
+    if (config.saveFormat == 'md') {
+      tagFilter['md-only'] = true;
+    }
+  }
+  return tagFilter;
+}
+
+function perform(msgType, tagFilter) {
+  const r = []; // store onetime actions
   const actions = getActions(msgType);
   actions.forEach((action) => {
-    action.perform(detail);
-    if(action.isPerformOnce) {
+    const origAction = (action.name == 'undo' ? action.args : action);
+    const tags = T.toArray(origAction.tag)
+    const canPerform = (
+         tags.length == 0
+      || T.all(tags, (it) => tagFilter[it])
+    );
+
+    if (canPerform) {
+      performAction(action)
+    } else {
+      console.debug("Ignore action: ", action);
+    }
+
+    if (isPerformOnce(action)) {
       r.push(action);
     }
   });
+
   r.forEach((action) => {
     const idx = actions.indexOf(action)
     if(idx > -1) {
@@ -75,123 +118,128 @@ function perform(msgType, detail) {
   listeners[msgType] = actions;
 }
 
+
+// Defined actions that can only perform once in a clipping session.
+//     because user may change state from "selected" to "selecting",
+// if these actions can perform multiple times, then user will automatically
+// jump back from "selecting" to "selected".
+// further cause user can't move cursor to change the selected area.
+function isPerformOnce(action) {
+  return ({
+    pick    : true,
+    select  : true,
+    confirm : true,
+    clip    : true,
+  }[action.name] || false);
+}
+
+
+// @param {Object} action: { name, args }
+function performAction(action) {
+  const name = action.name;
+  const args = T.toArray(action.args);
+  const actionFn = actionDict[name];
+  if (actionFn) {
+    actionFn(...args);
+  }
+}
+
+
 //=========================================
 // Actions
 //=========================================
 
-const Action = {};
 
-function createSetDisplayAction(params) {
-  return function(selectorInput, contextSelectorInput = 'document') {
-    return {
-      name: params.name,
-      isPerformOnce: (params.performOnce || false),
-      perform: function(detail={}) {
-        const queryType = (params.queryType || 'elems');
-        const Q = createSelectorQuery(contextSelectorInput, queryType);
-        const attrNameA = "data-mx-original-display-value";
-        const attrNameB = "data-mx-original-display-priority";
-
-        const fn = (elem) => {
-          const style = window.getComputedStyle(elem);
-          if(style.display != params.display) {
-            elem.setAttribute(attrNameA, elem.style.getPropertyValue('display'));
-            elem.setAttribute(attrNameB, elem.style.getPropertyPriority('display'));
-            elem.style.setProperty('display', params.display, params.priority);
-          }
-        }
-        Q.eachElem(selectorInput, fn);
-      },
-    };
+function undo(action) {
+  const name = action.name;
+  const args = T.toArray(action.args);
+  const undoFn = undoActionDict[name];
+  if (undoFn) {
+    // console.debug("undo: ", action);
+    undoFn(...args)
   }
 }
 
-Action.showElem = createSetDisplayAction({
-  name: 'showElem',
-  display: 'block',
-  priority: 'important'
-});
 
-Action.hideElem = createSetDisplayAction({
-  name: 'hideElem',
-  display: 'none',
-  priority: 'important'
-});
+function setDisplayStyle(params) {
+  const {display, priority = 'important', selectorInput,
+    contextSelectorInput = 'document', queryType = 'elems'} = params;
 
-Action.hideElemOnce = createSetDisplayAction({
-  name: 'hideElem',
-  display: 'none',
-  priority: 'important',
-  performOnce: true
-});
+  const Q = createSelectorQuery(contextSelectorInput, queryType);
+  const attrNameA = "data-mx-original-display-value";
+  const attrNameB = "data-mx-original-display-priority";
 
-Action.hideSibling = createSetDisplayAction({
-  name: 'hideSibling',
-  display: 'none',
-  priority: 'important',
-  queryType: 'siblings',
-});
-
-Action.undoHideSibling = createUndoDisplayAction({
-  name: 'undoHideSibling',
-  performOnce: false,
-  queryType: 'siblings',
-});
-
-Action.hideExcept = createSetDisplayAction({
-  name: 'hideExcept',
-  display: 'none',
-  priority: 'important',
-  queryType: 'reverseQuery',
-});
-
-
-Action.undoHideExcept = createUndoDisplayAction({
-  name: 'undoHideExcept',
-  performOnce: false,
-  queryType: 'reverseQuery',
-});
-
-Action.undoDisplay = createUndoDisplayAction({
-  name: 'undoDisplay',
-  performOnce: false,
-});
-
-
-function createUndoDisplayAction(params) {
-  return function(selectorInput, contextSelectorInput = 'document') {
-    return {
-      name: params.name,
-      isPerformOnce: params.performOnce,
-      perform: function(detail={}) {
-        const queryType = (params.queryType || 'elems');
-        const Q = createSelectorQuery(contextSelectorInput, queryType);
-        const attrNameA = "data-mx-original-display-value";
-        const attrNameB = "data-mx-original-display-priority";
-
-        const fn = (elem) => {
-          if (elem.hasAttribute(attrNameA)) {
-            const originalValue    = elem.getAttribute(attrNameA);
-            const originalPriority = elem.getAttribute(attrNameB);
-            elem.style.setProperty('display', originalValue, originalPriority);
-            elem.removeAttribute(attrNameA);
-            elem.removeAttribute(attrNameB);
-            if (elem.style.length === 0) {
-              elem.removeAttribute('style');
-            }
-          }
-        };
-        Q.eachElem(selectorInput, fn);
-      },
-    };
+  const fn = (elem) => {
+    const style = window.getComputedStyle(elem);
+    if(style.display != display) {
+      elem.setAttribute(attrNameA, elem.style.getPropertyValue('display'));
+      elem.setAttribute(attrNameB, elem.style.getPropertyPriority('display'));
+      elem.style.setProperty('display', display, priority);
+    }
   }
+  Q.eachElem(selectorInput, fn);
 }
+
+
+function unsetDisplayStyle(params) {
+  const {selectorInput, contextSelectorInput = 'document',
+    queryType = 'elems'} = params;
+
+  const Q = createSelectorQuery(contextSelectorInput, queryType);
+  const attrNameA = "data-mx-original-display-value";
+  const attrNameB = "data-mx-original-display-priority";
+
+  const fn = (elem) => {
+    if (elem.hasAttribute(attrNameA)) {
+      const originalValue    = elem.getAttribute(attrNameA);
+      const originalPriority = elem.getAttribute(attrNameB);
+      elem.style.setProperty('display', originalValue, originalPriority);
+      elem.removeAttribute(attrNameA);
+      elem.removeAttribute(attrNameB);
+      if (elem.style.length === 0) {
+        elem.removeAttribute('style');
+      }
+    }
+  };
+  Q.eachElem(selectorInput, fn);
+}
+
+
+function showElem(selectorInput) {
+  setDisplayStyle({selectorInput, display: 'block'});
+}
+
+function hideElem(selectorInput) {
+  setDisplayStyle({selectorInput, display: 'none'});
+}
+
+function hideSibling(selectorInput) {
+  setDisplayStyle({selectorInput, display: 'none', queryType: 'siblings'});
+}
+
+function hideExcept({inside: contextSelectorInput, except: selectorInput}) {
+  setDisplayStyle({selectorInput, display: 'none', queryType: 'reverseQuery', contextSelectorInput});
+}
+
+function undoSetDisplay(selectorInput) {
+  unsetDisplayStyle({selectorInput, queryType: 'elems'});
+}
+
+function undoHideSibling(selectorInput) {
+  unsetDisplayStyle({selectorInput, queryType: 'siblings'});
+}
+
+function undoHideExcept({inside: contextSelectorInput, except: selectorInput}) {
+  unsetDisplayStyle({selectorInput, queryType: 'reverseQuery', contextSelectorInput});
+}
+
+
 
 
 /*
- * chAttr {Attay} [$action]
+ * @param {Object|Attay} action
  *
- * Structure of $action {Object}
+ * Structure of action {Object}
  *
  * action.type {String} (required) available values are:
  *   T01 = "assign.from.value"
@@ -219,9 +267,6 @@ function createUndoDisplayAction(params) {
  *   T91 = "split2list.add"
  *   T92 = "split2list.remove"
  *
- *
- * action.pick {SelectorInput} (required)
- *   Which element to operator.
  *
  * action.attr {String} (required)
  *   Which attribute to operator.
@@ -256,9 +301,9 @@ function createUndoDisplayAction(params) {
  *
  */
 
-function initChAttrActions(params) {
+function initChAttrActions(action) {
   const result = [];
-  params.forEach(function(it) {
+  T.toArray(action).forEach(function(it) {
     if(['split2list.add', 'split2list.remove', 'self.add', 'self.remove'].indexOf(it.type) > -1) {
       if(!it.attr) { it.attr = 'class' }
       if(!it.sep) { it.sep = ' ' }
@@ -269,254 +314,287 @@ function initChAttrActions(params) {
 }
 
 
-Action.chAttr = function(params, contextSelectorInput = 'document') {
-  const actions = initChAttrActions(params);
-  return {
-    name: 'chAttr',
-    isPerformOnce: false,
-    actions: actions,
 
-    perform: function(detail={}) {
-      const Q = createSelectorQuery(contextSelectorInput);
-      const fn = (action) => this.changeAttr(action, Q);
-      this.actions.forEach(fn)
-    },
+/*
+ * The old structure is more conveniently to write, so we keep supportting it.
+ * In this function, we convert it to the new structure.
+ * which is {pick, action}
+ */
+function convertChAttrToNewStructure(it) {
+  if (it.action) {
+    return it; // new structure
+  } else {
+    const pick = it.pick;
+    const action = T.sliceObjByFilter(it, (k, v) => {
+      return k !== 'pick';
+    });
+    return {pick, action};
+  }
+}
 
-    changeAttr: function(action, Q) {
-      const fn = ((elem, contextElem) => {
-        const value = this.getValue(elem, action, contextElem);
-        if(value !== null && value !== undefined) {
-          // has value ('' or other)
-          if (!action.attr.startsWith('data-mx-')) {
-            // Not a MaoXian attribute
-            const attrName = ['data-mx-original-attr', action.attr].join('-');
-            if (elem.hasAttribute(attrName)) {
-              // Do nothing, avoid overwriting the original attribute.
-            } else {
-              // Save original attribute
-              let attrOldValue = elem.getAttribute(action.attr);
-              attrOldValue = attrOldValue == null ? "" : attrOldValue;
-              elem.setAttribute(attrName, attrOldValue);
-            }
-          }
-          elem.setAttribute(action.attr, value);
+
+/*
+ * @param {Object} it
+ * @param {SelectorInput} it.pick
+ * @param {Object|Array} [action] if not exist then it's old structure
+ *                                (other attributes except pick is an action)
+ *
+ * - Old structure contains other attributes that define the action,
+ *   it looks like: {pick, ...action_relatived_attributes}
+ * - new structure move all these action attributes to the
+ *   value of the action attribute,
+ *   it looks like: {pick, action: {...action_relatived_attributes}}
+ */
+function changeAttribute(it) {
+  const {pick, action} = convertChAttrToNewStructure(it);
+  const contextSelectorInput = 'document';
+  const actions = initChAttrActions(action);
+  const Q = createSelectorQuery(contextSelectorInput);
+  AttributeChanger.applyActions(pick, actions, Q);
+}
+
+const AttributeChanger = {
+  applyActions: function(pick, actions, Q) {
+    const This = this;
+    actions.forEach((action) => {
+      Q.eachElem(pick, (elem, contextElem) => {
+        This.applyAction(elem, action, contextElem);
+      });
+    });
+  },
+
+  applyAction: function(elem, action, contextElem) {
+    const value = this.getValue(elem, action, contextElem);
+    if(value !== null && value !== undefined) {
+      // has value ('' or other)
+      if (!action.attr.startsWith('data-mx-')) {
+        // Not a MaoXian attribute
+        const attrName = ['data-mx-original-attr', action.attr].join('-');
+        if (elem.hasAttribute(attrName)) {
+          // Do nothing, avoid overwriting the original attribute.
+        } else {
+          // Save original attribute
+          let attrOldValue = elem.getAttribute(action.attr);
+          attrOldValue = attrOldValue == null ? "" : attrOldValue;
+          elem.setAttribute(attrName, attrOldValue);
         }
-      }).bind(this);
-      Q.eachElem(action.pick, fn);
-    },
+      }
+      elem.setAttribute(action.attr, value);
+    }
+  },
 
 
-    getValue: function(elem, action, contextElem) {
-      switch(action.type) {
-        case 'assign.from.value':
-          return action.value;
-          break;
-        case 'self.attr': // deprecated
-        case 'assign.from.self-attr':
-          return elem.getAttribute(action.tAttr);
-          break;
+  getValue: function(elem, action, contextElem) {
+    switch(action.type) {
+      case 'assign.from.value':
+        return action.value;
+        break;
+      case 'self.attr': // deprecated
+      case 'assign.from.self-attr':
+        return elem.getAttribute(action.tAttr);
+        break;
 
 
-        case 'parent.attr': //deprecated
-        case 'assign.from.parent-attr':
-          if(elem.parentElement) {
-            return elem.parentElement.getAttribute(action.tAttr);
-          }
-          break;
-
-
-        case 'assign.from.ancestor-attr': {
-          let result = undefined;
-          const [ancestorSelector, childSelector] = action.tElem;
-          if (!ancestorSelector) { return result }
-
-          iterateAncestors(elem, (ancestor) => {
-            // out of scope, stop iterating
-            if (ancestor == contextElem) { return false }
-
-            const selectorGroup = [ancestorSelector, childSelector];
-            const options = {pick: "self"};
-            const r = matchesSelectorGroup(ancestor, selectorGroup, options);
-            if (r.matches) {
-              result = r.elem.getAttribute(action.tAttr);
-              // stop iterating, found the result
-              return false;
-            } else {
-              // keep iterating
-              return true;
-            }
-          });
-          return result;
+      case 'parent.attr': //deprecated
+      case 'assign.from.parent-attr':
+        if(elem.parentElement) {
+          return elem.parentElement.getAttribute(action.tAttr);
         }
+        break;
 
 
-        case 'assign.from.ancestor.child-attr': {
-          let result = undefined;
-          const [ancestorSelector, childSelector] = action.tElem;
-          if (!ancestorSelector || !childSelector) { return result }
+      case 'assign.from.ancestor-attr': {
+        let result = undefined;
+        const [ancestorSelector, childSelector] = action.tElem;
+        if (!ancestorSelector) { return result }
 
-          iterateAncestors(elem, (ancestor) => {
-            // out of scope, stop iterating
-            if (ancestor == contextElem) { return false }
+        iterateAncestors(elem, (ancestor) => {
+          // out of scope, stop iterating
+          if (ancestor == contextElem) { return false }
 
-            const selectorGroup = [ancestorSelector, childSelector];
-            const options = {pick: "child", childBlacklist: [elem]};
-            const r = matchesSelectorGroup(ancestor, selectorGroup, options);
-            if (r.matches) {
-              result = r.elem.getAttribute(action.tAttr);
-              // stop iterating, found the result
-              return false;
-            } else {
-              // keep iterating
-              return true;
-            }
-          });
-          return result;
-        }
-
-        case 'assign.from.first-child-attr': {
-          const children = elem.children;
-          if (children && children.length > 0) {
-            return children[0].getAttribute(action.tAttr);
+          const selectorGroup = [ancestorSelector, childSelector];
+          const options = {pick: "self"};
+          const r = matchesSelectorGroup(ancestor, selectorGroup, options);
+          if (r.matches) {
+            result = r.elem.getAttribute(action.tAttr);
+            // stop iterating, found the result
+            return false;
           } else {
-            return undefined;
+            // keep iterating
+            return true;
           }
-        }
+        });
+        return result;
+      }
 
-        case 'assign.from.child-attr': {
-          let result = undefined;
-          const [selectorA, selectorB] = action.tElem;
-          if (!selectorA) { return result }
 
-          iterateChildren(elem, (child) => {
-            const selectorGroup = [selectorA, selectorB];
-            const options = {pick: "self"};
-            const r = matchesSelectorGroup(child, selectorGroup, options);
-            if (r.matches) {
-              result = r.elem.getAttribute(action.tAttr);
-              // stop iterating, found the result
-              return false;
-            } else {
-              // keep iterating
-              return true;
-            }
-          });
+      case 'assign.from.ancestor.child-attr': {
+        let result = undefined;
+        const [ancestorSelector, childSelector] = action.tElem;
+        if (!ancestorSelector || !childSelector) { return result }
 
-          return result;
-        }
+        iterateAncestors(elem, (ancestor) => {
+          // out of scope, stop iterating
+          if (ancestor == contextElem) { return false }
 
-        case 'assign.from.descendant-attr': {
-          let result = undefined;
-          const [selectorA, selectorB] = action.tElem;
-          if (!selectorA) { return result }
-          const elems = queryElemsByCss(selectorA, elem);
-          if (elems.length == 0) { return result }
-          if (selectorB) {
-            const target = elems.find((it) => queryElemsBySelector(selectorB, it).length > 0);
-            if (target) {
-              result = target.getAttribute(action.tAttr);
-            }
+          const selectorGroup = [ancestorSelector, childSelector];
+          const options = {pick: "child", childBlacklist: [elem]};
+          const r = matchesSelectorGroup(ancestor, selectorGroup, options);
+          if (r.matches) {
+            result = r.elem.getAttribute(action.tAttr);
+            // stop iterating, found the result
+            return false;
           } else {
-            result = elems[0].getAttribute(action.tAttr);
+            // keep iterating
+            return true;
           }
-          return result;
+        });
+        return result;
+      }
+
+      case 'assign.from.first-child-attr': {
+        const children = elem.children;
+        if (children && children.length > 0) {
+          return children[0].getAttribute(action.tAttr);
+        } else {
+          return undefined;
         }
+      }
 
+      case 'assign.from.child-attr': {
+        let result = undefined;
+        const [selectorA, selectorB] = action.tElem;
+        if (!selectorA) { return result }
 
-        case 'assign.from-fn.get-math-display': {
-          const result = getMathDisplay(elem, action.attr);
-          return result;
+        iterateChildren(elem, (child) => {
+          const selectorGroup = [selectorA, selectorB];
+          const options = {pick: "self"};
+          const r = matchesSelectorGroup(child, selectorGroup, options);
+          if (r.matches) {
+            result = r.elem.getAttribute(action.tAttr);
+            // stop iterating, found the result
+            return false;
+          } else {
+            // keep iterating
+            return true;
+          }
+        });
+
+        return result;
+      }
+
+      case 'assign.from.descendant-attr': {
+        let result = undefined;
+        const [selectorA, selectorB] = action.tElem;
+        if (!selectorA) { return result }
+        const elems = queryElemsByCss(selectorA, elem);
+        if (elems.length == 0) { return result }
+        if (selectorB) {
+          const target = elems.find((it) => queryElemsBySelector(selectorB, it).length > 0);
+          if (target) {
+            result = target.getAttribute(action.tAttr);
+          }
+        } else {
+          result = elems[0].getAttribute(action.tAttr);
         }
+        return result;
+      }
 
 
-        case 'self.replace': //deprecated
-        case 'replace.last-match': {
+      case 'assign.from-fn.get-math-display': {
+        const result = getMathDisplay(elem, action.attr);
+        return result;
+      }
+
+
+      case 'self.replace': //deprecated
+      case 'replace.last-match': {
+        const attr = elem.getAttribute(action.attr);
+        const subStrs = T.toArray(action.subStr);
+        const newStrs = T.toArray(action.newStr);
+
+        for (let i = 0; i < subStrs.length; i++) {
+          const index = attr.lastIndexOf(subStrs[i])
+          if(index > -1) {
+            const firstPart = attr.substring(0, index);
+            const lastPart = attr.substring(index);
+            return [
+              firstPart,
+              lastPart.replace(subStrs[i], (newStrs[i] || newStrs[0] || ''))
+            ].join('');
+          }
+        }
+        break;
+      }
+
+
+      case 'replace.all': {
+        try {
           const attr = elem.getAttribute(action.attr);
           const subStrs = T.toArray(action.subStr);
           const newStrs = T.toArray(action.newStr);
 
+          let result = attr, changed = false;
           for (let i = 0; i < subStrs.length; i++) {
-            const index = attr.lastIndexOf(subStrs[i])
+            const index = attr.indexOf(subStrs[i])
             if(index > -1) {
-              const firstPart = attr.substring(0, index);
-              const lastPart = attr.substring(index);
-              return [
-                firstPart,
-                lastPart.replace(subStrs[i], (newStrs[i] || newStrs[0] || ''))
-              ].join('');
+              const re = new RegExp(T.escapeRegExp(subStrs[i]),  'mg');
+              result = result.replace(re, (newStrs[i] || newStrs[0] || ''));
+              changed = true;
             }
           }
-          break;
-        }
 
-
-        case 'replace.all': {
-          try {
-            const attr = elem.getAttribute(action.attr);
-            const subStrs = T.toArray(action.subStr);
-            const newStrs = T.toArray(action.newStr);
-
-            let result = attr, changed = false;
-            for (let i = 0; i < subStrs.length; i++) {
-              const index = attr.indexOf(subStrs[i])
-              if(index > -1) {
-                const re = new RegExp(T.escapeRegExp(subStrs[i]),  'mg');
-                result = result.replace(re, (newStrs[i] || newStrs[0] || ''));
-                changed = true;
-              }
-            }
-
-            if (changed) { return result }
-          } catch(e){ console.warn(e)}
-          break;
-        }
-
-        case 'url.file.set-ext-suffix':
-        case 'url.file.rm-ext-suffix':
-        case 'url.file.set-name-suffix':
-        case 'url.file.rm-name-suffix': {
-          try {
-            const attrValue = elem.getAttribute(action.attr);
-            if (!attrValue) { break; }
-            return UrlEditor.editFile(attrValue, action);
-          } catch(e) { console.warn(e)}
-          break;
-        }
-
-        case 'url.search.edit': {
-          try {
-            const attrValue = elem.getAttribute(action.attr);
-            if (!attrValue) { break; }
-            const deleteNames = T.toArray(action.delete);
-            return UrlEditor.editSearch(attrValue, action.change, deleteNames);
-          } catch(e) { console.warn(e), console.stack()}
-          break;
-        }
-        case 'self.add': //deprecated
-        case 'self.remove': //deprecated
-        case 'split2list.add':
-        case 'split2list.remove': {
-          let parts = [];
-          const attrValue = elem.getAttribute(action.attr);
-          if (attrValue) {
-            parts = attrValue.trim().split(action.sep);
-          }
-
-          const isAdd = (action.type == 'split2list.add' || action.type == 'self.add');
-          const isRm  = (action.type == 'split2list.remove' || action.type == 'self.remove');
-
-          T.toArray(action.value).forEach((it) => {
-            const idx = parts.indexOf(it);
-            if(isAdd && idx == -1) { parts.push(it) }
-            if(isRm  && idx >  -1) { parts.splice(idx, 1) }
-          });
-          return parts.join(action.sep);
-        }
+          if (changed) { return result }
+        } catch(e){ console.warn(e)}
+        break;
       }
-      return undefined;
+
+      case 'url.file.set-ext-suffix':
+      case 'url.file.rm-ext-suffix':
+      case 'url.file.set-name-suffix':
+      case 'url.file.rm-name-suffix': {
+        try {
+          const attrValue = elem.getAttribute(action.attr);
+          if (!attrValue) { break; }
+          return UrlEditor.editFile(attrValue, action);
+        } catch(e) { console.warn(e)}
+        break;
+      }
+
+      case 'url.search.edit': {
+        try {
+          const attrValue = elem.getAttribute(action.attr);
+          if (!attrValue) { break; }
+          const deleteNames = T.toArray(action.delete);
+          return UrlEditor.editSearch(attrValue, action.change, deleteNames);
+        } catch(e) { console.warn(e), console.stack()}
+        break;
+      }
+      case 'self.add': //deprecated
+      case 'self.remove': //deprecated
+      case 'split2list.add':
+      case 'split2list.remove': {
+        let parts = [];
+        const attrValue = elem.getAttribute(action.attr);
+        if (attrValue) {
+          parts = attrValue.trim().split(action.sep);
+        }
+
+        const isAdd = (action.type == 'split2list.add' || action.type == 'self.add');
+        const isRm  = (action.type == 'split2list.remove' || action.type == 'self.remove');
+
+        T.toArray(action.value).forEach((it) => {
+          const idx = parts.indexOf(it);
+          if(isAdd && idx == -1) { parts.push(it) }
+          if(isRm  && idx >  -1) { parts.splice(idx, 1) }
+        });
+        return parts.join(action.sep);
+      }
     }
+    return undefined;
   }
 }
+
 
 
 // === assign.from-fn ====
@@ -558,209 +636,164 @@ function getMathDisplay(elem, attrName) {
 }
 
 
-Action.undoChAttr = function(params, contextSelectorInput = 'document') {
-  const actions = initChAttrActions(params);
-  return {
-    name: 'undoChAttr',
-    isPerformOnce: false,
-    actions: actions,
-
-    perform(detail={}) {
-      const Q = createSelectorQuery(contextSelectorInput);
-      const fn = (action) => this.undo(action, Q);
-      this.actions.forEach(fn)
-    },
-
-    undo(action, Q) {
-      const fn = (elem) => {
-        if (action.attr.startsWith('data-mx-')) {
-          // maoxian attribute, remove it
-          elem.removeAttribute(action.attr);
-        } else {
-          // not a maoxian attribute, restore old value
-          const attrName = ['data-mx-original-attr', action.attr].join('-');
-          const originalValue = elem.getAttribute(attrName);
-          if(originalValue != null) {
-            elem.setAttribute(action.attr, originalValue);
-            elem.removeAttribute(attrName);
-          }
+// @param {Object} it @see changeAttribute
+function undoChangeAttribute(it) {
+  const {pick, action} = convertChAttrToNewStructure(it);
+  const contextSelectorInput = 'document';
+  const actions = initChAttrActions(action);
+  const Q = createSelectorQuery(contextSelectorInput);
+  actions.forEach((action) => {
+    const fn = (elem) => {
+      if (action.attr.startsWith('data-mx-')) {
+        // maoxian attribute, remove it
+        elem.removeAttribute(action.attr);
+      } else {
+        // not a maoxian attribute, restore old value
+        const attrName = ['data-mx-original-attr', action.attr].join('-');
+        const originalValue = elem.getAttribute(attrName);
+        if(originalValue != null) {
+          elem.setAttribute(action.attr, originalValue);
+          elem.removeAttribute(attrName);
         }
       }
-      Q.eachElem(action.pick, fn);
     }
+    Q.eachElem(pick, fn);
+  });
+}
+
+
+/*
+ * @param {SelectorInput} pick
+ * @param {String|Array} attr
+ */
+function removeAttribute({pick, attr}) {
+  const contextSelectorInput = 'document';
+  const Q = createSelectorQuery(contextSelectorInput)
+  const fn = elem => {
+    T.toArray(attr).forEach((attrName) => {
+      if (attrName) { // attrName isn't empty
+        const attrValue = elem.getAttribute(attrName);
+        if (attrValue !== null && attrValue !== undefined) {
+          const key = "data-mx-removed-attr-" + attrName
+          elem.setAttribute(key, attrValue);
+          elem.removeAttribute(attrName);
+        }
+      }
+    });
+  }
+  Q.eachElem(pick, fn);
+};
+
+
+function undoRemoveAttribute({pick, attr}) {
+  const contextSelectorInput = 'document';
+  const Q = createSelectorQuery(contextSelectorInput)
+  const fn = (elem) => {
+    T.toArray(attr).forEach((attrName) => {
+      if (attrName) {
+        const key = "data-mx-removed-attr-" + attrName
+        if (elem.hasAttribute(key)) {
+          const attrValue = elem.getAttribute(key);
+          elem.setAttribute(attrName, attrValue);
+          elem.removeAttribute(key);
+        }
+      }
+    });
+  }
+  Q.eachElem(pick, fn);
+}
+
+
+function executeCommand(command) {
+  const contextSelectorInput = 'document';
+  const Q = createSelectorQuery(contextSelectorInput)
+  const commands = T.toARray(command);
+  const fn = (command) => {
+    switch(command.name) {
+      case 'click': {
+        const fn = (elem) => {if (elem.click) {elem.click()}};
+        Q.eachElem(command.pick, fn);
+        break;
+      }
+      case 'open':
+      case 'close': {
+        const v = ({'open': true, 'close': false})[command.name];
+        const fn = (elem) => {
+          if (elem.open !== v) {
+            elem.setAttribute('data-mx-property-open', elem.open);
+            elem.open = v;
+          }
+        }
+        Q.eachElem(command.pick, fn);
+        break;
+      }
+    }
+  }
+  commands.forEach(fn);
+}
+
+
+function undoCommand(command) {
+  const contextSelectorInput = 'document';
+  const Q = createSelectorQuery(contextSelectorInput)
+  const commands = T.toARray(command);
+  const fn = (command) => {
+    switch(command.name) {
+      case 'click': break;
+      case 'open':
+      case 'close': {
+        const fn = (elem) => {
+          const originalValue = (elem.getAttribute('data-mx-property-open'))
+          if (originalValue != null && originalValue != undefined) {
+            const oldValue = ('true' == originalValue);
+            if (elem.open !== oldValue) {
+              elem.open = oldValue;
+            }
+          }
+        }
+        Q.eachElem(command.pick, fn);
+        break;
+      }
+    }
+  }
+  commands.reverse().forEach(fn);
+}
+
+
+function pickElemAndDoAction(params) {
+  const {selectorInput, action = 'select', options = {}} = params;
+  const eventName = {
+    'select'  : 'select-elem',
+    'confirm' : 'confirm-elem',
+    'clip'    : 'clip-elem'
+  }[action]
+
+  const [elem, selector] = queryFirstElem(selectorInput, document);
+  if(elem) {
+    const msg = {
+      qType: Selector.getTypeName(selector),
+      q: selector.q
+    };
+    if(options) { msg.options = options }
+    MxWcEvent.dispatchInternal(eventName, msg);
+  } else {
+    console.warn("[MxAssistant]", "Can't find Elem to pick, selectorInput: ", selectorInput);
   }
 }
 
 
-Action.rmAttr = function(params, contextSelectorInput = 'document') {
-  return {
-    name: 'rmAttr',
-    isPerformOnce: false,
-    actions: params,
-    perform: function(detail={}) {
-      const Q = createSelectorQuery(contextSelectorInput)
-      const fn = (action) => this.rmAttr(action, Q);
-      this.actions.forEach(fn);
-    },
-    rmAttr(action, Q) {
-      const fn = elem => {
-        T.toArray(action.attr).forEach((attrName) => {
-          if (attrName) { // attrName isn't empty
-            const attrValue = elem.getAttribute(attrName);
-            if (attrValue !== null && attrValue !== undefined) {
-              const key = "data-mx-removed-attr-" + attrName
-              elem.setAttribute(key, attrValue);
-              elem.removeAttribute(attrName);
-            }
-          }
-        });
-      }
-      Q.eachElem(action.pick, fn);
-    }
-  }
+function selectElem(selectorInput) {
+  pickElemAndDoAction({selectorInput, action: 'select'});
 }
 
-
-Action.undoRmAttr = function(params, contextSelectorInput = 'document') {
-  return {
-    name: 'undoRmAttr',
-    isPerformOnce: false,
-    actions: params,
-    perform: function(detail={}) {
-      const Q = createSelectorQuery(contextSelectorInput)
-      const fn = (action) => this.undo(action, Q);
-      this.actions.forEach(fn);
-    },
-    undo(action, Q) {
-      const fn = (elem) => {
-        T.toArray(action.attr).forEach((attrName) => {
-          if (attrName) {
-            const key = "data-mx-removed-attr-" + attrName
-            if (elem.hasAttribute(key)) {
-              const attrValue = elem.getAttribute(key);
-              elem.setAttribute(attrName, attrValue);
-              elem.removeAttribute(key);
-            }
-          }
-        });
-      }
-      Q.eachElem(action.pick, fn);
-    }
-  }
+function confirmElem(selectorInput) {
+  pickElemAndDoAction({selectorInput, action: 'confirm'});
 }
 
-Action.command = function(commands, contextSelectorInput = 'document') {
-  return {
-    name: 'command',
-    isPerformOnce: false,
-    commands: commands,
-    perform: function(detail={}) {
-      const Q = createSelectorQuery(contextSelectorInput)
-      const fn = (command) => this.execute(command, Q);
-      this.commands.forEach(fn);
-    },
-
-    execute(command, Q) {
-      switch(command.name) {
-        case 'click': {
-          const fn = (elem) => {if (elem.click) {elem.click()}};
-          Q.eachElem(command.pick, fn);
-          break;
-        }
-        case 'open':
-        case 'close': {
-          const v = ({'open': true, 'close': false})[command.name];
-          const fn = (elem) => {
-            if (elem.open !== v) {
-              elem.setAttribute('data-mx-property-open', elem.open);
-              elem.open = v;
-            }
-          }
-          Q.eachElem(command.pick, fn);
-          break;
-        }
-      }
-    },
-
-  };
+function clipElem(selectorInput) {
+  pickElemAndDoAction({selectorInput, action: 'clip'});
 }
 
-Action.undoCommand = function(commands, contextSelectorInput = 'document') {
-  return {
-    name: 'undoCommand',
-    isPerformOnce: false,
-    commands: commands,
-    perform: function(detail={}) {
-      const Q = createSelectorQuery(contextSelectorInput)
-      const fn = (command) => this.undo(command, Q);
-      this.commands.forEach(fn);
-    },
-
-    undo(command, Q) {
-      switch(command.name) {
-        case 'click': break;
-        case 'open':
-        case 'close': {
-          const fn = (elem) => {
-            const originalValue = (elem.getAttribute('data-mx-property-open'))
-            if (originalValue != null && originalValue != undefined) {
-              const oldValue = ('true' == originalValue);
-              if (elem.open !== oldValue) {
-                elem.open = oldValue;
-              }
-            }
-          }
-          Q.eachElem(command.pick, fn);
-          break;
-        }
-      }
-    }
-  };
-}
-
-
-
-function createPickedElemAction(params) {
-  return function(selectorInput) {
-    return {
-      name: params.name,
-      isPerformOnce: true,
-      selectorInput: selectorInput,
-      perform: function(detail = {}) {
-        const [elem, selector] = queryFirstElem(this.selectorInput, document);
-        if(elem) {
-          const msg = {
-            qType: Selector.getTypeName(selector),
-            q: selector.q
-          };
-          if(params.options) {
-            msg.options = params.options
-          }
-          MxWcEvent.dispatchInternal(params.eventName, msg);
-        } else {
-          console.warn("[MxAssistant]", "Can't find Elem to pick, selectorInput: ", this.selectorInput);
-        }
-      }
-    }
-  }
-}
-
-Action.selectElem = createPickedElemAction({
-  name: 'selectElem',
-  eventName: 'select-elem'
-});
-
-Action.confirmElem = createPickedElemAction({
-  name: 'confirmElem',
-  eventName: 'confirm-elem',
-  options: {}
-});
-
-Action.clipElem = createPickedElemAction({
-  name: 'clipElem',
-  eventName: 'clip-elem',
-  options: {}
-});
 
 /*
  * @param {Object} form
@@ -768,50 +801,76 @@ Action.clipElem = createPickedElemAction({
  *   - {String} [category]
  *   - {String} [tagstr]
  */
-Action.setForm = function(form = {}) {
-  return {
-    name: 'setForm',
-    isPerformOnce: true,
-    form: form,
-    perform: function(detail={}) {
-      const selectorInput = this.form.title;
-      const inputs = T.sliceObj(this.form, ['category', 'tagstr']);
-      const change = {};
-      if (selectorInput) {
-        const [elem, selector] = queryFirstElem(selectorInput, document);
-        if(elem) {change.title = elem.textContent.trim()}
-      }
-      MxWcEvent.dispatchInternal('set-form-inputs', {
-        formInputs: Object.assign({}, inputs, change)
-      });
-    }
+function setForm(form = {}) {
+  const selectorInput = form.title;
+  const inputs = T.sliceObj(form, ['category', 'tagstr']);
+  const change = {};
+  if (selectorInput) {
+    const [elem, selector] = queryFirstElem(selectorInput, document);
+    if(elem) {change.title = elem.textContent.trim()}
   }
-};
-
-
-Action.setConfig = function(config) {
-  return {
-    name: 'setConfig',
-    isPerformOnce: true,
-    config: config,
-    perform: function(detail={}) {
-      MxWcEvent.dispatchInternal('overwrite-config', {
-        config: config
-      });
-    }
-  }
+  MxWcEvent.dispatchInternal('set-form-inputs', {
+    formInputs: Object.assign({}, inputs, change)
+  });
 }
 
-Action.completed = function(fn) {
-  return {
-    name: 'completed',
-    isPerformOnce: true,
-    fn: fn,
-    perform: function(detail={}) {
-      fn(detail);
-    }
-  }
+
+// @see API_SETTABLE_KEYS in config.js
+function setConfig(config) {
+  MxWcEvent.dispatchInternal('overwrite-config', {
+    config: config
+  });
 }
+
+// actionName => maoxian event type
+const actionEvTypeDict = {
+  undo        : 'idle',
+  show        : 'selecting',
+  hide        : 'selecting',
+  hideSibling : 'selecting',
+  hideExcept  : 'selecting',
+  chAttr      : 'selecting',
+  rmAttr      : 'selecting',
+  command     : 'selecting',
+  pick        : 'selecting',
+  select      : 'selecting',
+  confirm     : 'selecting',
+  clip        : 'selecting',
+  form        : 'actived',
+  config      : 'actived',
+}
+
+
+// actionName => action function
+const actionDict = {
+  undo        : undo,
+  show        : showElem,
+  hide        : hideElem,
+  hideSibling : hideSibling,
+  hideExcept  : hideExcept,
+  chAttr      : changeAttribute,
+  rmAttr      : removeAttribute,
+  command     : executeCommand,
+  pick        : selectElem,
+  select      : selectElem,
+  confirm     : confirmElem,
+  clip        : clipElem,
+  form        : setForm,
+  config      : setConfig,
+}
+
+
+// actionName => undo action function
+const undoActionDict = {
+  show        : undoSetDisplay,
+  hide        : undoSetDisplay,
+  hideSibling : undoHideSibling,
+  hideExcept  : undoHideExcept,
+  chAttr      : undoChangeAttribute,
+  rmAttr      : undoRemoveAttribute,
+  command     : undoCommand,
+}
+
 
 //=========================================
 // Tool functions
@@ -1041,7 +1100,7 @@ function getContextElem(selectorInput) {
   }
 }
 
-function getContextElems(selectorInput) {
+function getContextElems(selectorInput = 'document') {
   if (selectorInput === 'document') {
     return [document];
   } else {
@@ -1225,121 +1284,47 @@ const Selector = {
   }
 }
 
-function onClipCompleted(callback) {
-  listen('completed', Action.completed(callback));
-}
-
-function isTopWindow() {
+function isTopFrame() {
   return window.parent == window;
 }
 
-/*
- * plan{
- *   pickElem: $SelectorInput,
- *   pickAction: 'select' or 'confirm', or 'clip'
- *   hideElem: $SelectorInput,
- *   hideElemOnce: $SelectorInput,
- *   hideSibling: $SelectorInput,
- *   showElem: $SelectorInput,
- *   chAttr: [$action, ...]
- * }
- * Selector: $type||$q
- */
-function apply(plan) {
-  const {pickElem, pickAction = 'select'} = plan;
-  if(isTopWindow() && hasSelector(pickElem)) {
-    const selectorInput = pickElem;
-    handleNormalAttr(plan, 'document');
-    switch(pickAction) {
-      case 'select':
-        listen('selecting', Action.selectElem(selectorInput));
-        break;
-      case 'confirm':
-        listen('selecting', Action.confirmElem(selectorInput));
-        break;
-      case 'clip':
-        // Do we really need this?
-        break;
-      default: break;
-    }
-  } else {
-    applyGlobal(plan);
-  }
+function isActionTopFrameOnly(actionName) {
+  return ({
+    config  : true,
+    form    : true,
+    pick    : true,
+    select  : true,
+    confirm : true,
+    clip    : true,
+  }[actionName] || false);
 }
 
 /*
- * plan apply to whole document, not in selected element anymore
- * This could be used in iframe.
- * "pickElem" and "pickAction" attribute will be ignored.
+ * @param {Object} plan {actions: [{name, args}]}
+ * @param {Array} blackList of action name
  */
-function applyGlobal(plan) {
-  handleNormalAttr(plan, 'document');
-}
+function apply(plan, blackList = []) {
+  (plan.actions || []).forEach((action) => {
+    const scopeOk = (!isActionTopFrameOnly(action.name) || isTopFrame());
+    const notInBlackList = blackList.indexOf(action.name) == -1;
 
-function handleNormalAttr(plan, contextSelectorInput) {
-  const {command, hideElem, hideElemOnce, hideSibling, hideExcept, showElem,
-    chAttr, rmAttr, setForm, setConfig} = plan;
-
-  if (command) {
-    listen('selecting', Action.command(command, contextSelectorInput));
-    listen('idle', Action.undoCommand(command, contextSelectorInput));
-  }
-
-  if (hasSelector(hideElem)) {
-    const selectorInput = hideElem;
-    listen('selecting', Action.hideElem(selectorInput, contextSelectorInput));
-    listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
-  }
-
-  if (hasSelector(hideElemOnce)) {
-    const selectorInput = hideElemOnce;
-    listen('selecting', Action.hideElemOnce(selectorInput, contextSelectorInput));
-    listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
-  }
-
-  if (hasSelector(hideSibling)) {
-    const selectorInput = hideSibling;
-    listen('selecting', Action.hideSibling(selectorInput, contextSelectorInput));
-    listen('idle', Action.undoHideSibling(selectorInput, contextSelectorInput));
-  }
-
-  if (hideExcept) {
-    const items = T.toArray(hideExcept);
-    items.forEach((it) => {
-      if (it.inside && it.except) {
-        listen('selecting', Action.hideExcept(it.except, it.inside));
-        listen('idle', Action.undoHideExcept(it.except, it.inside));
+    if (scopeOk && notInBlackList) {
+      const evType = actionEvTypeDict[action.name];
+      appendAction(evType, action);
+      if (undoActionDict.hasOwnProperty(action.name)) {
+        // we can undo this action
+        const undo = {name: 'undo', args: action}
+        // console.debug("set undo", undo);
+        prependAction(actionEvTypeDict.undo, undo);
       }
-    });
-  }
-
-  if (hasSelector(showElem)) {
-    const selectorInput = showElem;
-    listen('selecting', Action.showElem(selectorInput, contextSelectorInput));
-    listen('idle', Action.undoDisplay(selectorInput, contextSelectorInput));
-  }
-
-  if (chAttr) {
-    listen('selecting', Action.chAttr(chAttr, contextSelectorInput));
-    listen('idle', Action.undoChAttr(chAttr, contextSelectorInput));
-  }
-
-  if (rmAttr) {
-    listen('selecting', Action.rmAttr(rmAttr, contextSelectorInput));
-    listen('idle', Action.undoRmAttr(rmAttr, contextSelectorInput));
-  }
-
-  if (isTopWindow() && setForm) {
-    listen('actived', Action.setForm(setForm));
-  }
-
-  if (isTopWindow() && setConfig) {
-    listen('actived', Action.setConfig(setConfig));
-  }
-
+    }
+  });
 }
 
-const hasSelector = function(it) { return it && it.length > 0; }
+function applyGlobal(plan) {
+  const blackList = ['config', 'form', 'pick', 'select', 'confirm', 'clip'];
+  apply(plan, blackList);
+}
 
 /* initialize */
 bindListener();

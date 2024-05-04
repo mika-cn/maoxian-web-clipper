@@ -5,21 +5,6 @@ import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 import Plan      from './plan.js';
 
-const config = {
-  hideElem: true,
-  showElem: true,
-  hideSibling: true,
-  hideExcept: true,
-  changeAttr: true,
-  removeAttr: true,
-  execCmd: true,
-  setForm: true,
-  setConfig: true,
-
-  // 'select' 'confirm' or 'clip'
-  pickAction: 'select',
-}
-
 function getPlan() {
   return ExtMsg.sendToBackend('assistant', {
     type: 'get.plan',
@@ -27,24 +12,46 @@ function getPlan() {
   })
 }
 
-function toMxPlan(plan) {
-  const p = {}
-  if(plan.pick) {
-    p.pickElem = plan.pick;
-    p.pickAction = (plan.pickAction || config.pickAction);
+
+
+// in order to write plan a little bit easier
+// we expose the plan's action structure as:
+//   {$actionName => $actionArgs, [tag]}
+// so we need to turn it back before apply it.
+function toInternalPlan(plan) {
+  const actions = [];
+  if (plan.actions) {
+    plan.actions.forEach((it) => {
+      const keys = Object.keys(it);
+      if (0 < keys.length && keys.length < 3) {
+        const tag = it.tag;
+        let name, args;
+        if (keys.length == 1 && !tag) {
+          name = keys[0];
+          args = it[name];
+        }
+
+        if (keys.length == 2 && tag) {
+          name = (keys.indexOf('tag') == 0 ? keys[1] : keys[0]);
+          args = it[name];
+        }
+
+        if (name) {
+          const action = {name, args}
+          if (tag) { action.tag = tag }
+          actions.push(action);
+        }
+      }
+    });
   }
-  if(config.execCmd && plan.command) { p.command = plan.command }
-  if(config.hideElem && plan.hide) { p.hideElem = plan.hide }
-  if(config.hideElem && plan.hideOnce) { p.hideElemOnce = plan.hideOnce }
-  if(config.showElem && plan.show) { p.showElem = plan.show }
-  if(config.hideSibling && plan.hideSibling) { p.hideSibling = plan.hideSibling }
-  if(config.hideExcept && plan.hideExcept) { p.hideExcept = plan.hideExcept }
-  if(config.changeAttr && plan.chAttr) { p.chAttr = plan.chAttr }
-  if(config.removeAttr && plan.rmAttr) { p.rmAttr = plan.rmAttr }
-  if(config.setForm && plan.form) { p.setForm = plan.form }
-  if(config.setConfig && plan.config) { p.setConfig = plan.config }
-  return p;
+
+  if (actions.length > 0) {
+    return Object.assign({}, plan, {actions})
+  } else {
+    return plan;
+  }
 }
+
 
 // Other components can call assistant to apply plan,
 // such as the remember selection component.
@@ -59,12 +66,12 @@ function listenInternalEvent(isTopFrame) {
 
   const applyPlanFn = (e) => {
     const plan = MxWcEvent.getData(e);
-    Plan.apply(toMxPlan(plan));
+    Plan.apply(toInternalPlan(plan));
   };
 
   const applyGlobalPlanFn = (e) => {
     const plan = MxWcEvent.getData(e);
-    Plan.applyGlobal(toMxPlan(plan));
+    Plan.applyGlobal(toInternalPlan(plan));
   };
 
   if (isTopFrame) {
@@ -82,7 +89,7 @@ function init() {
       if (globalPlan.disabled) {
         Log.debug("The global plan is disabled");
       } else {
-        Plan.applyGlobal(toMxPlan(globalPlan));
+        Plan.applyGlobal(toInternalPlan(globalPlan));
         Log.debug("the global plan has been applied");
       }
     }
@@ -91,12 +98,9 @@ function init() {
         Log.debug("The page plan is disabled");
         sendAssistantEv('plan-disabled');
       } else {
-        Plan.apply(toMxPlan(pagePlan));
+        Plan.apply(toInternalPlan(pagePlan));
         Log.debug("the page plan has been applied");
         Log.debug(pagePlan);
-        if (!pagePlan.pick) {
-          sendAssistantEv('plan-has-not-pick');
-        }
       }
     } else {
       Log.debug("No page plan matched");

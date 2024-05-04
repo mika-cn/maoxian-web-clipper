@@ -20,30 +20,9 @@ function resetClippingState() {
   state.storageConfig = null;
   state.storageInfo = null;
   state.clipping = null;
+  Log.debug("resetClippingState");
 }
 
-function toggleClip() {
-  window.focus();
-  activeUI({});
-}
-
-function handleClipCommand({command}) {
-  switch(command) {
-    case 'clip-as-default':
-      state.saveFormat = null;
-      toggleClip();
-      break;
-    case 'clip-as-html':
-      state.saveFormat = 'html';
-      toggleClip();
-      break;
-    case 'clip-as-md':
-      state.saveFormat = 'md';
-      toggleClip();
-      break;
-    default: break;
-  }
-}
 
 function messageHandler(msg) {
   return new Promise(function(resolve, reject){
@@ -61,7 +40,6 @@ function messageHandler(msg) {
       case 'saving.completed':
         UI.savingCompleted(msg.body);
         tellTpCompleted(msg.body);
-        resetClippingState();
         break;
       case 'page_content.changed':
         pageContentChanged();
@@ -75,6 +53,8 @@ function messageHandler(msg) {
   });
 }
 
+
+
 function listenMessage(){
   ExtMsg.listen('content', messageHandler);
 
@@ -85,6 +65,7 @@ function listenMessage(){
   MxWcEvent.listenInternal('actived', lockWebPage);
   MxWcEvent.listenInternal('clipped', unlockWebPage);
   MxWcEvent.listenInternal('idle'   , unlockWebPage);
+  MxWcEvent.listenInternal('idle'   , resetClippingState);
 }
 
 let observer = undefined;
@@ -379,7 +360,7 @@ function resumeActived(msg) {
 
 function executeYieldBackActionSelecting(yieldPoint) {
   Log.debug("Yieldback.selecting from: ", yieldPoint);
-  UI.entryClick({});
+  UI.startNewClipping(); // load UI and start selecting
 }
 
 function executeYieldBackActionExit(yieldPoint) {
@@ -423,7 +404,6 @@ function executeYieldBackActionClipElem(yieldPoint, msg) {
 function backToIdleState() {
   const timeout = 500;
   UI.friendlyExit(timeout);
-  resetClippingState();
 }
 
 
@@ -666,7 +646,7 @@ function saveClippingHistory(clipping){
 function listenPopState(){
   window.onpopstate = function(e){
     Log.debug("On pop state");
-    UI.remove();
+    UI.removeUI();
     setTimeout(initialize, 200);
   }
 }
@@ -683,9 +663,29 @@ function pageContentChanged(){
   delayPageChanged.run();
 }
 
-function activeUI(e) {
+
+function handleClipCommand({command}) {
+  switch(command) {
+    case 'clip-as-default':
+      toggleClip({saveFormat: null});
+      break;
+    case 'clip-as-html':
+      toggleClip({saveFormat: 'html'});
+      break;
+    case 'clip-as-md':
+      toggleClip({saveFormat: 'md'});
+      break;
+    default: break;
+  }
+}
+
+function toggleClip({saveFormat = null}) {
+  window.focus();
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
+    // Store save format that choosen by user.
+    state.saveFormat = saveFormat;
+
     MxWcEvent.dispatchInternal('actived');
     // we're going to active UI
     if (state.config && state.config.communicateWithThirdParty) {
@@ -694,13 +694,13 @@ function activeUI(e) {
         MxWcEvent.dispatchPublic('actived');
       } else {
         MxWcEvent.dispatchPublic('actived');
-        UI.entryClick(e);
+        UI.startNewClipping();
       }
     } else {
-      UI.entryClick(e);
+      UI.startNewClipping();
     }
   } else {
-    UI.entryClick(e);
+    UI.cancelCurrentClipping();
   }
 }
 
