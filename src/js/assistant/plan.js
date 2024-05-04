@@ -704,6 +704,61 @@ function undoRemoveAttribute({pick, attr}) {
 }
 
 
+function createMxTag(selectorInput) {
+  const contextSelectorInput = 'document';
+  const Q = createSelectorQuery(contextSelectorInput)
+  const fn = (elem) => {
+    if (elem.hasAttribute('data-mx-tag')) {
+      const tagName = elem.getAttribute('data-mx-tag');
+      const attrs = getMxTagAttrs(elem);
+      const newElem = document.createElement(tagName);
+      setAttrsToElem(newElem, attrs);
+      elem.setAttribute('data-mx-ignore', '1');
+      elem.parentElement.insertBefore(newElem, elem);
+    }
+  }
+  Q.eachElem(selectorInput, fn);
+}
+
+
+function undoCreateMxTag(selectorInput) {
+  const contextSelectorInput = 'document';
+  const Q = createSelectorQuery(contextSelectorInput)
+  const fn = (elem) => {
+    if (elem.hasAttribute('data-mx-tag')) {
+      const tagName = elem.getAttribute('data-mx-tag')
+      const newElem = elem.previousElementSibling;
+      if (newElem && newElem.tagName == tagName.toUpperCase()) {
+        elem.parentElement.removeChild(newElem);
+      }
+      elem.removeAttribute('data-mx-ignore');
+    }
+  }
+  Q.eachElem(selectorInput, fn);
+}
+
+
+function getMxTagAttrs(elem) {
+  // data-mx-tag-attr-$name
+  const prefix = 'data-mx-tag-attr-';
+  const attrs = [];
+  [].forEach.call(elem.attributes, (attr) => {
+    if (attr.name.startsWith(prefix)) {
+      const attrName = attr.name.replace(prefix, '');
+      attrs.push({name: attrName, value: attr.value})
+    }
+  });
+  return attrs;
+}
+
+function setAttrsToElem(elem, attrs) {
+  attrs.forEach(({name, value}) => {
+    elem.setAttribute(name, value);
+  })
+}
+
+
+
 function executeCommand(command) {
   const contextSelectorInput = 'document';
   const Q = createSelectorQuery(contextSelectorInput)
@@ -831,6 +886,7 @@ const actionEvTypeDict = {
   hideExcept  : 'selecting',
   chAttr      : 'selecting',
   rmAttr      : 'selecting',
+  mxTag       : 'selecting',
   command     : 'selecting',
   pick        : 'selecting',
   select      : 'selecting',
@@ -850,6 +906,7 @@ const actionDict = {
   hideExcept  : hideExcept,
   chAttr      : changeAttribute,
   rmAttr      : removeAttribute,
+  mxTag       : createMxTag,
   command     : executeCommand,
   pick        : selectElem,
   select      : selectElem,
@@ -868,6 +925,7 @@ const undoActionDict = {
   hideExcept  : undoHideExcept,
   chAttr      : undoChangeAttribute,
   rmAttr      : undoRemoveAttribute,
+  mxTag       : undoCreateMxTag,
   command     : undoCommand,
 }
 
