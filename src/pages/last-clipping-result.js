@@ -72,27 +72,34 @@ async function renderClippingUrl() {
   T.setHtml('#clipping-url', html);
 
   const link = T.findElem('target-url');
-  if (link) {
-    T.bindOnce(link, 'click', function(e) {
-      switch(link.getAttribute('data-method')) {
-        case 'open.link': break;
-        case 'open.downloadItem':
-          ExtApi.openDownloadItem(downloadItemId);
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-        case 'open.illegle':
-          e.preventDefault();
-          e.stopPropagation();
-          break
-      }
-    })
-  }
+  if (link) { T.bindOnce(link, 'click', clickTargetUrl) }
 
   const input = T.queryElem('.copy-box > input')
   if (input) {
-    T.bindOnce(input, 'mouseover', function(e){ this.select() });
+    T.bindOnce(input, 'mouseover', selectInput);
     input.select();
+  }
+}
+
+
+function selectInput(e) {
+  this.select() ;
+}
+
+
+function clickTargetUrl(e) {
+  const link = e.target;
+  switch(link.getAttribute('data-method')) {
+    case 'open.link': break;
+    case 'open.downloadItem':
+      ExtApi.openDownloadItem(state.lastClippingResult.downloadItemId);
+      e.preventDefault();
+      e.stopPropagation();
+      break;
+    case 'open.illegle':
+      e.preventDefault();
+      e.stopPropagation();
+      break
   }
 }
 

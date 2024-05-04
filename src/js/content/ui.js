@@ -463,12 +463,14 @@ function startNewClipping() {
   } else {
     // Load UI and start selecting
     listenFrameMsg();
-    T.bindOnce(document, 'all-iframe-loaded', () => {
-      bindListener();
-      setStateSelecting();
-    })
+    T.bindOnce(document, 'all-iframe-loaded', allIframeLoadedListener)
     appendUI();
   }
+}
+
+function allIframeLoadedListener(e) {
+  bindListener();
+  setStateSelecting();
 }
 
 

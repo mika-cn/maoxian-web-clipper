@@ -30,6 +30,7 @@ function init(options){
   state.id = id;
   state.origin = origin;
   state.allowOrigins = allowOrigins;
+  state.listeners = {};
   state.ready = true;
   window.addEventListener('message', receiveMessage, false);
 }

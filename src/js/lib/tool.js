@@ -281,8 +281,13 @@ T.unbind = function(elem, evt, fn, useCapture){
 }
 
 T.bindOnce = function(elem, evt, fn, useCapture){
-  T.unbind(elem, evt, fn, useCapture);
-  T.bind(elem, evt, fn, useCapture);
+  if (fn.name) {
+    T.unbind(elem, evt, fn, useCapture);
+    T.bind(elem, evt, fn, useCapture);
+  } else {
+    const message = `Can not bind anonymous function, trying to bind event: ${evt}`
+    throw new Error(message);
+  }
 }
 
 // split tag string by space or comma.
