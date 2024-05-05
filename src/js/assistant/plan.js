@@ -347,9 +347,8 @@ function convertChAttrToNewStructure(it) {
  */
 function changeAttribute(it) {
   const {pick, action} = convertChAttrToNewStructure(it);
-  const contextSelectorInput = 'document';
   const actions = initChAttrActions(action);
-  const Q = createSelectorQuery(contextSelectorInput);
+  const Q = createSelectorQueryInDoc();
   AttributeChanger.applyActions(pick, actions, Q);
 }
 
@@ -373,10 +372,14 @@ const AttributeChanger = {
         if (elem.hasAttribute(attrName)) {
           // Do nothing, avoid overwriting the original attribute.
         } else {
-          // Save original attribute
-          let attrOldValue = elem.getAttribute(action.attr);
-          attrOldValue = attrOldValue == null ? "" : attrOldValue;
-          elem.setAttribute(attrName, attrOldValue);
+          const originalValue = elem.getAttribute(action.attr);
+          if (originalValue === null) {
+            // This is the new added attribute
+            // we don't need to save the original value in this case.
+          } else {
+            // Save original attribute
+            elem.setAttribute(attrName, originalValue);
+          }
         }
       }
       elem.setAttribute(action.attr, value);
@@ -639,9 +642,8 @@ function getMathDisplay(elem, attrName) {
 // @param {Object} it @see changeAttribute
 function undoChangeAttribute(it) {
   const {pick, action} = convertChAttrToNewStructure(it);
-  const contextSelectorInput = 'document';
   const actions = initChAttrActions(action);
-  const Q = createSelectorQuery(contextSelectorInput);
+  const Q = createSelectorQueryInDoc();
   actions.forEach((action) => {
     const fn = (elem) => {
       if (action.attr.startsWith('data-mx-')) {
@@ -651,7 +653,10 @@ function undoChangeAttribute(it) {
         // not a maoxian attribute, restore old value
         const attrName = ['data-mx-original-attr', action.attr].join('-');
         const originalValue = elem.getAttribute(attrName);
-        if(originalValue != null) {
+        if (originalValue == null) {
+          // we added this attribute, remove it
+          elem.removeAttribute(action.attr);
+        } else {
           elem.setAttribute(action.attr, originalValue);
           elem.removeAttribute(attrName);
         }
@@ -667,8 +672,6 @@ function undoChangeAttribute(it) {
  * @param {String|Array} attr
  */
 function removeAttribute({pick, attr}) {
-  const contextSelectorInput = 'document';
-  const Q = createSelectorQuery(contextSelectorInput)
   const fn = elem => {
     T.toArray(attr).forEach((attrName) => {
       if (attrName) { // attrName isn't empty
@@ -681,13 +684,11 @@ function removeAttribute({pick, attr}) {
       }
     });
   }
-  Q.eachElem(pick, fn);
+  eachElemInDoc(pick, fn);
 };
 
 
 function undoRemoveAttribute({pick, attr}) {
-  const contextSelectorInput = 'document';
-  const Q = createSelectorQuery(contextSelectorInput)
   const fn = (elem) => {
     T.toArray(attr).forEach((attrName) => {
       if (attrName) {
@@ -700,13 +701,11 @@ function undoRemoveAttribute({pick, attr}) {
       }
     });
   }
-  Q.eachElem(pick, fn);
+  eachElemInDoc(pick, fn);
 }
 
 
 function createMxTag(selectorInput) {
-  const contextSelectorInput = 'document';
-  const Q = createSelectorQuery(contextSelectorInput)
   const fn = (elem) => {
     if (elem.hasAttribute('data-mx-tag')) {
       const tagName = elem.getAttribute('data-mx-tag');
@@ -717,13 +716,11 @@ function createMxTag(selectorInput) {
       elem.parentElement.insertBefore(newElem, elem);
     }
   }
-  Q.eachElem(selectorInput, fn);
+  eachElemInDoc(selectorInput, fn);
 }
 
 
 function undoCreateMxTag(selectorInput) {
-  const contextSelectorInput = 'document';
-  const Q = createSelectorQuery(contextSelectorInput)
   const fn = (elem) => {
     if (elem.hasAttribute('data-mx-tag')) {
       const tagName = elem.getAttribute('data-mx-tag')
@@ -734,9 +731,8 @@ function undoCreateMxTag(selectorInput) {
       elem.removeAttribute('data-mx-ignore');
     }
   }
-  Q.eachElem(selectorInput, fn);
+  eachElemInDoc(selectorInput, fn);
 }
-
 
 function getMxTagAttrs(elem) {
   // data-mx-tag-attr-$name
@@ -758,11 +754,59 @@ function setAttrsToElem(elem, attrs) {
 }
 
 
+function createMxFormula({pick, tAttr, tagName}) {
+  const fn = (elem) => {
+    const formula = (elem.getAttribute(tAttr) || "").trim();
+    if (formula) {
+      if ( elem.previousElementSibling
+        && elem.previousElementSibling.tagName.toUpperCase() == tagName.toUpperCase()
+      ) {
+        // already created
+      } else {
+        const newElem = document.createElement(tagName);
+        newElem.setAttribute('value', formula);
+        elem.setAttribute('data-mx-ignore', '1');
+        elem.parentElement.insertBefore(newElem, elem);
+      }
+    }
+  }
+  eachElemInDoc(pick, fn);
+}
+
+function undoCreateMxFormula({pick, tAttr, tagName}) {
+  const fn = (elem) => {
+    elem.removeAttribute('data-mx-ignore');
+    const newElem = elem.previousElementSibling;
+    if (newElem && newElem.tagName.toUpperCase() == tagName.toUpperCase()) {
+      elem.parentElement.removeChild(newElem);
+    }
+  }
+  eachElemInDoc(pick, fn);
+}
+
+function createMxInlineFormula({pick, tAttr}) {
+  createMxFormula({pick, tAttr, tagName: 'mx-inline-formula'})
+}
+
+function undoCreateMxInlineFormula({pick, tAttr}) {
+  undoCreateMxFormula({pick, tAttr, tagName: 'mx-inline-formula'});
+}
+
+function createMxBlockFormula({pick, tAttr}) {
+  createMxFormula({pick, tAttr, tagName: 'mx-block-formula'})
+}
+
+function undoCreateMxBlockFormula({pick, tAttr}) {
+  undoCreateMxFormula({pick, tAttr, tagName: 'mx-block-formula'})
+}
+
+
+
 
 function executeCommand(command) {
-  const contextSelectorInput = 'document';
-  const Q = createSelectorQuery(contextSelectorInput)
   const commands = T.toARray(command);
+  const Q = createSelectorQueryInDoc();
+
   const fn = (command) => {
     switch(command.name) {
       case 'click': {
@@ -789,9 +833,9 @@ function executeCommand(command) {
 
 
 function undoCommand(command) {
-  const contextSelectorInput = 'document';
-  const Q = createSelectorQuery(contextSelectorInput)
   const commands = T.toARray(command);
+  const Q = createSelectorQueryInDoc();
+
   const fn = (command) => {
     switch(command.name) {
       case 'click': break;
@@ -887,6 +931,8 @@ const actionEvTypeDict = {
   chAttr      : 'selecting',
   rmAttr      : 'selecting',
   mxTag       : 'selecting',
+  iFormula    : 'selecting',
+  bFormula    : 'selecting',
   command     : 'selecting',
   pick        : 'selecting',
   select      : 'selecting',
@@ -907,6 +953,8 @@ const actionDict = {
   chAttr      : changeAttribute,
   rmAttr      : removeAttribute,
   mxTag       : createMxTag,
+  iFormula    : createMxInlineFormula,
+  bFormula    : createMxBlockFormula,
   command     : executeCommand,
   pick        : selectElem,
   select      : selectElem,
@@ -926,6 +974,8 @@ const undoActionDict = {
   chAttr      : undoChangeAttribute,
   rmAttr      : undoRemoveAttribute,
   mxTag       : undoCreateMxTag,
+  iFormula    : undoCreateMxInlineFormula,
+  bFormula    : undoCreateMxBlockFormula,
   command     : undoCommand,
 }
 
@@ -933,6 +983,16 @@ const undoActionDict = {
 //=========================================
 // Tool functions
 //=========================================
+
+function eachElemInDoc(selectorInput, callback) {
+  const Q = createSelectorQueryInDoc();
+  Q.eachElem(selectorInput, callback);
+}
+
+function createSelectorQueryInDoc(queryType = 'elems') {
+  const contextSelectorInput = 'document';
+  return createSelectorQuery(contextSelectorInput, queryType);
+}
 
 function createSelectorQuery(contextSelectorInput,  queryType = 'elems') {
   return {
