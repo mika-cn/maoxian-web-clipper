@@ -15,7 +15,7 @@ function handle(doc, elem) {
 }
 
 function handleMxFormula(elem, doc) {
-  const formula = elem.getAttribute("value").trim();
+  const formula = (elem.getAttribute("value") || "").trim();
   if (!formula) { return }
 
   let markerL, markerR;
