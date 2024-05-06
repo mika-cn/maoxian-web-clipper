@@ -754,16 +754,10 @@ function createMxFormula({pick, tAttr, tagName}) {
   const fn = (elem) => {
     const formula = (elem.getAttribute(tAttr) || "").trim();
     if (formula) {
-      if ( elem.previousElementSibling
-        && elem.previousElementSibling.tagName.toUpperCase() == tagName.toUpperCase()
-      ) {
-        // already created
-      } else {
-        const newElem = document.createElement(tagName);
-        newElem.setAttribute('value', formula);
-        elem.setAttribute('data-mx-ignore', '1');
-        elem.parentElement.insertBefore(newElem, elem);
-      }
+      const newElem = document.createElement(tagName);
+      newElem.setAttribute('value', formula);
+      elem.setAttribute('data-mx-ignore', '1');
+      elem.parentElement.insertBefore(newElem, elem);
     }
   }
   eachElemInDoc(pick, fn);
