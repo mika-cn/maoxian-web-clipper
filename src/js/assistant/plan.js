@@ -119,11 +119,7 @@ function perform(msgType, tagFilter) {
 }
 
 
-// Defined actions that can only perform once in a clipping session.
-//     because user may change state from "selected" to "selecting",
-// if these actions can perform multiple times, then user will automatically
-// jump back from "selecting" to "selected".
-// further cause user can't move cursor to change the selected area.
+// Defined actions that can only perform once across clipping session.
 function isPerformOnce(action) {
   return ({
     pick    : true,
