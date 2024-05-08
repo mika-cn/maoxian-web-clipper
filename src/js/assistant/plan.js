@@ -602,15 +602,22 @@ function getMathDisplay(elem, attrName) {
   if (elem.hasAttribute(attrName)) {
     return (elem.getAttribute(attrName) || 'inline')
   }
+  if (isElemOrWrapperHasBlockStyle(elem)) {
+    return 'block';
+  } else {
+    return 'inline';
+  }
+}
 
 
+function isElemOrWrapperHasBlockStyle(elem) {
   // check if the element has block style
   const style = window.getComputedStyle(elem);
   if (style.getPropertyValue('display') === 'block') {
-    return 'block';
+    return true;
   }
 
-  // math elem is inline, test it's wrapper is block or not?
+  // the element is inline, test its wrapper is block or not?
   const pElem = elem.parentElement;
 
   if (pElem && pElem.children.length == 1) {
@@ -619,18 +626,13 @@ function getMathDisplay(elem, attrName) {
       if (childNode.nodeType == NODE_TYPE_TEXT && !childNode.textContent.match(/^\s*$/)) {
         // Parent element has text node that isn't blank,
         // this is not a wrapper.
-        return 'inline';
+        return false;
       }
     }
     // it's a wrapper
-    const wrapperStyle = window.getComputedStyle(pElem);
-    if (wrapperStyle.getPropertyValue('display') === 'block') {
-      return 'block';
-    } else {
-      return 'inline';
-    }
+    return isElemOrWrapperHasBlockStyle(pElem);
   } else {
-    return 'inline';
+    return false;
   }
 }
 
@@ -750,10 +752,18 @@ function setAttrsToElem(elem, attrs) {
 }
 
 
-function createMxFormula({pick, tAttr, tagName}) {
+/**
+ * @param {SelectorInput} pick
+ * @param {String} attr - the attribute that contains formula
+ * @param {boolean} block - true if it's block formula
+ *
+ */
+function createMxFormula({pick, attr, block}) {
   const fn = (elem) => {
-    const formula = (elem.getAttribute(tAttr) || "").trim();
+    const formula = (elem.getAttribute(attr) || "").trim();
     if (formula) {
+      const isBlock = (block !== undefined ? block : isElemOrWrapperHasBlockStyle(elem));
+      const tagName = (isBlock ? 'mx-block-formula' : 'mx-inline-formula');
       const newElem = document.createElement(tagName);
       newElem.setAttribute('value', formula);
       elem.setAttribute('data-mx-ignore', '1');
@@ -763,31 +773,19 @@ function createMxFormula({pick, tAttr, tagName}) {
   eachElemInDoc(pick, fn);
 }
 
-function undoCreateMxFormula({pick, tAttr, tagName}) {
+
+function undoCreateMxFormula({pick, attr, block}) {
   const fn = (elem) => {
     elem.removeAttribute('data-mx-ignore');
     const newElem = elem.previousElementSibling;
-    if (newElem && newElem.tagName.toUpperCase() == tagName.toUpperCase()) {
+    if ( newElem && (
+         newElem.tagName.toUpperCase() == 'MX-BLOCK-FORMULA'
+      || newElem.tagName.toUpperCase() == 'MX-INLINE-FORMULA'
+    )) {
       elem.parentElement.removeChild(newElem);
     }
   }
   eachElemInDoc(pick, fn);
-}
-
-function createMxInlineFormula({pick, tAttr}) {
-  createMxFormula({pick, tAttr, tagName: 'mx-inline-formula'})
-}
-
-function undoCreateMxInlineFormula({pick, tAttr}) {
-  undoCreateMxFormula({pick, tAttr, tagName: 'mx-inline-formula'});
-}
-
-function createMxBlockFormula({pick, tAttr}) {
-  createMxFormula({pick, tAttr, tagName: 'mx-block-formula'})
-}
-
-function undoCreateMxBlockFormula({pick, tAttr}) {
-  undoCreateMxFormula({pick, tAttr, tagName: 'mx-block-formula'})
 }
 
 
@@ -921,8 +919,7 @@ const actionEvTypeDict = {
   chAttr      : 'selecting',
   rmAttr      : 'selecting',
   mxTag       : 'selecting',
-  iFormula    : 'selecting',
-  bFormula    : 'selecting',
+  formula     : 'selecting',
   command     : 'selecting',
   pick        : 'selecting',
   select      : 'selecting',
@@ -943,8 +940,7 @@ const actionDict = {
   chAttr      : changeAttribute,
   rmAttr      : removeAttribute,
   mxTag       : createMxTag,
-  iFormula    : createMxInlineFormula,
-  bFormula    : createMxBlockFormula,
+  formula     : createMxFormula,
   command     : executeCommand,
   pick        : selectElem,
   select      : selectElem,
@@ -964,8 +960,7 @@ const undoActionDict = {
   chAttr      : undoChangeAttribute,
   rmAttr      : undoRemoveAttribute,
   mxTag       : undoCreateMxTag,
-  iFormula    : undoCreateMxInlineFormula,
-  bFormula    : undoCreateMxBlockFormula,
+  formula     : undoCreateMxFormula,
   command     : undoCommand,
 }
 
