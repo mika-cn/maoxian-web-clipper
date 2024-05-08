@@ -3,6 +3,7 @@ const PREFIX              = "data-mx-";
 const LOCKED_STYLE_PREFIX = "locked-style-";
 
 const ORDER_BY_INDEX      = "order-by-index";
+const SAVE_AS_IMG         = "save-as-img";
 const INDEX               = "index";
 const KEEP                = "keep";
 const IGNORE              = "ignore";
@@ -33,6 +34,9 @@ class MxAttribute {
         this.attr.orderByIndex = true;
         this.attrLen++;
         break;
+      case SAVE_AS_IMG:
+        this.attr.saveAsImg = true;
+        this.attrLen++;
       case INDEX:
         this.attr.index = attr.value;
         this.attrLen++;
@@ -122,5 +126,6 @@ MxAttribute.LAYOUT_TABLE    = PREFIX + LAYOUT_TABLE;
 MxAttribute.FORMULA_DISPLAY = PREFIX + FORMULA_DISPLAY;
 MxAttribute.MD_DISPLAY_BLOCK = PREFIX + MD_DISPLAY_BLOCK;
 MxAttribute.MD_DISPLAY_INLINE = PREFIX + MD_DISPLAY_INLINE;
+MxAttribute.SAVE_AS_IMG = PREFIX + SAVE_AS_IMG;
 
 export default MxAttribute;

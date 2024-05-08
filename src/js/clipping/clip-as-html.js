@@ -12,6 +12,7 @@ import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerPicture       from '../capturer/picture.js';
 import CapturerImg           from '../capturer/img.js';
+import CapturerSvg           from '../capturer/svg.js';
 import CapturerAudio         from '../capturer/audio.js';
 import CapturerVideo         from '../capturer/video.js';
 import CapturerStyle         from '../capturer/style.js';
@@ -235,7 +236,9 @@ async function captureAssets(snapshot, params) {
       }
 
       let r = {change: new SnapshotNodeChange(), tasks: []};
-      switch(node.name) {
+
+      const upperCasedNodeName = node.name.toUpperCase();
+      switch(upperCasedNodeName) {
         case 'LINK': {
           const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
           r = await CapturerLink.capture(node, {
@@ -267,6 +270,13 @@ async function captureAssets(snapshot, params) {
           });
           break;
         }
+
+        case 'SVG': {
+          r = await CapturerSvg.capture(node, {storageInfo, clipId });
+          break;
+        }
+
+
 
         case 'A':
         case 'AREA': {

@@ -17,6 +17,7 @@ import MdPluginBlockLink     from '../lib/md-plugin-block-link.js';
 import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerImg           from '../capturer/img.js';
+import CapturerSvg           from '../capturer/svg.js';
 import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
 import CapturerTable         from '../capturer/table.js';
@@ -152,11 +153,17 @@ async function captureAssets(snapshot, params) {
     }
 
     let r = {change: new SnapshotNodeChange(), tasks: []};
-    switch(node.name) {
+
+    const upperCasedNodeName = node.name.toUpperCase();
+    switch(upperCasedNodeName) {
       case 'IMG':
         r = await CapturerImg.capture(node, { saveFormat,
           baseUrl, storageInfo, clipId, requestParams, config,
         });
+        break;
+
+      case 'SVG':
+        r = await CapturerSvg.capture(node, {storageInfo, clipId });
         break;
 
       case 'A':

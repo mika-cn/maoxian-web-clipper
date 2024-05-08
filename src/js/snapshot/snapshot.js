@@ -220,6 +220,7 @@ async function takeSnapshotOfCurrNode(node, params) {
         case 'PRE':
         case 'MATH':
         case 'SVG':
+          snapshot.xml = node.outerHTML;
         case 'SCRIPT': {
           // Note that we currently only keep scripts that has "data-mx-keep" attribute
           const key = `${node.nodeName.toLowerCase()}Ancestor`;

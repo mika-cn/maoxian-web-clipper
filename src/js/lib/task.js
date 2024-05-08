@@ -47,6 +47,10 @@ function createInfoTask(filename, info) {
   return createTextTask(filename, text, 'application/json', info.clipId, 'infoFileTask');
 }
 
+function createSvgImageTask(filename, xml, clipId) {
+  return createTextTask(filename, xml, 'image/svg+xml', clipId, 'imageFileTask');
+}
+
 function createImageTask(filename, url, clipId, requestParams) {
   return createUrlTask(filename, url, clipId, 'imageFileTask', requestParams);
 }
@@ -181,6 +185,7 @@ const Task = {
   createStyleTask,
   createTitleTask,
   createInfoTask,
+  createSvgImageTask,
   createImageTask,
   createAudioTask,
   createVideoTask,
