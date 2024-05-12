@@ -1,5 +1,6 @@
 "use strict";
 
+import {TREE_TYPE}  from '../lib/constants.js';
 import T                     from '../lib/tool.js';
 import DOMTool               from '../lib/dom-tool.js';
 import Log                   from '../lib/log.js';
@@ -12,7 +13,6 @@ import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerPicture       from '../capturer/picture.js';
 import CapturerImg           from '../capturer/img.js';
-import CapturerSvg           from '../capturer/svg.js';
 import CapturerAudio         from '../capturer/audio.js';
 import CapturerVideo         from '../capturer/video.js';
 import CapturerStyle         from '../capturer/style.js';
@@ -23,6 +23,10 @@ import CapturerEmbed         from '../capturer/embed.js';
 import CapturerObject        from '../capturer/object.js';
 import CapturerApplet        from '../capturer/applet.js';
 import CapturerStyleSheet    from '../capturer/stylesheet.js';
+import CapturerSvg           from '../capturer-svg/svg.js';
+import CapturerSvgA          from '../capturer-svg/a.js';
+import CapturerSvgImage      from '../capturer-svg/image.js';
+
 import StyleHelper           from './style-helper.js';
 import RequestParams         from '../lib/request-params.js'
 
@@ -247,176 +251,224 @@ async function captureAssets(snapshot, params) {
 
   const tasks = [];
 
-  await Snapshot.eachElement(snapshot,
-    async(node, ancestors, ancestorDocs, ancestorRoots) => {
+  const captureFn = async (node, {treeType = TREE_TYPE.HTML, ancestors, ancestorDocs, ancestorRoots}) => {
 
-      if (node.change) {
-        // processed
-        return true;
-      }
-
-      const {baseUrl, docUrl} = ancestorDocs[0];
-      if (baseUrl == undefined) {
-        console.log(ancestorDocs[0])
-      }
-
-      let storageInfo, requestParams;
-      if (ancestorDocs.length == 1) {
-        storageInfo = params.storageInfo;
-        requestParams = params.requestParams;
-      } else {
-        storageInfo = iframeStorageInfo;
-        requestParams = params.requestParams.changeRefUrl(docUrl);
-      }
-
-      let r = {change: new SnapshotNodeChange(), tasks: []};
-
-      const upperCasedNodeName = node.name.toUpperCase();
-      switch(upperCasedNodeName) {
-        case 'LINK': {
-          const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
-          r = await CapturerLink.capture(node, {
-            baseUrl, storageInfo, clipId,
-            config, requestParams, cssParams,
-          });
-          break;
-        }
-
-        case 'STYLE': {
-          const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
-          r = await CapturerStyle.capture(node, {
-            baseUrl, storageInfo, clipId,
-            config, requestParams, cssParams,
-          });
-          break;
-        }
-
-        case 'PICTURE': {
-          r = await CapturerPicture.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-        }
-
-        case 'IMG': {
-          r = await CapturerImg.capture(node, { saveFormat,
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-        }
-
-        case 'SVG': {
-          r = await CapturerSvg.capture(node, {storageInfo, clipId });
-          break;
-        }
-
-
-
-        case 'A':
-        case 'AREA': {
-          r = await CapturerA.capture(node, {baseUrl, docUrl});
-          break;
-        }
-
-        case 'BODY':
-        case 'TABLE':
-        case 'TH':
-        case 'TD': {
-          // background attribute (deprecated since HTML5)
-          r = await CaptureTool.captureBackgroundAttr(node, {
-            baseUrl, storageInfo, config, clipId, requestParams,
-          });
-          break;
-        }
-
-        case 'AUDIO': {
-          r = await CapturerAudio.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-        }
-
-        case 'VIDEO': {
-          r = await CapturerVideo.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-        }
-
-        case 'EMBED': {
-          r = await CapturerEmbed.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-        }
-
-        case 'OBJECT': {
-          r = await CapturerObject.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-        }
-
-        case 'APPLET': {
-          r = await CapturerApplet.capture(node, {
-            baseUrl, storageInfo, clipId, requestParams, config,
-          });
-          break;
-        }
-
-        case 'CANVAS': {
-          r = await CapturerCanvas.capture(node, {
-            saveFormat, storageInfo, clipId, requestParams,
-          });
-          break;
-        }
-        default: break;
-      }
-
-      // handle attributes
-      for (let attrName in node.attr) {
-        // remove event listener
-        if (attrName.startsWith('on')) {
-          r.change.rmAttr(attrName);
-        }
-      }
-
-
-      // handle inline style (styleObj)
-      let inlineStyle = "";
-
-      if (node.styleObj) {
-        const params = Object.assign({ownerType: 'styleAttr', docBaseUrl: baseUrl}, {
-          baseUrl, storageInfo, clipId,
-          config, requestParams
-        });
-
-        const {cssText, tasks} = await CapturerStyleSheet.captureStyleObj(node.styleObj, params);
-        r.tasks.push(...tasks);
-        inlineStyle = cssText;
-      }
-
-
-      const changeObj = r.change.toObject();
-      const styleParts = [];
-      const changedStyle = T.styleObj2Str(changeObj.styleObj);
-
-      if (inlineStyle != '')  {styleParts.push(inlineStyle)}
-      if (changedStyle != '') {styleParts.push(changedStyle)}
-
-
-      if (styleParts.length > 0) {
-        changeObj.attr.style = styleParts.join(';');
-      }
-
-      node.change = changeObj;
-      tasks.push(...r.tasks);
-
+    if (node.change) {
+      // processed
       return true;
     }
-  );
 
+    const {baseUrl, docUrl} = ancestorDocs[0];
+    if (baseUrl == undefined) {
+      console.log(ancestorDocs[0])
+    }
+
+    let storageInfo, requestParams;
+    if (ancestorDocs.length == 1) {
+      storageInfo = params.storageInfo;
+      requestParams = params.requestParams;
+    } else {
+      storageInfo = iframeStorageInfo;
+      requestParams = params.requestParams.changeRefUrl(docUrl);
+    }
+
+    // result {change, tasks}
+    let r;
+
+    switch(treeType) {
+      case TREE_TYPE.HTML: {
+        r = await captureNodeAsset_HTML(node, {saveFormat, baseUrl, docUrl,
+          storageInfo, clipId, config, requestParams, needFixStyle, ancestorRoots});
+        break;
+      }
+      case TREE_TYPE.SVG: {
+        r = await captureNodeAsset_SVG(node, {saveFormat, baseUrl, docUrl,
+          storageInfo, clipId, config, requestParams, ancestorRoots});
+        break;
+      }
+      default: break;
+    }
+
+    // handle attributes
+    for (let attrName in node.attr) {
+      // remove event listener
+      if (attrName.startsWith('on')) {
+        r.change.rmAttr(attrName);
+      }
+    }
+
+
+    // handle inline style (styleObj)
+    let inlineStyle = "";
+
+    if (node.styleObj) {
+      const params = Object.assign({ownerType: 'styleAttr', docBaseUrl: baseUrl}, {
+        baseUrl, storageInfo, clipId,
+        config, requestParams
+      });
+
+      const {cssText, tasks} = await CapturerStyleSheet.captureStyleObj(node.styleObj, params);
+      r.tasks.push(...tasks);
+      inlineStyle = cssText;
+    }
+
+
+    const changeObj = r.change.toObject();
+    const styleParts = [];
+    const changedStyle = T.styleObj2Str(changeObj.styleObj);
+
+    if (inlineStyle != '')  {styleParts.push(inlineStyle)}
+    if (changedStyle != '') {styleParts.push(changedStyle)}
+
+
+    if (styleParts.length > 0) {
+      changeObj.attr.style = styleParts.join(';');
+    }
+
+    node.change = changeObj;
+    tasks.push(...r.tasks);
+
+    return true;
+  }
+
+  await Snapshot.eachElement(snapshot, captureFn);
   return tasks;
+}
+
+
+/*
+ * @return {Object} result {change, tasks}
+ */
+async function captureNodeAsset_SVG(node, params) {
+  const {saveFormat, baseUrl, docUrl, clipId,
+    storageInfo, requestParams, config} = params;
+  let r = {change: new SnapshotNodeChange(), tasks: []};
+
+  const upperCasedNodeName = node.name.toUpperCase();
+  switch(upperCasedNodeName) {
+    case 'A': {
+      r = await CapturerSvgA.capture(node, {baseUrl, docUrl});
+      break;
+    }
+    case 'IMAGE': {
+      r = await CapturerSvgImage.capture(node, {saveFormat, baseUrl, clipId,
+        storageInfo, requestParams, config});
+      break;
+    }
+    case 'SVG': {
+      r = await CapturerSvg.capture(node, {});
+      break;
+    }
+    default: break;
+  }
+  return r;
+}
+
+
+/*
+ * @return {Object} result {change, tasks}
+ */
+async function captureNodeAsset_HTML(node, params) {
+  const {saveFormat, baseUrl, docUrl, storageInfo,
+    clipId, config, requestParams, needFixStyle, ancestorRoots} = params;
+  let r = {change: new SnapshotNodeChange(), tasks: []};
+
+  const upperCasedNodeName = node.name.toUpperCase();
+  switch(upperCasedNodeName) {
+    case 'LINK': {
+      const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
+      r = await CapturerLink.capture(node, {
+        baseUrl, storageInfo, clipId,
+        config, requestParams, cssParams,
+      });
+      break;
+    }
+
+    case 'STYLE': {
+      const cssParams = Object.assign({needFixStyle}, ancestorRoots[0].styleScope);
+      r = await CapturerStyle.capture(node, {
+        baseUrl, storageInfo, clipId,
+        config, requestParams, cssParams,
+      });
+      break;
+    }
+
+    case 'PICTURE': {
+      r = await CapturerPicture.capture(node, {
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+    }
+
+    case 'IMG': {
+      r = await CapturerImg.capture(node, { saveFormat,
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+    }
+
+    case 'A':
+    case 'AREA': {
+      r = await CapturerA.capture(node, {baseUrl, docUrl});
+      break;
+    }
+
+    case 'BODY':
+    case 'TABLE':
+    case 'TH':
+    case 'TD': {
+      // background attribute (deprecated since HTML5)
+      r = await CaptureTool.captureBackgroundAttr(node, {
+        baseUrl, storageInfo, config, clipId, requestParams,
+      });
+      break;
+    }
+
+    case 'AUDIO': {
+      r = await CapturerAudio.capture(node, {
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+    }
+
+    case 'VIDEO': {
+      r = await CapturerVideo.capture(node, {
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+    }
+
+    case 'EMBED': {
+      r = await CapturerEmbed.capture(node, {
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+    }
+
+    case 'OBJECT': {
+      r = await CapturerObject.capture(node, {
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+    }
+
+    case 'APPLET': {
+      r = await CapturerApplet.capture(node, {
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+    }
+
+    case 'CANVAS': {
+      r = await CapturerCanvas.capture(node, {
+        saveFormat, storageInfo, clipId, requestParams,
+      });
+      break;
+    }
+    default: break;
+  }
+
+  return r;
 }
 
 
@@ -489,7 +541,7 @@ function getWrapperNodeCssRules(v) {
 
 async function addShadowDomLoader2snapshot(snapshot) {
   const added = new Map();
-  await Snapshot.eachElement(snapshot, (node, ancestors, ancestorDocs) => {
+  await Snapshot.eachElement(snapshot, (node, {ancestors, ancestorDocs}) => {
     if (node.isShadowHost && ancestorDocs[0]) {
       const doc = ancestorDocs[0];
       if (added.get(doc)) {

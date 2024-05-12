@@ -746,18 +746,18 @@ function each(node, fn, ancestors = [], ancestorDocs = []) {
 /**
  * @params @see applyFnToElem()
  */
-async function eachElement(node, fn, ancestorParams = {}) {
-  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = ancestorParams;
-  const firstItem = {node, ancestorParams: {ancestors, ancestorDocs, ancestorRoots}};
+async function eachElement(node, fn, params = {}) {
+  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = params;
+  const firstItem = {node, params: {ancestors, ancestorDocs, ancestorRoots}};
   const itemFn = async (currItem) => {
-    const {node, ancestorParams: currAncestorParams} = currItem;
-    const {children, ancestorParams} = await applyFnToElem(node, fn, currAncestorParams);
+    const {node, params: currParams} = currItem;
+    const {children, childParams} = await applyFnToElem(node, fn, currParams);
 
     const result = {};
     if (children.length > 0) {
       const newItems = [];
       for (const child of children) {
-        newItems.push({node: child, ancestorParams});
+        newItems.push({node: child, params: childParams});
       }
       result.newItems = newItems;
     }
@@ -770,28 +770,32 @@ async function eachElement(node, fn, ancestorParams = {}) {
 /**
  * @param {Snapshot} node
  * @param {Function} fn - element handler (return true if iterateChildren)
- * @param {Object}   ancestorParams
- * @param {[Snapshot]} ancestorParams.ancestors
- * @param {[Snapshot]} ancestorParams.ancestorDocs - Document nodes.
- * @param {[Snapshot]} ancestorParams.ancestorRoots - Document or ShadowRoot nodes
+ * @param {Object}   params
+ * @param {String}     params.treeType
+ * @param {[Snapshot]} params.ancestors
+ * @param {[Snapshot]} params.ancestorDocs - Document nodes.
+ * @param {[Snapshot]} params.ancestorRoots - Document or ShadowRoot nodes
  *
- * @returns {Object} it {:children, :ancestorParams}
+ * @returns {Object} it {:children, :childParams}
  */
-async function applyFnToElem(node, fn, ancestorParams) {
+async function applyFnToElem(node, fn, params) {
 
-  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = ancestorParams;
+  const {treeType = TREE_TYPE.HTML, ancestors = [], ancestorDocs = [], ancestorRoots = []} = params;
 
   switch(node.type) {
 
     case NODE_TYPE.ELEMENT: {
       if (node.ignore) { break }
 
-      const iterateChildren = await fn(node, ancestors, ancestorDocs, ancestorRoots);
+      const newParams = {treeType, ancestors, ancestorDocs, ancestorRoots};
+      if (node.nodeName == 'svg') { newParams.treeType = NODE_TYPE.SVG }
+
+      const iterateChildren = await fn(node, newParams);
       if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
         const newAncestors = [node, ...ancestors];
         return {
           children: node.childNodes,
-          ancestorParams: Object.assign({}, ancestorParams, {ancestors: newAncestors}),
+          childParams: Object.assign({}, newParams, {ancestors: newAncestors}),
         };
       }
       break;
@@ -799,15 +803,15 @@ async function applyFnToElem(node, fn, ancestorParams) {
 
     case NODE_TYPE.DOCUMENT: {
       if (node.childNodes) {
-        const newAncestors = [node, ...ancestors];
-        const newAncestorDocs = [node, ...ancestorDocs];
+        const newAncestors     = [node, ...ancestors];
+        const newAncestorDocs  = [node, ...ancestorDocs];
         const newAncestorRoots = [node, ...ancestorRoots];
         return {
           children: node.childNodes,
-          ancestorParams: {
-            ancestors: newAncestors,
-            ancestorDocs: newAncestorDocs,
-            ancestorRoots: newAncestorRoots,
+          childParams: {
+            ancestors     : newAncestors,
+            ancestorDocs  : newAncestorDocs,
+            ancestorRoots : newAncestorRoots,
           }
         };
       }
@@ -823,10 +827,10 @@ async function applyFnToElem(node, fn, ancestorParams) {
 
         return {
           children: node.childNodes,
-          ancestorParams: {
-            ancestors: newAncestors,
-            ancestorDocs: ancestorDocs,
-            ancestorRoots: newAncestorRoots,
+          childParams: {
+            ancestors     : newAncestors,
+            ancestorDocs  : ancestorDocs,
+            ancestorRoots : newAncestorRoots,
           }
         };
       }

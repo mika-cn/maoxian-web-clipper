@@ -1,5 +1,6 @@
 "use strict";
 
+import {TREE_TYPE}  from '../lib/constants.js';
 import T                     from '../lib/tool.js';
 import DOMTool               from '../lib/dom-tool.js';
 import Log                   from '../lib/log.js';
@@ -17,10 +18,13 @@ import MdPluginBlockLink     from '../lib/md-plugin-block-link.js';
 import CaptureTool           from '../capturer/tool.js';
 import CapturerA             from '../capturer/a.js';
 import CapturerImg           from '../capturer/img.js';
-import CapturerSvg           from '../capturer/svg.js';
 import CapturerCanvas        from '../capturer/canvas.js';
 import CapturerIframe        from '../capturer/iframe.js';
 import CapturerTable         from '../capturer/table.js';
+
+import CapturerSvg           from '../capturer-svg/svg.js';
+import CapturerSvgA          from '../capturer-svg/a.js';
+import CapturerSvgImage      from '../capturer-svg/image.js';
 
 import TurndownService from 'turndown';
 import * as TurndownPluginGfm from 'turndown-plugin-gfm';
@@ -149,7 +153,8 @@ async function captureAssets(snapshot, params) {
   const documentSnapshot = SnapshotMaker.getDocumentNode(docUrl, baseUrl);
   const ancestorDocs = [documentSnapshot];
   const ancestorParams = {ancestors, ancestorDocs};
-  const captureFn = async (node, ancestors, ancestorDocs, ancestorRoots) => {
+
+  const captureFn = async (node, {treeType = TREE_TYPE.HTML, ancestors, ancestorDocs, ancestorRoots}) => {
     if (node.change) {
       // processed
       return true;
@@ -163,39 +168,23 @@ async function captureAssets(snapshot, params) {
       requestParams = params.requestParams.changeRefUrl(docUrl);
     }
 
-    let r = {change: new SnapshotNodeChange(), tasks: []};
+    // result {change, tasks}
+    let r;
 
-    const upperCasedNodeName = node.name.toUpperCase();
-    switch(upperCasedNodeName) {
-      case 'IMG':
-        r = await CapturerImg.capture(node, { saveFormat,
-          baseUrl, storageInfo, clipId, requestParams, config,
-        });
+    switch(treeType) {
+      case TREE_TYPE.HTML: {
+        r = await captureNodeAsset_HTML(node, {saveFormat, baseUrl, docUrl,
+          storageInfo, clipId, config, requestParams});
         break;
-
-      case 'SVG':
-        r = await CapturerSvg.capture(node, {storageInfo, clipId });
+      }
+      case TREE_TYPE.SVG: {
+        r = await captureNodeAsset_SVG(node, {saveFormat, baseUrl, docUrl,
+          storageInfo, clipId, config, requestParams});
         break;
-
-      case 'A':
-        r = await CapturerA.capture(node, {baseUrl, docUrl});
-        break;
-
-      case 'TABLE':
-        r = await CapturerTable.capture(node, {saveFormat});
-        break;
-
-      case 'CANVAS':
-        r = await CapturerCanvas.capture(node, {
-          saveFormat, storageInfo, clipId, requestParams,
-        });
-        break;
-
-      case 'IFRAME':
-      case 'FRAME':
-        // Frame's html will be captured when serialization
-        break;
+      }
+      default: break;
     }
+
 
     node.change = r.change.toObject();
     tasks.push(...r.tasks);
@@ -206,6 +195,75 @@ async function captureAssets(snapshot, params) {
   await Snapshot.eachElement(snapshot, captureFn, ancestorParams);
   return tasks;
 }
+
+/*
+ * @return {Object} result {change, tasks}
+ */
+async function captureNodeAsset_SVG(node, params) {
+  const {saveFormat, baseUrl, docUrl, clipId,
+    storageInfo, requestParams, config} = params;
+  let r = {change: new SnapshotNodeChange(), tasks: []};
+
+  const upperCasedNodeName = node.name.toUpperCase();
+  switch(upperCasedNodeName) {
+    case 'A': {
+      r = await CapturerSvgA.capture(node, {baseUrl, docUrl});
+      break;
+    }
+    case 'IMAGE': {
+      r = await CapturerSvgImage.capture(node, {saveFormat, baseUrl, clipId,
+        storageInfo, requestParams, config});
+      break;
+    }
+    case 'SVG': {
+      r = await CapturerSvg.capture(node, {});
+      break;
+    }
+    default: break;
+  }
+  return r;
+}
+
+
+/*
+ * @return {Object} result {change, tasks}
+ */
+async function captureNodeAsset_HTML(node, params) {
+  const {saveFormat, baseUrl, docUrl, clipId,
+    storageInfo, requestParams, config} = params;
+  let r = {change: new SnapshotNodeChange(), tasks: []};
+
+  const upperCasedNodeName = node.name.toUpperCase();
+  switch(upperCasedNodeName) {
+    case 'IMG':
+      r = await CapturerImg.capture(node, { saveFormat,
+        baseUrl, storageInfo, clipId, requestParams, config,
+      });
+      break;
+
+    case 'A':
+      r = await CapturerA.capture(node, {baseUrl, docUrl});
+      break;
+
+    case 'TABLE':
+      r = await CapturerTable.capture(node, {saveFormat});
+      break;
+
+    case 'CANVAS':
+      r = await CapturerCanvas.capture(node, {
+        saveFormat, storageInfo, clipId, requestParams,
+      });
+      break;
+
+    case 'IFRAME':
+    case 'FRAME':
+      // Frame's html will be captured when serialization
+      break;
+  }
+
+  return r;
+}
+
 
 function doExtraWork({html, win}) {
   const r = DOMTool.parseHTML(win, `<div>${html}</div>`);
