@@ -114,14 +114,25 @@ async function takeSnapshot({elem, frames, requestParams, win, platform}) {
   const topFrame = frames.find((it) => it.frameId == 0);
   const frameInfo = {allFrames: frames, ancestors: [topFrame]}
   const extMsgType = 'frame.clipAsMd.takeSnapshot';
-  const blacklist = {META: true, HEAD: true, LINK: true,
-    STYLE: true, SCRIPT: true, TEMPLATE: true};
+
+  const domParams_html = {
+    frameInfo, extMsgType,
+    blacklist: {META: true, HEAD: true, LINK: true,
+    STYLE: true, SCRIPT: true, TEMPLATE: true}
+  };
+  const domParams            = Object.assign({}, domParams_html);
+  const domParams_localFrame = Object.assign({}, domParams_html);
+  const domParams_shadow     = Object.assign({}, domParams_html);
+  const domParams_svg = {blacklist: {SCRIPT: true, LINK: true}};
 
   let elemSnapshot = await Snapshot.take(elem, {
+    win, platform, requestParams,
     frameInfo, requestParams, win, platform, extMsgType,
-    blacklist: blacklist,
-    shadowDom: {blacklist},
-    localFrame: {blacklist},
+    domParams,
+    domParams_html,
+    domParams_localFrame,
+    domParams_shadow,
+    domParams_svg,
   });
 
   Snapshot.appendClassName(elemSnapshot, 'mx-wc-selected');

@@ -15,6 +15,9 @@ import SnapshotNodeChange from '../snapshot/change.js';
  * @returns {Object} result
  *
  */
+
+// If there hasn't "xmlns" attribute
+// we should add one: xmlns="http://www.w3.org/2000/svg"
 async function capture(node, params) {
   const {clipId, storageInfo} = params;
 

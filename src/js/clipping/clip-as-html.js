@@ -94,43 +94,62 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
   const removeUnusedRules = (v.config.htmlCaptureCssRules === 'saveUsed');
   const cssBox = Snapshot.createCssBox({removeUnusedRules, node: elem});
 
-  let elemSnapshot = await Snapshot.take(elem, {
-    frameInfo, requestParams, win, platform, extMsgType, cssBox,
+  const domParams_html = {
+    frameInfo, extMsgType, cssBox,
     blacklist: {SCRIPT: true, LINK: true, STYLE: true, TEMPLATE: true},
-    shadowDom:  {blacklist: {SCRIPT: true, TEMPLATE: true}},
-    localFrame: {blacklist: {SCRIPT: true, TEMPLATE: true}},
+  }
+
+  const domParams            = Object.assign({}, domParams_html);
+  const domParams_localFrame = Object.assign({}, domParams_html, {blacklist: {SCRIPT: true, TEMPLATE: true}});
+  const domParams_shadow     = Object.assign({}, domParams_html, {blacklist: {SCRIPT: true, TEMPLATE: true}});
+  const domParams_svg = {blacklist: {SCRIPT: true, LINK: true}};
+
+  let elemSnapshot = await Snapshot.take(elem, {
+    win, requestParams, platform,
+    domParams,
+    domParams_html,
+    domParams_localFrame,
+    domParams_shadow,
+    domParams_svg,
   });
 
   Snapshot.appendClassName(elemSnapshot, 'mx-wc-selected');
 
-  const headNodes = win.document.querySelectorAll(
-    'link[rel*=icon],link[rel~=stylesheet],style');
+  const headNodes = getHeadNodesOfHtmlDom(win);
 
   const headChildrenSnapshots = [];
+  const domParams_style = Object.assign({}, domParams_html, {blacklist: {}});
   for (const node of headNodes) {
     headChildrenSnapshots.push(await Snapshot.take(node, {
-      frameInfo, requestParams, win, platform, extMsgType, cssBox}));
+      win, requestParams, platform,
+      domParams: domParams_style,
+    }));
   }
 
+  // FIXME
+  // If we have saved global defined elements inside each svg
+  // we actually don't need to save these global svgs.
   const globalDefinedSVGNodes = SVG.getGlobalDefinedElements();
   const globalDefinedSVGSnapshots = [];
   for (const node of globalDefinedSVGNodes) {
     globalDefinedSVGSnapshots.push(await Snapshot.take(node, {
-      frameInfo, requestParams, win, platform, extMsgType, cssBox,
-      ignoreHiddenElement: false}));
+      win, requestParams, platform,
+      domParams: {frameInfo, extMsgType, cssBox, ignoreHiddenElement: false}
+    }));
   }
+
   const clippingInfoSnapshot = getClippingInformationSnapshot(v);
   const svgWrapperSnapshot = SnapshotMaker.getSvgSnapshotsWrapper(globalDefinedSVGSnapshots);
 
   const tailSnapshots = [clippingInfoSnapshot, svgWrapperSnapshot];
 
   if (elemSnapshot.name == 'BODY') {
-    headChildrenSnapshots.push(
-      SnapshotMaker.getStyleNode(
-        {'class': 'mx-wc-style'},
-        getClippingInformationCssRules(v.config)
-      )
-    );
+    const clippingInfoCssRules = getClippingInformationCssRules(v.config);
+    if (clippingInfoCssRules.length > 0) {
+      headChildrenSnapshots.push(
+        SnapshotMaker.getStyleNode({'class': 'mx-wc-style'}, clippingInfoCssRules)
+      );
+    }
     elemSnapshot.childNodes.push(...tailSnapshots);
     Snapshot.appendStyleObj(elemSnapshot, v.bodyStyleObj);
 
@@ -189,6 +208,21 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
   result.cssBox.finalize();
 
   return await addShadowDomLoader2snapshot(result.snapshot);
+}
+
+
+function getHeadNodesOfHtmlDom(win) {
+  const nodes = win.document.querySelectorAll(
+    'link[rel*=icon],link[rel~=stylesheet],style');
+  const r = [];
+  for (const node of nodes) {
+    if (node.closest('svg')) {
+      // shouldn't hanle svg styles
+    } else {
+      r.push(node)
+    }
+  }
+  return r;
 }
 
 
