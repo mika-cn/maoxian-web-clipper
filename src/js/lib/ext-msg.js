@@ -115,16 +115,18 @@ function sendToTab(msg, tabId, frameId) {
   if(frameId) { options.frameId = frameId }
   return new Promise(function(resolve, reject){
     const createErrorHandler = (msg, tabId, frameId) => {
-      return (errMsg) => {
+      return (err) => {
         if (IGNORE_MSG_ERROR[msg.type]) {
           console.debug('ignored tab msg: ', msg.type)
           resolve('ignored');
         } else {
           console.warn(tabId, options.frameId);
           console.warn(msg);
-          console.warn(errMsg);
+          console.warn(err);
+          // stack removed by browser
+          // console.warn(err.stack);
           console.trace();
-          reject(errMsg);
+          reject(err);
         }
       }
     }

@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.11';
+const VERSION = '2.12';
 const state = {};
 
 /** WARNING
@@ -62,7 +62,7 @@ function getDefault(){
 
     // control
     mouseModeEnabled: false,
-    inputFieldSaveFormatEnabled: false,
+    selectSaveFormatOnMenus: false,
     autoInputLastCategory: true,
     autoInputLastTags: true,
     rememberSelection: false,

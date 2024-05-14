@@ -17,34 +17,6 @@ body {
   color: #888;
 }
 
-.save-format { display: none; }
-.save-format.active {display: block; }
-
-.options-group > a{
-  text-decoration: none;
-  display: inline-block;
-  margin-right: 10px;
-  border: solid 1px #ccc;
-  padding: 5px 5px 5px 5px;
-  min-width: 80px;
-  text-align: center;
-  line-height: 15px;
-  color: #9F9F9F;
-  cursor: pointer;
-}
-
-.options-group > a:hover {
-  color: #333;
-  background-color: #F5F5F5;
-}
-
-.options-group > a.active {
-  color: #333;
-  border: 2px dashed green;
-  font-weight: bold;
-  background-color: #E8E8E8;
-}
-
 .input-group{
   margin-bottom: 15px;
   width: 100%;
@@ -112,7 +84,7 @@ body {
 }
 
 /* state bar */
-.state-bar {display: block;}
+.state-bar {display: block; text-align: right;}
 .gbox.idle .state-bar { display: none }
 .gbox.confirmed .state-bar { display: none }
 

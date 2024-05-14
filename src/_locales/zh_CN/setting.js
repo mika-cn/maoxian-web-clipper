@@ -301,7 +301,7 @@
     "label.html-custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",
     "label.mouse-mode-enabled-input": "鼠标友好模式",
-    "label.input-field-save-format-enabled": "启用表单上的格式选择",
+    "label.select-save-format-on-menus": "在弹出的菜单项里，选择存储格式",
     "label.auto-input-last-category": "自动输入上次使用的分类",
     "label.auto-input-last-tags": "自动输入上次使用的标签",
     "label.remember-selection-input": "记住裁剪区域，并在下次尝试自动选中",

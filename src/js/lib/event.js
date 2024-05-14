@@ -10,7 +10,6 @@
  *   mx-wc.idle
  *   mx-wc.actived
  *   mx-wc.selecting
- *   mx-wc.selected
  *   mx-wc.confirmed
  *   mx-wc.clipping
  *   mx-wc.completed
@@ -89,7 +88,6 @@ function broadcastInternal(name, data) {
 const BROADCASTABLE_PUBLIC_EVENTS = [
   getType('idle'      , PUBLIC) ,
   getType('selecting' , PUBLIC) ,
-  getType('selected'  , PUBLIC) ,
   getType('confirmed' , PUBLIC) ,
   getType('clipping'  , PUBLIC) ,
 ];
@@ -97,7 +95,6 @@ const BROADCASTABLE_PUBLIC_EVENTS = [
 const BROADCASTABLE_INTERNAL_EVENTS = [
   getType('idle'      , INTERNAL) ,
   getType('selecting' , INTERNAL) ,
-  getType('selected'  , INTERNAL) ,
   getType('confirmed' , INTERNAL) ,
   getType('clipping'  , INTERNAL) ,
 ];

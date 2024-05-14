@@ -14,30 +14,33 @@ function initFrameMsg(){
   });
 }
 
-FrameMsg.addListener('drawRect', function(msg){
-  const {box, color} = msg;
-  const elem = document.querySelector('.hover-highlight');
-  const boxShadow = `inset 0 0 3px 3px ${color}`;
-  elem.style.top     = box.y + 'px';
-  elem.style.left    = box.x + 'px';
-  elem.style.width   = box.w + 'px';
-  elem.style.height  = box.h + 'px';
-  elem.style.boxShadow = boxShadow;
-  elem.style.display = 'block';
-});
+function bindFrameMsg() {
+  FrameMsg.addListener('drawRect', function(msg){
+    const {box, color} = msg;
+    const elem = document.querySelector('.hover-highlight');
+    const boxShadow = `inset 0 0 3px 3px ${color}`;
+    elem.style.top     = box.y + 'px';
+    elem.style.left    = box.x + 'px';
+    elem.style.width   = box.w + 'px';
+    elem.style.height  = box.h + 'px';
+    elem.style.boxShadow = boxShadow;
+    elem.style.display = 'block';
+  });
 
-FrameMsg.addListener('eraseRect', function(msg){
-  const elem = document.querySelector('.hover-highlight');
-  elem.style.display = 'none';
-});
+  FrameMsg.addListener('eraseRect', function(msg){
+    const elem = document.querySelector('.hover-highlight');
+    elem.style.display = 'none';
+  });
 
-FrameMsg.addListener('destroy', function(msg){
-  sendFrameMsgToTop('frame.selection.removeMe');
-});
+  FrameMsg.addListener('destroy', function(msg){
+    sendFrameMsgToTop('frame.selection.removeMe');
+  });
+}
 
 function sendFrameMsgToTop(type, msg){
   FrameMsg.send({ to: 'top', type: type, msg: (msg || {}) });
 }
 
 initFrameMsg();
+bindFrameMsg();
 Log.info('selection layer ready..');

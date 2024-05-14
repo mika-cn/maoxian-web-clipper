@@ -87,6 +87,13 @@ export const NODE_TYPE = Object.assign({}, DOM_NODE_TYPE, {
   'HTML_STR': 101,
 });
 
+export const TREE_TYPE = defineEnum([
+  'HTML',
+  'SVG',
+]);
+
+
+
 function defineEnum(names, start = 1) {
   return Object.freeze(
     names.reduce((obj, name, index) => {

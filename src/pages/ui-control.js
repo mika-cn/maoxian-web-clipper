@@ -15,7 +15,6 @@ const ID_SWITCH_BTN    = 'switch-btn';
 const CLASS_STATE_BAR  = 'state-bar';
 const CLASS_HINT       = 'hint';
 
-const ID_FORMAT        = 'save-format';
 const ID_TITLE         = "title";
 const ID_CATEGORY      = "category";
 const ID_TAGSTR        = "tagstr";
@@ -322,52 +321,11 @@ function formEnterKeyHandler(e){
   }
 }
 
-/*
- * TODO: Maybe we should remove "supportFormats"
- * It's not used.
- */
-async function initSaveFormatOption(format, config, handlerInfo) {
-  const saveFormat = (format || config.saveFormat);
-  T.findElem(ID_FORMAT).value = saveFormat;
-  const inputGroup = T.queryElem('.input-group.save-format');
-  if(!config.inputFieldSaveFormatEnabled) {
-    inputGroup.classList.remove('active');
-    return;
-  }
-  inputGroup.classList.add('active');
-  const html = MxWcTemplate.options.render({
-    type: 'save-format',
-    options: handlerInfo.supportFormats
-  });
-
-  const formatOption = T.findElem('save-format-options');
-  T.setHtml(formatOption, html);
-
-  T.bind(formatOption, 'click', (e) => {
-    if(e.target.tagName.toUpperCase() === 'A'){
-      const value = e.target.getAttribute('data-value');
-      T.findElem(ID_FORMAT).value = value;
-      updateOptionsState(formatOption, value)
-    }
-  });
-  updateOptionsState(formatOption, saveFormat);
-
-  function updateOptionsState(elem, value) {
-    T.each(elem.children, (option) => {
-      option.classList.remove('active');
-      const optionValue = option.getAttribute('data-value');
-      if(optionValue === value){
-        option.classList.add('active');
-      }
-    });
-  }
-}
 
 async function showForm(params){
   Log.debug('showForm');
   const {
     // formInputs
-    format,
     title,
     category,
     tagstr,
@@ -389,7 +347,6 @@ async function showForm(params){
   const categoryInput = T.findElem(ID_CATEGORY);
   const tagstrInput = T.findElem(ID_TAGSTR);
 
-  await initSaveFormatOption(format, config, handlerInfo);
   titleInput.value = title;
   categoryInput.value= category;
   if (tagstr !== "") {
@@ -434,13 +391,11 @@ function submitForm(){
   hideForm();
   unbindListener();
 
-  const formatInput = T.findElem(ID_FORMAT);
   const titleInput = T.findElem(ID_TITLE);
   const categoryInput = T.findElem(ID_CATEGORY);
   const tagstrInput = T.findElem(ID_TAGSTR);
 
   sendFrameMsgToTop('submitForm', {
-    format: (formatInput.value === '' ? undefined : formatInput.value),
     title: titleInput.value,
     category: categoryInput.value,
     tagstr: tagstrInput.value,

@@ -8,7 +8,7 @@
     //=====================================
     "switch.title": "Switch (hotkey: c)",
     "hint.selecting": "Click or press 'Enter' to select.",
-    "hint.selected": "Press 'Enter' to Confirm, Use arrow key to adjust",
+    "hint.selected": "Press 'Enter' to Confirm, Use arrow keys to adjust",
     "hint.clipping": "Clipping...",
     "hint.clipped": "Clipped...",
 

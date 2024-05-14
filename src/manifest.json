@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.4.44",
+  "version": "0.5.0",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*",
@@ -37,15 +37,27 @@
     "page": "pages/background.html"
   },
   "commands": {
-    "toggle-clip": {
+    "clip-as-default": {
       "suggested_key": {
-        "default": "Alt+Shift+C"
+        "default": "Shift+Alt+C"
       },
-      "description": "__MSG_commandToggleClip__"
+      "description": "__MSG_commandClipAsDefault__"
+    },
+    "clip-as-html": {
+      "suggested_key": {
+        "default": "Shift+Alt+H"
+      },
+      "description": "__MSG_commandClipAsHtml__"
+    },
+    "clip-as-md": {
+      "suggested_key": {
+        "default": "Shift+Alt+M"
+      },
+      "description": "__MSG_commandClipAsMd__"
     },
     "open-clipping": {
       "suggested_key": {
-        "default": "Alt+Shift+O"
+        "default": "Shift+Alt+O"
       },
       "description": "__MSG_commandOpenClipping__"
     }

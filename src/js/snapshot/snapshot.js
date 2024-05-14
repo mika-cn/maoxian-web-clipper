@@ -11,15 +11,18 @@
 
 // should capture shadowDom and iframe
 
+import { NODE_TYPE, TREE_TYPE, }  from '../lib/constants.js';
+
 import T                  from '../lib/tool.js';
 import SortedArray        from '../lib/sorted-array.js';
 import ExtMsg             from '../lib/ext-msg.js';
-import {NODE_TYPE}        from '../lib/constants.js';
-import MxAttribute        from './mx-attribute.js';
+import Attribute          from './attribute.js';
+import SnapshotAccessor   from './snapshot-accessor.js';
 import StyleSheetSnapshot from './stylesheet.js';
 import StyleScope         from './style-scope.js';
 import CssTextParser      from './css-text-parser.js';
 import CssBox             from './css-box.js';
+import SvgSnapshot        from './inline-svg.js';
 
 const FRAME_URL = {
   BLANK  : 'about:blank',
@@ -59,20 +62,45 @@ async function take(node, params) {
 }
 
 
+async function takeSnapshotOfCurrNode(node, params) {
+  const {treeType = TREE_TYPE.HTML} = params;
+  switch(treeType) {
+    case TREE_TYPE.HTML: {
+      if (node.nodeType == NODE_TYPE.ELEMENT && node.nodeName == 'svg') {
+        const newDomParams = Object.assign({}, params.domParams_svg);
+        const newParams    = Object.assign({}, params, {domParams: newDomParams, treeType: TREE_TYPE.SVG});
+        return await SvgSnapshot.takeSnapshotOfCurrNode(node, newParams);
+      } else {
+        return await takeSnapshotOfCurrNode_HTML(node, params);
+      }
+    }
+    case TREE_TYPE.SVG: {
+      return await SvgSnapshot.takeSnapshotOfCurrNode(node, params);
+    }
+  }
+}
+
+
 /**
  * @param {Node} node
  * @param {Object} params
+ * - {String} treeType  - 'html', 'svg'
  * - {Window} win
  * - {Object} platform
  * - {RequestParams} requestParams
- * - {Object} frameInfo
- *   {String} extMsgType - the message type that send to nested iframes
- * - {Object} blacklist  - {upperCasedNodeName => isIgnore}
- *   {Object} shadowDom  - {blacklist: {upperCasedNodeName => isIgnore}}
- *   {Object} localFrame - {blacklist: {upperCasedNodeName => isIgnore}}
- * - {Function} ignoreFn - whether to ignore this element or not.
- * - {Boolean} ignoreHiddenElement (default: true)
- * - {CssBox} cssBox
+ * - {Object} domParams - params of current dom tree
+ *   - {Object}   frameInfo
+ *   - {String}   extMsgType - the message type that send to nested iframes
+ *   - {Object}   blacklist  - {upperCasedNodeName => isIgnore}
+ *   - {Function} ignoreFn - whether to ignore this element or not.
+ *   - {Boolean}  ignoreHiddenElement (default: true)
+ *   - {CssBox}   cssBox
+ *
+ *
+ *   {Object} domParams_html       - same as domParams
+ *   {Object} domParams_shadow     - same as domParams_html
+ *   {Object} domParams_localFrame - same as domParams_html
+ *   {Object} domParams_svg        - see svg snapshot
  *
  * @returns {Object} it
  * - {Snapshot} snapshot
@@ -80,16 +108,15 @@ async function take(node, params) {
  * - {Object}   [childParams] @see @param.params
  *
  */
-async function takeSnapshotOfCurrNode(node, params) {
-  const defaultAncestorInfo = {
-    mathAncestor: false, svgAncestor: false,
+async function takeSnapshotOfCurrNode_HTML(node, params) {
+  const defaultAncestorInfo = { mathAncestor: false,
     codeAncestor: false, preAncestor: false,
     detailsAncestor: false, scriptAncestor: false,
   };
-  const {
-    win, platform, frameInfo, requestParams, extMsgType, ancestorInfo = defaultAncestorInfo,
+  const {win, platform, requestParams, domParams} = params;
+  const {frameInfo, extMsgType, ancestorInfo = defaultAncestorInfo,
     blacklist = {}, ignoreFn, ignoreHiddenElement = true, cssBox,
-  } = params;
+  } = domParams;
 
 
   const snapshot = {name: node.nodeName, type: node.nodeType};
@@ -99,10 +126,17 @@ async function takeSnapshotOfCurrNode(node, params) {
     case NODE_TYPE.ELEMENT: {
       const upperCasedNodeName = node.nodeName.toUpperCase();
 
-      if (node.hasAttribute(MxAttribute.KEEP)) {
+      if (Attribute.hasMxAttrKeep(node)) {
+        // marked by maoxian attribute data-mx-keep
         // Treat this node as an exception
         // do nothing
       } else {
+
+        if (Attribute.hasMxAttrIgnore(node)) {
+          snapshot.ignore = true;
+          snapshot.ignoreReason = 'marker: data-mx-ignore';
+          return {snapshot}
+        }
 
         if (blacklist[upperCasedNodeName]) {
           snapshot.ignore = true;
@@ -123,7 +157,6 @@ async function takeSnapshotOfCurrNode(node, params) {
           let hidden;
           if ( ancestorInfo.detailsAncestor
             || ancestorInfo.mathAncestor
-            || ancestorInfo.svgAncestor
           ) {
             // The current node is descendent of<details>, <math>, <svg>
             // Don't ignore it. (There might be side effects)
@@ -140,7 +173,7 @@ async function takeSnapshotOfCurrNode(node, params) {
       }
 
 
-      const {attrObj, mxAttrObj} = handleAttrs(node);
+      const {attrObj, mxAttrObj} = Attribute.handleNormalAndMxAttrs(node);
       snapshot.attr = attrObj;
       if (mxAttrObj) { snapshot.mxAttr = mxAttrObj }
 
@@ -152,10 +185,12 @@ async function takeSnapshotOfCurrNode(node, params) {
         // If a shadowRoot contains <slot> nodes, the assigned nodes
         // will be exist in children of shadowRoot's host.
         // We ignore these nodes.
+        const newDomParams = Object.assign({}, domParams, (params.domParams_shadow || {}));
+        const newParams    = Object.assign({}, params, {domParams: newDomParams});
         return {
           snapshot: snapshot,
           children: [node.shadowRoot],
-          childParams: Object.assign({}, params, (params.shadowDom || {})),
+          childParams: newParams,
         }
       }
 
@@ -212,15 +247,16 @@ async function takeSnapshotOfCurrNode(node, params) {
         case 'CODE':
         case 'PRE':
         case 'MATH':
-        case 'SVG':
         case 'SCRIPT': {
           // Note that we currently only keep scripts that has "data-mx-keep" attribute
           const key = `${node.nodeName.toLowerCase()}Ancestor`;
           const newAncestorInfo = Object.assign({}, ancestorInfo, {[key]: true});
+          const newDomParams    = Object.assign({}, domParams, {ancestorInfo: newAncestorInfo});
+          const newParams       = Object.assign({}, params, {domParams: newDomParams});
           return {
             snapshot: snapshot,
             children: node.childNodes,
-            childParams: Object.assign({}, params, {ancestorInfo: newAncestorInfo}),
+            childParams: newParams,
           };
         }
 
@@ -332,11 +368,12 @@ async function takeSnapshotOfCurrNode(node, params) {
             // was generated by JS rather than just blank.
 
             const children = [node.contentDocument];
-            const childParams = Object.assign(
-              {}, params,
-              (params.localFrame || {}),
+            const newDomParams = Object.assign(
+              {}, domParams,
+              (params.domParams_localFrame || {}),
               {frameInfo: newFrameInfo}
             );
+            const childParams = Object.assign({}, params, {domParams: newDomParams});
             return {snapshot, children, childParams};
           }
 
@@ -414,7 +451,9 @@ async function takeSnapshotOfCurrNode(node, params) {
       if (cssBox) {
         const childCssBox = cssBox.createChildBox({node});
         childCssBox.setSnapshot(snapshot);
-        childParams = Object.assign({}, params, {cssBox: childCssBox});
+        const newDomParams = Object.assign({}, domParams, {cssBox: childCssBox});
+        const newParams    = Object.assign({}, params, {domParams: newDomParams});
+        childParams = newParams
       }
 
       return { snapshot, childParams, children: node.childNodes };
@@ -437,7 +476,9 @@ async function takeSnapshotOfCurrNode(node, params) {
         if (cssBox) {
           childCssBox = cssBox.createChildBox({node});
           childCssBox.setSnapshot(snapshot);
-          childParams = Object.assign({}, params, {cssBox: childCssBox});
+          const newDomParams = Object.assign({}, domParams, {cssBox: childCssBox});
+          const newParams    = Object.assign({}, params, {domParams: newDomParams});
+          childParams = newParams
         }
       }
       return {snapshot, childParams, children: node.childNodes};
@@ -491,7 +532,7 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
     switch(node.nodeType) {
       case NODE_TYPE.ELEMENT:
 
-        const {attrObj, mxAttrObj} = handleAttrs(node);
+        const {attrObj, mxAttrObj} = Attribute.handleNormalAndMxAttrs(node);
         snapshot.attr = attrObj;
         if (mxAttrObj) { snapshot.mxAttr = mxAttrObj }
 
@@ -540,28 +581,6 @@ function takeAncestorsSnapshot(lastNode, snapshots, cssBox, modifier) {
 
 
 
-function handleAttrs(elem) {
-  const attrObj = {};
-  const mxAttr = new MxAttribute();
-
-  Array.prototype.forEach.call(elem.attributes, (attr) => {
-    if (MxAttribute.is(attr)) {
-      mxAttr.add(attr);
-    } else {
-      attrObj[attr.name] = attr.value;
-    }
-  });
-
-  const result = {attrObj};
-  if (mxAttr.exist) {
-    result.mxAttrObj = mxAttr.toObject();
-  }
-
-  return result;
-}
-
-
-
 
 /**
  * Warning:
@@ -598,7 +617,7 @@ function sortChildren(nodes, mxAttrObj = {}) {
       const node = nodes[i];
       if (node.nodeType == NODE_TYPE.ELEMENT) {
         elemIndexes.push(i);
-        const index = node.getAttribute(MxAttribute.INDEX);
+        const index = node.getAttribute(Attribute.MX_INDEX);
         tmpArr.push(node, index);
         r.push(null);
       } else {
@@ -727,18 +746,18 @@ function each(node, fn, ancestors = [], ancestorDocs = []) {
 /**
  * @params @see applyFnToElem()
  */
-async function eachElement(node, fn, ancestorParams = {}) {
-  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = ancestorParams;
-  const firstItem = {node, ancestorParams: {ancestors, ancestorDocs, ancestorRoots}};
+async function eachElement(node, fn, params = {}) {
+  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = params;
+  const firstItem = {node, params: {ancestors, ancestorDocs, ancestorRoots}};
   const itemFn = async (currItem) => {
-    const {node, ancestorParams: currAncestorParams} = currItem;
-    const {children, ancestorParams} = await applyFnToElem(node, fn, currAncestorParams);
+    const {node, params: currParams} = currItem;
+    const {children, childParams} = await applyFnToElem(node, fn, currParams);
 
     const result = {};
     if (children.length > 0) {
       const newItems = [];
       for (const child of children) {
-        newItems.push({node: child, ancestorParams});
+        newItems.push({node: child, params: childParams});
       }
       result.newItems = newItems;
     }
@@ -751,28 +770,32 @@ async function eachElement(node, fn, ancestorParams = {}) {
 /**
  * @param {Snapshot} node
  * @param {Function} fn - element handler (return true if iterateChildren)
- * @param {Object}   ancestorParams
- * @param {[Snapshot]} ancestorParams.ancestors
- * @param {[Snapshot]} ancestorParams.ancestorDocs - Document nodes.
- * @param {[Snapshot]} ancestorParams.ancestorRoots - Document or ShadowRoot nodes
+ * @param {Object}   params
+ * @param {String}     params.treeType
+ * @param {[Snapshot]} params.ancestors
+ * @param {[Snapshot]} params.ancestorDocs - Document nodes.
+ * @param {[Snapshot]} params.ancestorRoots - Document or ShadowRoot nodes
  *
- * @returns {Object} it {:children, :ancestorParams}
+ * @returns {Object} it {:children, :childParams}
  */
-async function applyFnToElem(node, fn, ancestorParams) {
+async function applyFnToElem(node, fn, params) {
 
-  const {ancestors = [], ancestorDocs = [], ancestorRoots = []} = ancestorParams;
+  const {treeType = TREE_TYPE.HTML, ancestors = [], ancestorDocs = [], ancestorRoots = []} = params;
 
   switch(node.type) {
 
     case NODE_TYPE.ELEMENT: {
       if (node.ignore) { break }
 
-      const iterateChildren = await fn(node, ancestors, ancestorDocs, ancestorRoots);
+      const newParams = {treeType, ancestors, ancestorDocs, ancestorRoots};
+      if (node.name == 'svg') { newParams.treeType = TREE_TYPE.SVG }
+
+      const iterateChildren = await fn(node, newParams);
       if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
         const newAncestors = [node, ...ancestors];
         return {
           children: node.childNodes,
-          ancestorParams: Object.assign({}, ancestorParams, {ancestors: newAncestors}),
+          childParams: Object.assign({}, newParams, {ancestors: newAncestors}),
         };
       }
       break;
@@ -780,15 +803,15 @@ async function applyFnToElem(node, fn, ancestorParams) {
 
     case NODE_TYPE.DOCUMENT: {
       if (node.childNodes) {
-        const newAncestors = [node, ...ancestors];
-        const newAncestorDocs = [node, ...ancestorDocs];
+        const newAncestors     = [node, ...ancestors];
+        const newAncestorDocs  = [node, ...ancestorDocs];
         const newAncestorRoots = [node, ...ancestorRoots];
         return {
           children: node.childNodes,
-          ancestorParams: {
-            ancestors: newAncestors,
-            ancestorDocs: newAncestorDocs,
-            ancestorRoots: newAncestorRoots,
+          childParams: {
+            ancestors     : newAncestors,
+            ancestorDocs  : newAncestorDocs,
+            ancestorRoots : newAncestorRoots,
           }
         };
       }
@@ -804,10 +827,10 @@ async function applyFnToElem(node, fn, ancestorParams) {
 
         return {
           children: node.childNodes,
-          ancestorParams: {
-            ancestors: newAncestors,
-            ancestorDocs: ancestorDocs,
-            ancestorRoots: newAncestorRoots,
+          childParams: {
+            ancestors     : newAncestors,
+            ancestorDocs  : ancestorDocs,
+            ancestorRoots : newAncestorRoots,
           }
         };
       }
@@ -822,67 +845,6 @@ async function applyFnToElem(node, fn, ancestorParams) {
 
 
 // ============================================
-
-
-class SnapshotAccessor {
-  constructor(snapshot) {
-    this.node = snapshot;
-    this._change = snapshot.change;
-    this.defineGetter([
-      'name',
-      'type',
-      'ignore',
-      'ignoreReason',
-      'isShadowHost',
-      'isShadowRoot',
-      'render',
-      'errorMessage',
-      'needEscape',
-      'text',
-      'html',
-    ]);
-  }
-
-  set change(v) {
-    this._change = v;
-  }
-
-  get tagName() {
-    return this.name.toLowerCase();
-  }
-
-  get childNodes() {
-    return this.node.childNodes || [];
-  }
-
-  getAttrHTML() {
-    const deletedAttr = ((this._change || {}).deletedAttr || {});
-    const changedAttr = ((this._change || {}).attr || {});
-    const mxHTMLAttr  = MxAttribute.toHTMLAttrObject(this.node.mxAttr)
-    const attrObj = Object.assign( {}, (this.node.attr || {}), changedAttr, mxHTMLAttr);
-
-    let attrHTML = '';
-    for (let name in attrObj) {
-      if (!deletedAttr[name]) {
-        if (attrObj[name]) {
-          attrHTML += ` ${name}="${T.escapeHtmlAttr(attrObj[name])}"`;
-        } else {
-          attrHTML += ` ${name}`;
-        }
-      }
-    }
-    return attrHTML;
-  }
-
-  defineGetter(props) {
-    for (const prop of props) {
-      this.__defineGetter__(prop, () => {
-        return (this._change || {})[prop] || this.node[prop];
-      });
-    }
-  }
-
-}
 
 
 // ============================================
@@ -982,7 +944,7 @@ const EMPTY_ELEMENT = {
 
 /**
  * @param {Snapshot} snapshot
- * @param {Function} subHtmlHandler({});
+ * @param {Object} subHtmlHandler {iframe: function, mxSvgImg: function}
  * @param {Object} params
  *   - {array} ancestorDocs
  *   - {String} shadowDomRenderMethod ("DeclarativeShadowDom" or "Tree")
@@ -1007,13 +969,17 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
 
       if (isEmptyElement) {
         // empty element only needs start tag.
-        return {startTag: getStartTag(it)};
+        return {startTag: it.startTag};
 
       } else {
 
         switch(it.name) {
+          case 'MX-SVG-IMG':
           case 'FRAME':
           case 'IFRAME': {
+
+            const handleName = (it.name == 'MX-SVG-IMG' ? 'mxSvgImg' : 'iframe');
+
             if (snapshot.render == 'ignore') { return {html: ''}}
 
             const fnParams = {snapshot, ancestorDocs};
@@ -1023,9 +989,10 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
             } else {
               children = snapshot.childNodes;
             }
+
             const fn = async function(params) {
               const {snapshot, subHtml, ancestorDocs} = params;
-              const change = await subHtmlHandler(params);
+              const change = await subHtmlHandler[handleName](params);
               if (change.type || change.name) {
                 // is a new snapshot (html string node)
                 snapshot.change = change;
@@ -1035,7 +1002,7 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
                   return '';
                 } else {
                   it.change = change;
-                  return getStartTag(it) + getEndTag(it);
+                  return it.startTag + it.endTag;
                 }
               }
             }
@@ -1044,7 +1011,7 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
 
           case 'SLOT': {
 
-            const result = {startTag: getStartTag(it), endTag: getEndTag(it)};
+            const result = {startTag: it.startTag, endTag: it.endTag};
             let children = [];
             if (shadowDomRenderMethod == 'DeclarativeShadowDom') {
               if (snapshot.assigned) {
@@ -1063,8 +1030,8 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
 
           default:
             return {
-              startTag: getStartTag(it),
-              endTag: getEndTag(it),
+              startTag: it.startTag,
+              endTag:   it.endTag,
               children: it.childNodes,
               childParams: params,
             }
@@ -1127,16 +1094,6 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
     default: break;
   }
   return {html: ''};
-}
-
-// @param {SnapshotAccessor} it
-function getStartTag(it) {
-  return '<' + it.tagName + it.getAttrHTML() + '>';
-}
-
-// @param {SnapshotAccessor} it
-function getEndTag(it) {
-  return '</' + it.tagName + '>';
 }
 
 

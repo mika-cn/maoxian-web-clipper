@@ -47,9 +47,10 @@ async function capture(node, opts) {
           extension: 'frame.html',
         })
         // because the urls of local frames are always the same
-        // so we can't use it as id, use name instead which
-        // is depends on the html content.
-        id = name;
+        // so we can't use it as id,
+        // and the calculated name is not absolutly relate to html content
+        // we can't use it either.
+        id = Asset.md5(html);
       } else {
         name = Asset.getNameByLink({
           template: storageInfo.raw.frameFileName,

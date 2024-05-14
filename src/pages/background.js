@@ -1,7 +1,9 @@
 import Log         from '../js/lib/log.js';
+import ENV         from '../js/env.js';
 import T           from '../js/lib/tool.js';
 import ExtApi      from '../js/lib/ext-api.js';
 import ExtMsg      from '../js/lib/ext-msg.js';
+import MxWcIcon    from '../js/lib/icon.js';
 import MxWcStorage from '../js/lib/storage.js';
 import MxWcConfig  from '../js/lib/config.js';
 import MxWcLink    from '../js/lib/link.js';
@@ -34,10 +36,25 @@ function unknownMessageHandler(message, sender) {
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
-    switch(message.type){
 
-      case 'popup-menu.clip':
-        const msg = {type: message.type};
+    switch(message.type) {
+
+      case 'show.badge':
+        const {text} = message.body;
+        MxWcIcon.showTabBadge(sender.tab.id, text);
+        resolve();
+        break;
+
+      case 'hide.badge':
+        MxWcIcon.hideTabBadge(sender.tab.id);
+        resolve();
+        break;
+
+      case 'popup-menu.clip-command':
+        const msg = {
+          type: "clip-command",
+          body: Object.assign({}, message.body)
+        };
         loadContentScriptsAndSendMsg(msg).then(resolve, reject);
         break;
 
@@ -311,6 +328,13 @@ function saveCategory(msg){
     })
 }
 
+
+function setIconTitle() {
+  const title = ["MaoXian Web Clipper", `v${ENV.version}`].join(' ');
+  MxWcIcon.setTitle(title);
+}
+
+
 function welcomeNewUser(){
   MxWcStorage.get('firstRunning', true)
     .then((firstRunning) => {
@@ -323,17 +347,18 @@ function welcomeNewUser(){
 
 function commandListener(command) {
   switch (command) {
-    case 'open-clipping':
-      openClipping();
-      break;
-    default: {
-      // toggle-clip
-      const msg = {type: "command", body: {command}};
+    case 'clip-as-default':
+    case 'clip-as-html':
+    case 'clip-as-md':
+      const msg = {type: "clip-command", body: {command}};
       const handleError = (errMsg) => console.error(errMsg);
       loadContentScriptsAndSendMsg(msg).then(
         () => {}, handleError);
       break;
-    }
+    case 'open-clipping':
+      openClipping();
+      break;
+    default: break;
   }
 }
 
@@ -586,6 +611,7 @@ async function init(){
 
   resetAutoRunContentScriptsListener(config.autoRunContentScripts)
 
+  setIconTitle();
   welcomeNewUser();
   Log.debug("background init finish...");
 }

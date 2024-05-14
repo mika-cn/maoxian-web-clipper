@@ -47,6 +47,7 @@ function calcStyle(elem, win){
       'background-color': bodyBgCss,
       'min-height' : '100vh',
       'height' : 'auto',
+      'display' : 'block',
       'position': 'static',
       'overflow': 'auto',
       'padding-bottom': '0px',

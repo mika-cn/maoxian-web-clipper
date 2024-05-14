@@ -37,8 +37,8 @@ function initSettingGeneral(config) {
   );
 
   initCheckboxInput(config,
-    'input-field-save-format-enabled',
-    'inputFieldSaveFormatEnabled',
+    'select-save-format-on-menus',
+    'selectSaveFormatOnMenus',
   );
 
   initCheckboxInput(config,
@@ -1037,12 +1037,16 @@ function renderSectionStorage(id, container, template) {
 // Assistant begin
 // ======================================
 const AssistantDefault = {
-  examplePlanText: "[\n  {"
+  examplePlanText: "["
+    + '\n  {'
     + '\n    "name" : "A example plan",'
     + '\n    "pattern" : "https://example.org/posts/**/*.html",'
-    + '\n    "pick" : ".post",'
-    + '\n    "hide" : [".post-btns", "div.comments"]'
-    + '\n  }\n]',
+    + '\n    "actions": ['
+    + '\n      {"pick" : ".post"},'
+    + '\n      {"hide" : [".post-btns", "div.comments"]}'
+    + '\n    ]'
+    + '\n  }'
+    + '\n]',
   exampleGlobalPlanText: '{\n  "name": "the global plan",\n  "disabled": true\n}',
   defaultIndexUrl: MxWcLink.get('assistant.subscription.default.index'),
 }

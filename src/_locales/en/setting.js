@@ -306,7 +306,7 @@
     "label.html-custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",
     "label.mouse-mode-enabled-input": "Mouse friendly mode",
-    "label.input-field-save-format-enabled": "Select save format on saving form",
+    "label.select-save-format-on-menus": "Select save format on menus",
     "label.auto-input-last-category": "Auto input the last category",
     "label.auto-input-last-tags": "Auto input the last tag(s)",
     "label.remember-selection-input": "Remember the selection (the clipped area) and try to automatically select it next time (If they have the same URL pattern)",

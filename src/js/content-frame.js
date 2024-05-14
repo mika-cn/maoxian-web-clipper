@@ -31,31 +31,44 @@ function backgroundMessageHandler(message) {
 
       case 'frame.clipAsHtml.takeSnapshot':
         {
-          const blacklist = {SCRIPT: true, TEMPLATE: true};
           const cssBox = getCssBox(message);
+
+          // save icons and stylesheets only
+          const ignoreFn = (node) => {
+            if (node.nodeName.toUpperCase() == 'LINK' && node.rel) {
+              const rel = node.rel.toLowerCase();
+              if (rel.match(/icon/) || rel.match(/stylesheet/)) {
+                return {isIgnore: false};
+              } else {
+                return {isIgnore: true, reason: 'NotSupported'};
+              }
+            } else {
+              return {isIgnore: false}
+            }
+          }
+
+          const domParams_html = {
+            frameInfo: message.body.frameInfo,
+            extMsgType: message.type,
+            cssBox: cssBox,
+            blackList: {SCRIPT: true, TEMPLATE: true},
+            ignoreFn,
+          }
+
+          const domParams            = Object.assign({}, domParams_html);
+          const domParams_localFrame = Object.assign({}, domParams_html);
+          const domParams_shadow     = Object.assign({}, domParams_html);
+          const domParams_svg = {blacklist: {SCRIPT: true, LINK: true}};
 
           Snapshot.take(window.document, {
             win: window,
             platform: message.body.platform,
             requestParams: getRequestParams(message),
-            frameInfo: message.body.frameInfo,
-            extMsgType: message.type,
-            cssBox: cssBox,
-            blacklist: blacklist,
-            shadowDom: {blacklist},
-            localFrame: {blacklist},
-            ignoreFn: (node) => {
-              if (node.nodeName.toUpperCase() == 'LINK' && node.rel) {
-                const rel = node.rel.toLowerCase();
-                if (rel.match(/icon/) || rel.match(/stylesheet/)) {
-                  return {isIgnore: false};
-                } else {
-                  return {isIgnore: true, reason: 'NotSupported'};
-                }
-              } else {
-                return {isIgnore: false}
-              }
-            }
+            domParams,
+            domParams_html,
+            domParams_localFrame,
+            domParams_shadow,
+            domParams_svg,
           }).then((snapshot) => {
             cssBox.setSnapshot(snapshot);
             cssBox.finalize();
@@ -67,17 +80,26 @@ function backgroundMessageHandler(message) {
 
       case 'frame.clipAsMd.takeSnapshot':
         {
-          const blacklist = {META: true, HEAD: true, LINK: true,
-            STYLE: true, SCRIPT: true, TEMPLATE: true};
+          const domParams_html = {
+            frameInfo: message.body.frameInfo,
+            extMsgType: message.type,
+            blacklist: {META: true, HEAD: true, LINK: true, STYLE: true, SCRIPT: true, TEMPLATE: true}
+          }
+
+          const domParams            = Object.assign({}, domParams_html);
+          const domParams_localFrame = Object.assign({}, domParams_html);
+          const domParams_shadow     = Object.assign({}, domParams_html);
+          const domParams_svg = {blacklist: {SCRIPT: true, LINK: true}};
+
           Snapshot.take(window.document, {
             win: window,
             platform: message.body.platform,
             requestParams: getRequestParams(message),
-            frameInfo: message.body.frameInfo,
-            extMsgType: message.type,
-            blacklist: blacklist,
-            shadowDom: {blacklist},
-            localFrame: {blacklist},
+            domParams,
+            domParams_html,
+            domParams_localFrame,
+            domParams_shadow,
+            domParams_svg,
           }).then(resolve, reject).catch(reject);
         }
         break;
@@ -119,27 +141,38 @@ function initMxWcAssistant() {
  */
 function getInternalGlobalPlan() {
   return {
-    "chAttr": [
+    actions: [
       // MathJax V2
       {
-        "type": "assign.from.value",
-        "pick": "script[id^=MathJax-Element-]",
-        "attr": "data-mx-keep",
-        "value": "1",
+        chAttr: {
+          pick: "script[id^=MathJax-Element-]",
+          type: "assign.from.value",
+          attr: "data-mx-keep",
+          value: "1",
+        },
+        tag: 'md-only'
       },
+
       // MathJax V3
       {
-        "type": "assign.from.parent-attr",
-        "pick": "mjx-assistive-mml > math",
-        "attr": "data-mx-formula-display",
-        "tAttr": "display"
+        chAttr: {
+          pick: "mjx-assistive-mml > math",
+          type: "assign.from.parent-attr",
+          attr: "data-mx-formula-display",
+          tAttr: "display"
+        },
+        tag: 'md-only'
       },
+
       // Normal MathML
       {
-        "type": "assign.from-fn.get-math-display",
-        "pick": "math",
-        "attr": "data-mx-formula-display",
-      },
+        chAttr: {
+          pick: "math",
+          type: "assign.from-fn.get-math-display",
+          attr: "data-mx-formula-display",
+        },
+        tag: 'md-only'
+      }
     ]
   };
 }

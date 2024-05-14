@@ -1,6 +1,7 @@
 import Log               from './lib/log.js';
 import T                 from './lib/tool.js';
 import ExtMsg            from './lib/ext-msg.js';
+import MxWcIcon          from './lib/icon.js';
 import MxWcEvent         from './lib/event.js';
 import MxWcConfig        from './lib/config.js';
 import MxWcLink          from './lib/link.js';
@@ -14,49 +15,52 @@ let state = {state: null};
 function resetClippingState() {
   /* only avariable in current clipping */
   state.tempConfig = {};
+  state.saveFormat = null;
   YieldPoint.reset();
   /* information of current clipping */
   state.storageConfig = null;
   state.storageInfo = null;
   state.clipping = null;
+  Log.debug("resetClippingState");
 }
+
 
 function messageHandler(msg) {
   return new Promise(function(resolve, reject){
-    switch(msg.type){
-      case 'popup-menu.clip':
-        window.focus();
-        activeUI({});
-        break;
-      case 'command':
-        const {command} = msg.body;
-        if (command === 'toggle-clip')  {
-          window.focus();
-          activeUI({});
-        }
-        break;
-      case 'saving.started':
-        UI.savingStarted(msg.body);
-        break;
-      case 'saving.progress':
-        UI.savingProgress(msg.body);
-        break;
-      case 'saving.completed':
-        UI.savingCompleted(msg.body);
-        tellTpCompleted(msg.body);
-        resetClippingState();
-        break;
-      case 'page_content.changed':
-        pageContentChanged();
-        break;
-      case 'config.changed':
-        configChanged(msg.body);
-        break;
-      default: break;
+    try {
+      switch(msg.type){
+        case 'clip-command':
+          // browser shortcuts or clicked popup menu
+          handleClipCommand(msg.body);
+          break;
+        case 'saving.started':
+          UI.savingStarted(msg.body);
+          break;
+        case 'saving.progress':
+          UI.savingProgress(msg.body);
+          break;
+        case 'saving.completed':
+          UI.savingCompleted(msg.body);
+          tellTpCompleted(msg.body);
+          break;
+        case 'page_content.changed':
+          pageContentChanged();
+          break;
+        case 'config.changed':
+          configChanged(msg.body);
+          break;
+        default: break;
+      }
+      resolve(true);
+    } catch (e) {
+      const errMsg = [e.message, e.stack].join("\n");
+      Log.debug("bgMsg handler: ", errMsg);
+      reject(e);
     }
-    resolve(true);
   });
 }
+
+
 
 function listenMessage(){
   ExtMsg.listen('content', messageHandler);
@@ -68,6 +72,8 @@ function listenMessage(){
   MxWcEvent.listenInternal('actived', lockWebPage);
   MxWcEvent.listenInternal('clipped', unlockWebPage);
   MxWcEvent.listenInternal('idle'   , unlockWebPage);
+  MxWcEvent.listenInternal('idle'   , resetClippingState);
+  MxWcEvent.listenInternal('idle'   , hideBadge);
 }
 
 let observer = undefined;
@@ -362,7 +368,7 @@ function resumeActived(msg) {
 
 function executeYieldBackActionSelecting(yieldPoint) {
   Log.debug("Yieldback.selecting from: ", yieldPoint);
-  UI.entryClick({});
+  UI.startNewClipping(); // load UI and start selecting
 }
 
 function executeYieldBackActionExit(yieldPoint) {
@@ -406,7 +412,6 @@ function executeYieldBackActionClipElem(yieldPoint, msg) {
 function backToIdleState() {
   const timeout = 500;
   UI.friendlyExit(timeout);
-  resetClippingState();
 }
 
 
@@ -508,7 +513,7 @@ function queryElem(msg, callback){
 }
 
 async function formSubmitted({elem, formInputs, config}) {
-  const currConfig = Object.assign(config, state.tempConfig)
+  const currConfig = getCurrentConfig(config);
   const domain    = window.location.host.split(':')[0];
   const pageUrl   = window.location.href;
   const userAgent = window.navigator.userAgent;
@@ -566,6 +571,19 @@ async function formSubmitted({elem, formInputs, config}) {
   } else {
     saveClipping({clipping});
   }
+}
+
+
+function getCurrentConfig(config) {
+  const it = Object.assign(config, state.tempConfig)
+  if (state.saveFormat) {it.saveFormat = state.saveFormat}
+  return it;
+}
+
+
+function getExposableConfig(config) {
+  const currConfig = getCurrentConfig(config);
+  return T.sliceObj(currConfig, ['saveFormat'])
 }
 
 
@@ -636,7 +654,7 @@ function saveClippingHistory(clipping){
 function listenPopState(){
   window.onpopstate = function(e){
     Log.debug("On pop state");
-    UI.remove();
+    UI.removeUI();
     setTimeout(initialize, 200);
   }
 }
@@ -653,9 +671,30 @@ function pageContentChanged(){
   delayPageChanged.run();
 }
 
-function activeUI(e) {
+
+function handleClipCommand({command}) {
+  switch(command) {
+    case 'clip-as-default':
+      toggleClip({saveFormat: null});
+      break;
+    case 'clip-as-html':
+      toggleClip({saveFormat: 'html', badgeText: 'H'});
+      break;
+    case 'clip-as-md':
+      toggleClip({saveFormat: 'md', badgeText: 'M'});
+      break;
+    default: break;
+  }
+}
+
+function toggleClip({saveFormat = null, badgeText}) {
+  window.focus();
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
+    // Store save format that choosen by user.
+    state.saveFormat = saveFormat;
+    if (badgeText) { showBadge(badgeText) }
+
     MxWcEvent.dispatchInternal('actived');
     // we're going to active UI
     if (state.config && state.config.communicateWithThirdParty) {
@@ -664,13 +703,13 @@ function activeUI(e) {
         MxWcEvent.dispatchPublic('actived');
       } else {
         MxWcEvent.dispatchPublic('actived');
-        UI.entryClick(e);
+        UI.startNewClipping();
       }
     } else {
-      UI.entryClick(e);
+      UI.startNewClipping();
     }
   } else {
-    UI.entryClick(e);
+    UI.cancelCurrentClipping();
   }
 }
 
@@ -681,12 +720,21 @@ function initialize(){
   Log.debug("content init...");
 }
 
+function showBadge(text) {
+  ExtMsg.sendToBackground({type: 'show.badge', body: {text}});
+}
+
+function hideBadge() {
+  ExtMsg.sendToBackground({type: 'hide.badge'});
+}
+
 function fetchContentMessage() {
   ExtMsg.sendToBackground({type: 'fetch.content-message'})
     .then(messageHandler, (errMsg) => {
       Log.debug(errMsg)
     });
 }
+
 
 function run(){
   if (document) {
@@ -702,6 +750,7 @@ function run(){
           UI.setContentFn('submitted', formSubmitted);
           UI.setContentFn('hasYieldPoint', hasYieldPoint);
           UI.setContentFn('setCurrYieldPoint', setCurrYieldPoint);
+          UI.setContentFn('getExposableConfig', getExposableConfig);
           initialize();
           listenMessage();
           listenPopState();

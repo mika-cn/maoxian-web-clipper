@@ -371,24 +371,27 @@ function hideForm(){
 function setStateIdle(){
   state.clippingState = 'idle';
   sendFrameMsgToControl('setStateIdle');
-  dispatchMxEvent('idle');
+  const msg = {config: state.contentFn.getExposableConfig(state.config)};
+  dispatchMxEvent('idle', msg);
 }
 function setStateSelecting(){
+  const fromState = state.clippingState;
   state.clippingState = 'selecting';
+  const msg = {config: state.contentFn.getExposableConfig(state.config)};
   sendFrameMsgToControl('setStateSelecting');
-  dispatchMxEvent('selecting');
+  if (fromState == 'idle') { dispatchMxEvent('selecting', msg) }
 }
 function setStateSelected(){
   state.clippingState = 'selected';
   sendFrameMsgToControl('setStateSelected');
-  dispatchMxEvent('selected');
 }
 function setStateConfirmed(elem){
   state.clippingState = 'confirmed';
+  const msg = {config: state.contentFn.getExposableConfig(state.config)};
   sendFrameMsgToControl('setStateConfirmed');
   try {
     const selector = getCssSelector(elem);
-    const msg = {elem: {selector}};
+    msg.elem = {selector};
     dispatchMxEvent('confirmed', msg);
   } catch(e) {
     Log.error("before dispatchMxEvent(confirmed)", e.mesasge, e);
@@ -446,27 +449,43 @@ function sendFrameMsgToSelection(type, msg) {
 // ===========================================
 function entryClick(e){
   if (state.clippingState === 'idle') {
-    if (isUILoading()) {
-      Log.debug("UI is loading, clippingState is changing from 'idle' to 'selecting'");
-    } else {
-      // switch to ON
-      listenFrameMsg();
-      T.bindOnce(document, 'all-iframe-loaded', () => {
-        bindListener();
-        setStateSelecting();
-      })
-      appendUI();
-    }
-  }else{
-    if(state.clippingState !== 'clipping') {
-      // switch to OFF
-      ignoreFrameMsg();
-      hideForm();
-      unbindListener();
-      eraseHigtlightStyle();
-      setStateIdle();
-      removeUI();
-    }
+    startNewClipping();
+  } else {
+    cancelCurrentClipping();
+  }
+}
+
+
+function startNewClipping() {
+  if (isUILoading()) {
+    Log.debug("UI is loading, clippingState is changing from 'idle' to 'selecting'");
+  } else {
+    // Load UI and start selecting
+    listenFrameMsg();
+    T.bindOnce(document, 'all-iframe-loaded', allIframeLoadedListener)
+    appendUI();
+  }
+}
+
+function allIframeLoadedListener(e) {
+  bindListener();
+  setStateSelecting();
+}
+
+
+function cancelCurrentClipping() {
+  if (state.clippingState == 'clipping') {
+    // Not able to cancel in this state
+    // Do nothing
+    // Let the current clipping process
+  } else {
+    // cancel the current clipping.
+    ignoreFrameMsg();
+    hideForm();
+    unbindListener();
+    eraseHigtlightStyle();
+    setStateIdle();
+    removeUI();
   }
 }
 
@@ -633,7 +652,7 @@ function pressEsc(msg){
   }
 }
 
-// @param {Object} msg {:format, :title, :category, :tagstr}
+// @param {Object} msg {:title, :category, :tagstr}
 function pressEnter(msg){
   if(state.clippingState === 'selecting' && state.currElem){
     selectedTarget(state.currElem);
@@ -885,7 +904,7 @@ function friendlyExit(timeout) {
 function selectElem(elem, callback){
   if(state.clippingState === 'idle') {
     Log.debug("[selectElem] State Idle...");
-    entryClick({});
+    startNewClipping();
   }
   state.currElem = getOutermostWrapper(elem);
 
@@ -898,7 +917,7 @@ function selectElem(elem, callback){
   } else {
     Log.debug("[selectElem] Iframe Loading...");
     const allIframeLoad = function(e){
-      // when all iframe loaded, there's some initialization should finish.
+      // when all iframe loaded, there's some initialization should finish, so we select element next tick.
       setTimeout(() => {
         selectedTarget(state.currElem);
         if(callback){ callback()}
@@ -911,7 +930,7 @@ function selectElem(elem, callback){
 
 /*
  * 3rd party interface
- * formInputs: {:format, :title, :category, :tagstr}
+ * formInputs: {:title, :category, :tagstr}
  */
 function confirmElem(elem, formInputs){
   selectElem(elem, function(){
@@ -921,7 +940,7 @@ function confirmElem(elem, formInputs){
 
 /*
  * 3rd party interface
- * formInputs: {:format, :title, :category, :tagstr}
+ * formInputs: {:title, :category, :tagstr}
  */
 function clipElem(elem, formInputs){
   selectElem(elem, function(){
@@ -931,7 +950,7 @@ function clipElem(elem, formInputs){
 
 /*
  * 3rd party interface
- * formInputs: {:format, :title, :category, :tagstr}
+ * formInputs: {:title, :category, :tagstr}
  */
 state.formInputs = {};
 function setFormInputs(formInputs) {
@@ -951,7 +970,6 @@ function setFormOptions(formOptions) {
 
 function getFormInputs(elem, formInputs = {}) {
   const inputs = {
-    format   : (formInputs.format   || state.formInputs.format   || ""),
     title    : (formInputs.title    || state.formInputs.title    || DOMTool.getWebPageTitle(window, elem)),
     category : (formInputs.category || state.formInputs.category || ""),
     tagstr   : (formInputs.tagstr   || state.formInputs.tagstr   || "")
@@ -999,27 +1017,28 @@ function init(config) {
 }
 
 const UI = {
-  init: init,
-  remove: removeUI,
-  setContentFn: setContentFn,
-  entryClick: entryClick,
-  windowSizeChanged: windowSizeChanged,
-  getCurrState: getCurrState,
+  init,
+  removeUI,
+  setContentFn,
+  startNewClipping,
+  cancelCurrentClipping,
+  windowSizeChanged,
+  getCurrState,
 
-  setStateClipped: setStateClipped,
+  setStateClipped,
 
-  savingStarted: savingStarted,
-  savingProgress: savingProgress,
-  savingCompleted: savingCompleted,
+  savingStarted,
+  savingProgress,
+  savingCompleted,
 
   // 3rd party interface
-  selectElem: selectElem,
-  confirmElem: confirmElem,
-  clipElem: clipElem,
-  setFormInputs: setFormInputs,
-  setFormOptions: setFormOptions,
-  setSavingHint: setSavingHint,
-  friendlyExit: friendlyExit,
+  selectElem,
+  confirmElem,
+  clipElem,
+  setFormInputs,
+  setFormOptions,
+  setSavingHint,
+  friendlyExit,
   recoverFromConfirmedYieldPoint,
   showFormFromYieldPoint,
 }

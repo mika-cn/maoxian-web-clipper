@@ -14,11 +14,13 @@ const state = {};
 function menuClick(e){
   const menuId = getMenuId(e.target);
   switch(menuId){
-    case 'clip': startClip(); break;
-    case 'history': jumpToPage('extPage.history'); break;
-    case 'setting': jumpToPage('extPage.setting'); break;
-    case 'home'   : jumpToPage('extPage.home'); break;
-    case 'debug'  : jumpToPage('extPage.debug'); break;
+    case 'clip-as-default': sendClipCommand('clip-as-default') ; break ;
+    case 'clip-as-html'   : sendClipCommand('clip-as-html')    ; break ;
+    case 'clip-as-md'     : sendClipCommand('clip-as-md')      ; break ;
+    case 'history': jumpToPage('extPage.history') ; break ;
+    case 'setting': jumpToPage('extPage.setting') ; break ;
+    case 'home'   : jumpToPage('extPage.home')    ; break ;
+    case 'debug'  : jumpToPage('extPage.debug')   ; break ;
     case 'last-result':viewLastResult(); break;
     default: break;
   }
@@ -60,9 +62,15 @@ function viewLastResult(){
   closeWindow();
 }
 
-function startClip(){
-  ExtMsg.sendToBackground({type: 'popup-menu.clip'}).then(closeWindow);
+
+function sendClipCommand(command) {
+  const body = {command}
+  ExtMsg.sendToBackground({
+    type: 'popup-menu.clip-command',
+    body: body
+  }).then(closeWindow);
 }
+
 
 function jumpToPage(page){
   ExtApi.createTab(MxWcLink.get(page));
@@ -70,7 +78,9 @@ function jumpToPage(page){
 }
 
 async function renderMenus(){
+  const config = await MxWcConfig.load();
   const pageIds = ['history', 'setting'];
+
   let menuIds = [];
   let tab;
 
@@ -92,8 +102,10 @@ async function renderMenus(){
       //browser restricted url
       if (['addons.mozilla.org', 'chrome.google.com'].indexOf((new URL(tabUrl)).host) > -1) {
         menuIds = pageIds;
+      } else if (config.selectSaveFormatOnMenus) {
+        menuIds = ['clip-as-html', 'clip-as-md'].concat(pageIds);
       } else {
-        menuIds = ['clip'].concat(pageIds);
+        menuIds = ['clip-as-default'].concat(pageIds);
       }
     }
   } else {
@@ -106,7 +118,6 @@ async function renderMenus(){
     menuIds.push('debug');
   }
 
-  const config = await MxWcConfig.load();
   const allowFileSchemeAccess = await ExtApi.isAllowedFileSchemeAccess();
   const lastClippingResult = await MxWcStorage.get('lastClippingResult');
   state.allowFileUrlAccess = (allowFileSchemeAccess || config.allowFileSchemeAccess);
@@ -131,8 +142,10 @@ async function renderMenus(){
   const template = T.findElem('menu-tpl').innerHTML;
 
   const icons = {
+    "clip-as-default" : 'clip',
+    "clip-as-html"    : 'clip',
+    "clip-as-md"      : 'clip',
     "last-result" : 'check',
-    "clip"        : 'clip',
     "history"     : 'history',
     "setting"     : 'setting',
     "home"        : 'home',
@@ -145,6 +158,7 @@ async function renderMenus(){
       icon: icons[menuId],
       menuId: menuId,
       menuContent: I18N.t("menu." + menuId),
+      menuHint: I18N.t("menu.hint." + menuId),
     });
   });
   T.setHtml('.menus', html);
