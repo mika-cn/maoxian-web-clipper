@@ -788,7 +788,7 @@ async function applyFnToElem(node, fn, params) {
       if (node.ignore) { break }
 
       const newParams = {treeType, ancestors, ancestorDocs, ancestorRoots};
-      if (node.nodeName == 'svg') { newParams.treeType = NODE_TYPE.SVG }
+      if (node.name == 'svg') { newParams.treeType = TREE_TYPE.SVG }
 
       const iterateChildren = await fn(node, newParams);
       if (iterateChildren && node.childNodes && node.childNodes.length > 0) {
@@ -944,7 +944,7 @@ const EMPTY_ELEMENT = {
 
 /**
  * @param {Snapshot} snapshot
- * @param {Function} subHtmlHandler({});
+ * @param {Object} subHtmlHandler {iframe: function, mxSvgImg: function}
  * @param {Object} params
  *   - {array} ancestorDocs
  *   - {String} shadowDomRenderMethod ("DeclarativeShadowDom" or "Tree")
@@ -974,8 +974,12 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
       } else {
 
         switch(it.name) {
+          case 'MX-SVG-IMG':
           case 'FRAME':
           case 'IFRAME': {
+
+            const handleName = (it.name == 'MX-SVG-IMG' ? 'mxSvgImg' : 'iframe');
+
             if (snapshot.render == 'ignore') { return {html: ''}}
 
             const fnParams = {snapshot, ancestorDocs};
@@ -985,9 +989,10 @@ async function snapshotToHTML(snapshot, subHtmlHandler, params = {}) {
             } else {
               children = snapshot.childNodes;
             }
+
             const fn = async function(params) {
               const {snapshot, subHtml, ancestorDocs} = params;
-              const change = await subHtmlHandler(params);
+              const change = await subHtmlHandler[handleName](params);
               if (change.type || change.name) {
                 // is a new snapshot (html string node)
                 snapshot.change = change;

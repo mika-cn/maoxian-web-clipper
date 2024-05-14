@@ -25,6 +25,7 @@ import CapturerTable         from '../capturer/table.js';
 import CapturerSvg           from '../capturer-svg/svg.js';
 import CapturerSvgA          from '../capturer-svg/a.js';
 import CapturerSvgImage      from '../capturer-svg/image.js';
+import CapturerMxSvgImg      from '../capturer-svg/mx-svg-img.js';
 
 import TurndownService from 'turndown';
 import * as TurndownPluginGfm from 'turndown-plugin-gfm';
@@ -57,7 +58,8 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
 
   Log.debug(snapshot);
 
-  const subHtmlHandler = async function({snapshot, subHtml, ancestorDocs}) {
+  const subHtmlHandler = {};
+  subHtmlHandler.iframe = async function({snapshot, subHtml, ancestorDocs}) {
     const r = await CapturerIframe.capture(snapshot, {
       saveFormat: 'md',
       html: subHtml,
@@ -67,6 +69,16 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
     tasks.push(...r.tasks);
     return r.change.toObject();
   };
+
+  subHtmlHandler.mxSvgImg = async function({snapshot, subHtml, ancestorDocs}) {
+    const r = await CapturerMxSvgImg.capture(snapshot, {
+      xml: subHtml,
+      clipId,
+      storageInfo,
+    });
+    tasks.push(...r.tasks);
+    return r.change.toObject();
+  }
 
   const elemHTML = await Snapshot.toHTML(snapshot, subHtmlHandler, {
     shadowDomRenderMethod: 'Tree',
@@ -127,7 +139,19 @@ async function takeSnapshot({elem, frames, requestParams, win, platform}) {
   const domParams            = Object.assign({}, domParams_html);
   const domParams_localFrame = Object.assign({}, domParams_html);
   const domParams_shadow     = Object.assign({}, domParams_html);
-  const domParams_svg = {blacklist: {SCRIPT: true, LINK: true}};
+  const domParams_svg = {blacklist: {
+    SCRIPT  : true,
+    LINK    : true,
+    PICTURE : true,
+    CANVAS  : true,
+    AUDIO   : true,
+    VIDEO   : true,
+    FRAME   : true,
+    IFRAME  : true,
+    OBJECT  : true,
+    EMBED   : true,
+    APPLET  : true,
+  }};
 
   let elemSnapshot = await Snapshot.take(elem, {
     win, platform, requestParams,

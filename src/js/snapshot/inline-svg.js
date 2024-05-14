@@ -21,7 +21,7 @@ import Attribute   from './attribute.js';
  *   - handle <use> tags, so that it don't use external elements anymore
  *   - handle <a>, <image>
  *   - treat <style> as a normal tag
- *   - remove <link> <script>
+ *   - remove <link> <script> ...
  */
 
 
@@ -43,7 +43,36 @@ async function takeSnapshotOfCurrNode(node, params) {
       if (mxAttrObj) { snapshot.mxAttr = mxAttrObj }
 
       switch(upperCasedNodeName) {
+        case 'MX-SVG-IMG': {
+          const children = node.__mx_children;
+          delete node.__mx_children
+          node = undefined;
+          return {snapshot, children, childParams: params};
+        }
         case 'SVG': {
+
+          if (node.parentNode && node.parentNode.closest('svg')) {
+            snapshot.nestedSvg = true;
+          }
+
+          // wrap it if marked by mx attribute.
+          if (mxAttrObj && mxAttrObj.saveAsImg) {
+            if (node.__mx_wrapped) {
+              // already wrapped
+              delete node.__mx_wrapped;
+            } else if (snapshot.nestedSvg) {
+              // we don't save nested <svg>s as <img>
+              snapshot.mxAttr.saveAsImg = false;
+            } else {
+              node.__mx_wrapped = true;
+              const wrapper = win.document.createElement('mx-svg-img');
+              wrapper.__mx_children = [node];
+              // console.debug("wrap svg: ", wrapper, node, params);
+              return await takeSnapshotOfCurrNode(wrapper, params);
+            }
+          }
+
+          // find external defs and insert it inside svg
           const externalDefs = Svg.getExternalReferencedElems(node);
           let children;
           if (externalDefs.length > 0) {
@@ -55,10 +84,12 @@ async function takeSnapshotOfCurrNode(node, params) {
           }
           return {snapshot, children, childParams: params};
         }
+
         case 'DEFS': {
           let children;
           if (node.__mx_externalDefs) {
             children = node.__mx_externalDefs;
+            delete node.__mx_externalDefs;
           } else {
             children = node.childNodes;
           }
@@ -66,8 +97,12 @@ async function takeSnapshotOfCurrNode(node, params) {
         }
 
         case 'FOREIGNOBJECT': {
-          // remove all <script> <frame> <iframe> <object> ...
           // FIXME
+          // Do we really need to switch treeType to HTML
+          // so we can take these (X)HTML snapshots?
+          //
+          // we currently only set blacklist
+          // search domParams_svg for details
         }
         default: {
           return {snapshot, children: node.childNodes, childParams: params};

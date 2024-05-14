@@ -23,9 +23,11 @@ import CapturerEmbed         from '../capturer/embed.js';
 import CapturerObject        from '../capturer/object.js';
 import CapturerApplet        from '../capturer/applet.js';
 import CapturerStyleSheet    from '../capturer/stylesheet.js';
+
 import CapturerSvg           from '../capturer-svg/svg.js';
 import CapturerSvgA          from '../capturer-svg/a.js';
 import CapturerSvgImage      from '../capturer-svg/image.js';
+import CapturerMxSvgImg      from '../capturer-svg/mx-svg-img.js';
 
 import StyleHelper           from './style-helper.js';
 import RequestParams         from '../lib/request-params.js'
@@ -69,7 +71,8 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
     mainFileFolder: params.storageInfo.frameFileFolder,
   });
 
-  const subHtmlHandler = async function({snapshot, subHtml, ancestorDocs}) {
+  const subHtmlHandler = {};
+  subHtmlHandler.iframe = async function({snapshot, subHtml, ancestorDocs}) {
     const r = await CapturerIframe.capture(snapshot, {
       saveFormat: 'html',
       html: subHtml,
@@ -79,6 +82,16 @@ async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, 
     tasks.push(...r.tasks);
     return r.change.toObject();
   };
+
+  subHtmlHandler.mxSvgImg = async function({snapshot, subHtml, ancestorDocs}) {
+    const r = await CapturerMxSvgImg.capture(snapshot, {
+      xml: subHtml,
+      clipId,
+      storageInfo: (ancestorDocs.length > 1 ? iframeStorageInfo : storageInfo),
+    });
+    tasks.push(...r.tasks);
+    return r.change.toObject();
+  }
 
   const html = await Snapshot.toHTML(snapshot, subHtmlHandler);
 
@@ -106,7 +119,19 @@ async function takeSnapshot({elem, frames, requestParams, win, platform, v}) {
   const domParams            = Object.assign({}, domParams_html);
   const domParams_localFrame = Object.assign({}, domParams_html, {blacklist: {SCRIPT: true, TEMPLATE: true}});
   const domParams_shadow     = Object.assign({}, domParams_html, {blacklist: {SCRIPT: true, TEMPLATE: true}});
-  const domParams_svg = {blacklist: {SCRIPT: true, LINK: true}};
+  const domParams_svg = {blacklist: {
+    SCRIPT  : true,
+    LINK    : true,
+    PICTURE : true,
+    CANVAS  : true,
+    AUDIO   : true,
+    VIDEO   : true,
+    FRAME   : true,
+    IFRAME  : true,
+    OBJECT  : true,
+    EMBED   : true,
+    APPLET  : true,
+  }};
 
   let elemSnapshot = await Snapshot.take(elem, {
     win, requestParams, platform,
