@@ -383,7 +383,6 @@ function setStateSelecting(){
 }
 function setStateSelected(){
   state.clippingState = 'selected';
-  const msg = {config: state.contentFn.getExposableConfig(state.config)};
   sendFrameMsgToControl('setStateSelected');
 }
 function setStateConfirmed(elem){
