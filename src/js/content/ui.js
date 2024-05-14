@@ -486,7 +486,7 @@ function cancelCurrentClipping() {
     unbindListener();
     eraseHigtlightStyle();
     setStateIdle();
-    remveUI();
+    removeUI();
   }
 }
 

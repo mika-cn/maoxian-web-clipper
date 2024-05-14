@@ -1,6 +1,7 @@
 import Log               from './lib/log.js';
 import T                 from './lib/tool.js';
 import ExtMsg            from './lib/ext-msg.js';
+import MxWcIcon          from './lib/icon.js';
 import MxWcEvent         from './lib/event.js';
 import MxWcConfig        from './lib/config.js';
 import MxWcLink          from './lib/link.js';
@@ -26,30 +27,36 @@ function resetClippingState() {
 
 function messageHandler(msg) {
   return new Promise(function(resolve, reject){
-    switch(msg.type){
-      case 'clip-command':
-        // browser shortcuts or clicked popup menu
-        handleClipCommand(msg.body);
-        break;
-      case 'saving.started':
-        UI.savingStarted(msg.body);
-        break;
-      case 'saving.progress':
-        UI.savingProgress(msg.body);
-        break;
-      case 'saving.completed':
-        UI.savingCompleted(msg.body);
-        tellTpCompleted(msg.body);
-        break;
-      case 'page_content.changed':
-        pageContentChanged();
-        break;
-      case 'config.changed':
-        configChanged(msg.body);
-        break;
-      default: break;
+    try {
+      switch(msg.type){
+        case 'clip-command':
+          // browser shortcuts or clicked popup menu
+          handleClipCommand(msg.body);
+          break;
+        case 'saving.started':
+          UI.savingStarted(msg.body);
+          break;
+        case 'saving.progress':
+          UI.savingProgress(msg.body);
+          break;
+        case 'saving.completed':
+          UI.savingCompleted(msg.body);
+          tellTpCompleted(msg.body);
+          break;
+        case 'page_content.changed':
+          pageContentChanged();
+          break;
+        case 'config.changed':
+          configChanged(msg.body);
+          break;
+        default: break;
+      }
+      resolve(true);
+    } catch (e) {
+      const errMsg = [e.message, e.stack].join("\n");
+      Log.debug("bgMsg handler: ", errMsg);
+      reject(e);
     }
-    resolve(true);
   });
 }
 
@@ -66,6 +73,7 @@ function listenMessage(){
   MxWcEvent.listenInternal('clipped', unlockWebPage);
   MxWcEvent.listenInternal('idle'   , unlockWebPage);
   MxWcEvent.listenInternal('idle'   , resetClippingState);
+  MxWcEvent.listenInternal('idle'   , hideBadge);
 }
 
 let observer = undefined;
@@ -670,21 +678,22 @@ function handleClipCommand({command}) {
       toggleClip({saveFormat: null});
       break;
     case 'clip-as-html':
-      toggleClip({saveFormat: 'html'});
+      toggleClip({saveFormat: 'html', badgeText: 'H'});
       break;
     case 'clip-as-md':
-      toggleClip({saveFormat: 'md'});
+      toggleClip({saveFormat: 'md', badgeText: 'M'});
       break;
     default: break;
   }
 }
 
-function toggleClip({saveFormat = null}) {
+function toggleClip({saveFormat = null, badgeText}) {
   window.focus();
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
     // Store save format that choosen by user.
     state.saveFormat = saveFormat;
+    if (badgeText) { showBadge(badgeText) }
 
     MxWcEvent.dispatchInternal('actived');
     // we're going to active UI
@@ -711,12 +720,21 @@ function initialize(){
   Log.debug("content init...");
 }
 
+function showBadge(text) {
+  ExtMsg.sendToBackground({type: 'show.badge', body: {text}});
+}
+
+function hideBadge() {
+  ExtMsg.sendToBackground({type: 'hide.badge'});
+}
+
 function fetchContentMessage() {
   ExtMsg.sendToBackground({type: 'fetch.content-message'})
     .then(messageHandler, (errMsg) => {
       Log.debug(errMsg)
     });
 }
+
 
 function run(){
   if (document) {

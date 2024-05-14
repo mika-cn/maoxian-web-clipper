@@ -4,6 +4,21 @@ import ExtApi from './ext-api.js';
 
 const MxWcIcon = {};
 
+MxWcIcon.setTitle = (title) => {
+  browser.browserAction.setTitle({title})
+}
+
+MxWcIcon.showTabBadge = (tabId, text) => {
+  browser.browserAction.setBadgeText({tabId, text});
+  browser.browserAction.setBadgeTextColor({tabId, color: "white"});
+  browser.browserAction.setBadgeBackgroundColor({tabId, color: "green"});
+}
+
+MxWcIcon.hideTabBadge = (tabId) => {
+  browser.browserAction.setBadgeText({tabId, text: null});
+}
+
+
 // n = times * 2 - 1
 MxWcIcon.flicker = (n, style) => {
   if(n > 0){

@@ -139,6 +139,7 @@ function completeSaving(tabId, result) {
         MxWcStorage.set('failedTasks', result.failedTasks.concat(tasks));
       });
   }
+  MxWcIcon.hideTabBadge(tabId);
   MxWcIcon.flicker(3);
   Global.evTarget.dispatchEvent({type: type, result: result})
   deleteClippingBlobUrlStorage(result.clipId);
