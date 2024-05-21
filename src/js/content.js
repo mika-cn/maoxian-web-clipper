@@ -13,11 +13,13 @@ import {API_SETTABLE_KEYS} from './lib/config.js';
 
 let state = {state: null};
 function resetClippingState() {
-  /* only avariable in current clipping */
-  state.tempConfig = {};
+  // Changed config occured by API or MxAssistant
+  // only apply to current clipping
+  state.changedConfig = {};
+  // user selected save format, has higest priority
   state.saveFormat = null;
   YieldPoint.reset();
-  /* information of current clipping */
+  // information of current clipping
   state.storageConfig = null;
   state.storageInfo = null;
   state.clipping = null;
@@ -222,10 +224,10 @@ function setFormOptions(msg) {
 
 function overwriteConfig(msg) {
   const config = (msg.config || {});
-  state.tempConfig = {};
+  state.changedConfig = {};
   for (let key in config) {
     if (API_SETTABLE_KEYS.indexOf(key) > -1) {
-      state.tempConfig[key] = config[key];
+      state.changedConfig[key] = config[key];
     }
   }
 }
@@ -376,9 +378,10 @@ function executeYieldBackActionExit(yieldPoint) {
   backToIdleState();
 }
 
-function executeYieldBackActionSaveClipping(yitldPoint, msg) {
+async function executeYieldBackActionSaveClipping(yitldPoint, msg) {
   Log.debug("Yieldback.saveClipping from: ", yieldPoint);
-  saveClipping(msg)
+  const config = await loadAndMergeConfig();
+  saveClipping(Object.merge({config}, msg));
 }
 
 function executeYieldBackActionExitClipping(yieldPoint) {
@@ -420,12 +423,12 @@ function setSavingHint(msg) {
 }
 
 function saveClipping(msg) {
-  const {clipping} = msg;
+  const {clipping, config} = msg;
   syncDataOfBlobUrlsToBackend(clipping).then(
     () => {
       ExtMsg.sendToBackend('saving',{
         type: 'save',
-        body: clipping
+        body: {clipping, config}
       });
       saveClippingHistory(clipping);
     },
@@ -512,8 +515,9 @@ function queryElem(msg, callback){
   }
 }
 
-async function formSubmitted({elem, formInputs, config}) {
-  const currConfig = getCurrentConfig(config);
+
+// note that: currConfig is latest and merged changed config items.
+async function formSubmitted({elem, formInputs, currConfig}) {
   const domain    = window.location.host.split(':')[0];
   const pageUrl   = window.location.href;
   const userAgent = window.navigator.userAgent;
@@ -560,7 +564,7 @@ async function formSubmitted({elem, formInputs, config}) {
     setCurrYieldPoint('clipped');
   }
   UI.setStateClipped({clipping})
-  ExtMsg.sendToBackend('clippibng', {
+  ExtMsg.sendToBackend('clipping', {
     type: 'clipped',
     body: clipping,
   });
@@ -569,20 +573,26 @@ async function formSubmitted({elem, formInputs, config}) {
     Log.debug("clipped: yield to 3rd party");
     saveClippingHistory(clipping);
   } else {
-    saveClipping({clipping});
+    saveClipping({clipping, config: currConfig});
   }
 }
 
+async function loadAndMergeConfig() {
+  const config = await MxWcConfig.load()
+  return mergeChangedConfig(config);
+}
 
-function getCurrentConfig(config) {
-  const it = Object.assign(config, state.tempConfig)
+
+// Returns config of current clipping session
+function mergeChangedConfig(config) {
+  const it = Object.assign(config, state.changedConfig)
   if (state.saveFormat) {it.saveFormat = state.saveFormat}
   return it;
 }
 
 
 function getExposableConfig(config) {
-  const currConfig = getCurrentConfig(config);
+  const currConfig = mergeChangedConfig(config);
   return T.sliceObj(currConfig, ['saveFormat'])
 }
 
@@ -751,6 +761,7 @@ function run(){
           UI.setContentFn('hasYieldPoint', hasYieldPoint);
           UI.setContentFn('setCurrYieldPoint', setCurrYieldPoint);
           UI.setContentFn('getExposableConfig', getExposableConfig);
+          UI.setContentFn('loadAndMergeConfig', loadAndMergeConfig);
           initialize();
           listenMessage();
           listenPopState();

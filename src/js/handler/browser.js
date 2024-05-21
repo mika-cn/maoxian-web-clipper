@@ -179,11 +179,11 @@ function handleClippingResult(it) {
 }
 
 
-function getInfo(callback) {
-  callback({
+async function getInfo() {
+  return {
     ready: true,
     supportFormats: ['html', 'md']
-  });
+  };
 }
 
 

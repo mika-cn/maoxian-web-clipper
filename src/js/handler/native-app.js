@@ -208,31 +208,31 @@ function handleClippingResult(it) {
 }
 
 
-function getInfo(callback) {
-  getVersion(function(r) {
-    let ready = false, message = '';
-    if(r.ok) {
-      if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
-        message = I18N.t('g.error.handler.native-app.version')
-          .replace('$requiredVersion', ENV.minNativeAppVersion)
-          .replace('$currentVersion', r.version);
-      } else {
-        ready = true;
-      }
+async function getInfo(callback) {
+  const r = await getVersionAsync();
+  let ready = false, message = '';
+  if(r.ok) {
+    if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
+      message = I18N.t('g.error.handler.native-app.version')
+        .replace('$requiredVersion', ENV.minNativeAppVersion)
+        .replace('$currentVersion', r.version);
     } else {
-      message = [
-        r.message,
-        I18N.t('g.error.handler.native-app.install'),
-      ].join('<br />');
+      ready = true;
     }
-    callback({
-      ready: ready,
-      message: message,
-      version: r.version,
-      rubyVersion: r.rubyVersion,
-      supportFormats: ['html', 'md']
-    })
-  });
+  } else {
+    message = [
+      r.message,
+      I18N.t('g.error.handler.native-app.install'),
+    ].join('<br />');
+  }
+
+  return {
+    ready: ready,
+    message: message,
+    version: r.version,
+    rubyVersion: r.rubyVersion,
+    supportFormats: ['html', 'md']
+  };
 }
 
 

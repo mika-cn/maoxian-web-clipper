@@ -225,7 +225,7 @@ function tbodyClick(e){
 }
 
 function deleteHistory(id) {
-  MxWcHandler.isReady('NativeApp')
+  MxWcHandler.isReadyByName('NativeApp')
   .then((r) => {
     if(r.ok) {
       if(T.isVersionGteq(r.handlerInfo.version, '0.2.2')) {

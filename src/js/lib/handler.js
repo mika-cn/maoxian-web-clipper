@@ -2,78 +2,80 @@
 
 import T          from './tool.js';
 import ExtMsg     from './ext-msg.js';
-import MxWcConfig from './config.js';
+import Config     from './config.js';
 
 /*
- * @param {string} exp: expression
- *   - config.$key
- *   - $name
- *
+ * @param {String} configName - "clippingHandler" etc.
+ * @returns {Object} @see isReadyByName();
+ */
+async function isReadyByConfig(configName, options = {}) {
+  const {config: _config, getHandlerInfoFn = getHandlerInfoThroughBG} = options;
+  const config = (_config == undefined ? (await Config.load()) : _config);
+  const name = config[configName];
+  const r = (await isReadyByName(name, {config, getHandlerInfoFn}));
+  return Object.assign({name}, r);
+}
+
+
+/*
+ * @param {string} name ~ handler name ("Browser", "NativeApp" etc.)
  * @return {object}
  *   {
  *     ok          => Handler is avariable or not (Only enabled and ready make it's value true).
  *     enabled     => Handler is enabled or not.
  *     handlerInfo => Handler information (if it's disabled, then it's value is an empty object {}).
- *     message     => Describe why handler is not ok.
- *     config      => MxWcConfig,
- *     handler     => Handler object (if ok is true and env is background)
+ *     message     => the reason why ok is false
+ *     config      => Config
  *   }
  */
-function isReady(exp, getHandlerInfoFn = getHandlerInfoThroughBG) {
-  return new Promise(function(resolve, reject) {
-    MxWcConfig.load().then((config) => {
+async function isReadyByName(name, options = {}) {
+  const {config: _config, getHandlerInfoFn = getHandlerInfoThroughBG} = options;
+  const config = (_config == undefined ? (await Config.load()) : _config);
 
-      let name = null;
-      if(exp.startsWith('config.')) {
-        name = config[exp.replace('config.', '')]
-      } else {
-        name = exp;
-      }
+  // return if it's not enabled
+  if (!config[`handler${name}Enabled`]) {
+    const resp = errResp('g.error.handler.not-enabled', name);
+    return Object.assign({
+      enabled: false,
+      handlerInfo: {},
+      config: config
+    }, resp);
+  }
 
-      if(!config[`handler${name}Enabled`]) {
-        const resp = errResp('g.error.handler.not-enabled', name);
-        resolve(Object.assign({
-          enabled: false,
-          handlerInfo: {},
-          config: config
-        }, resp));
-        return;
-      }
+  try {
+    const handlerInfo = await getHandlerInfoFn(name);
+  } catch(error) {
+    return {
+      ok: false,
+      message: [error.message, (error.stack || '')].join("\n"),
+    };
+  }
 
-      const response = function(handlerInfo, handler) {
-        if(handlerInfo.ready) {
-          resolve({
-            ok: true,
-            enabled: true,
-            handlerInfo: handlerInfo,
-            config: config,
-            handler: handler
-          });
-        } else {
-          const resp = errResp('g.error.handler.not-ready', name);
-          if(handlerInfo.message) {
-            handlerInfo.message = resp.message + `(${handlerInfo.message})`;
-          }
-          // feedback handlerInfo.message
-          resolve(Object.assign({
-            enabled: true,
-            handlerInfo: handlerInfo,
-            config: config
-          }, resp));
-        }
-      }
-
-      getHandlerInfoFn(name, response);
-    });
-  });
+  if (handlerInfo.ready) {
+    return {
+      ok: true,
+      enabled: true,
+      handlerInfo: handlerInfo,
+      config: config
+    };
+  } else {
+    const resp = errResp('g.error.handler.not-ready', name);
+    if (handlerInfo.message) {
+      handlerInfo.message = resp.message + `(${handlerInfo.message})`;
+    }
+    // feedback handlerInfo.message
+    return Object.assign({
+      enabled: true,
+      handlerInfo: handlerInfo,
+      config: config
+    }, resp);
+  }
 }
 
-function getHandlerInfoThroughBG(name, callback) {
+
+async function getHandlerInfoThroughBG(name) {
   // content script or extention page
-  ExtMsg.sendToBackground({
-    type: 'handler.get-info',
-    body: {name: name}
-  }).then(callback);
+  return ExtMsg.sendToBackground({type: 'handler.get-info', body: {name}})
 }
 
 function getHandlerLink(name) {
@@ -89,4 +91,4 @@ function errResp(msg, name) {
   return { ok: false, message: message }
 }
 
-export default {isReady};
+export default {isReadyByConfig, isReadyByName};

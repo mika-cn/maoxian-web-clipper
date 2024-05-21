@@ -50,27 +50,26 @@ async function retryTask(tabId, task) {
     });
   }
 
-  handler.getInfo((info) => {
-    if (info.ready) {
-      if (handler.retryTask) {
-        const feedback = function(msg) {
-          ExtMsg.sendToExtPage('failed-tasks', {
-            type: 'retry.task.feedback',
-            body: msg
-          });
-        }
-        handler.retryTask(task, feedback)
-      } else {
-        sendErrorFeedback(`Handler: ${handler.name} doesn't support retryTask`);
+  const info = await handler.getInfo();
+  if (info.ready) {
+    if (handler.retryTask) {
+      const feedback = function(msg) {
+        ExtMsg.sendToExtPage('failed-tasks', {
+          type: 'retry.task.feedback',
+          body: msg
+        });
       }
+      handler.retryTask(task, feedback)
     } else {
-      sendErrorFeedback(`Handler: ${handler.name} not ready`);
+      sendErrorFeedback(`Handler: ${handler.name} doesn't support retryTask`);
     }
-  });
+  } else {
+    sendErrorFeedback(`Handler: ${handler.name} not ready`);
+  }
 }
 
-async function saveClipping(tabId, clipping) {
-  const handler = await getClippingHandler();
+async function saveClipping(tabId, {clipping, config}) {
+  const handler = await getClippingHandler(config);
   const feedback = function(msg) {
     switch(msg.type) {
       case 'started':
@@ -159,8 +158,8 @@ function updateClippingHistory(result) {
     });
 }
 
-async function getClippingHandler() {
-  const config = await MxWcConfig.load();
+async function getClippingHandler(_config) {
+  const config = (_config || (await MxWcConfig.load()));
   const name = ['Handler', config.clippingHandler].join('_');
   return Global[name] || Global.Handler_Browser;
 }

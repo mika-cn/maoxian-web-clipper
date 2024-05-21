@@ -69,7 +69,7 @@ function messageHandler(message, sender){
 
       case 'handler.get-info':
         const handler = getHandlerByName(message.body.name);
-        handler.getInfo(resolve);
+        handler.getInfo().then(resolve, reject);
         break;
 
       case 'handler.native-app.disconnect':
@@ -179,7 +179,7 @@ function refreshHistoryIfNeed(){
 
 
 function refreshHistory(resolve) {
-  isHandlerReady('config.refreshHistoryHandler').then((r) => {
+  isHandlerReady('refreshHistoryHandler').then((r) => {
     const {ok, message, handler, config} = r;
     if(ok) {
       // init Download Folder
@@ -235,7 +235,7 @@ function generateClippingJsIfNeed(){
 }
 
 function generateClippingJs(callback) {
-  isHandlerReady('config.offlinePageHandler').then((result) => {
+  isHandlerReady('offlinePageHandler').then((result) => {
     const {ok, message, handler, config} = result;
     if(ok) {
       let pathConfig = MxWcConfig.getDefault().clippingJsPath;
@@ -507,14 +507,16 @@ function pageDomContentLoadedListener({url, tabId, frameId}) {
 /*
  * @param {string} expression - see js/lib/handler.js
  */
-function isHandlerReady(expression) {
-  const getHandlerInfo = (name, callback) => {
+async function isHandlerReady(configName) {
+
+  const getHandlerInfo = async function (name) {
     const handler = getHandlerByName(name);
-    handler.getInfo((handlerInfo) => {
-      callback(handlerInfo, handler);
-    });
+    return await handler.getInfo();
   }
-  return MxWcHandler.isReady(expression, getHandlerInfo)
+
+  const {ok, name, message, config} = await  MxWcHandler.isReadyByConfig(configName, {getHandlerInfoFn: getHandlerInfo})
+  const handler = getHandlerByName(name);
+  return {ok, handler, message, config};
 }
 
 

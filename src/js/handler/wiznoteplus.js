@@ -116,20 +116,20 @@ function embedMarkdownIntoHtml(markdownText, title, link) {
 /**
  * Return the state and information of clipping-handler
  */
-async function getInfo(callback) {
+async function getInfo() {
   try {
     await setup();
     //TODO: send database username
-    callback({
+    return {
       ready: true,
       supportFormats: ['html', 'md']
-    });
+    };
   } catch (err) {
-    callback({
+    return {
       ready: false,
       message: err.message,
       supportFormats: ['html', 'md']
-    })
+    };
   }
 }
 
