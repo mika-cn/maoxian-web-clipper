@@ -1,6 +1,5 @@
 
 // wrap connection
-
 class NativeAppClient {
   constructor(runtimeAPI, typesToCache = []) {
     this.API = runtimeAPI;
@@ -95,9 +94,13 @@ class NativeAppClient {
 
   connect() {
     if(!this.port){
-      this.port = this.API.connectNative(this.appName);
-      this.port.onMessage.addListener(this.responseHandler.bind(this));
-      this.port.onDisconnect.addListener(this.disconnectHandler.bind(this));
+      if (typeof this.API.connectNative == "function") {
+        this.port = this.API.connectNative(this.appName);
+        this.port.onMessage.addListener(this.responseHandler.bind(this));
+        this.port.onDisconnect.addListener(this.disconnectHandler.bind(this));
+      } else {
+        throw new Error("Native Message permission hasn't granted yet");
+      }
     }
   }
 

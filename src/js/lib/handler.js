@@ -42,8 +42,9 @@ async function isReadyByName(name, options = {}) {
     }, resp);
   }
 
+  let handlerInfo;
   try {
-    const handlerInfo = await getHandlerInfoFn(name);
+    handlerInfo = await getHandlerInfoFn(name);
   } catch(error) {
     return {
       ok: false,
