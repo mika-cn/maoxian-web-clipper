@@ -17,10 +17,10 @@ function menuClick(e){
     case 'clip-as-default': sendClipCommand('clip-as-default') ; break ;
     case 'clip-as-html'   : sendClipCommand('clip-as-html')    ; break ;
     case 'clip-as-md'     : sendClipCommand('clip-as-md')      ; break ;
-    case 'history': jumpToPage('extPage.history') ; break ;
-    case 'setting': jumpToPage('extPage.setting') ; break ;
-    case 'home'   : jumpToPage('extPage.home')    ; break ;
-    case 'debug'  : jumpToPage('extPage.debug')   ; break ;
+    case 'history'  : jumpToPage('extPage.history') ; break ;
+    case 'settings' : jumpToPage('extPage.setting') ; break ;
+    case 'home'     : jumpToPage('extPage.home')    ; break ;
+    case 'debug'    : jumpToPage('extPage.debug')   ; break ;
     case 'last-result':viewLastResult(); break;
     default: break;
   }
@@ -79,7 +79,7 @@ function jumpToPage(page){
 
 async function renderMenus(){
   const config = await MxWcConfig.load();
-  const pageIds = ['history', 'setting'];
+  const pageIds = ['history', 'settings'];
 
   let menuIds = [];
   let tab;
@@ -139,40 +139,20 @@ async function renderMenus(){
       menuIds.unshift('last-result');
     }
   }
-  const template = T.findElem('menu-tpl').innerHTML;
 
-  const icons = {
-    "clip-as-default" : 'clip',
-    "clip-as-html"    : 'clip',
-    "clip-as-md"      : 'clip',
-    "last-result" : 'check',
-    "history"     : 'history',
-    "setting"     : 'setting',
-    "home"        : 'home',
-    "debug"       : "history",
-  }
-
-  let html = "";
-  menuIds.forEach(function(menuId){
-    html += T.renderTemplate(template, {
-      icon: icons[menuId],
-      menuId: menuId,
-      menuContent: I18N.t("menu." + menuId),
-      menuHint: I18N.t("menu.hint." + menuId),
-    });
-  });
-  T.setHtml('.menus', html);
-  bindListener();
-
+  const menus = T.queryElem('.menus');
+  menus.classList.add(...menuIds);
+  menus.classList.add('clip-as-default');
+  bindListener(menus);
 }
 
-function bindListener(){
-  const elem = document.querySelector(".menus");
-  T.bindOnce(elem, 'click', menuClick, true);
+function bindListener(menus){
+  T.bindOnce(menus, 'click', menuClick, true);
 }
 
 
 async function init(){
+  I18N.i18nPage();
   await renderMenus();
   MxWcIcon.change("default");
 }
