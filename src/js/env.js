@@ -1,6 +1,6 @@
 
 
-const websiteRoot = "http://dev.pc:3000/maoxian-web-clipper";
+const websiteRoot = "http://mx.pc";
 const projectRoot = "https://github.com/mika-cn/maoxian-web-clipper";
 const mxAssistantRoot = [websiteRoot, 'tmp/assistant'].join('/');
 
