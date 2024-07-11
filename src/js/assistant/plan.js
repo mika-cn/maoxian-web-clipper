@@ -132,11 +132,9 @@ function isPerformOnce(action) {
 
 // @param {Object} action: { name, args }
 function performAction(action) {
-  const name = action.name;
-  const args = T.toArray(action.args);
-  const actionFn = actionDict[name];
+  const actionFn = actionDict[action.name];
   if (actionFn) {
-    actionFn(...args);
+    actionFn(...action.args);
   }
 }
 
@@ -145,14 +143,16 @@ function performAction(action) {
 // Actions
 //=========================================
 
+/*
+ * Note that: All action function should only define one argument.
+ */
 
 function undo(action) {
   const name = action.name;
-  const args = T.toArray(action.args);
-  const undoFn = undoActionDict[name];
+  const undoFn = undoActionDict[action.name];
   if (undoFn) {
     // console.debug("undo: ", action);
-    undoFn(...args)
+    undoFn(...action.args)
   }
 }
 

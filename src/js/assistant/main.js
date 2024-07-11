@@ -16,7 +16,7 @@ function getPlan() {
 
 // in order to write plan a little bit easier
 // we expose the plan's action structure as:
-//   {$actionName => $actionArgs, [tag]}
+//   {$actionName => $actionValue, [tag]}
 // so we need to turn it back before apply it.
 function toInternalPlan(plan) {
   const actions = [];
@@ -27,13 +27,13 @@ function toInternalPlan(plan) {
         const tag = it.tag;
         let name, args;
         if (keys.length == 1 && !tag) {
-          name = keys[0];
-          args = it[name];
+          name  = keys[0];
+          args  = [it[name]];
         }
 
         if (keys.length == 2 && tag) {
           name = (keys.indexOf('tag') == 0 ? keys[1] : keys[0]);
-          args = it[name];
+          args  = [it[name]];
         }
 
         if (name) {
