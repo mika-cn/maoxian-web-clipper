@@ -2,64 +2,65 @@
 
 import T from './tool.js';
 
-const TYPE = 'local';
 
-function set(k, v) {
-  const d = {}
-  d[k] = v
-  return browser.storage[TYPE].set(d)
+function set(storageArea, key, value) {
+  const change = {}
+  change[key] = value
+  return browser.storage[storageArea].set(change)
 }
 
-function setMultiItem(dict) {
-  return browser.storage[TYPE].set(dict);
+
+function get(storageArea, key, defaultValue) {
+  return new Promise((resolve, reject) => {
+    browser.storage[storageArea].get(key)
+      .then((res) => {
+        const value = res[key];
+        if (defaultValue !== null && (typeof defaultValue !== 'undefined')) {
+          if (typeof value !== 'undefined'){
+            resolve(value)
+          } else {
+            set(storageArea, key, defaultValue);
+            resolve(defaultValue);
+          }
+        } else {
+          resolve(value);
+        }
+      })
+  });
+}
+
+
+function setMultiItem(storageArea, dict) {
+  return browser.storage[storageArea].set(dict);
 }
 
 // @param {String/Array} keys
-function remove(keys) {
-  return browser.storage[TYPE].remove(keys);
+function remove(storageArea, keys) {
+  return browser.storage[storageArea].remove(keys);
 }
 
-function clear() {
-  return browser.storage[TYPE].clear();
+function clear(storageArea) {
+  return browser.storage[storageArea].clear();
 }
 
-function getTotalBytes() {
-  return getBytesInUse();
+function getTotalBytes(storageArea) {
+  return getBytesInUse(storageArea);
 }
 
 // @param {String/Array} keys
 // @return {Promise} resolve with n
 //                   or reject with an error message
-function getBytesInUse(keys) {
-  if (browser.storage[TYPE].getBytesInUse) {
-    return browser.storage[TYPE].getBytesInUse(keys);
+function getBytesInUse(storageArea, keys) {
+  if (browser.storage[storageArea].getBytesInUse) {
+    return browser.storage[storageArea].getBytesInUse(keys);
   } else {
     // getBytesInUse() is not supported
     return Promise.reject("getBytesInUser() is not supported");
   }
 }
 
-function get(k, defaultValue){
-  return new Promise((resolve, reject) => {
-    browser.storage[TYPE].get(k)
-      .then((res) => {
-        const v = res[k];
-        if(defaultValue !== null && (typeof defaultValue !== 'undefined')){
-          if(typeof v != 'undefined'){
-            resolve(v)
-          }else{
-            set(k, defaultValue);
-            resolve(defaultValue);
-          }
-        }else{
-          resolve(v);
-        }
-      })
-  });
-}
-
-function getAll() {
-  return browser.storage[TYPE].get(null);
+function getAll(storageArea) {
+  return browser.storage[storageArea].get(null);
 }
 
 /*
@@ -72,26 +73,46 @@ function getAll() {
  *                   A promise that resolve with a object.
  *
  */
-function query(...filters) {
+function query(storageArea, ...filters) {
   if (filters.length === 0) {
     return Promise.reject("Not filter are provided.");
   }
   return new Promise((resolve, reject) => {
-    getAll().then((data) => {
+    getAll(storageArea).then((data) => {
       resolve(T.sliceObjByFilter(data, ...filters));
     })
   })
 }
 
-const Storage = {
-  set, setMultiItem,
-  get, getAll,
-  getBytesInUse,
-  getTotalBytes,
-  remove,
-  clear,
-  query,
-};
 
+function applyFirstArgument(fn, firstArgument) {
+  return (...args) => {
+    const newArgs = [firstArgument, ...args];
+    return fn(...newArgs);
+  }
+}
+
+
+function createStorageAreaApi(storageArea) {
+  return {
+    set           : applyFirstArgument(set, storageArea),
+    get           : applyFirstArgument(get, storageArea),
+    setMultiItem  : applyFirstArgument(setMultiItem, storageArea),
+    getAll        : applyFirstArgument(getAll, storageArea),
+    remove        : applyFirstArgument(remove, storageArea),
+    clear         : applyFirstArgument(clear, storageArea),
+    query         : applyFirstArgument(query, storageArea),
+    getBytesInUse : applyFirstArgument(getBytesInUse, storageArea),
+    getTotalBytes : applyFirstArgument(getTotalBytes, storageArea),
+  }
+}
+
+
+// Storage Area
+const local   = createStorageAreaApi('local');
+const session = createStorageAreaApi('session');
+
+// set "local" as default storageArea
+const Storage = Object.assign({}, local, {session, local});
 export default Storage;
 

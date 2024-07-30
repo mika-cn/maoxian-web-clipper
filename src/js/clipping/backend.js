@@ -2,6 +2,7 @@
 import T           from '../lib/tool.js';
 import ExtApi      from '../lib/ext-api.js';
 import ExtMsg      from '../lib/ext-msg.js';
+import Storage     from '../lib/storage.js';
 import ActionCache from '../lib/action-cache.js';
 
 
@@ -20,16 +21,17 @@ function messageHandler(message, sender) {
         });
         break;
       case 'add.nameConflictResolver':
-        addNameConflictResolver(message.body);
-        resolve();
+        addNameConflictResolver(message.body).then(resolve, reject);
         break;
       case 'get.uniqueFilename':
-        const filename = getUniqueFilename(message.body);
-        if (filename) {
-          resolve(filename);
-        } else {
-          reject(new Error("couldn't find nameConflictResolver"));
-        }
+        getUniqueFilename(message.body)
+          .then((filename) => {
+            if (filename) {
+              resolve(filename);
+            } else {
+              reject(new Error("couldn't find nameConflictResolver"));
+            }
+          });
         break;
       case 'get.allFrames':
         getAllFrames(sender.tab.id).then(resolve, reject);
@@ -77,13 +79,15 @@ function messageHandler(message, sender) {
 //
 
 function addNameConflictResolver({clipId, nameConflictResolverObject}) {
-  const resolver = T.restoreFilenameConflictResolver(nameConflictResolverObject);
-  Global.nameConflictResolverDict.add(clipId, resolver);
+  const key = ['nameConflictResolverObject', clipId].join('.');
+  return Storage.session.set(key, nameConflictResolverObject);
 }
 
-function getUniqueFilename({clipId, id, folder, filename}) {
-  const resolver = Global.nameConflictResolverDict.find(clipId);
-  if (resolver) {
+async function getUniqueFilename({clipId, id, folder, filename}) {
+  const key = ['nameConflictResolverObject', clipId].join('.');
+  const obj = await Storage.session.get(key)
+  if (obj) {
+    const resolver = T.restoreFilenameConflictResolver(obj);
     return resolver.resolveFile(id, folder, filename);
   } else {
     return null;
@@ -91,7 +95,8 @@ function getUniqueFilename({clipId, id, folder, filename}) {
 }
 
 function removeNameConflictResolver(clipId) {
-  Global.nameConflictResolverDict.remove(clipId);
+  const key = ['nameConflictResolverObject', clipId].join('.');
+  return Storage.session.remove(key);
 }
 
 
@@ -160,6 +165,5 @@ async function getAllFrames(tabId) {
 let Global = null;
 export default function init(global) {
   Global = global;
-  Global.nameConflictResolverDict = T.createDict();
   ExtMsg.listen('backend.clipping', messageHandler);
 }
