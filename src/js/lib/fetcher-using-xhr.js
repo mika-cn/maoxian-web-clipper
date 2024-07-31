@@ -227,10 +227,9 @@ function appendToken(headers) {
 
 // We should set request token first.
 const state = {};
-function init({token, cache, blobUrlStorage}) {
+function init({token, cache}) {
   state.requestToken = token;
   state.Cache = cache;
-  state.BlobUrlStorage = blobUrlStorage;
 }
 
 export default {init, get, head};

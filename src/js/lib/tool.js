@@ -1439,43 +1439,6 @@ T.extension2MimeType = function(extension) {
 }
 
 
-T.createBlobUrlStorage = function() {
-  // map: blobUrl => {mimeType, dataType, data}
-  // dataType: 'blob' or 'base64'
-  return {
-    map: new Map(),
-    get size() {
-      return this.map.size;
-    },
-    add(url, it) {
-      this.map.set(url, it);
-    },
-
-    delete(url) {
-      this.map.delete(url);
-    },
-
-    has(url) {
-      return this.map.has(url);
-    },
-
-    getBlob(url) {
-      if (this.map.has(url)) {
-        const {mimeType, dataType, data} = this.map.get(url);
-        if (dataType == 'blob') {
-          return data;
-        } else {
-          // base64
-          return T.base64StrToBlob(data, mimeType);
-        }
-      } else {
-        return null;
-      }
-    }
-  };
-}
-
-
 T.createResourceCache = function({size = 80}) {
 
   function addCacheDataReaders(cache) {

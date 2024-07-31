@@ -562,11 +562,9 @@ async function init(){
 
   const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
   Global.assetCache = T.createResourceCache({size: config.requestCacheSize});
-  Global.blobUrlStorage = T.createBlobUrlStorage();
   Fetcher.init({
     token: REQUEST_TOKEN,
     cache: Global.assetCache,
-    blobUrlStorage: Global.blobUrlStorage,
   });
 
   TaskFetcher.init({Fetcher});
@@ -605,7 +603,6 @@ async function init(){
     Handler_WizNotePlus
   }, {
     evTarget: Global.evTarget,
-    blobUrlStorage: Global.blobUrlStorage,
   }));
 
   // TODO confirm Why the listener order on MacOS is reverse?

@@ -189,7 +189,6 @@ async function deleteSavedBlobUrlData(clipId, failedTasks = []) {
  *
  * @param {Object} global {
  *   :evTarget,
- *   :blobUrlStorage,
  *   :Handler_Browser,
  *   :Handler_NativeApp,
  *   :Handler_WizNotePlus
