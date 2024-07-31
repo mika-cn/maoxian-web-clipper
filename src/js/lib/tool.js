@@ -137,6 +137,38 @@ T.styleObj2Str = function(obj) {
  *   false  => this item won't be selected
  *   'NEXT' => try next filter
  */
+T.sliceArrByFilter = function(arr, ...filters) {
+  const r = [];
+  if (filters.length == 0) { return r }
+  for (const item of arr) {
+    for (let i = 0; i < filters.length; i++) {
+      const answer = filters[i](item);
+      let breakCurrRound = false;
+      switch (answer) {
+        case true:
+          r.push(item);
+          breakCurrRound = true;
+          break;
+        case false:
+          breakCurrRound = true;
+          break;
+        case 'NEXT':
+          ; // I don't care, try next filter
+      }
+      if (breakCurrRound) { break }
+    }
+  }
+
+  return r;
+}
+
+
+/**
+ * A filter can return:
+ *   true   => this item will be selected
+ *   false  => this item won't be selected
+ *   'NEXT' => try next filter
+ */
 T.sliceObjByFilter = function(obj, ...filters) {
   const r = {};
   if (filters.length == 0) { return r }

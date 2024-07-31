@@ -27,18 +27,37 @@ async function storage() {
   try {totalBytes = await Storage.getTotalBytes() } catch(e) { logErr(e) }
   try {clipsBytes = await Storage.getBytesInUse('clips') } catch(e) { logErr(e) }
   const config = Config.unsort(await Config.load());
-  const data   = await Storage.getAll();
-  const assistantData = T.sliceObjByFilter(data, T.prefixFilter('assistant', true));
-  const selectionData = T.sliceObjByFilter(data, T.prefixFilter('selectionStore', true));
-  const miscData = T.sliceObjByFilter(data, ...[
+
+  const assistantData = await Storage.local.query(T.prefixFilter('assistant', true));
+  const selectionData = await Storage.local.query(T.prefixFilter('selectionStore', true));
+
+  const blobUrlDataFilter = (key) => {
+    if (key.match(/^\d+\.blob:/)) {
+      return false;
+    } else {
+      return 'NEXT';
+    }
+  }
+
+  const miscData = await Storage.local.query(
     T.attributeFilter('config', false),
     T.attributeFilter('clips', false),
     T.attributeFilter('categories', false),
     T.attributeFilter('tags', false),
     T.prefixFilter('assistant', false),
     T.prefixFilter('selectionStore', false),
-    (key) => { return true },
-  ])
+    blobUrlDataFilter,
+    (key) => { return true }
+  );
+
+  const data = await Storage.local.query(
+    T.attributeFilter('categories', true),
+    T.attributeFilter('clips', true),
+    T.attributeFilter('tags', true),
+    T.attributeFilter('failedTasks', true)
+  );
+
+  const allKeys = await Storage.local.getKeys();
 
   return {
     totalBytes,
@@ -51,6 +70,7 @@ async function storage() {
     clippings: (data.clips || []),
     tags: (data.tags || []),
     failedTasks: (data.failedTasks || []),
+    allKeys,
   };
 }
 

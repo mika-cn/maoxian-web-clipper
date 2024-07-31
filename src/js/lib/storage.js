@@ -2,45 +2,51 @@
 
 import T from './tool.js';
 
+const KEY_OF_KEYS = '__KEYS__';
 
-function set(storageArea, key, value) {
-  const change = {}
-  change[key] = value
-  return browser.storage[storageArea].set(change)
+
+async function set(storageArea, key, value) {
+  const change = {[key]: value}
+  const result = browser.storage[storageArea].set(change)
+  await saveKeys(storageArea, [key]);
+  return result;
 }
 
 
-function get(storageArea, key, defaultValue) {
-  return new Promise((resolve, reject) => {
-    browser.storage[storageArea].get(key)
-      .then((res) => {
-        const value = res[key];
-        if (defaultValue !== null && (typeof defaultValue !== 'undefined')) {
-          if (typeof value !== 'undefined'){
-            resolve(value)
-          } else {
-            set(storageArea, key, defaultValue);
-            resolve(defaultValue);
-          }
-        } else {
-          resolve(value);
-        }
-      })
-  });
+async function get(storageArea, key, defaultValue) {
+  const data = await browser.storage[storageArea].get(key);
+  const value = data[key];
+  if (defaultValue !== null && (typeof defaultValue !== 'undefined')) {
+    if (typeof value !== 'undefined'){
+      return value;
+    } else {
+      await set(storageArea, key, defaultValue);
+      return defaultValue;
+    }
+  } else {
+    return value;
+  }
 }
 
 
-function setMultiItem(storageArea, dict) {
-  return browser.storage[storageArea].set(dict);
+async function setMultiItem(storageArea, dict) {
+  const result = await browser.storage[storageArea].set(dict);
+  await saveKeys(storageArea, Object.keys(dict));
+  return result;
 }
 
 // @param {String/Array} keys
-function remove(storageArea, keys) {
-  return browser.storage[storageArea].remove(keys);
+async function remove(storageArea, keys) {
+  const keysToRemove = T.toArray(keys)
+  const result = await browser.storage[storageArea].remove(keysToRemove);
+  await removeKeys(storageArea, keysToRemove)
+  return result;
 }
 
-function clear(storageArea) {
-  return browser.storage[storageArea].clear();
+async function clear(storageArea) {
+  const result = browser.storage[storageArea].clear();
+  await saveKeysToStorage(storageArea, []);
+  return result;
 }
 
 function getTotalBytes(storageArea) {
@@ -59,29 +65,92 @@ function getBytesInUse(storageArea, keys) {
   }
 }
 
-function getAll(storageArea) {
-  return browser.storage[storageArea].get(null);
+
+async function removeByFilter(storageArea, ...filters) {
+  if (filters.length === 0) {
+    throw new Error("Not filter are provided.");
+  }
+  const allKeys = await getKeys(storageArea);
+  const keys = T.sliceArrByFilter(allKeys, ...filters);
+  return await remove(storageArea, keys);
 }
 
 /*
  * query all storaged data. according to filters
  *
  * @param {Function} filter
- *                   @see T.sliceObjByFilter for details
+ *                   @see T.sliceArrByFilter for details
  *
- * @return {Promise} quering
- *                   A promise that resolve with a object.
+ * @return {Object} the queried object
  *
  */
-function query(storageArea, ...filters) {
+async function query(storageArea, ...filters) {
   if (filters.length === 0) {
-    return Promise.reject("Not filter are provided.");
+    throw new Error("Not filter are provided.");
   }
-  return new Promise((resolve, reject) => {
-    getAll(storageArea).then((data) => {
-      resolve(T.sliceObjByFilter(data, ...filters));
-    })
-  })
+
+  const allKeys = await getKeys(storageArea);
+  const keys = T.sliceArrByFilter(allKeys, ...filters);
+  return await browser.storage[storageArea].get(keys);
+}
+
+
+async function getKeys(storageArea) {
+  const data = await browser.storage[storageArea].get(KEY_OF_KEYS);
+  if (data.hasOwnProperty(KEY_OF_KEYS)) {
+    return data[KEY_OF_KEYS];
+  } else {
+    return await refreshKeys(storageArea);
+  }
+}
+
+
+
+async function saveKeys(storageArea, newKeys) {
+  const keys = await getKeys(storageArea);
+  const keysToSave = [];
+  for (const newKey of newKeys) {
+    if (!keys.includes(newKey)) {
+      keysToSave.push(newKey);
+    }
+  }
+  if (keysToSave.length > 0) {
+    await saveKeysToStorage(storageArea, [...keys, ...keysToSave])
+  }
+}
+
+async function removeKeys(storageArea, keysToRemove) {
+  const keys = await getKeys(storageArea);
+  const restKeys = [];
+  for (const key of keys) {
+    if (!keysToRemove.includes(key)) {
+      restKeys.push(key);
+    }
+  }
+  if (restKeys.length !== keys.length) {
+    await saveKeysToStorage(storageArea, restKeys);
+  }
+}
+
+
+// This is a very heavy function, should avoid as much as possible
+async function refreshKeys(storageArea) {
+  const data = await browser.storage[storageArea].get(null);
+  const keys = [];
+  for (const key in data) {
+    if (key !== KEY_OF_KEYS) {
+      keys.push(key);
+    }
+  }
+
+  await saveKeysToStorage(storageArea, keys);
+  return keys;
+}
+
+
+async function saveKeysToStorage(storageArea, keys) {
+  const change = {[KEY_OF_KEYS]: keys};
+  return await browser.storage[storageArea].set(change);
 }
 
 
@@ -95,11 +164,12 @@ function applyFirstArgument(fn, firstArgument) {
 
 function createStorageAreaApi(storageArea) {
   return {
+    getKeys       : applyFirstArgument(getKeys, storageArea),
     set           : applyFirstArgument(set, storageArea),
     get           : applyFirstArgument(get, storageArea),
     setMultiItem  : applyFirstArgument(setMultiItem, storageArea),
-    getAll        : applyFirstArgument(getAll, storageArea),
     remove        : applyFirstArgument(remove, storageArea),
+    removeByFilter: applyFirstArgument(removeByFilter, storageArea),
     clear         : applyFirstArgument(clear, storageArea),
     query         : applyFirstArgument(query, storageArea),
     getBytesInUse : applyFirstArgument(getBytesInUse, storageArea),
