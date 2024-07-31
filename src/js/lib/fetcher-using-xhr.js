@@ -40,27 +40,14 @@ function head(url, {headers = {}, timeout = 40, tries = 3}) {
  */
 function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
   return new Promise((resolve, reject) => {
-    if (T.isBlobUrl(url)) {
-      if (respType !== 'blob') {
-        const message = `Invalid respType: ${respType}, should be 'blob'`;
-        reject({message, retry: false});
-      } else if (state.BlobUrlStorage.has(url)) {
-        const blob = state.BlobUrlStorage.getBlob(url);
-        resolve(blob);
-      } else {
-        const errorMessage = `Target blob url hasn't sync to background yet : ${url}`;
-        reject({message: errorMessage, retry: false});
-      }
+    const cache = state.Cache.get(url);
+    if (cache) {
+      const resp = cache.readAsResponse();
+      resp[respType]().then(resolve);
     } else {
-      const cache = state.Cache.get(url);
-      if (cache) {
-        const resp = cache.readAsResponse();
+      doXhr('GET', url, {respType, headers, timeout}).then((resp) => {
         resp[respType]().then(resolve);
-      } else {
-        doXhr('GET', url, {respType, headers, timeout}).then((resp) => {
-          resp[respType]().then(resolve);
-        }, reject);
-      }
+      }, reject);
     }
   });
 }

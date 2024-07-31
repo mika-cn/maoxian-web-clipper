@@ -157,13 +157,7 @@ async function saveTask(task) {
 
 
 async function fetchUrlTask(task) {
-  const blob = await Global.Fetcher.get(task.url, {
-    respType: 'blob',
-    headers: task.headers,
-    timeout: task.timeout,
-    tries: task.tries,
-  });
-  return blob;
+  return await Global.TaskFetcher.get(task);
 }
 
 
@@ -238,7 +232,7 @@ async function getInfo(callback) {
 
 /*
  * @param {Object} global
- *   - {Fetcher} Fetcher
+ *   - {TaskFetcher} TaskFetcher
  */
 let Global = null;
 function init(global) {

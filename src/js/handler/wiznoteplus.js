@@ -289,13 +289,7 @@ async function blobToBase64(blob) {
 
 async function fetchAndDownload(task, clipping) {
   Log.debug('fetch', task.url);
-  const blob = await Global.Fetcher.get(task.url, {
-    respType: 'blob',
-    headers: task.headers,
-    timeout: task.timeout,
-    tries: task.tries,
-  });
-
+  const blob = await Global.TaskFetcher.get(task)
   const isDownloaded = await downloadBlobToFile({
     blob: blob,
     filename: task.filename

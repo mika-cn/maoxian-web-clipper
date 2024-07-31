@@ -104,14 +104,13 @@ function createStorageAreaApi(storageArea) {
     query         : applyFirstArgument(query, storageArea),
     getBytesInUse : applyFirstArgument(getBytesInUse, storageArea),
     getTotalBytes : applyFirstArgument(getTotalBytes, storageArea),
-  }
+  };
 }
 
 
 // Storage Area
 const local   = createStorageAreaApi('local');
 const session = createStorageAreaApi('session');
-
 // set "local" as default storageArea
 const Storage = Object.assign({}, local, {session, local});
 export default Storage;

@@ -140,7 +140,7 @@ T.styleObj2Str = function(obj) {
 T.sliceObjByFilter = function(obj, ...filters) {
   const r = {};
   if (filters.length == 0) { return r }
-  for (let key in obj) {
+  for (const key in obj) {
     const value = obj[key];
     for (let i = 0; i < filters.length; i++) {
       const answer = filters[i](key, value);

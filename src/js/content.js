@@ -1,6 +1,7 @@
 import Log               from './lib/log.js';
 import T                 from './lib/tool.js';
 import ExtMsg            from './lib/ext-msg.js';
+import MxWcStorage       from './lib/storage.js';
 import MxWcIcon          from './lib/icon.js';
 import MxWcEvent         from './lib/event.js';
 import MxWcConfig        from './lib/config.js';
@@ -424,7 +425,7 @@ function setSavingHint(msg) {
 
 function saveClipping(msg) {
   const {clipping, config} = msg;
-  syncDataOfBlobUrlsToBackend(clipping).then(
+  saveBlobUrlsToStorage(clipping).then(
     () => {
       ExtMsg.sendToBackend('saving',{
         type: 'save',
@@ -439,45 +440,36 @@ function saveClipping(msg) {
 }
 
 
-
-async function syncDataOfBlobUrlsToBackend(clipping) {
-  // sync data of blob URLs to backend
+// blob URL data is not accessable in browser extension
+// save them to Storage, so we can access it.
+async function saveBlobUrlsToStorage(clipping) {
+  const keys = [];
   for (const task of clipping.tasks) {
     if (task.type == 'url' && T.isBlobUrl(task.url)) {
-      const blobUrlObj = await fetchBlobUrlAsTransferableObject(task.url);
-      await ExtMsg.sendToBackend('saving', {
-        type: 'sync.blob-url-data',
-        body: {
-          clipId: clipping.info.clipId,
-          blobUrlObj,
-        }
-      });
+      const key = [clipping.info.clipId, task.url].join('.');
+      const blobUrlObj = await fetchBlobUrlData(task.url);
+      keys.push(key);
+      await MxWcStorage.local.set(key, blobUrlObj);
     }
+  }
+
+  if (keys.length > 0) {
+    const key = ['blobUrlObjKeys', clipping.info.clipId].join('.');
+    const value = keys;
+    await ExtMsg.sendToBackend('saving', {
+      type: 'session.set',
+      body: {key, value}
+    });
   }
 }
 
-
-// @see @MDN/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
-async function fetchBlobUrlAsTransferableObject(url) {
+async function fetchBlobUrlData(url) {
   const resp = await window.fetch(url);
   const blob = await resp.blob();
   const mimeType = blob.type;
-  if (MxWcLink.isFirefox()) {
-    // on Firefox,
-    // The Structured clone algorithm is used.
-    // so we can send blob directly to background
-    const dataType = 'blob';
-    return {url, mimeType, dataType, data: blob};
-  } else {
-    // on Chromium
-    // The JSON serialization algorithm is used
-    // so we encode the data use base64.
-    const dataType = 'base64';
-    const data = await T.blobToBase64Str(blob);
-    return {url, mimeType, dataType, data}
-  }
+  const base64Data = await T.blobToBase64Str(blob);
+  return {url, mimeType, base64Data};
 }
-
 
 
 

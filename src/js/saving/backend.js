@@ -1,4 +1,5 @@
 
+import T           from '../lib/tool.js';
 import Log         from '../lib/log.js';
 import ExtMsg      from '../lib/ext-msg.js';
 import MxWcConfig  from '../lib/config.js';
@@ -8,15 +9,10 @@ import MxWcIcon    from '../lib/icon.js';
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
     switch(message.type) {
-      case 'sync.blob-url-data':
-        //  so we can access them in background
-        const {clipId, blobUrlObj} = message.body;
-        const {url, mimeType, dataType, data} = blobUrlObj;
-        Log.debug("sync.blob: ", url);
-        setClippingBlobUrl(clipId, url);
-        Global.blobUrlStorage.add(
-          url, {mimeType, dataType, data});
-        resolve();
+      case 'session.set':
+        const {key, value} = message.body;
+        console.debug("Session.set", key, value);
+        MxWcStorage.session.set(key, value).then(resolve, reject);
         break;
       case 'save':
         saveClipping(sender.tab.id, message.body);
@@ -141,7 +137,7 @@ function completeSaving(tabId, result) {
   MxWcIcon.hideTabBadge(tabId);
   MxWcIcon.flicker(3);
   Global.evTarget.dispatchEvent({type: type, result: result})
-  deleteClippingBlobUrlStorage(result.clipId);
+  deleteSavedBlobUrlData(result.clipId, result.failedTasks);
 }
 
 function updateClippingHistory(result) {
@@ -165,27 +161,28 @@ async function getClippingHandler(_config) {
 }
 
 
-// delete blob url content
-function deleteClippingBlobUrlStorage(clipId) {
-  const blobUrls = Global.clippingBlobUrls.get(clipId) || [];
-  blobUrls.forEach((url) => {
-    Global.blobUrlStorage.delete(url)
-    Log.debug("delete: ", url);
-  });
 
-  Log.debug("blobUrlStorage size: ", Global.blobUrlStorage.size);
-  Global.clippingBlobUrls.delete(clipId);
-}
-
-
-// remember which clipping these blob urls belongs to
-function setClippingBlobUrl(clipId, blobUrl) {
-  const blobUrls = Global.clippingBlobUrls.get(clipId) || [];
-  if (blobUrls.indexOf(blobUrl) == -1) {
-    blobUrls.push(blobUrl);
-    Global.clippingBlobUrls.set(clipId, blobUrls);
+async function deleteSavedBlobUrlData(clipId, failedTasks = []) {
+  const key = ['blobUrlObjKeys', clipId].join('.');
+  const keys = await MxWcStorage.session.get(key, []);
+  const keysToDelete = [];
+  if (keys.length > 0) {
+    for (const it of keys) {
+      const [_, blobUrl] = T.splitByFirstSeparator(it, '.');
+      const idx = failedTasks.findIndex((task) => task.url == blobUrl);
+      if (idx == -1) {
+        keysToDelete.push(it);
+      }
+    }
   }
+
+  if (keysToDelete.length > 0) {
+    console.debug("Delete blob url data: ", keysToDelete);
+    await MxWcStorage.local.remove(keysToDelete);
+  }
+  await MxWcStorage.session.remove(key);
 }
+
 
 
 /*

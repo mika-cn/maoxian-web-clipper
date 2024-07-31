@@ -110,12 +110,7 @@ async function saveTask(task) {
 
 async function fetchUrlTask(task) {
   Log.debug('fetch', task.url);
-  const blob = await Global.Fetcher.get(task.url, {
-    respType : 'blob',
-    headers  : task.headers,
-    timeout  : task.timeout,
-    tries    : task.tries,
-  });
+  const blob = await Global.TaskFetcher.get(task);
 
   if (Global.isChrome) {
     // Maybe we should add the version to condition too?
@@ -189,7 +184,7 @@ async function getInfo() {
 
 /*
  * @param {Object} global
- *   - {Fetcher} Fetcher
+ *   - {TaskFetcher} TaskFetcher
  */
 let Global = null;
 function init(global) {

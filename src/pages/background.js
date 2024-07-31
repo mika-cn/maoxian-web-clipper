@@ -10,6 +10,7 @@ import MxWcLink    from '../js/lib/link.js';
 import MxWcHandler from '../js/lib/handler.js';
 import MxEvTarget  from '../js/lib/event-target.js';
 import Fetcher     from '../js/lib/fetcher-using-xhr.js';
+import TaskFetcher from '../js/lib/task-fetcher.js';
 
 import initBackend_Clipping  from '../js/clipping/backend.js';
 import initBackend_Saving    from '../js/saving/backend.js';
@@ -568,6 +569,8 @@ async function init(){
     blobUrlStorage: Global.blobUrlStorage,
   });
 
+  TaskFetcher.init({Fetcher});
+
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();
 
@@ -586,9 +589,9 @@ async function init(){
   WebRequest.listen();
 
 
-  Handler_Browser.init(Object.assign({Fetcher}, {isChrome}));
-  Handler_NativeApp.init({Fetcher});
-  Handler_WizNotePlus.init({Fetcher});
+  Handler_Browser.init(Object.assign({TaskFetcher}, {isChrome}));
+  Handler_NativeApp.init({TaskFetcher});
+  Handler_WizNotePlus.init({TaskFetcher});
 
   ExtMsg.listen('background', messageHandler);
   refreshHistoryIfNeed();
