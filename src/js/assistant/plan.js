@@ -91,7 +91,7 @@ function perform(msgType, tagFilter) {
   const r = []; // store onetime actions
   const actions = getActions(msgType);
   actions.forEach((action) => {
-    const origAction = (action.name == 'undo' ? action.args : action);
+    const origAction = (action.name == 'undo' ? action.args[0] : action);
     const tags = T.toArray(origAction.tag)
     const canPerform = (
          tags.length == 0
@@ -1416,7 +1416,7 @@ function apply(plan, blackList = []) {
       appendAction(evType, action);
       if (undoActionDict.hasOwnProperty(action.name)) {
         // we can undo this action
-        const undo = {name: 'undo', args: action}
+        const undo = {name: 'undo', args: [action]}
         // console.debug("set undo", undo);
         prependAction(actionEvTypeDict.undo, undo);
       }
