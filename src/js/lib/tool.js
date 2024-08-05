@@ -137,10 +137,42 @@ T.styleObj2Str = function(obj) {
  *   false  => this item won't be selected
  *   'NEXT' => try next filter
  */
+T.sliceArrByFilter = function(arr, ...filters) {
+  const r = [];
+  if (filters.length == 0) { return r }
+  for (const item of arr) {
+    for (let i = 0; i < filters.length; i++) {
+      const answer = filters[i](item);
+      let breakCurrRound = false;
+      switch (answer) {
+        case true:
+          r.push(item);
+          breakCurrRound = true;
+          break;
+        case false:
+          breakCurrRound = true;
+          break;
+        case 'NEXT':
+          ; // I don't care, try next filter
+      }
+      if (breakCurrRound) { break }
+    }
+  }
+
+  return r;
+}
+
+
+/**
+ * A filter can return:
+ *   true   => this item will be selected
+ *   false  => this item won't be selected
+ *   'NEXT' => try next filter
+ */
 T.sliceObjByFilter = function(obj, ...filters) {
   const r = {};
   if (filters.length == 0) { return r }
-  for (let key in obj) {
+  for (const key in obj) {
     const value = obj[key];
     for (let i = 0; i < filters.length; i++) {
       const answer = filters[i](key, value);
@@ -1404,43 +1436,6 @@ T.extension2MimeType = function(extension) {
   if (!extension) return '';
   const mimeType = mime.getType(extension)
   return mimeType || '';
-}
-
-
-T.createBlobUrlStorage = function() {
-  // map: blobUrl => {mimeType, dataType, data}
-  // dataType: 'blob' or 'base64'
-  return {
-    map: new Map(),
-    get size() {
-      return this.map.size;
-    },
-    add(url, it) {
-      this.map.set(url, it);
-    },
-
-    delete(url) {
-      this.map.delete(url);
-    },
-
-    has(url) {
-      return this.map.has(url);
-    },
-
-    getBlob(url) {
-      if (this.map.has(url)) {
-        const {mimeType, dataType, data} = this.map.get(url);
-        if (dataType == 'blob') {
-          return data;
-        } else {
-          // base64
-          return T.base64StrToBlob(data, mimeType);
-        }
-      } else {
-        return null;
-      }
-    }
-  };
 }
 
 

@@ -8,20 +8,32 @@
   </head>
   <body>
     <div class="main">
-      <div class="menus"></div>
+      <div class="menus">
+        <a class="menu" data-id="last-result" i18n-attr="title:menu.hint.last-result">
+          <div class="icon check"></div><div class="content" i18n="menu.last-result"></div>
+        </a>
+        <a class="menu" data-id="clip-as-default" i18n-attr="title:menu.hint.clip-as-default">
+          <div class="icon clip"></div><div class="content" i18n="menu.clip-as-default"></div>
+        </a>
+        <a class="menu" data-id="clip-as-html" i18n-attr="title:menu.hint.clip-as-html">
+          <div class="icon clip"></div><div class="content" i18n="menu.clip-as-html"></div>
+        </a>
+        <a class="menu" data-id="clip-as-md" i18n-attr="title:menu.hint.clip-as-md">
+          <div class="icon clip"></div><div class="content" i18n="menu.clip-as-md"></div>
+        </a>
+        <a class="menu" data-id="history" i18n-attr="title:menu.hint.history">
+          <div class="icon history"></div><div class="content" i18n="menu.history"></div>
+        </a>
+        <a class="menu" data-id="settings" i18n-attr="title:menu.hint.settings">
+          <div class="icon settings"></div><div class="content" i18n="menu.settings"></div>
+        </a>
+        <a class="menu" data-id="home" i18n-attr="title:menu.hint.home">
+          <div class="icon home"></div><div class="content" i18n="menu.home"></div>
+        <a class="menu" data-id="debug" i18n-attr="title:menu.hint.debug">
+          <div class="icon debug"></div><div class="content" i18n="menu.debug"></div>
+        </a>
+      </div>
     </div>
-    <template id="menu-tpl">
-
-      <a class="menu" data-id="${menuId}" title="${menuHint}">
-        <div class="icon ${icon}">
-          <div class="r1"><span class="c11"></span><span class="c12"></span><span class="c13"></span><span class="c14"></span><span class="c15"></span></div>
-          <div class="r2"><span class="c21"></span><span class="c22"></span><span class="c23"></span><span class="c24"></span><span class="c25"></span></div>
-          <div class="r3"><span class="c31"></span><span class="c32"></span><span class="c33"></span><span class="c34"></span><span class="c35"></span></div>
-          <div class="r4"><span class="c41"></span><span class="c42"></span><span class="c43"></span><span class="c44"></span><span class="c45"></span></div>
-          <div class="r5"><span class="c51"></span><span class="c52"></span><span class="c53"></span><span class="c54"></span><span class="c55"></span></div>
-        </div><div class="content">${menuContent} </div>
-      </a>
-    </template>
 
     <!-- scripts -->
     <script src="../vendor/js/browser-polyfill.js"></script>

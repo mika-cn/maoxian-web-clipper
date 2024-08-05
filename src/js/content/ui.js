@@ -516,30 +516,44 @@ function listenFrameMsg(){
   Log.debug('listenFrameMsg');
 }
 
-function submitForm(msg){
+async function submitForm(msg){
   const formInputs = msg;
-  performIfClippingHandlerReady(({config}) => {
-    eraseHigtlightStyle();
-    setStateClipping();
-    if (config.rememberSelection) {
-      MxWcSelectionMain.save(state.currElem);
-    }
-    const formSubmitted = state.contentFn.submitted;
-    formSubmitted({
-      elem: state.currElem,
-      formInputs: formInputs,
-      config: config,
-    }).catch((error) => {
-      console.error(error);
-      Notify.error(error.message);
-      ignoreFrameMsg();
-      unbindListener();
-      eraseHigtlightStyle();
-      setStateIdle();
-      removeUI();
-    });
-  });
+  const currConfig = await state.contentFn.loadAndMergeConfig();
+
+  // check if clipping handler is ready?
+  const {ok, message} = await MxWcHandler.isReadyByConfig(
+    'clippingHandler', {config: currConfig});
+
+  if (!ok) {
+    notifyErrorAndExit(new Error(message));
+    return;
+  }
+
+  eraseHigtlightStyle();
+  setStateClipping();
+  if (currConfig.rememberSelection) {
+    MxWcSelectionMain.save(state.currElem);
+  }
+
+  state.contentFn.submitted({
+    elem: state.currElem,
+    formInputs: formInputs,
+    currConfig: currConfig,
+  }).catch(notifyErrorAndExit);
 }
+
+
+function notifyErrorAndExit(error) {
+  Log.error(error);
+  Notify.error(error.message);
+  T.emitPageChangedEvent();
+  ignoreFrameMsg();
+  unbindListener();
+  eraseHigtlightStyle();
+  setStateIdle();
+  removeUI();
+}
+
 
 function ignoreFrameMsg(){
   FrameMsg.clearListener();
@@ -659,24 +673,21 @@ function pressEnter(msg){
     return;
   }
   if(state.clippingState === 'selected'){
-    performIfClippingHandlerReady(({handlerInfo, config}) => {
+    const showFormParams = {config: state.config, msg};
 
-      const showFormParams = {handlerInfo, config, msg};
+    if (state.contentFn.hasYieldPoint('confirmed')) {
+      state.contentFn.setCurrYieldPoint('confirmed');
+      setStateConfirmed(state.currElem);
+      // hide UI
+      selectionIframe.hide();
+      controlIframe.hide();
 
-      if (state.contentFn.hasYieldPoint('confirmed')) {
-        state.contentFn.setCurrYieldPoint('confirmed');
-        setStateConfirmed(state.currElem);
-        // hide UI
-        selectionIframe.hide();
-        controlIframe.hide();
-
-        // keep current state and yield
-        state.yieldPointStorage = showFormParams;
-      } else {
-        setStateConfirmed(state.currElem);
-        showForm(showFormParams);
-      }
-    });
+      // keep current state and yield
+      state.yieldPointStorage = showFormParams;
+    } else {
+      setStateConfirmed(state.currElem);
+      showForm(showFormParams);
+    }
   }
 }
 
@@ -694,32 +705,11 @@ function showFormFromYieldPoint() {
 }
 
 
-function showForm({handlerInfo, config, msg}) {
+function showForm({config, msg}) {
   const formInputs  = getFormInputs(state.currElem, msg);
   const formOptions = getFormOptions(formInputs);
-  const params = Object.assign({
-    handlerInfo, config,
-  }, formInputs, formOptions);
+  const params = Object.assign({config}, formInputs, formOptions);
   sendFrameMsgToControl('showForm', params);
-}
-
-
-function performIfClippingHandlerReady(action) {
-  MxWcHandler.isReady('config.clippingHandler')
-  .then((result) => {
-    const {ok, message, handlerInfo, config} = result;
-    if(ok) {
-      action({handlerInfo, config});
-    } else {
-      Notify.error(message);
-      T.emitPageChangedEvent();
-      ignoreFrameMsg();
-      unbindListener();
-      eraseHigtlightStyle();
-      setStateIdle();
-      removeUI();
-    }
-  });
 }
 
 

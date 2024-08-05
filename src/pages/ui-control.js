@@ -335,7 +335,6 @@ async function showForm(params){
     categories,
     tags,
 
-    handlerInfo,
     config
   } = params;
 

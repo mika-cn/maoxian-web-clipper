@@ -1,5 +1,6 @@
 "use strict";
 
+import T              from '../lib/tool.js';
 import Log            from '../lib/log.js';
 import ExtMsg         from '../lib/ext-msg.js';
 import MxWcStorage    from '../lib/storage.js';
@@ -44,14 +45,8 @@ async function query({host, path}) {
 
 // all data storage in MxWcStorage will be removed
 async function reset() {
-  const data = await MxWcStorage.getAll();
-  const keys = [];
-  for (let k in data) {
-    if (k.startsWith('selectionStore')) {
-      keys.push(k);
-    }
-  }
-  await MxWcStorage.remove(keys)
+  const filter = T.prefixFilter('selectionStore', true);
+  await MxWcStorage.removeByFilter(filter)
   restart();
 }
 
@@ -83,6 +78,6 @@ function getKey(host) {
 }
 
 export default function init() {
-  ExtMsg.listen('backend.selection', messageHandler);
+  ExtMsg.listenBackend('backend.selection', messageHandler);
   Log.debug("MX backend: Selection initialized");
 }

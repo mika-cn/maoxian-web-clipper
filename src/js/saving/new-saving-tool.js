@@ -22,7 +22,7 @@ class SaveClipping {
     return MODE;
   }
 
-  taskFailed(task, errMsg) {
+  taskFailed(task, errMsg = 'unknown') {
     task.state = TASK_STATE.FAILED;
     task.errMsg = errMsg;
     this.updateProgress(task);

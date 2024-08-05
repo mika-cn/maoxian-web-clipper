@@ -91,7 +91,7 @@ function perform(msgType, tagFilter) {
   const r = []; // store onetime actions
   const actions = getActions(msgType);
   actions.forEach((action) => {
-    const origAction = (action.name == 'undo' ? action.args : action);
+    const origAction = (action.name == 'undo' ? action.args[0] : action);
     const tags = T.toArray(origAction.tag)
     const canPerform = (
          tags.length == 0
@@ -132,11 +132,9 @@ function isPerformOnce(action) {
 
 // @param {Object} action: { name, args }
 function performAction(action) {
-  const name = action.name;
-  const args = T.toArray(action.args);
-  const actionFn = actionDict[name];
+  const actionFn = actionDict[action.name];
   if (actionFn) {
-    actionFn(...args);
+    actionFn(...action.args);
   }
 }
 
@@ -145,14 +143,16 @@ function performAction(action) {
 // Actions
 //=========================================
 
+/*
+ * Note that: All action function should only define one argument.
+ */
 
 function undo(action) {
   const name = action.name;
-  const args = T.toArray(action.args);
-  const undoFn = undoActionDict[name];
+  const undoFn = undoActionDict[action.name];
   if (undoFn) {
     // console.debug("undo: ", action);
-    undoFn(...args)
+    undoFn(...action.args)
   }
 }
 
@@ -1416,7 +1416,7 @@ function apply(plan, blackList = []) {
       appendAction(evType, action);
       if (undoActionDict.hasOwnProperty(action.name)) {
         // we can undo this action
-        const undo = {name: 'undo', args: action}
+        const undo = {name: 'undo', args: [action]}
         // console.debug("set undo", undo);
         prependAction(actionEvTypeDict.undo, undo);
       }

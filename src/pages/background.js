@@ -10,6 +10,7 @@ import MxWcLink    from '../js/lib/link.js';
 import MxWcHandler from '../js/lib/handler.js';
 import MxEvTarget  from '../js/lib/event-target.js';
 import Fetcher     from '../js/lib/fetcher-using-xhr.js';
+import TaskFetcher from '../js/lib/task-fetcher.js';
 
 import initBackend_Clipping  from '../js/clipping/backend.js';
 import initBackend_Saving    from '../js/saving/backend.js';
@@ -69,7 +70,7 @@ function messageHandler(message, sender){
 
       case 'handler.get-info':
         const handler = getHandlerByName(message.body.name);
-        handler.getInfo(resolve);
+        handler.getInfo().then(resolve, reject);
         break;
 
       case 'handler.native-app.disconnect':
@@ -179,7 +180,7 @@ function refreshHistoryIfNeed(){
 
 
 function refreshHistory(resolve) {
-  isHandlerReady('config.refreshHistoryHandler').then((r) => {
+  isHandlerReady('refreshHistoryHandler').then((r) => {
     const {ok, message, handler, config} = r;
     if(ok) {
       // init Download Folder
@@ -235,7 +236,7 @@ function generateClippingJsIfNeed(){
 }
 
 function generateClippingJs(callback) {
-  isHandlerReady('config.offlinePageHandler').then((result) => {
+  isHandlerReady('offlinePageHandler').then((result) => {
     const {ok, message, handler, config} = result;
     if(ok) {
       let pathConfig = MxWcConfig.getDefault().clippingJsPath;
@@ -507,14 +508,16 @@ function pageDomContentLoadedListener({url, tabId, frameId}) {
 /*
  * @param {string} expression - see js/lib/handler.js
  */
-function isHandlerReady(expression) {
-  const getHandlerInfo = (name, callback) => {
+async function isHandlerReady(configName) {
+
+  const getHandlerInfo = async function (name) {
     const handler = getHandlerByName(name);
-    handler.getInfo((handlerInfo) => {
-      callback(handlerInfo, handler);
-    });
+    return await handler.getInfo();
   }
-  return MxWcHandler.isReady(expression, getHandlerInfo)
+
+  const {ok, name, message, config} = await  MxWcHandler.isReadyByConfig(configName, {getHandlerInfoFn: getHandlerInfo})
+  const handler = getHandlerByName(name);
+  return {ok, handler, message, config};
 }
 
 
@@ -559,12 +562,12 @@ async function init(){
 
   const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
   Global.assetCache = T.createResourceCache({size: config.requestCacheSize});
-  Global.blobUrlStorage = T.createBlobUrlStorage();
   Fetcher.init({
     token: REQUEST_TOKEN,
     cache: Global.assetCache,
-    blobUrlStorage: Global.blobUrlStorage,
   });
+
+  TaskFetcher.init({Fetcher});
 
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();
@@ -584,11 +587,11 @@ async function init(){
   WebRequest.listen();
 
 
-  Handler_Browser.init(Object.assign({Fetcher}, {isChrome}));
-  Handler_NativeApp.init({Fetcher});
-  Handler_WizNotePlus.init({Fetcher});
+  Handler_Browser.init(Object.assign({TaskFetcher}, {isChrome}));
+  Handler_NativeApp.init({TaskFetcher});
+  Handler_WizNotePlus.init({TaskFetcher});
 
-  ExtMsg.listen('background', messageHandler);
+  ExtMsg.listenBackend('background', messageHandler);
   refreshHistoryIfNeed();
 
   initBackend_Assistant({Fetcher});
@@ -600,11 +603,10 @@ async function init(){
     Handler_WizNotePlus
   }, {
     evTarget: Global.evTarget,
-    blobUrlStorage: Global.blobUrlStorage,
   }));
 
   // TODO confirm Why the listener order on MacOS is reverse?
-  // ExtMsg.listen('background', unknownMessageHandler);
+  // ExtMsg.listenBackend('background', unknownMessageHandler);
 
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)

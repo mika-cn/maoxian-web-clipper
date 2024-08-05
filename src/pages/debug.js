@@ -56,6 +56,7 @@ async function renderStorage() {
     clippings,
     tags,
     failedTasks,
+    allKeys,
   } = await Inspector.storage();
 
   if (!isNaN(totalBytes)) {
@@ -81,6 +82,8 @@ async function renderStorage() {
   T.setHtml('.storage .tags .num', tags.length);
   T.setHtml('.storage .failed-tasks code', T.toJson(failedTasks));
   T.setHtml('.storage .failed-tasks .num', failedTasks.length);
+  T.setHtml('.storage .allKeys code', T.toJson(allKeys));
+  T.setHtml('.storage .allKeys .num', allKeys.length);
 }
 
 

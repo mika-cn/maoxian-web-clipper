@@ -709,7 +709,7 @@ function getHandlerStatusAndRenderNotice(sectionId, name, value) {
     const msgB = getNoticeMsg('warning', [name, T.deCapitalize(value)]);
     renderNoticeBox(section, 'info', msgA);
     renderNoticeBox(section, 'warning', msgB);
-    MxWcHandler.isReady(value)
+    MxWcHandler.isReadyByName(value)
     .then((result) => {
       const {ok, message, enabled, handlerInfo} = result;
       if(ok) {

@@ -1,6 +1,7 @@
 import Log               from './lib/log.js';
 import T                 from './lib/tool.js';
 import ExtMsg            from './lib/ext-msg.js';
+import MxWcStorage       from './lib/storage.js';
 import MxWcIcon          from './lib/icon.js';
 import MxWcEvent         from './lib/event.js';
 import MxWcConfig        from './lib/config.js';
@@ -13,11 +14,13 @@ import {API_SETTABLE_KEYS} from './lib/config.js';
 
 let state = {state: null};
 function resetClippingState() {
-  /* only avariable in current clipping */
-  state.tempConfig = {};
+  // Changed config occured by API or MxAssistant
+  // only apply to current clipping
+  state.changedConfig = {};
+  // user selected save format, has higest priority
   state.saveFormat = null;
   YieldPoint.reset();
-  /* information of current clipping */
+  // information of current clipping
   state.storageConfig = null;
   state.storageInfo = null;
   state.clipping = null;
@@ -222,10 +225,10 @@ function setFormOptions(msg) {
 
 function overwriteConfig(msg) {
   const config = (msg.config || {});
-  state.tempConfig = {};
+  state.changedConfig = {};
   for (let key in config) {
     if (API_SETTABLE_KEYS.indexOf(key) > -1) {
-      state.tempConfig[key] = config[key];
+      state.changedConfig[key] = config[key];
     }
   }
 }
@@ -376,9 +379,10 @@ function executeYieldBackActionExit(yieldPoint) {
   backToIdleState();
 }
 
-function executeYieldBackActionSaveClipping(yitldPoint, msg) {
+async function executeYieldBackActionSaveClipping(yitldPoint, msg) {
   Log.debug("Yieldback.saveClipping from: ", yieldPoint);
-  saveClipping(msg)
+  const config = await loadAndMergeConfig();
+  saveClipping(Object.merge({config}, msg));
 }
 
 function executeYieldBackActionExitClipping(yieldPoint) {
@@ -420,12 +424,12 @@ function setSavingHint(msg) {
 }
 
 function saveClipping(msg) {
-  const {clipping} = msg;
-  syncDataOfBlobUrlsToBackend(clipping).then(
+  const {clipping, config} = msg;
+  saveBlobUrlsToStorage(clipping).then(
     () => {
       ExtMsg.sendToBackend('saving',{
         type: 'save',
-        body: clipping
+        body: {clipping, config}
       });
       saveClippingHistory(clipping);
     },
@@ -436,45 +440,36 @@ function saveClipping(msg) {
 }
 
 
-
-async function syncDataOfBlobUrlsToBackend(clipping) {
-  // sync data of blob URLs to backend
+// blob URL data is not accessable in browser extension
+// save them to Storage, so we can access it.
+async function saveBlobUrlsToStorage(clipping) {
+  const keys = [];
   for (const task of clipping.tasks) {
     if (task.type == 'url' && T.isBlobUrl(task.url)) {
-      const blobUrlObj = await fetchBlobUrlAsTransferableObject(task.url);
-      await ExtMsg.sendToBackend('saving', {
-        type: 'sync.blob-url-data',
-        body: {
-          clipId: clipping.info.clipId,
-          blobUrlObj,
-        }
-      });
+      const key = [clipping.info.clipId, task.url].join('.');
+      const blobUrlObj = await fetchBlobUrlData(task.url);
+      keys.push(key);
+      await MxWcStorage.local.set(key, blobUrlObj);
     }
+  }
+
+  if (keys.length > 0) {
+    const key = ['blobUrlObjKeys', clipping.info.clipId].join('.');
+    const value = keys;
+    await ExtMsg.sendToBackend('saving', {
+      type: 'session.set',
+      body: {key, value}
+    });
   }
 }
 
-
-// @see @MDN/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
-async function fetchBlobUrlAsTransferableObject(url) {
+async function fetchBlobUrlData(url) {
   const resp = await window.fetch(url);
   const blob = await resp.blob();
   const mimeType = blob.type;
-  if (MxWcLink.isFirefox()) {
-    // on Firefox,
-    // The Structured clone algorithm is used.
-    // so we can send blob directly to background
-    const dataType = 'blob';
-    return {url, mimeType, dataType, data: blob};
-  } else {
-    // on Chromium
-    // The JSON serialization algorithm is used
-    // so we encode the data use base64.
-    const dataType = 'base64';
-    const data = await T.blobToBase64Str(blob);
-    return {url, mimeType, dataType, data}
-  }
+  const base64Data = await T.blobToBase64Str(blob);
+  return {url, mimeType, base64Data};
 }
-
 
 
 
@@ -512,8 +507,9 @@ function queryElem(msg, callback){
   }
 }
 
-async function formSubmitted({elem, formInputs, config}) {
-  const currConfig = getCurrentConfig(config);
+
+// note that: currConfig is latest and merged changed config items.
+async function formSubmitted({elem, formInputs, currConfig}) {
   const domain    = window.location.host.split(':')[0];
   const pageUrl   = window.location.href;
   const userAgent = window.navigator.userAgent;
@@ -560,7 +556,7 @@ async function formSubmitted({elem, formInputs, config}) {
     setCurrYieldPoint('clipped');
   }
   UI.setStateClipped({clipping})
-  ExtMsg.sendToBackend('clippibng', {
+  ExtMsg.sendToBackend('clipping', {
     type: 'clipped',
     body: clipping,
   });
@@ -569,20 +565,26 @@ async function formSubmitted({elem, formInputs, config}) {
     Log.debug("clipped: yield to 3rd party");
     saveClippingHistory(clipping);
   } else {
-    saveClipping({clipping});
+    saveClipping({clipping, config: currConfig});
   }
 }
 
+async function loadAndMergeConfig() {
+  const config = await MxWcConfig.load()
+  return mergeChangedConfig(config);
+}
 
-function getCurrentConfig(config) {
-  const it = Object.assign(config, state.tempConfig)
+
+// Returns config of current clipping session
+function mergeChangedConfig(config) {
+  const it = Object.assign(config, state.changedConfig)
   if (state.saveFormat) {it.saveFormat = state.saveFormat}
   return it;
 }
 
 
 function getExposableConfig(config) {
-  const currConfig = getCurrentConfig(config);
+  const currConfig = mergeChangedConfig(config);
   return T.sliceObj(currConfig, ['saveFormat'])
 }
 
@@ -751,6 +753,7 @@ function run(){
           UI.setContentFn('hasYieldPoint', hasYieldPoint);
           UI.setContentFn('setCurrYieldPoint', setCurrYieldPoint);
           UI.setContentFn('getExposableConfig', getExposableConfig);
+          UI.setContentFn('loadAndMergeConfig', loadAndMergeConfig);
           initialize();
           listenMessage();
           listenPopState();
