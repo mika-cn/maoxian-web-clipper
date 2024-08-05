@@ -165,5 +165,5 @@ async function getAllFrames(tabId) {
 let Global = null;
 export default function init(global) {
   Global = global;
-  ExtMsg.listen('backend.clipping', messageHandler);
+  ExtMsg.listenBackend('backend.clipping', messageHandler);
 }

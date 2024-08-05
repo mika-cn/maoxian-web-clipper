@@ -28,6 +28,25 @@ import ExtApi from './ext-api.js';
 
 
 /*
+ * When an error is rejected through backend,
+ * some browsers (like Firefox) lost the stack info
+ * So we pass the stack info to frontend.
+ */
+function wrapBackendListener(listener) {
+  return async function backendMessageListenerWithBetterError(message, sender) {
+    try {
+      const result = await listener(message, sender)
+      return result;
+    } catch (e) {
+      console.debug(e)
+      const message = [`${e.name}: ${e.message}`, 'backend stack: ', e.stack].join("\n");
+      throw new Error(message, {cause: e});
+    }
+  }
+}
+
+
+/*
  * @param {string} target
  * @param {function} listener
  *   listener should return a promise.
@@ -45,6 +64,10 @@ function listen(target, listener) {
       return false;
     }
   });
+}
+
+function listenBackend(target, listener) {
+  listen(target, wrapBackendListener(listener));
 }
 
 function sendToBackground(msg) {
@@ -118,6 +141,7 @@ function sendToTab(msg, tabId, frameId) {
       return (err) => {
         if (IGNORE_MSG_ERROR[msg.type]) {
           console.debug('ignored tab msg: ', msg.type)
+          //console.debug(err);
           resolve('ignored');
         } else {
           console.warn(tabId, options.frameId);
@@ -153,6 +177,7 @@ function sendToTab(msg, tabId, frameId) {
 
 const ExtMsg = {
   listen,
+  listenBackend,
   sendToBackend,
   sendToBackground,
   pingContentScript,

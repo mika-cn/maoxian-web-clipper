@@ -78,6 +78,6 @@ function getKey(host) {
 }
 
 export default function init() {
-  ExtMsg.listen('backend.selection', messageHandler);
+  ExtMsg.listenBackend('backend.selection', messageHandler);
   Log.debug("MX backend: Selection initialized");
 }

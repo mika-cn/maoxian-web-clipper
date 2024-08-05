@@ -198,6 +198,6 @@ let Global = null;
 export default function init(global) {
   Global = global;
   Global.clippingBlobUrls = new Map(); // clipId => blobUrls;
-  ExtMsg.listen('backend.saving', messageHandler);
+  ExtMsg.listenBackend('backend.saving', messageHandler);
   Log.debug("MX backend: Saving initialized");
 }

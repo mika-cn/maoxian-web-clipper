@@ -41,7 +41,7 @@ function messageHandler(message, sender) {
  *   - {Fetcher} Fetcher
  */
 export default function init(global) {
-  ExtMsg.listen('backend.assistant', messageHandler);
+  ExtMsg.listenBackend('backend.assistant', messageHandler);
   PlanRepository.init(global);
   Log.debug("MX backend: Assistant initialized");
 }

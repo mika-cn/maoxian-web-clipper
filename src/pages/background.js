@@ -591,7 +591,7 @@ async function init(){
   Handler_NativeApp.init({TaskFetcher});
   Handler_WizNotePlus.init({TaskFetcher});
 
-  ExtMsg.listen('background', messageHandler);
+  ExtMsg.listenBackend('background', messageHandler);
   refreshHistoryIfNeed();
 
   initBackend_Assistant({Fetcher});
@@ -606,7 +606,7 @@ async function init(){
   }));
 
   // TODO confirm Why the listener order on MacOS is reverse?
-  // ExtMsg.listen('background', unknownMessageHandler);
+  // ExtMsg.listenBackend('background', unknownMessageHandler);
 
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)
