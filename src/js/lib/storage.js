@@ -4,17 +4,16 @@ import T from './tool.js';
 
 const KEY_OF_KEYS = '__KEYS__';
 
-
 async function set(storageArea, key, value) {
   const change = {[key]: value}
-  const result = browser.storage[storageArea].set(change)
+  const result = getStorage(storageArea).set(change)
   await saveKeys(storageArea, [key]);
   return result;
 }
 
 
 async function get(storageArea, key, defaultValue) {
-  const data = await browser.storage[storageArea].get(key);
+  const data = await getStorage(storageArea).get(key);
   const value = data[key];
   if (defaultValue !== null && (typeof defaultValue !== 'undefined')) {
     if (typeof value !== 'undefined'){
@@ -30,7 +29,7 @@ async function get(storageArea, key, defaultValue) {
 
 
 async function setMultiItem(storageArea, dict) {
-  const result = await browser.storage[storageArea].set(dict);
+  const result = await getStorage(storageArea).set(dict);
   await saveKeys(storageArea, Object.keys(dict));
   return result;
 }
@@ -38,13 +37,13 @@ async function setMultiItem(storageArea, dict) {
 // @param {String/Array} keys
 async function remove(storageArea, keys) {
   const keysToRemove = T.toArray(keys)
-  const result = await browser.storage[storageArea].remove(keysToRemove);
+  const result = await getStorage(storageArea).remove(keysToRemove);
   await removeKeys(storageArea, keysToRemove)
   return result;
 }
 
 async function clear(storageArea) {
-  const result = browser.storage[storageArea].clear();
+  const result = getStorage(storageArea).clear();
   await saveKeysToStorage(storageArea, []);
   return result;
 }
@@ -57,8 +56,8 @@ function getTotalBytes(storageArea) {
 // @return {Promise} resolve with n
 //                   or reject with an error message
 function getBytesInUse(storageArea, keys) {
-  if (browser.storage[storageArea].getBytesInUse) {
-    return browser.storage[storageArea].getBytesInUse(keys);
+  if (getStorage(storageArea).getBytesInUse) {
+    return getStorage(storageArea).getBytesInUse(keys);
   } else {
     // getBytesInUse() is not supported
     return Promise.reject("getBytesInUser() is not supported");
@@ -91,12 +90,12 @@ async function query(storageArea, ...filters) {
 
   const allKeys = await getKeys(storageArea);
   const keys = T.sliceArrByFilter(allKeys, ...filters);
-  return await browser.storage[storageArea].get(keys);
+  return await getStorage(storageArea).get(keys);
 }
 
 
 async function getKeys(storageArea) {
-  const data = await browser.storage[storageArea].get(KEY_OF_KEYS);
+  const data = await getStorage(storageArea).get(KEY_OF_KEYS);
   if (data.hasOwnProperty(KEY_OF_KEYS)) {
     return data[KEY_OF_KEYS];
   } else {
@@ -135,7 +134,7 @@ async function removeKeys(storageArea, keysToRemove) {
 
 // This is a very heavy function, should avoid as much as possible
 async function refreshKeys(storageArea) {
-  const data = await browser.storage[storageArea].get(null);
+  const data = await getStorage(storageArea).get(null);
   const keys = [];
   for (const key in data) {
     if (key !== KEY_OF_KEYS) {
@@ -150,7 +149,20 @@ async function refreshKeys(storageArea) {
 
 async function saveKeysToStorage(storageArea, keys) {
   const change = {[KEY_OF_KEYS]: keys};
-  return await browser.storage[storageArea].set(change);
+  return await getStorage(storageArea).set(change);
+}
+
+
+function getStorage(storageArea) {
+  if (browser.storage[storageArea] === undefined) {
+    if (storageArea == 'session') {
+      // backport it for some old browsers
+      return browser.storage.local;
+    }
+    return undefined;
+  } else {
+    return browser.storage[storageArea];
+  }
 }
 
 
