@@ -29,7 +29,7 @@ function reset(){
   const folder = T.findElem("myInput");
   const selector = T.queryElem(".selector");
   selector.style.display = "none";
-  parseFiles(folder.files).then(saveScripts).then((length) => {
+  parseFiles(folder.files).then(removeOldData).then(saveScripts).then((length) => {
     showHint(I18N.t('done').replace('$n', length));
     const pageUrl = MxWcLink.get('extPage.setting');
     ExtMsg.sendToPage({target: 'setting', type: 'refresh-user-scripts'}, pageUrl)
@@ -53,6 +53,12 @@ async function parseFiles(files) {
   return scripts;
 }
 
+
+async function removeOldData(scripts) {
+  const filter = T.prefixFilter('user-script.', true);
+  await Storage.removeByFilter(filter)
+  return scripts;
+}
 
 async function saveScripts(scripts) {
   const items = [];
