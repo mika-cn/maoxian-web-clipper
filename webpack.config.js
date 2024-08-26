@@ -62,7 +62,7 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath));
 const pages = [
   'background', 'popup', 'welcome', 'history', 'home', 'last-clipping-result',
   'plan-subscription', 'reset-history', 'setting',
-  'ui-control', 'ui-selection', 'failed-tasks',  'debug'];
+  'ui-control', 'ui-selection', 'failed-tasks', 'user-script', 'sync-user-scripts',  'debug'];
 
 function getCopyItems() {
 
@@ -119,6 +119,9 @@ function getCopyItems() {
     /* page scripts */
     ['src/js/page-scripts' , 'js/page-scripts'],
 
+    /* user script */
+    ['src/js/user-script' , 'js/user-script'],
+
     /* content */
     ['src/js/page-scripts-loader.js', 'js/page-scripts-loader.js'],
     ['src/js/content-scripts-loader.js', 'js/content-scripts-loader.js'],
@@ -155,8 +158,9 @@ function getCopyItems() {
 
 
   // page stylesheets
-  const cssBlackList = ['ui-selection', 'background'];
-  const cssNames = ['_base'].concat(pages);
+  const cssBlackList = ['ui-selection', 'background',
+    'reset-history', 'plan-subscription', 'user-script', 'sync-user-scripts'];
+  const cssNames = ['_base', '_details', '_file-uploader'].concat(pages);
   cssNames.forEach((name) => {
     if (cssBlackList.indexOf(name) == -1) {
       items.push({

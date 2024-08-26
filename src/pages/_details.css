@@ -1,0 +1,33 @@
+.main {
+  max-width: 90%;
+  min-height: 800px;
+  margin: 0 auto;
+  padding: 50px 20px 200px 20px;
+  /*
+  border: 1px solid #ccc;*/
+  background-color: #fefefe;
+}
+
+.page-title {
+  text-align: center;
+}
+
+table th {
+  text-align: right;
+}
+
+table th, td {
+  line-height: 25px;
+  padding: 2px 5px 2px 5px;
+}
+
+pre {
+  background-color: #efefef;
+  padding: 15px;
+}
+
+pre > code {
+  border: 0px;
+  line-height: 20px;
+}
+

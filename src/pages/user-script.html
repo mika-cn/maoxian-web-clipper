@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Script details - MaoXian</title>
+    <link rel="icon" type="image/png" href="../icons/mx-wc-32.png" />
+    <link href="_base.css" rel="stylesheet"/>
+    <link href="_details.css" rel="stylesheet"/>
+  </head>
+  <body>
+
+    <div class="main">
+      <h1 class="page-title" i18n="page-title"></h1>
+      <div class="user-script">
+        <h2 i18n="title.metas"></h2>
+        <div id="user-script">
+        </div>
+      </div>
+      <div class="code">
+        <h2 i18n="title.code"></h2>
+        <pre><code class="language-javascript" id="source-code"></code></pre>
+      </div>
+    </div>
+
+    <template id="user-script-tpl">
+      <table>
+        <tbody>
+          <tr><th i18n="user-script.name"></th><td> ${name}</td></tr>
+          <tr><th i18n="user-script.version"></th><td> ${version}</td></tr>
+          <tr><th i18n="user-script.author"></th><td> ${author}</td></tr>
+          <tr><th i18n="user-script.description"></th><td> ${description}</td></tr>
+        </tbody>
+      </table>
+    </template>
+
+    <!-- scripts -->
+    <script src="../vendor/js/browser-polyfill.js"></script>
+    <script src="../vendor/js/i18n.js"></script>
+    <script src="../_locales/en/common.js"></script>
+    <script src="../_locales/en/user-script.js"></script>
+    <script src="../_locales/zh_CN/common.js"></script>
+    <script src="../_locales/zh_CN/user-script.js"></script>
+    <script src="user-script.js" type="module"></script>
+  </body>
+</html>
