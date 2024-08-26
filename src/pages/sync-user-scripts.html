@@ -2,22 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Reset Clip History - MaoXian</title>
+    <title i18n="page-name"></title>
     <link rel="icon" type="image/png" href="../icons/mx-wc-32.png" />
     <link href="_base.css" rel="stylesheet"/>
     <link href="_file-uploader.css" rel="stylesheet"/>
   </head>
   <body>
     <div class="main">
-      <h1 i18n="page-name"> Reset History </h1>
+      <h1 i18n="page-name"></h1>
       <div class="hint"></div>
+
       <div class="selector">
         <div class="notice-info">
           <span i18n="hint"></span><br />
-          <span i18n="current-storage-path"></span>
-          <span id="current-storage-path-value"></span>
         </div>
-        <input id="myInput" type="file" accept="application/json" webkitdirectory directory/>
+        <input id="myInput" type="file" accept="text/javascript" webkitdirectory directory/>
         <button id="reset-btn" i18n="g.btn.confirm"></button>
       </div>
     </div>
@@ -26,9 +25,9 @@
     <script src="../vendor/js/browser-polyfill.js"></script>
     <script src="../vendor/js/i18n.js"></script>
     <script src="../_locales/en/common.js"></script>
-    <script src="../_locales/en/reset-history.js"></script>
+    <script src="../_locales/en/sync-user-scripts.js"></script>
     <script src="../_locales/zh_CN/common.js"></script>
-    <script src="../_locales/zh_CN/reset-history.js"></script>
-    <script src="reset-history.js" type="module"></script>
+    <script src="../_locales/zh_CN/sync-user-scripts.js"></script>
+    <script src="sync-user-scripts.js" type="module"></script>
   </body>
 </html>

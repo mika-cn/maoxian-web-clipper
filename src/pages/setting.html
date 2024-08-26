@@ -19,6 +19,7 @@
           <a class="menu" href="#setting-html" i18n="title.html"></a>
           <a class="menu" href="#setting-markdown" i18n="title.markdown"></a>
           <a class="menu" href="#setting-assistant" i18n="title.assistant"></a>
+          <a class="menu" href="#setting-user-script" i18n="title.user-script"></a>
           <a class="menu" href="#setting-advanced" i18n="title.advanced"></a>
           <hr />
           <a class="menu" href="#setting-offline-page" i18n="title.offline-page"></a>
@@ -604,7 +605,7 @@ const hello = () =&gt; {
                   <th i18n="title.subscription.size"></th>
                   <th i18n="title.subscription.detail"></th>
                 </tr>
-              <thead>
+              </thead>
               <tbody class="subscription-list"></tbody>
             </table>
           </div>
@@ -641,6 +642,45 @@ const hello = () =&gt; {
         <td><a href="go.page:extPage.plan-subscription?t=${t}" target="_blank" i18n="title.subscription.detail"></a></td>
       </tr>
     </template>
+
+
+    <template id="section-setting-user-script-tpl">
+      <section id="setting-user-script">
+        <h2 class="center" i18n="title.user-script"></h2>
+        <h3 i18n="title.user-scripts"></h3>
+        <div class="notice-info" i18n="notice.user-script"></div>
+        <div class="user-script">
+          <table>
+            <thead>
+              <tr>
+                <th i18n="title.user-script.name"></th>
+                <th i18n="title.user-script.version"></th>
+                <th i18n="title.user-script.author"></th>
+                <th i18n="title.user-script.description"></th>
+                <th> - </th>
+              </tr>
+            </thead>
+            <tbody class="user-script-list"></tbody>
+          </table>
+        </div>
+        <div class="user-script-actions">
+          <button id="refresh-user-scripts" i18n="button.refresh"></button>
+          &nbsp;
+          <a href="go.page:extPage.sync-user-scripts" target="_blank" i18n="title.user-script.sync-user-scripts"></a>
+        </div>
+      </section>
+    </template>
+
+    <template id="user-script-tpl">
+      <tr>
+        <td>${name}</td>
+        <td>${version}</td>
+        <td>${author}</td>
+        <td>${description}</td>
+        <td><a href="go.page:extPage.user-script?name=${name}" target="_blank" i18n="title.user-script.details"></a></td>
+      </tr>
+    </template>
+
 
     <template id="section-setting-storage-tpl">
       <section id="setting-storage">

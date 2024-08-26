@@ -12,10 +12,11 @@
 "use strict";
 
 import T from '../lib/tool.js';
+import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 import UrlEditor from './url-editor.js';
 
-let listeners = {};
+let listeners = {}; // mxEventType => actions
 
 function appendAction(type, action) {
   const actions = getActions(type);
@@ -121,12 +122,16 @@ function perform(msgType, tagFilter) {
 
 // Defined actions that can only perform once across clipping session.
 function isPerformOnce(action) {
-  return ({
-    pick    : true,
-    select  : true,
-    confirm : true,
-    clip    : true,
-  }[action.name] || false);
+  if (action.name == 'exec') {
+    return (action.args[0].once || false)
+  } else {
+    return ({
+      pick    : true,
+      select  : true,
+      confirm : true,
+      clip    : true,
+    }[action.name] || false);
+  }
 }
 
 
@@ -134,7 +139,23 @@ function isPerformOnce(action) {
 function performAction(action) {
   const actionFn = actionDict[action.name];
   if (actionFn) {
-    actionFn(...action.args);
+    actionFn(...action.args)
+  } else {
+    console.debug("unknown action: ", action);
+  }
+}
+
+
+async function executeScript(script, args = []) {
+  try {
+    await ExtMsg.sendToBackend('assistant', {
+      type: 'execute.script',
+      body: {script, args}
+    });
+  } catch(e) {
+    console.debug("Error occured when executing script: ", script);
+    console.debug("args: ", args);
+    console.debug(e);
   }
 }
 
@@ -154,6 +175,16 @@ function undo(action) {
     // console.debug("undo: ", action);
     undoFn(...action.args)
   }
+}
+
+/*
+ * param {Object}  params {script, args, when, once}
+ * param {String}  params.when  - 'actived', 'selecting' or 'idle', default is 'selecting'
+ * param {Boolean} params.once - if true the action only perform once
+ */
+function exec(params) {
+  const {script, args = []} = params;
+  if (script) { executeScript(script, args) }
 }
 
 
@@ -909,9 +940,14 @@ function setConfig(config) {
   });
 }
 
+function isValidAction(action) {
+  return actionEvTypeDict.hasOwnProperty(action.name);
+}
+
 // actionName => maoxian event type
 const actionEvTypeDict = {
   undo        : 'idle',
+  exec        : 'selecting',
   show        : 'selecting',
   hide        : 'selecting',
   hideSibling : 'selecting',
@@ -933,6 +969,7 @@ const actionEvTypeDict = {
 // actionName => action function
 const actionDict = {
   undo        : undo,
+  exec        : exec,
   show        : showElem,
   hide        : hideElem,
   hideSibling : hideSibling,
@@ -1402,27 +1439,50 @@ function isActionTopFrameOnly(actionName) {
   }[actionName] || false);
 }
 
+function handleActionExec(action) {
+  const arg0 = action.args[0];
+  const newArg0 = Object.assign({when: 'selecting', once: false}, arg0);
+
+  const it = {name: 'exec', args: [newArg0]};
+  const when = newArg0.when;
+  switch(when) {
+    case 'idle'      : prependAction('idle', it) ; break;
+    case 'actived'   : appendAction(when, it)    ; break;
+    case 'selecting' : appendAction(when, it)    ; break;
+    default          : appendAction('selecting', it)
+  }
+}
+
 /*
  * @param {Object} plan {actions: [{name, args}]}
  * @param {Array} blackList of action name
  */
 function apply(plan, blackList = []) {
-  (plan.actions || []).forEach((action) => {
+  for (const action of (plan.actions || [])) {
+    if (!isValidAction(action)) {
+      console.debug("Assistant: unknown action: ", action);
+      continue;
+    }
+
     const scopeOk = (!isActionTopFrameOnly(action.name) || isTopFrame());
     const notInBlackList = blackList.indexOf(action.name) == -1;
 
     if (scopeOk && notInBlackList) {
-      const evType = actionEvTypeDict[action.name];
-      appendAction(evType, action);
-      if (undoActionDict.hasOwnProperty(action.name)) {
-        // we can undo this action
-        const undo = {name: 'undo', args: [action]}
-        // console.debug("set undo", undo);
-        prependAction(actionEvTypeDict.undo, undo);
+      if (action.name == 'exec') {
+        handleActionExec(action);
+      } else {
+        const evType = actionEvTypeDict[action.name];
+        appendAction(evType, action);
+        if (undoActionDict.hasOwnProperty(action.name)) {
+          // we can undo this action
+          const undo = {name: 'undo', args: [action]}
+          prependAction(actionEvTypeDict.undo, undo);
+        }
       }
     }
-  });
+  }
 }
+
 
 function applyGlobal(plan) {
   const blackList = ['config', 'form', 'pick', 'select', 'confirm', 'clip'];

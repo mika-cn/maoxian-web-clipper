@@ -964,6 +964,23 @@ T.calcPath = function(currDir, destPath) {
   return r;
 }
 
+// ===============================
+// file
+// ===============================
+T.readTextFile = function(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load",
+      (event) => { resolve(reader.result) }
+    );
+    reader.addEventListener("error",
+      (event) => {
+        reject(new Error(`Error occurred reading file: ${file.name}`));
+      }
+    );
+    reader.readAsText(file);
+  });
+}
 
 // ===============================
 // blob

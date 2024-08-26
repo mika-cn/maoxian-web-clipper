@@ -11,6 +11,24 @@ import MxWcTemplate from '../js/lib/template.js';
 import Notify       from '../js/lib/notify.js';
 import MxWcHandler  from '../js/lib/handler.js';
 
+
+function listenMessage() {
+  ExtMsg.listen('setting', function(msg) {
+    return new Promise((resolve, reject) => {
+      switch(msg.type) {
+        case 'refresh-user-scripts':
+          refreshUserScripts();
+          resolve();
+          break;
+        default:
+          reject(new Error(`setting.js: Unknown message: ${msg.type}`));
+          break;
+
+      }
+    });
+  });
+}
+
 // http://kb.mozillazine.org/Firefox_:_Issues_:_Links_to_Local_Pages_Don%27t_Work
 
 function updateConfig(key, value) {
@@ -938,6 +956,9 @@ function renderSection(id) {
     case 'setting-assistant':
       render = renderSectionAssistant;
       break;
+    case 'setting-user-script':
+      render = renderSectionUserScript;
+      break;
     case 'setting-handler-browser':
       render = renderSectionHandlerBrowser;
       break;
@@ -1245,6 +1266,42 @@ function resetPublicPlan() {
 // Assistant end
 // ======================================
 
+
+function renderSectionUserScript(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  const refreshBtn = T.findElem('refresh-user-scripts');
+  T.bindOnce(refreshBtn, 'click', renderUserScripts);
+  renderUserScripts();
+}
+
+function refreshUserScripts() {
+  const elem = T.findElem('setting-user-script');
+  if (elem) { renderUserScripts() }
+}
+
+
+function renderUserScripts() {
+  MxWcStorage.get('user-script.scripts', []).then((scripts) => {
+    const elem = T.queryElem('.user-script .user-script-list');
+    if (scripts.length > 0) {
+      const tpl = T.findElem('user-script-tpl').innerHTML;
+      const html = T.map(scripts, (it) => {
+        return T.renderTemplate(tpl, {
+          name: it.name,
+          version: it.version,
+          author: it.author,
+          description: it.description,
+        });
+      }).join('');
+      T.setHtml(elem, html);
+    } else {
+      T.setHtml(elem, '<tr><td colspan="5" i18n="g.hint.no-record" align="center"></td></tr>');
+    }
+  });
+}
+
+
 function renderSectionHandlerBrowser(id, container, template) {
   const html = template;
   T.setHtml(container, html);
@@ -1519,6 +1576,7 @@ function activeMenu() {
 }
 
 function init(){
+  listenMessage();
   I18N.i18nPage();
   initSidebar();
   MxWcLink.listen(document.body);
