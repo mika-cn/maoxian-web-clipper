@@ -31,8 +31,8 @@ function messageHandler(message, sender) {
         resolve();
         break;
       case 'execute.script':
-        const {scriptId, args = []} = message.body;
-        executeScript(scriptId, args, {
+        const {script, args = []} = message.body;
+        executeScript(script, args, {
           tabId: sender.tab.id,
           frameId: sender.frameId
         }).then(resolve, reject);
@@ -44,20 +44,20 @@ function messageHandler(message, sender) {
   });
 }
 
-function executeScript(scriptId, args, {tabId, frameId}) {
-  const script = getScript(scriptId, args);
+async function executeScript(scriptName, args, {tabId, frameId}) {
+  const script = await getWrappedScript(scriptName, args);
   return  ExtApi.executeContentScript(tabId, {
     frameId, code: script, runAt: 'document_idle'});
 }
 
 
-function getScript(scriptId, args = []) {
+async function getWrappedScript(scriptName, args = []) {
   const argsJson = JSON.stringify(args);
-  const code = getCode(scriptId);
+  const userScript = await getUserScript(scriptName);
   const script = `(() => {"use strict";
-    const __mx_execute_fn = function (args, window, browser, chrome) {
+    const __mx_execute_fn = function (userScript, args, window, browser, chrome) {
       try {
-        ${code}
+        ${userScript.code}
         return {ok: true};
       } catch(e) {
         const error = {name: e.name, msg: e.message, stack: e.stack};
@@ -68,13 +68,13 @@ function getScript(scriptId, args = []) {
     const myWindow = Object.assign({}, window);
     delete myWindow.browser;
     delete myWindow.chrome;
-    const script = {id: "${scriptId}"};
-    const context = Object.assign({script}, myWindow);
+    const userScript = {name: "${userScript.name}", version: "${userScript.version}"};
+    const context = myWindow;
     const args = ${argsJson};
-    const exposedValues = [args, myWindow];
+    const exposedValues = [userScript, args, myWindow];
     const r = __mx_execute_fn.call(context, ...exposedValues);
     if (!r.ok) {
-      console.error("${scriptId}", r.error.name, r.error.msg);
+      console.error("${userScript.name}", r.error.name, r.error.msg);
       console.error("Line number offset: 3");
       console.error(r.error.stack)
     }
@@ -84,9 +84,14 @@ function getScript(scriptId, args = []) {
 }
 
 
-// FIXME
-function getCode(scriptId) {
-  return `console.debug('hi ${scriptId},', args);`
+async function getUserScript(scriptName) {
+  const key = ['user-script', 'script', scriptName].join('.');
+  const script = await Storage.get(key);
+  if (script) {
+    return script;
+  } else {
+    throw new Error("Could not find script with name: " + scriptName);
+  }
 }
 
 

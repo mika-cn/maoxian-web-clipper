@@ -146,14 +146,14 @@ function performAction(action) {
 }
 
 
-async function executeScript(scriptId, args = []) {
+async function executeScript(script, args = []) {
   try {
     await ExtMsg.sendToBackend('assistant', {
       type: 'execute.script',
-      body: {scriptId, args}
+      body: {script, args}
     });
   } catch(e) {
-    console.debug("Error occured when executing script: ", scriptId);
+    console.debug("Error occured when executing script: ", script);
     console.debug("args: ", args);
     console.debug(e);
   }
