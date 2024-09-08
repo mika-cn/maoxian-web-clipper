@@ -41,8 +41,8 @@ function messageHandler(message, sender){
     switch(message.type) {
 
       case 'show.badge':
-        const {text} = message.body;
-        MxWcIcon.showTabBadge(sender.tab.id, text);
+        const badgeAttrs = (message.body || {})
+        MxWcIcon.showTabBadge(sender.tab.id, badgeAttrs);
         resolve();
         break;
 
