@@ -17,8 +17,9 @@ function resetClippingState() {
   // Changed config occured by API or MxAssistant
   // only apply to current clipping
   state.changedConfig = {};
-  // user selected save format, has higest priority
-  state.saveFormat = null;
+  // Clipping arguments that trigger from menu, hotkey etc. has higest priority
+  // {badge, config}
+  state.clippingArgs = [];
   YieldPoint.reset();
   // information of current clipping
   state.storageConfig = null;
@@ -225,12 +226,7 @@ function setFormOptions(msg) {
 
 function overwriteConfig(msg) {
   const config = (msg.config || {});
-  state.changedConfig = {};
-  for (let key in config) {
-    if (API_SETTABLE_KEYS.indexOf(key) > -1) {
-      state.changedConfig[key] = config[key];
-    }
-  }
+  state.changedConfig = MxWcConfig.filterAPISettableKeys(config);
 }
 
 
@@ -575,11 +571,16 @@ async function loadAndMergeConfig() {
 }
 
 
-// Returns config of current clipping session
+// @param {Object} config - which set by settings page
+// @Returns {Object} it - config of current clipping session
+// priority:
+//   Clipping arguments > changedConfig > Settings config
 function mergeChangedConfig(config) {
-  const it = Object.assign(config, state.changedConfig)
-  if (state.saveFormat) {it.saveFormat = state.saveFormat}
-  return it;
+  return Object.assign(
+    config,
+    state.changedConfig,
+    MxWcConfig.filterAPISettableKeys(state.clippingArgs.config)
+  );
 }
 
 
@@ -674,28 +675,23 @@ function pageContentChanged(){
 }
 
 
-function handleClipCommand({command}) {
-  switch(command) {
-    case 'clip-as-default':
-      toggleClip({saveFormat: null});
-      break;
-    case 'clip-as-html':
-      toggleClip({saveFormat: 'html', badgeText: 'H'});
-      break;
-    case 'clip-as-md':
-      toggleClip({saveFormat: 'md', badgeText: 'M'});
-      break;
-    default: break;
-  }
+function handleClipCommand(args) {
+  toggleClip(...args);
 }
 
-function toggleClip({saveFormat = null, badgeText}) {
+/*
+ * @param {Object} clippingArgs
+ * @param {Object} clippingArgs.badge {text, textColor, backgroundColor}
+ * @param {Object} clippingArgs.config
+ */
+function toggleClip(clippingArgs) {
   window.focus();
   const clippingState = UI.getCurrState();
   if (clippingState === 'idle') {
-    // Store save format that choosen by user.
-    state.saveFormat = saveFormat;
-    if (badgeText) { showBadge(badgeText) }
+    // Store clipping arguments that choosen by user.
+    state.clippingArgs = clippingArgs;
+
+    if (clippingArgs.badge) { showBadge(clippingArgs.badge) }
 
     MxWcEvent.dispatchInternal('actived');
     // we're going to active UI
@@ -722,8 +718,19 @@ function initialize(){
   Log.debug("content init...");
 }
 
-function showBadge(text) {
-  ExtMsg.sendToBackground({type: 'show.badge', body: {text}});
+
+/*
+ * @param {Object} badge
+ * @param {String} badge.text
+ * @param {String} badge.textColor color of badge text ("green", or "#00ff00")
+ * @param {String} badge.backgroundColor color of badge background ("green", or "#00ff00")
+ */
+function showBadge(badge = {}) {
+  if (badge.text) {
+    ExtMsg.sendToBackground({type: 'show.badge', body: badge});
+  } else {
+    hideBadge();
+  }
 }
 
 function hideBadge() {

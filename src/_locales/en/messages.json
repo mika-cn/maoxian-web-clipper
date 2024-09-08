@@ -15,23 +15,62 @@
   },
 
   "commandClipAsDefault": {
-    "message": "Clip as default format",
+    "message": "Deprecated, do not use it",
     "description": "Shortcut label"
   },
 
   "commandClipAsHtml": {
-    "message": "Clip as HTML",
+    "message": "Deprecated, do not use it",
     "description": "Shortcut label"
   },
 
   "commandClipAsMd": {
-    "message": "Clip as Markdown",
+    "message": "Deprecated, do not use it",
     "description": "Shortcut label"
   },
 
   "commandOpenClipping": {
-    "message": "Open current clipping",
+    "message": "Deprecated, do not use it",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot0": {
+    "message": "Slot 0",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot1": {
+    "message": "Slot 1",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot2": {
+    "message": "Slot 2",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot3": {
+    "message": "Slot 3",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot4": {
+    "message": "Slot 4",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot5": {
+    "message": "Slot 5",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot6": {
+    "message": "Slot 6",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot7": {
+    "message": "Slot 7",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot8": {
+    "message": "Slot 8",
+    "description": "Shortcut label"
+  },
+  "shortcutSlot9": {
+    "message": "Slot 9",
     "description": "Shortcut label"
   }
-
 }

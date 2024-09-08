@@ -52,10 +52,7 @@ function messageHandler(message, sender){
         break;
 
       case 'popup-menu.clip-command':
-        const msg = {
-          type: "clip-command",
-          body: Object.assign({}, message.body)
-        };
+        const msg = getClipCommandMsg(message.body.command);
         loadContentScriptsAndSendMsg(msg).then(resolve, reject);
         break;
 
@@ -141,6 +138,31 @@ function messageHandler(message, sender){
         break;
     }
   });
+}
+
+
+function getClipCommandMsg(command) {
+  let clippingArgs = {};
+  switch(command) {
+    case 'clip-as-default':
+    case '_clipAsDefault':
+      clippingArgs = {badge: {text: null}};
+      break;
+    case 'clip-as-html':
+    case '_clipAsHTML':
+      clippingArgs = {badge: {text: 'H'}, config: {saveFormat: 'html'}};
+      break;
+    case 'clip-as-md':
+    case '_clipAsMarkdown':
+      clippingArgs = {badge: {text: 'M'}, config: {saveFormat: 'md'}};
+      break;
+    default:
+      clippingArgs = {badge: {text: null}};
+      break;
+  }
+
+  const msg = {type: "clip-command", body: [clippingArgs]};
+  return msg;
 }
 
 
@@ -346,20 +368,33 @@ function welcomeNewUser(){
     })
 }
 
-function commandListener(command) {
-  switch (command) {
-    case 'clip-as-default':
-    case 'clip-as-html':
-    case 'clip-as-md':
-      const msg = {type: "clip-command", body: {command}};
-      const handleError = (errMsg) => console.error(errMsg);
-      loadContentScriptsAndSendMsg(msg).then(
-        () => {}, handleError);
-      break;
-    case 'open-clipping':
-      openClipping();
-      break;
-    default: break;
+
+// TODO
+// browerCommandName --> userCustomCommandName --> {exec, args}
+// slot1 -> clipAsHtml -> {exec: clip, args: []}
+async function commandListener(command) {
+  console.debug("shortcut: ", command);
+  const m = command.match(/^slot-(\d){1}$/);
+  if (m) {
+    const config = await MxWcConfig.load();
+    const key = 'shortcutSlot' + m[1]
+    const command = config[key];
+    // FIXME add custom command here
+    switch (command) {
+      case '_openLastClipping':
+        openClipping();
+        break;
+      case '_clipAsDefault':
+      case '_clipAsHTML':
+      case '_clipAsMarkdown':
+        const msg = getClipCommandMsg(command);
+        const handleError = (errMsg) => console.error(errMsg);
+        loadContentScriptsAndSendMsg(msg).then(
+          () => {}, handleError);
+        break;
+      default:
+        break;
+    }
   }
 }
 

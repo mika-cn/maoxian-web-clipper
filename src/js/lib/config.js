@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.12';
+const VERSION = '2.13';
 const state = {};
 
 /** WARNING
@@ -68,6 +68,17 @@ function getDefault(){
     rememberSelection: false,
 
     allowFileSchemeAccess: false,
+
+    shortcutSlot0: '_openLastClipping',
+    shortcutSlot1: '_clipAsDefault',
+    shortcutSlot2: '_clipAsHTML',
+    shortcutSlot3: '_clipAsMarkdown',
+    shortcutSlot4: '_doNothing',
+    shortcutSlot5: '_doNothing',
+    shortcutSlot6: '_doNothing',
+    shortcutSlot7: '_doNothing',
+    shortcutSlot8: '_doNothing',
+    shortcutSlot9: '_doNothing',
 
     //=====================================
     // Advanced
@@ -360,6 +371,19 @@ function isMigratable(config) {
   }
 }
 
+/*
+ * Only keep those api settable keys.
+ * WARNING: it'll return a new Object
+ */
+function filterAPISettableKeys(config = {}) {
+  const r = {}
+  for (const key in config) {
+    if (API_SETTABLE_KEYS.indexOf(key) > -1) {
+      r[key] = config[key];
+    }
+  }
+  return r;
+}
 
 // ======================================
 // validations
@@ -437,6 +461,7 @@ const Config = {
   fixKeys: fixKeys,
   unsort: unsort,
   isMigratable: isMigratable,
+  filterAPISettableKeys: filterAPISettableKeys,
 }
 
 export default Config;

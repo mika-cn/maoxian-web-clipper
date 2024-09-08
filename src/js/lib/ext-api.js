@@ -189,4 +189,12 @@ ExtApi.bindOnCommandListener = (listener) => {
   }
 }
 
+ExtApi.getAllCommands = async () => {
+  return browser.commands.getAll();
+}
+
+ExtApi.updateCommand = async (details) => {
+  return browser.commands.update(details);
+}
+
 export default ExtApi;
