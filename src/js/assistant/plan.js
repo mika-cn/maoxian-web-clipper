@@ -46,7 +46,7 @@ function bindListener() {
 }
 
 function performWhenActived(e) {
-  const msg = {};
+  const msg = MxWcEvent.getData(e);
   const tagFilter = getTagFilter(msg)
   perform('actived', tagFilter);
 }

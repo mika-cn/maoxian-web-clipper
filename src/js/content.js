@@ -697,14 +697,15 @@ function toggleClip(clippingArgs) {
 
     if (clippingArgs.badge) { showBadge(clippingArgs.badge) }
 
-    MxWcEvent.dispatchInternal('actived');
+    const evMsg = getMxEventMsg((state.config || {}));
+    MxWcEvent.dispatchInternal('actived', evMsg);
     // we're going to active UI
     if (state.config && state.config.communicateWithThirdParty) {
       if (hasYieldPoint('actived')) {
         setCurrYieldPoint('actived');
-        MxWcEvent.dispatchPublic('actived');
+        MxWcEvent.dispatchPublic('actived', evMsg);
       } else {
-        MxWcEvent.dispatchPublic('actived');
+        MxWcEvent.dispatchPublic('actived', evMsg);
         UI.startNewClipping();
       }
     } else {
