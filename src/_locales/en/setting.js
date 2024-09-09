@@ -44,6 +44,27 @@
     "title.user-script.code": "SourceCode",
     "title.user-script.details": "details",
     "title.user-script.sync-user-scripts": "Synchronize user scripts",
+    "title.command.name": "Name",
+    "title.command.description": "Description",
+    "title.command.details": "Details",
+    "title.user-command": "User Command",
+    "title.user-commands": "User Commands",
+    "title.builtin-commands": "Builtin Commands",
+    "title.shortcut": "Shortcut",
+    "title.shortcuts": "Shortcuts",
+    "title.shortcut.none": "Not binded",
+    "title.shortcut.binded": "Binded",
+    "title.shortcut.command": "Command",
+    "title.shortcut-slot0": "Slot 0",
+    "title.shortcut-slot1": "Slot 1",
+    "title.shortcut-slot2": "Slot 2",
+    "title.shortcut-slot3": "Slot 3",
+    "title.shortcut-slot4": "Slot 4",
+    "title.shortcut-slot5": "Slot 5",
+    "title.shortcut-slot6": "Slot 6",
+    "title.shortcut-slot7": "Slot 7",
+    "title.shortcut-slot8": "Slot 8",
+    "title.shortcut-slot9": "Slot 9",
     "title.handler": "Handler",
     "title.handler-browser": "Browser",
     "title.handler-native-app": "Native App",
@@ -290,6 +311,8 @@
     "notice.refresh-history": "This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest.",
     "notice.assistant-intro": "Using MaoXian Assistant, you can predefine some actions in a plan, and this plan will be applied to the webpage that you're going to clip. These actions includes picking an element, hiding an element, showing an element and changing attributes of an element.",
     "notice.user-script": 'User scripts are custom scripts that used to modify the web page\'s state. you can <a href="go.page:execute-user-script" target="_blank">execute user scripts using MaoXian Assistant</a>. <br> Note that these user scripts are not the same as those executing by user script extensions (violentMonkey for example)<br><br>You manage user scripts inside a local directory, and synchronize that directory to MaoXian<br><br><a href="go.page:write-user-script" target="_blank">How to write user scripts</a>',
+    "notice.user-commands": 'User commands are commands that defined by you.<br>you can assign these commands to shortcut slots (see below)<br>Learn <a href="go.page:write-user-command" target="_blank">how to write a user command</a>',
+    "notice.shortcuts": "Here you can configure the command to a shortcut slot, You can use either builtin commands or user commands. <br>You can set a slot's key through your browser's extension/addon center",
     "notice.public-plan-intro": "Public Plans are contributed by every MaoXian user. so that more people can use it.",
     "notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it<br /><br />See <a href='go.page:public-subscriptions' target='_blank'>this page</a> for more subscriptions.",
     "notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
@@ -342,6 +365,13 @@
 
     "label.html-compress-css-input": "Compress style(CSS) source code, includes inline styles and external styles. Compress means remove all unnecessary white space, this operation can reduce the captured style content size",
 
+    "label.builtin-command.do-nothing": "Do nothing",
+    "label.builtin-command.open-last-clipping": "Open the last clipping result",
+    "label.builtin-command.clip-as-default": "Start clip with default save format (the one that configurated on settings page)",
+    "label.builtin-command.clip-as-html": "Start clip with HTML save format and add a badge <code>H</code> to the extension icon",
+    "label.builtin-command.clip-as-markdown": "Start clip with Markdown save format and add a badge <code>M</code> to the extension icon",
+
+
 
     "notice.icon.intro": "Site icons are website favicons (those little images that shown on browser tabs) or the icons for the home screen and apps on mobile devices.",
     "notice.image.intro": "Images only includes those that represent as content, such as article figures, profile avatars but not includes background images. For the same image there might be several different files that have different quality and size which will be chosen by browsers according to devices and network speed",
@@ -370,6 +400,7 @@
     // errors
     "error.not-empty": "Should not be blank",
     "error.saving-folder-prefix":  "Should starts with root folder (any of $ROOT-FOLDER, $CLIPPING-PATH, $CATEGORY-PATH or $STORAGE-PATH)",
+    "error.invalid-json": "JSON value invalid",
   };
   return { values: Object.assign({}, currValues, values) }
 });

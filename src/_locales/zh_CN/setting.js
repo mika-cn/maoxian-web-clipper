@@ -24,7 +24,6 @@
     "title.html": "HTML",
     "title.markdown": "Markdown",
     "title.assistant": "助手设置",
-    "title.user-script": "用户脚本",
     "title.public-plan": "公开的「计划」",
     "title.subscriptions": "我的订阅（已下载）",
     "title.subscription.name": "名称",
@@ -44,6 +43,27 @@
     "title.user-script.code": "源代码",
     "title.user-script.details": "详情",
     "title.user-script.sync-user-scripts": "用步用户脚本",
+    "title.command.name": "名字",
+    "title.command.description": "简介",
+    "title.command.details": "详情",
+    "title.user-command": "用户命令",
+    "title.user-commands": "用户命令",
+    "title.builtin-commands": "内置命令",
+    "title.shortcut": "快捷键",
+    "title.shortcuts": "快捷键",
+    "title.shortcut.none": "未绑定按键",
+    "title.shortcut.binded": "绑定",
+    "title.shortcut.command": "命令",
+    "title.shortcut-slot0": "插槽 0",
+    "title.shortcut-slot1": "插槽 1",
+    "title.shortcut-slot2": "插槽 2",
+    "title.shortcut-slot3": "插槽 3",
+    "title.shortcut-slot4": "插槽 4",
+    "title.shortcut-slot5": "插槽 5",
+    "title.shortcut-slot6": "插槽 6",
+    "title.shortcut-slot7": "插槽 7",
+    "title.shortcut-slot8": "插槽 8",
+    "title.shortcut-slot9": "插槽 9",
     "title.handler": "处理程序",
     "title.handler-browser": "浏览器",
     "title.handler-native-app": "本地程序",
@@ -287,6 +307,8 @@
     "notice.refresh-history": "当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。",
     "notice.assistant-intro": "使用「毛线助手」，我们可以对于某个网站的网页，预先定义一个「计划」，该计划包含一系列「动作」。当你对这个网站的网页进行裁剪时，该计划就会运用到网页上面。目前支持的「动作」包括： 选中元素、隐藏元素、显示元素以及修改元素的属性。",
     "notice.user-script": '毛线用户脚本（自定义脚本）被用于修改网页的状态（特别是一些复杂的操作）。你可以 <a href="go.page:execute-user-script" target="_blank">使用『毛线助手』来执行用户脚本</a>。<br>注意我们这里说的用户脚本和用户脚本扩展（像：violentMonkey）执行的是不一样的，不要搞混咯。<br><br>你需要在本地的一个文件夹内管理毛线用户脚本，并通过点击下方链接，把其同步到 MaoXian 扩展里。<br><br><a href="go.page:write-user-script" target="_blank">如何编写用户脚本</a>',
+    "notice.user-commands": '用户命令（自定义命令）可用于自定义快捷键的触发动作，查看<a href="go.page:write-user-command" target="_blank">如何编写自定义命令</a>',
+    "notice.shortcuts": "在这一小节，你可以设置每个插槽所执行的命令， 可以填写内置命令，也可以填写用户命令。<br> 如果你要设置每个插槽对应的快捷键，可以在浏览器的扩展中心找到设置入口",
     "notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
     "notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。<br /><br /><a href='go.page:public-subscriptions' target='_blank'>查看可订阅列表</a>",
     "notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
@@ -337,6 +359,11 @@
 
     "label.html-compress-css-input": "压缩样式（CSS）, 所有非必须的空白（空格，换行符和缩进）都会被移除，该操作可减少裁剪下来的样式的体积。同时，压缩后的样式也会丢失可读性",
 
+    "label.builtin-command.do-nothing": "空动作，即啥也不做",
+    "label.builtin-command.open-last-clipping": "查看最新的一次裁剪结果",
+    "label.builtin-command.clip-as-default": "开始裁剪，使用默认的保存格式（设置页面配置的那个）",
+    "label.builtin-command.clip-as-html": "开始裁剪，使用 HTML 作为保存格式，并在图标上标记：“<code>H</code>”。",
+    "label.builtin-command.clip-as-markdown": "开始裁剪，使用 Markdown 作为保存格式，并在图标上标记：“<code>M</code>”。",
 
 
 
@@ -364,7 +391,8 @@
 
     // errors
     "error.not-empty": "此项不能为空",
-    "error.storage.saving-folder":  "必须以毛线的根目录开头，即以： $ROOT-FOLDER、$CLIPPING-PATH 、$CATEGORY-PATH 或 $STORAGE-PATH 开头"
+    "error.storage.saving-folder":  "必须以毛线的根目录开头，即以： $ROOT-FOLDER、$CLIPPING-PATH 、$CATEGORY-PATH 或 $STORAGE-PATH 开头",
+    "error.invalid-json": "JSON 格式无效",
   };
   return { values: Object.assign({}, currValues, values) }
 });

@@ -52,10 +52,7 @@ function messageHandler(message, sender){
         break;
 
       case 'popup-menu.clip-command':
-        const msg = {
-          type: "clip-command",
-          body: Object.assign({}, message.body)
-        };
+        const msg = getClipCommandMsg(message.body.command);
         loadContentScriptsAndSendMsg(msg).then(resolve, reject);
         break;
 
@@ -141,6 +138,85 @@ function messageHandler(message, sender){
         break;
     }
   });
+}
+
+
+function executeCommand(command) {
+  const {exec, args = []} = command;
+  const fn = CommandFnDict[exec];
+  if (fn) {
+    fn(...args)
+    console.debug("execute: ", command);
+  } else {
+    console.debug("Couldn't find function to execute, name: ", exec);
+  }
+}
+
+
+function getBuiltinCommand(commandName) {
+  switch(commandName) {
+    case '_doNothing':
+      return {exec: 'doNothing'}
+    case '_clipAsDefault':
+      return {
+        exec: 'startClip',
+        args: [{badge: {text: null}}]
+      };
+    case '_clipAsHTML':
+      return {
+        exec: 'startClip',
+        args: [{badge: {text: 'H'}, config: {saveFormat: 'html'}}]
+      };
+    case '_clipAsMarkdown':
+      return {
+        exec: 'startClip',
+        args: [{badge: {text: 'M'}, config: {saveFormat: 'md'}}]
+      }
+    case '_openLastClipping':
+      return {exec: 'openLastClippingResult'}
+    default: break;
+  }
+
+  return null;
+}
+
+
+function getUserCommand(commandName, config) {
+  let userCommands = {};
+  try {
+    userCommands = JSON.parse(config.userCommandsText || '{}')
+  } catch(e) {
+    console.error("Invalid JSON(userCommandsText): ", config.userCommandsText);
+  }
+
+  const dict = userCommands || {};
+  return dict[commandName];
+}
+
+
+// TODO fixme
+function getClipCommandMsg(command) {
+  let clippingArgs = {};
+  switch(command) {
+    case 'clip-as-default':
+    case '_clipAsDefault':
+      clippingArgs = {badge: {text: null}};
+      break;
+    case 'clip-as-html':
+    case '_clipAsHTML':
+      clippingArgs = {badge: {text: 'H'}, config: {saveFormat: 'html'}};
+      break;
+    case 'clip-as-md':
+    case '_clipAsMarkdown':
+      clippingArgs = {badge: {text: 'M'}, config: {saveFormat: 'md'}};
+      break;
+    default:
+      clippingArgs = {badge: {text: null}};
+      break;
+  }
+
+  const msg = {type: "clip-command", body: [clippingArgs]};
+  return msg;
 }
 
 
@@ -346,22 +422,34 @@ function welcomeNewUser(){
     })
 }
 
-function commandListener(command) {
-  switch (command) {
-    case 'clip-as-default':
-    case 'clip-as-html':
-    case 'clip-as-md':
-      const msg = {type: "clip-command", body: {command}};
-      const handleError = (errMsg) => console.error(errMsg);
-      loadContentScriptsAndSendMsg(msg).then(
-        () => {}, handleError);
-      break;
-    case 'open-clipping':
-      openClipping();
-      break;
-    default: break;
+
+// browerCommandName --> userConfiguredCommandName --> {exec, args}
+async function commandListener(browserCommandName) {
+  console.debug("shortcutSlot: ", browserCommandName);
+  const m = browserCommandName.match(/^slot-(\d+)$/);
+  if (m) {
+    const config = await MxWcConfig.load();
+    const key = 'shortcutSlot' + m[1]
+    const commandName = config[key];
+    if (commandName) {
+      const command = (
+           getBuiltinCommand(commandName)
+        || getUserCommand(commandName, config)
+      );
+
+      if (command) {
+        executeCommand(command)
+      } else {
+        Log.debug("Couldn't find command with name: ", commandName);
+      }
+    } else {
+      Log.debug("Not command is configured with this slot", browserCommandName);
+    }
+  } else {
+    Log.debug("Please use one starts with 'slog-' instead, Deprecated: ", browserCommandName);
   }
 }
+
 
 async function loadContentScriptsAndSendMsg(msg) {
   const topFrameId = 0;
@@ -394,7 +482,19 @@ async function loadContentScriptsAndSendMsg(msg) {
 
 
 
-async function openClipping() {
+// ================ command functions ==================
+
+function doNothing() {}
+
+function startClip(...args) {
+  const msg = {type: "clip-command", body: args};
+  const handleError = (errMsg) => console.error(errMsg);
+  loadContentScriptsAndSendMsg(msg).then(
+    () => {}, handleError);
+}
+
+
+async function openLastClippingResult() {
   const lastClippingResult = await MxWcStorage.get('lastClippingResult');
   if (!lastClippingResult) { return; }
   const {url, failedTaskNum} = lastClippingResult;
@@ -419,6 +519,8 @@ async function openClipping() {
     ExtApi.createTab(pageUrl);
   }
 }
+
+const CommandFnDict = {doNothing, startClip, openLastClippingResult};
 
 
 function backupToFile(callback) {

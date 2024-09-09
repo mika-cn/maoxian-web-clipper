@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.12';
+const VERSION = '2.14';
 const state = {};
 
 /** WARNING
@@ -68,6 +68,20 @@ function getDefault(){
     rememberSelection: false,
 
     allowFileSchemeAccess: false,
+
+    shortcutSlot0: '_openLastClipping',
+    shortcutSlot1: '_clipAsDefault',
+    shortcutSlot2: '_clipAsHTML',
+    shortcutSlot3: '_clipAsMarkdown',
+    shortcutSlot4: '_doNothing',
+    shortcutSlot5: '_doNothing',
+    shortcutSlot6: '_doNothing',
+    shortcutSlot7: '_doNothing',
+    shortcutSlot8: '_doNothing',
+    shortcutSlot9: '_doNothing',
+
+    // {nameA: {exec, args}, nameB: {exec, args}}
+    userCommandsText: '{\n  "doNothing": {"exec": "doNothing"}\n}',
 
     //=====================================
     // Advanced
@@ -300,6 +314,7 @@ function update(k, v) {
   }
 }
 
+
 function reset() {
   return new Promise(function(resolve, _) {
     const defaultConfig = getDefault();
@@ -360,6 +375,19 @@ function isMigratable(config) {
   }
 }
 
+/*
+ * Only keep those api settable keys.
+ * WARNING: it'll return a new Object
+ */
+function filterAPISettableKeys(config = {}) {
+  const r = {}
+  for (const key in config) {
+    if (API_SETTABLE_KEYS.indexOf(key) > -1) {
+      r[key] = config[key];
+    }
+  }
+  return r;
+}
 
 // ======================================
 // validations
@@ -387,6 +415,16 @@ function validate(key, value, config) {
       case "htmlEmbedFilter":
       case "htmlObjectFilter":
       case "htmlWebFontFilterList":
+      case "shortcutSlot0":
+      case "shortcutSlot1":
+      case "shortcutSlot2":
+      case "shortcutSlot3":
+      case "shortcutSlot4":
+      case "shortcutSlot5":
+      case "shortcutSlot6":
+      case "shortcutSlot7":
+      case "shortcutSlot8":
+      case "shortcutSlot9":
         return shouldNotEmpty(value);
       case 'mainFileFolder':
       case 'assetFolder':
@@ -394,6 +432,8 @@ function validate(key, value, config) {
       case 'infoFileFolder':
       case 'titleFileFolder':
         return shouldStartsWithRootFolder(it.rootFolder, value);
+      case 'userCommandsText':
+        return validateAllFns([shouldNotEmpty, isValidJSON], value);
       default: {
         return {ok: true}
       }
@@ -401,6 +441,16 @@ function validate(key, value, config) {
   } else {
     throw new Error("MxWcConfig: must load config first or pass config as third argument");
   }
+}
+
+function validateAllFns(fns, value) {
+  for (const fn of fns) {
+    const r = fn(value)
+    if (!r.ok) {
+      return r;
+    }
+  }
+  return {ok: true}
 }
 
 function shouldNotEmpty(value) {
@@ -426,6 +476,16 @@ function shouldStartsWithRootFolder(rootFolder, value) {
   }
 }
 
+
+function isValidJSON(value) {
+  try {
+    JSON.parse(value);
+    return {ok: true}
+  } catch(e) {
+    return {ok: false, errI18n: "error.invalid-json"}
+  }
+}
+
 const Config = {
   defaultVersion: '0.0',
   version: VERSION,
@@ -437,6 +497,7 @@ const Config = {
   fixKeys: fixKeys,
   unsort: unsort,
   isMigratable: isMigratable,
+  filterAPISettableKeys: filterAPISettableKeys,
 }
 
 export default Config;
