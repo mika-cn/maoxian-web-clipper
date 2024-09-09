@@ -44,6 +44,12 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.13'] = function(config) {
+  config.version = '2.14';
+  config.userCommandsText = '{\n  "doNothing": {"exec": "doNothing"}\n}';
+  return config;
+}
+
 ConfigMigration['2.12'] = function(config) {
   config.version = '2.13';
   config.shortcutSlot0 = '_openLastClipping';

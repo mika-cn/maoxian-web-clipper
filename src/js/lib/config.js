@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.13';
+const VERSION = '2.14';
 const state = {};
 
 /** WARNING
@@ -79,6 +79,9 @@ function getDefault(){
     shortcutSlot7: '_doNothing',
     shortcutSlot8: '_doNothing',
     shortcutSlot9: '_doNothing',
+
+    // {nameA: {exec, args}, nameB: {exec, args}}
+    userCommandsText: '{\n  "doNothing": {"exec": "doNothing"}\n}',
 
     //=====================================
     // Advanced
@@ -311,6 +314,7 @@ function update(k, v) {
   }
 }
 
+
 function reset() {
   return new Promise(function(resolve, _) {
     const defaultConfig = getDefault();
@@ -411,6 +415,16 @@ function validate(key, value, config) {
       case "htmlEmbedFilter":
       case "htmlObjectFilter":
       case "htmlWebFontFilterList":
+      case "shortcutSlot0":
+      case "shortcutSlot1":
+      case "shortcutSlot2":
+      case "shortcutSlot3":
+      case "shortcutSlot4":
+      case "shortcutSlot5":
+      case "shortcutSlot6":
+      case "shortcutSlot7":
+      case "shortcutSlot8":
+      case "shortcutSlot9":
         return shouldNotEmpty(value);
       case 'mainFileFolder':
       case 'assetFolder':
@@ -418,6 +432,8 @@ function validate(key, value, config) {
       case 'infoFileFolder':
       case 'titleFileFolder':
         return shouldStartsWithRootFolder(it.rootFolder, value);
+      case 'userCommandsText':
+        return validateAllFns([shouldNotEmpty, isValidJSON], value);
       default: {
         return {ok: true}
       }
@@ -425,6 +441,16 @@ function validate(key, value, config) {
   } else {
     throw new Error("MxWcConfig: must load config first or pass config as third argument");
   }
+}
+
+function validateAllFns(fns, value) {
+  for (const fn of fns) {
+    const r = fn(value)
+    if (!r.ok) {
+      return r;
+    }
+  }
+  return {ok: true}
 }
 
 function shouldNotEmpty(value) {
@@ -447,6 +473,16 @@ function shouldStartsWithRootFolder(rootFolder, value) {
     return {ok: true}
   } else {
     return {ok: false, errI18n: "error.saving-folder-prefix"}
+  }
+}
+
+
+function isValidJSON(value) {
+  try {
+    JSON.parse(value);
+    return {ok: true}
+  } catch(e) {
+    return {ok: false, errI18n: "error.invalid-json"}
   }
 }
 
