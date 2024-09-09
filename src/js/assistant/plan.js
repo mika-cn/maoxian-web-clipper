@@ -46,20 +46,20 @@ function bindListener() {
 }
 
 function performWhenActived(e) {
-  const detail = {};
-  const tagFilter = getTagFilter(detail)
+  const msg = {};
+  const tagFilter = getTagFilter(msg)
   perform('actived', tagFilter);
 }
 
 function performWhenSelecting(e) {
-  const detail = MxWcEvent.getData(e);
-  const tagFilter = getTagFilter(detail)
+  const msg = MxWcEvent.getData(e);
+  const tagFilter = getTagFilter(msg)
   perform('selecting', tagFilter);
 }
 
 function performWhenIdle(e) {
-  const detail = MxWcEvent.getData(e);
-  const tagFilter = getTagFilter(detail)
+  const msg = MxWcEvent.getData(e);
+  const tagFilter = getTagFilter(msg)
   perform('idle', tagFilter);
 }
 
@@ -74,19 +74,42 @@ function performWhenIdle(e) {
  *  - html-only
  *  - md-only
  */
-function getTagFilter(detail) {
-  const tagFilter = {disabled: false}
-  if (detail.config) {
-    const {config} = detail;
-    if (config.saveFormat == 'html') {
-      tagFilter['html-only'] = true;
-    }
-    if (config.saveFormat == 'md') {
-      tagFilter['md-only'] = true;
-    }
+function getTagFilter(msg) {
+  const {config, extra = {}} = msg;
+  const {assistant = {}} = extra;
+
+  const defaultTagFilter = {disabled: false}
+  if (config && config.saveFormat == 'html') {
+    defaultTagFilter['html-only'] = true;
   }
+  if (config && config.saveFormat == 'md') {
+    defaultTagFilter['md-only'] = true;
+  }
+
+  let argsTagFilter = {};
+  if (assistant.tagStatus) {
+    argsTagFilter = tagStatus2TagFilter(assistant.tagStatus);
+  }
+
+  return Object.assign({}, defaultTagFilter, argsTagFilter);
+}
+
+
+function tagStatus2TagFilter(tagStatus) {
+  const parts = tagStatus.split(/\s*,\s*/);
+  const tagFilter = {};
+  parts.forEach((part) => {
+    const it = part.trim();
+    if (it.startsWith('!')) {
+      const tag = it.substring(1);
+      tagFilter[tag] = false;
+    } else {
+      tagFilter[it] = true;
+    }
+  });
   return tagFilter;
 }
+
 
 function perform(msgType, tagFilter) {
   const r = []; // store onetime actions

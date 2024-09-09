@@ -18,8 +18,8 @@ function resetClippingState() {
   // only apply to current clipping
   state.changedConfig = {};
   // Clipping arguments that trigger from menu, hotkey etc. has higest priority
-  // {badge, config}
-  state.clippingArgs = [];
+  // {badge, config, extra}
+  state.clippingArgs = {};
   YieldPoint.reset();
   // information of current clipping
   state.storageConfig = null;
@@ -584,9 +584,12 @@ function mergeChangedConfig(config) {
 }
 
 
-function getExposableConfig(config) {
+function getMxEventMsg(config) {
   const currConfig = mergeChangedConfig(config);
-  return T.sliceObj(currConfig, ['saveFormat'])
+  return {
+    config: T.sliceObj(currConfig, ['saveFormat']),
+    extra: state.clippingArgs.extra,
+  }
 }
 
 
@@ -682,7 +685,8 @@ function handleClipCommand(args) {
 /*
  * @param {Object} clippingArgs
  * @param {Object} clippingArgs.badge {text, textColor, backgroundColor}
- * @param {Object} clippingArgs.config
+ * @param {Object} clippingArgs.config {saveFormat}
+ * @param {Object} clippingArgs.extra {assistant}
  */
 function toggleClip(clippingArgs) {
   window.focus();
@@ -759,7 +763,7 @@ function run(){
           UI.setContentFn('submitted', formSubmitted);
           UI.setContentFn('hasYieldPoint', hasYieldPoint);
           UI.setContentFn('setCurrYieldPoint', setCurrYieldPoint);
-          UI.setContentFn('getExposableConfig', getExposableConfig);
+          UI.setContentFn('getMxEventMsg', getMxEventMsg)
           UI.setContentFn('loadAndMergeConfig', loadAndMergeConfig);
           initialize();
           listenMessage();
