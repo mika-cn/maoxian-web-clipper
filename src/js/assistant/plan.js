@@ -16,7 +16,12 @@ import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 import UrlEditor from './url-editor.js';
 
+let defaultTagStatus = "";
 let listeners = {}; // mxEventType => actions
+
+function setDefaultTagStatus(v) {
+  defaultTagStatus = v;
+}
 
 function appendAction(type, action) {
   const actions = getActions(type);
@@ -78,20 +83,24 @@ function getTagFilter(msg) {
   const {config, extra = {}} = msg;
   const {assistant = {}} = extra;
 
-  const defaultTagFilter = {disabled: false}
+  const builtinTagFilter = {disabled: false}
   if (config && config.saveFormat == 'html') {
-    defaultTagFilter['html-only'] = true;
+    builtinTagFilter['html-only'] = true;
   }
   if (config && config.saveFormat == 'md') {
-    defaultTagFilter['md-only'] = true;
+    builtinTagFilter['md-only'] = true;
   }
 
+  let defaultTagFilter = {};
   let argsTagFilter = {};
+
   if (assistant.tagStatus) {
     argsTagFilter = tagStatus2TagFilter(assistant.tagStatus);
+  } else if (defaultTagStatus) {
+    defaultTagFilter = tagStatus2TagFilter(defaultTagStatus);
   }
 
-  return Object.assign({}, defaultTagFilter, argsTagFilter);
+  return Object.assign({}, builtinTagFilter, defaultTagFilter, argsTagFilter);
 }
 
 
@@ -1515,6 +1524,6 @@ function applyGlobal(plan) {
 /* initialize */
 bindListener();
 
-const PublicApi = {apply, applyGlobal}
+const PublicApi = {setDefaultTagStatus, apply, applyGlobal}
 
 export default PublicApi;

@@ -1122,6 +1122,7 @@ const AssistantDefault = {
     + '\n]',
   exampleGlobalPlanText: '{\n  "name": "the global plan",\n  "disabled": true\n}',
   defaultIndexUrl: MxWcLink.get('assistant.subscription.default.index'),
+  defaultTagStatus: "",
 }
 
 function renderSectionAssistant(id, container, template) {
@@ -1141,6 +1142,9 @@ function renderSectionAssistant(id, container, template) {
       MxWcStorage.set('assistant.public-plan.subscription-urls', [AssistantDefault.defaultIndexUrl]);
     }
   });
+  MxWcStorage.get('assistant.default-tag-status', AssistantDefault.defaultTagStatus).then((value) => {
+    T.setElemValue('#default-tag-status', value)
+  });
   MxWcConfig.load().then((config) => {
     initSettingAssistant(config);
   });
@@ -1148,6 +1152,7 @@ function renderSectionAssistant(id, container, template) {
   bindClickListener('save-plan-subscription', savePlanSubscription);
   bindClickListener('save-custom-plan', saveCustomPlan);
   bindClickListener('save-global-plan', saveGlobalPlan);
+  bindClickListener('save-default-tag-status', saveDefaultTagStatus);
 }
 
 function renderSubscriptions() {
@@ -1256,6 +1261,15 @@ function saveGlobalPlan(e) {
     }
   } catch(e) {
     Notify.error(I18N.t('g.error.value-invalid'));
+  }
+}
+
+function saveDefaultTagStatus(e) {
+  const elem = T.findElem('default-tag-status');
+  if (elem) {
+    const defaultTagStatus = elem.value.trim();
+    MxWcStorage.set('assistant.default-tag-status', defaultTagStatus);
+    Notify.success(I18N.t('g.hint.saved'));
   }
 }
 
