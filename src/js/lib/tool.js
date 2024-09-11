@@ -322,32 +322,26 @@ T.bindOnce = function(elem, evt, fn, useCapture){
   }
 }
 
-// split tag string by space or comma.
-T.splitTagstr = function(str){
-  str = str.replace(/^[ ,，]+/, '');
-  str = str.replace(/[ ,，]+$/, '');
-  if(str.length === 0){
-    return [];
-  }else{
-    str = str.trim().replace(/[ ,，]+/g, ',');
-    const items = T.map(
-      str.split(","),
-      function(it){ return it.trim()}
-    );
-    return T.unique(items);
-  }
+T.splitStrBySpaceOrComma = function(str) {
+  const seperateChars = "\\s,，";
+  return T.splitStrBySepChars(str, seperateChars);
 }
 
-// split keywork string by comma.
-T.splitKeywordStr = function(str) {
-  str = str.replace(/^[ ,，]+/, '');
-  str = str.replace(/[ ,，]+$/, '');
+T.splitStrByComma = function(str) {
+  const seperateChars = ",，";
+  return T.splitStrBySepChars(str, seperateChars);
+}
+
+T.splitStrBySepChars = function (inputStr, sepChars) {
+  const headRegExp = new RegExp(`^[\\s${sepChars}]+`);
+  const tailRegExp = new RegExp(`[\\s${sepChars}]+$`);
+  // trim two ends
+  const str = inputStr.replace(headRegExp).replace(tailRegExp);
   if (str.length === 0) {
     return [];
   } else {
-    str = str.trim().replace(/[,，]+/g, ',');
     const items = T.map(
-      str.split(","),
+      str.split(new RegExp(`[${sepChars}]+`, 'g')),
       function(it){ return it.trim()}
     );
     return T.unique(items);

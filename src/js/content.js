@@ -621,7 +621,7 @@ function getPageMetas() {
       const metaValue = (it.content || "");
       dict[prefix + metaName] = metaValue
       if (metaName == 'keywords') {
-        metaKeywords = T.splitKeywordStr(metaValue);
+        metaKeywords = T.splitStrByComma(metaValue);
       }
     }
   });
