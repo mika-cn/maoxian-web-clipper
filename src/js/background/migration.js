@@ -366,7 +366,7 @@ async function moveOldShortcutToSlot() {
       default: break;
     }
 
-    if (targetSlot) {
+    if (targetSlot && shortcut) {
       // move old shortcut to slot
       await ExtApi.updateCommand({
         name: targetSlot,

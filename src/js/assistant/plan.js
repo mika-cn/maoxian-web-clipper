@@ -105,7 +105,7 @@ function getTagFilter(msg) {
 
 
 function tagStatus2TagFilter(tagStatus) {
-  const parts = tagStatus.split(/\s*,\s*/);
+  const parts = T.splitStrByComma(tagStatus);
   const tagFilter = {};
   parts.forEach((part) => {
     const it = part.trim();

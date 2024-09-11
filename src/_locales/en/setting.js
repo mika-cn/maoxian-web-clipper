@@ -35,7 +35,7 @@
     "title.subscription.detail": "Detail",
     "title.custom-plan": "Custom plan",
     "title.global-plan": "Global plan",
-    "title.default-tag-status": "Default tagStatus",
+    "title.default-tag-status": "Default Tag Status",
     "title.user-script": "User Script",
     "title.user-scripts": "User Scripts",
     "title.user-script.name": "Name",
@@ -318,7 +318,7 @@
     "notice.edit-subscription": "Using input field below to edit your subscriptions. Using line break to separate subscription. Any line begin with <code>#</code> will be treated as comment. <br /><br /><strong>Notice:</strong><br />1. The default subscription url that provided by extension hasn't download yet, If you are first time to using this function, click \"Update Now\" button to download it. <br />2. Click \"Save\" button won't trigger any download. So after your subscriptions saved, you should click \"Update Now\" or enable \"auto update\" to download it<br /><br />See <a href='go.page:public-subscriptions' target='_blank'>this page</a> for more subscriptions.",
     "notice.custom-plan-intro": 'Custom Plans are written by you (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>). This list has higher priority than public plans.',
     "notice.global-plan-intro": 'The Global Plan will be applied to every web pages (<a href="go.page:how-to-write-a-plan" target="_blank">Learn how to write a plan</a>).',
-    "notice.default-tag-status": 'The default tagStatus decide which actions will performed by default.<br><ul><li>If you want to active a tag, just write down it\'s tag name, such as <code>tagA</code></li><li>If you want to deactive a tag, just write <code>!</code> and tag name together, such as <code>!tagB</code></li><li>You can concat multiple tag status with <code>,</code>, such as <code>tagA, !tagB</code></li></ul>',
+    "notice.default-tag-status": 'The default tag Status decide which actions will be performed by default.<br><ul><li>If you want to active a tag, just write down it\'s tag name, such as <code>tagA</code></li><li>If you want to deactive a tag, just write <code>!</code> and tag name together, such as <code>!tagB</code></li><li>You can concat multiple tag status with commas<code>,</code>, such as <code>tagA, !tagB</code></li></ul>',
     "notice.request-cache": 'Currently, only Firefox supports request cache.',
     "notice.request-cache-applying": "<strong>Warning:</strong><br />The settings of cache will only be applied after you restart the browser.",
 

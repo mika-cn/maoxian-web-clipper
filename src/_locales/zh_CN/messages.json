@@ -14,25 +14,11 @@
     "description": "Tooltip for the icon, displayed when the user moves their mouse over it."
   },
 
-  "commandClipAsDefault": {
+  "commandDeprecated": {
     "message": "已弃用，请勿使用",
     "description": "快捷键提示语"
   },
 
-  "commandClipAsHtml": {
-    "message": "已弃用，请勿使用",
-    "description": "快捷键提示语"
-  },
-
-  "commandClipAsMd": {
-    "message": "已弃用，请勿使用",
-    "description": "快捷键提示语"
-  },
-
-  "commandOpenClipping": {
-    "message": "已弃用，请勿使用",
-    "description": "快捷键提示语"
-  },
   "shortcutSlot0": {
     "message": "插槽 0",
     "description": "快捷键提示语"

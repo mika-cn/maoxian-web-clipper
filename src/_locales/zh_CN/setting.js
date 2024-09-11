@@ -34,7 +34,7 @@
     "title.subscription.detail": "详情",
     "title.custom-plan": "自定义「计划」",
     "title.global-plan": "全局「计划」",
-    "title.default-tag-status": "默认的 tagStatus",
+    "title.default-tag-status": "默认的标签状态（tagStatus）",
     "title.user-script": "用户脚本",
     "title.user-scripts": "已添加脚本",
     "title.user-script.name": "名字",
@@ -314,7 +314,7 @@
     "notice.edit-subscription": "通过下方文本框编辑订阅信息，你可以使用「换行符」分隔多个订阅网址，任何使用 <code>#</code>开头的行将被视为注释。<br /><br /><strong>注意：</strong><br /> 1. 扩展提供的默认订阅网址，是没有拉取订阅信息的。如果你是第一次使用该功能，请点击「更新按钮」进行拉取。<br />2. 点击「保存按钮」并不会拉取订阅信息。你应该在保存成功后，通过点击「更新按钮」或者勾选「自动更新复选框」来拉取订阅信息。<br /><br /><a href='go.page:public-subscriptions' target='_blank'>查看可订阅列表</a>",
     "notice.custom-plan-intro": '由你编写的「计划」（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>），自定义「计划」比公开的「计划」拥有更高的优先级',
     "notice.global-plan-intro": '全局「计划」可以应用到所有的网页（ <a href="go.page:how-to-write-a-plan" target="_blank">了解如何编写「计划」</a>）。',
-    "notice.default-tag-status": '默认 tagStatus 的值决定了在默认情况下，毛线助手 Plan 里面定义的动作，哪些会被执行<br><ul><li>如果你想要描述一个标签是激活的，直接写下它的名字，如：<code>tagA</code></li><li>如果你要描述一个标签是不激活的，使用<code>!</code>加上标签的名字，如：<code>!tagB</code></li><li>你可以使用<code>,</code>把多个标签状态连起来，如：<code>tagA, !tagB</code></li></ul>',
+    "notice.default-tag-status": '默认标签状态（tagStatus）的值决定了在默认情况下，毛线助手 Plan 里面定义的动作，哪些会被执行<br><ul><li>如果你想要描述一个标签是激活的，直接写下它的名字，如：<code>tagA</code></li><li>如果你要描述一个标签是不激活的，使用<code>!</code>加上标签的名字，如：<code>!tagB</code></li><li>你可以使用逗号<code>,</code>把多个标签状态连起来，如：<code>tagA, !tagB</code></li></ul>',
     "notice.request-cache": '目前，只有 Firefox 支持缓存 HTTP 请求。',
     "notice.request-cache-applying": "<strong>警告:</strong><br /> 有关 HTTP 请求缓存的设置，需要重启浏览器才生效。",
 
