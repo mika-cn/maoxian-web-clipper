@@ -16,7 +16,12 @@ import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 import UrlEditor from './url-editor.js';
 
+let defaultTagStatus = "";
 let listeners = {}; // mxEventType => actions
+
+function setDefaultTagStatus(v) {
+  defaultTagStatus = v;
+}
 
 function appendAction(type, action) {
   const actions = getActions(type);
@@ -46,20 +51,20 @@ function bindListener() {
 }
 
 function performWhenActived(e) {
-  const detail = {};
-  const tagFilter = getTagFilter(detail)
+  const msg = MxWcEvent.getData(e);
+  const tagFilter = getTagFilter(msg)
   perform('actived', tagFilter);
 }
 
 function performWhenSelecting(e) {
-  const detail = MxWcEvent.getData(e);
-  const tagFilter = getTagFilter(detail)
+  const msg = MxWcEvent.getData(e);
+  const tagFilter = getTagFilter(msg)
   perform('selecting', tagFilter);
 }
 
 function performWhenIdle(e) {
-  const detail = MxWcEvent.getData(e);
-  const tagFilter = getTagFilter(detail)
+  const msg = MxWcEvent.getData(e);
+  const tagFilter = getTagFilter(msg)
   perform('idle', tagFilter);
 }
 
@@ -74,19 +79,46 @@ function performWhenIdle(e) {
  *  - html-only
  *  - md-only
  */
-function getTagFilter(detail) {
-  const tagFilter = {disabled: false}
-  if (detail.config) {
-    const {config} = detail;
-    if (config.saveFormat == 'html') {
-      tagFilter['html-only'] = true;
-    }
-    if (config.saveFormat == 'md') {
-      tagFilter['md-only'] = true;
-    }
+function getTagFilter(msg) {
+  const {config, extra = {}} = msg;
+  const {assistant = {}} = extra;
+
+  const builtinTagFilter = {disabled: false}
+  if (config && config.saveFormat == 'html') {
+    builtinTagFilter['html-only'] = true;
   }
+  if (config && config.saveFormat == 'md') {
+    builtinTagFilter['md-only'] = true;
+  }
+
+  let defaultTagFilter = {};
+  let argsTagFilter = {};
+
+  if (assistant.tagStatus) {
+    argsTagFilter = tagStatus2TagFilter(assistant.tagStatus);
+  } else if (defaultTagStatus) {
+    defaultTagFilter = tagStatus2TagFilter(defaultTagStatus);
+  }
+
+  return Object.assign({}, builtinTagFilter, defaultTagFilter, argsTagFilter);
+}
+
+
+function tagStatus2TagFilter(tagStatus) {
+  const parts = T.splitStrByComma(tagStatus);
+  const tagFilter = {};
+  parts.forEach((part) => {
+    const it = part.trim();
+    if (it.startsWith('!')) {
+      const tag = it.substring(1);
+      tagFilter[tag] = false;
+    } else {
+      tagFilter[it] = true;
+    }
+  });
   return tagFilter;
 }
+
 
 function perform(msgType, tagFilter) {
   const r = []; // store onetime actions
@@ -1492,6 +1524,6 @@ function applyGlobal(plan) {
 /* initialize */
 bindListener();
 
-const PublicApi = {apply, applyGlobal}
+const PublicApi = {setDefaultTagStatus, apply, applyGlobal}
 
 export default PublicApi;

@@ -371,13 +371,13 @@ function hideForm(){
 function setStateIdle(){
   state.clippingState = 'idle';
   sendFrameMsgToControl('setStateIdle');
-  const msg = {config: state.contentFn.getExposableConfig(state.config)};
+  const msg = state.contentFn.getMxEventMsg(state.config);
   dispatchMxEvent('idle', msg);
 }
 function setStateSelecting(){
   const fromState = state.clippingState;
   state.clippingState = 'selecting';
-  const msg = {config: state.contentFn.getExposableConfig(state.config)};
+  const msg = state.contentFn.getMxEventMsg(state.config);
   sendFrameMsgToControl('setStateSelecting');
   if (fromState == 'idle') { dispatchMxEvent('selecting', msg) }
 }
@@ -387,7 +387,7 @@ function setStateSelected(){
 }
 function setStateConfirmed(elem){
   state.clippingState = 'confirmed';
-  const msg = {config: state.contentFn.getExposableConfig(state.config)};
+  const msg = state.contentFn.getMxEventMsg(state.config);
   sendFrameMsgToControl('setStateConfirmed');
   try {
     const selector = getCssSelector(elem);

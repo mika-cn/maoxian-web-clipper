@@ -3,6 +3,7 @@
 import Log          from '../js/lib/log.js';
 import T            from '../js/lib/tool.js';
 import I18N         from '../js/lib/translation.js';
+import ExtApi       from '../js/lib/ext-api.js';
 import ExtMsg       from '../js/lib/ext-msg.js';
 import MxWcStorage  from '../js/lib/storage.js';
 import MxWcConfig   from '../js/lib/config.js';
@@ -365,6 +366,54 @@ function initOfflinePage(config) {
   initTextInput(config,
     'clipping-js-path',
     'clippingJsPath'
+  );
+}
+
+function initSettingUserCommand(config) {
+  initTextInput(config,
+    'user-commands-text',
+    'userCommandsText'
+  );
+
+  initTextInput(config,
+    'shortcut-slot0',
+    'shortcutSlot0'
+  );
+  initTextInput(config,
+    'shortcut-slot1',
+    'shortcutSlot1'
+  );
+  initTextInput(config,
+    'shortcut-slot2',
+    'shortcutSlot2'
+  );
+  initTextInput(config,
+    'shortcut-slot3',
+    'shortcutSlot3'
+  );
+  initTextInput(config,
+    'shortcut-slot4',
+    'shortcutSlot4'
+  );
+  initTextInput(config,
+    'shortcut-slot5',
+    'shortcutSlot5'
+  );
+  initTextInput(config,
+    'shortcut-slot6',
+    'shortcutSlot6'
+  );
+  initTextInput(config,
+    'shortcut-slot7',
+    'shortcutSlot7'
+  );
+  initTextInput(config,
+    'shortcut-slot8',
+    'shortcutSlot8'
+  );
+  initTextInput(config,
+    'shortcut-slot9',
+    'shortcutSlot9'
   );
 }
 
@@ -959,6 +1008,9 @@ function renderSection(id) {
     case 'setting-user-script':
       render = renderSectionUserScript;
       break;
+    case 'setting-user-command':
+      render = renderSectionUserCommand;
+      break;
     case 'setting-handler-browser':
       render = renderSectionHandlerBrowser;
       break;
@@ -1070,6 +1122,7 @@ const AssistantDefault = {
     + '\n]',
   exampleGlobalPlanText: '{\n  "name": "the global plan",\n  "disabled": true\n}',
   defaultIndexUrl: MxWcLink.get('assistant.subscription.default.index'),
+  defaultTagStatus: "",
 }
 
 function renderSectionAssistant(id, container, template) {
@@ -1089,6 +1142,9 @@ function renderSectionAssistant(id, container, template) {
       MxWcStorage.set('assistant.public-plan.subscription-urls', [AssistantDefault.defaultIndexUrl]);
     }
   });
+  MxWcStorage.get('assistant.default-tag-status', AssistantDefault.defaultTagStatus).then((value) => {
+    T.setElemValue('#default-tag-status', value)
+  });
   MxWcConfig.load().then((config) => {
     initSettingAssistant(config);
   });
@@ -1096,6 +1152,7 @@ function renderSectionAssistant(id, container, template) {
   bindClickListener('save-plan-subscription', savePlanSubscription);
   bindClickListener('save-custom-plan', saveCustomPlan);
   bindClickListener('save-global-plan', saveGlobalPlan);
+  bindClickListener('save-default-tag-status', saveDefaultTagStatus);
 }
 
 function renderSubscriptions() {
@@ -1207,6 +1264,15 @@ function saveGlobalPlan(e) {
   }
 }
 
+function saveDefaultTagStatus(e) {
+  const elem = T.findElem('default-tag-status');
+  if (elem) {
+    const defaultTagStatus = elem.value.trim();
+    MxWcStorage.set('assistant.default-tag-status', defaultTagStatus);
+    Notify.success(I18N.t('g.hint.saved'));
+  }
+}
+
 function saveCustomPlan(e) {
   const elem = T.findElem('custom-plans');
   try {
@@ -1301,6 +1367,31 @@ function renderUserScripts() {
   });
 }
 
+function renderSectionUserCommand(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  MxWcConfig.load().then((config) => {
+    initSettingUserCommand(config);
+  });
+  renderShortcutSlotKey();
+}
+
+function renderShortcutSlotKey() {
+  ExtApi.getAllCommands().then((commands) => {
+    commands.forEach((command) => {
+      if (command.shortcut) {
+        const m = command.name.match(/^slot-(\d+)$/);
+        if (m) {
+          const id = `shortcut-slot${m[1]}-key`;
+          const elem = T.findElem(id);
+          if (elem) {
+            elem.innerText = I18N.t('title.shortcut.binded') + ": " + command.shortcut;
+          }
+        }
+      }
+    });
+  });
+}
 
 function renderSectionHandlerBrowser(id, container, template) {
   const html = template;

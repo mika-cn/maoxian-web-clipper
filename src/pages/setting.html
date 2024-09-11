@@ -20,6 +20,7 @@
           <a class="menu" href="#setting-markdown" i18n="title.markdown"></a>
           <a class="menu" href="#setting-assistant" i18n="title.assistant"></a>
           <a class="menu" href="#setting-user-script" i18n="title.user-script"></a>
+          <a class="menu" href="#setting-user-command" i18n="title.user-command"></a>
           <a class="menu" href="#setting-advanced" i18n="title.advanced"></a>
           <hr />
           <a class="menu" href="#setting-offline-page" i18n="title.offline-page"></a>
@@ -632,6 +633,15 @@ const hello = () =&gt; {
           <br />
           <button id="save-global-plan" i18n="button.save"></button>
         </div>
+
+        <div class="tag-status">
+          <h3 i18n="title.default-tag-status"></h3>
+          <div class="notice-info" i18n="notice.default-tag-status"></div>
+          <input type="text", id="default-tag-status" />
+          <br>
+          <button id="save-default-tag-status" i18n="button.save"></button>
+        </div>
+
       </section>
     </template>
     <template id="subscription-tpl">
@@ -679,6 +689,112 @@ const hello = () =&gt; {
         <td>${description}</td>
         <td><a href="go.page:extPage.user-script?name=${name}" target="_blank" i18n="title.user-script.details"></a></td>
       </tr>
+    </template>
+
+    <template id="section-setting-user-command-tpl">
+      <section id="setting-user-command">
+        <h2 class="center" i18n="title.user-command"></h2>
+        <h3 i18n="title.user-commands"></h3>
+        <div class="input-group">
+          <div class="notice-info" i18n="notice.user-commands"></div>
+          <textarea id="user-commands-text" i18n-attr="placeholder:placeholder.notblank"></textarea>
+        </div>
+
+        <h3 i18n="title.builtin-commands"></h3>
+        <table>
+          <thead>
+            <tr>
+              <th i18n="title.command.name"></th>
+              <th i18n="title.command.description"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>_doNothing</td>
+              <td><label i18n="label.builtin-command.do-nothing"></label></td>
+            </tr>
+            <tr>
+              <td>_openLastClipping</td>
+              <td><label i18n="label.builtin-command.open-last-clipping"></label></td>
+            </tr>
+            <tr>
+              <td>_clipAsDefault</td>
+              <td><label i18n="label.builtin-command.clip-as-default"></label></td>
+            </tr>
+            <tr>
+              <td>_clipAsHTML</td>
+              <td><label i18n="label.builtin-command.clip-as-html"></label></td>
+            </tr>
+            <tr>
+              <td>_clipAsMarkdown</td>
+              <td><label i18n="label.builtin-command.clip-as-markdown"></label></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 i18n="title.shortcuts"></h3>
+        <div class="notice-info" i18n="notice.shortcuts"></div>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot0"></legend>
+          <label id="shortcut-slot0-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot0" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot1"></legend>
+          <label id="shortcut-slot1-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot1" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot2"></legend>
+          <label id="shortcut-slot2-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot2" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot3"></legend>
+          <label id="shortcut-slot3-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot3" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot4"></legend>
+          <label id="shortcut-slot4-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot4" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot5"></legend>
+          <label id="shortcut-slot5-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot5" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot6"></legend>
+          <label id="shortcut-slot6-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot6" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot7"></legend>
+          <label id="shortcut-slot7-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot7" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot8"></legend>
+          <label id="shortcut-slot8-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot8" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+        <fieldset class="input-group">
+          <legend i18n="title.shortcut-slot9"></legend>
+          <label id="shortcut-slot9-key" i18n="title.shortcut.none"></label>
+          <br><label i18n="title.shortcut.command"></label>:
+          <input type="text" id="shortcut-slot9" i18n-attr="placeholder:placeholder.notblank"/>
+        </fieldset>
+      </section>
     </template>
 
 

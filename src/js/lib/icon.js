@@ -8,10 +8,10 @@ MxWcIcon.setTitle = (title) => {
   browser.browserAction.setTitle({title})
 }
 
-MxWcIcon.showTabBadge = (tabId, text) => {
+MxWcIcon.showTabBadge = (tabId, {text = null, textColor = 'white', backgroundColor = 'green'}) => {
   browser.browserAction.setBadgeText({tabId, text});
-  browser.browserAction.setBadgeTextColor({tabId, color: "white"});
-  browser.browserAction.setBadgeBackgroundColor({tabId, color: "green"});
+  browser.browserAction.setBadgeTextColor({tabId, color: textColor});
+  browser.browserAction.setBadgeBackgroundColor({tabId, color: backgroundColor});
 }
 
 MxWcIcon.hideTabBadge = (tabId) => {

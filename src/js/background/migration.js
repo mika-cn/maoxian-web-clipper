@@ -4,6 +4,7 @@ import ENV         from '../env.js';
 import T           from '../lib/tool.js';
 import MxWcStorage from '../lib/storage.js';
 import MxWcConfig  from '../lib/config.js';
+import ExtApi      from '../lib/ext-api.js';
 
 async function perform() {
   await migrateOldVersion();
@@ -18,6 +19,9 @@ async function migrate() {
 
   // migrate clippings
   await migrateClippings();
+
+  // migrate commands
+  await migrateCommands();
 
 }
 
@@ -39,6 +43,27 @@ function migrateConfig(config, fromConfig = {}) {
 }
 
 const ConfigMigration = {};
+
+ConfigMigration['2.13'] = function(config) {
+  config.version = '2.14';
+  config.userCommandsText = '{\n  "doNothing": {"exec": "doNothing"}\n}';
+  return config;
+}
+
+ConfigMigration['2.12'] = function(config) {
+  config.version = '2.13';
+  config.shortcutSlot0 = '_openLastClipping';
+  config.shortcutSlot1 = '_clipAsDefault';
+  config.shortcutSlot2 = '_clipAsHTML';
+  config.shortcutSlot3 = '_clipAsMarkdown';
+  config.shortcutSlot4 = '_doNothing';
+  config.shortcutSlot5 = '_doNothing';
+  config.shortcutSlot6 = '_doNothing';
+  config.shortcutSlot7 = '_doNothing';
+  config.shortcutSlot8 = '_doNothing';
+  config.shortcutSlot9 = '_doNothing';
+  return config;
+}
 
 ConfigMigration['2.11'] = function(config) {
   config.version = '2.12';
@@ -299,6 +324,67 @@ async function deleteClippingPaths() {
 }
 
 // =====================================================
+
+async function migrateCommands() {
+  await moveOldShortcutToSlot();
+}
+
+async function moveOldShortcutToSlot() {
+  const key = 'mx-wc-command-migrated-move-old-shortcut-to-slot'
+  const isMigrated = await MxWcStorage.get(key, false);
+  if (isMigrated) {
+    console.info(key);
+    return;
+  }
+
+  const commands = await ExtApi.getAllCommands();
+
+  for (const command of commands) {
+
+    let targetSlot, shortcut;
+    switch(command.name) {
+      case 'open-clipping': {
+        targetSlot = "slot-0";
+        shortcut = command.shortcut;
+        break;
+      }
+      case 'clip-as-default': {
+        targetSlot = "slot-1";
+        shortcut = command.shortcut;
+        break;
+      }
+      case 'clip-as-html': {
+        targetSlot = "slot-2";
+        shortcut = command.shortcut;
+        break;
+      }
+      case 'clip-as-md': {
+        targetSlot = "slot-3";
+        shortcut = command.shortcut;
+        break;
+      }
+      default: break;
+    }
+
+    if (targetSlot && shortcut) {
+      // move old shortcut to slot
+      await ExtApi.updateCommand({
+        name: targetSlot,
+        shortcut: shortcut
+      });
+      // unset old shortcut
+      await ExtApi.updateCommand({
+        name: command.name,
+        shortcut: ""
+      });
+    }
+  }
+
+  await MxWcStorage.set(key, true);
+}
+
+// =====================================================
+
 
 async function migrateOldVersion() {
   await migrateV0134();

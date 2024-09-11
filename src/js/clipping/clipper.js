@@ -173,7 +173,7 @@ function dealFormInputs({title, category, tagstr}, config) {
 
   if (title === "") { title = 'Untitled' }
   const format = (config.saveFormat || 'html');
-  const tags = T.splitTagstr(tagstr);
+  const tags = T.splitStrBySpaceOrComma(tagstr);
 
   return {format, title, category, tags}
 }

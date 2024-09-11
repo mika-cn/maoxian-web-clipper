@@ -14,23 +14,49 @@
     "description": "Tooltip for the icon, displayed when the user moves their mouse over it."
   },
 
-  "commandClipAsDefault": {
-    "message": "裁剪为默认格式",
+  "commandDeprecated": {
+    "message": "已弃用，请勿使用",
     "description": "快捷键提示语"
   },
 
-  "commandClipAsHtml": {
-    "message": "裁剪为 HTML 格式",
+  "shortcutSlot0": {
+    "message": "插槽 0",
     "description": "快捷键提示语"
   },
-
-  "commandClipAsMd": {
-    "message": "裁剪为 Markdown 格式",
+  "shortcutSlot1": {
+    "message": "插槽 1",
     "description": "快捷键提示语"
   },
-
-  "commandOpenClipping": {
-    "message": "查看裁剪结果",
+  "shortcutSlot2": {
+    "message": "插槽 2",
+    "description": "快捷键提示语"
+  },
+  "shortcutSlot3": {
+    "message": "插槽 3",
+    "description": "快捷键提示语"
+  },
+  "shortcutSlot4": {
+    "message": "插槽 4",
+    "description": "快捷键提示语"
+  },
+  "shortcutSlot5": {
+    "message": "插槽 5",
+    "description": "快捷键提示语"
+  },
+  "shortcutSlot6": {
+    "message": "插槽 6",
+    "description": "快捷键提示语"
+  },
+  "shortcutSlot7": {
+    "message": "插槽 7",
+    "description": "快捷键提示语"
+  },
+  "shortcutSlot8": {
+    "message": "插槽 8",
+    "description": "快捷键提示语"
+  },
+  "shortcutSlot9": {
+    "message": "插槽 9",
     "description": "快捷键提示语"
   }
 }

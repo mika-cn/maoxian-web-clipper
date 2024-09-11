@@ -10,6 +10,9 @@ import Storage      from '../lib/storage.js';
 /**!
  * Storage keys:
  *
+ *   assistant.default-tag-status
+ *     {String} tagStatus
+ *
  *   assistant.global-plan.text
  *     {String} content that written by user.
  *
@@ -58,14 +61,20 @@ function initPublicPlanPointers() {
 }
 
 async function get(url) {
+  const defaultTagStatus = await getDefaultTagStatus();
   const globalPlan = await getGlobalPlan();
   const pagePlan = await getPagePlan(url);
-  return {globalPlan, pagePlan};
+  return {globalPlan, pagePlan, defaultTagStatus};
 }
 
 
 
 const DEFAULT_GLOBAL_PLAN = {name: 'the global plan', disabled: true};
+
+
+async function getDefaultTagStatus() {
+  return await Storage.get('assistant.default-tag-status', "");
+}
 
 async function getGlobalPlan() {
   if (!state.globalPlan) {

@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "default_locale": "en",
   "web_accessible_resources": [
     "pages/*",
@@ -37,30 +37,20 @@
     "page": "pages/background.html"
   },
   "commands": {
-    "clip-as-default": {
-      "suggested_key": {
-        "default": "Shift+Alt+C"
-      },
-      "description": "__MSG_commandClipAsDefault__"
-    },
-    "clip-as-html": {
-      "suggested_key": {
-        "default": "Shift+Alt+H"
-      },
-      "description": "__MSG_commandClipAsHtml__"
-    },
-    "clip-as-md": {
-      "suggested_key": {
-        "default": "Shift+Alt+M"
-      },
-      "description": "__MSG_commandClipAsMd__"
-    },
-    "open-clipping": {
-      "suggested_key": {
-        "default": "Shift+Alt+O"
-      },
-      "description": "__MSG_commandOpenClipping__"
-    }
+    "slot-0": { "description": "__MSG_shortcutSlot0__", "suggested_key": {"default": "Shift+Alt+O"}},
+    "slot-1": { "description": "__MSG_shortcutSlot1__", "suggested_key": {"default": "Shift+Alt+C"}},
+    "slot-2": { "description": "__MSG_shortcutSlot2__", "suggested_key": {"default": "Shift+Alt+H"}},
+    "slot-3": { "description": "__MSG_shortcutSlot3__", "suggested_key": {"default": "Shift+Alt+M"}},
+    "slot-4": { "description": "__MSG_shortcutSlot4__"},
+    "slot-5": { "description": "__MSG_shortcutSlot5__"},
+    "slot-6": { "description": "__MSG_shortcutSlot6__"},
+    "slot-7": { "description": "__MSG_shortcutSlot7__"},
+    "slot-8": { "description": "__MSG_shortcutSlot8__"},
+    "slot-9": { "description": "__MSG_shortcutSlot9__"},
+    "clip-as-default" : { "description" : "__MSG_commandDeprecated__" },
+    "clip-as-html"    : { "description" : "__MSG_commandDeprecated__" },
+    "clip-as-md"      : { "description" : "__MSG_commandDeprecated__" },
+    "open-clipping"   : { "description" : "__MSG_commandDeprecated__" }
   },
   "icons": {
     "16": "icons/mx-wc-16.png",

@@ -84,7 +84,8 @@ function listenInternalEvent(isTopFrame) {
 
 
 function init() {
-  getPlan().then(({globalPlan, pagePlan}) => {
+  getPlan().then(({defaultTagStatus, globalPlan, pagePlan}) => {
+    Plan.setDefaultTagStatus(defaultTagStatus);
     if (globalPlan) {
       if (globalPlan.disabled) {
         Log.debug("The global plan is disabled");
