@@ -146,9 +146,9 @@ function executeCommand(command) {
   const fn = CommandFnDict[exec];
   if (fn) {
     fn(...args)
-    console.debug("execute: ", command);
+    Log.debug("execute: ", command);
   } else {
-    console.debug("Couldn't find function to execute, name: ", exec);
+    Log.debug("Couldn't find function to execute, name: ", exec);
   }
 }
 
@@ -186,7 +186,7 @@ function getUserCommand(commandName, config) {
   try {
     userCommands = JSON.parse(config.userCommandsText || '{}')
   } catch(e) {
-    console.error("Invalid JSON(userCommandsText): ", config.userCommandsText);
+    Log.error("Invalid JSON(userCommandsText): ", config.userCommandsText);
   }
 
   const dict = userCommands || {};
@@ -425,7 +425,7 @@ function welcomeNewUser(){
 
 // browerCommandName --> userConfiguredCommandName --> {exec, args}
 async function commandListener(browserCommandName) {
-  console.debug("shortcutSlot: ", browserCommandName);
+  Log.debug("shortcutSlot: ", browserCommandName);
   const m = browserCommandName.match(/^slot-(\d+)$/);
   if (m) {
     const config = await MxWcConfig.load();
