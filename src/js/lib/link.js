@@ -7,7 +7,9 @@ import ExtMsg from './ext-msg.js';
 const extensionRoot = ExtApi.getURL('/');
 const extensionId = extensionRoot.split('//')[1].replace('/', '');
 const {websiteRoot, projectRoot, mxAssistantRoot} = ENV;
-const remotePaths = {
+
+// Paths that is not packed with extension (project, website etc.)
+const externalPaths = {
   "en": {
     "home": "/index.html",
     "faq": "/faq.html",
@@ -17,7 +19,7 @@ const remotePaths = {
     "assistant": "/assistant/index.html",
     "native-app": "/native-app/index.html",
     "offline-page": "/offline-page/index.html",
-    "how-to-write-a-plan": "/assistant/index.html#how-to-write-a-plan",
+    "how-to-write-a-plan": "/assistant/how-to-write-a-plan-zh-CN.html",
     "public-subscriptions": "/assistant/index.html#public-subscriptions",
     "execute-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#action-exec",
     "write-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#user-script",
@@ -35,7 +37,7 @@ const remotePaths = {
     "assistant": "/assistant/index-zh-CN.html",
     "native-app": "/native-app/index-zh-CN.html",
     "offline-page": "/offline-page/index-zh-CN.html",
-    "how-to-write-a-plan": "/assistant/index-zh-CN.html#how-to-write-a-plan",
+    "how-to-write-a-plan": "/assistant/how-to-write-a-plan-zh-CN.html",
     "public-subscriptions": "/assistant/index-zh-CN.html#public-subscriptions",
     "execute-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#action-exec",
     "write-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#user-script",
@@ -48,8 +50,8 @@ const remotePaths = {
 
 /*
  * @param {String} exp
- *   extension => extPage.$name
- *   remote    => $name
+ *   extPage.$name - extension page
+ *   $name         - external page's name
  * @example:
  *   get('extPage.setting#hello');
  */
@@ -59,19 +61,19 @@ function get(exp) {
   if (pageName.startsWith('extPage.')) {
     pageLink = getExtensionPageLink(pageName);
   } else {
-    pageLink = getRemoteLink(pageName);
+    pageLink = getExternalPageLink(pageName);
   }
   return exp.replace(pageName, pageLink);
 }
 
 /*
  * @param {String} pageName
- *   projectPage => project.$name
- *   website => $name
+ *   project.$name  - project page's name
+ *   $name          - website page's name
  */
-function getRemoteLink(pageName){
-  let dict = remotePaths[ExtApi.getLocale()];
-  if (!dict) { dict = remotePaths['en'] }
+function getExternalPageLink(pageName){
+  let dict = externalPaths[ExtApi.getLocale()];
+  if (!dict) { dict = externalPaths['en'] }
   const path = dict[pageName];
   if(path) {
     if(pageName.startsWith('project.')){
