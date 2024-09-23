@@ -100,30 +100,25 @@ function removeNameConflictResolver(clipId) {
 }
 
 
+// We can not get mime type from WebRequest API anymore
+// it's not supported anymore in manifest V3 on chromium.
 async function getMimeType({url, headers, timeout, tries}) {
-
-  // try get it from cache
-  let mimeType = Global.WebRequest.getMimeType(url);
-  if (mimeType) {
-    return mimeType;
-  } else {
-    const EMPTY = '__EMPTY__';
-    try {
-      //get mimeType by sending a HEAD request
-      const respHeaders = await Global.Fetcher.head(url, {headers, timeout, tries});
-      const contentType = respHeaders.get('Content-Type');
-      const contentDisposition = respHeaders.get('Content-Disposition');
-      if (contentType) {
-        return T.parseContentType(contentType).mimeType;
-      } else if (contentDisposition) {
-        return T.contentDisposition2MimeType(contentDisposition) || EMPTY;
-      } else {
-        return EMPTY;
-      }
-    } catch(e) {
-      console.error(e);
+  const EMPTY = '__EMPTY__';
+  try {
+    //get mimeType by sending a HEAD request
+    const respHeaders = await Global.Fetcher.head(url, {headers, timeout, tries});
+    const contentType = respHeaders.get('Content-Type');
+    const contentDisposition = respHeaders.get('Content-Disposition');
+    if (contentType) {
+      return T.parseContentType(contentType).mimeType;
+    } else if (contentDisposition) {
+      return T.contentDisposition2MimeType(contentDisposition) || EMPTY;
+    } else {
       return EMPTY;
     }
+  } catch(e) {
+    console.error(e);
+    return EMPTY;
   }
 }
 
@@ -147,8 +142,13 @@ async function getCurrentLayerFrames(tabId, parentFrameId) {
 
 
 async function getAllFrames(tabId) {
+  // FIXME
   // get frame redirections
-  const dict = Global.WebRequest.getRedirectionDict('frame');
+  // const dict = Global.WebRequest.getRedirectionDict('frame');
+  //
+  // How could we get this redirection map?
+  // if we couldn't get from WebRequest API
+  const dict = {};
   const redirectFrom = {};
   for (let url in dict) {
     const targetUrl = dict[url];
@@ -166,7 +166,6 @@ async function getAllFrames(tabId) {
 /*
  * @param {Object} global
  *   - {Fetcher} Fetcher
- *   - {Module} WebRequest
  */
 let Global = null;
 export default function init(global) {

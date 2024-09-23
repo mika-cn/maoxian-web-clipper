@@ -33,15 +33,9 @@ function head(url, {headers = {}, timeout = 40, tries = 3}) {
  */
 function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
   return new Promise((resolve, reject) => {
-    const cache = state.Cache.get(url);
-    if (cache) {
-      const resp = cache.readAsResponse();
-      return resp[respType]().then(resolve);
-    } else {
-      doFetch('GET', url, {headers, timeout}).then((resp) => {
-        resp[respType]().then(resolve);
-      }, reject);
-    }
+    doFetch('GET', url, {headers, timeout}).then((resp) => {
+      resp[respType]().then(resolve);
+    }, reject);
   });
 }
 
@@ -56,16 +50,9 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
  */
 function doHead(url, {headers = {}, timeout = 40}) {
   return new Promise((resolve, reject) => {
-    const cache = state.Cache.get(url);
-    if (cache) {
-      const resp = cache.readAsResponse({headersOnly: true});
+    doFetch('HEAD', url, {headers, timeout}).then((resp) => {
       resolve(resp.headers);
-    } else {
-      doFetch('HEAD', url, {headers, timeout}).then((resp) => {
-        resolve(resp.headers);
-      }, reject);
-    }
-    return
+    }, reject);
   });
 }
 
@@ -80,12 +67,9 @@ function doFetchWithTimeout(method, url, {headers, timeout=40}) {
     // do we need credentials option here?
     // how to ensure mode is right
     //
-    // Because we can't block web request in manifest V3
-    // We couldn't edit these restricted headers and add request token here
-    // can we avoid it?
     const options = Object.assign(extraFetchOpts, {
       method: method,
-      headers: new Headers(appendToken(escapeHeaders(headers))),
+      headers: new Headers(headers),
       redirect: 'follow',
     });
 
@@ -98,7 +82,7 @@ function doFetchWithTimeout(method, url, {headers, timeout=40}) {
           const msg = [url, resp.status, resp.statusText].join(', ');
           console.warn('mx-wc', msg);
           console.warn('mx-wc', resp.headers);
-          reject({message: msg, retry: false}
+          reject({message: msg, retry: false});
         }
       },
 
@@ -165,32 +149,4 @@ function getTimeoutParams(delay) {
   return {extraFetchOpts, timeoutPromise};
 }
 
-
-// Forbidden header name (cannot be modified programmatically)
-// see https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name.html
-// see js/background/web-request.js UnescapeHeader for more details.
-function escapeHeaders(headers) {
-  const forbidden = ['Referer', 'Origin'];
-  const result = {};
-  for(var name in headers) {
-    if(forbidden.indexOf(name) > -1) {
-      result["X-MxWc-" + name] = headers[name];
-    } else {
-      result[name] = headers[name];
-    }
-  }
-  return result;
-}
-
-function appendToken(headers) {
-  return Object.assign({"X-MxWc-Token": state.requestToken}, headers)
-}
-
-// We should set request token first.
-const state = {};
-function init({token, cache}) {
-  state.requestToken = token;
-  state.Cache = cache
-}
-
-export default {init, get, head};
+export default {get, head};

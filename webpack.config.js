@@ -110,6 +110,7 @@ function getCopyItems() {
     ['src/js/lib/notify.js'            , 'js/lib/notify.js']            ,
     ['src/js/lib/query.js'             , 'js/lib/query.js']             ,
     ['src/js/lib/event-target.js'      , 'js/lib/event-target.js']      ,
+    ['src/js/lib/fetcher.js'           , 'js/lib/fetcher.js']           ,
     ['src/js/lib/fetcher-using-xhr.js' , 'js/lib/fetcher-using-xhr.js'] ,
     ['src/js/lib/task-fetcher.js'      , 'js/lib/task-fetcher.js']      ,
     ['src/js/lib/action-cache.js'      , 'js/lib/action-cache.js']      ,
@@ -136,6 +137,7 @@ function getCopyItems() {
     ['src/js/assistant/fuzzy-matcher.js'   , 'js/assistant/fuzzy-matcher.js']   ,
     ['src/js/selection/backend.js'         , 'js/selection/backend.js']         ,
     ['src/js/selection/store.js'           , 'js/selection/store.js']           ,
+    ['src/pages/service-worker.js'         , 'pages/service-worker.js']         ,
   ].forEach((pair) => {
     const sourceFilename = pair[0];
     const targetFilename = path.join(dist_folder, pair[1]);
