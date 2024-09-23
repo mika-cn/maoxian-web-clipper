@@ -1,18 +1,11 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
   "version": "0.7.0",
   "default_locale": "en",
-  "web_accessible_resources": [
-    "pages/*",
-    "icons/*",
-    "css/*",
-    "js/*"
-  ],
   "permissions": [
-    "<all_urls>",
     "webNavigation",
     "webRequest",
     "webRequestBlocking",
@@ -24,6 +17,9 @@
   ],
   "optional_permissions": [
     "nativeMessaging"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "content_scripts": [
     {
