@@ -30,7 +30,8 @@
     }
   ],
   "background": {
-    "page": "pages/background.html"
+    "service_worker": "pages/service-worker.js",
+    "type": "module"
   },
   "commands": {
     "slot-0": { "description": "__MSG_shortcutSlot0__", "suggested_key": {"default": "Shift+Alt+O"}},
