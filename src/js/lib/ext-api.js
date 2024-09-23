@@ -2,6 +2,10 @@
 
 // Web-Extension Api
 const ExtApi = {};
+const browser = chrome;
+
+// Do we really need to expose whole API object
+ExtApi.runtime = browser.runtime;
 
 /*****************************
  * environment
@@ -39,6 +43,43 @@ ExtApi.getManifest = () => {
 ExtApi.setUninstallURL = (url) => {
   if (browser.runtime.setUninstallURL) {
     return browser.runtime.setUninstallURL(url);
+  }
+}
+
+/*****************************
+ * icon and badge
+ *****************************/
+
+ExtApi.action = (browser.browserAction || browser.action);
+
+ExtApi.setIconTitle = (title) => {
+  ExtApi.action.setTitle({title});
+}
+
+ExtApi.setTabIcon = (tabId, imageData) => {
+  ExtApi.action.setIcon({imageData, tabId});
+}
+
+/*
+ * @param {Integer} tabId
+ * @param {Object} badge
+ * @param {String|null} badge.text
+ * @param {String}      badge.textColor
+ * @param {String}      badge.backgroundColor
+ *
+ */
+ExtApi.setTabBadge = (tabId, badge) => {
+  if (badge.hasOwnProperty('text')) {
+    const {text, textColor, backgroundColor} = badge;
+    ExtApi.action.setBadgeText({tabId, text});
+    if (textColor) {
+      ExtApi.action.setBadgeTextColor(
+        {tabId, color: textColor});
+    }
+    if (backgroundColor) {
+      ExtApi.action.setBadgeBackgroundColor(
+        {tabId, color: backgroundColor});
+    }
   }
 }
 
@@ -87,6 +128,10 @@ ExtApi.getAllTabs = () => {
       currentWindow: true
     }).then((tabs) => { resolve(tabs)}, reject);
   })
+}
+
+ExtApi.sendTabMsg = (tabId, msg, options = {}) => {
+  return browser.tags.sendMessage(tabId, msg, options);
 }
 
 ExtApi.executeContentScript = (tabId, details) => {

@@ -7,8 +7,6 @@
   "default_locale": "en",
   "permissions": [
     "webNavigation",
-    "webRequest",
-    "webRequestBlocking",
     "storage",
     "unlimitedStorage",
     "tabs",
@@ -19,11 +17,24 @@
     "nativeMessaging"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://*/*",
+    "http://*/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["js/page-scripts/*"],
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ]
+    }
   ],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
       "js": ["js/page-scripts-loader.js"],
       "run_at": "document_start",
       "all_frames": false
@@ -55,7 +66,7 @@
     "48": "icons/mx-wc-48.png",
     "128": "icons/mx-wc-128.png"
   },
-  "browser_action": {
+  "action": {
     "browser_style": true,
     "default_title": "__MSG_extensionDefaultTooltip__",
     "default_popup": "pages/popup.html",

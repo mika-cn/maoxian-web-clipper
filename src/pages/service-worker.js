@@ -22,7 +22,6 @@ import Handler_NativeApp   from '../js/handler/native-app.js';
 import Handler_WizNotePlus from '../js/handler/wiznoteplus.js';
 
 import MxWcMigration from '../js/background/migration.js';
-import WebRequest    from '../js/background/web-request.js';
 
 import ContentScriptsLoader from '../js/content-scripts-loader.js';
 
@@ -115,10 +114,10 @@ function messageHandler(message, sender){
         ExtApi.createTab(message.body.link).then(resolve);
         break;
       case 'asset-cache.peek':
-        resolve(Global.assetCache.peek());
+        // not asset cache in service worker
+        resolve([]);
         break;
       case 'asset-cache.reset':
-        Global.assetCache.reset();
         resolve();
         break;
 
@@ -597,9 +596,12 @@ function unbindAutoRunContentScriptsListener() {
     pageDomContentLoadedListener)
 }
 
-function pageDomContentLoadedListener({url, tabId, frameId}) {
-  ContentScriptsLoader.loadInFrame(tabId, frameId, true)
-    .catch((error) => { Log.warn(error) });
+async function pageDomContentLoadedListener({url, tabId, frameId}) {
+  const config = await MxWcConfig.load();
+  if (config.autoRunContentScripts) {
+    ContentScriptsLoader.loadInFrame(tabId, frameId, true)
+      .catch((error) => { Log.warn(error) });
+  }
 }
 
 
@@ -632,7 +634,8 @@ function getHandlerByName(name) {
   }
 }
 
-async function updateNativeAppConfig(config) {
+async function updateNativeAppConfig() {
+  const config = await MxWcConfig.load();
   if (config.clippingHandler === 'NativeApp') {
     Handler_NativeApp.initDownloadFolder();
   }
@@ -642,13 +645,6 @@ function initListeners() {
   Global.evTarget.addEventListener('saving.completed', generateClippingJsIfNeed);
   Global.evTarget.addEventListener('history.refreshed', generateClippingJsIfNeed);
   Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
-
-  Global.evTarget.addEventListener('resource.loaded', (ev) => {
-    const {resourceType, url, data, responseHeaders} = ev;
-    Log.debug("resource.loaded", url);
-    // data is an Uint8Array
-    Global.assetCache.add(url, {resourceType, data, responseHeaders});
-  })
 }
 
 // ========================================
@@ -658,35 +654,12 @@ async function init(){
   initListeners();
   ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
   await MxWcMigration.perform();
-
-  const config = await MxWcConfig.load();
-  await updateNativeAppConfig(config);
-
-  const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
-  Global.assetCache = T.createResourceCache({size: config.requestCacheSize});
-  Fetcher.init({
-    token: REQUEST_TOKEN,
-    cache: Global.assetCache,
-  });
+  await updateNativeAppConfig();
 
   TaskFetcher.init({Fetcher});
 
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();
-
-
-  WebRequest.init(Object.assign({
-    evTarget: Global.evTarget,
-    requestToken: REQUEST_TOKEN,
-    isFirefox: isFirefox,
-  }, T.sliceObj(config, [
-    'requestCacheSize',
-    'requestCacheCss',
-    'requestCacheImage',
-    'requestCacheWebFont',
-    ])
-  ));
-  WebRequest.listen();
 
 
   Handler_Browser.init(Object.assign({TaskFetcher}, {isChrome}));
@@ -698,7 +671,7 @@ async function init(){
 
   initBackend_Assistant({Fetcher});
   initBackend_Selection();
-  initBackend_Clipping({WebRequest, Fetcher});
+  initBackend_Clipping({Fetcher});
   initBackend_Saving(Object.assign({
     Handler_Browser,
     Handler_NativeApp,
@@ -713,7 +686,13 @@ async function init(){
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)
 
-  resetAutoRunContentScriptsListener(config.autoRunContentScripts)
+  // FIXME
+  // Maybe we don't need to listen DOM loaded event
+  // in backend.
+  // What if we could inject a content-lite.js to every frame
+  // and check the config.autoRunContentScripts
+  // if true then load normal content by sending a message to backend.
+  bindAutoRunContentScriptsListener();
 
   setIconTitle();
   welcomeNewUser();

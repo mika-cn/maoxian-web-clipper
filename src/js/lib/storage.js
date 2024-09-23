@@ -2,6 +2,7 @@
 
 import T from './tool.js';
 
+const browser = chrome;
 const KEY_OF_KEYS = '__KEYS__';
 
 async function set(storageArea, key, value) {

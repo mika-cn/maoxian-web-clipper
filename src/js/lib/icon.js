@@ -5,17 +5,15 @@ import ExtApi from './ext-api.js';
 const MxWcIcon = {};
 
 MxWcIcon.setTitle = (title) => {
-  browser.browserAction.setTitle({title})
+  ExtApi.setIconTitle(title);
 }
 
 MxWcIcon.showTabBadge = (tabId, {text = null, textColor = 'white', backgroundColor = 'green'}) => {
-  browser.browserAction.setBadgeText({tabId, text});
-  browser.browserAction.setBadgeTextColor({tabId, color: textColor});
-  browser.browserAction.setBadgeBackgroundColor({tabId, color: backgroundColor});
+  ExtApi.setTabBadge(tabId, {text, textColor, backgroundColor});
 }
 
 MxWcIcon.hideTabBadge = (tabId) => {
-  browser.browserAction.setBadgeText({tabId, text: null});
+  ExtApi.setTabBadge(tabId, {text: null});
 }
 
 
@@ -40,7 +38,7 @@ MxWcIcon.change = (iconStyle) => {
     if(tab) {
       // tab might not focus
       MxWcIcon.getImageData(url, function(imgData){
-        browser.browserAction.setIcon({imageData: imgData, tabId: tab.id});
+        ExtApi.setTabIcon(tab.id, imgData);
       });
     }
   })
@@ -60,7 +58,7 @@ MxWcIcon.getUrl = (iconStyle) => {
     "light"     : 'icons/mx-wc-32-light.png',
     "highlight" : 'icons/mx-wc-32-highlight.png'
   })[key]
-  return browser.runtime.getURL(icon_path);
+  return ExtApi.getURL(icon_path);
 }
 
 // getImageData by icon url

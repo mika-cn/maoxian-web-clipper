@@ -52,7 +52,7 @@ function wrapBackendListener(listener) {
  *   listener should return a promise.
  */
 function listen(target, listener) {
-  browser.runtime.onMessage.addListener((msg, sender, senderResponse) => {
+  ExtApi.runtime.onMessage.addListener((msg, sender, senderResponse) => {
     // Deprecated: senderResponse
     if(msg.target == target) {
       return listener(msg, sender);
@@ -95,7 +95,7 @@ function sendToContentFrame(msg, tabId, frameId) {
 }
 
 function sendToExtPage(target, msg) {
-  return browser.runtime.sendMessage(addTarget(target, msg));
+  return ExtApi.runtime.sendMessage(addTarget(target, msg));
 }
 
 function sendToPage(msg, pageUrl) {
@@ -156,14 +156,14 @@ function sendToTab(msg, tabId, frameId) {
     }
     if(tabId){
       const errorHandler = createErrorHandler(msg, tabId, options.frameId);
-      browser.tabs.sendMessage(tabId, msg, options)
+      ExtApi.sendTabMsg(tabId, msg, options)
         .then(resolve, errorHandler)
     } else {
       let errorHandler = () => { resolve() };
       ExtApi.getCurrentTab().then((tab) => {
         if (tab) {
           errorHandler = createErrorHandler(msg, tab.id, options.frameId);
-          browser.tabs.sendMessage(tab.id, msg, options)
+          ExtApi.sendTabMsg(tab.id, msg, options)
             .then(resolve, errorHandler);
         } else {
           console.debug("Error, Can't get current tab");
