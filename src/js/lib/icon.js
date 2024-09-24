@@ -33,33 +33,55 @@ MxWcIcon.flicker = (n, style) => {
  * @param {string} iconStyle - default Or highlight
  */
 MxWcIcon.change = (iconStyle) => {
-  let url = MxWcIcon.getUrl(iconStyle);
   ExtApi.getCurrentTab().then((tab) => {
     if(tab) {
       // tab might not focus
-      MxWcIcon.getImageData(url, function(imgData){
-        ExtApi.setTabIcon(tab.id, imgData);
-      });
+      const path = getIconPathByStyle(tab.id, iconStyle);
+      const details = {tabId: tab.id, path};
+      ExtApi.setTabIcon(details);
     }
   })
 }
 
 
 // iconStyle: 'default', 'highlight'
-MxWcIcon.getUrl = (iconStyle) => {
+function getIconPathByStyle(tabId, iconStyle) {
   let key;
   if (iconStyle == 'default') {
     key = isBrowserDarkTheme() ? 'light' : 'dark';
   } else {
     key = iconStyle;
   }
-  let icon_path = ({
-    "dark"      : 'icons/mx-wc-32.png',
-    "light"     : 'icons/mx-wc-32-light.png',
-    "highlight" : 'icons/mx-wc-32-highlight.png'
+
+  let suffix = ({
+    "dark"      : null,
+    "light"     : "light",
+    "highlight" : "highlight"
   })[key]
-  return ExtApi.getURL(icon_path);
+
+  return getIconPathAllSize(suffix);
 }
+
+
+/*
+ * @param {String} suffix - "light" or "highlight"
+ * @returns {Object} {
+ *   16: "xxx.png",
+ *   32: "xxx.png",
+ *   48: "xxx.png
+ */
+function getIconPathAllSize(suffix) {
+  const sizes = ['16', '32', '48'];
+  return sizes.reduce((h, size) => {
+    if (suffix) {
+      h[size] = `/icons/mx-wc-${size}-${suffix}.png`
+    } else {
+      h[size] = `/icons/mx-wc-${size}.png`
+    }
+    return h;
+  }, {});
+}
+
 
 // getImageData by icon url
 MxWcIcon.getImageData = (url, cb) => {
@@ -76,9 +98,15 @@ MxWcIcon.getImageData = (url, cb) => {
 }
 
 
+// FIXME
 function isBrowserDarkTheme() {
-  return (window.matchMedia &&
+  try {
+    return (window.matchMedia &&
     window.matchMedia('(prefers-color-scheme: dark)').matches);
+  } catch(e) {
+    // Not working in service worker :(
+    return false;
+  }
 }
 
 

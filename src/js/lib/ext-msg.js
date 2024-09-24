@@ -28,6 +28,59 @@ import ExtApi from './ext-api.js';
 
 
 /*
+ * This function needs you to have webextention-polyfill loaded
+ *
+ * @param {string} target
+ * @param {function} listener
+ *   listener should return a promise.
+ */
+function listen(target, listener) {
+  ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    // Deprecated: sendResponse
+    if(msg.target == target) {
+      return listener(msg, sender);
+    } else {
+      // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
+
+      // Returns false or undefined means this message listener
+      // don't care this message and let other listeners handle it.
+      return false;
+    }
+  });
+}
+
+
+/*
+ * @param {string} target
+ * @param {function} listener
+ *   listener should return a promise.
+ */
+function listenBackend(target, listener) {
+  ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if(msg.target == target) {
+      const fn = wrapBackendListener(listener);
+      fn(msg, sender).then(
+        (result) => {sendResponse(result)},
+        (error) => {
+          const resp = wrapErrorAsResponseThatRecognizedByPolyfill(error);
+          sendResponse(resp);
+        }
+      ).catch((error) => {
+        // Unable to send the response?
+        console.error("listenBacnend: Failed to send onMessage rejected reply", err);
+      })
+      // return true means we want to use sendResponse function
+      // event the callback is executed.
+      return true;
+    } else {
+      // Not send to us, ignore it
+      return false;
+    }
+  });
+}
+
+
+/*
  * When an error is rejected through backend,
  * some browsers (like Firefox) lost the stack info
  * So we pass the stack info to frontend.
@@ -46,28 +99,20 @@ function wrapBackendListener(listener) {
 }
 
 
-/*
- * @param {string} target
- * @param {function} listener
- *   listener should return a promise.
- */
-function listen(target, listener) {
-  ExtApi.runtime.onMessage.addListener((msg, sender, senderResponse) => {
-    // Deprecated: senderResponse
-    if(msg.target == target) {
-      return listener(msg, sender);
-    } else {
-      // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
 
-      // Returns false or undefined means this message listener
-      // don't care this message and let other listeners handle it.
-      return false;
-    }
-  });
-}
+function wrapErrorAsResponseThatRecognizedByPolyfill(error) {
+  let message;
 
-function listenBackend(target, listener) {
-  listen(target, wrapBackendListener(listener));
+  // Send a JSON representation of the error if the rejected value
+  // is an instance of error, or the object itself otherwise.
+
+  if (error && (error instanceof Error || typeof error.message === "string")) {
+    message = error.message;
+  } else {
+    message = "An unexpected error occurred";
+  }
+
+  return {__mozWebExtensionPolyfillReject__: true, message};
 }
 
 function sendToBackground(msg) {

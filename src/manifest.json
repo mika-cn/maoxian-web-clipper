@@ -11,7 +11,8 @@
     "unlimitedStorage",
     "tabs",
     "downloads",
-    "downloads.open"
+    "downloads.open",
+    "scripting"
   ],
   "optional_permissions": [
     "nativeMessaging"
@@ -22,7 +23,14 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["js/page-scripts/*"],
+      "resources": [
+        "pages/ui-selection.html",
+        "pages/ui-selection.js",
+        "pages/ui-control.html",
+        "pages/ui-control.css",
+        "pages/ui-control.js",
+        "js/page-scripts/*"
+      ],
       "matches": [
         "https://*/*",
         "http://*/*"

@@ -743,7 +743,7 @@ function hideBadge() {
 }
 
 function fetchContentMessage() {
-  ExtMsg.sendToBackground({type: 'fetch.content-message'})
+  MxWcStorage.get('content-message')
     .then(messageHandler, (errMsg) => {
       Log.debug(errMsg)
     });

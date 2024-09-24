@@ -37,6 +37,7 @@ function unknownMessageHandler(message, sender) {
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
 
+    Log.debug(sender, message);
     switch(message.type) {
 
       case 'show.badge':
@@ -52,16 +53,7 @@ function messageHandler(message, sender){
 
       case 'popup-menu.clip-command':
         const msg = getClipCommandMsg(message.body.command);
-        loadContentScriptsAndSendMsg(msg).then(resolve, reject);
-        break;
-
-      case 'fetch.content-message':
-        if (Global.contentMessage) {
-          resolve(Object.assign({}, Global.contentMessage));
-          Global.contentMessage = null;
-        } else {
-          reject(new Error("No content message"));
-        }
+        loadContentScriptsAndSendMsg(msg, sender.tab).then(resolve, reject);
         break;
 
       case 'handler.get-info':
@@ -88,7 +80,7 @@ function messageHandler(message, sender){
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
       case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
 
-      /* history */
+      // history
       case 'export.history':
         exportHistory(message.body.content);
         resolve();
@@ -100,7 +92,7 @@ function messageHandler(message, sender){
         refreshHistory(resolve);
         break;
 
-      /* offline index page */
+      // offline index page
       case 'generate.clipping.js':
         generateClippingJs(resolve);
         break;
@@ -109,7 +101,7 @@ function messageHandler(message, sender){
         resolve();
         break;
 
-      /* open link */
+      // open link
       case 'create-tab':
         ExtApi.createTab(message.body.link).then(resolve);
         break;
@@ -121,7 +113,7 @@ function messageHandler(message, sender){
         resolve();
         break;
 
-      /* backup and restore */
+      // backup and restore
       case 'backup-to-file':
         backupToFile(resolve);
         break;
@@ -450,9 +442,9 @@ async function commandListener(browserCommandName) {
 }
 
 
-async function loadContentScriptsAndSendMsg(msg) {
+async function loadContentScriptsAndSendMsg(msg, fromTab) {
   const topFrameId = 0;
-  const tab = await ExtApi.getCurrentTab();
+  const tab = fromTab ? fromTab : (await ExtApi.getCurrentTab());
   const {loadedFrameIds, errorDetails} = await ContentScriptsLoader.loadInTab(tab.id);
 
   if (errorDetails.length > 0) {
@@ -472,13 +464,12 @@ async function loadContentScriptsAndSendMsg(msg) {
     // We store the message and wait the top frame to fetch.
     // Because we don't know when the content script will
     // set up the background message handler.
-    Global.contentMessage = msg;
+    MxWcStorage.set('content-message', msg);
     return true;
   } else {
     return ExtMsg.sendToContent(msg)
   }
 }
-
 
 
 // ================ command functions ==================
@@ -531,17 +522,17 @@ function backupToFile(callback) {
     filters.push(T.prefixFilter('assistant'          , config.backupAssistantData));
     filters.push(T.prefixFilter('selectionStore'     , config.backupSelectionData));
 
-    /*
-     * ----- These data won't be backuped -----
-     * categories
-     * tags
-     * clips
-     * downloadFolder
-     * lastClippingResult
-     * firstRunning
-     * mx-wc-config-migrated*
-     *
-     */
+    //
+    // ----- These data won't be backuped -----
+    // categories
+    // tags
+    // clips
+    // downloadFolder
+    // lastClippingResult
+    // firstRunning
+    // mx-wc-config-migrated*
+    //
+    //
 
     MxWcStorage.query(...filters).then((data) => {
       const now = T.currentTime();
@@ -609,9 +600,8 @@ async function pageDomContentLoadedListener({url, tabId, frameId}) {
 // handler
 // ========================================
 
-/*
- * @param {string} expression - see js/lib/handler.js
- */
+
+// @param {string} expression - see js/lib/handler.js
 async function isHandlerReady(configName) {
 
   const getHandlerInfo = async function (name) {
