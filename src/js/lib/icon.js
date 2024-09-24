@@ -83,21 +83,6 @@ function getIconPathAllSize(suffix) {
 }
 
 
-// getImageData by icon url
-MxWcIcon.getImageData = (url, cb) => {
-  let canvas = document.createElement('canvas');
-  let context = canvas.getContext('2d');
-  let img = new Image();
-  img.onload = function(){
-    canvas.width = img.width;
-    canvas.height = img.height;
-    context.drawImage(img, 0, 0 );
-    cb(context.getImageData(0, 0, img.width, img.height));
-  }
-  img.src = url;
-}
-
-
 // FIXME
 function isBrowserDarkTheme() {
   try {
