@@ -56,8 +56,8 @@ ExtApi.setIconTitle = (title) => {
   ExtApi.action.setTitle({title});
 }
 
-ExtApi.setTabIcon = (tabId, imageData) => {
-  ExtApi.action.setIcon({imageData, tabId});
+ExtApi.setTabIcon = (details) => {
+  ExtApi.action.setIcon(details);
 }
 
 /*
@@ -131,11 +131,22 @@ ExtApi.getAllTabs = () => {
 }
 
 ExtApi.sendTabMsg = (tabId, msg, options = {}) => {
-  return browser.tags.sendMessage(tabId, msg, options);
+  return browser.tabs.sendMessage(tabId, msg, options);
 }
 
-ExtApi.executeContentScript = (tabId, details) => {
-  return browser.tabs.executeScript(tabId, details);
+
+/*****************************
+ * Scripting
+ *****************************/
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/executeScript
+/*
+ * @param {Object} details
+ * @param {Object} details.target {tagId, frameIds, allFrames}
+ * @param {Array}  details.files ["path/a", "path/b", ...]
+ */
+ExtApi.executeContentScript = (details) => {
+  return browser.scripting.executeScript(details);
 }
 
 /*****************************

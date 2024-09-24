@@ -67,17 +67,12 @@ async function loadInFrame(tabId, frameId, needPing = false) {
     return true;
   }
 
-  for (const file of CONTENT_SCRIPTS_A) {
-    await ExtApi.executeContentScript(tabId, {
-      frameId, file, runAt: 'document_idle'});
-  }
-  if (frameId == 0) {
-    // top frame
-    for (const file of CONTENT_SCRIPTS_B) {
-      await ExtApi.executeContentScript(tabId, {
-        frameId, file, runAt: 'document_idle'});
-    }
-  }
+  const isTopFrame = (frameId == 0);
+  const files = isTopFrame ? [...CONTENT_SCRIPTS_A, ...CONTENT_SCRIPTS_B] : [...CONTENT_SCRIPTS_A];
+  const target = {tabId, frameIds: [frameId]};
+
+  const [injectionResult] = await ExtApi.executeContentScript({files, target});
+
   // all content scripts has loaded successfully.
   return true;
 }
