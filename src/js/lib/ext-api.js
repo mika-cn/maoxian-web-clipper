@@ -2,10 +2,31 @@
 
 // Web-Extension Api
 const ExtApi = {};
-const browser = chrome;
+
+function getRootObjectOfBrowserExtensionAPI() {
+  try {
+    // If the current browser environment is:
+    //   - Any browser with webextension-polyfill loaded.
+    //   - or just a firefox based browser
+    return browser
+  } catch (e) {
+    try {
+      // Chromium based browser
+      // without webextension-polyfill loaded
+      return chrome
+    } catch(e) {
+      const emptyRoot = {};
+      return emptyRoot;
+    }
+  }
+}
+
+const _ = getRootObjectOfBrowserExtensionAPI();
+
 
 // Do we really need to expose whole API object
-ExtApi.runtime = browser.runtime;
+ExtApi.runtime   = _.runtime;
+ExtApi.downloads = _.downloads;
 
 /*****************************
  * environment
@@ -13,7 +34,7 @@ ExtApi.runtime = browser.runtime;
 ExtApi.getLocale = () => {
   // return 'zh-CN';
   try {
-    return browser.i18n.getUILanguage();
+    return _.i18n.getUILanguage();
   } catch(e) {
     return 'en';
   }
@@ -21,8 +42,8 @@ ExtApi.getLocale = () => {
 
 // not avariable in content script and popup page
 ExtApi.getEnvironment = () => {
-  return new Promise((resolve, _) => {
-    browser.runtime.getPlatformInfo()
+  return new Promise((resolve, reject) => {
+    _.runtime.getPlatformInfo()
       .then((platformInfo) => {
         //"mac" "win" "android" "cros" "linux" "openbsd"
         resolve({
@@ -36,21 +57,40 @@ ExtApi.getEnvironment = () => {
 }
 
 ExtApi.getManifest = () => {
-  return browser.runtime.getManifest();
+  return _.runtime.getManifest();
 }
 
 // url must have a http or https scheme
 ExtApi.setUninstallURL = (url) => {
-  if (browser.runtime.setUninstallURL) {
-    return browser.runtime.setUninstallURL(url);
+  if (_.runtime.setUninstallURL) {
+    return _.runtime.setUninstallURL(url);
   }
 }
+
+
+/*****************************
+ * Storage
+ *****************************/
+
+// storageArea: "local", "session" etc.
+ExtApi.getStorageArea = (storageArea) => {
+  if (_.storage[storageArea] === undefined) {
+    if (storageArea == 'session') {
+      // backport it for some old browsers
+      return _.storage.local;
+    }
+    return undefined;
+  } else {
+    return _.storage[storageArea];
+  }
+}
+
 
 /*****************************
  * icon and badge
  *****************************/
 
-ExtApi.action = (browser.browserAction || browser.action);
+ExtApi.action = (_.browserAction || _.action);
 
 ExtApi.setIconTitle = (title) => {
   ExtApi.action.setTitle({title});
@@ -88,13 +128,13 @@ ExtApi.setTabBadge = (tabId, badge) => {
  *****************************/
 
 ExtApi.getURL = (path) => {
-  return browser.runtime.getURL(path);
+  return _.runtime.getURL(path);
 }
 /*
  * @return Promise
  */
 ExtApi.isAllowedFileSchemeAccess = function(){
-  return browser.extension.isAllowedFileSchemeAccess();
+  return _.extension.isAllowedFileSchemeAccess();
 }
 
 /*****************************
@@ -106,16 +146,16 @@ ExtApi.isAllowedFileSchemeAccess = function(){
  */
 ExtApi.createTab = (url) => {
  //https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/tabs/create
-  return browser.tabs.create({url: url});
+  return _.tabs.create({url: url});
 }
 
 ExtApi.removeTab = (tabId) => {
-  return browser.tabs.remove(tabId);
+  return _.tabs.remove(tabId);
 }
 
 ExtApi.getCurrentTab = () => {
   return new Promise(function(resolve, reject){
-    browser.tabs.query({
+    _.tabs.query({
       currentWindow: true,
       active: true
     }).then((tabs) => {resolve(tabs[0])}, reject);
@@ -124,14 +164,14 @@ ExtApi.getCurrentTab = () => {
 
 ExtApi.getAllTabs = () => {
   return new Promise(function(resolve, reject){
-    browser.tabs.query({
+    _.tabs.query({
       currentWindow: true
     }).then((tabs) => { resolve(tabs)}, reject);
   })
 }
 
 ExtApi.sendTabMsg = (tabId, msg, options = {}) => {
-  return browser.tabs.sendMessage(tabId, msg, options);
+  return _.tabs.sendMessage(tabId, msg, options);
 }
 
 
@@ -146,7 +186,7 @@ ExtApi.sendTabMsg = (tabId, msg, options = {}) => {
  * @param {Array}  details.files ["path/a", "path/b", ...]
  */
 ExtApi.executeContentScript = (details) => {
-  return browser.scripting.executeScript(details);
+  return _.scripting.executeScript(details);
 }
 
 /*****************************
@@ -156,8 +196,8 @@ ExtApi.executeContentScript = (details) => {
 // Not avariable in content Script`
 // return a Promise.
 ExtApi.getAllFrames = (tabId) => {
-  return new Promise(function(resolve, _) {
-    browser.webNavigation.getAllFrames({
+  return new Promise(function(resolve, reject) {
+    _.webNavigation.getAllFrames({
       tabId: tabId
     }).then(resolve);
   });
@@ -165,12 +205,12 @@ ExtApi.getAllFrames = (tabId) => {
 
 ExtApi.bindPageDomContentLoadListener = (listener, filter) => {
   ExtApi.unbindPageDomContentLoadedListener(listener);
-  browser.webNavigation.onDOMContentLoaded.addListener(listener, filter);
+  _.webNavigation.onDOMContentLoaded.addListener(listener, filter);
 }
 
 ExtApi.unbindPageDomContentLoadedListener = (listener) => {
-  if (browser.webNavigation.onDOMContentLoaded.hasListener(listener)) {
-    browser.webNavigation.onDOMContentLoaded.removeListener(listener);
+  if (_.webNavigation.onDOMContentLoaded.hasListener(listener)) {
+    _.webNavigation.onDOMContentLoaded.removeListener(listener);
   }
 }
 
@@ -179,26 +219,26 @@ ExtApi.unbindPageDomContentLoadedListener = (listener) => {
  *****************************/
 
 ExtApi.download = (options) => {
-  return browser.downloads.download(options);
+  return _.downloads.download(options);
 }
 
 ExtApi.openDownloadItem = (downloadItemId) => {
-  return browser.downloads.open(downloadItemId)
+  return _.downloads.open(downloadItemId)
 }
 
 ExtApi.eraseDownloadItem = (downloadItemId) => {
-  browser.downloads.erase({id: downloadItemId, limit: 1});
+  _.downloads.erase({id: downloadItemId, limit: 1});
 }
 
 // delete both download history And file
 ExtApi.deleteDownloadItem = (downloadItemId) => {
-  browser.downloads.removeFile(downloadItemId);
-  browser.downloads.erase({id: downloadItemId, limit: 1});
+  _.downloads.removeFile(downloadItemId);
+  _.downloads.erase({id: downloadItemId, limit: 1});
 }
 
 ExtApi.findDownloadItem = (downloadItemId) => {
-  return new Promise(function(resolve, _){
-    browser.downloads.search({id: downloadItemId, limit: 1})
+  return new Promise(function(resolve, reject){
+    _.downloads.search({id: downloadItemId, limit: 1})
       .then( function(downloadItems){
         if(downloadItems.length > 0){
           resolve(downloadItems[0])
@@ -210,12 +250,12 @@ ExtApi.findDownloadItem = (downloadItemId) => {
 }
 
 ExtApi.findDownloadItemByPath = (path) => {
-  return new Promise(function(resolve, _){
+  return new Promise(function(resolve, reject){
     ExtApi.getEnvironment().then((env) => {
       const query = {limit: 1, state: 'complete'};
       const regexStr = env.isWindows ? (path.replace(/\//g, '\\\\') + '$') : (path + '$');
       query.filenameRegex = regexStr
-        browser.downloads.search(query)
+        _.downloads.search(query)
         .then( function(downloadItems){
           if(downloadItems.length > 0){
             resolve(downloadItems[0]);
@@ -228,29 +268,29 @@ ExtApi.findDownloadItemByPath = (path) => {
 }
 
 ExtApi.bindDownloadCreatedListener = (listener) => {
-  browser.downloads.onCreated.removeListener(listener);
-  browser.downloads.onCreated.addListener(listener);
+  _.downloads.onCreated.removeListener(listener);
+  _.downloads.onCreated.addListener(listener);
 }
 
 ExtApi.bindDownloadChangedListener = (listener) => {
-  browser.downloads.onChanged.removeListener(listener);
-  browser.downloads.onChanged.addListener(listener);
+  _.downloads.onChanged.removeListener(listener);
+  _.downloads.onChanged.addListener(listener);
 }
 
 ExtApi.bindOnCommandListener = (listener) => {
   // Firefox Android does not support Command
-  if (browser.commands && browser.commands.onCommand) {
-    browser.commands.onCommand.removeListener(listener);
-    browser.commands.onCommand.addListener(listener);
+  if (_.commands && _.commands.onCommand) {
+    _.commands.onCommand.removeListener(listener);
+    _.commands.onCommand.addListener(listener);
   }
 }
 
 ExtApi.getAllCommands = async () => {
-  return browser.commands.getAll();
+  return _.commands.getAll();
 }
 
 ExtApi.updateCommand = async (details) => {
-  return browser.commands.update(details);
+  return _.commands.update(details);
 }
 
 export default ExtApi;

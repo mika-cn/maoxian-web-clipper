@@ -12,7 +12,8 @@
     "tabs",
     "downloads",
     "downloads.open",
-    "scripting"
+    "scripting",
+    "offscreen"
   ],
   "optional_permissions": [
     "nativeMessaging"

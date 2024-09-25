@@ -57,7 +57,7 @@ function doHead(url, {headers = {}, timeout = 40}) {
 }
 
 
-function doFetchWithTimeout(method, url, {headers, timeout=40}) {
+function doFetch(method, url, {headers, timeout=40}) {
 
   return new Promise((resolve, reject) => {
     const {extraFetchOpts, timeoutPromise} = getTimeoutParams(timeout);

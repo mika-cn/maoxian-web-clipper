@@ -62,7 +62,7 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath));
 const pages = [
   'background', 'popup', 'welcome', 'history', 'home', 'last-clipping-result',
   'plan-subscription', 'reset-history', 'setting',
-  'ui-control', 'ui-selection', 'failed-tasks', 'user-script', 'sync-user-scripts',  'debug'];
+  'ui-control', 'ui-selection', 'failed-tasks', 'user-script', 'sync-user-scripts',  'debug', 'off-screen'];
 
 function getCopyItems() {
 
@@ -161,7 +161,7 @@ function getCopyItems() {
 
   // page stylesheets
   const cssBlackList = ['ui-selection', 'background',
-    'reset-history', 'plan-subscription', 'user-script', 'sync-user-scripts'];
+    'reset-history', 'plan-subscription', 'user-script', 'sync-user-scripts', 'off-screen'];
   const cssNames = ['_base', '_details', '_file-uploader'].concat(pages);
   cssNames.forEach((name) => {
     if (cssBlackList.indexOf(name) == -1) {

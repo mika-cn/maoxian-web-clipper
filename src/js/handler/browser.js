@@ -4,6 +4,7 @@ import T           from '../lib/tool.js';
 import Log         from '../lib/log.js';
 import ExtApi      from '../lib/ext-api.js';
 import MxWcStorage from '../lib/storage.js';
+import BlobUrl     from '../background/blob-url.js';
 import SavingTool  from '../saving/new-saving-tool.js';
 import Download    from '../saving/browser-download.js';
 
@@ -130,24 +131,24 @@ async function fetchUrlTask(task) {
 
 
 // msg: {filename, :text, :mineType}
-function downloadText(msg){
+async function downloadText(msg){
   const arr = [msg.text];
   const opt = {type: msg.mimeType};
   const blob = new Blob(arr, opt);
-  const url = URL.createObjectURL(blob);
+  const url = await BlobUrl.create(blob);
   return downloadUrl({url: url, filename: msg.filename});
 }
 
 
 // msg: {:filename, :blob}
-function downloadBlob(msg){
-  const url = URL.createObjectURL(msg.blob);
+async function downloadBlob(msg){
+  const url = await BlobUrl.create(msg.blob);
   return downloadUrl({url: url, filename: msg.filename});
 }
 
 
 // msg: {:filename, :url}
-function downloadUrl(msg){
+async function downloadUrl(msg){
   Log.debug('download.url:', msg.url);
   Log.debug('download.filename:', msg.filename);
 
@@ -157,7 +158,13 @@ function downloadUrl(msg){
     saveAs         : false,
     conflictAction : 'overwrite',
   };
-  const it = new Download(browser.downloads, options);
+  const it = new Download(ExtApi.downloads, options);
+  it.extraCleanFn = () => {
+    if (T.isBlobUrl(msg.url)) {
+      BlobUrl.revoke(msg.url);
+      Log.debug("revoke: ", msg.url);
+    }
+  }
   return it.download();
 }
 

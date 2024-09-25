@@ -1,8 +1,8 @@
 "use strict";
 
 import T from './tool.js';
+import ExtApi from './ext-api.js';
 
-const browser = chrome;
 const KEY_OF_KEYS = '__KEYS__';
 
 async function set(storageArea, key, value) {
@@ -155,15 +155,7 @@ async function saveKeysToStorage(storageArea, keys) {
 
 
 function getStorage(storageArea) {
-  if (browser.storage[storageArea] === undefined) {
-    if (storageArea == 'session') {
-      // backport it for some old browsers
-      return browser.storage.local;
-    }
-    return undefined;
-  } else {
-    return browser.storage[storageArea];
-  }
+  return ExtApi.getStorageArea(storageArea);
 }
 
 
