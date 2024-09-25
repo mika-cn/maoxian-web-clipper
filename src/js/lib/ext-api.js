@@ -1,32 +1,57 @@
 "use strict";
 
-// Web-Extension Api
-const ExtApi = {};
-
 function getRootObjectOfBrowserExtensionAPI() {
-  try {
-    // If the current browser environment is:
-    //   - Any browser with webextension-polyfill loaded.
-    //   - or just a firefox based browser
-    return browser
-  } catch (e) {
-    try {
-      // Chromium based browser
-      // without webextension-polyfill loaded
-      return chrome
-    } catch(e) {
-      const emptyRoot = {};
-      return emptyRoot;
-    }
+  // case A:
+  //   If the current browser environment is:
+  //     - Any browser with webextension-polyfill loaded.
+  //     - or just a firefox based browser
+  //
+  // case B:
+  //   Chromium based browser
+  //   without webextension-polyfill loaded
+  try { return browser } catch(e) { // case A
+  try { return chrome  } catch(e) { // case B
+    throw new Error("We couldn't find Browser Extension API root");
+  }};
+}
+
+
+function wrapAPIsToObj(obj, apiNames) {
+  for (const name of apiNames) {
+    const descriptor = {
+      get: () => getRootObjectOfBrowserExtensionAPI()[name]
+    };
+    Object.defineProperty(obj, name, descriptor);
   }
 }
 
-const _ = getRootObjectOfBrowserExtensionAPI();
+// Defined an shortcut name and wrap APIs in it
+const _ = {};
+wrapAPIsToObj(_, [
+  'i18n',
+  'runtime',
+  'storage',
+  'action',
+  'browserAction',
+  'downloads',
+  'extension',
+  'tabs',
+  'commands',
+  'scripting',
+  'webNavigation',
+]);
 
+
+
+// Web-Extension Api
+const ExtApi = {};
 
 // Do we really need to expose whole API object
-ExtApi.runtime   = _.runtime;
-ExtApi.downloads = _.downloads;
+wrapAPIsToObj(ExtApi, [
+  'runtime',
+  'downloads',
+]);
+
 
 /*****************************
  * environment
@@ -90,14 +115,16 @@ ExtApi.getStorageArea = (storageArea) => {
  * icon and badge
  *****************************/
 
-ExtApi.action = (_.browserAction || _.action);
+function getAction() {
+  return _.browserAction || _.action;
+}
 
 ExtApi.setIconTitle = (title) => {
-  ExtApi.action.setTitle({title});
+  getAction().setTitle({title});
 }
 
 ExtApi.setTabIcon = (details) => {
-  ExtApi.action.setIcon(details);
+  getAction().setIcon(details);
 }
 
 /*
@@ -111,13 +138,13 @@ ExtApi.setTabIcon = (details) => {
 ExtApi.setTabBadge = (tabId, badge) => {
   if (badge.hasOwnProperty('text')) {
     const {text, textColor, backgroundColor} = badge;
-    ExtApi.action.setBadgeText({tabId, text});
+    getAction().setBadgeText({tabId, text});
     if (textColor) {
-      ExtApi.action.setBadgeTextColor(
+      getAction().setBadgeTextColor(
         {tabId, color: textColor});
     }
     if (backgroundColor) {
-      ExtApi.action.setBadgeBackgroundColor(
+      getAction().setBadgeBackgroundColor(
         {tabId, color: backgroundColor});
     }
   }
