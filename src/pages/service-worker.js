@@ -21,6 +21,7 @@ import Handler_Browser     from '../js/handler/browser.js';
 import Handler_NativeApp   from '../js/handler/native-app.js';
 import Handler_WizNotePlus from '../js/handler/wiznoteplus.js';
 
+import BlobUrl       from '../js/background/blob-url.js';
 import MxWcMigration from '../js/background/migration.js';
 
 import ContentScriptsLoader from '../js/content-scripts-loader.js';
@@ -82,8 +83,7 @@ function messageHandler(message, sender){
 
       // history
       case 'export.history':
-        exportHistory(message.body.content);
-        resolve();
+        exportHistory(message.body.content).then(resolve);
         break;
       case 'clipping.delete':
         deleteClipping(message.body, resolve);
@@ -115,7 +115,7 @@ function messageHandler(message, sender){
 
       // backup and restore
       case 'backup-to-file':
-        backupToFile(resolve);
+        backupToFile().then(resolve);
         break;
       case 'migrate-config':
         migrateConfig(message.body).then(resolve, reject);
@@ -281,13 +281,13 @@ function refreshHistory(resolve) {
   });
 }
 
-function exportHistory(content) {
+async function exportHistory(content) {
   const arr = [content];
   const blob = new Blob(arr, {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
+  const url = await BlobUrl.create(blob);
   const s = T.currentTime().str;
   const t = [s.year, s.month, s.day, s.hour, s.minute, s.second].join('');
-  ExtApi.download({
+  return ExtApi.download({
     saveAs: false,
     filename: ['mx-wc-history', t, 'json'].join('.'),
     url: url
@@ -513,43 +513,41 @@ async function openLastClippingResult() {
 const CommandFnDict = {doNothing, startClip, openLastClippingResult};
 
 
-function backupToFile(callback) {
-  MxWcConfig.load().then((config) => {
-    const filters = [];
+async function backupToFile() {
+  const config = await MxWcConfig.load();
+  const filters = [];
 
-    filters.push(T.attributeFilter('config'          , config.backupSettingPageConfig));
-    filters.push(T.prefixFilter('history.page.cache' , config.backupHistoryPageConfig));
-    filters.push(T.prefixFilter('assistant'          , config.backupAssistantData));
-    filters.push(T.prefixFilter('selectionStore'     , config.backupSelectionData));
+  filters.push(T.attributeFilter('config'          , config.backupSettingPageConfig));
+  filters.push(T.prefixFilter('history.page.cache' , config.backupHistoryPageConfig));
+  filters.push(T.prefixFilter('assistant'          , config.backupAssistantData));
+  filters.push(T.prefixFilter('selectionStore'     , config.backupSelectionData));
 
-    //
-    // ----- These data won't be backuped -----
-    // categories
-    // tags
-    // clips
-    // downloadFolder
-    // lastClippingResult
-    // firstRunning
-    // mx-wc-config-migrated*
-    //
-    //
+  //
+  // ----- These data won't be backuped -----
+  // categories
+  // tags
+  // clips
+  // downloadFolder
+  // lastClippingResult
+  // firstRunning
+  // mx-wc-config-migrated*
+  //
+  //
 
-    MxWcStorage.query(...filters).then((data) => {
-      const now = T.currentTime();
-      const s = now.str
-      const t = [s.hour, s.minute, s.second].join('.');
-      const content = {data: data, backupAt: now.toString()}
-      const arr = [T.toJson(content)];
-      const blob = new Blob(arr, {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
-      const filename = `mx-wc-backup_${now.date()}_${t}.json`;
-      ExtApi.download({
-        saveAs: true,
-        filename: filename,
-        url: url
-      }).then(callback);
-    });
+  const data = await MxWcStorage.query(...filters);
+  const now = T.currentTime();
+  const s = now.str
+  const t = [s.hour, s.minute, s.second].join('.');
+  const content = {data: data, backupAt: now.toString()}
+  const arr = [T.toJson(content)];
+  const blob = new Blob(arr, {type: 'application/json'});
+  const url = await BlobUrl.create(blob);
+  const filename = `mx-wc-backup_${now.date()}_${t}.json`;
 
+  return ExtApi.download({
+    saveAs: true,
+    filename: filename,
+    url: url
   });
 }
 
