@@ -3,14 +3,12 @@ import ExtMsg from '../js/lib/ext-msg.js';
 
 function listenMessage() {
   ExtMsg.listen('off-screen', function(msg) {
-    console.debug(msg);
     return new Promise((resolve, reject) => {
       switch(msg.type) {
         case 'create-object-url':
           const {base64Str, mimeType} = msg.body;
           const blob = T.base64StrToBlob(base64Str, mimeType);
           const url = URL.createObjectURL(blob);
-          console.debug(url);
           resolve(url);
           break;
         case 'revoke-object-url':
@@ -29,7 +27,7 @@ function listenMessage() {
 function main() {
   console.debug("Off-screen main");
   listenMessage();
-  console.debug("Off-screen main end");
+  console.debug("Off-screen iniaialized");
 }
 
 main();
