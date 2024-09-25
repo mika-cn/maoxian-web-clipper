@@ -94,7 +94,7 @@ async function query(storageArea, ...filters) {
   return await getStorage(storageArea).get(keys);
 }
 
-
+// TODO new API available: StorageArea.getKeys()
 async function getKeys(storageArea) {
   const data = await getStorage(storageArea).get(KEY_OF_KEYS);
   if (data.hasOwnProperty(KEY_OF_KEYS)) {
