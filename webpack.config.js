@@ -131,13 +131,13 @@ function getCopyItems() {
     ['src/js/handler'                      , 'js/handler']                      ,
     ['src/js/saving'                       , 'js/saving']                       ,
     ['src/js/background'                   , 'js/background']                   ,
+    ['src/js/background.js'                , 'js/background.js']                ,
     ['src/js/clipping/backend.js'          , 'js/clipping/backend.js']          ,
     ['src/js/assistant/backend.js'         , 'js/assistant/backend.js']         ,
     ['src/js/assistant/plan-repository.js' , 'js/assistant/plan-repository.js'] ,
     ['src/js/assistant/fuzzy-matcher.js'   , 'js/assistant/fuzzy-matcher.js']   ,
     ['src/js/selection/backend.js'         , 'js/selection/backend.js']         ,
     ['src/js/selection/store.js'           , 'js/selection/store.js']           ,
-    ['src/pages/service-worker.js'         , 'pages/service-worker.js']         ,
   ].forEach((pair) => {
     const sourceFilename = pair[0];
     const targetFilename = path.join(dist_folder, pair[1]);

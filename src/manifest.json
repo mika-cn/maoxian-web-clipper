@@ -50,7 +50,7 @@
     }
   ],
   "background": {
-    "service_worker": "pages/service-worker.js",
+    "service_worker": "js/background.js",
     "type": "module"
   },
   "commands": {
