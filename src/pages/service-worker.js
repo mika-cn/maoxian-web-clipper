@@ -41,6 +41,11 @@ function messageHandler(message, sender){
     Log.debug(sender, message);
     switch(message.type) {
 
+      case 'close.off-screen':
+        Log.debug("close off-screen document");
+        ExtApi.closeOffscreenDoc().then(resolve);
+        break;
+
       case 'show.badge':
         const badgeAttrs = (message.body || {})
         MxWcIcon.showTabBadge(sender.tab.id, badgeAttrs);
@@ -53,6 +58,7 @@ function messageHandler(message, sender){
         break;
 
       case 'popup-menu.clip-command':
+        // sender.tab is empty on chromium
         const msg = getClipCommandMsg(message.body.command);
         loadContentScriptsAndSendMsg(msg, sender.tab).then(resolve, reject);
         break;
@@ -287,11 +293,15 @@ async function exportHistory(content) {
   const url = await BlobUrl.create(blob);
   const s = T.currentTime().str;
   const t = [s.year, s.month, s.day, s.hour, s.minute, s.second].join('');
-  return ExtApi.download({
-    saveAs: false,
-    filename: ['mx-wc-history', t, 'json'].join('.'),
-    url: url
-  })
+  try {
+    return ExtApi.download({
+      saveAs: false,
+      filename: ['mx-wc-history', t, 'json'].join('.'),
+      url: url
+    })
+  } finally {
+    BlobUrl.revoke(url);
+  }
 }
 
 function generateClippingJsIfNeed(){
@@ -444,7 +454,12 @@ async function commandListener(browserCommandName) {
 
 async function loadContentScriptsAndSendMsg(msg, fromTab) {
   const topFrameId = 0;
-  const tab = fromTab ? fromTab : (await ExtApi.getCurrentTab());
+  const tab = (fromTab ? fromTab : await ExtApi.getCurrentTab());
+  if (!tab) {
+    console.error("We can't get tab, don't known where to load content scripts, aborted!");
+    console.error(msg);
+    return;
+  }
   const {loadedFrameIds, errorDetails} = await ContentScriptsLoader.loadInTab(tab.id);
 
   if (errorDetails.length > 0) {
@@ -544,11 +559,15 @@ async function backupToFile() {
   const url = await BlobUrl.create(blob);
   const filename = `mx-wc-backup_${now.date()}_${t}.json`;
 
-  return ExtApi.download({
-    saveAs: true,
-    filename: filename,
-    url: url
-  });
+  try {
+    return ExtApi.download({
+      saveAs: true,
+      filename: filename,
+      url: url
+    });
+  } finally {
+    BlobUrl.revoke(url);
+  }
 }
 
 async function migrateConfig(config) {
