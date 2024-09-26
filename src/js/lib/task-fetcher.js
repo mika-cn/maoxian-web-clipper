@@ -34,7 +34,7 @@ async function get(task) {
 // Keep a service worker alive until a long-running operation is finished
 // An official API similar to waitUntil() is currently being discussed in the WECG.
 // For more detail, see https://github.com/w3c/webextensions/issues/416
-async function waitUntil(longRunningPromise) = {
+async function waitUntil(longRunningPromise) {
   const keepAlive = setInterval(chrome.runtime.getPlatformInfo, 25 * 1000);
   try {
     return await longRunningPromise;

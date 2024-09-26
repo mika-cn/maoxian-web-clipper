@@ -39,6 +39,7 @@ wrapAPIsToObj(_, [
   'commands',
   'scripting',
   'webNavigation',
+  'offscreen',
 ]);
 
 
@@ -85,11 +86,19 @@ ExtApi.getManifest = () => {
   return _.runtime.getManifest();
 }
 
+ExtApi.getURL = (path) => {
+  return _.runtime.getURL(path);
+}
+
 // url must have a http or https scheme
 ExtApi.setUninstallURL = (url) => {
   if (_.runtime.setUninstallURL) {
     return _.runtime.setUninstallURL(url);
   }
+}
+
+ExtApi.getContexts = (params) => {
+  return _.runtime.getContexts(params);
 }
 
 
@@ -154,9 +163,6 @@ ExtApi.setTabBadge = (tabId, badge) => {
  * extension
  *****************************/
 
-ExtApi.getURL = (path) => {
-  return _.runtime.getURL(path);
-}
 /*
  * @return Promise
  */
@@ -312,12 +318,28 @@ ExtApi.bindOnCommandListener = (listener) => {
   }
 }
 
+/*****************************
+ * commands
+ *****************************/
+
 ExtApi.getAllCommands = async () => {
   return _.commands.getAll();
 }
 
 ExtApi.updateCommand = async (details) => {
   return _.commands.update(details);
+}
+
+
+/*****************************
+ * offscreen
+ *****************************/
+ExtApi.createOffscreenDoc = (params) => {
+  return _.offscreen.createDocument(params);
+}
+
+ExtApi.closeOffscreenDoc = () => {
+  return _.offscreen.closeDocument();
 }
 
 export default ExtApi;

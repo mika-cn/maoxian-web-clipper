@@ -1,6 +1,9 @@
 import T      from '../lib/tool.js';
+import ExtApi from '../lib/ext-api.js';
 import ExtMsg from '../lib/ext-msg.js';
 
+// This library is intended to port service worker only.
+//
 // We can't use URL.createObjectURL in service worker :(
 
 const DOC_PATH = '/pages/off-screen.html';
@@ -9,7 +12,7 @@ async function create(blob) {
   if (URL.createObjectURL) {
     return URL.createObjectURL(blob)
   } else {
-    return await createThroughOffScreen(blob);
+    return await createThroughOffscreenDoc(blob);
   }
 }
 
@@ -17,11 +20,11 @@ async function revoke(blobUrl) {
   if (URL.revokeObjectURL) {
     return URL.revokeObjectURL(blobUrl);
   } else {
-    return revokeThroughOffScreen(blobUrl);
+    return revokeThroughOffscreenDoc(blobUrl);
   }
 }
 
-async function createThroughOffScreen(blob) {
+async function createThroughOffscreenDoc(blob) {
   await setupOffscreenDocument(DOC_PATH);
   const base64Str = await T.blobToBase64Str(blob)
   const message = {
@@ -32,7 +35,7 @@ async function createThroughOffScreen(blob) {
 }
 
 
-async function revokeThroughOffScreen(blobUrl) {
+async function revokeThroughOffscreenDoc(blobUrl) {
   await setupOffscreenDocument(DOC_PATH);
   const message = {type: 'revoke-object-url', body: {blobUrl}};
   sendMessageToOffScreen(message);
@@ -50,8 +53,8 @@ let creating; // A global promise to avoid concurrency issues
 async function setupOffscreenDocument(path) {
   // Check all windows controlled by the service worker to see if one
   // of them is the offscreen document with the given path
-  const offscreenUrl = chrome.runtime.getURL(path);
-  const existingContexts = await chrome.runtime.getContexts({
+  const offscreenUrl = ExtApi.getURL(path);
+  const existingContexts = await ExtApi.getContexts({
     contextTypes: ['OFFSCREEN_DOCUMENT'],
     documentUrls: [offscreenUrl]
   });
@@ -64,7 +67,7 @@ async function setupOffscreenDocument(path) {
   if (creating) {
     await creating;
   } else {
-    creating = chrome.offscreen.createDocument({
+    creating = ExtApi.createOffscreenDoc({
       url: path,
       reasons: ['BLOBS'],
       justification: 'Need to use URL.createObjectURL to download big blob objects',
