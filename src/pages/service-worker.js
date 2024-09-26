@@ -288,20 +288,22 @@ function refreshHistory(resolve) {
 }
 
 async function exportHistory(content) {
-  const arr = [content];
-  const blob = new Blob(arr, {type: 'application/json'});
-  const url = await BlobUrl.create(blob);
   const s = T.currentTime().str;
-  const t = [s.year, s.month, s.day, s.hour, s.minute, s.second].join('');
-  try {
-    return ExtApi.download({
-      saveAs: false,
-      filename: ['mx-wc-history', t, 'json'].join('.'),
-      url: url
-    })
-  } finally {
-    BlobUrl.revoke(url);
-  }
+  const t = [s.year, s.month, s.day,
+    s.hour, s.minute, s.second].join('');
+
+  const params = {
+    text: content,
+    filename: ['mx-wc-history', t, 'json'].join('.'),
+    mimeType: 'application/json',
+  };
+  return Handler_Browser.saveTextFile(params);
+}
+
+
+async function downloadBlobUrl(downloadParams) {
+  const it = new Download(ExtApi.downloads, downloadParams);
+  return it.download();
 }
 
 function generateClippingJsIfNeed(){
@@ -554,20 +556,14 @@ async function backupToFile() {
   const s = now.str
   const t = [s.hour, s.minute, s.second].join('.');
   const content = {data: data, backupAt: now.toString()}
-  const arr = [T.toJson(content)];
-  const blob = new Blob(arr, {type: 'application/json'});
-  const url = await BlobUrl.create(blob);
-  const filename = `mx-wc-backup_${now.date()}_${t}.json`;
 
-  try {
-    return ExtApi.download({
-      saveAs: true,
-      filename: filename,
-      url: url
-    });
-  } finally {
-    BlobUrl.revoke(url);
+  const params = {
+    text: T.toJson(content),
+    mimeType: 'application/json',
+    filename: `mx-wc-backup_${now.date()}_${t}.json`,
+    saveAs: true,
   }
+  Handler_Browser.saveTextFile(params);
 }
 
 async function migrateConfig(config) {
