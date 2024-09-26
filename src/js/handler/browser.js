@@ -48,7 +48,7 @@ function initDownloadFolder(config){
 
 function saveTextFile(msg) {
   // FIXME feedback
-  downloadText(msg);
+  return downloadText(msg);
 }
 
 
@@ -130,39 +130,42 @@ async function fetchUrlTask(task) {
 }
 
 
-// msg: {filename, :text, :mineType}
-async function downloadText(msg){
-  const arr = [msg.text];
-  const opt = {type: msg.mimeType};
+// params: {filename, text, mineType, saveAs}
+async function downloadText(params){
+  const {text, mimeType, filename, saveAs = false} = params;
+  const arr = [text];
+  const opt = {type: mimeType};
   const blob = new Blob(arr, opt);
   const url = await BlobUrl.create(blob);
-  return downloadUrl({url: url, filename: msg.filename});
+  return downloadUrl({url, filename, saveAs});
 }
 
 
-// msg: {:filename, :blob}
-async function downloadBlob(msg){
-  const url = await BlobUrl.create(msg.blob);
-  return downloadUrl({url: url, filename: msg.filename});
+// @param {Object} parmas: {filename, blob, saveAs}
+async function downloadBlob(params){
+  const {blob, filename, saveAs = false} = params;
+  const url = await BlobUrl.create(blob);
+  return downloadUrl({url, filename, saveAs});
 }
 
 
-// msg: {:filename, :url}
-async function downloadUrl(msg){
-  Log.debug('download.url:', msg.url);
-  Log.debug('download.filename:', msg.filename);
+// @param {Object} params: {filename, url, saveAs, ...}
+async function downloadUrl(params = {}){
+  const {url, filename} = params;
+  Log.debug('download.url:', url);
+  Log.debug('download.filename:', filename);
 
-  const options = {
-    url            : msg.url,
-    filename       : msg.filename,
-    saveAs         : false,
+  const defaultOptions = {
+    saveAs : false,
     conflictAction : 'overwrite',
   };
+
+  const options = Object.assign({}, defaultOptions, params);
   const it = new Download(ExtApi.downloads, options);
   it.extraCleanFn = () => {
-    if (T.isBlobUrl(msg.url)) {
-      BlobUrl.revoke(msg.url);
-      Log.debug("revoke: ", msg.url);
+    if (T.isBlobUrl(url)) {
+      BlobUrl.revoke(url);
+      Log.debug("revoke: ", url);
     }
   }
   return it.download();
