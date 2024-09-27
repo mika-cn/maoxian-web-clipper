@@ -243,6 +243,8 @@ function renderManifestWithPlatformMsg(content, path) {
       }
       if (PLATFORM_UPDATE_URL) {
         diff.update_url = PLATFORM_UPDATE_URL;
+      } else {
+        delete diff.update_url
       }
       break;
     case 'firefox':
