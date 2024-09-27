@@ -1,0 +1,18 @@
+{
+  "permissions": [
+    "webNavigation",
+    "storage",
+    "unlimitedStorage",
+    "tabs",
+    "downloads",
+    "downloads.open",
+    "scripting",
+    "offscreen"
+  ],
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
+  },
+  "key": "CHROME_DEPLOY_PUBKEY",
+  "update_url": "SELF_HOST_UPDATE_URL"
+}

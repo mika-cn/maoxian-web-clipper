@@ -22,6 +22,9 @@
     "https://*/*",
     "http://*/*"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'"
+  },
   "web_accessible_resources": [
     {
       "resources": [
@@ -49,10 +52,7 @@
       "all_frames": false
     }
   ],
-  "background": {
-    "service_worker": "js/background.js",
-    "type": "module"
-  },
+  "background": {},
   "commands": {
     "slot-0": { "description": "__MSG_shortcutSlot0__", "suggested_key": {"default": "Shift+Alt+O"}},
     "slot-1": { "description": "__MSG_shortcutSlot1__", "suggested_key": {"default": "Shift+Alt+C"}},
@@ -76,7 +76,6 @@
     "128": "icons/mx-wc-128.png"
   },
   "action": {
-    "browser_style": true,
     "default_title": "__MSG_extensionDefaultTooltip__",
     "default_popup": "pages/popup.html",
     "default_icon": {
