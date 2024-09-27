@@ -30,6 +30,7 @@ body {
   padding: 0px 8px 0px 8px;
   height: 30px;
   line-height: 30px;
+  box-sizing: border-box;
 }
 
 .menu:hover{
