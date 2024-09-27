@@ -1,0 +1,20 @@
+{
+  "permissions": [
+    "webNavigation",
+    "storage",
+    "unlimitedStorage",
+    "tabs",
+    "downloads",
+    "downloads.open",
+    "scripting"
+  ],
+  "background": {
+    "scripts": ["js/background.js"],
+    "type": "module"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "EXTENSION_ID"
+    }
+  }
+}

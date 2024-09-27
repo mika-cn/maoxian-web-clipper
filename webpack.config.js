@@ -51,12 +51,12 @@ if (IS_PRODUCTION) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
-const pages_folder = path.join(__dirname, "src", "pages");
 const dist_folder  = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 const npm_folder   = path.join(__dirname, "node_modules");
-const manifestPath = path.join(__dirname, "src", "manifest.json");
 
-const manifest = JSON.parse(fs.readFileSync(manifestPath));
+const manifestPath_Firefox  = path.join(__dirname, "src", "manifest-firefox.json")
+const manifestPath_Chromium = path.join(__dirname, "src", "manifest-chromium.json")
+
 
 // extension page names
 const pages = [
@@ -232,25 +232,29 @@ const config = {
 
 
 function renderManifestWithPlatformMsg(content, path) {
-  let manifest = JSON.parse(content.toString());
+  const common = JSON.parse(content.toString());
+
+  let diff;
   switch(PLATFORM) {
     case 'chromium':
+      diff = JSON.parse(fs.readFileSync(manifestPath_Chromium));
       if (PLATFORM_ID) {
-        manifest.key = PLATFORM_ID;
+        diff.key = PLATFORM_ID;
       }
       if (PLATFORM_UPDATE_URL) {
-        manifest.update_url = PLATFORM_UPDATE_URL;
+        diff.update_url = PLATFORM_UPDATE_URL;
       }
       break;
     case 'firefox':
+      diff = JSON.parse(fs.readFileSync(manifestPath_Firefox));
       if (PLATFORM_ID) {
-        manifest.applications = {
-          gecko: {id: PLATFORM_ID}
-        }
+        diff.browser_specific_settings.gecko.id = PLATFORM_ID;
       }
       break;
     default: break;
   }
+
+  const manifest = Object.assign({}, common, diff);
   return Buffer.from(JSON.stringify(manifest, null, 2));
 }
 
