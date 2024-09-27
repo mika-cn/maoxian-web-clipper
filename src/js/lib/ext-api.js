@@ -191,7 +191,16 @@ ExtApi.getCurrentTab = () => {
     _.tabs.query({
       currentWindow: true,
       active: true
-    }).then((tabs) => {resolve(tabs[0])}, reject);
+    }).then((tabs) => {
+      if (tabs.length == 1) {
+        resolve(tabs[0])
+      } else {
+        const errMsg =`Expected to get one tab only, but got ${tabs.length}`
+        console.error(errMsg);
+        console.debug(tabs);
+        reject(errMsg);
+      }
+    }, reject);
   })
 }
 
