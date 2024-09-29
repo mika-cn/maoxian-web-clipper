@@ -652,18 +652,17 @@ function initListeners() {
 
 // ========================================
 
-async function init(){
+function init() {
   Log.debug("background init...");
   initListeners();
   ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
-  await MxWcMigration.perform();
-  await updateNativeAppConfig();
-
-  TaskFetcher.init({Fetcher});
+  MxWcMigration.perform();
+  updateNativeAppConfig();
 
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();
 
+  TaskFetcher.init({Fetcher});
 
   Handler_Browser.init(Object.assign({TaskFetcher}, {isChrome}));
   Handler_NativeApp.init({TaskFetcher});
