@@ -42,10 +42,11 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
   const tObj = T.wrapNow(now);
 
   const requestParams = new RequestParams({
-    sessionId      : tObj.str.intSec,
     refUrl         : pageUrl,
     userAgent      : userAgent,
     referrerPolicy : config.requestReferrerPolicy,
+    cache          : config.requestCache,
+    credentials    : config.requestCredentials,
     timeout        : config.requestTimeout,
     tries          : config.requestMaxTries,
   });

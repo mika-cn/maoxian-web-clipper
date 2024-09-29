@@ -110,7 +110,7 @@ function editAll(e) {
 
 function editTask(task, changes) {
   for (let key in changes) {
-    task[key] = changes[key];
+    task.requestParams[key] = changes[key];
   }
   return task;
 }
@@ -127,7 +127,7 @@ function renderTasks(tasks) {
     const tpl = T.findElem('task-tpl').innerHTML;
     const html = tasks.map((it) => {
       const createdAt = T.wrapDate(new Date(parseInt(it.createdMs))).toString();
-      return T.renderTemplate(tpl, Object.assign({createdAt: createdAt}, it));
+      return T.renderTemplate(tpl, Object.assign({createdAt: createdAt}, it, it.requestParams));
     }).join('');
     T.setHtml('.tasks > .details tbody', html);
   } else {

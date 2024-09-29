@@ -39,12 +39,11 @@ function messageHandler(message, sender) {
         getMimeType(message.body).then(resolve, reject);
         break;
       case 'fetch.text':
-        Global.Fetcher.get(message.body.url, {
-          respType: 'text',
-          headers: message.body.headers,
-          timeout: message.body.timeout,
-          tries: message.body.tries,
-        }).then(resolve, reject);;
+        const requestParams = message.body;
+        Global.Fetcher.get(requestParams.url, Object.assign(
+          {respType: 'text'},
+          requestParams
+        )).then(resolve, reject);;
         break;
       case 'frame.clipAsHtml.takeSnapshot':
       case 'frame.clipAsMd.takeSnapshot':
@@ -98,11 +97,12 @@ function getNameConflictResolverKey(clipId) {
 
 // We can not get mime type from WebRequest API anymore
 // it's not supported anymore in manifest V3 on chromium.
-async function getMimeType({url, headers, timeout, tries}) {
+async function getMimeType(requestParams) {
+  const {url} = requestParams;
   const EMPTY = '__EMPTY__';
   try {
     //get mimeType by sending a HEAD request
-    const respHeaders = await Global.Fetcher.head(url, {headers, timeout, tries});
+    const respHeaders = await Global.Fetcher.head(url, requestParams);
     const contentType = respHeaders.get('Content-Type');
     const contentDisposition = respHeaders.get('Content-Disposition');
     if (contentType) {

@@ -207,11 +207,6 @@
 
 
     // options
-    "option.request-referrer-policy.origin-when-cross-origin": "originWhenCrossOrigin: full path (origin + path) when request to same origins, origin (protocol + host + port) only when request to other origins.",
-    "option.request-referrer-policy.origin": "origin: origin only (protocol + host + port).",
-    "option.request-referrer-policy.no-referrer": "noReferrer: The Referer header will not be sent.",
-    "option.request-referrer-policy.unsafe-url": "unsafeUrl: The Referer header will include full path (origin + path).",
-
     "option.capture.save-all": "Save all",
     "option.capture.save-current": "Save current",
     "option.capture.save-used": "Save used",
@@ -334,10 +329,6 @@
     "label.file-url-input": "I enabled 'allow file scheme access' ",
     "label.request-timeout-input": "Timeout for performing a request (secs, 5 ~ 84600)",
     "label.request-max-tries-input": "Maximum tries to perform a request, If this value is bigger than one, that means we'll resend the reqeust if it fails",
-    "label.request-cache-size-input": "Cache size (how many requests we'll cache, 0 ~ 500)",
-    "label.request-cache-css-input": "Cache stylesheets (CSS)",
-    "label.request-cache-image-input": "Cache images",
-    "label.request-cache-web-font-input": "Cache web fonts",
     "label.clip-information-input": "Append clipping information (original url, time, category and tags) to clippted content",
     "label.html-custom-body-bg-css-enabled-input": "Enable custom CSS background color for body tag.",
     "label.save-domain-tag-input": "Save current domain as tag",

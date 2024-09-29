@@ -4,36 +4,42 @@ import T from './tool.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 
+
+// How many times we'll try (default 3)
+const TRIES = 3;
+
 /*
  * @see doGet()
- * @param {integer} tries - How many times we'll try (default 3)
+ * @param {integer} requestOptions.tries - Times to try
  */
-function get(url, {respType = 'text', headers = {}, timeout = 40, tries = 3}) {
-  const action = function() { return doGet(url, {respType, headers, timeout}) };
+function get(url, requestOptions = {}) {
+  const tries = T.deleteObjAttr(requestOptions, 'tries', TRIES);
+  const action = function() { return doGet(url, requestOptions) };
   return T.retryAction(action, tries);
 }
 
 /*
  * @see doHead()
- * @param {integer} tries - How many times we'll try (default 3)
+ * @param {integer} requestOptions.tries - Times to try
  */
-function head(url, {headers = {}, timeout = 40, tries = 3}) {
-  const action = function() { return doHead(url, {headers, timeout}) };
+function head(url, requestOptions = {}) {
+  const tries = T.deleteObjAttr(requestOptions, 'tries', TRIES);
+
+  const action = function() { return doHead(url, requestOptions) };
   return T.retryAction(action, tries);
 }
 
+
 /*
  * @param {String} url request url
- * @param {Object} options
- *   - {String} respType "text" or "blob"
- *   - {Object} headers http headers
- *   - {Integer} timeout (seconds)
+ * @param {String} requestOptions.respType -  "text" or "blob"
  *
- * @return {Promise} resolve with text or blob.
+ * @returns {Promise} resolve with text or blob.
  */
-function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
+function doGet(url, requestOptions = {}) {
+  const respType = T.deleteObjAttr(requestOptions, 'respType', 'text');
   return new Promise((resolve, reject) => {
-    doFetch('GET', url, {headers, timeout}).then((resp) => {
+    doFetch('GET', url, requestOptions).then((resp) => {
       resp[respType]().then(resolve);
     }, reject);
   });
@@ -42,35 +48,41 @@ function doGet(url, {respType = 'text', headers = {}, timeout = 40}) {
 
 /*
  * @param {String} url request url
- * @param {Object} options
- *   - {Object} headers http headers
- *   - {Integer} timeout (seconds)
- *
- * @return {Promise} requesting : resolve with headers
+ * @param {Object} requestOptions
+ * @returns {Promise} requesting : resolve with headers
  */
-function doHead(url, {headers = {}, timeout = 40}) {
+function doHead(url, requestOptions = {}) {
   return new Promise((resolve, reject) => {
-    doFetch('HEAD', url, {headers, timeout}).then((resp) => {
+    doFetch('HEAD', url, requestOptions).then((resp) => {
       resolve(resp.headers);
     }, reject);
   });
 }
 
 
-function doFetch(method, url, {headers, timeout=40}) {
+/*
+ * @see @mdn/en-US/docs/Web/API/Fetch_API/Using_Fetch
+ * @see @mdn/en-US/docs/Web/API/Window/fetch
+ * @see @mdn/en-US/docs/Web/API/RequestInit
+ */
+function doFetch(method, url, {
+  headers = {},
+  timeout = 40,
+  cache = 'default',
+  credentials = 'same-origin',
+  referrerPolicy = 'strict-origin-when-cross-origin',
+  referrer = 'about:client',
+  mode = 'cors',
+  redirect = 'follow',
+}) {
 
   return new Promise((resolve, reject) => {
     const {extraFetchOpts, timeoutPromise} = getTimeoutParams(timeout);
 
-    // FIXME
-    // add referrerPolicy to here instead of do it ourself.
-    // do we need credentials option here?
-    // how to ensure mode is right
-    //
     const options = Object.assign(extraFetchOpts, {
-      method: method,
-      headers: new Headers(headers),
-      redirect: 'follow',
+      method, headers : new Headers(headers),
+      redirect, mode, cache,
+      credentials, referrerPolicy,
     });
 
     Promise.race([ fetch(url, options), timeoutPromise ]).then(
@@ -80,8 +92,8 @@ function doFetch(method, url, {headers, timeout=40}) {
         } else {
           // An HTTP status of 404 does not constitute a network error.
           const msg = [url, resp.status, resp.statusText].join(', ');
-          console.warn('mx-wc', msg);
-          console.warn('mx-wc', resp.headers);
+          console.warn('mx.request failed : ', msg);
+          console.warn('mx.request failed : ', resp.headers);
           reject({message: msg, retry: false});
         }
       },

@@ -14,11 +14,11 @@ import T from './tool.js';
 *   url      : resource's url (if type is 'url')
 *   mimeType : resource's mimeType (if type is 'text')
 *   text     : resource's content (if type is 'text')
-*   headers  : http headers (Referer, UserAgent etc. if type is 'url')
-*   timeout  : http request timeout (seconds, if type is 'url')
-*   tries    : how many times we request this resource (if type is 'url')
 *   clipId   : clipping id
 *   createdMs: created time (millisecond)
+*   requestParams : request relative params {
+*      timeout, tries, headers, referrerPolicy, cache, credentials
+*   } (if type is 'url')
 * }
 */
 
@@ -82,11 +82,9 @@ function createUrlTask(filename, url, clipId, taskType, requestParams) {
     type      : 'url',
     filename  : filename,
     url       : url,
-    headers   : requestParams.getHeaders(url),
-    timeout   : requestParams.timeout,
-    tries     : requestParams.tries,
     clipId    : clipId,
     createdMs : Date.now().toString(),
+    requestParams : requestParams.toParams(url),
   }
 }
 

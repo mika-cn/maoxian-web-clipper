@@ -20,12 +20,9 @@ async function get(task) {
     }
 
   } else {
-    const fetchingUrl = Global.Fetcher.get(task.url, {
-      respType: 'blob',
-      headers: task.headers,
-      timeout: task.timeout,
-      tries: task.tries,
-    });
+    const fetchingUrl = Global.Fetcher.get(task.url, Object.assign(
+      {respType: 'blob'}, task.requestParams
+    ));
     return waitUntil(fetchingUrl);
   }
 }
