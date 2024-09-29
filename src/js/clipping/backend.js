@@ -3,7 +3,6 @@ import T           from '../lib/tool.js';
 import ExtApi      from '../lib/ext-api.js';
 import ExtMsg      from '../lib/ext-msg.js';
 import Storage     from '../lib/storage.js';
-import ActionCache from '../lib/action-cache.js';
 
 
 function messageHandler(message, sender) {
@@ -40,16 +39,12 @@ function messageHandler(message, sender) {
         getMimeType(message.body).then(resolve, reject);
         break;
       case 'fetch.text':
-        ActionCache.findOrCache(
-          [message.body.sessionId, message.body.url].join('.'),
-          () => {
-          return Global.Fetcher.get(message.body.url, {
-            respType: 'text',
-            headers: message.body.headers,
-            timeout: message.body.timeout,
-            tries: message.body.tries,
-          });
-        }).then(resolve, reject);
+        Global.Fetcher.get(message.body.url, {
+          respType: 'text',
+          headers: message.body.headers,
+          timeout: message.body.timeout,
+          tries: message.body.tries,
+        }).then(resolve, reject);;
         break;
       case 'frame.clipAsHtml.takeSnapshot':
       case 'frame.clipAsMd.takeSnapshot':
@@ -65,8 +60,6 @@ function messageHandler(message, sender) {
       case 'clipped':
         const clipping = message.body;
         removeNameConflictResolver(clipping.info.clipId);
-        const sessionId = clipping.info.clipId;
-        ActionCache.removeByKeyPrefix(sessionId);
         resolve();
         break;
       default:
@@ -79,12 +72,12 @@ function messageHandler(message, sender) {
 //
 
 function addNameConflictResolver({clipId, nameConflictResolverObject}) {
-  const key = ['nameConflictResolverObject', clipId].join('.');
+  const key = getNameConflictResolverKey(clipId);
   return Storage.session.set(key, nameConflictResolverObject);
 }
 
 async function getUniqueFilename({clipId, id, folder, filename}) {
-  const key = ['nameConflictResolverObject', clipId].join('.');
+  const key = getNameConflictResolverKey(clipId);
   const obj = await Storage.session.get(key)
   if (obj) {
     const resolver = T.restoreFilenameConflictResolver(obj);
@@ -95,8 +88,11 @@ async function getUniqueFilename({clipId, id, folder, filename}) {
 }
 
 function removeNameConflictResolver(clipId) {
-  const key = ['nameConflictResolverObject', clipId].join('.');
-  return Storage.session.remove(key);
+  return Storage.session.remove(getNameConflictResolverKey(clipId));
+}
+
+function getNameConflictResolverKey(clipId) {
+  return ['nameConflictResolverObject', clipId].join('.');
 }
 
 
