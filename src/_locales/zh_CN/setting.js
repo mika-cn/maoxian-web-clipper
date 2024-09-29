@@ -206,11 +206,6 @@
 
 
     // options
-    "option.request-referrer-policy.origin-when-cross-origin": "同域请求时，Referrer 为全路径（请求域 + 请求路径），跨域请求时，Referrer 只包含请求域（协议 + 域名 + 端口）",
-    "option.request-referrer-policy.origin": "Referrer 只包含请求域（协议 + 域名 + 端口）",
-    "option.request-referrer-policy.no-referrer": "不发送 Referer",
-    "option.request-referrer-policy.unsafe-url": "Referrer 为全路径（请求域 + 请求路径）",
-
     "option.capture.save-all": "保存所有",
     "option.capture.save-current": "保存当前",
     "option.capture.save-used": "只保存已使用的",
@@ -329,10 +324,6 @@
     "label.file-url-input": "我设置好了 ‘允许插件访问本地文件路径’",
     "label.request-timeout-input": "请求的超时时长 (秒, 5 ~ 86400)",
     "label.request-max-tries-input": "请求的最大尝试次数，当该值大于 1 时，会在请求失败时进行重试，比如该值为 3，则会在失败时，最多重试 2 次。",
-    "label.request-cache-size-input": "缓存容量（缓存多少个请求，0 ~ 500）",
-    "label.request-cache-css-input": "缓存网页样式 （CSS）",
-    "label.request-cache-image-input": "缓存图片",
-    "label.request-cache-web-font-input": "缓存字体",
     "label.clip-information-input": "追加裁剪信息 （原网址、时间、目录和标签）到内容尾部",
     "label.html-custom-body-bg-css-enabled-input": "允许自定义 body 标签的 CSS 背景颜色",
     "label.save-domain-tag-input": "裁剪时，添加当前域名为标签",

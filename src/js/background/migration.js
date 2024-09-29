@@ -45,6 +45,46 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.14'] = function(config) {
+  config.version = '2.15';
+
+  const oldValues = [
+    "noReferrer",
+    "origin",
+    "originWhenCrossOrigin",
+    "unsafeUrl",
+  ];
+
+  const dict = {
+    noReferrer: "no-referrer",
+    origin: "origin",
+    originWhenCrossOrigin: "origin-when-cross-origin",
+    unsafeUrl: "unsafe-url",
+  };
+
+  const defaultReferrerPolicy = "strict-origin-when-cross-origin";
+
+  let newValue;
+  if (oldValues.indexOf(config.requestReferrerPolicy) < 0) {
+    newValue = defaultReferrerPolicy;
+  } else {
+    newValue = dict[config.requestReferrerPolicy] || defaultReferrerPolicy;
+  }
+
+  config.requestReferrerPolicy = newValue;
+  config.requestCache = 'default';
+  config.requestCredentials = 'same-origin';
+
+  // We can't utilize webRequest API anymore
+  // delete relative items
+  delete config.requestCacheSize;
+  delete config.requestCacheCss;
+  delete config.requestCacheImage;
+  delete config.requestCacheWebFont;
+
+  return config;
+}
+
 ConfigMigration['2.13'] = function(config) {
   config.version = '2.14';
   config.userCommandsText = '{\n  "doNothing": {"exec": "doNothing"}\n}';

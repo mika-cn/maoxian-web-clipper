@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.14';
+const VERSION = '2.15';
 const state = {};
 
 /** WARNING
@@ -89,13 +89,13 @@ function getDefault(){
     /* unit: seconds */
     requestTimeout: 300,
     requestMaxTries: 3,
-    /* noReferrer, origin, originWhenCrossOrigin, unsafeUrl */
-    requestReferrerPolicy: 'originWhenCrossOrigin',
-    /* cache */
-    requestCacheSize: 80,
-    requestCacheCss: true,
-    requestCacheImage: true,
-    requestCacheWebFont: false,
+
+    // @see http://mdn.pc/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+    requestReferrerPolicy: 'strict-origin-when-cross-origin',
+    // default, no-store, reload, no-cache, force-cache
+    requestCache: 'default',
+    // same-origin, omit
+    requestCredentials: 'same-origin',
 
     /* misc */
     communicateWithThirdParty: false,
@@ -281,6 +281,8 @@ export const API_SETTABLE_KEYS = [
   'requestTimeout',
   'requestMaxTries',
   'requestReferrerPolicy',
+  'requestCache',
+  'requestCredentials',
 ];
 
 

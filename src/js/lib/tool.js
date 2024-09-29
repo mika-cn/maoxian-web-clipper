@@ -120,6 +120,13 @@ T.sliceObj = function(obj, keys) {
   return r;
 }
 
+// Note: this modify the object.
+T.deleteObjAttr = function (obj, attr, defaultValue) {
+  const value = (obj[attr] || defaultValue);
+  delete obj[attr]
+  return value;
+}
+
 T.mapObj = function(obj, transfer) {
   const r = [];
   for (let k in obj) { r.push(transfer(k, obj[k])) }

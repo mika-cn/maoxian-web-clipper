@@ -472,45 +472,6 @@ const hello = () =&gt; {
           <input type="number" id="request-max-tries" min="1" max="99" value="3" required/>
           <label for="request-max-tries" i18n="label.request-max-tries-input"></label>
 
-          <h4 i18n="title.request-cache"></h4>
-          <div class="notice-info" i18n="notice.request-cache"></div>
-          <div class="notice-warning" i18n="notice.request-cache-applying"></div>
-          <div>
-            <input type="number" id="request-cache-size" min="0" max="500" value="80" required/>
-            <label for="request-cache-size" i18n="label.request-cache-size-input"></label>
-          </div>
-          <br />
-          <div id="cache-switchers">
-            <input type="checkbox" id="request-cache-css" />
-            <label for="request-cache-css" i18n="label.request-cache-css-input"></label>
-            <br />
-            <input type="checkbox" id="request-cache-image" />
-            <label for="request-cache-image" i18n="label.request-cache-image-input"></label>
-            <br />
-            <input type="checkbox" id="request-cache-web-font" />
-            <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
-          </div>
-
-          <h4 i18n="title.request-referrer-policy"></h4>
-          <div id="request-referrer-policy">
-            <div>
-              <input type="radio" value="originWhenCrossOrigin" id="request-referrer-policy-a" name="request-referrer-policy" />
-              <label for="request-referrer-policy-a" i18n="option.request-referrer-policy.origin-when-cross-origin"></label>
-            </div>
-            <div>
-              <input type="radio" value="origin" id="request-referrer-policy-b" name="request-referrer-policy" />
-              <label for="request-referrer-policy-b" i18n="option.request-referrer-policy.origin"></label>
-            </div>
-            <div>
-              <input type="radio" value="noReferrer" id="request-referrer-policy-c" name="request-referrer-policy" />
-              <label for="request-referrer-policy-c" i18n="option.request-referrer-policy.no-referrer"></label>
-            </div>
-            <div>
-              <input type="radio" value="unsafeUrl" id="request-referrer-policy-d" name="request-referrer-policy" />
-              <label for="request-referrer-policy-d" i18n="option.request-referrer-policy.unsafe-url"></label>
-            </div>
-          </div>
-
         </div>
         <div>
           <h3 i18n="title.misc"></h3>
