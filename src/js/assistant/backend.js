@@ -45,9 +45,15 @@ function messageHandler(message, sender) {
 }
 
 async function executeScript(scriptName, args, {tabId, frameId}) {
+  throw new Error("execute user scripts is not supported yet (manifest V3)");
+  // We are waiting for userScripts.execute method to be implement
+  // by browsers.
+
+  /*
   const script = await getWrappedScript(scriptName, args);
   return  ExtApi.executeContentScript(tabId, {
     frameId, code: script, runAt: 'document_idle'});
+    */
 }
 
 
