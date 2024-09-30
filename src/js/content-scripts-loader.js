@@ -89,6 +89,8 @@ async function getFramesThatNotLoadContentScriptsYet(tabId) {
   let topFrame;
   const targetFrames = [];
   for (const frame of frames) {
+    // Maybe oneday we need to do it
+    // on non-http frames too.
     if (T.isHttpUrl(frame.url)
       && !(await isContentScriptsLoaded(tabId, frame.frameId))
     ) {
@@ -114,7 +116,7 @@ async function isContentScriptsLoaded(tabId, frameId) {
     const resp = await ExtMsg.pingContentScript(tabId, frameId);
     if (resp == 'pong') {
       // the target frame can respond to ping,
-      // that means it's content scripts have laoded.
+      // that means it's content scripts have loaded.
       return true;
     } else {
       // In some old version of firefox (such as: 60.8.0esr)
