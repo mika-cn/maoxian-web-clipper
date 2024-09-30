@@ -12,6 +12,26 @@
     "scripts": ["js/background.js"],
     "type": "module"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": ["js/lib/frame-tool.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": ["js/page-scripts-loader.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "EXTENSION_ID"

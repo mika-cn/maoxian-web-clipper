@@ -321,7 +321,7 @@ async function takeSnapshotOfCurrNode_HTML(node, params) {
             return {snapshot};
           }
 
-          const frame = findFrame(frameInfo, url);
+          const frame = await findFrame(frameInfo, node, win);
 
           if (!frame) {
             console.info("Coundn't find frame use url: ", url);
@@ -331,9 +331,6 @@ async function takeSnapshotOfCurrNode_HTML(node, params) {
             snapshot.render = 'blank';
             return {snapshot};
           }
-
-          // This assignment is nasty. It changes the parameter (params)
-          frame.used = true;
 
           snapshot.frame = {
             url: frame.url,
@@ -653,13 +650,16 @@ function DOMTokenList2Array(list, caseInsensitive = false) {
 }
 
 
-function findFrame(frameInfo, url) {
+async function findFrame(frameInfo, frameElem, win) {
   if (frameInfo.ancestors.length == 0) {
     throw new Error("findFrame: Invalid frameInfo, ancestors should not be empty");
   } else {
+    const frameWindow = frameElem.contentWindow;
+    const frameId = await win.FrameTool.getId(frameWindow);
+    if (!frameId) { return null }
     const parentFrame = frameInfo.ancestors[0];
     return frameInfo.allFrames.find((it) => {
-      return it.url == url && it.parentFrameId == parentFrame.frameId && !it.used;
+      return it.frameId == frameId && it.parentFrameId == parentFrame.frameId;
     });
   }
 }

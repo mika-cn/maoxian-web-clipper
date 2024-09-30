@@ -33,7 +33,7 @@ function messageHandler(message, sender) {
           });
         break;
       case 'get.allFrames':
-        getAllFrames(sender.tab.id).then(resolve, reject);
+        ExtApi.getAllFrames(sender.tab.id).then(resolve, reject);
         break;
       case 'get.mimeType':
         getMimeType(message.body).then(resolve, reject);
@@ -133,29 +133,6 @@ async function getCurrentLayerFrames(tabId, parentFrameId) {
     }
   });
   return result;
-}
-
-
-
-async function getAllFrames(tabId) {
-  // FIXME
-  // get frame redirections
-  // const dict = Global.WebRequest.getRedirectionDict('frame');
-  //
-  // How could we get this redirection map?
-  // if we couldn't get from WebRequest API
-  const dict = {};
-  const redirectFrom = {};
-  for (let url in dict) {
-    const targetUrl = dict[url];
-    redirectFrom[targetUrl] = url;
-  }
-  const frames = await ExtApi.getAllFrames(tabId);
-  frames.forEach((it) => {
-    it.originalUrl = (redirectFrom[it.url] || it.url);
-  });
-
-  return frames.sort((a, b) => a.frameId - b.frameId);
 }
 
 

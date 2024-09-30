@@ -5,16 +5,7 @@
   "author": "Mika",
   "version": "0.7.0",
   "default_locale": "en",
-  "permissions": [
-    "webNavigation",
-    "storage",
-    "unlimitedStorage",
-    "tabs",
-    "downloads",
-    "downloads.open",
-    "scripting",
-    "offscreen"
-  ],
+  "permissions": [],
   "optional_permissions": [
     "nativeMessaging"
   ],
@@ -41,18 +32,8 @@
       ]
     }
   ],
-  "content_scripts": [
-    {
-      "matches": [
-        "https://*/*",
-        "http://*/*"
-      ],
-      "js": ["js/page-scripts-loader.js"],
-      "run_at": "document_start",
-      "all_frames": false
-    }
-  ],
   "background": {},
+  "content_scripts": {},
   "commands": {
     "slot-0": { "description": "__MSG_shortcutSlot0__", "suggested_key": {"default": "Shift+Alt+O"}},
     "slot-1": { "description": "__MSG_shortcutSlot1__", "suggested_key": {"default": "Shift+Alt+C"}},

@@ -41,6 +41,10 @@ function messageHandler(message, sender){
     Log.debug(sender, message);
     switch(message.type) {
 
+      case 'get.frame-id':
+        resolve(sender.frameId);
+        break;
+
       case 'close.off-screen':
         Log.debug("close off-screen document");
         ExtApi.closeOffscreenDoc().then(resolve);
@@ -650,6 +654,12 @@ function initListeners() {
   Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
 }
 
+
+function generateFrameMsgToken() {
+  const token = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
+  MxWcStorage.set('frame-msg-token', token)
+}
+
 // ========================================
 
 function init() {
@@ -658,6 +668,7 @@ function init() {
   ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
   MxWcMigration.perform();
   updateNativeAppConfig();
+  generateFrameMsgToken();
 
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();

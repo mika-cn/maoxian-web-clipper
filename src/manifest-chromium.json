@@ -13,6 +13,27 @@
     "service_worker": "js/background.js",
     "type": "module"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": ["js/lib/frame-tool.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
+    },
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": ["js/page-scripts-loader.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
   "key": "CHROME_DEPLOY_PUBKEY",
   "update_url": "SELF_HOST_UPDATE_URL"
 }
