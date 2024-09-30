@@ -44,11 +44,7 @@
     "slot-6": { "description": "__MSG_shortcutSlot6__"},
     "slot-7": { "description": "__MSG_shortcutSlot7__"},
     "slot-8": { "description": "__MSG_shortcutSlot8__"},
-    "slot-9": { "description": "__MSG_shortcutSlot9__"},
-    "clip-as-default" : { "description" : "__MSG_commandDeprecated__" },
-    "clip-as-html"    : { "description" : "__MSG_commandDeprecated__" },
-    "clip-as-md"      : { "description" : "__MSG_commandDeprecated__" },
-    "open-clipping"   : { "description" : "__MSG_commandDeprecated__" }
+    "slot-9": { "description": "__MSG_shortcutSlot9__"}
   },
   "icons": {
     "16": "icons/mx-wc-16.png",
