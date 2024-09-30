@@ -124,6 +124,7 @@ function getCopyItems() {
     ['src/js/user-script' , 'js/user-script'],
 
     /* content */
+    [`src/js/lib/frame-tool-${PLATFORM}.js`, 'js/lib/frame-tool.js'],
     ['src/js/page-scripts-loader.js', 'js/page-scripts-loader.js'],
     ['src/js/content-scripts-loader.js', 'js/content-scripts-loader.js'],
 
