@@ -14,11 +14,6 @@
     "description": "Tooltip for the icon, displayed when the user moves their mouse over it."
   },
 
-  "commandDeprecated": {
-    "message": "Deprecated, do not use it",
-    "description": "Shortcut label"
-  },
-
   "shortcutSlot0": {
     "message": "Slot 0",
     "description": "Shortcut label"
