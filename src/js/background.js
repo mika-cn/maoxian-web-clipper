@@ -28,13 +28,6 @@ import ContentScriptsLoader from './content-scripts-loader.js';
 
 const Global = { evTarget: new MxEvTarget() };
 
-function unknownMessageHandler(message, sender) {
-  return new Promise(function(resolve, reject) {
-    const error = new Error(`Unknown message: ${message.type}`);
-    reject(error);
-  })
-}
-
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
 
@@ -660,13 +653,18 @@ function generateFrameMsgToken() {
   MxWcStorage.set('frame-msg-token', token)
 }
 
+function onInstalled(details) {
+  Log.debug("installed reason: ", details.reason);
+  ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
+  MxWcMigration.perform();
+}
+
 // ========================================
 
 function init() {
   Log.debug("background init...");
+  ExtApi.bindOnInstalledListener(onInstalled);
   initListeners();
-  ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
-  MxWcMigration.perform();
   updateNativeAppConfig();
   generateFrameMsgToken();
 
@@ -692,9 +690,6 @@ function init() {
   }, {
     evTarget: Global.evTarget,
   }));
-
-  // TODO confirm Why the listener order on MacOS is reverse?
-  // ExtMsg.listenBackend('background', unknownMessageHandler);
 
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)
