@@ -197,7 +197,6 @@ async function deleteSavedBlobUrlData(clipId, failedTasks = []) {
 let Global = null;
 export default function init(global) {
   Global = global;
-  Global.clippingBlobUrls = new Map(); // clipId => blobUrls;
   ExtMsg.listenBackend('backend.saving', messageHandler);
   Log.debug("MX backend: Saving initialized");
 }

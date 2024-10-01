@@ -19,7 +19,6 @@ function messageHandler(message, sender) {
         reset().then(resolve);
         break;
       case 'restart':
-        restart();
         resolve();
         break;
       default:
@@ -29,8 +28,6 @@ function messageHandler(message, sender) {
   });
 }
 
-// host => store
-const StoreDict = {};
 
 async function save({host, path, selection}) {
   const Store = await getStore(host);
@@ -47,25 +44,12 @@ async function query({host, path}) {
 async function reset() {
   const filter = T.prefixFilter('selectionStore', true);
   await MxWcStorage.removeByFilter(filter)
-  restart();
 }
 
-// just clear StoreDict
-// force it to refetch from Storage
-function restart() {
-  for (let key in StoreDict) {
-    delete StoreDict[key];
-  }
-}
 
 async function getStore(host) {
-  let Store = StoreDict[host];
-  if (!Store) {
-    const treeHash = await MxWcStorage.get(getKey(host));
-    Store = SelectionStore.create(treeHash);
-    StoreDict[host] = Store;
-  }
-  return Store;
+  const treeHash = await MxWcStorage.get(getKey(host));
+  return  SelectionStore.create(treeHash);
 }
 
 async function saveStore(host, Store) {
