@@ -746,8 +746,8 @@ async function fetchContentMessage() {
   try {
     const message = await MxWcStorage.get(key)
     if (message) {
+      await MxWcStorage.remove(key);
       messageHandler(message);
-      MxWcStorage.remove(key);
     }
   } catch (error) {
     Log.debug(error);
