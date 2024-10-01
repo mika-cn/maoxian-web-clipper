@@ -46,6 +46,7 @@ async function storage() {
     T.attributeFilter('tags', false),
     T.prefixFilter('assistant', false),
     T.prefixFilter('selectionStore', false),
+    T.prefixFilter('failedTasks', false),
     blobUrlDataFilter,
     (key) => { return true }
   );
