@@ -101,6 +101,11 @@ ExtApi.getContexts = (params) => {
   return _.runtime.getContexts(params);
 }
 
+ExtApi.bindOnInstalledListener = (listener) => {
+  _.runtime.onInstalled.removeListener(listener);
+  _.runtime.onInstalled.addListener(listener);
+}
+
 
 /*****************************
  * Storage
