@@ -60,7 +60,7 @@ const manifestPath_Chromium = path.join(__dirname, "src", "manifest-chromium.jso
 
 // extension page names
 const pages = [
-  'background', 'popup', 'welcome', 'history', 'home', 'last-clipping-result',
+  'popup', 'welcome', 'history', 'home', 'last-clipping-result',
   'plan-subscription', 'reset-history', 'setting',
   'ui-control', 'ui-selection', 'failed-tasks', 'user-script', 'sync-user-scripts',  'debug', 'off-screen'];
 
@@ -111,7 +111,6 @@ function getCopyItems() {
     ['src/js/lib/query.js'             , 'js/lib/query.js']             ,
     ['src/js/lib/event-target.js'      , 'js/lib/event-target.js']      ,
     ['src/js/lib/fetcher.js'           , 'js/lib/fetcher.js']           ,
-    ['src/js/lib/fetcher-using-xhr.js' , 'js/lib/fetcher-using-xhr.js'] ,
     ['src/js/lib/task-fetcher.js'      , 'js/lib/task-fetcher.js']      ,
     ['src/js/lib/action-cache.js'      , 'js/lib/action-cache.js']      ,
     ['src/js/lib/auto-complete.js'     , 'js/lib/auto-complete.js']      ,
@@ -161,7 +160,7 @@ function getCopyItems() {
 
 
   // page stylesheets
-  const cssBlackList = ['ui-selection', 'background',
+  const cssBlackList = ['ui-selection',
     'reset-history', 'plan-subscription', 'user-script', 'sync-user-scripts', 'off-screen'];
   const cssNames = ['_base', '_details', '_file-uploader'].concat(pages);
   cssNames.forEach((name) => {
