@@ -241,11 +241,13 @@ function renderManifestWithPlatformMsg(content, path) {
       diff = JSON.parse(fs.readFileSync(manifestPath_Chromium));
       if (PLATFORM_ID) {
         diff.key = PLATFORM_ID;
+      } else {
+        delete diff.key;
       }
       if (PLATFORM_UPDATE_URL) {
         diff.update_url = PLATFORM_UPDATE_URL;
       } else {
-        delete diff.update_url
+        delete diff.update_url;
       }
       break;
     case 'firefox':
