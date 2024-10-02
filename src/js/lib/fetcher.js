@@ -77,16 +77,35 @@ function doFetch(method, url, {
 }) {
 
   return new Promise((resolve, reject) => {
-    const {extraFetchOpts, timeoutPromise} = getTimeoutParams(timeout);
-
-    const options = Object.assign(extraFetchOpts, {
+    const controller = new AbortController();
+    const options = {
       method, headers : new Headers(headers),
       redirect, mode, cache,
       credentials, referrerPolicy,
-    });
+      signal: controller.signal,
+    }
 
-    Promise.race([ fetch(url, options), timeoutPromise ]).then(
+    let requestAborted = false;
+    const timeoutId = setTimeout(() => {
+      try {
+        controller.abort();
+        console.debug("timeout (natually), abort the fetch request", url);
+        setTimeout(() => {
+          // If the requst is not aborted, reject the promise
+          if (!requestAborted) {
+            const message = ["Timeout abort failed", url].join(', ');
+            reject({message, retry: false});
+          }
+        }, 1000);
+      } catch (e) {
+        console.debug("timeout (catch), when fetch request", url);
+      }
+    }, (10 || timeout) * 1000);
+
+
+    fetch(url, options).then(
       (resp) => {
+        clearTimeout(timeoutId);
         if(resp.ok) {
           resolve(resp);
         } else {
@@ -97,11 +116,12 @@ function doFetch(method, url, {
           reject({message: msg, retry: false});
         }
       },
-
       (e) => {
-        // rejects with a TypeError when a network error is encountered, although this usually means a permissions issue or similar
+        // rejects with a TypeError when a network error is encountered,
+        // although this usually means a permissions issue or similar
         const arr = [url, e.message];
         if (e.message.match(/aborted/i) || e.message.match(/timeout/i)) {
+          requestAborted = true;
           // aborted by us
           arr.push("Timeout")
           const msg = arr.join(", ");
@@ -109,6 +129,7 @@ function doFetch(method, url, {
           console.error('mx-wc', e);
           reject({message: msg, retry: true});
         } else {
+          clearTimeout(timeoutId);
           const msg = arr.join(", ");
           console.warn('mx-wc', msg);
           console.error('mx-wc', e);
@@ -122,43 +143,9 @@ function doFetch(method, url, {
       console.error('mx-wc', e);
       reject({message: msg, retry: false});
     });
+
   });
 }
 
-
-/**
- * FIXME fetch don't support timeout option. (maybe it'll be supported in the future)
- * @param {Integer} delay (seconds)
- */
-function getTimeoutParams(delay) {
-  let timeoutPromise;
-  const extraFetchOpts = {};
-  try {
-    // AbortController is an experimental technology.
-    // Firefox Full support (since 57)
-    // Chrome Full support (since 66)
-    const controller = new AbortController();
-    extraFetchOpts.signal = controller.signal;
-    timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        try {
-          controller.abort();
-          reject(new Error("timeout (natually)"));
-        } catch (e) {
-          // real evil network environment
-          reject(new Error("timeout (catch)"));
-        }
-      }, delay * 1000);
-    });
-  } catch(e) {
-    // FIXME delete this try catch, because we can't support old browser anymore
-    // if we upgrade to manifest V3
-    console.debug("AbortController is not supported");
-    timeoutPromise = new Promise((_, reject) => {
-      setTimeout(reject, delay * 1000, new Error("timeout"));
-    });
-  }
-  return {extraFetchOpts, timeoutPromise};
-}
 
 export default {get, head};

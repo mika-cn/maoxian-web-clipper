@@ -43,7 +43,9 @@ function messageHandler(message, sender) {
         Global.Fetcher.get(requestParams.url, Object.assign(
           {respType: 'text'},
           requestParams
-        )).then(resolve, reject);;
+        )).then((result) => {
+          resolve({fromCache: false, result});
+        }, reject);
         break;
       case 'frame.clipAsHtml.takeSnapshot':
       case 'frame.clipAsMd.takeSnapshot':
