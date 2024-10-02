@@ -748,6 +748,8 @@ async function fetchContentMessage() {
     if (message) {
       await MxWcStorage.remove(key);
       messageHandler(message);
+    } else {
+      Log.error("Expect content message, but got undefined!!");
     }
   } catch (error) {
     Log.debug(error);

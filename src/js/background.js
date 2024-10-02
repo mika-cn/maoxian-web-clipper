@@ -31,7 +31,8 @@ const Global = { evTarget: new MxEvTarget() };
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
 
-    Log.debug(sender, message);
+    //Log.debug(sender, message);
+    Log.debug(message.type);
     switch(message.type) {
 
       case 'get.frame-id':
@@ -455,34 +456,56 @@ async function loadContentScriptsAndSendMsg(msg, fromTab) {
   const topFrameId = 0;
   const tab = (fromTab ? fromTab : await ExtApi.getCurrentTab());
   if (!tab) {
-    console.error("We can't get tab, don't known where to load content scripts, aborted!");
-    console.error(msg);
-    return;
+    const errorMsg = "We can't get the current tab, don't known where to load content scripts, aborted!";
+    Log.error(errorMsg);
+    Log.error(msg);
+    throw new Error(errorMsg);
   }
+
+  // We don't know whether the top frame has loaded or not yet,
+  // just store content message in advanced, So that when it loads,
+  // the content message is ready for fetching.
+  await storeContentMessage(msg);
+
   const {loadedFrameIds, errorDetails} = await ContentScriptsLoader.loadInTab(tab.id);
 
   if (errorDetails.length > 0) {
     const log = ContentScriptsLoader.errorDetails2Str(errorDetails, tab);
     //FIXME log it.
-    Log.warn(log);
+    Log.error(log);
 
     const lastError = errorDetails[errorDetails.length - 1];
     if (lastError.frameId == topFrameId) {
       // Something unexpected happened.
+      await removeContentMessage();
       throw new Error(log);
     }
   }
 
   if (loadedFrameIds.indexOf(topFrameId) > -1) {
-    // It contains the top frame, In this case,
-    // We store the message and wait the top frame to fetch.
-    // Because we don't know when the content script will
-    // set up the background message handler.
-    MxWcStorage.set('content-message', msg);
+    // We've just loaded content scripts in the top frame,
+    // it'll fetch the content message that we stored before.
+    //
+    // Note that we're not sure when the content script in
+    // top frame will set up the background message listener.
+    // So we're not sending content message to the top frame here.
     return true;
   } else {
+    // The top frame didn't need loading content scripts.
+    // It has loaded already. then we can safely sending message to it.
+    await removeContentMessage();
+    Log.debug("send content message to the top frame");
     return ExtMsg.sendToContent(msg)
   }
+}
+
+
+function storeContentMessage(msg) {
+  return MxWcStorage.set('content-message', msg);
+}
+
+function removeContentMessage() {
+  return MxWcStorage.remove('content-message');
 }
 
 

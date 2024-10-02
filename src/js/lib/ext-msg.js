@@ -67,7 +67,7 @@ function listenBackend(target, listener) {
         }
       ).catch((error) => {
         // Unable to send the response?
-        console.error("listenBacnend: Failed to send onMessage rejected reply", err);
+        console.error("listenBackend: Failed to send onMessage rejected reply", err);
       })
       // return true means we want to use sendResponse function
       // event the callback is executed.
