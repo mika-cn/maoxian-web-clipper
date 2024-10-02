@@ -54,6 +54,7 @@ const __dirname  = path.dirname(__filename);
 const dist_folder  = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 const npm_folder   = path.join(__dirname, "node_modules");
 
+const manifestPath_common   = path.join(__dirname, "src", "manifest.json")
 const manifestPath_Firefox  = path.join(__dirname, "src", "manifest-firefox.json")
 const manifestPath_Chromium = path.join(__dirname, "src", "manifest-chromium.json")
 
@@ -263,7 +264,7 @@ function renderManifestWithPlatformMsg(content, path) {
 }
 
 if (IS_PRODUCTION) {
-
+  const manifest = JSON.parse(fs.readFileSync(manifestPath_common));
   const zipfile = `maoxian-web-clipper-${PLATFORM}-${manifest.version}.zip`
   config.plugins.push(
     // Clean dist/extension/maoxian-web-clipper before every build.
