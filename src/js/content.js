@@ -744,9 +744,9 @@ function hideBadge() {
 async function fetchContentMessage() {
   const key = 'content-message';
   try {
-    const message = await MxWcStorage.session.get(key)
+    const message = await MxWcStorage.getFromContentSession(key);
     if (message) {
-      await MxWcStorage.session.remove(key);
+      await MxWcStorage.removeFromContentSession(key);
       messageHandler(message);
     } else {
       Log.error("Expect content message, but got undefined!!");

@@ -57,6 +57,10 @@ wrapAPIsToObj(ExtApi, [
 /*****************************
  * environment
  *****************************/
+ExtApi.isBackground = () => {
+  return (_.tabs !== undefined);
+}
+
 ExtApi.getLocale = () => {
   // return 'zh-CN';
   try {
@@ -113,15 +117,7 @@ ExtApi.bindOnInstalledListener = (listener) => {
 
 // storageArea: "local", "session" etc.
 ExtApi.getStorageArea = (storageArea) => {
-  if (_.storage[storageArea] === undefined) {
-    if (storageArea == 'session') {
-      // backport it for some old browsers
-      return _.storage.local;
-    }
-    return undefined;
-  } else {
-    return _.storage[storageArea];
-  }
+  return _.storage[storageArea];
 }
 
 

@@ -155,13 +155,58 @@ async function saveKeysToStorage(storageArea, keys) {
 
 
 function getStorage(storageArea) {
-  return ExtApi.getStorageArea(storageArea);
+  const storage = ExtApi.getStorageArea(storageArea);
+  if (storage) {
+    return storage;
+  } else {
+    throw new Error(`StorageArea not available: ${storageArea}`);
+  }
 }
 
-function expandAccessLevelToContentScripts() {
-  const area = getStorage('session');
-  if ((typeof area.setAccessLevel) == 'function') {
-    area.setAccessLevel({accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS'});
+async function getFromContentSession(key, defaultValue) {
+  const storageArea = getContentSessionStorageArea();
+  return get(storageArea, key, defaultValue);
+}
+
+
+async function setToContentSession(key, value) {
+  const storageArea = getContentSessionStorageArea();
+  return set(storageArea, key, value);
+}
+
+async function removeFromContentSession(key) {
+  const storageArea = getContentSessionStorageArea();
+  return remove(storageArea, key);
+}
+
+
+function getContentSessionStorageArea() {
+  const session = ExtApi.getStorageArea('session');
+  if (session) {
+    if (ExtApi.isBackground()) {
+      if ((typeof session.setAccessLevel) == 'function') {
+        // session storage area is fully supported in content scripts
+        return 'session';
+      } else {
+        // session storage only available in background
+        return 'local';
+      }
+    } else {
+      // content script can access session (fully supported)
+      return 'session';
+    }
+  } else {
+    // Not session storage support
+    return 'local';
+  }
+}
+
+
+// Only available in background script
+function initContentSession() {
+  const session = ExtApi.getStorageArea('session');
+  if (session && (typeof session.setAccessLevel) == 'function') {
+    session.setAccessLevel({accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS'});
   }
 }
 
@@ -194,7 +239,12 @@ const local   = createStorageAreaApi('local');
 const session = createStorageAreaApi('session');
 // set "local" as default storageArea
 const Storage = Object.assign(
-  {expandAccessLevelToContentScripts},
+  {
+    initContentSession,
+    setToContentSession,
+    getFromContentSession,
+    removeFromContentSession,
+  },
   local,
   {session, local}
 );
