@@ -501,11 +501,11 @@ async function loadContentScriptsAndSendMsg(msg, fromTab) {
 
 
 function storeContentMessage(msg) {
-  return MxWcStorage.set('content-message', msg);
+  return MxWcStorage.session.set('content-message', msg);
 }
 
 function removeContentMessage() {
-  return MxWcStorage.remove('content-message');
+  return MxWcStorage.session.remove('content-message');
 }
 
 
