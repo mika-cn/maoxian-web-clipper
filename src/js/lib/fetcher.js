@@ -100,7 +100,7 @@ function doFetch(method, url, {
       } catch (e) {
         console.debug("timeout (catch), when fetch request", url);
       }
-    }, (10 || timeout) * 1000);
+    }, timeout * 1000);
 
 
     fetch(url, options).then(
