@@ -158,6 +158,12 @@ function getStorage(storageArea) {
   return ExtApi.getStorageArea(storageArea);
 }
 
+function expandAccessLevelToContentScripts() {
+  const area = getStorage('session');
+  if ((typeof area.setAccessLevel) == 'function') {
+    area.setAccessLevel({accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS'});
+  }
+}
 
 function applyFirstArgument(fn, firstArgument) {
   return (...args) => {
@@ -187,6 +193,10 @@ function createStorageAreaApi(storageArea) {
 const local   = createStorageAreaApi('local');
 const session = createStorageAreaApi('session');
 // set "local" as default storageArea
-const Storage = Object.assign({}, local, {session, local});
+const Storage = Object.assign(
+  {expandAccessLevelToContentScripts},
+  local,
+  {session, local}
+);
 export default Storage;
 
