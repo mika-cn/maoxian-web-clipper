@@ -676,10 +676,42 @@ function generateFrameMsgToken() {
   MxWcStorage.set('frame-msg-token', token)
 }
 
+
+// Fired when the extension is first installed,
+// when the extension is updated to a new version,
+// and when the browser is updated to a new version.
+//
+// reload the extension also trigger this event.
 function onInstalled(details) {
   Log.debug("installed reason: ", details.reason);
   ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
   MxWcMigration.perform();
+
+  const key = 'on-installed.version';
+  const {version} = ExtApi.getManifest();
+  MxWcStorage.session.set(key, version);
+  MxWcStorage.local.set(key, version);
+}
+
+
+// In some weird cases,
+// the installed event is not triggered.
+// such as the installation happened
+// when the extension is disabled.
+async function triggerOnInstalledIfNeed() {
+  Log.debug("trigger onInstalled if need");
+  const manifest = ExtApi.getManifest();
+  const key = 'on-installed.version';
+  const version = (
+       await MxWcStorage.session.get(key)
+    || await MxWcStorage.local.get(key)
+  );
+
+  if (!version || version !== manifest.version) {
+    Log.debug("trigger onInstalled by us");
+    const fakeDetails = {reason: 'installed_or_updated_when_not_running'};
+    onInstalled(fakeDetails);
+  }
 }
 
 // ========================================
@@ -687,6 +719,7 @@ function onInstalled(details) {
 function init() {
   Log.debug("background init...");
   ExtApi.bindOnInstalledListener(onInstalled);
+  triggerOnInstalledIfNeed();
   initListeners();
   updateNativeAppConfig();
   generateFrameMsgToken();
