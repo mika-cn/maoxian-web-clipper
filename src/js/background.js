@@ -501,11 +501,11 @@ async function loadContentScriptsAndSendMsg(msg, fromTab) {
 
 
 function storeContentMessage(msg) {
-  return MxWcStorage.session.set('content-message', msg);
+  return MxWcStorage.setToContentSession('content-message', msg);
 }
 
 function removeContentMessage() {
-  return MxWcStorage.session.remove('content-message');
+  return MxWcStorage.removeFromContentSession('content-message');
 }
 
 
@@ -674,11 +674,11 @@ function initListeners() {
 async function generateFrameMsgToken({isChrome}) {
   if (isChrome) {
     const key = 'frame-msg-token';
-    const token = await MxWcStorage.session.get(key);
+    const token = await MxWcStorage.getFromContentSession(key);
     if (!token) {
       Log.debug("generate frame msg token");
       const value = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
-      MxWcStorage.session.set(key, value)
+      MxWcStorage.setToContentSession(key, value);
     }
   }
 }
@@ -727,7 +727,7 @@ function init() {
   Log.debug("background init...");
   ExtApi.bindOnInstalledListener(onInstalled);
   triggerOnInstalledIfNeed();
-  MxWcStorage.expandAccessLevelToContentScripts();
+  MxWcStorage.initContentSession();
 
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();

@@ -1,5 +1,10 @@
 "use strict";
+
 (function (root, factory) {
+  /**
+   * Note that: if we reload the extension, then clip a web page that loaded
+   * before. window.FrameTool is undefined.
+   */
   window.FrameTool = factory(root, root.chrome)
 })(this, function(root, ExtApi) {
 
@@ -52,7 +57,7 @@
         port2.postMessage({frameId});
       })
     } else {
-      port2.postMessage({frameId: null});
+      event.ports[0].postMessage({frameId: null});
     }
   }
 
