@@ -671,9 +671,16 @@ function initListeners() {
 }
 
 
-function generateFrameMsgToken() {
-  const token = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
-  MxWcStorage.set('frame-msg-token', token)
+async function generateFrameMsgToken({isChrome}) {
+  if (isChrome) {
+    const key = 'frame-msg-token';
+    const token = await MxWcStorage.session.get(key);
+    if (!token) {
+      Log.debug("generate frame msg token");
+      const value = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
+      MxWcStorage.session.set(key, value)
+    }
+  }
 }
 
 
@@ -720,12 +727,15 @@ function init() {
   Log.debug("background init...");
   ExtApi.bindOnInstalledListener(onInstalled);
   triggerOnInstalledIfNeed();
-  initListeners();
-  updateNativeAppConfig();
-  generateFrameMsgToken();
+  MxWcStorage.expandAccessLevelToContentScripts();
 
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();
+
+  initListeners();
+  updateNativeAppConfig();
+  generateFrameMsgToken({isChrome});
+
 
   TaskFetcher.init({Fetcher});
 

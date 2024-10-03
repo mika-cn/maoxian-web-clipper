@@ -59,7 +59,7 @@
 
   async function getFrameMsgToken() {
     const key  = 'frame-msg-token';
-    const data = await ExtApi.storage.local.get(key);
+    const data = await ExtApi.storage.session.get(key);
     return data[key];
   }
 
