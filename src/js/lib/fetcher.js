@@ -37,10 +37,10 @@ function head(url, requestOptions = {}) {
  * @returns {Promise} resolve with text or blob.
  */
 function doGet(url, requestOptions = {}) {
-  const respType = T.deleteObjAttr(requestOptions, 'respType', 'text');
+  const {respType = 'text'} = requestOptions;
   return new Promise((resolve, reject) => {
     doFetch('GET', url, requestOptions).then((resp) => {
-      resp[respType]().then(resolve);
+      resp[respType]().then(resolve, reject);
     }, reject);
   });
 }
