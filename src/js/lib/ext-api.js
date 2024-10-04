@@ -232,6 +232,24 @@ ExtApi.executeContentScript = (details) => {
   return _.scripting.executeScript(details);
 }
 
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/getRegisteredContentScripts
+// This function won't return content scripts
+// that defined in manifest.json
+ExtApi.getRegisteredContentScripts = (filter) => {
+  return _.scripting.getRegisteredContentScripts(filter);
+}
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/registerContentScripts
+ExtApi.registerContentScripts = (scripts) => {
+  return _.scripting.registerContentScripts(scripts);
+}
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/unregisterContentScripts
+ExtApi.unregisterContentScripts = (filter) => {
+  return _.scripting.unregisterContentScripts(filter);
+}
+
+
 /*****************************
  * web navigator
  *****************************/

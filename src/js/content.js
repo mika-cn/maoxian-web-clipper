@@ -749,7 +749,9 @@ async function fetchContentMessage() {
       await MxWcStorage.removeFromContentSession(key);
       messageHandler(message);
     } else {
-      Log.error("Expect content message, but got undefined!!");
+      // It's possible that this is a registered script
+      // then content script is undefined
+      Log.debug("Content message is undefined");
     }
   } catch (error) {
     Log.debug(error);

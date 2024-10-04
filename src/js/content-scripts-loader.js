@@ -2,8 +2,11 @@ import T           from '../js/lib/tool.js';
 import ExtApi      from '../js/lib/ext-api.js';
 import ExtMsg      from '../js/lib/ext-msg.js';
 
-// scripts that will execute on all frames
-const CONTENT_SCRIPTS_A = [
+// Change version if any of ALL_FRAME_SCRIPTS, TOP_FRAME_SCRIPTS or getScripts() changes
+const VERSION = '1.0';
+
+// execute on all frames
+const ALL_FRAME_SCRIPTS = [
   "/vendor/js/browser-polyfill.js",
   "/vendor/js/css.escape.js",
   "/vendor/js/i18n.js",
@@ -12,10 +15,99 @@ const CONTENT_SCRIPTS_A = [
   "/js/content-frame.js"
 ];
 
-// scripts thet will only execute on the top frame.
-const CONTENT_SCRIPTS_B = [
+// execute on the top frame only
+const TOP_FRAME_SCRIPTS = [
   "/js/content.js"
 ]
+
+function getScripts() {
+  const matches = ["https://*/*", "http://*/*"];
+  const runAt = 'document_idle';
+  const world = 'ISOLATED';
+  const persistAcrossSessions = false;
+
+  const scripts = [
+    {
+      id: 'ALL_FRAMES',
+      js: ALL_FRAME_SCRIPTS,
+      allFrames: true,
+      matches,
+      runAt,
+      world,
+      persistAcrossSessions,
+    },
+    {
+      id:  'TOP_FRAME',
+      js: TOP_FRAME_SCRIPTS,
+      allFrames: false,
+      matches,
+      runAt,
+      world,
+      persistAcrossSessions,
+    }
+  ];
+
+  return scripts;
+}
+
+async function register() {
+  const scripts = await getRegisteredScripts();
+  switch (scripts.length) {
+    case 0:
+      await doRegister();
+      break;
+    case 1:
+      await unregister(scripts);
+      await doRegister();
+      break;
+    default:
+      // already registered, doNothing
+      break;
+  }
+}
+
+async function doRegister() {
+  try {
+    await ExtApi.registerContentScripts(getScripts());
+  } catch(error) {
+    console.error(
+      "failed to register content scripts:",
+      error
+    );
+  }
+}
+
+
+async function unregister(registeredScripts) {
+  try {
+    let scripts;
+    if (registeredScripts) {
+      scripts = registeredScripts
+    } else {
+      scripts = await getRegisteredScripts();
+    }
+    const ids = scripts.map((it) => it.id);
+    const filter = {ids};
+    await ExtApi.unregisterContentScripts(filter);
+  } catch(error) {
+    console.error(
+      "failed to unregister content scripts:",
+      error
+    );
+  }
+}
+
+async function getRegisteredScripts() {
+  try {
+    const filter = {ids: ['ALL_FRAMES', 'TOP_FRAME']};
+    return await ExtApi.getRegisteredContentScripts(filter)
+  } catch(error) {
+    console.error(
+      "failed to get registered content scripts: ",
+      error
+    );
+  }
+}
 
 
 /**
@@ -68,7 +160,7 @@ async function loadInFrame(tabId, frameId, needPing = false) {
   }
 
   const isTopFrame = (frameId == 0);
-  const files = isTopFrame ? [...CONTENT_SCRIPTS_A, ...CONTENT_SCRIPTS_B] : [...CONTENT_SCRIPTS_A];
+  const files = isTopFrame ? [...ALL_FRAME_SCRIPTS, ...TOP_FRAME_SCRIPTS] : [...ALL_FRAME_SCRIPTS];
   const target = {tabId, frameIds: [frameId]};
 
   const [injectionResult] = await ExtApi.executeContentScript({files, target});
@@ -126,4 +218,8 @@ async function isContentScriptsLoaded(tabId, frameId) {
   }
 }
 
-export default {loadInTab, loadInFrame, errorDetails2Str};
+export default {
+  VERSION,
+  register, unregister,
+  loadInTab, loadInFrame, errorDetails2Str
+};

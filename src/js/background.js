@@ -217,7 +217,7 @@ function getClipCommandMsg(command) {
 
 function configChanged({key, value}) {
   if (key === 'autoRunContentScripts') {
-    resetAutoRunContentScriptsListener(value);
+    resetAutoRunContentScripts(value);
   }
 }
 
@@ -600,32 +600,40 @@ async function migrateConfig(config) {
 // auto run content scripts
 // ========================================
 
-function resetAutoRunContentScriptsListener(enabled) {
+function resetAutoRunContentScripts(enabled) {
   Log.debug("Auto run content scripts: ", enabled);
   if (enabled) {
-    bindAutoRunContentScriptsListener();
+    registerContentScripts();
   } else {
-    unbindAutoRunContentScriptsListener();
+    unregisterContentScripts();
   }
 }
 
-function bindAutoRunContentScriptsListener() {
-  const filter = {url: [{schemes: ['https', 'http']}]};
-  ExtApi.bindPageDomContentLoadListener(
-    pageDomContentLoadedListener, filter);
-}
-
-function unbindAutoRunContentScriptsListener() {
-  ExtApi.unbindPageDomContentLoadedListener(
-    pageDomContentLoadedListener)
-}
-
-async function pageDomContentLoadedListener({url, tabId, frameId}) {
+async function registerContentScriptsIfNeed() {
   const config = await MxWcConfig.load();
   if (config.autoRunContentScripts) {
-    ContentScriptsLoader.loadInFrame(tabId, frameId, true)
-      .catch((error) => { Log.warn(error) });
+    await registerContentScripts();
   }
+}
+
+async function registerContentScripts() {
+  const key = 'content-script.registed.version';
+  const version = await MxWcStorage.session.get(key);
+  Log.debug("registered version: ", version);
+  if (!version || version !== ContentScriptsLoader.VERSION) {
+    await ContentScriptsLoader.register();
+    await MxWcStorage.session.set(key, ContentScriptsLoader.VERSION);
+    Log.debug("New registered, version: ", ContentScriptsLoader.VERSION);
+  } else {
+    Log.debug("Old registered, version: ", version);
+  }
+}
+
+async function unregisterContentScripts() {
+  const key = 'content-script.registed.version';
+  await ContentScriptsLoader.unregister();
+  await MxWcStorage.session.remove(key);
+  Log.debug("Unregistered content scripts");
 }
 
 
@@ -721,12 +729,14 @@ async function triggerOnInstalledIfNeed() {
   }
 }
 
+
 // ========================================
 
 function init() {
   Log.debug("background init...");
   ExtApi.bindOnInstalledListener(onInstalled);
   triggerOnInstalledIfNeed();
+  registerContentScriptsIfNeed();
   MxWcStorage.initContentSession();
 
   const isChrome = MxWcLink.isChrome();
@@ -759,14 +769,6 @@ function init() {
 
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)
-
-  // FIXME
-  // Maybe we don't need to listen DOM loaded event
-  // in backend.
-  // What if we could inject a content-lite.js to every frame
-  // and check the config.autoRunContentScripts
-  // if true then load normal content by sending a message to backend.
-  bindAutoRunContentScriptsListener();
 
   setIconTitle();
   welcomeNewUser();
