@@ -23,8 +23,7 @@
         "pages/ui-selection.js",
         "pages/ui-control.html",
         "pages/ui-control.css",
-        "pages/ui-control.js",
-        "js/page-scripts/*"
+        "pages/ui-control.js"
       ],
       "matches": [
         "https://*/*",
