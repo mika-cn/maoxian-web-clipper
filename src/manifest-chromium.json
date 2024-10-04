@@ -15,23 +15,22 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://*/*",
-        "http://*/*"
-      ],
+      "matches": ["https://*/*", "http://*/*"],
       "js": ["js/lib/frame-tool.js"],
       "run_at": "document_start",
       "all_frames": true,
-      "match_about_blank": true
+      "match_about_blank": true,
+      "world": "ISOLATED"
     },
     {
-      "matches": [
-        "https://*/*",
-        "http://*/*"
+      "matches": ["https://*/*", "http://*/*"],
+      "js": [
+        "js/page-scripts/page-state.js",
+        "js/page-scripts/page-locker.js"
       ],
-      "js": ["js/page-scripts-loader.js"],
       "run_at": "document_start",
-      "all_frames": false
+      "all_frames": false,
+      "world": "MAIN"
     }
   ],
   "key": "CHROME_DEPLOY_PUBKEY",
