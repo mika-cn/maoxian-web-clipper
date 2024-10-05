@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.15';
+const VERSION = '2.16';
 const state = {};
 
 /** WARNING
@@ -92,10 +92,14 @@ function getDefault(){
 
     // @see http://mdn.pc/en-US/docs/Web/HTTP/Headers/Referrer-Policy
     requestReferrerPolicy: 'strict-origin-when-cross-origin',
-    // default, no-store, reload, no-cache, force-cache
-    requestCache: 'default',
     // same-origin, omit
     requestCredentials: 'same-origin',
+    // default, no-store, reload, no-cache, force-cache
+    requestCache: 'default',
+
+    requestCacheCss: true,
+    requestCacheImage: true,
+    requestCacheWebFont: false,
 
     /* misc */
     communicateWithThirdParty: false,

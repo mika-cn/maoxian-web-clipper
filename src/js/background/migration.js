@@ -45,6 +45,22 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.15'] = function(config) {
+  config.version = '2.16';
+  // If we did delete these items on test versions
+  // reset them to default values.
+  if (!config.hasOwnProperty('requestCacheCss')) {
+    config.requestCacheCss = true;
+  }
+  if (!config.hasOwnProperty('requestCacheImage')) {
+    config.requestCacheImage = true;
+  }
+  if (!config.hasOwnProperty('requestCacheWebFont')) {
+    config.requestCacheWebFont = false;
+  }
+  return config;
+}
+
 ConfigMigration['2.14'] = function(config) {
   config.version = '2.15';
 
@@ -78,9 +94,10 @@ ConfigMigration['2.14'] = function(config) {
   // We can't utilize webRequest API anymore
   // delete relative items
   delete config.requestCacheSize;
-  delete config.requestCacheCss;
-  delete config.requestCacheImage;
-  delete config.requestCacheWebFont;
+  // Note that: We deleted these on test versions
+  // delete config.requestCacheCss;
+  // delete config.requestCacheImage;
+  // delete config.requestCacheWebFont;
 
   return config;
 }
