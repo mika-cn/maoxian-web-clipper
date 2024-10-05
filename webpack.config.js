@@ -87,7 +87,8 @@ function getCopyItems() {
 
   // page assets
   [
-    /* icons and locale files */
+    /* jsons, icons and locale files */
+    ['src/json', 'json'],
     ['src/icons', 'icons'],
     ['src/_locales/en',    '_locales/en' ],
     ['src/_locales/zh_CN', '_locales/zh_CN' ],

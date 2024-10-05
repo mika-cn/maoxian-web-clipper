@@ -31,6 +31,13 @@
       ]
     }
   ],
+  "declarative_net_request": {
+    "rule_resources": [{
+      "id": "ruleset_cache",
+      "enabled": true,
+      "path": "json/cache-rules.json"
+    }]
+  },
   "background": {},
   "content_scripts": {},
   "commands": {

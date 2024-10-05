@@ -23,6 +23,7 @@ import Handler_WizNotePlus from './handler/wiznoteplus.js';
 
 import BlobUrl       from './background/blob-url.js';
 import MxWcMigration from './background/migration.js';
+import DeclarativeNetRequest from './background/declarative-net-request.js';
 
 import ContentScriptsLoader from './content-scripts-loader.js';
 
@@ -216,8 +217,17 @@ function getClipCommandMsg(command) {
 
 
 function configChanged({key, value}) {
-  if (key === 'autoRunContentScripts') {
-    resetAutoRunContentScripts(value);
+  switch(key) {
+    case 'autoRunContentScripts':
+      resetAutoRunContentScripts(value)
+      break;
+    case 'requestCacheCss':
+    case 'requestCacheImage':
+    case 'requestCacheWebFont':
+      updateCacheRules();
+      break;
+    default:
+      break;
   }
 }
 
@@ -595,6 +605,51 @@ async function migrateConfig(config) {
     throw new Error(errMsg);
   }
 }
+// ========================================
+// declarative net request
+// ========================================
+
+async function updateCacheRulesIfNeed() {
+  const currSwitchStatus = await getCurrentSwitchStatusOfCacheRules();
+  if (currSwitchStatus == 'EMPTY') {
+    updateCacheRules(currSwitchStatus);
+  } else {
+    Log.debug("Cache rules is updated in current session, ignore");
+  }
+}
+
+
+async function updateCacheRules(switchStatus) {
+  let currSwitchStatus;
+  if (switchStatus !== undefined) {
+    currSwitchStatus = switchStatus;
+  } else {
+    currSwitchStatus = await getCurrentSwitchStatusOfCacheRules();
+  }
+
+  const config = await MxWcConfig.load();
+  const newSwitchStatus = DeclarativeNetRequest.getSwitchStatus(config);
+  if (currSwitchStatus !== newSwitchStatus) {
+    await DeclarativeNetRequest.updateRules(config);
+    await setCurrentSwitchStatusOfCacheRules(newSwitchStatus);
+    Log.debug("DNR: cache rules updated");
+  } else {
+    Log.debug("DNR: switchStatus not changed");
+  }
+}
+
+
+async function getCurrentSwitchStatusOfCacheRules() {
+  const key = 'dnr.cache-rules.switch-status';
+  return MxWcStorage.session.get(key, 'EMPTY');
+}
+
+
+async function setCurrentSwitchStatusOfCacheRules(switchStatus) {
+  const key = 'dnr.cache-rules.switch-status';
+  return MxWcStorage.session.set(key, switchStatus);
+}
+
 
 // ========================================
 // auto run content scripts
@@ -736,6 +791,7 @@ function init() {
   Log.debug("background init...");
   ExtApi.bindOnInstalledListener(onInstalled);
   triggerOnInstalledIfNeed();
+  updateCacheRulesIfNeed();
   registerContentScriptsIfNeed();
   MxWcStorage.initContentSession();
 
