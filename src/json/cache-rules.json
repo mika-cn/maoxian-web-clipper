@@ -1,0 +1,56 @@
+[
+  {
+    "id": 11,
+    "priority": 1,
+    "condition": {
+      "resourceTypes": ["stylesheet"],
+      "excludeResponseHeaders": [
+        {"header": "Cache-Control"}
+      ]
+    },
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [{
+        "operation": "set",
+        "header": "Cache-Control",
+        "value": "max-age=3600"
+      }]
+    }
+  },
+  {
+    "id": 22,
+    "priority": 1,
+    "condition": {
+      "resourceTypes": ["image"],
+      "excludeResponseHeaders": [
+        {"header": "Cache-Control"}
+      ]
+    },
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [{
+        "operation": "set",
+        "header": "Cache-Control",
+        "value": "max-age=3600"
+      }]
+    }
+  },
+  {
+    "id": 33,
+    "priority": 1,
+    "condition": {
+      "resourceTypes": ["font"],
+      "excludeResponseHeaders": [
+        {"header": "Cache-Control"}
+      ]
+    },
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [{
+        "operation": "set",
+        "header": "Cache-Control",
+        "value": "max-age=3600"
+      }]
+    }
+  }
+]

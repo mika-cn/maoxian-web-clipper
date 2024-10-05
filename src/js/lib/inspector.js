@@ -75,4 +75,10 @@ async function storage() {
   };
 }
 
-export default {environment, storage}
+async function dnr() {
+  // Firefox do not support yet
+  const rules = await ExtApi.getDnrMatchedRules()
+  return {rules};
+}
+
+export default {environment, storage, dnr}

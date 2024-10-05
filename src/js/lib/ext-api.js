@@ -38,6 +38,7 @@ wrapAPIsToObj(_, [
   'tabs',
   'commands',
   'scripting',
+  'declarativeNetRequest',
   'webNavigation',
   'offscreen',
 ]);
@@ -249,6 +250,19 @@ ExtApi.unregisterContentScripts = (filter) => {
   return _.scripting.unregisterContentScripts(filter);
 }
 
+
+/*****************************
+ * declarativeNetRequest
+ *****************************/
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/declarativeNetRequest/updateStaticRules
+ExtApi.updateDnrStaticRules = (options) => {
+  return _.declarativeNetRequest.updateStaticRules(options);
+}
+
+ExtApi.getDnrMatchedRules = (filter) => {
+  return _.declarativeNetRequest.getMatchedRules(filter);
+}
 
 /*****************************
  * web navigator

@@ -34,7 +34,12 @@ function listenMessage() {
 
 function updateConfig(key, value) {
   const isUpdated = MxWcConfig.update(key, value);
-  const BG_CARE_KEYS = ['autoRunContentScripts'];
+  const BG_CARE_KEYS = [
+    'autoRunContentScripts',
+    'requestCacheCss',
+    'requestCacheImage',
+    'requestCacheWebFont',
+  ];
   if (BG_CARE_KEYS.indexOf(key) > -1) {
     ExtMsg.sendToBackground({
       type: 'config.changed',
