@@ -278,17 +278,6 @@ ExtApi.getAllFrames = (tabId) => {
   });
 }
 
-ExtApi.bindPageDomContentLoadListener = (listener, filter) => {
-  ExtApi.unbindPageDomContentLoadedListener(listener);
-  _.webNavigation.onDOMContentLoaded.addListener(listener, filter);
-}
-
-ExtApi.unbindPageDomContentLoadedListener = (listener) => {
-  if (_.webNavigation.onDOMContentLoaded.hasListener(listener)) {
-    _.webNavigation.onDOMContentLoaded.removeListener(listener);
-  }
-}
-
 /*****************************
  * download
  *****************************/
