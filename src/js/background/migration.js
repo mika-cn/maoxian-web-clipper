@@ -478,16 +478,20 @@ async function moveOldShortcutToSlot() {
     }
 
     if (targetSlot && shortcut) {
-      // move old shortcut to slot
-      await ExtApi.updateCommand({
-        name: targetSlot,
-        shortcut: shortcut
-      });
-      // unset old shortcut
-      await ExtApi.updateCommand({
-        name: command.name,
-        shortcut: ""
-      });
+      try {
+        // move old shortcut to slot
+        await ExtApi.updateCommand({
+          name: targetSlot,
+          shortcut: shortcut
+        });
+        // unset old shortcut
+        await ExtApi.updateCommand({
+          name: command.name,
+          shortcut: ""
+        });
+      } catch(e) {
+        console.debug(e);
+      }
     }
   }
 
