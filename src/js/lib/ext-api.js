@@ -149,13 +149,18 @@ ExtApi.setTabIcon = (details) => {
 ExtApi.setTabBadge = (tabId, badge) => {
   if (badge.hasOwnProperty('text')) {
     const {text, textColor, backgroundColor} = badge;
-    getAction().setBadgeText({tabId, text});
-    if (textColor) {
-      getAction().setBadgeTextColor(
+    const action = getAction();
+    action.setBadgeText({tabId, text});
+    // It's strange that BCD (v5.6.10) indicate that
+    // setBadgeTextColor is not supported on Chrome.
+    // Chrome has this function that does nothing
+    // (the textColor of the badge is always white)
+    if (textColor && action.setBadgeTextColor) {
+      action.setBadgeTextColor(
         {tabId, color: textColor});
     }
     if (backgroundColor) {
-      getAction().setBadgeBackgroundColor(
+      action.setBadgeBackgroundColor(
         {tabId, color: backgroundColor});
     }
   }
@@ -358,7 +363,13 @@ ExtApi.getAllCommands = async () => {
 }
 
 ExtApi.updateCommand = async (details) => {
-  return _.commands.update(details);
+  // not supported on chromium
+  if (_.commands.update) {
+    return _.commands.update(details);
+  } else {
+    const error = new Error("Not supported commands.update");
+    return Promise.reject(error);
+  }
 }
 
 
