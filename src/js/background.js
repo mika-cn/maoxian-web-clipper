@@ -747,12 +747,19 @@ async function generateFrameMsgToken({isChrome}) {
 }
 
 
+const MY_INSTALLED_REASION = 'installed_or_updated_when_not_running';
+let onInstalled_running = false;
 // Fired when the extension is first installed,
 // when the extension is updated to a new version,
 // and when the browser is updated to a new version.
 //
 // reload the extension also trigger this event.
 function onInstalled(details) {
+  if (aboutToRunning_onInstalled && details.reason !== MY_INSTALLED_REASION) {
+    Log.debug("onInstalled is running by triggerOnInstalledIfNeed(), skip");
+    return;
+  }
+  onInstalled_running = true;
   Log.debug("installed reason: ", details.reason);
   ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
   MxWcMigration.perform();
@@ -764,6 +771,7 @@ function onInstalled(details) {
 }
 
 
+let aboutToRunning_onInstalled = false;
 // In some weird cases,
 // the installed event is not triggered.
 // such as the installation happened
@@ -778,9 +786,15 @@ async function triggerOnInstalledIfNeed() {
   );
 
   if (!version || version !== manifest.version) {
-    Log.debug("trigger onInstalled by us");
-    const fakeDetails = {reason: 'installed_or_updated_when_not_running'};
-    onInstalled(fakeDetails);
+    if (onInstalled_running) {
+      Log.debug("onInstalled_running, skip");
+      return;
+    } else {
+      aboutToRunning_onInstalled = true;
+      Log.debug("trigger onInstalled by us");
+      const fakeDetails = {reason: MY_INSTALLED_REASION};
+      onInstalled(fakeDetails);
+    }
   }
 }
 
