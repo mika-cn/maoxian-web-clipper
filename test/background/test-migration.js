@@ -36,6 +36,44 @@ describe('Migration', () => {
       H.assertEqual(config.version, Config.version);
       H.assertEqual(config.requestTimeout, 100);
     });
+
+    it('should remove "undefined" from tags', () => {
+      let tags;
+      tags = Migration.removeUndefinedAtBothSideOfTags([])
+      H.assertTrue(tags instanceof Array)
+      H.assertEqual(tags.length, 0)
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['undefined'])
+      H.assertEqual(tags[0], 'undefined')
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['undefinedundefined'])
+      H.assertEqual(tags[0], 'undefined')
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['xundefined'])
+      H.assertEqual(tags[0], 'x')
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['undefinedx'])
+      H.assertEqual(tags[0], 'x')
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['undefinedxundefined'])
+      H.assertEqual(tags[0], 'x')
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['a', 'bundefined', 'c'])
+      H.assertEqual(tags.length, 3)
+      H.assertEqual(tags[0], 'a');
+      H.assertEqual(tags[1], 'b');
+      H.assertEqual(tags[2], 'c');
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['aundefined', 'b', 'a'])
+      H.assertEqual(tags.length, 2)
+      H.assertEqual(tags[0], 'a');
+      H.assertEqual(tags[1], 'b');
+
+      tags = Migration.removeUndefinedAtBothSideOfTags(['a', 'b', 'aundefined'])
+      H.assertEqual(tags.length, 2)
+      H.assertEqual(tags[0], 'a');
+      H.assertEqual(tags[1], 'b');
+    });
   });
 
 });

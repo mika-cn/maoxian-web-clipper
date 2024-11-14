@@ -36,6 +36,21 @@ describe('Tool', () => {
     H.assertEqual(T.deleteLastPart('a.b.c'), 'a.b');
   });
 
+  it("splitStrBySepChars", () => {
+    let arr
+
+    arr = T.splitStrBySpaceOrComma(' a ,, ， b,，');
+    H.assertEqual(arr.length, 2)
+    H.assertEqual(arr[0], 'a');
+    H.assertEqual(arr[1], 'b');
+
+    arr = T.splitStrByComma(', a ,，b，');
+    H.assertEqual(arr.length, 2)
+    H.assertEqual(arr[0], 'a');
+    H.assertEqual(arr[1], 'b');
+  });
+
+
   it("isBrowserExtensionUrl", () => {
     H.assertTrue(T.isBrowserExtensionUrl("moz-extension://abc/index"));
     H.assertTrue(T.isBrowserExtensionUrl("chrome-extension://abc/index"));

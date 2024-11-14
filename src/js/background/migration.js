@@ -23,6 +23,7 @@ async function migrate() {
   // migrate commands
   await migrateCommands();
 
+  await migrateTags();
 }
 
 /*
@@ -303,6 +304,59 @@ ConfigMigration['0.0'] = function(config) {
 
 
 // =====================================================
+async function migrateTags() {
+  await fixUndefinedInBothSidesOfTags();
+}
+
+// A bug that can't properly split tagstr
+// cause some tags prefixied or sufixed with 'undefined'
+// fix these tags
+//
+// begin at version: 0.7.0
+// affected versions:
+//   - 0.7.0
+//   - 0.7.10 MV3 (test version)
+//   - 0.7.11 MV3 (test version)
+//   - 0.7.70 MV3 (first release)
+async function fixUndefinedInBothSidesOfTags() {
+  const key = 'mx-wc-tag-migrated-undefined-in-both-sides'
+  const isMigrated = await MxWcStorage.get(key, false);
+  if (isMigrated) {
+    console.info(key);
+  } else {
+    const oldTags = await MxWcStorage.get('tags', []);
+    const newTags = removeUndefinedAtBothSideOfTags(oldTags)
+    await MxWcStorage.set('tags', newTags);
+    await MxWcStorage.set(key, true);
+  }
+}
+
+function removeUndefinedAtBothSideOfTags(oldTags) {
+  const newTags = [];
+  const allIsUndefined = /^(undefined)+$/
+  oldTags.forEach((tag) => {
+    let newTag;
+    if (tag.match(allIsUndefined)) {
+      newTag = 'undefined'
+    } else {
+      let it = tag;
+      if (it.startsWith('undefined')) {
+        it = it.replace(/^undefined/, '')
+      }
+      if (it.endsWith('undefined')) {
+        it = it.replace(/undefined$/, '')
+      }
+      newTag = it;
+    }
+    if (newTags.indexOf(newTag) < 0) {
+      newTags.push(newTag);
+    }
+  });
+  return newTags;
+}
+
+
+// =====================================================
 
 async function migrateClippings() {
   await deleteClippingPaths();
@@ -567,4 +621,8 @@ async function migrateConfigToV0147() {
   console.debug("0.1.47 migrate");
 }
 
-export default {perform, migrateConfig}
+export default {
+  perform,
+  migrateConfig,
+  removeUndefinedAtBothSideOfTags, // test only
+}

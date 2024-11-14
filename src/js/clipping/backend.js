@@ -127,11 +127,17 @@ async function getMimeType({url, headers, timeout, tries}) {
   }
 }
 
+// We only broadcast messages to HTTP frames,
+// because we only injected content scripts
+// in these frames.
+//
+// @see content-scripts-loader.js
 async function getCurrentLayerFrames(tabId, parentFrameId) {
   const frames = await ExtApi.getAllFrames(tabId);
   const result = [];
   frames.forEach((it) => {
-    if (it.parentFrameId === parentFrameId && it.url && !T.isBrowserExtensionUrl(it.url)) {
+    if (it.parentFrameId === parentFrameId
+      && it.url && T.isHttpUrl(it.url)) {
       result.push(it);
     }
   });

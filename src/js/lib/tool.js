@@ -336,7 +336,10 @@ T.splitStrBySepChars = function (inputStr, sepChars) {
   const headRegExp = new RegExp(`^[\\s${sepChars}]+`);
   const tailRegExp = new RegExp(`[\\s${sepChars}]+$`);
   // trim two ends
-  const str = inputStr.replace(headRegExp).replace(tailRegExp);
+  const str = inputStr
+    .replace(headRegExp, '')
+    .replace(tailRegExp, '');
+
   if (str.length === 0) {
     return [];
   } else {
