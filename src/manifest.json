@@ -14,7 +14,7 @@
     "http://*/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'"
+    "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; connect-src https://* http://* ws://localhost:8848 data: blob:"
   },
   "web_accessible_resources": [
     {
