@@ -77,8 +77,12 @@ async function storage() {
 
 async function dnr() {
   // Firefox do not support yet
-  const rules = await ExtApi.getDnrMatchedRules()
-  return {rules};
+  try {
+    const rules = await ExtApi.getDnrMatchedRules()
+    return {rules};
+  } catch(e) {
+    return [];
+  }
 }
 
 export default {environment, storage, dnr}

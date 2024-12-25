@@ -193,7 +193,7 @@ ExtApi.removeTab = (tabId) => {
   return _.tabs.remove(tabId);
 }
 
-ExtApi.getCurrentTab = () => {
+ExtApi.getCurrentActiveTab = () => {
   return new Promise(function(resolve, reject){
     _.tabs.query({
       currentWindow: true,
@@ -209,6 +209,11 @@ ExtApi.getCurrentTab = () => {
       }
     }, reject);
   })
+};
+
+// TODO Deprecated, remove me
+ExtApi.getCurrentTab = () => {
+  return ExtApi.getCurrentActiveTab();
 }
 
 ExtApi.getAllTabs = () => {
