@@ -865,6 +865,19 @@ T.sanitizeFilename = function(name){
   }
 }
 
+// @param {String} it - url or file path
+T.toLocalUrl = function(it) {
+  if (it.match(/^file:/i)) { return it }
+  if (it.match(/^content:/i)) { return it} // local url on Android OS
+  if (it.indexOf('://') > -1) {
+    // looks like a url, do nothing
+    return it;
+  } else {
+    return ['file', it].join('://');
+  }
+}
+
+// Deprecated, use toLocalUrl instead
 T.toFileUrl = function(filePath) {
   return ['file', filePath].join('://');
 }

@@ -180,7 +180,7 @@ function updateDownloadFolder(filename, filePath){
 
 
 function handleClippingResult(it) {
-  it.url = T.toFileUrl(it.filename);
+  it.url = T.toLocalUrl(it.filename);
   return it;
 }
 

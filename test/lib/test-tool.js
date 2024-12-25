@@ -117,6 +117,20 @@ describe('Tool', () => {
     H.assertEqual(b, 3);
   });
 
+  it('toLocalUrl', () => {
+    const urlA = 'file:///home/user/a';
+    H.assertEqual(T.toLocalUrl(urlA), urlA);
+
+    const urlB = 'content://media/external/a';
+    H.assertEqual(T.toLocalUrl(urlB), urlB);
+
+    const urlC = 'http://a.org/external/a';
+    H.assertEqual(T.toLocalUrl(urlC), urlC);
+
+    const path = '/a/b/c';
+    H.assertEqual(T.toLocalUrl(path), 'file:///a/b/c');
+  });
+
   it('completeUrl', () => {
     const baseUrl = 'https://a.org/index.html';
 
