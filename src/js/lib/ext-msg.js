@@ -59,6 +59,12 @@ function listenBackend(target, listener) {
   ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if(msg.target == target) {
       const fn = wrapBackendListener(listener);
+      if (!needPolyfill()) {
+        // firefox
+        return fn(msg, sender);
+      }
+
+      // chromium
       fn(msg, sender).then(
         (result) => {sendResponse(result)},
         (error) => {
@@ -99,19 +105,25 @@ function wrapBackendListener(listener) {
 }
 
 
+// same logic as webextention-polyfill
+// TODO delete me if we don't use webextention-polyfill anymore
+function needPolyfill() {
+  return (
+     typeof browser === 'undefined'
+  || Object.getPrototypeOf(browser) !== Object.prototype);
+}
 
+// TODO delete me if we don't use webextention-polyfill anymore
 function wrapErrorAsResponseThatRecognizedByPolyfill(error) {
   let message;
 
   // Send a JSON representation of the error if the rejected value
   // is an instance of error, or the object itself otherwise.
-
   if (error && (error instanceof Error || typeof error.message === "string")) {
     message = error.message;
   } else {
     message = "An unexpected error occurred";
   }
-
   return {__mozWebExtensionPolyfillReject__: true, message};
 }
 
