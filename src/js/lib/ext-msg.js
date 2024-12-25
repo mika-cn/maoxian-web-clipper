@@ -39,7 +39,7 @@ function wrapBackendListener(listener) {
       return result;
     } catch (e) {
       console.debug(e)
-      const message = [`${e.name}: ${e.message}`, 'backend stack: ', e.stack].join("\n");
+      const message = [`${e.name}: ${e.message}\n`, 'backend stack: ', e.stack].join("\n");
       throw new Error(message, {cause: e});
     }
   }

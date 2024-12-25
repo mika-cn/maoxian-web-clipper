@@ -52,6 +52,15 @@ function messageHandler(message, sender){
         break;
 
       case 'popup-menu.clip-command':
+        // on desktop browsers,
+        // the popup.html page is rendered as popup UI
+        // (not inside a tab)
+        // so the sender.tab is undefined
+        //
+        // on mobile browsers,
+        // the popup.html is rendered inside a tab
+        // so the sender.tab is the tab that contains popup
+        // (not the tab that trigger the popup.html)
         const msg = getClipCommandMsg(message.body.command);
         loadContentScriptsAndSendMsg(msg).then(resolve, reject);
         break;
@@ -450,10 +459,34 @@ async function commandListener(browserCommandName) {
   }
 }
 
-
-async function loadContentScriptsAndSendMsg(msg) {
+async function loadContentScriptsAndSendMsg(msg, fromTab) {
   const topFrameId = 0;
-  const tab = await ExtApi.getCurrentTab();
+  let tab = undefined;
+  if (!fromTab || !T.isHttpUrl(fromTab.url)) {
+    Log.debug("Empty or not http tab: ", fromTab);
+    try {
+      tab = await ExtApi.getCurrentActiveTab();
+    } catch(e) {
+      // this did happen :(
+      Log.error(e);
+    }
+  } else {
+    tab = fromTab;
+  }
+
+  const r = canLoadContentScriptsInTab(tab);
+  if (!r.ok) {
+    Log.error(r.errorMsg);
+    Log.error(msg);
+    throw new Error(r.errorMsg);
+  }
+  Log.debug("target tab: ", tab);
+
+  // We don't know whether the top frame has loaded or not yet,
+  // just store content message in advanced, So that when it loads,
+  // the content message is ready for fetching.
+  Global.contentMessage = msg;
+
   const {loadedFrameIds, errorDetails} = await ContentScriptsLoader.loadInTab(tab.id);
 
   if (errorDetails.length > 0) {
@@ -473,11 +506,35 @@ async function loadContentScriptsAndSendMsg(msg) {
     // We store the message and wait the top frame to fetch.
     // Because we don't know when the content script will
     // set up the background message handler.
-    Global.contentMessage = msg;
     return true;
   } else {
     return ExtMsg.sendToContent(msg)
   }
+}
+
+// FIXME i18n me
+function canLoadContentScriptsInTab(tab) {
+  if (!tab) {
+    const errorMsg = "We can't get the current active tab, you can focus the target tab and try again";
+    return {ok: false, errorMsg};
+  }
+
+  if (!T.isHttpUrl(tab.url)) {
+    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is not a http tab`;
+    return {ok: false, errorMsg};
+  }
+
+  if (tab.discarded) {
+    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is discarded (content has been unloaded by browser), you can focus it to load it, and try again`;
+    return {ok: false, errorMsg};
+  }
+
+  if (tab.isInReaderMode) {
+    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is in reader mode, you can exit reader mode and try again`;
+    return {ok: false, errorMsg}
+  }
+
+  return {ok: true};
 }
 
 
