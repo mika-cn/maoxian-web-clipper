@@ -12,6 +12,15 @@ body {
   padding: 8px 0px 8px 0px;
 }
 
+.error {
+  display: none;
+  color: darkred;
+  background-color: white;
+  padding: 0px 8px 0px 8px;
+}
+.error.actived { display: block; }
+.error.actived + .menus { display: none; }
+
 .menus .menu { display: none; }
 .menus.last-result     .menu[data-id="last-result"],
 .menus.clip-as-default .menu[data-id="clip-as-default"],
