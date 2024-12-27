@@ -244,12 +244,12 @@ const values = {
   "notice.warning.offline-page.native-app": "$BLANK",
   "notice.warning.refresh-history.native-app": "$BLANK",
 
-  "notice.danger.download-request-intercepted": "下载请求被拦截或修改，当前无法使用浏览器的下载功能来保存裁剪下来的文件。通常情况是你的浏览器开发了特殊的下载管理功能（这个管理功能拦截了所有下载请求），或者是你安装了某个下载管理扩展（这个扩展拦截所有的下载请求）。错误信息： $MESSAGE",
+  "notice.danger.download-request-intercepted": "下载请求被拦截或修改，当前无法使用浏览器的下载功能来保存裁剪下来的文件。通常情况是你的浏览器开发了特殊的下载管理功能（这个管理功能拦截了所有下载请求），或者是你安装了某个下载管理扩展（这个扩展拦截所有的下载请求）。错误信息： ${errMsg}",
   "notice.danger.native-app-permissions-not-granted": "『本地程序』需要一个叫“与安装在电脑上的其他程序通讯” 的权限，才能正常工作。你必须先授予这个权限，才能使用『本地程序』",
-  "notice.danger.native-app-not-ready": "「本地程序」当前不可用 <br />错误信息： $MESSAGE",
+  "notice.danger.native-app-not-ready": "「本地程序」当前不可用 <br />错误信息： ${errMsg}",
 
   "notice.danger.wiz-note-plus-ready": "成功连接为知笔记。",
-  "notice.danger.wiz-note-plus-not-ready": "为知笔记当前不可用，错误日志：$MESSAGE <br /> 很可能「为知笔记」没有启动。如果你尚未安装，请查看 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装页面<a/>",
+  "notice.danger.wiz-note-plus-not-ready": "为知笔记当前不可用，错误日志：${errMsg} <br /> 很可能「为知笔记」没有启动。如果你尚未安装，请查看 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装页面<a/>",
 
   // buttons
   "button.generate-now": "马上生成",

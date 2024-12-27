@@ -25,7 +25,7 @@ const values = {
   "notice.delete-history-success": "Delete success!",
   "notice.clear-history-success": "Clear success!",
   "notice.delete": "ATTENTION: You can install our Native APP(enhance the abilities of MaoXian) to delete clipping files, otherwise, we delete history record only.",
-  "error.native-app-version-too-small": "Current version ($VERSION) of Native APP can not handle this message, please upgrade it.",
+  "error.native-app-version-too-small": "Current version (${version}) of Native APP can not handle this message, please upgrade it.",
 };
 
 export default Object.assign(common, values);

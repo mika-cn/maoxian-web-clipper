@@ -272,8 +272,7 @@ function setSavingStateStarted(msg) {
 }
 
 function setSavingStateProgress(msg) {
-  let hint = I18N.t('hint.saving.progress')
-  hint = hint.replace('$finished', msg.finished).replace('$total', msg.total);
+  const hint = I18N.s('hint.saving.progress', msg)
   setHint(hint);
 }
 

@@ -888,14 +888,11 @@ function testDownloadRequest(e) {
     type: 'test.downloadRequest'
   }).then(
     () => {
-      // success
       const msg = I18N.t('notice.success.download-request-test');
       renderNoticeBox(section, 'success', msg);
     },
     (errMsg) => {
-      // render errors
-      let msg = I18N.t('notice.danger.download-request-intercepted');
-      msg = msg.replace('$MESSAGE', errMsg);
+      const msg = I18N.s('notice.danger.download-request-intercepted', {errMsg});
       renderNoticeBox(section, 'danger', msg);
     }
   );
@@ -1045,12 +1042,6 @@ function renderSection(id) {
   render(id, container, template);
 }
 
-/*
-function getSectionRender(sectionId) {
-  const fnName = 'renderSection' + T.capitalize(sectionID.replace('^setting-', ''));
-  return this[fnName];
-}
-*/
 
 function getSectionTemplate(sectionId) {
   const tplId = ["section",  sectionId, "tpl"].join("-");
@@ -1513,9 +1504,7 @@ async function renderNativeAppStatus() {
         );
       }
     } else {
-      // render errors
-      let msg = I18N.t('notice.danger.native-app-not-ready');
-      msg = msg.replace('$MESSAGE', info.message);
+      const msg = I18N.s('notice.danger.native-app-not-ready', {errMsg: info.message});
       renderNoticeBox(wrapper, 'danger', msg);
     }
 
@@ -1592,8 +1581,7 @@ async function renderSectionHandlerWizNotePlus(id, container, template) {
     const msg = I18N.t("notice.danger.wiz-note-plus-ready");
     renderNoticeBox(section, 'info', msg);
   } else {
-    let msg = I18N.t('notice.danger.wiz-note-plus-not-ready');
-    msg = msg.replace('$MESSAGE', info.message);
+    const msg = I18N.s('notice.danger.wiz-note-plus-not-ready', {errMsg: info.message});
     renderNoticeBox(section, 'danger', msg);
   }
 }

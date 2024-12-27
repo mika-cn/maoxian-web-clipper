@@ -12,7 +12,7 @@ const state = {};
 
 function initUI() {
   MxWcConfig.load().then((config) => {
-    const value = I18N.t('current-storage-path-value').replace(/\$ROOT-FOLDER/g, config.rootFolder);
+    const value = I18N.s('current-storage-path-value', {rootFolder: config.rootFolder});
     T.setHtml('#current-storage-path-value', value);
   });
 }
@@ -72,13 +72,13 @@ function handlerWorkerMessage(e){
     let hint = "";
     switch(msg.type){
       case "reset.clips":
-        hint = I18N.t('reset-clip-history-success').replace('$n', msg.body.length);
+        hint = I18N.s('reset-clip-history-success', {n: msg.body.length});
         break;
       case "reset.categories":
-        hint = I18N.t('reset-category-success').replace('$n', msg.body.length);
+        hint = I18N.s('reset-category-success', {n: msg.body.length});
         break;
       case "reset.tags":
-        hint = I18N.t('reset-tag-success').replace('$n', msg.body.length);
+        hint = I18N.s('reset-tag-success', {n: msg.body.length});
         break;
     }
     showHint(hint);

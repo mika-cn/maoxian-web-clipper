@@ -8,7 +8,7 @@ const values = {
   "hint.clipped": "裁剪结束...",
 
   "hint.saving.started": "开始保存...",
-  "hint.saving.progress": "保存中...($finished/$total)",
+  "hint.saving.progress": "保存中...(${finished}/${total})",
   "hint.saving.completed": "保存完成",
 
   //help

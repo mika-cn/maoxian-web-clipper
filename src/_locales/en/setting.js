@@ -245,12 +245,12 @@ const values = {
   "notice.warning.offline-page.native-app": "$BLANK",
   "notice.warning.refresh-history.native-app": "$BLANK",
 
-  "notice.danger.download-request-intercepted": "The download request was intercepted, We can't use the browser to download clipped files. This happens when the browser you are using have developed some download manager function (which intercept all download requests) or you have installed a download manager extension (which intercept all download requests). ErrMsg: $MESSAGE",
+  "notice.danger.download-request-intercepted": "The download request was intercepted, We can't use the browser to download clipped files. This happens when the browser you are using have developed some download manager function (which intercept all download requests) or you have installed a download manager extension (which intercept all download requests). ErrMsg: ${errMsg}",
   "notice.danger.native-app-permissions-not-granted": "Native App require a permission called \"<strong>Exchange messages with programs other than the browser</strong>\" to work correctly, you must grant this permission first",
-  "notice.danger.native-app-not-ready": "Native App is not ready yet.<br />ErrorMessage: $MESSAGE",
+  "notice.danger.native-app-not-ready": "Native App is not ready yet.<br />ErrorMessage: ${errMsg}",
 
   "notice.danger.wiz-note-plus-ready": "Connected to WizNotePlus successfully.",
-  "notice.danger.wiz-note-plus-not-ready": "WizNotePlus is not ready yet, error message: $MESSAGE. <br />It seems like you haven't open it. If you haven't install it, please visit: (<a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>How to install it</a>)",
+  "notice.danger.wiz-note-plus-not-ready": "WizNotePlus is not ready yet, error message: ${errMsg}. <br />It seems like you haven't open it. If you haven't install it, please visit: (<a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>How to install it</a>)",
 
   // buttons
   "button.generate-now": "Generate Now",

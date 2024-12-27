@@ -25,7 +25,7 @@ const values = {
   "notice.delete-history-success": "删除成功!",
   "notice.clear-history-success": "清除成功!",
   "notice.delete": "温馨提示： 只有安装了「本地程序」，本页面提供的删除功能才会删除你本地的文件。",
-  "error.native-app-version-too-small": "「本地程序」的当前版本（$VERSION） 无法处理该消息, 请升级「本地程序」.",
+  "error.native-app-version-too-small": "「本地程序」的当前版本（${version}） 无法处理该消息, 请升级「本地程序」.",
 };
 
 export default Object.assign(common, values);

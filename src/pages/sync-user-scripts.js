@@ -32,7 +32,7 @@ function reset(){
   const selector = T.queryElem(".selector");
   selector.style.display = "none";
   parseFiles(folder.files).then(removeOldData).then(saveScripts).then((length) => {
-    showHint(I18N.t('done').replace('$n', length));
+    showHint(I18N.s('done', {n: length}));
     const pageUrl = MxWcLink.get('extPage.setting');
     ExtMsg.sendToPage({target: 'setting', type: 'refresh-user-scripts'}, pageUrl)
     setTimeout(window.close, 3000);

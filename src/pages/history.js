@@ -234,8 +234,7 @@ function deleteHistory(id) {
         deleteHistoryAndFile(r.config, id);
       } else {
         Notify.error(
-          I18N.t('error.native-app-version-too-small')
-          .replace('$VERSION', r.handlerInfo.version)
+          I18N.s('error.native-app-version-too-small', {version: r.handlerInfo.version})
         );
       }
     } else {

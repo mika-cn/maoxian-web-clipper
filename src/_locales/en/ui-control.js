@@ -11,7 +11,7 @@ const values = {
   "hint.clipped": "Clipped...",
 
   "hint.saving.started": "Start Save clipping...",
-  "hint.saving.progress": "Progress...($finished/$total)",
+  "hint.saving.progress": "Progress...(${finished}/${total})",
   "hint.saving.completed": "Completed",
 
   //help
