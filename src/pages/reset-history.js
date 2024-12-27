@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/reset-history.js';
+import localeZhCN  from '../_locales/zh_CN/reset-history.js';
 import I18N       from '../js/lib/translation.js';
 import T          from '../js/lib/tool.js';
 import ExtMsg     from '../js/lib/ext-msg.js';
@@ -85,6 +87,7 @@ function handlerWorkerMessage(e){
 
 function init(){
   initUI();
+  I18N.init({localeEn, localeZhCN});
   I18N.i18nPage();
   bindListener();
   MxWcLink.listen(document.body);

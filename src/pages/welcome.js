@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/welcome.js';
+import localeZhCN  from '../_locales/zh_CN/welcome.js';
 import ENV      from '../js/env.js';
 import T        from '../js/lib/tool.js';
 import I18N     from '../js/lib/translation.js';
@@ -53,6 +55,7 @@ function extraStep2(){
 }
 
 function init(){
+  I18N.init({localeEn, localeZhCN});
   render();
   initListener();
   MxWcLink.listen(document.body);

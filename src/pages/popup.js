@@ -1,4 +1,5 @@
-
+import localeEn    from '../_locales/en/popup.js';
+import localeZhCN  from '../_locales/zh_CN/popup.js';
 import ENV         from '../js/env.js';
 import T           from '../js/lib/tool.js';
 import MxWcIcon    from '../js/lib/icon.js';
@@ -159,6 +160,7 @@ async function renderMenus(){
 
 
 async function init() {
+  I18N.init({localeEn, localeZhCN});
   I18N.i18nPage();
   await renderMenus();
   MxWcIcon.change("default");

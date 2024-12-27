@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/sync-user-scripts.js';
+import localeZhCN  from '../_locales/zh_CN/sync-user-scripts.js';
 import I18N       from '../js/lib/translation.js';
 import T          from '../js/lib/tool.js';
 import ExtMsg     from '../js/lib/ext-msg.js';
@@ -86,6 +88,7 @@ function showResetBtn(){
 }
 
 function init(){
+  I18N.init({localeEn, localeZhCN});
   initUI();
   I18N.i18nPage();
   bindListener();

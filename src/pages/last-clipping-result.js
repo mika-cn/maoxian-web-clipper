@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/last-clipping-result.js';
+import localeZhCN  from '../_locales/zh_CN/last-clipping-result.js';
 import I18N        from '../js/lib/translation.js';
 import T           from '../js/lib/tool.js';
 import ExtApi      from '../js/lib/ext-api.js';
@@ -104,6 +106,7 @@ function clickTargetUrl(e) {
 }
 
 function render() {
+  I18N.init({localeEn, localeZhCN});
   MxWcLink.listen(document.body);
   Promise.all([
     MxWcConfig.load(),

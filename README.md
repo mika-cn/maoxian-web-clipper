@@ -34,12 +34,10 @@ Thanks to these awesome libraries for making MaoXian's development become easier
 
 * [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
 * [JavaScript-MD5](https://github.com/blueimp/JavaScript-MD5)
-* [i18njs](http://i18njs.com/)
 * [mustache.js](http://github.com/janl/mustache.js)
 * [turndown](https://github.com/domchristie/turndown)
 * [turndown-plugin-gfw](https://github.com/domchristie/turndown-plugin-gfm)
 * [mathml2latex](https://github.com/mika-cn/mathml2latex)
-* [strip-css-comments](https://github.com/sindresorhus/strip-css-comments)
 * [css-selector-generator](https://github.com/fczbkk/css-selector-generator)
 * [awesomplete](https://github.com/LeaVerou/awesomplete)
 * [pikaday](https://github.com/Pikaday/Pikaday)

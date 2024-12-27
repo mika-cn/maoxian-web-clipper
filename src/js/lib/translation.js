@@ -1,23 +1,25 @@
 "use strict";
 
 import ExtApi  from './ext-api.js';
-
-const I18nLib = i18n;
 const DEFAULT_LOCALE = 'en';
-let locale = DEFAULT_LOCALE;
-const I18N_DICT = {'en': MxWcI18N_en, 'zh-CN': MxWcI18N_zh_CN};
 
-function initTranslator(locale){
-  const dict = I18N_DICT[locale]
-  if(dict){
-    I18nLib.translator.add(dict);
-  }else{
-    initTranslator(DEFAULT_LOCALE);
+// code => values
+let dict = {'en': [], 'zh-CN': []};
+let selectedValues = undefined;
+
+function addValues(code, values) {
+  if (!dict.hasOwnProperty(code)) {
+    dict[code] = [];
   }
+  dict[code].unshift(values);
 }
 
-function append(values) {
-  I18nLib.translator.add({values});
+function selectLocale(locale) {
+  if (dict.hasOwnProperty(locale)) {
+    selectedValues = dict[locale];
+  } else {
+    selectedValues = dict[DEFAULT_LOCALE];
+  }
 }
 
 //
@@ -27,7 +29,15 @@ function append(values) {
 //   t(key)
 //   t(keyPart1, keyPart2, ..keyPartN)
 function translate(...parts) {
-  return I18nLib.translator.translate(parts.join('.'));
+  const key = parts.join('.');
+  for (const it of selectedValues) {
+    if (it[key]) { return it[key] }
+  }
+  return key;
+}
+
+// FIXME
+function translateAndSubstitude(key, replacement) {
 }
 
 function i18nPage(contextNode){
@@ -64,18 +74,29 @@ function listen() {
   }
 }
 
-function init() {
-  locale = ExtApi.getLocale();
-  initTranslator(locale);
+
+const keyMap = [
+  ['en'   , 'localeEn'],
+  ['zh-CN', 'localeZhCN'],
+];
+
+function init(localeObject) {
+  keyMap.forEach(([code, variableName]) => {
+    if (localeObject.hasOwnProperty(variableName)) {
+      addValues(code, localeObject[variableName]);
+    } else {
+      console.error("locale values missing: ", code);
+      addValues(code, {});
+    }
+  });
+  selectLocale(ExtApi.getLocale());
   listen();
 }
 
-init();
 
 export default {
-  DEFAULT_LOCALE: DEFAULT_LOCALE,
-  locale: locale,
-  append: append,
+  init: init,
   t: translate,
+  s: translateAndSubstitude,
   i18nPage: i18nPage,
 }

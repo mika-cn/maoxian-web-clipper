@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn       from '../_locales/en/history.js';
+import localeZhCN     from '../_locales/zh_CN/history.js';
 import T              from '../js/lib/tool.js';
 import Log            from '../js/lib/log.js';
 import I18N           from '../js/lib/translation.js';
@@ -635,6 +637,7 @@ function initState(clips) {
 }
 
 async function init(){
+  I18N.init({localeEn, localeZhCN});
   await migrateLocalStorage();
   listenMessage();
   const clips = await MxWcStorage.get('clips', []);

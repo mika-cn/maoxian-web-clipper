@@ -1,4 +1,6 @@
 
+import localeEn    from '../_locales/en/failed-tasks.js';
+import localeZhCN  from '../_locales/zh_CN/failed-tasks.js';
 import T        from '../js/lib/tool.js';
 import I18N     from '../js/lib/translation.js';
 import ExtMsg   from '../js/lib/ext-msg.js';
@@ -144,6 +146,7 @@ function init() {
   MxWcStorage.get('failedTasks', []).then((tasks) => {
     state.tasks = tasks;
     renderTasks(tasks);
+    I18N.init({localeEn, localeZhCN});
     I18N.i18nPage();
   });
 }

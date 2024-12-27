@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn     from '../_locales/en/setting.js';
+import localeZhCN   from '../_locales/zh_CN/setting.js';
 import Log          from '../js/lib/log.js';
 import T            from '../js/lib/tool.js';
 import I18N         from '../js/lib/translation.js';
@@ -1673,6 +1675,7 @@ function activeMenu() {
 
 function init(){
   listenMessage();
+  I18N.init({localeEn, localeZhCN});
   I18N.i18nPage();
   initSidebar();
   MxWcLink.listen(document.body);

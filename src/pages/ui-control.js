@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/ui-control.js';
+import localeZhCN  from '../_locales/zh_CN/ui-control.js';
 import I18N         from '../js/lib/translation.js';
 import Log          from '../js/lib/log.js';
 import T            from '../js/lib/tool.js';
@@ -466,6 +468,7 @@ MxWc.form = {
   }
 }
 
+I18N.init({localeEn, localeZhCN});
 initUI();
 initFrameMsg();
 listenFrameMsg();

@@ -1,4 +1,6 @@
 
+import localeEn    from '../_locales/en/home.js';
+import localeZhCN  from '../_locales/zh_CN/home.js';
 import ENV        from '../js/env.js';
 import Log        from '../js/lib/log.js';
 import T          from '../js/lib/tool.js';
@@ -61,6 +63,7 @@ function init(){
   renderVersion();
   renderExtensionLinks();
   renderExternalLinks();
+  I18N.init({localeEn, localeZhCN});
   I18N.i18nPage();
 }
 
