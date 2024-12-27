@@ -4,15 +4,8 @@ import ExtApi  from './ext-api.js';
 const DEFAULT_LOCALE = 'en';
 
 // code => values
-let dict = {'en': [], 'zh-CN': []};
+let dict = {'en': {}, 'zh-CN': {}};
 let selectedValues = undefined;
-
-function addValues(code, values) {
-  if (!dict.hasOwnProperty(code)) {
-    dict[code] = [];
-  }
-  dict[code].unshift(values);
-}
 
 function selectLocale(locale) {
   if (dict.hasOwnProperty(locale)) {
@@ -30,14 +23,23 @@ function selectLocale(locale) {
 //   t(keyPart1, keyPart2, ..keyPartN)
 function translate(...parts) {
   const key = parts.join('.');
-  for (const it of selectedValues) {
-    if (it[key]) { return it[key] }
+  if (selectedValues[key]) {
+    return selectedValues[key]
   }
   return key;
 }
 
-// FIXME
-function translateAndSubstitude(key, replacement) {
+
+function translateAndSubstitude(key, change) {
+  const regExp = /\$\{([^\$\}]+)\}/mg;
+  const it = translate(key);
+  return it.replace(regExp, (match, key) => {
+    if (change.hasOwnProperty(key)) {
+      return change[key];
+    } else {
+      return key;
+    }
+  });
 }
 
 function i18nPage(contextNode){
@@ -80,16 +82,16 @@ const keyMap = [
   ['zh-CN', 'localeZhCN'],
 ];
 
-function init(localeObject) {
+function init(localeObject, locale) {
   keyMap.forEach(([code, variableName]) => {
     if (localeObject.hasOwnProperty(variableName)) {
-      addValues(code, localeObject[variableName]);
+      dict[code] = localeObject[variableName];
     } else {
       console.error("locale values missing: ", code);
-      addValues(code, {});
+      dict[code] = {};
     }
   });
-  selectLocale(ExtApi.getLocale());
+  selectLocale(locale || ExtApi.getLocale());
   listen();
 }
 

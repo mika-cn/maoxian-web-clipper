@@ -52,7 +52,4 @@ export default {
 
   "g.error.handler.not-enabled": "Handler is disabled",
   "g.error.handler.not-ready": "Handler is not ready",
-  "g.error.handler.native-app.version": "Extension require the version of Native Application bigger than or equal to $requiredVersion, But current version is $currentVersion, please <a href='go.page:native-app#upgrade' target='_blank'>upgrade your native application</a>",
-  "g.error.handler.native-app.install": "It seems like you haven't installed it correctly. (<a href='go.page:native-app' target='_blank'>How to install it</a>)",
-
 };

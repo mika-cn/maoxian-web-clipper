@@ -52,7 +52,5 @@ export default {
 
   "g.error.handler.not-enabled": "处理程序未启用",
   "g.error.handler.not-ready": "处理程序处于不可用状态",
-  "g.error.handler.native-app.version": "当前扩展依赖的「本地程序」的版本必须大于或等于 $requiredVersion, 但是当前安装的版本为 $currentVersion，请<a href='go-page:native-app#upgrade' target='_blank'>更新你的本地程序</a>",
-  "g.error.handler.native-app.install": "可能是由于你的「本地程序」还没有安装或者安装未成功导致的 (<a href='go.page:native-app' target='_blank'>查看如何安装</a>)",
 
 };

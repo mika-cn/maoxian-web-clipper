@@ -1,6 +1,9 @@
+import localeEn    from '../_locales/en/background.js';
+import localeZhCN  from '../_locales/zh_CN/background.js';
 import Log         from './lib/log.js';
 import ENV         from './env.js';
 import T           from './lib/tool.js';
+import I18N        from '../js/lib/translation.js';
 import ExtApi      from './lib/ext-api.js';
 import ExtMsg      from './lib/ext-msg.js';
 import MxWcIcon    from './lib/icon.js';
@@ -529,30 +532,31 @@ async function loadContentScriptsAndSendMsg(msg, fromTab) {
   }
 }
 
-// FIXME i18n me
+
 function canLoadContentScriptsInTab(tab) {
   if (!tab) {
-    const errorMsg = "We can't get the current active tab, you can focus the target tab and try again";
+    const errorMsg = I18N.t('tab.not-found');
     return {ok: false, errorMsg};
   }
 
   if (!T.isHttpUrl(tab.url)) {
-    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is not a http tab`;
+    const errorMsg = I18N.s('tab.not-http', tab);
     return {ok: false, errorMsg};
   }
 
   if (tab.discarded) {
-    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is discarded (content has been unloaded by browser), you can focus it to load it, and try again`;
+    const errorMsg = I18N.s('tab.discarded', tab);
     return {ok: false, errorMsg};
   }
 
   if (tab.isInReaderMode) {
-    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is in reader mode, you can exit reader mode and try again`;
+    const errorMsg = I18N.s('tab.in-reader-mode', tab);
     return {ok: false, errorMsg}
   }
 
   if (tab.status === 'loading') {
-    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is still loading, can not clip a loading web page, you can wait untill page loaded and try again`;
+    const errorMsg = I18N.s('tab.still-loading', tab);
+    return {ok: false, errorMsg}
   }
 
   return {ok: true};
@@ -854,6 +858,7 @@ async function triggerOnInstalledIfNeed() {
 
 function init() {
   Log.debug("background init...");
+  I18N.init({localeEn, localeZhCN});
   ExtApi.bindOnInstalledListener(onInstalled);
   triggerOnInstalledIfNeed();
   updateCacheRulesIfNeed();
@@ -871,7 +876,7 @@ function init() {
   TaskFetcher.init({Fetcher});
 
   Handler_Browser.init(Object.assign({TaskFetcher}, {isChrome}));
-  Handler_NativeApp.init({TaskFetcher});
+  Handler_NativeApp.init({TaskFetcher, I18N});
   Handler_WizNotePlus.init({TaskFetcher});
 
   ExtMsg.listenBackend('background', messageHandler);
