@@ -551,6 +551,10 @@ function canLoadContentScriptsInTab(tab) {
     return {ok: false, errorMsg}
   }
 
+  if (tab.status === 'loading') {
+    const errorMsg = `Target tab (id: ${tab.id} title: ${tab.title}, url: ${tab.url}) is still loading, can not clip a loading web page, you can wait untill page loaded and try again`;
+  }
+
   return {ok: true};
 }
 
