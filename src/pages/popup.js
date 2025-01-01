@@ -37,6 +37,12 @@ function getMenuId(evTarget) {
 
 function closeWindow(){ window.close() }
 
+function showError(errorMessage) {
+  const error = T.queryElem('.error');
+  error.innerText = errorMessage;
+  error.classList.add('actived');
+}
+
 // can't do user action in promise, lead to (xxx may only be called from a user input handler)
 function viewLastResult(){
   const {url, downloadItemId, failedTaskNum} = state.lastClippingResult;
@@ -68,7 +74,7 @@ function sendClipCommand(command) {
   ExtMsg.sendToBackground({
     type: 'popup-menu.clip-command',
     body: body
-  }).then(closeWindow);
+  }).then(closeWindow, showError);
 }
 
 
@@ -103,7 +109,7 @@ async function renderMenus(){
       if (['addons.mozilla.org', 'chrome.google.com'].indexOf((new URL(tabUrl)).host) > -1) {
         menuIds = pageIds;
       } else if (config.selectSaveFormatOnMenus) {
-        menuIds = ['clip-as-html', 'clip-as-md'].concat(pageIds);
+        menuIds = ['clip-as-default', 'clip-as-html', 'clip-as-md'].concat(pageIds);
       } else {
         menuIds = ['clip-as-default'].concat(pageIds);
       }
@@ -142,7 +148,6 @@ async function renderMenus(){
 
   const menus = T.queryElem('.menus');
   menus.classList.add(...menuIds);
-  menus.classList.add('clip-as-default');
   bindListener(menus);
 }
 
