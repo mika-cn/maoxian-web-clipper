@@ -10,6 +10,7 @@ const IGNORE              = "ignore";
 const LAYOUT_TABLE        = "layout-table";
 const FORMULA_DISPLAY     = "formula-display";
 
+const IGNORE_MD           = "ignore-md";
 const MD_DISPLAY_BLOCK    = "md-display-block";
 const MD_DISPLAY_INLINE   = "md-display-inline";
 
@@ -47,6 +48,10 @@ class MxAttribute {
         break;
       case FORMULA_DISPLAY:
         this.attr.formulaDisplay = (attr.value || 'inline');
+        this.attrLen++;
+        break;
+      case IGNORE_MD:
+        this.attr.ignoreMd = true;
         this.attrLen++;
         break;
       case MD_DISPLAY_BLOCK:
@@ -108,6 +113,10 @@ MxAttribute.toHTMLAttrObject = (mxAttrObj) => {
     r[MxAttribute.FORMULA_DISPLAY] = mxAttrObj.formulaDisplay;
   }
 
+  if (mxAttrObj.hasOwnProperty('ignoreMd')) {
+    r[MxAttribute.IGNORE_MD] = mxAttrObj.ignoreMd;
+  }
+
   if (mxAttrObj.hasOwnProperty('mdDisplayBlock')) {
     r[MxAttribute.MD_DISPLAY_BLOCK] = mxAttrObj.mdDisplayBlock
   }
@@ -124,6 +133,7 @@ MxAttribute.IGNORE          = PREFIX + IGNORE;
 MxAttribute.INDEX           = PREFIX + INDEX;
 MxAttribute.LAYOUT_TABLE    = PREFIX + LAYOUT_TABLE;
 MxAttribute.FORMULA_DISPLAY = PREFIX + FORMULA_DISPLAY;
+MxAttribute.IGNORE_MD       = PREFIX + IGNORE_MD;
 MxAttribute.MD_DISPLAY_BLOCK = PREFIX + MD_DISPLAY_BLOCK;
 MxAttribute.MD_DISPLAY_INLINE = PREFIX + MD_DISPLAY_INLINE;
 MxAttribute.SAVE_AS_IMG = PREFIX + SAVE_AS_IMG;
