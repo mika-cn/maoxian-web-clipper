@@ -109,7 +109,7 @@ async function renderMenus(){
       if (['addons.mozilla.org', 'chrome.google.com'].indexOf((new URL(tabUrl)).host) > -1) {
         menuIds = pageIds;
       } else if (config.selectSaveFormatOnMenus) {
-        menuIds = ['clip-as-html', 'clip-as-md'].concat(pageIds);
+        menuIds = ['clip-as-default', 'clip-as-html', 'clip-as-md'].concat(pageIds);
       } else {
         menuIds = ['clip-as-default'].concat(pageIds);
       }
