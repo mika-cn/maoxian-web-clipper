@@ -9,9 +9,6 @@ const VERSION = '1.0';
 const ALL_FRAME_SCRIPTS = [
   "/vendor/js/browser-polyfill.js",
   "/vendor/js/css.escape.js",
-  "/vendor/js/i18n.js",
-  "/_locales/en/common.js",
-  "/_locales/zh_CN/common.js",
   "/js/content-frame.js"
 ];
 

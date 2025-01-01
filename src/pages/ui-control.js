@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/ui-control.js';
+import localeZhCN  from '../_locales/zh_CN/ui-control.js';
 import I18N         from '../js/lib/translation.js';
 import Log          from '../js/lib/log.js';
 import T            from '../js/lib/tool.js';
@@ -270,8 +272,7 @@ function setSavingStateStarted(msg) {
 }
 
 function setSavingStateProgress(msg) {
-  let hint = I18N.t('hint.saving.progress')
-  hint = hint.replace('$finished', msg.finished).replace('$total', msg.total);
+  const hint = I18N.s('hint.saving.progress', msg)
   setHint(hint);
 }
 
@@ -466,6 +467,7 @@ MxWc.form = {
   }
 }
 
+I18N.init({localeEn, localeZhCN});
 initUI();
 initFrameMsg();
 listenFrameMsg();

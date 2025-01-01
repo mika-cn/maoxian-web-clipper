@@ -73,7 +73,6 @@ function getCopyItems() {
   [
     ['webextension-polyfill/dist/browser-polyfill.js', 'vendor/js/browser-polyfill.js'],
     ['css.escape/css.escape.js'    , 'vendor/js/css.escape.js'],
-    ['roddeh-i18n/dist/i18n.js'    , 'vendor/js/i18n.js']          ,
     ['awesomplete/awesomplete.js'  , 'vendor/js/awesomplete.js']   ,
     ['pikaday/pikaday.js'          , 'vendor/js/pikaday.js']       ,
 

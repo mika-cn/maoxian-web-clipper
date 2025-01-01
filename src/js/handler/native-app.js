@@ -1,5 +1,4 @@
 "use strict";
-
 import ENV         from '../env.js';
 import T           from '../lib/tool.js';
 import Log         from '../lib/log.js';
@@ -200,38 +199,29 @@ function handleClippingResult(it) {
   return it;
 }
 
-//FIXME
-//We need to fix i18n in backend
-function translate(key) {
-  const locale = ExtApi.getLocale();
-  return ({
-    "en": {
-      "g.error.handler.native-app.version": "Extension require the version of Native Application bigger than or equal to $requiredVersion, But current version is $currentVersion, please <a href='go.page:native-app#upgrade' target='_blank'>upgrade your native application</a>",
-      "g.error.handler.native-app.install": "It seems like you haven't installed it correctly. (<a href='go.page:native-app' target='_blank'>How to install it</a>)",
-    },
-    "zh-CN": {
-      "g.error.handler.native-app.version": "当前扩展依赖的「本地程序」的版本必须大于或等于 $requiredVersion, 但是当前安装的版本为 $currentVersion，请<a href='go-page:native-app#upgrade' target='_blank'>更新你的本地程序</a>",
-      "g.error.handler.native-app.install": "可能是由于你的「本地程序」还没有安装或者安装未成功导致的 (<a href='go.page:native-app' target='_blank'>查看如何安装</a>)",
-    }
-  })[locale](key)
-}
-
 
 async function getInfo(callback) {
-  const r = await getVersionAsync();
+  let r;
+  try {
+    r = await getVersionAsync();
+  } catch (error) {
+    r = {ok: false, message: error.message};
+  }
+
   let ready = false, message = '';
   if(r.ok) {
     if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
-      message = translate('g.error.handler.native-app.version')
-        .replace('$requiredVersion', ENV.minNativeAppVersion)
-        .replace('$currentVersion', r.version);
+      message = Global.I18N.s('native-app.version-invalid', {
+        requiredVersion: ENV.minNativeAppVersion,
+        currentVersion: r.version,
+      });
     } else {
       ready = true;
     }
   } else {
     message = [
       r.message,
-      translate('g.error.handler.native-app.install'),
+      Global.I18N.t('native-app.not-installed'),
     ].join('<br />');
   }
 

@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/welcome.js';
+import localeZhCN  from '../_locales/zh_CN/welcome.js';
 import ENV      from '../js/env.js';
 import T        from '../js/lib/tool.js';
 import I18N     from '../js/lib/translation.js';
@@ -29,7 +31,7 @@ function render(){
 
 
 function installationHint(){
-  return I18N.t('installation-hint').replace('$version', "V" + ENV.version);
+  return I18N.s('installation-hint', {version: "V" + ENV.version});
 }
 
 function extraStep1(){
@@ -42,10 +44,9 @@ function extraStep1(){
 
 function extraStep2(){
   if(MxWcLink.isChrome()) {
-    let html =I18N.t('extra-2-chrome');
-    html = html.replace('$extensionLink',
-      `<a href='' link='${"chrome://extensions?id=" + MxWcLink.extensionId}' class='tab-link'>chrome-extensions</a>`
-    );
+    const link = "chrome://extensions?id=" + MxWcLink.extensionId;
+    const extensionLink = `<a href='' link='${link}' class='tab-link'>chrome-extensions</a>`;
+    const html = I18N.s('extra-2-chrome', {extensionLink});
     return html;
   } else {
     return I18N.t('extra-2-firefox');
@@ -53,6 +54,7 @@ function extraStep2(){
 }
 
 function init(){
+  I18N.init({localeEn, localeZhCN});
   render();
   initListener();
   MxWcLink.listen(document.body);
