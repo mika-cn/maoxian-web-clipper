@@ -51,13 +51,11 @@
   function receiveWindowMessageFromParentFrame(event) {
     const {token} = event.data;
     if (token && token == state.token) {
-      // valid message
+      // only response to valid messages
       const port2 = event.ports[0];
       getFrameIdThroughBg().then((frameId) => {
         port2.postMessage({frameId});
       })
-    } else {
-      event.ports[0].postMessage({frameId: null});
     }
   }
 
