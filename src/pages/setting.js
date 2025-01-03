@@ -1532,7 +1532,8 @@ async function renderNativeAppStatus() {
     showElement(reloadBtn);
     T.bindOnce(reloadBtn, 'click', reloadNativeApp);
   } catch (e) {
-    console.debug(e)
+    const msg = I18N.t('notice.danger.native-app-not-ready').replace('$MESSAGE', e.message);
+    renderNoticeBox(wrapper, 'danger', msg);
   }
 }
 

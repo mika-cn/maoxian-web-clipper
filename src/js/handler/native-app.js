@@ -203,7 +203,13 @@ function handleClippingResult(it) {
 
 
 async function getInfo(callback) {
-  const r = await getVersionAsync();
+  let r;
+  try {
+    r = await getVersionAsync();
+  } catch (error) {
+    r = {ok: false, message: error.message};
+  }
+
   let ready = false, message = '';
   if(r.ok) {
     if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
