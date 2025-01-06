@@ -51,7 +51,12 @@ async function takeSnapshotOfCurrNode(node, params) {
         }
         case 'SVG': {
 
-          if (node.parentNode && node.parentNode.closest('svg')) {
+          // We don't handle nested inline SVG with shadowDOM bewteen.
+          // because we don't even handle HTML tree inside inline SVG
+          if (node.parentNode
+          && (node.parentNode.closest instanceof Function)
+          &&  node.parentNode.closest('svg')
+          ) {
             snapshot.nestedSvg = true;
           }
 
