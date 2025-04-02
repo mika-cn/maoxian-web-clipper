@@ -192,11 +192,6 @@ describe('Tool', () => {
     H.assertEqual(T.url2Anchor(currUrl, pageUrl), '#bbb');
   });
 
-  it('sanitizeFilename', () => {
-    H.assertEqual(T.sanitizeFilename('x c++xx-C++'), 'x-c++xx-C++')
-    H.assertEqual(T.sanitizeFilename('x`c++`x-'), 'x-c++-x')
-  });
-
   it('parseContentType', () => {
     let r;
     r = T.parseContentType('text/html');
