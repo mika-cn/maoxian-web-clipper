@@ -1,5 +1,6 @@
 
 import T from './tool.js';
+import Filename from './filename.js';
 
 const Render = {}
 Render.TimeVariables = ['$TIME-INTSEC',
@@ -16,7 +17,7 @@ Render.AssetFilenameVariables = Render.TimeVariables.concat([
 
 Render['$TITLE'] = function(template, v) {
   return template.replace(/\$TITLE/mg, () => {
-    return T.sanitizeFilename(v.title);
+    return Filename.sanitize(v.title);
   });
 }
 
