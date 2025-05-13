@@ -147,5 +147,4 @@ function doFetch(method, url, {
   });
 }
 
-
 export default {get, head};

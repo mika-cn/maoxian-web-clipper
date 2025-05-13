@@ -270,6 +270,10 @@ ExtApi.updateDnrStaticRules = (options) => {
   return _.declarativeNetRequest.updateStaticRules(options);
 }
 
+ExtApi.updateDnrSessionRules = (options) => {
+  return _.declarativeNetRequest.updateSessionRules(options);
+}
+
 ExtApi.getDnrMatchedRules = (filter) => {
   return _.declarativeNetRequest.getMatchedRules(filter);
 }
