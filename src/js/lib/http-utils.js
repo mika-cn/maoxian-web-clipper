@@ -80,6 +80,14 @@ _.isCrossOriginRequest = function(refUrl, targetUrl) {
   return u.origin !== t.origin;
 }
 
+_.getCookieHeader = function(refUrl, targetUrl, credentials) {
+  if (credentials && credentials == 'same-origin') {
+    return "$SAME_ORIGIN";
+  } else {
+    return null;
+  }
+}
+
 _.isSameSecureLevelRequest = function(refUrl, targetUrl) {
   return (
        _.isHttps(refUrl) && _.isHttps(targetUrl)

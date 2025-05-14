@@ -82,6 +82,13 @@ class RequestParams {
       headers['Origin'] = '$REMOVE_ME';
     }
 
+    const cookie = HttpUtils.getCookieHeader(this.refUrl, url, this.credentials);
+    if (cookie) {
+      headers['Cookie'] = cookie;
+    } else {
+      headers['Cookie'] = '$REMOVE_ME';
+    }
+
     return headers;
   }
 }

@@ -141,6 +141,42 @@ ExtApi.getStorageArea = (storageArea) => {
   return _.storage[storageArea];
 }
 
+/*****************************
+ * Cookies
+ *****************************/
+ExtApi.isCookiesEnabled = () => {
+  return _.cookies !== undefined;
+}
+
+// We only get firstPartyDomain cookies
+ExtApi.getAllCookies = (url) => {
+  const it = new URL(url);
+  const domain = it.hostname;
+  const details = {url, firstPartyDomain: domain};
+  return _.cookies.getAll(details);
+}
+
+ExtApi.getUrlCookieStr = async (url) => {
+  if (!ExtApi.isCookiesEnabled()) { return '' }
+  const pairs = [];
+  let cookies;
+  try {
+    cookies = await ExtApi.getAllCookies(url);
+  } catch(e) {
+    console.error(e);
+    cookies = [];
+  }
+
+  cookies.forEach((it) => {
+    if (it.expirationDate && it.expirationDate >= Date.now()) {
+      // expired cookie, do Nothing
+    } else {
+      pairs.push(`${it.name}=${it.value}`);
+    }
+  });
+  return pairs.join("; ");
+}
+
 
 /*****************************
  * icon and badge
