@@ -28,6 +28,7 @@ function wrapAPIsToObj(obj, apiNames) {
 // Defined an shortcut name and wrap APIs in it
 const _ = {};
 wrapAPIsToObj(_, [
+  'permissions',
   'i18n',
   'runtime',
   'storage',
@@ -41,6 +42,7 @@ wrapAPIsToObj(_, [
   'declarativeNetRequest',
   'webNavigation',
   'offscreen',
+  'cookies',
 ]);
 
 
@@ -54,6 +56,24 @@ wrapAPIsToObj(ExtApi, [
   'downloads',
 ]);
 
+/*****************************
+ * permissions
+ *****************************/
+ExtApi.grantedPermissions = () => {
+  return _.permissions.getAll();
+}
+
+ExtApi.requestPermissions = (permissions) => {
+  return _.permissions.request(permissions);
+}
+
+ExtApi.containsPermissions = (permissions) => {
+  return _.permissions.contains(permissions);
+}
+
+ExtApi.removePermissions = (permissions) => {
+  return _.permissions.remove(permissions);
+}
 
 /*****************************
  * environment

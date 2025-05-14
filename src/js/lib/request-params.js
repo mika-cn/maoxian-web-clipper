@@ -10,7 +10,7 @@ class RequestParams {
     userAgent,
     referrerPolicy = 'strict-origin-when-cross-origin',
     cache = 'default',
-    credentials = 'same-origin',
+    credentials = 'omit',
     timeout = 40,
     tries = 3
   }) {
