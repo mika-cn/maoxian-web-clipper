@@ -28,6 +28,7 @@ function wrapAPIsToObj(obj, apiNames) {
 // Defined an shortcut name and wrap APIs in it
 const _ = {};
 wrapAPIsToObj(_, [
+  'permissions',
   'i18n',
   'runtime',
   'storage',
@@ -41,6 +42,7 @@ wrapAPIsToObj(_, [
   'declarativeNetRequest',
   'webNavigation',
   'offscreen',
+  'cookies',
 ]);
 
 
@@ -54,6 +56,24 @@ wrapAPIsToObj(ExtApi, [
   'downloads',
 ]);
 
+/*****************************
+ * permissions
+ *****************************/
+ExtApi.grantedPermissions = () => {
+  return _.permissions.getAll();
+}
+
+ExtApi.requestPermissions = (permissions) => {
+  return _.permissions.request(permissions);
+}
+
+ExtApi.containsPermissions = (permissions) => {
+  return _.permissions.contains(permissions);
+}
+
+ExtApi.removePermissions = (permissions) => {
+  return _.permissions.remove(permissions);
+}
 
 /*****************************
  * environment
@@ -119,6 +139,42 @@ ExtApi.bindOnInstalledListener = (listener) => {
 // storageArea: "local", "session" etc.
 ExtApi.getStorageArea = (storageArea) => {
   return _.storage[storageArea];
+}
+
+/*****************************
+ * Cookies
+ *****************************/
+ExtApi.isCookiesEnabled = () => {
+  return _.cookies !== undefined;
+}
+
+// We only get firstPartyDomain cookies
+ExtApi.getAllCookies = (url) => {
+  const it = new URL(url);
+  const domain = it.hostname;
+  const details = {url, firstPartyDomain: domain};
+  return _.cookies.getAll(details);
+}
+
+ExtApi.getUrlCookieStr = async (url) => {
+  if (!ExtApi.isCookiesEnabled()) { return '' }
+  const pairs = [];
+  let cookies;
+  try {
+    cookies = await ExtApi.getAllCookies(url);
+  } catch(e) {
+    console.error(e);
+    cookies = [];
+  }
+
+  cookies.forEach((it) => {
+    if (it.expirationDate && it.expirationDate >= Date.now()) {
+      // expired cookie, do Nothing
+    } else {
+      pairs.push(`${it.name}=${it.value}`);
+    }
+  });
+  return pairs.join("; ");
 }
 
 

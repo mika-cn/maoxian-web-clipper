@@ -19,7 +19,7 @@ async function head(url, requestOptions = {}) {
 
 
 async function modifyHeadersWhenFetch(method, url, requestOptions) {
-  const {newHeaders, dnrRule} = handleHeaders(url, requestOptions.headers);
+  const {newHeaders, dnrRule} = await handleHeaders(url, requestOptions.headers);
   const newOptions = Object.assign({},
     requestOptions, {headers: newHeaders});
   if (!dnrRule) {
@@ -62,9 +62,9 @@ async function modifyHeadersWhenFetch(method, url, requestOptions) {
 
 
 // forbidden headers that we want to modify
-const FORBIDDEN_HEADERS = ['Referer', 'Origin'];
+const FORBIDDEN_HEADERS = ['Referer', 'Origin', 'Cookie'];
 
-function handleHeaders(url, headers = {}) {
+async function handleHeaders(url, headers = {}) {
   const newHeaders = {};
   const requestHeaders = [];
 
@@ -80,6 +80,19 @@ function handleHeaders(url, headers = {}) {
     const modifyInfo = {header: name};
     if (value == '$REMOVE_ME') { // see requestParams.js
       modifyInfo.operation = 'remove';
+    } else if (name == 'Cookie') {
+      if (value == '$SAME_ORIGIN') { // fetch cookie
+        const cookie = await ExtApi.getUrlCookieStr(url);
+        if (cookie == '') {
+          modifyInfo.operation = 'remove';
+        } else {
+          modifyInfo.operation = 'set';
+          modifyInfo.value = cookie;
+        }
+      } else {
+        modifyInfo.operation = 'set';
+        modifyInfo.value = value;
+      }
     } else {
       modifyInfo.operation = 'set';
       modifyInfo.value = value;

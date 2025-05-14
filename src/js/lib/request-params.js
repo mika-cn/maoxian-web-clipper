@@ -10,7 +10,7 @@ class RequestParams {
     userAgent,
     referrerPolicy = 'strict-origin-when-cross-origin',
     cache = 'default',
-    credentials = 'same-origin',
+    credentials = 'omit',
     timeout = 40,
     tries = 3
   }) {
@@ -80,6 +80,13 @@ class RequestParams {
       headers['Origin'] = origin;
     } else {
       headers['Origin'] = '$REMOVE_ME';
+    }
+
+    const cookie = HttpUtils.getCookieHeader(this.refUrl, url, this.credentials);
+    if (cookie) {
+      headers['Cookie'] = cookie;
+    } else {
+      headers['Cookie'] = '$REMOVE_ME';
     }
 
     return headers;

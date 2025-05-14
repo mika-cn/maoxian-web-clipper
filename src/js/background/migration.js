@@ -45,6 +45,12 @@ function migrateConfig(config, fromConfig = {}) {
 
 const ConfigMigration = {};
 
+ConfigMigration['2.16'] = function(config) {
+  config.version = '2.17';
+  config.requestCredentials = 'omit';
+  return config;
+}
+
 ConfigMigration['2.15'] = function(config) {
   config.version = '2.16';
   // If we did delete these items on test versions

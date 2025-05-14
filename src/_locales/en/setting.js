@@ -1,6 +1,21 @@
 import common from './common.js';
 
 const values = {
+  "permission.web-navigation": "<strong>webNavigation</strong><br>Get information of embed web pages. then using these information to communicate with it, so that they can be clipped",
+  "permission.storage": "<strong>storage</strong><br>Save configuration, category history and tag history etc.",
+  "permission.unlimited-storage": "<strong>unlimitedStorage</strong><br>the ability to storage unlimited information, we want to save more clipping history",
+  "permission.tabs": "<strong>tabs</strong><br>Get tab IDs that will be used to send message between components",
+  "permission.downloads": "<strong>downloads</strong><br>Save clipped files and delete these download records except the main file",
+  "permission.downloads.open": "<strong>downloads.open</strong><br>Open the clipped files form download history",
+  "permission.scripting": "<strong>scripting</strong><br>Loading content scripts",
+  "permission.cookies": "<strong>cookies</strong><br>Get cookies to send with requests to pass server restriction",
+  "permission.DNR-with-host-access": "<strong>declarativeNetRequestWithHostAccess</strong><br>Enable editing forbidden request headers for web page relative files(images, fonts etc..) requests, so that we can pass the server restriction",
+  "permission.native-messaging": "<strong>nativeMessaging</strong><br>Exchange messages with NativeApp",
+  "permission.granted": "Permission granted",
+  "permission.denied": "Permission request denied",
+  "permission.removed": "Permission removed",
+
+
   // labels
   "label.version": "Current Version: ",
   "label.ruby-version": "Ruby Version: ",
@@ -16,7 +31,6 @@ const values = {
   "title.testing": "Testing",
   "title.status": "Status",
   "title.detail": "Detail",
-  "title.permissions": "Permissions",
 
   "title.general": "General",
   "title.storage": "Storage",
@@ -68,6 +82,9 @@ const values = {
   "title.handler-browser": "Browser",
   "title.handler-native-app": "Native App",
   "title.handler-wiz-note-plus" :"WizNotePlus",
+  "title.permissions": "Permissions",
+  "title.required-permissions": "Required Permissions",
+  "title.optional-permissions": "Optional Permissions",
   "title.reset-and-backup": "Reset / Backup",
   "title.reset": "Reset",
   "title.backup": "Backup",
@@ -314,8 +331,9 @@ const values = {
   "notice.default-tag-status": 'The default tag Status decide which actions will be performed by default.<br><ul><li>If you want to active a tag, just write down it\'s tag name, such as <code>tagA</code></li><li>If you want to deactive a tag, just write <code>!</code> and tag name together, such as <code>!tagB</code></li><li>You can concat multiple tag status with commas<code>,</code>, such as <code>tagA, !tagB</code></li></ul>',
   "notice.request-cache": 'Currently, only Chromium/Chrome supports setting request cache.<br>Cached files will not be downloaded again when clipping the web page, this is useful especially in slow network environment.',
   "notice.request-cache-warning": "<strong>Warning:</strong><br />If you're a web developer, cache web requests may affect your develop experience",
-  "notice.request-referrer-policy": 'This is useful if the target server is checking the <code>referrer</code> header<br>Somethimes setting it to <code>no-referrer</code> pass the checking.<br>You can find the meaning of these options in <a href="go.page:mdn.referrer-policy-header" target="_blank">here</a>',
-  "notice.request-credentials": 'Credentials are cookies, TLS client certificates, or authentication headers containing a username and password. <br>This setting controll whether or not the browser sends credentials when downloading relative asset files during clipping.<br>See <a href="go.page:mdn.request-credentials" target="_blank">here</a> for more information',
+  "notice.request-referrer-policy": 'This is useful if the target server is checking the <code>Referer</code> header<br>Somethimes setting it to <code>no-referrer</code> pass the checking.<br>You can find the meaning of these options in <a href="go.page:mdn.referrer-policy-header" target="_blank">here</a>',
+  "notice.request-credentials": 'Credentials are cookies. <br>This setting controls whether or not the browser sends credentials when downloading relative asset files during clipping.<br>See <a href="go.page:mdn.request-credentials" target="_blank">here</a> for more information',
+  "notice.request-credentials_original": 'Credentials are cookies, TLS client certificates, or authentication headers containing a username and password. <br>This setting controls whether or not the browser sends credentials when downloading relative asset files during clipping.<br>See <a href="go.page:mdn.request-credentials" target="_blank">here</a> for more information',
 
 
   // label

@@ -2,7 +2,7 @@
 import T           from './tool.js';
 import MxWcStorage from './storage.js';
 
-const VERSION = '2.16';
+const VERSION = '2.17';
 const state = {};
 
 /** WARNING
@@ -101,7 +101,7 @@ function getDefault(){
     // unsafe-url
     requestReferrerPolicy: 'strict-origin-when-cross-origin',
     // same-origin, omit
-    requestCredentials: 'same-origin',
+    requestCredentials: 'omit',
     // default, no-store, reload, no-cache, force-cache
     requestCache: 'default',
 

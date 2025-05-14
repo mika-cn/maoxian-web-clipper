@@ -1,6 +1,20 @@
 import common from './common.js';
 
 const values = {
+  "permission.web-navigation": "<strong>webNavigation</strong><br>获取当前网页的所有内嵌网页的信息，为的是向其发送消息，以便能裁剪这些内嵌的网页",
+  "permission.storage": "<strong>storage</strong><br>保存：配置信息，裁剪记录，目录记录，标签记录等等",
+  "permission.unlimited-storage": "<strong>unlimitedStorage</strong><br>保存更多信息的能力, 允许存储更多的裁剪记录",
+  "permission.tabs": "<strong>tabs</strong><br>获取「标签页」的 ID，扩展里各个组件间的通讯用到这个ID",
+  "permission.downloads": "<strong>downloads</strong><br>保存裁剪下来的文件，并且从你的下载记录里，删除掉除主文件外的下载历史",
+  "permission.downloads.open": "<strong>downloads.open</strong><br>打开下载下来的文件",
+  "permission.scripting": "<strong>scripting</strong><br>加载扩展程序",
+  "permission.cookies": "<strong>cookies</strong><br>允许获取 cookie ，可在发送请求时带上，以通过文件服务器的限制",
+  "permission.DNR-with-host-access": "<strong>declarativeNetRequestWithHostAccess</strong><br>允许编辑『禁止修改的请求头』，主要用于修改 Referer 请求头，以通过文件服务器的限制",
+  "permission.native-messaging": "<strong>nativeMessaging</strong><br>允许和『本地程序』进行通信",
+  "permission.granted": "已授予权限",
+  "permission.denied": "已拒绝权限请求",
+  "permission.removed": "已移除权限",
+
   // labels
   "label.version": "当前版本：",
   "label.ruby-version": "Ruby 版本：",
@@ -15,7 +29,6 @@ const values = {
   "title.testing": "测试",
   "title.status": "当前状态",
   "title.detail": "详情",
-  "title.permissions": "权限",
 
   "title.general": "基础设置",
   "title.storage": "存储设置",
@@ -67,6 +80,9 @@ const values = {
   "title.handler-browser": "浏览器",
   "title.handler-native-app": "本地程序",
   "title.handler-wiz-note-plus" :"为知笔记",
+  "title.permissions": "权限",
+  "title.required-permissions": "核心权限",
+  "title.optional-permissions": "可选权限",
   "title.reset-and-backup": "重置与备份",
   "title.reset": "重置",
   "title.backup": "备份",
@@ -311,8 +327,9 @@ const values = {
   "notice.default-tag-status": '默认标签状态（tagStatus）的值决定了在默认情况下，毛线助手 Plan 里面定义的动作，哪些会被执行<br><ul><li>如果你想要描述一个标签是激活的，直接写下它的名字，如：<code>tagA</code></li><li>如果你要描述一个标签是不激活的，使用<code>!</code>加上标签的名字，如：<code>!tagB</code></li><li>你可以使用逗号<code>,</code>把多个标签状态连起来，如：<code>tagA, !tagB</code></li></ul>',
   "notice.request-cache": '目前，只有 Chromium/Chrome 支持设置缓存。<br>当文件被浏览器缓存后，在裁剪时，就无需在下载一次，这在恶劣的环境里很有用',
   "notice.request-cache-warning": "<strong>警告:</strong><br /> 如果你是 Web 开发者，设置缓存可能会影响你的开发体验",
-  "notice.request-referrer-policy": '当存放资源文件的服务器对 Referrer 请求头进行检查时，可能拒绝掉文件的下载请求<br>有些时候可以通过把 Referrer 策略设置成 <code>no-referrer</code>来绕过检查。<br>你可以在<a href="go.page:mdn.referrer-policy-header" target="_blank">这里</a>找到所有选项的说明',
-  "notice.request-credentials": 'Credentials 是 cookie，TLS 客户端证书，或者包含用户名和密码的认证请求头<br>该设置控制浏览器在下载资源文件时（如图片）是否发送 Credentials。<br>请在<a href="go.page:mdn.request-credentials" target="_blank">此处</a>查看更多信息',
+  "notice.request-referrer-policy": '当存放资源文件的服务器对 Referer 请求头进行检查时，可能拒绝掉文件的下载请求<br>有些时候可以通过把 Referrer 策略设置成 <code>no-referrer</code>来绕过检查。<br>你可以在<a href="go.page:mdn.referrer-policy-header" target="_blank">这里</a>找到所有选项的说明',
+  "notice.request-credentials": 'Credentials 是 cookie<br>该设置控制浏览器在下载资源文件时（如图片）是否发送 Credentials。<br>请在<a href="go.page:mdn.request-credentials" target="_blank">此处</a>查看更多信息',
+  "notice.request-credentials_original": 'Credentials 是 cookie，TLS 客户端证书，或者包含用户名和密码的认证请求头<br>该设置控制浏览器在下载资源文件时（如图片）是否发送 Credentials。<br>请在<a href="go.page:mdn.request-credentials" target="_blank">此处</a>查看更多信息',
 
   // label
   "label.storage-folder": "存储目录",

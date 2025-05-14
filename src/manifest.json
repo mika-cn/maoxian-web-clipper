@@ -7,7 +7,8 @@
   "default_locale": "en",
   "permissions": [],
   "optional_permissions": [
-    "nativeMessaging"
+    "nativeMessaging",
+    "cookies"
   ],
   "host_permissions": [
     "https://*/*",
