@@ -71,6 +71,14 @@ function getCopyItems() {
 
   // 3rd party js and css
   [
+    ['src/vendor/fnv1a', 'vendor/fnv1a']
+  ].forEach((pair) => {
+    const sourceFilename = pair[0];
+    const targetFilename = path.join(dist_folder, pair[1]);
+    items.push({from: sourceFilename, to: targetFilename});
+  });
+
+  [
     ['webextension-polyfill/dist/browser-polyfill.js', 'vendor/js/browser-polyfill.js'],
     ['css.escape/css.escape.js'    , 'vendor/js/css.escape.js'],
     ['awesomplete/awesomplete.js'  , 'vendor/js/awesomplete.js']   ,
@@ -96,6 +104,7 @@ function getCopyItems() {
     /* page libs */
     ['src/js/lib/log.js'               , 'js/lib/log.js']               ,
     ['src/js/lib/tool.js'              , 'js/lib/tool.js']              ,
+    ['src/js/lib/http-utils.js'        , 'js/lib/http-utils.js']        ,
     ['src/js/lib/icon.js'              , 'js/lib/icon.js']              ,
     ['src/js/lib/translation.js'       , 'js/lib/translation.js']       ,
     ['src/js/lib/mime.js'              , 'js/lib/mime.js']              ,
@@ -112,6 +121,7 @@ function getCopyItems() {
     ['src/js/lib/query.js'             , 'js/lib/query.js']             ,
     ['src/js/lib/event-target.js'      , 'js/lib/event-target.js']      ,
     ['src/js/lib/fetcher.js'           , 'js/lib/fetcher.js']           ,
+    ['src/js/lib/fetcher-with-dnr.js'  , 'js/lib/fetcher-with-dnr.js']  ,
     ['src/js/lib/task-fetcher.js'      , 'js/lib/task-fetcher.js']      ,
     ['src/js/lib/action-cache.js'      , 'js/lib/action-cache.js']      ,
     ['src/js/lib/auto-complete.js'     , 'js/lib/auto-complete.js']      ,

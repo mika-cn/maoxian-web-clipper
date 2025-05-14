@@ -1,4 +1,6 @@
 
+import HttpUtils from './http-utils.js';
+
 // TODO support more request options
 // from @/en-US/docs/Web/API/RequestInit
 class RequestParams {
@@ -8,7 +10,7 @@ class RequestParams {
     userAgent,
     referrerPolicy = 'strict-origin-when-cross-origin',
     cache = 'default',
-    credentials = 'same-origin',
+    credentials = 'omit',
     timeout = 40,
     tries = 3
   }) {
@@ -43,13 +45,15 @@ class RequestParams {
 
   toParams(url) {
     return {
-      url: url,
-      headers: this.getHeaders(url),
-      timeout: this.timeout,
-      tries: this.tries,
-      referrerPolicy: this.referrerPolicy,
-      cache: this.cache,
-      credentials: this.credentials,
+      refUrl         : this.refUrl,
+      userAgent      : this.userAgent,
+      referrerPolicy : this.referrerPolicy,
+      cache          : this.cache,
+      credentials    : this.credentials,
+      timeout        : this.timeout,
+      tries          : this.tries,
+      headers        : this.getHeaders(url),
+      url            : url,
     }
   }
 
@@ -58,15 +62,38 @@ class RequestParams {
     // but NativeApp won't.
     // NativeApp needs to fake itself as a browser so
     // that it won't be banned by server.
-    //
-    // TODO: removeMe
-    // If we don't want to support old NativeApp, we can safely remove this.
-    // Because the new NativeApp depends on browser to download asset files.
     const headers = { 'User-Agent' : this.userAgent };
+
+    const referer = HttpUtils.getRefererHeader(
+      this.refUrl, url,
+      this.referrerPolicy
+    );
+
+    if (referer) {
+      headers['Referer'] = referer;
+    } else {
+      headers['Referer'] = '$REMOVE_ME';
+    }
+
+    const origin = HttpUtils.getOriginHeader(this.refUrl, url);
+    if (origin) {
+      headers['Origin'] = origin;
+    } else {
+      headers['Origin'] = '$REMOVE_ME';
+    }
+
+    const cookie = HttpUtils.getCookieHeader(this.refUrl, url, this.credentials);
+    if (cookie) {
+      headers['Cookie'] = cookie;
+    } else {
+      headers['Cookie'] = '$REMOVE_ME';
+    }
 
     return headers;
   }
 }
+
+
 
 RequestParams.createExample = function(params = {}) {
   const {

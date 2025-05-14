@@ -12,7 +12,7 @@ import MxWcConfig  from './lib/config.js';
 import MxWcLink    from './lib/link.js';
 import MxWcHandler from './lib/handler.js';
 import MxEvTarget  from './lib/event-target.js';
-import Fetcher     from './lib/fetcher.js';
+import Fetcher     from './lib/fetcher-with-dnr.js';
 import TaskFetcher from './lib/task-fetcher.js';
 
 import initBackend_Clipping  from './clipping/backend.js';

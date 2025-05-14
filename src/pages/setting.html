@@ -31,6 +31,7 @@
           <a class="menu" href="#setting-handler-native-app" i18n="title.handler-native-app"></a>
           <a class="menu" href="#setting-handler-wiz-note-plus" i18n="title.handler-wiz-note-plus"></a>
           <hr />
+          <a class="menu" href="#setting-permissions" i18n="title.permissions"></a>
           <a class="menu" href="#setting-reset-and-backup" i18n="title.reset-and-backup"></a>
 
         </div>
@@ -416,6 +417,38 @@ const hello = () =&gt; {
             <label class="label-box" for="markdown-option-formula-block-wrapper-d"><div><strong class="title">Math Code Block</strong><pre><code>```math<br>x + y = z<br>```</code></pre></div></label>
           </div>
 
+        </div>
+      </section>
+    </template>
+
+    <template id="section-setting-permissions-tpl">
+      <section id="setting-permissions">
+        <h2 class="center" i18n="title.permissions"></h2>
+        <div class="required-permissions">
+          <h3 i18n="title.required-permissions"></h3>
+          <ul>
+            <li class="web-navigation" i18n="permission.web-navigation"></li>
+            <li class="storage" i18n="permission.storage"></li>
+            <li class="unlimited-storage" i18n="permission.unlimited-storage"></li>
+            <li class="tabs" i18n="permission.tabs"></li>
+            <li class="downloads canceled" i18n="permission.downloads"></li>
+            <li class="downloads-open" i18n="permission.downloads.open"></li>
+            <li class="scripting" i18n="permission.scripting"></li>
+            <li class="declarative-net-request-with-host-access" i18n="permission.DNR-with-host-access"></li>
+          </ul>
+        </div>
+
+        <div class="optional-permissions">
+          <h3 i18n="title.optional-permissions"></h3>
+          <div>
+            <input id="permission-nativeMessaging" type="checkbox" data-permission="nativeMessaging"/>
+            <label for="permission-nativeMessaging" i18n="permission.native-messaging"></label>
+            <br />
+            <input id="permission-cookies" type="checkbox" data-permission="cookies"/>
+            <label for="permission-cookies" i18n="permission.cookies"></label>
+            <br /><br />
+            <button id="save-optional-permissions" i18n="button.save"></button>
+          </div>
         </div>
       </section>
     </template>

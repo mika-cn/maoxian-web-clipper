@@ -6,6 +6,7 @@
     "tabs",
     "downloads",
     "downloads.open",
+    "declarativeNetRequestWithHostAccess",
     "scripting",
     "offscreen"
   ],
