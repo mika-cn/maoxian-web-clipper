@@ -11,7 +11,14 @@ const state = {appliedSelection: null};
 
 function save(elem) {
   try {
-    const selector = getCssSelector(elem);
+    // getCssSelector() may have performance problem...
+    const options = {
+      selectors: ['id', 'class', 'tag', 'nthchild'],
+      maxCombinations: 1000,
+      maxCandidates: 100,
+      blacklist: [/data-mx-wc-confirmed-element/],
+    };
+    const selector = getCssSelector(elem, options);
     if ( state.appliedSelection
       && state.appliedSelection.selector == selector
     ) {
