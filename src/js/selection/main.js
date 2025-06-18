@@ -108,9 +108,8 @@ function chooseSelection(selections) {
 function applySelection(selection) {
   // We current don't support select element inside nested frame,
   // So we only apply selection on top frame.
-  MxWcEvent.dispatchInternal('assistant.apply-plan.top-frame', {
-    pick: selection.selector
-  });
+  const plan = {actions: [{pick: selection.selector}]};
+  MxWcEvent.dispatchInternal('assistant.apply-plan.top-frame', plan);
 }
 
 function twoGroupsOfAncestorAreAlike(ancestorsA, ancestorsB) {
@@ -168,9 +167,9 @@ function node2Str(node) {
     'selected',
     'active', 'actived',
     'disable', 'disabled',
-    'enabled', 'enabled',
+    'enable', 'enabled',
     'show', 'hide',
-    'clearfix',
+    'clearfix', 'flex',
   ];
   const klass = node.getAttribute('class');
   if (klass) {
