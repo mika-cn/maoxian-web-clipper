@@ -27,6 +27,15 @@ import ExtApi from './ext-api.js';
  */
 
 
+// return `true` means we want to use sendResponse()
+// even the listener is executed.
+const MSG_HANDLED_ASYNC = true;
+
+// Returns `undefined` means current message listener
+// don't care the message and let other listeners handle it.
+const MSG_IGNORED_BY_LISTENER = undefined;
+
+
 /*
  * This function needs you to have webextention-polyfill loaded
  *
@@ -38,13 +47,11 @@ function listen(target, listener) {
   ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // Deprecated: sendResponse
     if(msg.target == target) {
+      // return promise to webextension-polyfill
       return listener(msg, sender);
     } else {
       // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
-
-      // Returns false or undefined means this message listener
-      // don't care this message and let other listeners handle it.
-      return false;
+      return MSG_IGNORED_BY_LISTENER
     }
   });
 }
@@ -57,7 +64,7 @@ function listen(target, listener) {
  */
 function listenBackend(target, listener) {
   ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if(msg.target == target) {
+    if (msg.target == target) {
       const fn = wrapBackendListener(listener);
       if (!needPolyfill()) {
         // firefox
@@ -75,12 +82,12 @@ function listenBackend(target, listener) {
         // Unable to send the response?
         console.error("listenBackend: Failed to send onMessage rejected reply", err);
       })
-      // return true means we want to use sendResponse function
-      // event the callback is executed.
-      return true;
+      return MSG_HANDLED_ASYNC;
     } else {
-      // Not send to us, ignore it
-      return false;
+      // TODO
+      // Because this API is so unstable when add multiple listeners,
+      // Maybe we can change the code to use one listener, to avoid these problems.
+      return MSG_IGNORED_BY_LISTENER
     }
   });
 }
