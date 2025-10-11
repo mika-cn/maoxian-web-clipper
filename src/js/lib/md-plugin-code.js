@@ -217,6 +217,7 @@ function analyzeWrapper(wrapper, _paths) {
           codeNodes: otherPathNodes,
         }
       } else if (isCodeStr(otherPath) && otherPathNodes.length == 1) {
+        // code is not wrappered by lines, handle it as normal code block
         return {
           isCodeWrappedByLineNode: false,
           isNormalCodeBlock: true,
@@ -263,15 +264,33 @@ function isLineNumberStr(it) {
   return it.match(/line-num/i) || it.match(/linenum/i);
 }
 
+// TODO: FIXME
+// It's really hard to identify code line.....
 function isCodeLineStr(it) {
   let isCodeLine = false;
-  if (it.match(/lines/i)) {
+
+  const count_lines  = countPattern(it, /lines/ig);
+  const count_line   = countPattern(it, /line/ig);
+  const count_inline = countPattern(it, /inline/ig);
+
+  const contains_line = (count_line > 0 && count_line != count_inline);
+
+  if (count_lines > 0) {
     // should not only contains codelines
-    isCodeLine = it.match(/line/ig).length > 1
+    isCodeLine = (contains_line && count_line > count_lines);
   } else {
-    isCodeLine = it.match(/line/i);
+    isCodeLine = contains_line;
   }
   return isCodeStr(it) && isCodeLine && !isLineNumberStr(it);
+}
+
+function countPattern(str, pattern) {
+  const result = str.match(pattern);
+  if (result == null) {
+    return 0
+  } else {
+    return result.length;
+  }
 }
 
 
@@ -291,9 +310,9 @@ function isCodeStr(it) {
 
 function isLineNumber(path, nodes) {
   let allNodeHaveDataLineNumAttr = true;
-  let allNodeHaveLineNumberText = true;
-  let allNodeHaveBlankText = true;
-  let allNodeHaveNotChild = true; // child elements
+  let allNodeHaveLineNumberText  = true;
+  let allNodeHaveBlankText       = true; // pseudo elements as line numbers
+  let allNodeHaveNotChild        = true; // child elements
 
   [].forEach.call(nodes, (node, idx) => {
     if (!( node.hasAttribute('data-line-number')
@@ -309,7 +328,7 @@ function isLineNumber(path, nodes) {
     }
 
     const text = node.textContent;
-    if (!(text.match(/^\s*\d+\s*$/) && parseInt(text) === idx + 1)) {
+    if (!isLineNumberText(text, idx + 1, nodes.length)) {
       allNodeHaveLineNumberText = false;
     }
 
@@ -337,6 +356,28 @@ function isLineNumber(path, nodes) {
   if (allNodeHaveDataLineNumAttr) {score++}
 
   return score >= 1;
+}
+
+
+function isLineNumberText(text, nThLine, totalLines) {
+  const isLineNumber = isSingleLineNumberText(text, nThLine);
+  if (totalLines > 1) { return isLineNumber }
+
+  // totalLines == 1
+  if (isLineNumber) { return true }
+
+  // check is line number block (line numbers that split by line breakers)
+  const parts = text.trim().split("\n");
+  for (let i = 0; i < parts.length; i++) {
+    if (!isSingleLineNumberText(parts[i], i + 1)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isSingleLineNumberText(text, nThLine) {
+  return text.match(/^\s*\d+\s*$/) && parseInt(text) === nThLine;
 }
 
 
@@ -879,7 +920,6 @@ function getNearNodesByRange(node, ...range) {
   return arr;
 }
 
-
 function isDescendantOfPreNode(node) {
   let currNode = node;
   while (true) {
@@ -897,6 +937,9 @@ function isDescendantOfPreNode(node) {
   }
 }
 
+function isPreNode(node) {
+  return node.tagName.toUpperCase() === 'PRE';
+}
 
 
 function hasOnlyOneChild(node) {
@@ -908,17 +951,19 @@ function hasOnlyOneChild(node) {
 function countChildrenByNodeType(node, {abortOnTextNode = false}) {
   return state.nodeTypeCounterCache.findOrCache(node, () => {
     let elementNode = 0, textNode = 0, otherNode = 0;
+    const insidePreNode = (isPreNode(node) || isDescendantOfPreNode(node));
+
     for(let i = 0; i < node.childNodes.length; i++) {
       const nodeType = node.childNodes[i].nodeType;
       if (nodeType === 1) {
         elementNode++;
       } else if (nodeType === 3) {
-        if(!node.childNodes[i].textContent.match(/^\s*$/)) {
-          // not blank text node
+        const notBlank = (node.childNodes[i].textContent.match(/^\s*$/) == null);
+        if (notBlank || insidePreNode) {
+          // blank content (spaces, line breakers etc.) inside <pre> is not meaning less
+          // count it.
           textNode++;
-          if (abortOnTextNode) {
-            break;
-          }
+          if (abortOnTextNode) { break; }
         }
       } else {
         otherNode++;
@@ -1151,6 +1196,7 @@ const Language = (function() {
     XOTcl
     YAML
     Zsh
+    Zig
   `);
 
   // init language dictionary
