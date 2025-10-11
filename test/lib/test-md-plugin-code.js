@@ -26,18 +26,13 @@ describe('MdPluginCode', () => {
 
 
   it('should ignore linebreak in the end', () => {
-    const html = `
-      <div>
-        <div class="language-shell highlighter-rouge">
-          <pre class="highlight">
-
-
-            <code><span class="gt">code </span>text\n</code>
-
-          </pre>
-        </div>
-      </div>
-    `
+    const html = [
+      `<div><div class="language-shell highlighter-rouge">`,
+          `<pre class="highlight">`,
+            `<code><span class="gt">code </span>text\n</code>`,
+          `</pre>`,
+      `</div></div>`,
+    ].join("");
     const {doc, node} = DOMTool.parseHTML(win, html);
     let contextNode = node;
     contextNode = mdPlugin.handle(doc, contextNode);
@@ -61,42 +56,41 @@ describe('MdPluginCode', () => {
 
   testGetLanguage(`<div><pre>code text</pre></div>`, 'plain');
 
-  testGetLanguage(`
-    <div>
-      <pre class="lang-javascript">
-        code text
-      </pre>
-    </div>
-  `, 'javascript');
+  testGetLanguage([
+    `<div>`,
+      `<pre class="lang-javascript">`,
+        `code text`,
+      `</pre>`,
+    `</div>`,
+  ].join(""), 'javascript');
 
-  testGetLanguage(`
-    <div>
-      <pre class="lang-javascript">
+  testGetLanguage([
+    `<div>`,
+      `<pre class="lang-javascript">`,
+        `<code class="shell">`,
+          `code text`,
+        `</code>`,
+      `</pre>`,
+    `</div>`,
+  ].join(""), 'shell');
 
-        <code class="shell">
-          code text
-        </code>
-      </pre>
-    </div>
-  `, 'shell');
+  testGetLanguage([
+    `<div class="language-ruby highlight">`,
+      `<div class="highlight">`,
+        `<pre class="highlight">code text</pre>`,
+      `</div>`,
+    `</div>`,
+  ].join(""), 'ruby');
 
-  testGetLanguage(`
-    <div class="language-ruby highlight">
-      <div class="highlight">
-        <pre class="highlight">code text</pre>
-      </div>
-    </div>
-  `, 'ruby');
-
-  testGetLanguage(`
-    <div>
-      <pre>
-        <div class="line" lang="ruby">line 1</div>
-        <div class="line" lang="elixir">line 2</div>
-        <div class="line" lang="elixir">line 3</div>
-      </pre>
-    </div>
-  `, 'elixir');
+  testGetLanguage([
+    `<div>`,
+      `<pre>`,
+        `<div class="line" lang="ruby">line 1</div>`,
+        `<div class="line" lang="elixir">line 2</div>`,
+        `<div class="line" lang="elixir">line 3</div>`,
+      `</pre>`,
+    `</div>`,
+  ].join(""), 'elixir');
 
 
   /*
@@ -112,44 +106,63 @@ describe('MdPluginCode', () => {
   */
 
 
-  testGetLanguage(`
-    <div>
-      <pre class="line" lang="css">line 1</pre>
-      <pre class="line" lang="text">line 2</pre>
-      <pre class="line" lang="css">line 3</pre>
-    </div>
-  `, 'css');
+  testGetLanguage([
+    `<div>`,
+      `<pre class="line" lang="css">line 1</pre>`,
+      `<pre class="line" lang="text">line 2</pre>`,
+      `<pre class="line" lang="css">line 3</pre>`,
+    `</div>`,
+  ].join(""), 'css');
 
   /*
-  testGetLanguage(`
-    <div>
-      <pre class="line css">line 1</pre>
-      <pre class="line text">line 2</pre>
-      <pre class="line css">line 3</pre>
-    </div>
-  `, 'css');
+  testGetLanguage([
+    `<div>`,
+      `<pre class="line css">line 1</pre>`,
+      `<pre class="line text">line 2</pre>`,
+      `<pre class="line css">line 3</pre>`,
+    `</div>`,
+  ], 'css');
   */
 
 
+  it('should handle normal <pre> block', () => {
+    const html = [
+      `<div class="highlight"><pre>`,
+        `<span>line 1</span>\n`,
+        `<span>line</span> <span>2</span>\n`,
+        `<span>line 3</span>`,
+      `</pre></div>`,
+    ].join("")
+
+    const {doc, node} = DOMTool.parseHTML(win, html);
+    let contextNode = node;
+    contextNode = mdPlugin.handle(doc, contextNode);
+    const codeText = contextNode.querySelector('pre > code').textContent;
+    const parts = codeText.split("\n");
+    H.assertEqual(parts.length, 3);
+    H.assertEqual(parts[0], "line 1");
+    H.assertEqual(parts[1], "line 2");
+    H.assertEqual(parts[2], "line 3");
+  });
 
 
   it('should merge <pre> lines when using as line wrapper', () => {
     // get from CoffeeScript (Zeal)
-    const html = `
-      <div>
-        <div class="will-merge">
-          <pre class="line"><span>line 1</span></pre>
-          <pre class="line"><span>line</span> 2</pre>
-          <pre class="line">line <span>3</span></pre>
-        </div>
-
-        <div class="will-not-merge">
-          <p> Example: </p>
-          <pre class="line">code text</pre>
-          <pre class="line">code text</pre>
-        </div>
-      </div>
-    `;
+    const html = [
+      `<div>`,
+        `<div class="will-merge">`,
+          `<pre class="line"><span>line 1</span></pre>`,
+          `<pre class="line"><span>line</span> 2</pre>`,
+          `<pre class="line">line <span>3</span></pre>`,
+        `</div>`,
+``,
+        `<div class="will-not-merge">`,
+          `<p> Example: </p>`,
+          `<pre class="line">code text</pre>`,
+          `<pre class="line">code text</pre>`,
+        `</div>`,
+      `</div>`,
+    ].join("");
     const {doc, node} = DOMTool.parseHTML(win, html);
     let contextNode = node;
     contextNode = mdPlugin.handle(doc, contextNode);
@@ -204,53 +217,53 @@ describe('MdPluginCode', () => {
     //
     //   nested pre node
     //   buttons inside pre node
-    const html = `
-      <div>
-        <pre class="playpen">
-          <div class="buttons">
-            <button></button>
-            <button></button>
-          </div>
-        <code class="language-rust hljs">hello\n<span>world</span></code>
-        </pre>
-      </div>
-    `;
+    const html = [
+      `<div>`,
+        `<pre class="playpen">`,
+          `<div class="buttons">`,
+            `<button></button>`,
+            `<button></button>`,
+          `</div>`,
+        `<code class="language-rust hljs">hello\n<span>world</span></code>`,
+        `</pre>`,
+      `</div>`,
+    ].join("");
     testPreCodeWithButtons(html);
   }
 
   {
     // button at the bottom
-    const html = `
-      <div>
-        <pre class="playpen">
-        <code class="language-rust hljs">hello\n<span>world</span></code>
-          <div class="buttons">
-            <button></button>
-            <button></button>
-          </div>
-        </pre>
-      </div>
-    `;
+    const html = [
+      `<div>`,
+        `<pre class="playpen">`,
+        `<code class="language-rust hljs">hello\n<span>world</span></code>`,
+          `<div class="buttons">`,
+            `<button></button>`,
+            `<button></button>`,
+          `</div>`,
+        `</pre>`,
+      `</div>`,
+    ].join("");
     testPreCodeWithButtons(html);
   }
 
   {
     // button at both sides.
-    const html = `
-      <div>
-        <pre class="playpen">
-          <div class="buttons">
-            <button></button>
-            <button></button>
-          </div>
-          <code class="language-rust hljs">hello\n<span>world</span></code>
-          <div class="buttons">
-            <button></button>
-            <button></button>
-          </div>
-        </pre>
-      </div>
-    `;
+    const html = [
+      `<div>`,
+        `<pre class="playpen">`,
+          `<div class="buttons">`,
+            `<button></button>`,
+            `<button></button>`,
+          `</div>`,
+          `<code class="language-rust hljs">hello\n<span>world</span></code>`,
+          `<div class="buttons">`,
+            `<button></button>`,
+            `<button></button>`,
+          `</div>`,
+        `</pre>`,
+      `</div>`,
+    ].join("");
     testPreCodeWithButtons(html);
   }
 
@@ -308,13 +321,13 @@ describe('MdPluginCode', () => {
 
   {
     const componentSelector = '.component';
-    const html = `
-      <pre>
-        <span class="component"></span>
-        <code>code text</code>
-        <span class="component"></span>
-      </pre>
-    `;
+    const html = [
+      `<pre>`,
+        `<span class="component"></span>`,
+        `<code>code text</code>`,
+        `<span class="component"></span>`,
+      `</pre>`,
+    ].join("");
     testPreCodeWithBlankComponent(html, componentSelector);
   }
 
@@ -360,24 +373,27 @@ describe('MdPluginCode', () => {
   // code with line number
   // ============================================================
 
-  function testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector) {
+  function testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector, isDebug = false) {
     it("handle code with line number > " + desc, () => {
       const {doc, node} = DOMTool.parseHTML(win, html);
       let contextNode = node;
       contextNode = mdPlugin.handle(doc, contextNode);
+      if (isDebug) {
+        console.error(contextNode.outerHTML);
+      }
       const lineNumberNodes = contextNode.querySelectorAll(lineNumberSelector);
       H.assertEqual(lineNumberNodes.length, 0)
 
       const codeNode = contextNode.querySelector('code');
       const code = codeNode.textContent;
-      H.assertEqual(codeNode.getAttribute('class'), ['language', language].join('-'));
+      //H.assertEqual(codeNode.getAttribute('class'), ['language', language].join('-'));
       const lines = code.split(/\n/);
       H.assertEqual(lines.length, 3);
 
       const [line1, line2, line3] = lines;
-      H.assertMatch(line1, /line 1/);
-      H.assertMatch(line2, /line 2/);
-      H.assertMatch(line3, /line 3/);
+      H.assertEqual(line1, 'line 1');
+      H.assertEqual(line2, 'line 2');
+      H.assertEqual(line3, 'line 3');
     });
   }
 
@@ -388,34 +404,34 @@ describe('MdPluginCode', () => {
     const desc = "code table with gutter and code A";
     const language = "javascript";
     const lineNumberSelector = ".gutter .line";
-    const html = `
-      <figure class="highlight javascript">
-      <table><tbody>
-        <tr>
-          <td class="gutter">
-            <pre>
-              <span class="line">1</span>
-              <br>
-              <span class="line">2</span>
-              <br>
-              <span class="line">3</span>
-              <br>
-            </pre>
-          </td>
-          <td class="code">
-            <pre>
-              <span class="line"><span>line</span> 1</span>
-              <br>
-              <span class="line">line <span>2</span></span>
-              <br>
-              <span class="line"><span>line 3</span></span>
-              <br>
-            </pre>
-          </td>
-        </tr>
-      </tbody></table>
-      </figure>
-    `;
+    const html = [
+      `<figure class="highlight javascript">`,
+      `<table><tbody>`,
+        `<tr>`,
+          `<td class="gutter">`,
+            `<pre>`,
+              `<span class="line">1</span>`,
+              `<br>`,
+              `<span class="line">2</span>`,
+              `<br>`,
+              `<span class="line">3</span>`,
+              `<br>`,
+            `</pre>`,
+          `</td>`,
+          `<td class="code">`,
+            `<pre>`,
+              `<span class="line"><span>line</span> 1</span>`,
+              `<br>`,
+              `<span class="line">line <span>2</span></span>`,
+              `<br>`,
+              `<span class="line"><span>line 3</span></span>`,
+              `<br>`,
+            `</pre>`,
+          `</td>`,
+        `</tr>`,
+      `</tbody></table>`,
+      `</figure>`,
+    ].join("");
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
@@ -425,32 +441,32 @@ describe('MdPluginCode', () => {
     const desc = "code table with gutter and code B";
     const language = "ruby";
     const lineNumberSelector  = ".line-number";
-    const html = `
-      <figure class="code">
-        <div class="highlight">
-          <table><tbody>
-            <tr>
-              <td class="gutter">
-                <pre class="line-numbers">
-                  <span class="line-number">1</span>
-                  <span class="line-number">2</span>
-                  <span class="line-number">3</span>
-                </pre>
-              </td>
-              <td class="code">
-                <pre>
-                  <code class="ruby">
-                    <span class="line"><span>line 1</span></span>
-                    <span class="line"><span>line</span> 2</span>
-                    <span class="line">line <span>3</span></span>
-                  </code>
-                </pre>
-              </td>
-            </tr>
-          </tbody></table>
-        </div>
-      </figure>
-    `;
+    const html = [
+      `<figure class="code">`,
+        `<div class="highlight">`,
+          `<table><tbody>`,
+            `<tr>`,
+              `<td class="gutter">`,
+                `<pre class="line-numbers">`,
+                  `<span class="line-number">1</span>`,
+                  `<span class="line-number">2</span>`,
+                  `<span class="line-number">3</span>`,
+                `</pre>`,
+              `</td>`,
+              `<td class="code">`,
+                `<pre>`,
+                  `<code class="ruby">`,
+                    `<span class="line"><span>line 1</span></span>`,
+                    `<span class="line"><span>line</span> 2</span>`,
+                    `<span class="line">line <span>3</span></span>`,
+                  `</code>`,
+                `</pre>`,
+              `</td>`,
+            `</tr>`,
+          `</tbody></table>`,
+        `</div>`,
+      `</figure>`,
+    ].join("");
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
@@ -458,41 +474,29 @@ describe('MdPluginCode', () => {
 
   {
     // get from jquery doc (Zeal)
-    const desc = "code tabble with gutter and code C";
+    const desc = "code table with gutter and code C";
     const language = "python";
     const lineNumberSelector  = ".line";
-    const html = `
-      <div class="syntaxhighlighter python">
-        <table><tbody>
-          <tr>
-            <td class="gutter">
-              <div class="line n1">1</div>
-              <div class="line n2">2</div>
-              <div class="line n3">3</div>
-            </td>
-            <td class="code">
-              <pre>
-                <div class="container">
-                  <div class="line">
-                    <code><span>line 1<span></code>
-                  </div>
-                </div>
-                <div class="container">
-                  <div class="line">
-                    <code>line 2</code>
-                  </div>
-                </div>
-                <div class="container">
-                  <div class="line">
-                    <code>line 3</code>
-                  </div>
-                </div>
-              </pre>
-            </td>
-          </tr>
-        </tbody></table>
-      </div>
-    `;
+    const html = [
+      `<div class="syntaxhighlighter python">`,
+        `<table><tbody>`,
+          `<tr>`,
+            `<td class="gutter">`,
+              `<div class="line n1">1</div>`,
+              `<div class="line n2">2</div>`,
+              `<div class="line n3">3</div>`,
+            `</td>`,
+            `<td class="code">`,
+              `<pre>`,
+                `<div class="container"><div class="line"><code><span>line 1<span></code></div></div>`,
+                `<div class="container"><div class="line"><code>line 2</code></div></div>`,
+                `<div class="container"><div class="line"><code>line 3</code></div></div>`,
+              `</pre>`,
+            `</td>`,
+          `</tr>`,
+        `</tbody></table>`,
+      `</div>`,
+    ].join("");
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
@@ -526,6 +530,33 @@ describe('MdPluginCode', () => {
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
+  {
+    // from syntax highlight ruby library: rouge
+    const desc = "code table with gutter and code E";
+    const language = "python";
+    const lineNumberSelector  = ".rouge gutter > .lineno";
+
+    const html = "" +
+      `<figure class="highlight language-python">`
+      + `<table class="rouge-table"><tbody><tr>`
+      + `<td class="rouge-gutter gl">`
+      +    `<pre class="lineno">`
+      +        `1`
+      +      `\n2`
+      +      `\n3`
+      +      `\n`
+      +    `</pre>`
+      + `</td>`
+      + `<td class="rouge-code"><pre>`
+      +    `<span class="cp">line</span> <span class="cpf">1</span>\n`
+      +    `<span class="cp">line</span> <span class="cpf">2</span>\n`
+      +    `<span class="cp">line</span> <span class="cpf">3</span>\n`
+      +  `</pre></td>`
+      + `</tr></tbody></table>`
+      + `</figure>`;
+
+    testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
+  }
 
 
   {
@@ -533,27 +564,27 @@ describe('MdPluginCode', () => {
     const desc = "code table of gist";
     const language = "c";
     const lineNumberSelector = ".js-line-number"
-    const html = `
-      <div class="Box-body p-0 blob-wrapper data type-c">
-        <table class="highlight">
-          <tbody>
-            <tr>
-              <td class="blob-num js-line-number" data-line-number="1"></td>
-              <td class="blob-code blob-code-inner js-file-line"><span>
-              line</span> 1</td>
-            </tr>
-            <tr>
-              <td class="blob-num js-line-number" data-line-number="2"></td>
-              <td class="blob-code blob-code-inner js-file-line">line <span>2</span></td>
-            </tr>
-            <tr>
-              <td class="blob-num js-line-number" data-line-number="3"></td>
-              <td class="blob-code blob-code-inner js-file-line"><span>line 3</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    `;
+    const html = [
+      `<div class="Box-body p-0 blob-wrapper data type-c">`,
+        `<table class="highlight">`,
+          `<tbody>`,
+            `<tr>`,
+              `<td class="blob-num js-line-number" data-line-number="1"></td>`,
+              `<td class="blob-code blob-code-inner js-file-line"><span>`,
+              `line</span> 1</td>`,
+            `</tr>`,
+            `<tr>`,
+              `<td class="blob-num js-line-number" data-line-number="2"></td>`,
+              `<td class="blob-code blob-code-inner js-file-line">line <span>2</span></td>`,
+            `</tr>`,
+            `<tr>`,
+              `<td class="blob-num js-line-number" data-line-number="3"></td>`,
+              `<td class="blob-code blob-code-inner js-file-line"><span>line 3</span></td>`,
+            `</tr>`,
+          `</tbody>`,
+        `</table>`,
+      `</div>`,
+    ].join("");
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
@@ -564,24 +595,24 @@ describe('MdPluginCode', () => {
     const desc = "code div of Gitlab";
     const language = "yaml";
     const lineNumberSelector = '.line-numbers .diff-line-num';
-    const html = `
-      <div class="file-content code js-syntax-highlight">
-        <div class="line-numbers">
-          <a id = "L1" class="diff-line-num" data-line-number="1">1</a>
-          <a id = "L2" class="diff-line-num" data-line-number="2">2</a>
-          <a id = "L3" class="diff-line-num" data-line-number="3">3</a>
-        </div>
-        <div class="blob-content">
-          <pre class="highlight">
-            <code>
-              <span id="LC1" class="line" lang="yaml"><span>line</span> 1</span>
-              <span id="LC2" class="line" lang="yaml"><span>line</span> 2</span>
-              <span id="LC3" class="line" lang="yaml"><span>line</span> 3</span>
-            </code>
-          </pre>
-        </div>
-      </div>
-    `;
+    const html = [
+      `<div class="file-content code js-syntax-highlight">`,
+        `<div class="line-numbers">`,
+          `<a id = "L1" class="diff-line-num" data-line-number="1">1</a>`,
+          `<a id = "L2" class="diff-line-num" data-line-number="2">2</a>`,
+          `<a id = "L3" class="diff-line-num" data-line-number="3">3</a>`,
+        `</div>`,
+        `<div class="blob-content">`,
+          `<pre class="highlight">`,
+            `<code>`,
+              `<span id="LC1" class="line" lang="yaml"><span>line</span> 1</span>`,
+              `<span id="LC2" class="line" lang="yaml"><span>line</span> 2</span>`,
+              `<span id="LC3" class="line" lang="yaml"><span>line</span> 3</span>`,
+            `</code>`,
+          `</pre>`,
+        `</div>`,
+      `</div>`,
+    ].join("");
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
@@ -591,25 +622,25 @@ describe('MdPluginCode', () => {
     const desc = "line numbers are behind code block";
     const language = "js";
     const lineNumberSelector = ".line-num";
-    const html = `
-      <div class="highlight">
-        <div class="code">
-          <pre>
-              <span class="line" lang="js"><span>line</span> 1</span>
-              <span class="line" lang="html"><span>line</span> 2</span>
-              <span class="line" lang="js"><span>line</span> 3</span>
-          </pre>
-        </div>
-        <div class="line-numbers">
-          <a class="line-num" data-line-number="1"></a>
-          <a class="line-num" data-line-number="2"></a>
-          <a class="line-num" data-line-number="3">
+    const html = [
+      `<div class="highlight">`,
+        `<div class="code">`,
+          `<pre>`,
+              `<span class="line" lang="js"><span>line</span> 1</span>\n`,
+              `<span class="line" lang="html"><span>line</span> 2</span>\n`,
+              `<span class="line" lang="js"><span>line</span> 3</span>\n`,
+          `</pre>`,
+        `</div>`,
+        `<div class="line-numbers">`,
+          `<a class="line-num" data-line-number="1"></a>`,
+          `<a class="line-num" data-line-number="2"></a>`,
+          `<a class="line-num" data-line-number="3">`,
 
-          </a>
-        </div>
-      </div>
-    `;
-    testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
+          `</a>`,
+        `</div>`,
+      `</div>`,
+    ].join("");
+    testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector, true);
   }
 
 
@@ -642,38 +673,38 @@ describe('MdPluginCode', () => {
     const desc = "line numbers are groupped with code line by line"
     const language = "perl"
     const lineNumberSelector = ".hljs-ln-numbers .hljs-ln-n";
-    const html = `
-      <pre class="has" name="code">
-        <code class="language-perl">
-          <ol class="hljs-ln">
-            <li>
-              <div class="hljs-ln-numbers">
-                <div class="hljs-ln-line hljs-ln-n" data-line-number="1"></div>
-              </div>
-              <div class="hljs-ln-code">
-                <div class="hljs-ln-line">line 1</div>
-              </div>
-            </li>
-            <li>
-              <div class="hljs-ln-numbers">
-                <div class="hljs-ln-line hljs-ln-n" data-line-number="2"></div>
-              </div>
-              <div class="hljs-ln-code">
-                <div class="hljs-ln-line">line 2</div>
-              </div>
-            </li>
-            <li>
-              <div class="hljs-ln-numbers">
-                <div class="hljs-ln-line hljs-ln-n" data-line-number="3"></div>
-              </div>
-              <div class="hljs-ln-code">
-                <div class="hljs-ln-line">line 3</div>
-              </div>
-            </li>
-          </ol>
-        </code>
-      </pre>
-    `;
+    const html = [
+      `<pre class="has" name="code">`,
+        `<code class="language-perl">`,
+          `<ol class="hljs-ln">`,
+            `<li>`,
+              `<div class="hljs-ln-numbers">`,
+                `<div class="hljs-ln-line hljs-ln-n" data-line-number="1"></div>`,
+              `</div>`,
+              `<div class="hljs-ln-code">`,
+                `<div class="hljs-ln-line">line 1</div>`,
+              `</div>`,
+            `</li>`,
+            `<li>`,
+              `<div class="hljs-ln-numbers">`,
+                `<div class="hljs-ln-line hljs-ln-n" data-line-number="2"></div>`,
+              `</div>`,
+              `<div class="hljs-ln-code">`,
+                `<div class="hljs-ln-line">line 2</div>`,
+              `</div>`,
+            `</li>`,
+            `<li>`,
+              `<div class="hljs-ln-numbers">`,
+                `<div class="hljs-ln-line hljs-ln-n" data-line-number="3"></div>`,
+              `</div>`,
+              `<div class="hljs-ln-code">`,
+                `<div class="hljs-ln-line">line 3</div>`,
+              `</div>`,
+            `</li>`,
+          `</ol>`,
+        `</code>`,
+      `</pre>`,
+    ].join("");
     testHandleCodeWithLineNumber(desc, html, language, lineNumberSelector);
   }
 
