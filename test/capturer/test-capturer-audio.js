@@ -93,4 +93,23 @@ describe('Capture Audio', () => {
     ExtMsg.clearMocks();
   });
 
+
+  it('capture two audios config: currentSrc', async() => {
+    const node1 = {type: 1, name: 'AUDIO', attr: {src: 'test1.mp3'}, currentSrc: 'test1.mp3',  childNodes: []};
+    const node2 = {type: 1, name: 'AUDIO', attr: {src: 'test2.mp3'}, currentSrc: 'test2.mp3', childNodes: []};
+    const params = getParams();
+    params.config.htmlCaptureAudio = 'saveCurrent';
+
+    ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
+    ExtMsg.mockGetUniqueFilename();
+    const r1 = await Capturer.capture(node1, params);
+    const r2 = await Capturer.capture(node2, params);
+    H.assertEqual(r1.tasks.length, 1);
+    H.assertEqual(r2.tasks.length, 1);
+    H.assertNotEqual(r1.change.getAttr('src'), 'test1.mp3');
+    H.assertNotEqual(r2.change.getAttr('src'), 'test2.mp3');
+    H.assertNotEqual(r1.change.getAttr('src'), r2.change.getAttr('src'));
+    ExtMsg.clearMocks();
+  });
+
 });

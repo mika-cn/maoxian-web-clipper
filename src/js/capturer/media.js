@@ -17,7 +17,10 @@ import CaptureTool from './tool.js';
  *   - {Object} storageInfo
  *   - {RequestParams} requestParams
  *   - {Object} config
- * @param {Array} attrParamsArray @see capturer/tool.js > captureAttrResource()
+ * @param {Array} attrParamsArray
+ *   - {Object|Array} attrParamsMedia  @see capturer/tool.js > captureAttrResource()
+ *   - {Object}       attrParamsSource
+ *   - {Object}       attrParamsTrack
  *
  */
 async function capture(node, params, [attrParamsMedia, attrParamsSource, attrParamsTrack]) {
