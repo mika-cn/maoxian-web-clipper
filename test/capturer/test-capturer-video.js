@@ -12,6 +12,7 @@ const Capturer = H.wrapAsyncCapturer(CapturerVideo);
 
 function getParams() {
   const url = 'https://a.org/index.html';
+  const config = {htmlCaptureVideo: 'saveAll'};
   return {
     baseUrl: url,
     storageInfo: {
@@ -22,8 +23,8 @@ function getParams() {
     },
     clipId: '001',
     requestParams: RequestParams.createExample({refUrl: url}),
-    config: {htmlCaptureVideo: 'saveAll'},
-  }
+    config: config,
+  };
 }
 
 describe('Capture Video', () => {
@@ -48,6 +49,8 @@ describe('Capture Video', () => {
     ExtMsg.clearMocks();
   });
 
+
+
   it('capture video node that has source children and track children', async ()=> {
     const node = {type: 1, name: 'VIDEO', attr: {controls: ''},  childNodes: [
       {type: 1, name: 'SOURCE', attr: {src: 'test.mp4', type: 'video/mp4'}},
@@ -58,6 +61,7 @@ describe('Capture Video', () => {
     ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
     ExtMsg.mockGetUniqueFilename();
     const r = await Capturer.capture(node, params);
+    //console.debug(r.tasks);
     H.assertEqual(r.tasks.length, 3);
     const [sourceA, sourceB, track] = node.childNodes;
     H.assertNotEqual(sourceA.change.attr.src, 'test.mp4')
@@ -94,5 +98,27 @@ describe('Capture Video', () => {
     H.assertFalse(r.change.hasAttr('data-mx-warn'));
     ExtMsg.clearMocks();
   });
+
+
+  it('capture two videos config: currentSrc', async() => {
+    const node1 = {type: 1, name: 'VIDEO', attr: {src: 'test1.mp4'}, currentSrc: 'test1.mp4', childNodes: []};
+    const node2 = {type: 1, name: 'VIDEO', attr: {src: 'test2.mp4'}, currentSrc: 'test2.mp4', childNodes: []};
+    const params = getParams();
+    params.config.htmlCaptureVideo = 'saveCurrent';
+
+    ExtMsg.mockMsgResult('get.mimeType', '__EMPTY__');
+    ExtMsg.mockGetUniqueFilename();
+    const r1 = await Capturer.capture(node1, params);
+    const r2 = await Capturer.capture(node2, params);
+    H.assertEqual(r1.tasks.length, 1);
+    H.assertEqual(r2.tasks.length, 1);
+
+    H.assertNotEqual(r1.change.getAttr('src'), 'test1.mp4');
+    H.assertNotEqual(r2.change.getAttr('src'), 'test2.mp4');
+    H.assertNotEqual(r1.change.getAttr('src'), r2.change.getAttr('src'));
+
+    ExtMsg.clearMocks();
+  });
+
 
 });
