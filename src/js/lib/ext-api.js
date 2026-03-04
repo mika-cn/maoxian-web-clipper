@@ -241,7 +241,7 @@ ExtApi.isAllowedFileSchemeAccess = function(){
  * @param {string} url - The url of new tab.
  */
 ExtApi.createTab = (url) => {
- //https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/tabs/create
+ //https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create
   return _.tabs.create({url: url});
 }
 
