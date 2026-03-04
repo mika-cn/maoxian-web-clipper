@@ -32,7 +32,7 @@ import Storage      from '../lib/storage.js';
  *     {Array} subscription urls
  *
  *   assistant.public-plan.pointers
- *     {Array} [assistant.public-plan.$SUBSCRIPTION-$NAME.$VERSION]
+ *     {Array} [assistant.public-plan.$SUBSCRIPTION-NAME.$VERSION]
  *
  *   assistant.public-plan.$SUBSCRIPTION-NAME.latest
  *     {String} assistant.public-plan.$SUBSCRIPTION-NAME.$VERSION
@@ -45,42 +45,17 @@ import Storage      from '../lib/storage.js';
  *
  */
 
-const state = {
-  globalPlan: null,
-  cachedPlans: [],
-  customPlans: null,
-  publicPlanPointers: [],
-  publicPlanDict: {},
-};
-
-
-function initPublicPlanPointers() {
-  Storage.get('assistant.public-plan.pointers').then((pointers) => {
-    if(pointers) { state.publicPlanPointers = pointers }
-  });
-}
 
 async function get(url) {
+  const globalPlan       = await getGlobalPlan();
+  const pagePlan         = await getPagePlan(url);
   const defaultTagStatus = await getDefaultTagStatus();
-  const globalPlan = await getGlobalPlan();
-  const pagePlan = await getPagePlan(url);
   return {globalPlan, pagePlan, defaultTagStatus};
 }
 
 
-
-const DEFAULT_GLOBAL_PLAN = {name: 'the global plan', disabled: true};
-
-
 async function getDefaultTagStatus() {
   return await Storage.get('assistant.default-tag-status', "");
-}
-
-async function getGlobalPlan() {
-  if (!state.globalPlan) {
-    state.globalPlan = await Storage.get('assistant.global-plan', DEFAULT_GLOBAL_PLAN);
-  }
-  return state.globalPlan;
 }
 
 
@@ -95,29 +70,29 @@ async function getPagePlan(url) {
   }
 
   // find from cachedPlans
-  const cachedPlan = state.cachedPlans.find(fn);
+  const cachedPlans = await getCachedPlans();
+  const cachedPlan = cachedPlans.find(fn);
   if (cachedPlan) { return cachedPlan }
 
-  // find from customPlans
-  if (state.customPlans === null) {
-    state.customPlans = await Storage.get('assistant.custom-plans', []);
-  }
-  const customPlan = state.customPlans.find(fn);
+  // find from custom plans
+  const customPlans = await getCustomPlans();
+  const customPlan = customPlans.find(fn);
   if (customPlan) {
-    state.cachedPlans.unshift(customPlan);
+    cachedPlans.unshift(customPlan);
+    await setCachedPlans(cachedPlans);
     return customPlan;
   }
 
   // find from publicPlans
-  for (let i = 0; i < state.publicPlanPointers.length; i++) {
-    const key = state.publicPlanPointers[i];
-    if (typeof state.publicPlanDict[key] === 'undefined') {
-      state.publicPlanDict[key] = await Storage.get(key, []);
-    }
-    const plan = state.publicPlanDict[key].find(fn);
-    if (plan) {
-      state.cachedPlans.unshift(plan);
-      return plan;
+  const publicPlanPointers = await getPublicPlanPointers()
+  for (let i = 0; i < publicPlanPointers.length; i++) {
+    const key = publicPlanPointers[i];
+    const publicPlans = await Storage.get(key, []);
+    const publicPlan = publicPlans.find(fn);
+    if (publicPlan) {
+      cachedPlans.unshift(publicPlan);
+      await setCachedPlans(cachedPlans);
+      return publicPlan;
     }
   }
 
@@ -126,15 +101,57 @@ async function getPagePlan(url) {
 
 
 
+const DEFAULT_GLOBAL_PLAN = {name: 'the global plan', disabled: true};
+async function getGlobalPlan() {
+  return await Storage.get('assistant.global-plan', DEFAULT_GLOBAL_PLAN);
+}
+
+async function getCachedPlans() {
+  return Storage.session.get('assistant.cachedPlans', []);
+}
+
+async function setCachedPlans(plans) {
+  return Storage.session.set('assistant.cachedPlans', plans);
+}
+
+async function resetCachedPlans() {
+  return setCachedPlans([]);
+}
+
+async function getCustomPlans() {
+  return Storage.get('assistant.custom-plans', []);
+}
+
+async function getPublicPlanPointers() {
+  return Storage.local.get('assistant.public-plan.pointers', []);
+}
+
+async function setPublicPlanPointers(pointers) {
+  return Storage.local.set('assistant.public-plan.pointers', pointers);
+}
+
+async function getPublicPlanSubscriptions() {
+  return Storage.local.get('assistant.public-plan.subscriptions', []);
+}
+
+async function setPublicPlanSubscriptions(subscriptions) {
+  return Storage.set('assistant.public-plan.subscriptions', subscriptions);
+}
+
+
+
 async function updatePublicPlans(urls) {
-  state.cachedPlans = [];
+  await resetCachedPlans();
   const now = T.currentTime();
   const newPublicPlanPointers = [];
   const keyPrefix = 'assistant.public-plan';
   const defaultVersion = '20180101';
   const subscriptions = [];
   const result = [];
-  const oldSubscriptions = await Storage.get([keyPrefix, 'subscriptions'].join('.'));
+
+  const oldSubscriptions = await getPublicPlanSubscriptions();
+  const oldPublicPlanPointers = await getPublicPlanPointers();
+
 
   for (let i = 0; i < urls.length; i++) {
     try {
@@ -160,23 +177,12 @@ async function updatePublicPlans(urls) {
         const newKey = [keyPrefix, subscription.name, subscription.latestVersion].join('.');
         const txtKey = [keyPrefix, subscription.name, 'text'].join('.');
 
-        state.publicPlanDict[newKey] = plans;
-        const idx = state.publicPlanPointers.indexOf(oldKey);
-        if (idx > -1) {
-          // update current state
-          state.publicPlanPointers[idx] = newKey;
-          delete state.publicPlanDict[oldKey];
-
-          // update storage
-          await Storage.set(newKey, plans);
-          await Storage.set(pointerKey, newKey);
-          await Storage.remove(oldKey);
-          await Storage.set(txtKey, text);
-        } else {
-          await Storage.set(newKey, plans);
-          await Storage.set(pointerKey, newKey);
-          await Storage.set(txtKey, text);
-        }
+        // update storage
+        const needRemoveOldPublicPlans = (oldPublicPlanPointers.indexOf(oldKey) > -1);
+        await Storage.set(newKey, plans);
+        await Storage.set(pointerKey, newKey);
+        if (needRemoveOldPublicPlans) { await Storage.remove(oldKey) }
+        await Storage.set(txtKey, text);
 
         newPublicPlanPointers.push(newKey);
         result.push({ok: true, subscription: subscription, updated: true});
@@ -207,11 +213,10 @@ async function updatePublicPlans(urls) {
 
 
   // delete
-  for (let j = 0; j < state.publicPlanPointers.length; j++) {
-    const pointer = state.publicPlanPointers[j];
+  for (let j = 0; j < oldPublicPlanPointers.length; j++) {
+    const pointer = oldPublicPlanPointers[j];
     if (newPublicPlanPointers.indexOf(pointer) == -1) {
-      delete state.publicPlanDict[pointer];
-      const prefix = T.deleteLastPart(pointer);
+      const prefix = T.deleteLastPart(pointer); // remove $version
       const pointerKey = [prefix, 'latest'].join('.');
       const txtKey = [prefix, 'text'].join('.');
       await Storage.remove([pointerKey, pointer, txtKey])
@@ -219,9 +224,9 @@ async function updatePublicPlans(urls) {
     }
   }
 
-  await Storage.set([keyPrefix, 'pointers'].join('.'), newPublicPlanPointers);
-  await Storage.set([keyPrefix, 'subscriptions'].join('.'), subscriptions);
-  state.publicPlanPointers = newPublicPlanPointers;
+  await setPublicPlanPointers(newPublicPlanPointers);
+  await setPublicPlanSubscriptions(subscriptions);
+
   return result;
 }
 
@@ -231,7 +236,6 @@ async function updateGlobalPlan(planText) {
     if (plan.constructor !== Object) {
       throw new Error(`The global plan must be an Object, but we've got ${plan.constructor.name}`);
     }
-    state.globalPlan = plan;
     await Storage.set('assistant.global-plan', plan);
     await Storage.set('assistant.global-plan.text', planText);
     return {ok: true}
@@ -241,10 +245,9 @@ async function updateGlobalPlan(planText) {
 }
 
 async function updateCustomPlans(planText) {
-  state.cachedPlans = [];
+  await resetCachedPlans();
   try {
     const plans = JSON.parse(planText);
-    state.customPlans = plans;
     await Storage.set('assistant.custom-plans', plans);
     await Storage.set('assistant.custom-plan.text', planText);
     return {ok: true}
@@ -260,26 +263,18 @@ async function updateCustomPlans(planText) {
 let Global = null;
 function init(global) {
   Global = global;
-  initPublicPlanPointers();
   Config.load().then((config) => {
     if (config.autoUpdatePublicPlan) {
       Storage.get('assistant.public-plan.subscription-urls', [])
-        .then((urls) => {
-          updatePublicPlans(urls);
-        });
+        .then(updatePublicPlans);
     }
   });
 }
 
 
-// set state to default
+// set cache to default
 function restart() {
-  state.globalPlan = null;
-  state.cachedPlans = [];
-  state.customPlans = null;
-  state.publicPlanPointers = [];
-  state.publicPlanDict = {};
-  initPublicPlanPointers();
+  resetCachedPlans();
 }
 
 const PlanRepository = { init, restart, get, updatePublicPlans, updateCustomPlans, updateGlobalPlan, }

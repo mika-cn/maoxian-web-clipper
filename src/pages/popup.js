@@ -1,4 +1,5 @@
-
+import localeEn    from '../_locales/en/popup.js';
+import localeZhCN  from '../_locales/zh_CN/popup.js';
 import ENV         from '../js/env.js';
 import T           from '../js/lib/tool.js';
 import MxWcIcon    from '../js/lib/icon.js';
@@ -11,9 +12,9 @@ import MxWcLink    from '../js/lib/link.js';
 
 const state = {};
 
-function menuClick(e){
+function menuClick(e) {
   const menuId = getMenuId(e.target);
-  switch(menuId){
+  switch(menuId) {
     case 'clip-as-default': sendClipCommand('clip-as-default') ; break ;
     case 'clip-as-html'   : sendClipCommand('clip-as-html')    ; break ;
     case 'clip-as-md'     : sendClipCommand('clip-as-md')      ; break ;
@@ -37,20 +38,26 @@ function getMenuId(evTarget) {
 
 function closeWindow(){ window.close() }
 
+function showError(errorMessage) {
+  const error = T.queryElem('.error');
+  error.innerText = errorMessage;
+  error.classList.add('actived');
+}
+
 // can't do user action in promise, lead to (xxx may only be called from a user input handler)
 function viewLastResult(){
   const {url, downloadItemId, failedTaskNum} = state.lastClippingResult;
-  if(failedTaskNum > 0) {
+  if (failedTaskNum > 0) {
     jumpToPage('extPage.last-clipping-result');
     return;
   }
-  if(downloadItemId) {
+  if (downloadItemId) {
     // clipping saved by browser download.
     MxWcStorage.set('lastClippingResult', null);
     state.lastClippingResult = null;
     ExtApi.openDownloadItem(downloadItemId);
   } else {
-    if(url.startsWith('http') || state.allowFileUrlAccess) {
+    if (url.startsWith('http') || state.allowFileUrlAccess) {
       MxWcStorage.set('lastClippingResult', null);
       state.lastClippingResult = null;
       ExtApi.createTab(url);
@@ -68,7 +75,7 @@ function sendClipCommand(command) {
   ExtMsg.sendToBackground({
     type: 'popup-menu.clip-command',
     body: body
-  }).then(closeWindow);
+  }).then(closeWindow, showError);
 }
 
 
@@ -99,11 +106,17 @@ async function renderMenus(){
         }
       })
     } else {
-      //browser restricted url
-      if (['addons.mozilla.org', 'chrome.google.com'].indexOf((new URL(tabUrl)).host) > -1) {
-        menuIds = pageIds;
-      } else if (config.selectSaveFormatOnMenus) {
-        menuIds = ['clip-as-html', 'clip-as-md'].concat(pageIds);
+      // We do not check restricted URLs (addons.mozilla.org, chrome.google.com etc.) anymore
+      // because smart users may use a better browser.
+      //
+      // Librewolf, TorBrowser or other good browsers
+      // will not put such stricted rules to it's user.
+      //
+      // These smart users can clip these URLs without problem,
+      // as their browser allows it :)
+
+      if (config.selectSaveFormatOnMenus) {
+        menuIds = ['clip-as-default', 'clip-as-html', 'clip-as-md'].concat(pageIds);
       } else {
         menuIds = ['clip-as-default'].concat(pageIds);
       }
@@ -124,7 +137,7 @@ async function renderMenus(){
   state.config = config;
 
 
-  if(lastClippingResult){
+  if (lastClippingResult) {
     // Browser will erase download records when user restart it.
     if (lastClippingResult.downloadItemId) {
       const downloadItem = await ExtApi.findDownloadItem(lastClippingResult.downloadItemId);
@@ -142,16 +155,12 @@ async function renderMenus(){
 
   const menus = T.queryElem('.menus');
   menus.classList.add(...menuIds);
-  menus.classList.add('clip-as-default');
-  bindListener(menus);
-}
-
-function bindListener(menus){
   T.bindOnce(menus, 'click', menuClick, true);
 }
 
 
-async function init(){
+async function init() {
+  I18N.init({localeEn, localeZhCN});
   I18N.i18nPage();
   await renderMenus();
   MxWcIcon.change("default");

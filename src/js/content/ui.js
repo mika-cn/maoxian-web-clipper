@@ -9,7 +9,6 @@ import MxWcEvent         from '../lib/event.js';
 import MxWcHandler       from '../lib/handler.js';
 import Notify            from '../lib/notify.js';
 import MxWcSelectionMain from '../selection/main.js';
-import {getCssSelector} from 'css-selector-generator';
 
 const state = {
   clippingState: 'idle',
@@ -370,6 +369,7 @@ function hideForm(){
 
 function setStateIdle(){
   state.clippingState = 'idle';
+  unmarkConfirmedElem();
   sendFrameMsgToControl('setStateIdle');
   const msg = state.contentFn.getMxEventMsg(state.config);
   dispatchMxEvent('idle', msg);
@@ -390,7 +390,7 @@ function setStateConfirmed(elem){
   const msg = state.contentFn.getMxEventMsg(state.config);
   sendFrameMsgToControl('setStateConfirmed');
   try {
-    const selector = getCssSelector(elem);
+    const {selector} = markConfirmedElem(elem);
     msg.elem = {selector};
     dispatchMxEvent('confirmed', msg);
   } catch(e) {
@@ -422,6 +422,25 @@ function dispatchMxEvent(name, data) {
     MxWcEvent.broadcastPublic(name, data);
   }
 }
+
+// mark the confirmed element
+// so API can use it as selector
+function markConfirmedElem(it) {
+  const {attrName, selector} = unmarkConfirmedElem();
+  it.setAttribute(attrName, '1');
+  return {attrName, selector};
+}
+
+
+function unmarkConfirmedElem() {
+  const attrName = 'data-mx-wc-confirmed-element';
+  const selector = `[${attrName}]`;
+  [].forEach.call(document.querySelectorAll(selector), (it) => {
+    it.removeAttribute(attrName);
+  });
+  return {attrName, selector};
+}
+
 
 // ===========================================
 // communiate with UI layer

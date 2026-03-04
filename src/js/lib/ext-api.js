@@ -1,15 +1,91 @@
 "use strict";
 
+function getRootObjectOfBrowserExtensionAPI() {
+  // case A:
+  //   If the current browser environment is:
+  //     - Any browser with webextension-polyfill loaded.
+  //     - or just a firefox based browser
+  //
+  // case B:
+  //   Chromium based browser
+  //   without webextension-polyfill loaded
+  try { return browser } catch(e) { // case A
+  try { return chrome  } catch(e) { // case B
+    throw new Error("We couldn't find Browser Extension API root");
+  }};
+}
+
+
+function wrapAPIsToObj(obj, apiNames) {
+  for (const name of apiNames) {
+    const descriptor = {
+      get: () => getRootObjectOfBrowserExtensionAPI()[name]
+    };
+    Object.defineProperty(obj, name, descriptor);
+  }
+}
+
+// Defined an shortcut name and wrap APIs in it
+const _ = {};
+wrapAPIsToObj(_, [
+  'permissions',
+  'i18n',
+  'runtime',
+  'storage',
+  'action',
+  'browserAction',
+  'downloads',
+  'extension',
+  'tabs',
+  'commands',
+  'scripting',
+  'declarativeNetRequest',
+  'webNavigation',
+  'offscreen',
+  'cookies',
+]);
+
+
+
 // Web-Extension Api
 const ExtApi = {};
+
+// Do we really need to expose whole API object
+wrapAPIsToObj(ExtApi, [
+  'runtime',
+  'downloads',
+]);
+
+/*****************************
+ * permissions
+ *****************************/
+ExtApi.grantedPermissions = () => {
+  return _.permissions.getAll();
+}
+
+ExtApi.requestPermissions = (permissions) => {
+  return _.permissions.request(permissions);
+}
+
+ExtApi.containsPermissions = (permissions) => {
+  return _.permissions.contains(permissions);
+}
+
+ExtApi.removePermissions = (permissions) => {
+  return _.permissions.remove(permissions);
+}
 
 /*****************************
  * environment
  *****************************/
+ExtApi.isBackground = () => {
+  return (_.tabs !== undefined);
+}
+
 ExtApi.getLocale = () => {
   // return 'zh-CN';
   try {
-    return browser.i18n.getUILanguage();
+    return _.i18n.getUILanguage();
   } catch(e) {
     return 'en';
   }
@@ -17,8 +93,8 @@ ExtApi.getLocale = () => {
 
 // not avariable in content script and popup page
 ExtApi.getEnvironment = () => {
-  return new Promise((resolve, _) => {
-    browser.runtime.getPlatformInfo()
+  return new Promise((resolve, reject) => {
+    _.runtime.getPlatformInfo()
       .then((platformInfo) => {
         //"mac" "win" "android" "cros" "linux" "openbsd"
         resolve({
@@ -32,13 +108,117 @@ ExtApi.getEnvironment = () => {
 }
 
 ExtApi.getManifest = () => {
-  return browser.runtime.getManifest();
+  return _.runtime.getManifest();
+}
+
+ExtApi.getURL = (path) => {
+  return _.runtime.getURL(path);
 }
 
 // url must have a http or https scheme
 ExtApi.setUninstallURL = (url) => {
-  if (browser.runtime.setUninstallURL) {
-    return browser.runtime.setUninstallURL(url);
+  if (_.runtime.setUninstallURL) {
+    return _.runtime.setUninstallURL(url);
+  }
+}
+
+ExtApi.getContexts = (params) => {
+  return _.runtime.getContexts(params);
+}
+
+ExtApi.bindOnInstalledListener = (listener) => {
+  _.runtime.onInstalled.removeListener(listener);
+  _.runtime.onInstalled.addListener(listener);
+}
+
+
+/*****************************
+ * Storage
+ *****************************/
+
+// storageArea: "local", "session" etc.
+ExtApi.getStorageArea = (storageArea) => {
+  return _.storage[storageArea];
+}
+
+/*****************************
+ * Cookies
+ *****************************/
+ExtApi.isCookiesEnabled = () => {
+  return _.cookies !== undefined;
+}
+
+// We only get firstPartyDomain cookies
+ExtApi.getAllCookies = (url) => {
+  const it = new URL(url);
+  const domain = it.hostname;
+  const details = {url, firstPartyDomain: domain};
+  return _.cookies.getAll(details);
+}
+
+ExtApi.getUrlCookieStr = async (url) => {
+  if (!ExtApi.isCookiesEnabled()) { return '' }
+  const pairs = [];
+  let cookies;
+  try {
+    cookies = await ExtApi.getAllCookies(url);
+  } catch(e) {
+    console.error(e);
+    cookies = [];
+  }
+
+  cookies.forEach((it) => {
+    if (it.expirationDate && it.expirationDate >= Date.now()) {
+      // expired cookie, do Nothing
+    } else {
+      pairs.push(`${it.name}=${it.value}`);
+    }
+  });
+  return pairs.join("; ");
+}
+
+
+/*****************************
+ * icon and badge
+ *****************************/
+
+function getAction() {
+  return _.browserAction || _.action;
+}
+
+ExtApi.setIconTitle = (title) => {
+  getAction().setTitle({title});
+}
+
+ExtApi.setTabIcon = (details) => {
+  getAction().setIcon(details);
+}
+
+/*
+ * @param {Integer} tabId
+ * @param {Object} badge
+ * @param {String|null} badge.text
+ * @param {String}      badge.textColor
+ * @param {String}      badge.backgroundColor
+ *
+ */
+ExtApi.setTabBadge = (tabId, badge) => {
+  if (badge.hasOwnProperty('text')) {
+    const {text, textColor, backgroundColor} = badge;
+    const action = getAction();
+    action.setBadgeText({tabId, text});
+    // It's strange that BCD (v5.6.10) indicate that
+    // setBadgeTextColor is not supported on Chrome.
+    // Chrome has this function that does nothing
+    // (the textColor of the badge is always white)
+    if (textColor && action.setBadgeTextColor) {
+      action.setBadgeTextColor(
+        {tabId, color: textColor});
+    }
+    if (backgroundColor) {
+      action.setBadgeBackgroundColor(
+        {tabId, color: backgroundColor});
+    }
   }
 }
 
@@ -46,14 +226,11 @@ ExtApi.setUninstallURL = (url) => {
  * extension
  *****************************/
 
-ExtApi.getURL = (path) => {
-  return browser.runtime.getURL(path);
-}
 /*
  * @return Promise
  */
 ExtApi.isAllowedFileSchemeAccess = function(){
-  return browser.extension.isAllowedFileSchemeAccess();
+  return _.extension.isAllowedFileSchemeAccess();
 }
 
 /*****************************
@@ -64,33 +241,97 @@ ExtApi.isAllowedFileSchemeAccess = function(){
  * @param {string} url - The url of new tab.
  */
 ExtApi.createTab = (url) => {
- //https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/tabs/create
-  return browser.tabs.create({url: url});
+ //https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create
+  return _.tabs.create({url: url});
 }
 
 ExtApi.removeTab = (tabId) => {
-  return browser.tabs.remove(tabId);
+  return _.tabs.remove(tabId);
 }
 
-ExtApi.getCurrentTab = () => {
+ExtApi.getCurrentActiveTab = () => {
   return new Promise(function(resolve, reject){
-    browser.tabs.query({
+    _.tabs.query({
       currentWindow: true,
       active: true
-    }).then((tabs) => {resolve(tabs[0])}, reject);
+    }).then((tabs) => {
+      if (tabs.length == 1) {
+        resolve(tabs[0])
+      } else {
+        const errMsg =`Expected to get one tab only, but got ${tabs.length}`
+        console.error(errMsg);
+        console.debug(tabs);
+        reject(errMsg);
+      }
+    }, reject);
   })
+};
+
+// TODO Deprecated, remove me
+ExtApi.getCurrentTab = () => {
+  return ExtApi.getCurrentActiveTab();
 }
 
 ExtApi.getAllTabs = () => {
   return new Promise(function(resolve, reject){
-    browser.tabs.query({
+    _.tabs.query({
       currentWindow: true
     }).then((tabs) => { resolve(tabs)}, reject);
   })
 }
 
-ExtApi.executeContentScript = (tabId, details) => {
-  return browser.tabs.executeScript(tabId, details);
+ExtApi.sendTabMsg = (tabId, msg, options = {}) => {
+  return _.tabs.sendMessage(tabId, msg, options);
+}
+
+
+/*****************************
+ * Scripting
+ *****************************/
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/executeScript
+/*
+ * @param {Object} details
+ * @param {Object} details.target {tagId, frameIds, allFrames}
+ * @param {Array}  details.files ["path/a", "path/b", ...]
+ */
+ExtApi.executeContentScript = (details) => {
+  return _.scripting.executeScript(details);
+}
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/getRegisteredContentScripts
+// This function won't return content scripts
+// that defined in manifest.json
+ExtApi.getRegisteredContentScripts = (filter) => {
+  return _.scripting.getRegisteredContentScripts(filter);
+}
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/registerContentScripts
+ExtApi.registerContentScripts = (scripts) => {
+  return _.scripting.registerContentScripts(scripts);
+}
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/unregisterContentScripts
+ExtApi.unregisterContentScripts = (filter) => {
+  return _.scripting.unregisterContentScripts(filter);
+}
+
+
+/*****************************
+ * declarativeNetRequest
+ *****************************/
+
+// @mdn/en-US/docs/Mozilla/Add-ons/WebExtensions/API/declarativeNetRequest/updateStaticRules
+ExtApi.updateDnrStaticRules = (options) => {
+  return _.declarativeNetRequest.updateStaticRules(options);
+}
+
+ExtApi.updateDnrSessionRules = (options) => {
+  return _.declarativeNetRequest.updateSessionRules(options);
+}
+
+ExtApi.getDnrMatchedRules = (filter) => {
+  return _.declarativeNetRequest.getMatchedRules(filter);
 }
 
 /*****************************
@@ -100,22 +341,11 @@ ExtApi.executeContentScript = (tabId, details) => {
 // Not avariable in content Script`
 // return a Promise.
 ExtApi.getAllFrames = (tabId) => {
-  return new Promise(function(resolve, _) {
-    browser.webNavigation.getAllFrames({
+  return new Promise(function(resolve, reject) {
+    _.webNavigation.getAllFrames({
       tabId: tabId
     }).then(resolve);
   });
-}
-
-ExtApi.bindPageDomContentLoadListener = (listener, filter) => {
-  ExtApi.unbindPageDomContentLoadedListener(listener);
-  browser.webNavigation.onDOMContentLoaded.addListener(listener, filter);
-}
-
-ExtApi.unbindPageDomContentLoadedListener = (listener) => {
-  if (browser.webNavigation.onDOMContentLoaded.hasListener(listener)) {
-    browser.webNavigation.onDOMContentLoaded.removeListener(listener);
-  }
 }
 
 /*****************************
@@ -123,26 +353,26 @@ ExtApi.unbindPageDomContentLoadedListener = (listener) => {
  *****************************/
 
 ExtApi.download = (options) => {
-  return browser.downloads.download(options);
+  return _.downloads.download(options);
 }
 
 ExtApi.openDownloadItem = (downloadItemId) => {
-  return browser.downloads.open(downloadItemId)
+  return _.downloads.open(downloadItemId)
 }
 
 ExtApi.eraseDownloadItem = (downloadItemId) => {
-  browser.downloads.erase({id: downloadItemId, limit: 1});
+  _.downloads.erase({id: downloadItemId, limit: 1});
 }
 
 // delete both download history And file
 ExtApi.deleteDownloadItem = (downloadItemId) => {
-  browser.downloads.removeFile(downloadItemId);
-  browser.downloads.erase({id: downloadItemId, limit: 1});
+  _.downloads.removeFile(downloadItemId);
+  _.downloads.erase({id: downloadItemId, limit: 1});
 }
 
 ExtApi.findDownloadItem = (downloadItemId) => {
-  return new Promise(function(resolve, _){
-    browser.downloads.search({id: downloadItemId, limit: 1})
+  return new Promise(function(resolve, reject){
+    _.downloads.search({id: downloadItemId, limit: 1})
       .then( function(downloadItems){
         if(downloadItems.length > 0){
           resolve(downloadItems[0])
@@ -154,12 +384,12 @@ ExtApi.findDownloadItem = (downloadItemId) => {
 }
 
 ExtApi.findDownloadItemByPath = (path) => {
-  return new Promise(function(resolve, _){
+  return new Promise(function(resolve, reject){
     ExtApi.getEnvironment().then((env) => {
       const query = {limit: 1, state: 'complete'};
       const regexStr = env.isWindows ? (path.replace(/\//g, '\\\\') + '$') : (path + '$');
       query.filenameRegex = regexStr
-        browser.downloads.search(query)
+        _.downloads.search(query)
         .then( function(downloadItems){
           if(downloadItems.length > 0){
             resolve(downloadItems[0]);
@@ -172,29 +402,51 @@ ExtApi.findDownloadItemByPath = (path) => {
 }
 
 ExtApi.bindDownloadCreatedListener = (listener) => {
-  browser.downloads.onCreated.removeListener(listener);
-  browser.downloads.onCreated.addListener(listener);
+  _.downloads.onCreated.removeListener(listener);
+  _.downloads.onCreated.addListener(listener);
 }
 
 ExtApi.bindDownloadChangedListener = (listener) => {
-  browser.downloads.onChanged.removeListener(listener);
-  browser.downloads.onChanged.addListener(listener);
+  _.downloads.onChanged.removeListener(listener);
+  _.downloads.onChanged.addListener(listener);
 }
 
 ExtApi.bindOnCommandListener = (listener) => {
   // Firefox Android does not support Command
-  if (browser.commands && browser.commands.onCommand) {
-    browser.commands.onCommand.removeListener(listener);
-    browser.commands.onCommand.addListener(listener);
+  if (_.commands && _.commands.onCommand) {
+    _.commands.onCommand.removeListener(listener);
+    _.commands.onCommand.addListener(listener);
   }
 }
 
+/*****************************
+ * commands
+ *****************************/
+
 ExtApi.getAllCommands = async () => {
-  return browser.commands.getAll();
+  return _.commands.getAll();
 }
 
 ExtApi.updateCommand = async (details) => {
-  return browser.commands.update(details);
+  // not supported on chromium
+  if (_.commands.update) {
+    return _.commands.update(details);
+  } else {
+    const error = new Error("Not supported commands.update");
+    return Promise.reject(error);
+  }
+}
+
+
+/*****************************
+ * offscreen
+ *****************************/
+ExtApi.createOffscreenDoc = (params) => {
+  return _.offscreen.createDocument(params);
+}
+
+ExtApi.closeOffscreenDoc = () => {
+  return _.offscreen.closeDocument();
 }
 
 export default ExtApi;

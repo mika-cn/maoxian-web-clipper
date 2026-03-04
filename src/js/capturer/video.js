@@ -2,10 +2,8 @@
 import CapturerMedia from './media.js';
 
 
-const ATTR_PARAMS_VIDEO  = [
-  {resourceType: 'video', attrName: 'src',    canEmpty: true},
-  {resourceType: 'image', attrName: 'poster', canEmpty: true},
-];
+const ATTR_PARAMS_VIDEO  = {resourceType: 'video', attrName: 'src',    canEmpty: true};
+const ATTR_PARAMS_POSTER = {resourceType: 'image', attrName: 'poster', canEmpty: true};
 const ATTR_PARAMS_SOURCE = {resourceType: 'video', attrName: 'src', mimeTypeAttrName: 'type'};
 const ATTR_PARAMS_TRACK  = {resourceType: 'textTrack', attrName: 'src', extension: 'vtt'};
 
@@ -23,13 +21,16 @@ const ATTR_PARAMS_TRACK  = {resourceType: 'textTrack', attrName: 'src', extensio
  */
 
 async function capture(node, params) {
-  let attrParamsMedia = ATTR_PARAMS_VIDEO;
+  let attrParamsChange = {}
   if (params.config.htmlCaptureVideo === 'saveCurrent') {
-    attrParamsMedia[0] = Object.assign(
-      {attrValue: node.currentSrc},
-      attrParamsMedia[0]
-    );
+    attrParamsChange.attrValue = node.currentSrc;
   }
+
+  const attrParamsMedia = [
+    Object.assign(attrParamsChange, ATTR_PARAMS_VIDEO),
+    ATTR_PARAMS_POSTER,
+  ];
+
   const r = await CapturerMedia.capture(node, params, [
     attrParamsMedia,
     ATTR_PARAMS_SOURCE,

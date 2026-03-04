@@ -166,6 +166,18 @@ section {
   display: block;
 }
 
+#setting-permissions .permissions > li {
+  color: darkgreen;
+  font-weight: bold;
+}
+
+#setting-permissions .permissions > li.canceled {
+  color: gray;
+  font-weight: thin;
+  text-decoration: line-through;
+}
+
+
 /********** inputs ***********/
 
 div.input-group {
@@ -210,6 +222,13 @@ details > summary {
   line-height: 18px;
   font-size: 12px;
   overflow-x: auto;
+}
+
+label[for] {
+  cursor: pointer;
+}
+label[for]:hover {
+  color: black;
 }
 
 .label-box {

@@ -128,7 +128,7 @@ async function handleStyleSheet(sheet, params) {
         snapshot.rules = await handleRulesByParsingCssText(text,
           {sheetInfo, sheetInfoAncestors, requestParams, cssBox, win, platform});
       } catch(e) {
-        console.error("fetch.text(css): ", e);
+        console.error("fetch.text(css): ", sheetInfo.url, e);
         snapshot.rules = [];
       }
 

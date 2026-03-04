@@ -19,7 +19,8 @@
           <a class="menu" href="#setting-html" i18n="title.html"></a>
           <a class="menu" href="#setting-markdown" i18n="title.markdown"></a>
           <a class="menu" href="#setting-assistant" i18n="title.assistant"></a>
-          <a class="menu" href="#setting-user-script" i18n="title.user-script"></a>
+          <!-- Manifest V3 blocks user scripts -->
+          <!--<a class="menu" href="#setting-user-script" i18n="title.user-script"></a>-->
           <a class="menu" href="#setting-user-command" i18n="title.user-command"></a>
           <a class="menu" href="#setting-advanced" i18n="title.advanced"></a>
           <hr />
@@ -30,6 +31,7 @@
           <a class="menu" href="#setting-handler-native-app" i18n="title.handler-native-app"></a>
           <a class="menu" href="#setting-handler-wiz-note-plus" i18n="title.handler-wiz-note-plus"></a>
           <hr />
+          <a class="menu" href="#setting-permissions" i18n="title.permissions"></a>
           <a class="menu" href="#setting-reset-and-backup" i18n="title.reset-and-backup"></a>
 
         </div>
@@ -419,6 +421,38 @@ const hello = () =&gt; {
       </section>
     </template>
 
+    <template id="section-setting-permissions-tpl">
+      <section id="setting-permissions">
+        <h2 class="center" i18n="title.permissions"></h2>
+        <div class="required-permissions">
+          <h3 i18n="title.required-permissions"></h3>
+          <ul>
+            <li class="web-navigation" i18n="permission.web-navigation"></li>
+            <li class="storage" i18n="permission.storage"></li>
+            <li class="unlimited-storage" i18n="permission.unlimited-storage"></li>
+            <li class="tabs" i18n="permission.tabs"></li>
+            <li class="downloads canceled" i18n="permission.downloads"></li>
+            <li class="downloads-open" i18n="permission.downloads.open"></li>
+            <li class="scripting" i18n="permission.scripting"></li>
+            <li class="declarative-net-request-with-host-access" i18n="permission.DNR-with-host-access"></li>
+          </ul>
+        </div>
+
+        <div class="optional-permissions">
+          <h3 i18n="title.optional-permissions"></h3>
+          <div>
+            <input id="permission-nativeMessaging" type="checkbox" data-permission="nativeMessaging"/>
+            <label for="permission-nativeMessaging" i18n="permission.native-messaging"></label>
+            <br />
+            <input id="permission-cookies" type="checkbox" data-permission="cookies"/>
+            <label for="permission-cookies" i18n="permission.cookies"></label>
+            <br /><br />
+            <button id="save-optional-permissions" i18n="button.save"></button>
+          </div>
+        </div>
+      </section>
+    </template>
+
     <template id="section-setting-reset-and-backup-tpl">
       <section id="setting-reset-and-backup">
         <h2 class="center" i18n="title.reset-and-backup"></h2>
@@ -472,13 +506,10 @@ const hello = () =&gt; {
           <input type="number" id="request-max-tries" min="1" max="99" value="3" required/>
           <label for="request-max-tries" i18n="label.request-max-tries-input"></label>
 
+          <div style="display: none !important">
           <h4 i18n="title.request-cache"></h4>
           <div class="notice-info" i18n="notice.request-cache"></div>
-          <div class="notice-warning" i18n="notice.request-cache-applying"></div>
-          <div>
-            <input type="number" id="request-cache-size" min="0" max="500" value="80" required/>
-            <label for="request-cache-size" i18n="label.request-cache-size-input"></label>
-          </div>
+          <div class="notice-warning" i18n="notice.request-cache-warning"></div>
           <br />
           <div id="cache-switchers">
             <input type="checkbox" id="request-cache-css" />
@@ -490,26 +521,54 @@ const hello = () =&gt; {
             <input type="checkbox" id="request-cache-web-font" />
             <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
           </div>
+          </div>
 
-          <h4 i18n="title.request-referrer-policy"></h4>
-          <div id="request-referrer-policy">
+          <h4 i18n="title.request-credentials"></h4>
+          <div class="notice-info" i18n="notice.request-credentials"></div>
+          <div id="request-credentials">
             <div>
-              <input type="radio" value="originWhenCrossOrigin" id="request-referrer-policy-a" name="request-referrer-policy" />
-              <label for="request-referrer-policy-a" i18n="option.request-referrer-policy.origin-when-cross-origin"></label>
+              <input type="radio" value="same-origin" id="request-credentials-a" name="request-credentials" />
+              <label for="request-credentials-a">same-origin</label>
             </div>
             <div>
-              <input type="radio" value="origin" id="request-referrer-policy-b" name="request-referrer-policy" />
-              <label for="request-referrer-policy-b" i18n="option.request-referrer-policy.origin"></label>
-            </div>
-            <div>
-              <input type="radio" value="noReferrer" id="request-referrer-policy-c" name="request-referrer-policy" />
-              <label for="request-referrer-policy-c" i18n="option.request-referrer-policy.no-referrer"></label>
-            </div>
-            <div>
-              <input type="radio" value="unsafeUrl" id="request-referrer-policy-d" name="request-referrer-policy" />
-              <label for="request-referrer-policy-d" i18n="option.request-referrer-policy.unsafe-url"></label>
+              <input type="radio" value="omit" id="request-credentials-b" name="request-credentials" />
+              <label for="request-credentials-b">omit</label>
             </div>
           </div>
+
+          <h4 i18n="title.request-referrer-policy"></h4>
+          <div class="notice-info" i18n="notice.request-referrer-policy"></div>
+          <div id="request-referrer-policy">
+            <div>
+              <input type="radio" value="no-referrer" id="request-referrer-policy-a" name="request-referrer-policy" />
+              <label for="request-referrer-policy-a">no-referrer</label>
+            </div>
+            <div>
+              <input type="radio" value="no-referrer-when-downgrade" id="request-referrer-policy-b" name="request-referrer-policy" />
+              <label for="request-referrer-policy-b">no-referrer-when-downgrade</label>
+            </div>
+            <div>
+              <input type="radio" value="origin" id="request-referrer-policy-c" name="request-referrer-policy" />
+              <label for="request-referrer-policy-c">origin</label>
+            </div>
+            <div>
+              <input type="radio" value="origin-when-cross-origin" id="request-referrer-policy-d" name="request-referrer-policy" />
+              <label for="request-referrer-policy-d">origin-when-cross-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="same-origin" id="request-referrer-policy-e" name="request-referrer-policy" />
+              <label for="request-referrer-policy-e">same-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="strict-origin" id="request-referrer-policy-f" name="request-referrer-policy" />
+              <label for="request-referrer-policy-f">strict-origin</label>
+            </div>
+            <div>
+              <input type="radio" value="strict-origin-when-cross-origin" id="request-referrer-policy-g" name="request-referrer-policy" />
+              <label for="request-referrer-policy-g">strict-origin-when-cross-origin</label>
+            </div>
+          </div>
+
 
         </div>
         <div>
@@ -1315,11 +1374,6 @@ const hello = () =&gt; {
 
     <!-- scripts -->
     <script src="../vendor/js/browser-polyfill.js"></script>
-    <script src="../vendor/js/i18n.js"></script>
-    <script src="../_locales/en/common.js"></script>
-    <script src="../_locales/en/setting.js"></script>
-    <script src="../_locales/zh_CN/common.js"></script>
-    <script src="../_locales/zh_CN/setting.js"></script>
     <script src="setting.js" type="module"></script>
   </body>
 </html>

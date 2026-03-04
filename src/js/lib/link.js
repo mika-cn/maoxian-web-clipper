@@ -6,8 +6,10 @@ import ExtMsg from './ext-msg.js';
 
 const extensionRoot = ExtApi.getURL('/');
 const extensionId = extensionRoot.split('//')[1].replace('/', '');
-const {websiteRoot, projectRoot, mxAssistantRoot} = ENV;
-const remotePaths = {
+const {websiteRoot, projectRoot, mxAssistantRoot, mdnRoot} = ENV;
+
+// Paths that is not packed with extension (project, website etc.)
+const externalPaths = {
   "en": {
     "home": "/index.html",
     "faq": "/faq.html",
@@ -17,7 +19,7 @@ const remotePaths = {
     "assistant": "/assistant/index.html",
     "native-app": "/native-app/index.html",
     "offline-page": "/offline-page/index.html",
-    "how-to-write-a-plan": "/assistant/index.html#how-to-write-a-plan",
+    "how-to-write-a-plan": "/assistant/how-to-write-a-plan-zh-CN.html",
     "public-subscriptions": "/assistant/index.html#public-subscriptions",
     "execute-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#action-exec",
     "write-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#user-script",
@@ -25,6 +27,8 @@ const remotePaths = {
     "project.index": "/",
     "project.issue": "/issues",
     "assistant.subscription.default.index": "/plans/default/index.json",
+    "mdn.referrer-policy-header": "/en-US/docs/Web/HTTP/Headers/Referrer-Policy",
+    "mdn.request-credentials": "/en-US/docs/web/api/fetch_api/using_fetch#including_credentials"
   },
   "zh-CN": {
     "home": "/index-zh-CN.html",
@@ -35,7 +39,7 @@ const remotePaths = {
     "assistant": "/assistant/index-zh-CN.html",
     "native-app": "/native-app/index-zh-CN.html",
     "offline-page": "/offline-page/index-zh-CN.html",
-    "how-to-write-a-plan": "/assistant/index-zh-CN.html#how-to-write-a-plan",
+    "how-to-write-a-plan": "/assistant/how-to-write-a-plan-zh-CN.html",
     "public-subscriptions": "/assistant/index-zh-CN.html#public-subscriptions",
     "execute-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#action-exec",
     "write-user-script": "/assistant/how-to-write-a-plan-zh-CN.html#user-script",
@@ -43,13 +47,15 @@ const remotePaths = {
     "project.index": "/",
     "project.issue": "/issues",
     "assistant.subscription.default.index": "/plans/default/index.json",
+    "mdn.referrer-policy-header": "/zh-CN/docs/Web/HTTP/Headers/Referrer-Policy",
+    "mdn.request-credentials": "/zh-CN/docs/web/api/fetch_api/using_fetch#including_credentials"
   }
 }
 
 /*
  * @param {String} exp
- *   extension => extPage.$name
- *   remote    => $name
+ *   extPage.$name - extension page
+ *   $name         - external page's name
  * @example:
  *   get('extPage.setting#hello');
  */
@@ -59,25 +65,27 @@ function get(exp) {
   if (pageName.startsWith('extPage.')) {
     pageLink = getExtensionPageLink(pageName);
   } else {
-    pageLink = getRemoteLink(pageName);
+    pageLink = getExternalPageLink(pageName);
   }
   return exp.replace(pageName, pageLink);
 }
 
 /*
  * @param {String} pageName
- *   projectPage => project.$name
- *   website => $name
+ *   project.$name  - project page's name
+ *   $name          - website page's name
  */
-function getRemoteLink(pageName){
-  let dict = remotePaths[ExtApi.getLocale()];
-  if (!dict) { dict = remotePaths['en'] }
+function getExternalPageLink(pageName){
+  let dict = externalPaths[ExtApi.getLocale()];
+  if (!dict) { dict = externalPaths['en'] }
   const path = dict[pageName];
   if(path) {
     if(pageName.startsWith('project.')){
       return projectRoot + path;
     } else if (pageName.startsWith('assistant.')) {
       return mxAssistantRoot + path;
+    } else if (pageName.startsWith('mdn.')) {
+      return mdnRoot + path;
     } else {
       return websiteRoot + path;
     }

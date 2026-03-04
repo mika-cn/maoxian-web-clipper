@@ -36,6 +36,21 @@ describe('Tool', () => {
     H.assertEqual(T.deleteLastPart('a.b.c'), 'a.b');
   });
 
+  it("splitStrBySepChars", () => {
+    let arr
+
+    arr = T.splitStrBySpaceOrComma(' a ,, ， b,，');
+    H.assertEqual(arr.length, 2)
+    H.assertEqual(arr[0], 'a');
+    H.assertEqual(arr[1], 'b');
+
+    arr = T.splitStrByComma(', a ,，b，');
+    H.assertEqual(arr.length, 2)
+    H.assertEqual(arr[0], 'a');
+    H.assertEqual(arr[1], 'b');
+  });
+
+
   it("isBrowserExtensionUrl", () => {
     H.assertTrue(T.isBrowserExtensionUrl("moz-extension://abc/index"));
     H.assertTrue(T.isBrowserExtensionUrl("chrome-extension://abc/index"));
@@ -102,6 +117,20 @@ describe('Tool', () => {
     H.assertEqual(b, 3);
   });
 
+  it('toLocalUrl', () => {
+    const urlA = 'file:///home/user/a';
+    H.assertEqual(T.toLocalUrl(urlA), urlA);
+
+    const urlB = 'content://media/external/a';
+    H.assertEqual(T.toLocalUrl(urlB), urlB);
+
+    const urlC = 'http://a.org/external/a';
+    H.assertEqual(T.toLocalUrl(urlC), urlC);
+
+    const path = '/a/b/c';
+    H.assertEqual(T.toLocalUrl(path), 'file:///a/b/c');
+  });
+
   it('completeUrl', () => {
     const baseUrl = 'https://a.org/index.html';
 
@@ -161,11 +190,6 @@ describe('Tool', () => {
     pageUrl = 'http://a.org/b/c?a=1&b=2#aaa';
     currUrl = 'http://a.org/b/c?a=1&b=2#bbb';
     H.assertEqual(T.url2Anchor(currUrl, pageUrl), '#bbb');
-  });
-
-  it('sanitizeFilename', () => {
-    H.assertEqual(T.sanitizeFilename('x c++xx-C++'), 'x-c++xx-C++')
-    H.assertEqual(T.sanitizeFilename('x`c++`x-'), 'x-c++-x')
   });
 
   it('parseContentType', () => {

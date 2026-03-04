@@ -4,6 +4,7 @@ import T           from '../lib/tool.js';
 import Log         from '../lib/log.js';
 import ExtApi      from '../lib/ext-api.js';
 import MxWcStorage from '../lib/storage.js';
+import BlobUrl     from '../background/blob-url.js';
 import SavingTool  from '../saving/new-saving-tool.js';
 import Download    from '../saving/browser-download.js';
 
@@ -47,7 +48,7 @@ function initDownloadFolder(config){
 
 function saveTextFile(msg) {
   // FIXME feedback
-  downloadText(msg);
+  return downloadText(msg);
 }
 
 
@@ -129,35 +130,45 @@ async function fetchUrlTask(task) {
 }
 
 
-// msg: {filename, :text, :mineType}
-function downloadText(msg){
-  const arr = [msg.text];
-  const opt = {type: msg.mimeType};
+// params: {filename, text, mineType, saveAs}
+async function downloadText(params){
+  const {text, mimeType, filename, saveAs = false} = params;
+  const arr = [text];
+  const opt = {type: mimeType};
   const blob = new Blob(arr, opt);
-  const url = URL.createObjectURL(blob);
-  return downloadUrl({url: url, filename: msg.filename});
+  const url = await BlobUrl.create(blob);
+  return downloadUrl({url, filename, saveAs});
 }
 
 
-// msg: {:filename, :blob}
-function downloadBlob(msg){
-  const url = URL.createObjectURL(msg.blob);
-  return downloadUrl({url: url, filename: msg.filename});
+// @param {Object} parmas: {filename, blob, saveAs}
+async function downloadBlob(params){
+  const {blob, filename, saveAs = false} = params;
+  const url = await BlobUrl.create(blob);
+  Log.debug(blob.size, blob.type, url);
+  return downloadUrl({url, filename, saveAs});
 }
 
 
-// msg: {:filename, :url}
-function downloadUrl(msg){
-  Log.debug('download.url:', msg.url);
-  Log.debug('download.filename:', msg.filename);
+// @param {Object} params: {filename, url, saveAs, ...}
+async function downloadUrl(params = {}){
+  const {url, filename} = params;
+  Log.debug('download.url:', url);
+  Log.debug('download.filename:', filename);
 
-  const options = {
-    url            : msg.url,
-    filename       : msg.filename,
-    saveAs         : false,
+  const defaultOptions = {
+    saveAs : false,
     conflictAction : 'overwrite',
   };
-  const it = new Download(browser.downloads, options);
+
+  const options = Object.assign({}, defaultOptions, params);
+  const it = new Download(ExtApi.downloads, options);
+  it.extraCleanFn = () => {
+    if (T.isBlobUrl(url)) {
+      BlobUrl.revoke(url);
+      Log.debug("revoke: ", url);
+    }
+  }
   return it.download();
 }
 
@@ -169,7 +180,7 @@ function updateDownloadFolder(filename, filePath){
 
 
 function handleClippingResult(it) {
-  it.url = T.toFileUrl(it.filename);
+  it.url = T.toLocalUrl(it.filename);
   return it;
 }
 

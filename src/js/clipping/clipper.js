@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn      from '../../_locales/en/common.js';
+import localeZhCN    from '../../_locales/zh_CN/common.js';
 import T             from '../lib/tool.js';
 import Log           from '../lib/log.js';
 import I18N          from '../lib/translation.js';
@@ -42,10 +44,11 @@ function getReadyToClip(formInputs, config, {domain, pageUrl, userAgent}) {
   const tObj = T.wrapNow(now);
 
   const requestParams = new RequestParams({
-    sessionId      : tObj.str.intSec,
     refUrl         : pageUrl,
     userAgent      : userAgent,
     referrerPolicy : config.requestReferrerPolicy,
+    cache          : config.requestCache,
+    credentials    : config.requestCredentials,
     timeout        : config.requestTimeout,
     tries          : config.requestMaxTries,
   });
@@ -177,6 +180,8 @@ function dealFormInputs({title, category, tagstr}, config) {
 
   return {format, title, category, tags}
 }
+
+I18N.init({localeEn, localeZhCN});
 
 // These labels will be used in generating clipping information.
 function getI18nLabel() {

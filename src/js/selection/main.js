@@ -11,7 +11,14 @@ const state = {appliedSelection: null};
 
 function save(elem) {
   try {
-    const selector = getCssSelector(elem);
+    // getCssSelector() may have performance problem...
+    const options = {
+      selectors: ['id', 'class', 'tag', 'nthchild'],
+      maxCombinations: 1000,
+      maxCandidates: 100,
+      blacklist: [/data-mx-wc-confirmed-element/],
+    };
+    const selector = getCssSelector(elem, options);
     if ( state.appliedSelection
       && state.appliedSelection.selector == selector
     ) {
@@ -101,9 +108,8 @@ function chooseSelection(selections) {
 function applySelection(selection) {
   // We current don't support select element inside nested frame,
   // So we only apply selection on top frame.
-  MxWcEvent.dispatchInternal('assistant.apply-plan.top-frame', {
-    pick: selection.selector
-  });
+  const plan = {actions: [{pick: selection.selector}]};
+  MxWcEvent.dispatchInternal('assistant.apply-plan.top-frame', plan);
 }
 
 function twoGroupsOfAncestorAreAlike(ancestorsA, ancestorsB) {
@@ -161,9 +167,9 @@ function node2Str(node) {
     'selected',
     'active', 'actived',
     'disable', 'disabled',
-    'enabled', 'enabled',
+    'enable', 'enabled',
     'show', 'hide',
-    'clearfix',
+    'clearfix', 'flex',
   ];
   const klass = node.getAttribute('class');
   if (klass) {

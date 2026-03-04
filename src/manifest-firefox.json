@@ -1,0 +1,40 @@
+{
+  "permissions": [
+    "webNavigation",
+    "storage",
+    "unlimitedStorage",
+    "tabs",
+    "downloads",
+    "downloads.open",
+    "declarativeNetRequestWithHostAccess",
+    "scripting"
+  ],
+  "background": {
+    "scripts": ["js/background.js"],
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["js/lib/frame-tool.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "ISOLATED"
+    },
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": [
+        "js/page-scripts/page-state.js",
+        "js/page-scripts/page-locker.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false,
+      "world": "MAIN"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "EXTENSION_ID"
+    }
+  }
+}

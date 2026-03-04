@@ -237,6 +237,7 @@ function getSelectedNodeStyle(node, win) {
     'flex'       : 'unset',
     'width'      : '100%',
     'max-width'  : '100%',
+    'overflow'   : 'auto',
   };
 
   const height = getCssSize(node, 'height', win);

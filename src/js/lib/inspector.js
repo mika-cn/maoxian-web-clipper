@@ -46,6 +46,7 @@ async function storage() {
     T.attributeFilter('tags', false),
     T.prefixFilter('assistant', false),
     T.prefixFilter('selectionStore', false),
+    T.prefixFilter('failedTasks', false),
     blobUrlDataFilter,
     (key) => { return true }
   );
@@ -74,4 +75,14 @@ async function storage() {
   };
 }
 
-export default {environment, storage}
+async function dnr() {
+  // Firefox do not support yet
+  try {
+    const rules = await ExtApi.getDnrMatchedRules()
+    return {rules};
+  } catch(e) {
+    return [];
+  }
+}
+
+export default {environment, storage, dnr}

@@ -30,7 +30,6 @@ import CapturerSvgImage      from '../capturer-svg/image.js';
 import CapturerMxSvgImg      from '../capturer-svg/mx-svg-img.js';
 
 import StyleHelper           from './style-helper.js';
-import RequestParams         from '../lib/request-params.js'
 
 
 async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, pageMetas, frames, win, platform}) {

@@ -51,18 +51,19 @@ if (IS_PRODUCTION) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
-const pages_folder = path.join(__dirname, "src", "pages");
 const dist_folder  = path.join(__dirname, "dist", "extension", "maoxian-web-clipper");
 const npm_folder   = path.join(__dirname, "node_modules");
-const manifestPath = path.join(__dirname, "src", "manifest.json");
 
-const manifest = JSON.parse(fs.readFileSync(manifestPath));
+const manifestPath_common   = path.join(__dirname, "src", "manifest.json")
+const manifestPath_Firefox  = path.join(__dirname, "src", "manifest-firefox.json")
+const manifestPath_Chromium = path.join(__dirname, "src", "manifest-chromium.json")
+
 
 // extension page names
 const pages = [
-  'background', 'popup', 'welcome', 'history', 'home', 'last-clipping-result',
+  'popup', 'welcome', 'history', 'home', 'last-clipping-result',
   'plan-subscription', 'reset-history', 'setting',
-  'ui-control', 'ui-selection', 'failed-tasks', 'user-script', 'sync-user-scripts',  'debug'];
+  'ui-control', 'ui-selection', 'failed-tasks', 'user-script', 'sync-user-scripts',  'debug', 'off-screen'];
 
 function getCopyItems() {
 
@@ -70,9 +71,16 @@ function getCopyItems() {
 
   // 3rd party js and css
   [
+    ['src/vendor/fnv1a', 'vendor/fnv1a']
+  ].forEach((pair) => {
+    const sourceFilename = pair[0];
+    const targetFilename = path.join(dist_folder, pair[1]);
+    items.push({from: sourceFilename, to: targetFilename});
+  });
+
+  [
     ['webextension-polyfill/dist/browser-polyfill.js', 'vendor/js/browser-polyfill.js'],
     ['css.escape/css.escape.js'    , 'vendor/js/css.escape.js'],
-    ['roddeh-i18n/dist/i18n.js'    , 'vendor/js/i18n.js']          ,
     ['awesomplete/awesomplete.js'  , 'vendor/js/awesomplete.js']   ,
     ['pikaday/pikaday.js'          , 'vendor/js/pikaday.js']       ,
 
@@ -86,7 +94,8 @@ function getCopyItems() {
 
   // page assets
   [
-    /* icons and locale files */
+    /* jsons, icons and locale files */
+    //['src/json', 'json'],
     ['src/icons', 'icons'],
     ['src/_locales/en',    '_locales/en' ],
     ['src/_locales/zh_CN', '_locales/zh_CN' ],
@@ -95,6 +104,7 @@ function getCopyItems() {
     /* page libs */
     ['src/js/lib/log.js'               , 'js/lib/log.js']               ,
     ['src/js/lib/tool.js'              , 'js/lib/tool.js']              ,
+    ['src/js/lib/http-utils.js'        , 'js/lib/http-utils.js']        ,
     ['src/js/lib/icon.js'              , 'js/lib/icon.js']              ,
     ['src/js/lib/translation.js'       , 'js/lib/translation.js']       ,
     ['src/js/lib/mime.js'              , 'js/lib/mime.js']              ,
@@ -110,7 +120,8 @@ function getCopyItems() {
     ['src/js/lib/notify.js'            , 'js/lib/notify.js']            ,
     ['src/js/lib/query.js'             , 'js/lib/query.js']             ,
     ['src/js/lib/event-target.js'      , 'js/lib/event-target.js']      ,
-    ['src/js/lib/fetcher-using-xhr.js' , 'js/lib/fetcher-using-xhr.js'] ,
+    ['src/js/lib/fetcher.js'           , 'js/lib/fetcher.js']           ,
+    ['src/js/lib/fetcher-with-dnr.js'  , 'js/lib/fetcher-with-dnr.js']  ,
     ['src/js/lib/task-fetcher.js'      , 'js/lib/task-fetcher.js']      ,
     ['src/js/lib/action-cache.js'      , 'js/lib/action-cache.js']      ,
     ['src/js/lib/auto-complete.js'     , 'js/lib/auto-complete.js']      ,
@@ -123,13 +134,14 @@ function getCopyItems() {
     ['src/js/user-script' , 'js/user-script'],
 
     /* content */
-    ['src/js/page-scripts-loader.js', 'js/page-scripts-loader.js'],
+    [`src/js/lib/frame-tool-${PLATFORM}.js`, 'js/lib/frame-tool.js'],
     ['src/js/content-scripts-loader.js', 'js/content-scripts-loader.js'],
 
     /* background */
     ['src/js/handler'                      , 'js/handler']                      ,
     ['src/js/saving'                       , 'js/saving']                       ,
     ['src/js/background'                   , 'js/background']                   ,
+    ['src/js/background.js'                , 'js/background.js']                ,
     ['src/js/clipping/backend.js'          , 'js/clipping/backend.js']          ,
     ['src/js/assistant/backend.js'         , 'js/assistant/backend.js']         ,
     ['src/js/assistant/plan-repository.js' , 'js/assistant/plan-repository.js'] ,
@@ -158,8 +170,8 @@ function getCopyItems() {
 
 
   // page stylesheets
-  const cssBlackList = ['ui-selection', 'background',
-    'reset-history', 'plan-subscription', 'user-script', 'sync-user-scripts'];
+  const cssBlackList = ['ui-selection',
+    'reset-history', 'plan-subscription', 'user-script', 'sync-user-scripts', 'off-screen'];
   const cssNames = ['_base', '_details', '_file-uploader'].concat(pages);
   cssNames.forEach((name) => {
     if (cssBlackList.indexOf(name) == -1) {
@@ -230,30 +242,38 @@ const config = {
 
 
 function renderManifestWithPlatformMsg(content, path) {
-  let manifest = JSON.parse(content.toString());
+  const common = JSON.parse(content.toString());
+
+  let diff;
   switch(PLATFORM) {
     case 'chromium':
+      diff = JSON.parse(fs.readFileSync(manifestPath_Chromium));
       if (PLATFORM_ID) {
-        manifest.key = PLATFORM_ID;
+        diff.key = PLATFORM_ID;
+      } else {
+        delete diff.key;
       }
       if (PLATFORM_UPDATE_URL) {
-        manifest.update_url = PLATFORM_UPDATE_URL;
+        diff.update_url = PLATFORM_UPDATE_URL;
+      } else {
+        delete diff.update_url;
       }
       break;
     case 'firefox':
+      diff = JSON.parse(fs.readFileSync(manifestPath_Firefox));
       if (PLATFORM_ID) {
-        manifest.applications = {
-          gecko: {id: PLATFORM_ID}
-        }
+        diff.browser_specific_settings.gecko.id = PLATFORM_ID;
       }
       break;
     default: break;
   }
+
+  const manifest = Object.assign({}, common, diff);
   return Buffer.from(JSON.stringify(manifest, null, 2));
 }
 
 if (IS_PRODUCTION) {
-
+  const manifest = JSON.parse(fs.readFileSync(manifestPath_common));
   const zipfile = `maoxian-web-clipper-${PLATFORM}-${manifest.version}.zip`
   config.plugins.push(
     // Clean dist/extension/maoxian-web-clipper before every build.

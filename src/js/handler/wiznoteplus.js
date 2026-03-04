@@ -176,7 +176,9 @@ async function createWebChannel() {
         state.objApp = channel.objects["WizExplorerApp"];
         state.objCom = state.objApp.CommonUI;
         state.tempPath = [await state.objCom.GetSpecialFolder('TemporaryFolder'), 'webclipping'].join('/');
-        window["WizExplorerApp"] = channel.objects["WizExplorerApp"]; // Only used for APIs test.
+        // Chromium uses service worker in Manifest V3
+        // which don't have DOM anymore
+        // window["WizExplorerApp"] = channel.objects["WizExplorerApp"]; // Only used for APIs test.
         resolve(true);
       });
     }

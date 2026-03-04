@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn     from '../_locales/en/setting.js';
+import localeZhCN   from '../_locales/zh_CN/setting.js';
 import Log          from '../js/lib/log.js';
 import T            from '../js/lib/tool.js';
 import I18N         from '../js/lib/translation.js';
@@ -34,7 +36,12 @@ function listenMessage() {
 
 function updateConfig(key, value) {
   const isUpdated = MxWcConfig.update(key, value);
-  const BG_CARE_KEYS = ['autoRunContentScripts'];
+  const BG_CARE_KEYS = [
+    'autoRunContentScripts',
+    'requestCacheCss',
+    'requestCacheImage',
+    'requestCacheWebFont',
+  ];
   if (BG_CARE_KEYS.indexOf(key) > -1) {
     ExtMsg.sendToBackground({
       type: 'config.changed',
@@ -430,13 +437,13 @@ function initSettingAdvanced(config) {
   );
 
   initRadioInput(config,
-    'request-referrer-policy',
-    'requestReferrerPolicy',
+    'request-credentials',
+    'requestCredentials',
   );
 
-  initNumberInput(config,
-    'request-cache-size',
-    'requestCacheSize'
+  initRadioInput(config,
+    'request-referrer-policy',
+    'requestReferrerPolicy',
   );
 
   initCheckboxInput(config,
@@ -881,14 +888,11 @@ function testDownloadRequest(e) {
     type: 'test.downloadRequest'
   }).then(
     () => {
-      // success
       const msg = I18N.t('notice.success.download-request-test');
       renderNoticeBox(section, 'success', msg);
     },
     (errMsg) => {
-      // render errors
-      let msg = I18N.t('notice.danger.download-request-intercepted');
-      msg = msg.replace('$MESSAGE', errMsg);
+      const msg = I18N.s('notice.danger.download-request-intercepted', {errMsg});
       renderNoticeBox(section, 'danger', msg);
     }
   );
@@ -1029,6 +1033,9 @@ function renderSection(id) {
     case 'setting-advanced':
       render = renderSectionAdvanced;
       break;
+    case 'setting-permissions':
+      render = renderPermissions;
+      break;
     case 'setting-reset-and-backup':
       render = renderSectionResetAndBackup;
       break;
@@ -1038,12 +1045,6 @@ function renderSection(id) {
   render(id, container, template);
 }
 
-/*
-function getSectionRender(sectionId) {
-  const fnName = 'renderSection' + T.capitalize(sectionID.replace('^setting-', ''));
-  return this[fnName];
-}
-*/
 
 function getSectionTemplate(sectionId) {
   const tplId = ["section",  sectionId, "tpl"].join("-");
@@ -1084,6 +1085,70 @@ function renderSectionAdvanced(id, container, template) {
     initSettingAdvanced(config);
   });
 }
+
+function renderPermissions(id, container, template) {
+  const html = template;
+  T.setHtml(container, html);
+  const saveBtn = T.findElem('save-optional-permissions');
+  T.bindOnce(saveBtn, 'click', saveOptionalPermissions);
+  renderOptionalPermissions();
+}
+
+let grantedPermissions = [];
+function renderOptionalPermissions() {
+  const manifest = ExtApi.getManifest();
+  ExtApi.grantedPermissions().then((it) => {
+    grantedPermissions = it.permissions;
+    manifest.optional_permissions.forEach((permission) => {
+      const id = ['permission', permission.replace('.', '-')].join('-');
+      const elem = T.findElem(id);
+      if (elem) {
+        if (grantedPermissions.indexOf(permission) > -1) {
+          elem.checked = true;
+        } else {
+          elem.checked = false;
+        }
+      }
+    });
+  });
+}
+
+
+async function saveOptionalPermissions() {
+
+  const newPermissions = [];
+  const delPermissions = [];
+  const elems = T.queryElems('.optional-permissions input[type="checkbox"]');
+
+  elems.forEach((elem) => {
+    const permission = elem.getAttribute('data-permission');
+    if (elem.checked && grantedPermissions.indexOf(permission) == -1) {
+      newPermissions.push(permission);
+    } else if (!elem.checked && grantedPermissions.indexOf(permission) > -1) {
+      delPermissions.push(permission);
+    }
+  });
+
+  if (newPermissions.length > 0) {
+    const requested = await ExtApi.requestPermissions({permissions: newPermissions})
+    if (requested) {
+      Notify.success(I18N.t("permission.granted") + ": " + newPermissions.join(", "));
+    } else {
+      Notify.success(I18N.t("permission.denied"));
+    }
+  }
+
+  if (delPermissions.length > 0) {
+    const removed   = await ExtApi.removePermissions({permissions: delPermissions})
+    if (removed) {
+      Notify.success(I18N.t("permission.removed") + ": " + delPermissions.join(", "));
+    } else {
+      console.error("Failed to remove permissions", delPermissions);
+    }
+  }
+  renderOptionalPermissions()
+}
+
 
 function renderSectionResetAndBackup(id, container, template) {
   const html = template;
@@ -1417,7 +1482,7 @@ async function renderSectionHandlerNativeApp(id, container, template) {
 
 const NATIVE_APP_PERMISSIONS = {permissions: ["nativeMessaging"]};
 async function renderNativeAppPermissions() {
-  const granted = await browser.permissions.contains(NATIVE_APP_PERMISSIONS);
+  const granted = await ExtApi.containsPermissions(NATIVE_APP_PERMISSIONS);
 
   const wrapper = T.queryElem('#setting-handler-native-app .permissions');
   const requestBtn = T.findElem('request-native-app-permissions');
@@ -1444,7 +1509,7 @@ async function renderNativeAppPermissions() {
 
 
 async function requestNativeAppPermissionsAndRerender() {
-  const granted = await browser.permissions.request(NATIVE_APP_PERMISSIONS);
+  const granted = await ExtApi.requestPermissions(NATIVE_APP_PERMISSIONS);
   if (granted) {
     // rerender
     renderNativeAppPermissions();
@@ -1454,7 +1519,7 @@ async function requestNativeAppPermissionsAndRerender() {
 
 
 async function removeNativeAppPermissionsAndRerender() {
-  const removed = await browser.permissions.remove(NATIVE_APP_PERMISSIONS);
+  const removed = await ExtApi.removePermissions(NATIVE_APP_PERMISSIONS);
   if (removed) {
     // disconnect Native App
     try {
@@ -1506,9 +1571,7 @@ async function renderNativeAppStatus() {
         );
       }
     } else {
-      // render errors
-      let msg = I18N.t('notice.danger.native-app-not-ready');
-      msg = msg.replace('$MESSAGE', info.message);
+      const msg = I18N.s('notice.danger.native-app-not-ready', {errMsg: info.message});
       renderNoticeBox(wrapper, 'danger', msg);
     }
 
@@ -1585,8 +1648,7 @@ async function renderSectionHandlerWizNotePlus(id, container, template) {
     const msg = I18N.t("notice.danger.wiz-note-plus-ready");
     renderNoticeBox(section, 'info', msg);
   } else {
-    let msg = I18N.t('notice.danger.wiz-note-plus-not-ready');
-    msg = msg.replace('$MESSAGE', info.message);
+    const msg = I18N.s('notice.danger.wiz-note-plus-not-ready', {errMsg: info.message});
     renderNoticeBox(section, 'danger', msg);
   }
 }
@@ -1668,6 +1730,7 @@ function activeMenu() {
 
 function init(){
   listenMessage();
+  I18N.init({localeEn, localeZhCN});
   I18N.i18nPage();
   initSidebar();
   MxWcLink.listen(document.body);

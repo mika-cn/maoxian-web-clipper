@@ -1,4 +1,6 @@
 
+import localeEn    from '../_locales/en/home.js';
+import localeZhCN  from '../_locales/zh_CN/home.js';
 import ENV        from '../js/env.js';
 import Log        from '../js/lib/log.js';
 import T          from '../js/lib/tool.js';
@@ -28,7 +30,7 @@ function renderExtensionLinks(){
   renderLinks('#extension-pages > .links', links);
 }
 
-function renderRemoteLinks() {
+function renderExternalLinks() {
   const names = [
     'home',
     'faq',
@@ -40,12 +42,12 @@ function renderRemoteLinks() {
   ];
   const links = names.map((name) => {
     return {
-      linkI18n: "page.remote." + name,
-      descI18n: "desc.remote." + name,
+      linkI18n: "page.external." + name,
+      descI18n: "desc.external." + name,
       href: MxWcLink.get(name)
     }
   });
-  renderLinks('#remote-pages > .links', links);
+  renderLinks('#external-pages > .links', links);
 }
 
 function renderLinks(selector, links) {
@@ -60,7 +62,8 @@ function renderLinks(selector, links) {
 function init(){
   renderVersion();
   renderExtensionLinks();
-  renderRemoteLinks();
+  renderExternalLinks();
+  I18N.init({localeEn, localeZhCN});
   I18N.i18nPage();
 }
 

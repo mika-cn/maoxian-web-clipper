@@ -30,16 +30,17 @@ async function capture(node, params) {
   change.rmAttr('crossorigin');
   // referrerpolicy attribute
 
-  // handle src
-  let attrParams = ATTR_PARAMS_IMG;
+  // handle attr params change
+  let attrParamsChange = {};
   if (config.htmlCaptureImage == 'saveCurrent') {
-    attrParams = Object.assign({attrValue: node.currentSrc}, attrParams);
+    attrParamsChange.attrValue = node.currentSrc;
   }
   const attrMimeType = getAttrMimeType(node);
   if (attrMimeType) {
-    attrParams = Object.assign({attrMimeType}, attrParams);
+    attrParamsChange.attrMimeType = attrMimeType;
   }
 
+  const attrParams = Object.assign(attrParamsChange, ATTR_PARAMS_IMG);
   const r = await CaptureTool.captureAttrResource(node, params, attrParams);
   tasks.push(...r.tasks);
   change = change.merge(r.change);

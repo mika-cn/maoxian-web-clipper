@@ -23,6 +23,7 @@ async function migrate() {
   // migrate commands
   await migrateCommands();
 
+  await migrateTags();
 }
 
 /*
@@ -43,6 +44,69 @@ function migrateConfig(config, fromConfig = {}) {
 }
 
 const ConfigMigration = {};
+
+ConfigMigration['2.16'] = function(config) {
+  config.version = '2.17';
+  config.requestCredentials = 'omit';
+  return config;
+}
+
+ConfigMigration['2.15'] = function(config) {
+  config.version = '2.16';
+  // If we did delete these items on test versions
+  // reset them to default values.
+  if (!config.hasOwnProperty('requestCacheCss')) {
+    config.requestCacheCss = true;
+  }
+  if (!config.hasOwnProperty('requestCacheImage')) {
+    config.requestCacheImage = true;
+  }
+  if (!config.hasOwnProperty('requestCacheWebFont')) {
+    config.requestCacheWebFont = false;
+  }
+  return config;
+}
+
+ConfigMigration['2.14'] = function(config) {
+  config.version = '2.15';
+
+  const oldValues = [
+    "noReferrer",
+    "origin",
+    "originWhenCrossOrigin",
+    "unsafeUrl",
+  ];
+
+  const dict = {
+    noReferrer: "no-referrer",
+    origin: "origin",
+    originWhenCrossOrigin: "origin-when-cross-origin",
+    unsafeUrl: "unsafe-url",
+  };
+
+  const defaultReferrerPolicy = "strict-origin-when-cross-origin";
+
+  let newValue;
+  if (oldValues.indexOf(config.requestReferrerPolicy) < 0) {
+    newValue = defaultReferrerPolicy;
+  } else {
+    newValue = dict[config.requestReferrerPolicy] || defaultReferrerPolicy;
+  }
+
+  config.requestReferrerPolicy = newValue;
+  config.requestCache = 'default';
+  config.requestCredentials = 'same-origin';
+
+  // We can't utilize webRequest API anymore
+  // delete relative items
+  delete config.requestCacheSize;
+  // Note that: We deleted these on test versions
+  // delete config.requestCacheCss;
+  // delete config.requestCacheImage;
+  // delete config.requestCacheWebFont;
+
+  return config;
+}
 
 ConfigMigration['2.13'] = function(config) {
   config.version = '2.14';
@@ -303,6 +367,59 @@ ConfigMigration['0.0'] = function(config) {
 
 
 // =====================================================
+async function migrateTags() {
+  await fixUndefinedInBothSidesOfTags();
+}
+
+// A bug that can't properly split tagstr
+// cause some tags prefixied or sufixed with 'undefined'
+// fix these tags
+//
+// begin at version: 0.7.0
+// affected versions:
+//   - 0.7.0
+//   - 0.7.10 MV3 (test version)
+//   - 0.7.11 MV3 (test version)
+//   - 0.7.70 MV3 (first release)
+async function fixUndefinedInBothSidesOfTags() {
+  const key = 'mx-wc-tag-migrated-undefined-in-both-sides'
+  const isMigrated = await MxWcStorage.get(key, false);
+  if (isMigrated) {
+    console.info(key);
+  } else {
+    const oldTags = await MxWcStorage.get('tags', []);
+    const newTags = removeUndefinedAtBothSideOfTags(oldTags)
+    await MxWcStorage.set('tags', newTags);
+    await MxWcStorage.set(key, true);
+  }
+}
+
+function removeUndefinedAtBothSideOfTags(oldTags) {
+  const newTags = [];
+  const allIsUndefined = /^(undefined)+$/
+  oldTags.forEach((tag) => {
+    let newTag;
+    if (tag.match(allIsUndefined)) {
+      newTag = 'undefined'
+    } else {
+      let it = tag;
+      if (it.startsWith('undefined')) {
+        it = it.replace(/^undefined/, '')
+      }
+      if (it.endsWith('undefined')) {
+        it = it.replace(/undefined$/, '')
+      }
+      newTag = it;
+    }
+    if (newTags.indexOf(newTag) < 0) {
+      newTags.push(newTag);
+    }
+  });
+  return newTags;
+}
+
+
+// =====================================================
 
 async function migrateClippings() {
   await deleteClippingPaths();
@@ -367,16 +484,20 @@ async function moveOldShortcutToSlot() {
     }
 
     if (targetSlot && shortcut) {
-      // move old shortcut to slot
-      await ExtApi.updateCommand({
-        name: targetSlot,
-        shortcut: shortcut
-      });
-      // unset old shortcut
-      await ExtApi.updateCommand({
-        name: command.name,
-        shortcut: ""
-      });
+      try {
+        // move old shortcut to slot
+        await ExtApi.updateCommand({
+          name: targetSlot,
+          shortcut: shortcut
+        });
+        // unset old shortcut
+        await ExtApi.updateCommand({
+          name: command.name,
+          shortcut: ""
+        });
+      } catch(e) {
+        console.debug(e);
+      }
     }
   }
 
@@ -567,4 +688,8 @@ async function migrateConfigToV0147() {
   console.debug("0.1.47 migrate");
 }
 
-export default {perform, migrateConfig}
+export default {
+  perform,
+  migrateConfig,
+  removeUndefinedAtBothSideOfTags, // test only
+}

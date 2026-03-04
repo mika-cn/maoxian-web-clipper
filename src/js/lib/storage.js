@@ -1,6 +1,7 @@
 "use strict";
 
 import T from './tool.js';
+import ExtApi from './ext-api.js';
 
 const KEY_OF_KEYS = '__KEYS__';
 
@@ -93,7 +94,7 @@ async function query(storageArea, ...filters) {
   return await getStorage(storageArea).get(keys);
 }
 
-
+// TODO new API available: StorageArea.getKeys()
 async function getKeys(storageArea) {
   const data = await getStorage(storageArea).get(KEY_OF_KEYS);
   if (data.hasOwnProperty(KEY_OF_KEYS)) {
@@ -154,17 +155,60 @@ async function saveKeysToStorage(storageArea, keys) {
 
 
 function getStorage(storageArea) {
-  if (browser.storage[storageArea] === undefined) {
-    if (storageArea == 'session') {
-      // backport it for some old browsers
-      return browser.storage.local;
-    }
-    return undefined;
+  const storage = ExtApi.getStorageArea(storageArea);
+  if (storage) {
+    return storage;
   } else {
-    return browser.storage[storageArea];
+    throw new Error(`StorageArea not available: ${storageArea}`);
   }
 }
 
+async function getFromContentSession(key, defaultValue) {
+  const storageArea = getContentSessionStorageArea();
+  return get(storageArea, key, defaultValue);
+}
+
+
+async function setToContentSession(key, value) {
+  const storageArea = getContentSessionStorageArea();
+  return set(storageArea, key, value);
+}
+
+async function removeFromContentSession(key) {
+  const storageArea = getContentSessionStorageArea();
+  return remove(storageArea, key);
+}
+
+
+function getContentSessionStorageArea() {
+  const session = ExtApi.getStorageArea('session');
+  if (session) {
+    if (ExtApi.isBackground()) {
+      if ((typeof session.setAccessLevel) == 'function') {
+        // session storage area is fully supported in content scripts
+        return 'session';
+      } else {
+        // session storage only available in background
+        return 'local';
+      }
+    } else {
+      // content script can access session (fully supported)
+      return 'session';
+    }
+  } else {
+    // Not session storage support
+    return 'local';
+  }
+}
+
+
+// Only available in background script
+function initContentSession() {
+  const session = ExtApi.getStorageArea('session');
+  if (session && (typeof session.setAccessLevel) == 'function') {
+    session.setAccessLevel({accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS'});
+  }
+}
 
 function applyFirstArgument(fn, firstArgument) {
   return (...args) => {
@@ -194,6 +238,15 @@ function createStorageAreaApi(storageArea) {
 const local   = createStorageAreaApi('local');
 const session = createStorageAreaApi('session');
 // set "local" as default storageArea
-const Storage = Object.assign({}, local, {session, local});
+const Storage = Object.assign(
+  {
+    initContentSession,
+    setToContentSession,
+    getFromContentSession,
+    removeFromContentSession,
+  },
+  local,
+  {session, local}
+);
 export default Storage;
 

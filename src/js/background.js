@@ -1,44 +1,52 @@
-import Log         from '../js/lib/log.js';
-import ENV         from '../js/env.js';
-import T           from '../js/lib/tool.js';
-import ExtApi      from '../js/lib/ext-api.js';
-import ExtMsg      from '../js/lib/ext-msg.js';
-import MxWcIcon    from '../js/lib/icon.js';
-import MxWcStorage from '../js/lib/storage.js';
-import MxWcConfig  from '../js/lib/config.js';
-import MxWcLink    from '../js/lib/link.js';
-import MxWcHandler from '../js/lib/handler.js';
-import MxEvTarget  from '../js/lib/event-target.js';
-import Fetcher     from '../js/lib/fetcher-using-xhr.js';
-import TaskFetcher from '../js/lib/task-fetcher.js';
+import localeEn    from '../_locales/en/background.js';
+import localeZhCN  from '../_locales/zh_CN/background.js';
+import Log         from './lib/log.js';
+import ENV         from './env.js';
+import T           from './lib/tool.js';
+import I18N        from '../js/lib/translation.js';
+import ExtApi      from './lib/ext-api.js';
+import ExtMsg      from './lib/ext-msg.js';
+import MxWcIcon    from './lib/icon.js';
+import MxWcStorage from './lib/storage.js';
+import MxWcConfig  from './lib/config.js';
+import MxWcLink    from './lib/link.js';
+import MxWcHandler from './lib/handler.js';
+import MxEvTarget  from './lib/event-target.js';
+import Fetcher     from './lib/fetcher-with-dnr.js';
+import TaskFetcher from './lib/task-fetcher.js';
 
-import initBackend_Clipping  from '../js/clipping/backend.js';
-import initBackend_Saving    from '../js/saving/backend.js';
-import initBackend_Assistant from '../js/assistant/backend.js';
-import initBackend_Selection from '../js/selection/backend.js';
+import initBackend_Clipping  from './clipping/backend.js';
+import initBackend_Saving    from './saving/backend.js';
+import initBackend_Assistant from './assistant/backend.js';
+import initBackend_Selection from './selection/backend.js';
 
-import Handler_Browser     from '../js/handler/browser.js';
-import Handler_NativeApp   from '../js/handler/native-app.js';
-import Handler_WizNotePlus from '../js/handler/wiznoteplus.js';
+import Handler_Browser     from './handler/browser.js';
+import Handler_NativeApp   from './handler/native-app.js';
+import Handler_WizNotePlus from './handler/wiznoteplus.js';
 
-import MxWcMigration from '../js/background/migration.js';
-import WebRequest    from '../js/background/web-request.js';
+import BlobUrl       from './background/blob-url.js';
+import MxWcMigration from './background/migration.js';
+import DeclarativeNetRequest from './background/declarative-net-request.js';
 
-import ContentScriptsLoader from '../js/content-scripts-loader.js';
+import ContentScriptsLoader from './content-scripts-loader.js';
 
 const Global = { evTarget: new MxEvTarget() };
-
-function unknownMessageHandler(message, sender) {
-  return new Promise(function(resolve, reject) {
-    const error = new Error(`Unknown message: ${message.type}`);
-    reject(error);
-  })
-}
 
 function messageHandler(message, sender){
   return new Promise(function(resolve, reject){
 
+    //Log.debug(sender, message);
+    Log.debug(message.type);
     switch(message.type) {
+
+      case 'get.frame-id':
+        resolve(sender.frameId);
+        break;
+
+      case 'close.off-screen':
+        Log.debug("close off-screen document");
+        ExtApi.closeOffscreenDoc().then(resolve);
+        break;
 
       case 'show.badge':
         const badgeAttrs = (message.body || {})
@@ -52,17 +60,17 @@ function messageHandler(message, sender){
         break;
 
       case 'popup-menu.clip-command':
+        // on desktop browsers,
+        // the popup.html page is rendered as popup UI
+        // (not inside a tab)
+        // so the sender.tab is undefined
+        //
+        // on mobile browsers,
+        // the popup.html is rendered inside a tab
+        // so the sender.tab is the tab that contains popup
+        // (not the tab that trigger the popup.html)
         const msg = getClipCommandMsg(message.body.command);
-        loadContentScriptsAndSendMsg(msg).then(resolve, reject);
-        break;
-
-      case 'fetch.content-message':
-        if (Global.contentMessage) {
-          resolve(Object.assign({}, Global.contentMessage));
-          Global.contentMessage = null;
-        } else {
-          reject(new Error("No content message"));
-        }
+        loadContentScriptsAndSendMsg(msg, sender.tab).then(resolve, reject);
         break;
 
       case 'handler.get-info':
@@ -89,10 +97,9 @@ function messageHandler(message, sender){
       case 'reset.categories' : resetStates('categories', message.body) ; resolve() ; break ;
       case 'reset.tags'       : resetStates('tags', message.body)       ; resolve() ; break ;
 
-      /* history */
+      // history
       case 'export.history':
-        exportHistory(message.body.content);
-        resolve();
+        exportHistory(message.body.content).then(resolve);
         break;
       case 'clipping.delete':
         deleteClipping(message.body, resolve);
@@ -101,7 +108,7 @@ function messageHandler(message, sender){
         refreshHistory(resolve);
         break;
 
-      /* offline index page */
+      // offline index page
       case 'generate.clipping.js':
         generateClippingJs(resolve);
         break;
@@ -110,21 +117,21 @@ function messageHandler(message, sender){
         resolve();
         break;
 
-      /* open link */
+      // open link
       case 'create-tab':
         ExtApi.createTab(message.body.link).then(resolve);
         break;
       case 'asset-cache.peek':
-        resolve(Global.assetCache.peek());
+        // not asset cache in service worker
+        resolve([]);
         break;
       case 'asset-cache.reset':
-        Global.assetCache.reset();
         resolve();
         break;
 
-      /* backup and restore */
+      // backup and restore
       case 'backup-to-file':
-        backupToFile(resolve);
+        backupToFile().then(resolve);
         break;
       case 'migrate-config':
         migrateConfig(message.body).then(resolve, reject);
@@ -221,8 +228,17 @@ function getClipCommandMsg(command) {
 
 
 function configChanged({key, value}) {
-  if (key === 'autoRunContentScripts') {
-    resetAutoRunContentScriptsListener(value);
+  switch(key) {
+    case 'autoRunContentScripts':
+      resetAutoRunContentScripts(value)
+      break;
+    case 'requestCacheCss':
+    case 'requestCacheImage':
+    case 'requestCacheWebFont':
+      updateCacheRules();
+      break;
+    default:
+      break;
   }
 }
 
@@ -290,17 +306,23 @@ function refreshHistory(resolve) {
   });
 }
 
-function exportHistory(content) {
-  const arr = [content];
-  const blob = new Blob(arr, {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
+async function exportHistory(content) {
   const s = T.currentTime().str;
-  const t = [s.year, s.month, s.day, s.hour, s.minute, s.second].join('');
-  ExtApi.download({
-    saveAs: false,
+  const t = [s.year, s.month, s.day,
+    s.hour, s.minute, s.second].join('');
+
+  const params = {
+    text: content,
     filename: ['mx-wc-history', t, 'json'].join('.'),
-    url: url
-  })
+    mimeType: 'application/json',
+  };
+  return Handler_Browser.saveTextFile(params);
+}
+
+
+async function downloadBlobUrl(downloadParams) {
+  const it = new Download(ExtApi.downloads, downloadParams);
+  return it.download();
 }
 
 function generateClippingJsIfNeed(){
@@ -450,36 +472,104 @@ async function commandListener(browserCommandName) {
   }
 }
 
-
-async function loadContentScriptsAndSendMsg(msg) {
+async function loadContentScriptsAndSendMsg(msg, fromTab) {
   const topFrameId = 0;
-  const tab = await ExtApi.getCurrentTab();
+  let tab = undefined;
+  if (!fromTab || !T.isHttpUrl(fromTab.url)) {
+    Log.debug("Empty or not http tab: ", fromTab);
+    try {
+      tab = await ExtApi.getCurrentActiveTab();
+    } catch(e) {
+      // this did happen :(
+      Log.error(e);
+    }
+  } else {
+    tab = fromTab;
+  }
+
+  const r = canLoadContentScriptsInTab(tab);
+  if (!r.ok) {
+    Log.error(r.errorMsg);
+    Log.error(msg);
+    throw new Error(r.errorMsg);
+  }
+  Log.debug("target tab: ", tab);
+
+  // We don't know whether the top frame has loaded or not yet,
+  // just store content message in advanced, So that when it loads,
+  // the content message is ready for fetching.
+  await storeContentMessage(msg);
+
   const {loadedFrameIds, errorDetails} = await ContentScriptsLoader.loadInTab(tab.id);
 
   if (errorDetails.length > 0) {
     const log = ContentScriptsLoader.errorDetails2Str(errorDetails, tab);
     //FIXME log it.
-    Log.warn(log);
+    Log.error(log);
 
     const lastError = errorDetails[errorDetails.length - 1];
     if (lastError.frameId == topFrameId) {
       // Something unexpected happened.
+      await removeContentMessage();
       throw new Error(log);
     }
   }
 
   if (loadedFrameIds.indexOf(topFrameId) > -1) {
-    // It contains the top frame, In this case,
-    // We store the message and wait the top frame to fetch.
-    // Because we don't know when the content script will
-    // set up the background message handler.
-    Global.contentMessage = msg;
+    // We've just loaded content scripts in the top frame,
+    // it'll fetch the content message that we stored before.
+    //
+    // Note that we're not sure when the content script in
+    // top frame will set up the background message listener.
+    // So we're not sending content message to the top frame here.
     return true;
   } else {
+    // The top frame didn't need loading content scripts.
+    // It has loaded already. then we can safely sending message to it.
+    await removeContentMessage();
+    Log.debug("send content message to the top frame");
     return ExtMsg.sendToContent(msg)
   }
 }
 
+
+function canLoadContentScriptsInTab(tab) {
+  if (!tab) {
+    const errorMsg = I18N.t('tab.not-found');
+    return {ok: false, errorMsg};
+  }
+
+  if (!T.isHttpUrl(tab.url)) {
+    const errorMsg = I18N.s('tab.not-http', tab);
+    return {ok: false, errorMsg};
+  }
+
+  if (tab.discarded) {
+    const errorMsg = I18N.s('tab.discarded', tab);
+    return {ok: false, errorMsg};
+  }
+
+  if (tab.isInReaderMode) {
+    const errorMsg = I18N.s('tab.in-reader-mode', tab);
+    return {ok: false, errorMsg}
+  }
+
+  if (tab.status === 'loading') {
+    const errorMsg = I18N.s('tab.still-loading', tab);
+    return {ok: false, errorMsg}
+  }
+
+  return {ok: true};
+}
+
+
+function storeContentMessage(msg) {
+  return MxWcStorage.setToContentSession('content-message', msg);
+}
+
+function removeContentMessage() {
+  return MxWcStorage.removeFromContentSession('content-message');
+}
 
 
 // ================ command functions ==================
@@ -523,44 +613,40 @@ async function openLastClippingResult() {
 const CommandFnDict = {doNothing, startClip, openLastClippingResult};
 
 
-function backupToFile(callback) {
-  MxWcConfig.load().then((config) => {
-    const filters = [];
+async function backupToFile() {
+  const config = await MxWcConfig.load();
+  const filters = [];
 
-    filters.push(T.attributeFilter('config'          , config.backupSettingPageConfig));
-    filters.push(T.prefixFilter('history.page.cache' , config.backupHistoryPageConfig));
-    filters.push(T.prefixFilter('assistant'          , config.backupAssistantData));
-    filters.push(T.prefixFilter('selectionStore'     , config.backupSelectionData));
+  filters.push(T.attributeFilter('config'          , config.backupSettingPageConfig));
+  filters.push(T.prefixFilter('history.page.cache' , config.backupHistoryPageConfig));
+  filters.push(T.prefixFilter('assistant'          , config.backupAssistantData));
+  filters.push(T.prefixFilter('selectionStore'     , config.backupSelectionData));
 
-    /*
-     * ----- These data won't be backuped -----
-     * categories
-     * tags
-     * clips
-     * downloadFolder
-     * lastClippingResult
-     * firstRunning
-     * mx-wc-config-migrated*
-     *
-     */
+  //
+  // ----- These data won't be backuped -----
+  // categories
+  // tags
+  // clips
+  // downloadFolder
+  // lastClippingResult
+  // firstRunning
+  // mx-wc-config-migrated*
+  //
+  //
 
-    MxWcStorage.query(...filters).then((data) => {
-      const now = T.currentTime();
-      const s = now.str
-      const t = [s.hour, s.minute, s.second].join('.');
-      const content = {data: data, backupAt: now.toString()}
-      const arr = [T.toJson(content)];
-      const blob = new Blob(arr, {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
-      const filename = `mx-wc-backup_${now.date()}_${t}.json`;
-      ExtApi.download({
-        saveAs: true,
-        filename: filename,
-        url: url
-      }).then(callback);
-    });
+  const data = await MxWcStorage.query(...filters);
+  const now = T.currentTime();
+  const s = now.str
+  const t = [s.hour, s.minute, s.second].join('.');
+  const content = {data: data, backupAt: now.toString()}
 
-  });
+  const params = {
+    text: T.toJson(content),
+    mimeType: 'application/json',
+    filename: `mx-wc-backup_${now.date()}_${t}.json`,
+    saveAs: true,
+  }
+  Handler_Browser.saveTextFile(params);
 }
 
 async function migrateConfig(config) {
@@ -572,34 +658,92 @@ async function migrateConfig(config) {
     throw new Error(errMsg);
   }
 }
+// ========================================
+// declarative net request
+// ========================================
+
+async function updateCacheRulesIfNeed() {
+  if ("can't use page web request cache in background") { return }
+  const currSwitchStatus = await getCurrentSwitchStatusOfCacheRules();
+  if (currSwitchStatus == 'EMPTY') {
+    updateCacheRules(currSwitchStatus);
+  } else {
+    Log.debug("Cache rules is updated in current session, ignore");
+  }
+}
+
+
+async function updateCacheRules(switchStatus) {
+  if ("can't use page web request cache in background") { return }
+  let currSwitchStatus;
+  if (switchStatus !== undefined) {
+    currSwitchStatus = switchStatus;
+  } else {
+    currSwitchStatus = await getCurrentSwitchStatusOfCacheRules();
+  }
+
+  const config = await MxWcConfig.load();
+  const newSwitchStatus = DeclarativeNetRequest.getSwitchStatus(config);
+  if (currSwitchStatus !== newSwitchStatus) {
+    await DeclarativeNetRequest.updateRules(config);
+    await setCurrentSwitchStatusOfCacheRules(newSwitchStatus);
+    Log.debug("DNR: cache rules updated");
+  } else {
+    Log.debug("DNR: switchStatus not changed");
+  }
+}
+
+
+async function getCurrentSwitchStatusOfCacheRules() {
+  const key = 'dnr.cache-rules.switch-status';
+  return MxWcStorage.session.get(key, 'EMPTY');
+}
+
+
+async function setCurrentSwitchStatusOfCacheRules(switchStatus) {
+  const key = 'dnr.cache-rules.switch-status';
+  return MxWcStorage.session.set(key, switchStatus);
+}
+
 
 // ========================================
 // auto run content scripts
 // ========================================
 
-function resetAutoRunContentScriptsListener(enabled) {
+function resetAutoRunContentScripts(enabled) {
   Log.debug("Auto run content scripts: ", enabled);
   if (enabled) {
-    bindAutoRunContentScriptsListener();
+    registerContentScripts();
   } else {
-    unbindAutoRunContentScriptsListener();
+    unregisterContentScripts();
   }
 }
 
-function bindAutoRunContentScriptsListener() {
-  const filter = {url: [{schemes: ['https', 'http']}]};
-  ExtApi.bindPageDomContentLoadListener(
-    pageDomContentLoadedListener, filter);
+async function registerContentScriptsIfNeed() {
+  const config = await MxWcConfig.load();
+  if (config.autoRunContentScripts) {
+    await registerContentScripts();
+  }
 }
 
-function unbindAutoRunContentScriptsListener() {
-  ExtApi.unbindPageDomContentLoadedListener(
-    pageDomContentLoadedListener)
+async function registerContentScripts() {
+  const key = 'content-script.registed.version';
+  const version = await MxWcStorage.session.get(key);
+  Log.debug("registered version: ", version);
+  if (!version || version !== ContentScriptsLoader.VERSION) {
+    await ContentScriptsLoader.register();
+    await MxWcStorage.session.set(key, ContentScriptsLoader.VERSION);
+    Log.debug("New registered, version: ", ContentScriptsLoader.VERSION);
+  } else {
+    Log.debug("Old registered, version: ", version);
+  }
 }
 
-function pageDomContentLoadedListener({url, tabId, frameId}) {
-  ContentScriptsLoader.loadInFrame(tabId, frameId, true)
-    .catch((error) => { Log.warn(error) });
+async function unregisterContentScripts() {
+  const key = 'content-script.registed.version';
+  await ContentScriptsLoader.unregister();
+  await MxWcStorage.session.remove(key);
+  Log.debug("Unregistered content scripts");
 }
 
 
@@ -607,9 +751,8 @@ function pageDomContentLoadedListener({url, tabId, frameId}) {
 // handler
 // ========================================
 
-/*
- * @param {string} expression - see js/lib/handler.js
- */
+
+// @param {string} expression - see js/lib/handler.js
 async function isHandlerReady(configName) {
 
   const getHandlerInfo = async function (name) {
@@ -632,7 +775,8 @@ function getHandlerByName(name) {
   }
 }
 
-async function updateNativeAppConfig(config) {
+async function updateNativeAppConfig() {
+  const config = await MxWcConfig.load();
   if (config.clippingHandler === 'NativeApp') {
     Handler_NativeApp.initDownloadFolder();
   }
@@ -642,55 +786,97 @@ function initListeners() {
   Global.evTarget.addEventListener('saving.completed', generateClippingJsIfNeed);
   Global.evTarget.addEventListener('history.refreshed', generateClippingJsIfNeed);
   Global.evTarget.addEventListener('clipping.deleted', generateClippingJsIfNeed);
-
-  Global.evTarget.addEventListener('resource.loaded', (ev) => {
-    const {resourceType, url, data, responseHeaders} = ev;
-    Log.debug("resource.loaded", url);
-    // data is an Uint8Array
-    Global.assetCache.add(url, {resourceType, data, responseHeaders});
-  })
 }
+
+
+async function generateFrameMsgToken({isChrome}) {
+  if (isChrome) {
+    const key = 'frame-msg-token';
+    const token = await MxWcStorage.getFromContentSession(key);
+    if (!token) {
+      Log.debug("generate frame msg token");
+      const value = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
+      MxWcStorage.setToContentSession(key, value);
+    }
+  }
+}
+
+
+const MY_INSTALLED_REASION = 'installed_or_updated_when_not_running';
+let onInstalled_running = false;
+// Fired when the extension is first installed,
+// when the extension is updated to a new version,
+// and when the browser is updated to a new version.
+//
+// reload the extension also trigger this event.
+function onInstalled(details) {
+  if (aboutToRunning_onInstalled && details.reason !== MY_INSTALLED_REASION) {
+    Log.debug("onInstalled is running by triggerOnInstalledIfNeed(), skip");
+    return;
+  }
+  onInstalled_running = true;
+  Log.debug("installed reason: ", details.reason);
+  ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
+  MxWcMigration.perform();
+
+  const key = 'on-installed.version';
+  const {version} = ExtApi.getManifest();
+  MxWcStorage.session.set(key, version);
+  MxWcStorage.local.set(key, version);
+}
+
+
+let aboutToRunning_onInstalled = false;
+// In some weird cases,
+// the installed event is not triggered.
+// such as the installation happened
+// when the extension is disabled.
+async function triggerOnInstalledIfNeed() {
+  Log.debug("trigger onInstalled if need");
+  const manifest = ExtApi.getManifest();
+  const key = 'on-installed.version';
+  const version = (
+       await MxWcStorage.session.get(key)
+    || await MxWcStorage.local.get(key)
+  );
+
+  if (!version || version !== manifest.version) {
+    if (onInstalled_running) {
+      Log.debug("onInstalled_running, skip");
+      return;
+    } else {
+      aboutToRunning_onInstalled = true;
+      Log.debug("trigger onInstalled by us");
+      const fakeDetails = {reason: MY_INSTALLED_REASION};
+      onInstalled(fakeDetails);
+    }
+  }
+}
+
 
 // ========================================
 
-async function init(){
+function init() {
   Log.debug("background init...");
-  initListeners();
-  ExtApi.setUninstallURL(MxWcLink.get('uninstalled'));
-  await MxWcMigration.perform();
-
-  const config = await MxWcConfig.load();
-  await updateNativeAppConfig(config);
-
-  const REQUEST_TOKEN = ['', Date.now(), Math.round(Math.random() * 10000)].join('');
-  Global.assetCache = T.createResourceCache({size: config.requestCacheSize});
-  Fetcher.init({
-    token: REQUEST_TOKEN,
-    cache: Global.assetCache,
-  });
-
-  TaskFetcher.init({Fetcher});
+  I18N.init({localeEn, localeZhCN});
+  ExtApi.bindOnInstalledListener(onInstalled);
+  triggerOnInstalledIfNeed();
+  updateCacheRulesIfNeed();
+  registerContentScriptsIfNeed();
+  MxWcStorage.initContentSession();
 
   const isChrome = MxWcLink.isChrome();
   const isFirefox = MxWcLink.isFirefox();
 
+  initListeners();
+  updateNativeAppConfig();
+  generateFrameMsgToken({isChrome});
 
-  WebRequest.init(Object.assign({
-    evTarget: Global.evTarget,
-    requestToken: REQUEST_TOKEN,
-    isFirefox: isFirefox,
-  }, T.sliceObj(config, [
-    'requestCacheSize',
-    'requestCacheCss',
-    'requestCacheImage',
-    'requestCacheWebFont',
-    ])
-  ));
-  WebRequest.listen();
 
+  TaskFetcher.init({Fetcher});
 
   Handler_Browser.init(Object.assign({TaskFetcher}, {isChrome}));
-  Handler_NativeApp.init({TaskFetcher});
+  Handler_NativeApp.init({TaskFetcher, I18N});
   Handler_WizNotePlus.init({TaskFetcher});
 
   ExtMsg.listenBackend('background', messageHandler);
@@ -698,7 +884,7 @@ async function init(){
 
   initBackend_Assistant({Fetcher});
   initBackend_Selection();
-  initBackend_Clipping({WebRequest, Fetcher});
+  initBackend_Clipping({Fetcher});
   initBackend_Saving(Object.assign({
     Handler_Browser,
     Handler_NativeApp,
@@ -707,13 +893,8 @@ async function init(){
     evTarget: Global.evTarget,
   }));
 
-  // TODO confirm Why the listener order on MacOS is reverse?
-  // ExtMsg.listenBackend('background', unknownMessageHandler);
-
   // commands are keyboard shortcuts
   ExtApi.bindOnCommandListener(commandListener)
-
-  resetAutoRunContentScriptsListener(config.autoRunContentScripts)
 
   setIconTitle();
   welcomeNewUser();

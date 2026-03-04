@@ -2,7 +2,6 @@ import Log               from './lib/log.js';
 import T                 from './lib/tool.js';
 import ExtMsg            from './lib/ext-msg.js';
 import MxWcStorage       from './lib/storage.js';
-import MxWcIcon          from './lib/icon.js';
 import MxWcEvent         from './lib/event.js';
 import MxWcConfig        from './lib/config.js';
 import MxWcLink          from './lib/link.js';
@@ -742,11 +741,21 @@ function hideBadge() {
   ExtMsg.sendToBackground({type: 'hide.badge'});
 }
 
-function fetchContentMessage() {
-  ExtMsg.sendToBackground({type: 'fetch.content-message'})
-    .then(messageHandler, (errMsg) => {
-      Log.debug(errMsg)
-    });
+async function fetchContentMessage() {
+  const key = 'content-message';
+  try {
+    const message = await MxWcStorage.getFromContentSession(key);
+    if (message) {
+      await MxWcStorage.removeFromContentSession(key);
+      messageHandler(message);
+    } else {
+      // It's possible that this is a registered script
+      // then content script is undefined
+      Log.debug("Content message is undefined");
+    }
+  } catch (error) {
+    Log.debug(error);
+  }
 }
 
 

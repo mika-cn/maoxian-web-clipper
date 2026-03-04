@@ -1,4 +1,6 @@
 
+import localeEn    from '../_locales/en/failed-tasks.js';
+import localeZhCN  from '../_locales/zh_CN/failed-tasks.js';
 import T        from '../js/lib/tool.js';
 import I18N     from '../js/lib/translation.js';
 import ExtMsg   from '../js/lib/ext-msg.js';
@@ -110,7 +112,7 @@ function editAll(e) {
 
 function editTask(task, changes) {
   for (let key in changes) {
-    task[key] = changes[key];
+    task.requestParams[key] = changes[key];
   }
   return task;
 }
@@ -127,7 +129,7 @@ function renderTasks(tasks) {
     const tpl = T.findElem('task-tpl').innerHTML;
     const html = tasks.map((it) => {
       const createdAt = T.wrapDate(new Date(parseInt(it.createdMs))).toString();
-      return T.renderTemplate(tpl, Object.assign({createdAt: createdAt}, it));
+      return T.renderTemplate(tpl, Object.assign({createdAt: createdAt}, it, it.requestParams));
     }).join('');
     T.setHtml('.tasks > .details tbody', html);
   } else {
@@ -144,6 +146,7 @@ function init() {
   MxWcStorage.get('failedTasks', []).then((tasks) => {
     state.tasks = tasks;
     renderTasks(tasks);
+    I18N.init({localeEn, localeZhCN});
     I18N.i18nPage();
   });
 }

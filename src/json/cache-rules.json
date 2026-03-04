@@ -1,0 +1,59 @@
+[
+  {
+    "id": 11,
+    "priority": 1,
+    "condition": {
+      "requestMethods": ["get"],
+      "resourceTypes": ["stylesheet"],
+      "excludeResponseHeaders": [
+        {"header": "Cache-Control"}
+      ]
+    },
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [{
+        "operation": "set",
+        "header": "Cache-Control",
+        "value": "public, max-age=1800"
+      }]
+    }
+  },
+  {
+    "id": 22,
+    "priority": 1,
+    "condition": {
+      "requestMethods": ["get"],
+      "resourceTypes": ["image"],
+      "excludeResponseHeaders": [
+        {"header": "Cache-Control"}
+      ]
+    },
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [{
+        "operation": "set",
+        "header": "Cache-Control",
+        "value": "public, max-age=1800"
+      }]
+    }
+  },
+  {
+    "id": 33,
+    "priority": 1,
+    "condition": {
+      "requestMethods": ["get"],
+      "resourceTypes": ["font"],
+      "excludeResponseHeaders": [
+        {"header": "Cache-Control"}
+      ]
+    },
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [{
+        "operation": "set",
+        "header": "Cache-Control",
+        "value": "public, max-age=1800"
+      }]
+    }
+  }
+]

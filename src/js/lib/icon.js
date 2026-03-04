@@ -5,17 +5,15 @@ import ExtApi from './ext-api.js';
 const MxWcIcon = {};
 
 MxWcIcon.setTitle = (title) => {
-  browser.browserAction.setTitle({title})
+  ExtApi.setIconTitle(title);
 }
 
 MxWcIcon.showTabBadge = (tabId, {text = null, textColor = 'white', backgroundColor = 'green'}) => {
-  browser.browserAction.setBadgeText({tabId, text});
-  browser.browserAction.setBadgeTextColor({tabId, color: textColor});
-  browser.browserAction.setBadgeBackgroundColor({tabId, color: backgroundColor});
+  ExtApi.setTabBadge(tabId, {text, textColor, backgroundColor});
 }
 
 MxWcIcon.hideTabBadge = (tabId) => {
-  browser.browserAction.setBadgeText({tabId, text: null});
+  ExtApi.setTabBadge(tabId, {text: null});
 }
 
 
@@ -35,52 +33,65 @@ MxWcIcon.flicker = (n, style) => {
  * @param {string} iconStyle - default Or highlight
  */
 MxWcIcon.change = (iconStyle) => {
-  let url = MxWcIcon.getUrl(iconStyle);
   ExtApi.getCurrentTab().then((tab) => {
     if(tab) {
       // tab might not focus
-      MxWcIcon.getImageData(url, function(imgData){
-        browser.browserAction.setIcon({imageData: imgData, tabId: tab.id});
-      });
+      const path = getIconPathByStyle(tab.id, iconStyle);
+      const details = {tabId: tab.id, path};
+      ExtApi.setTabIcon(details);
     }
   })
 }
 
 
 // iconStyle: 'default', 'highlight'
-MxWcIcon.getUrl = (iconStyle) => {
+function getIconPathByStyle(tabId, iconStyle) {
   let key;
   if (iconStyle == 'default') {
     key = isBrowserDarkTheme() ? 'light' : 'dark';
   } else {
     key = iconStyle;
   }
-  let icon_path = ({
-    "dark"      : 'icons/mx-wc-32.png',
-    "light"     : 'icons/mx-wc-32-light.png',
-    "highlight" : 'icons/mx-wc-32-highlight.png'
+
+  let suffix = ({
+    "dark"      : null,
+    "light"     : "light",
+    "highlight" : "highlight"
   })[key]
-  return browser.runtime.getURL(icon_path);
-}
 
-// getImageData by icon url
-MxWcIcon.getImageData = (url, cb) => {
-  let canvas = document.createElement('canvas');
-  let context = canvas.getContext('2d');
-  let img = new Image();
-  img.onload = function(){
-    canvas.width = img.width;
-    canvas.height = img.height;
-    context.drawImage(img, 0, 0 );
-    cb(context.getImageData(0, 0, img.width, img.height));
-  }
-  img.src = url;
+  return getIconPathAllSize(suffix);
 }
 
 
+/*
+ * @param {String} suffix - "light" or "highlight"
+ * @returns {Object} {
+ *   16: "xxx.png",
+ *   32: "xxx.png",
+ *   48: "xxx.png
+ */
+function getIconPathAllSize(suffix) {
+  const sizes = ['16', '32', '48'];
+  return sizes.reduce((h, size) => {
+    if (suffix) {
+      h[size] = `/icons/mx-wc-${size}-${suffix}.png`
+    } else {
+      h[size] = `/icons/mx-wc-${size}.png`
+    }
+    return h;
+  }, {});
+}
+
+
+// FIXME
 function isBrowserDarkTheme() {
-  return (window.matchMedia &&
+  try {
+    return (window.matchMedia &&
     window.matchMedia('(prefers-color-scheme: dark)').matches);
+  } catch(e) {
+    // Not working in service worker :(
+    return false;
+  }
 }
 
 

@@ -87,11 +87,22 @@ async function renderStorage() {
 }
 
 
+async function renderDnrMatchedRules() {
+  if (window.location.href.startsWith('moz-extension:')) {
+    console.debug("Firefox not support getMatchedRules yet");
+  } else {
+    const {rules} = await Inspector.dnr();
+    console.debug(rules);
+  }
+}
+
+
 function init() {
   initListener();
   renderEnvironment();
   renderAssetCache();
   renderStorage();
+  renderDnrMatchedRules();
 }
 
 init();

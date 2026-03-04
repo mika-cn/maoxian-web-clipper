@@ -1,5 +1,7 @@
 "use strict";
 
+import localeEn    from '../_locales/en/sync-user-scripts.js';
+import localeZhCN  from '../_locales/zh_CN/sync-user-scripts.js';
 import I18N       from '../js/lib/translation.js';
 import T          from '../js/lib/tool.js';
 import ExtMsg     from '../js/lib/ext-msg.js';
@@ -30,7 +32,7 @@ function reset(){
   const selector = T.queryElem(".selector");
   selector.style.display = "none";
   parseFiles(folder.files).then(removeOldData).then(saveScripts).then((length) => {
-    showHint(I18N.t('done').replace('$n', length));
+    showHint(I18N.s('done', {n: length}));
     const pageUrl = MxWcLink.get('extPage.setting');
     ExtMsg.sendToPage({target: 'setting', type: 'refresh-user-scripts'}, pageUrl)
     setTimeout(window.close, 3000);
@@ -86,6 +88,7 @@ function showResetBtn(){
 }
 
 function init(){
+  I18N.init({localeEn, localeZhCN});
   initUI();
   I18N.i18nPage();
   bindListener();

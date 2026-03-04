@@ -27,6 +27,72 @@ import ExtApi from './ext-api.js';
  */
 
 
+// return `true` means we want to use sendResponse()
+// even the listener is executed.
+const MSG_HANDLED_ASYNC = true;
+
+// Returns `undefined` means current message listener
+// don't care the message and let other listeners handle it.
+const MSG_IGNORED_BY_LISTENER = undefined;
+
+
+/*
+ * This function needs you to have webextention-polyfill loaded
+ *
+ * @param {string} target
+ * @param {function} listener
+ *   listener should return a promise.
+ */
+function listen(target, listener) {
+  ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    // Deprecated: sendResponse
+    if(msg.target == target) {
+      // return promise to webextension-polyfill
+      return listener(msg, sender);
+    } else {
+      // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
+      return MSG_IGNORED_BY_LISTENER
+    }
+  });
+}
+
+
+/*
+ * @param {string} target
+ * @param {function} listener
+ *   listener should return a promise.
+ */
+function listenBackend(target, listener) {
+  ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.target == target) {
+      const fn = wrapBackendListener(listener);
+      if (!needPolyfill()) {
+        // firefox
+        return fn(msg, sender);
+      }
+
+      // chromium
+      fn(msg, sender).then(
+        (result) => {sendResponse(result)},
+        (error) => {
+          const resp = wrapErrorAsResponseThatRecognizedByPolyfill(error);
+          sendResponse(resp);
+        }
+      ).catch((error) => {
+        // Unable to send the response?
+        console.error("listenBackend: Failed to send onMessage rejected reply", err);
+      })
+      return MSG_HANDLED_ASYNC;
+    } else {
+      // TODO
+      // Because this API is so unstable when add multiple listeners,
+      // Maybe we can change the code to use one listener, to avoid these problems.
+      return MSG_IGNORED_BY_LISTENER
+    }
+  });
+}
+
+
 /*
  * When an error is rejected through backend,
  * some browsers (like Firefox) lost the stack info
@@ -39,35 +105,33 @@ function wrapBackendListener(listener) {
       return result;
     } catch (e) {
       console.debug(e)
-      const message = [`${e.name}: ${e.message}`, 'backend stack: ', e.stack].join("\n");
+      const message = [`${e.name}: ${e.message}\n`, 'backend stack: ', e.stack].join("\n");
       throw new Error(message, {cause: e});
     }
   }
 }
 
 
-/*
- * @param {string} target
- * @param {function} listener
- *   listener should return a promise.
- */
-function listen(target, listener) {
-  browser.runtime.onMessage.addListener((msg, sender, senderResponse) => {
-    // Deprecated: senderResponse
-    if(msg.target == target) {
-      return listener(msg, sender);
-    } else {
-      // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
-
-      // Returns false or undefined means this message listener
-      // don't care this message and let other listeners handle it.
-      return false;
-    }
-  });
+// same logic as webextention-polyfill
+// TODO delete me if we don't use webextention-polyfill anymore
+function needPolyfill() {
+  return (
+     typeof browser === 'undefined'
+  || Object.getPrototypeOf(browser) !== Object.prototype);
 }
 
-function listenBackend(target, listener) {
-  listen(target, wrapBackendListener(listener));
+// TODO delete me if we don't use webextention-polyfill anymore
+function wrapErrorAsResponseThatRecognizedByPolyfill(error) {
+  let message;
+
+  // Send a JSON representation of the error if the rejected value
+  // is an instance of error, or the object itself otherwise.
+  if (error && (error instanceof Error || typeof error.message === "string")) {
+    message = error.message;
+  } else {
+    message = "An unexpected error occurred";
+  }
+  return {__mozWebExtensionPolyfillReject__: true, message};
 }
 
 function sendToBackground(msg) {
@@ -95,7 +159,7 @@ function sendToContentFrame(msg, tabId, frameId) {
 }
 
 function sendToExtPage(target, msg) {
-  return browser.runtime.sendMessage(addTarget(target, msg));
+  return ExtApi.runtime.sendMessage(addTarget(target, msg));
 }
 
 function sendToPage(msg, pageUrl) {
@@ -156,14 +220,14 @@ function sendToTab(msg, tabId, frameId) {
     }
     if(tabId){
       const errorHandler = createErrorHandler(msg, tabId, options.frameId);
-      browser.tabs.sendMessage(tabId, msg, options)
+      ExtApi.sendTabMsg(tabId, msg, options)
         .then(resolve, errorHandler)
     } else {
       let errorHandler = () => { resolve() };
       ExtApi.getCurrentTab().then((tab) => {
         if (tab) {
           errorHandler = createErrorHandler(msg, tab.id, options.frameId);
-          browser.tabs.sendMessage(tab.id, msg, options)
+          ExtApi.sendTabMsg(tab.id, msg, options)
             .then(resolve, errorHandler);
         } else {
           console.debug("Error, Can't get current tab");

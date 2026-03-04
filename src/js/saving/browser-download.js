@@ -17,13 +17,22 @@ class Download {
       this.reject = reject;
       this.API.download(this.options).then(
         (downloadItemId) => {
-          // download item successfully create.
-          // validate ID
-          if (!this.id) {
-            this.reject(new Error('Id should be assigned'));
-          } else if (this.id !== downloadItemId) {
-            this.reject(new Error("Conflict, id is not equal."));
-          }
+
+          // TODO
+          // find out why the onCreated event is triggered
+          // after the download completed?
+          //
+          // service worker is so wried
+
+          // // download item successfully create.
+          // // validate ID
+          // console.debug("<<<", this, this.options.url);
+          // console.debug(">>>", this.id);
+          // if (!this.id) {
+          //   this.reject(new Error('Id should be assigned'));
+          // } else if (this.id !== downloadItemId) {
+          //   this.reject(new Error("Conflict, id is not equal."));
+          // }
         },
         (errMsg) => {
           this.clean();
@@ -42,6 +51,7 @@ class Download {
       return;
     }
 
+    // console.debug("SetId: ", downloadItem.id, this.options.url);
     this.id = downloadItem.id;
 
     if (downloadItem.filename) {
@@ -68,13 +78,14 @@ class Download {
           // do nothing.
           break;
         case 'interrupted':
-          this.clean();
           const errMsg = (delta.error.current || "")
           this.reject(new Error(errMsg));
+          this.clean();
           break;
         case 'complete':
-          this.clean();
+          // console.debug(this.id, this.filename);
           this.resolve({id: this.id, filename: this.filename});
+          this.clean();
           break;
         default:
           break;
@@ -84,8 +95,11 @@ class Download {
   }
 
   clean() {
-    this.revokeObjectUrl();
     this.unbindListener();
+    if (this.extraCleanFn
+      && typeof this.extraCleanFn == 'function') {
+      this.extraCleanFn()
+    }
   }
 
 
@@ -108,13 +122,6 @@ class Download {
     const noop = () => {};
     this.API.downloadCreated = noop;
     this.API.downloadChanged = noop;
-  }
-
-
-  revokeObjectUrl() {
-    if(this.options.url.match(/^blob:/i)) {
-      URL.revokeObjectURL(this.options.url);
-    }
   }
 
 }

@@ -1,23 +1,18 @@
 "use strict";
 
 import ExtApi  from './ext-api.js';
-
-const I18nLib = i18n;
 const DEFAULT_LOCALE = 'en';
-let locale = DEFAULT_LOCALE;
-const I18N_DICT = {'en': MxWcI18N_en, 'zh-CN': MxWcI18N_zh_CN};
 
-function initTranslator(locale){
-  const dict = I18N_DICT[locale]
-  if(dict){
-    I18nLib.translator.add(dict);
-  }else{
-    initTranslator(DEFAULT_LOCALE);
+// code => values
+let dict = {'en': {}, 'zh-CN': {}};
+let selectedValues = undefined;
+
+function selectLocale(locale) {
+  if (dict.hasOwnProperty(locale)) {
+    selectedValues = dict[locale];
+  } else {
+    selectedValues = dict[DEFAULT_LOCALE];
   }
-}
-
-function append(values) {
-  I18nLib.translator.add({values});
 }
 
 //
@@ -27,7 +22,24 @@ function append(values) {
 //   t(key)
 //   t(keyPart1, keyPart2, ..keyPartN)
 function translate(...parts) {
-  return I18nLib.translator.translate(parts.join('.'));
+  const key = parts.join('.');
+  if (selectedValues[key]) {
+    return selectedValues[key]
+  }
+  return key;
+}
+
+
+function translateAndSubstitude(key, change) {
+  const regExp = /\$\{([^\$\}]+)\}/mg;
+  const it = translate(key);
+  return it.replace(regExp, (match, key) => {
+    if (change.hasOwnProperty(key)) {
+      return change[key];
+    } else {
+      return key;
+    }
+  });
 }
 
 function i18nPage(contextNode){
@@ -64,18 +76,29 @@ function listen() {
   }
 }
 
-function init() {
-  locale = ExtApi.getLocale();
-  initTranslator(locale);
+
+const keyMap = [
+  ['en'   , 'localeEn'],
+  ['zh-CN', 'localeZhCN'],
+];
+
+function init(localeObject, locale) {
+  keyMap.forEach(([code, variableName]) => {
+    if (localeObject.hasOwnProperty(variableName)) {
+      dict[code] = localeObject[variableName];
+    } else {
+      console.error("locale values missing: ", code);
+      dict[code] = {};
+    }
+  });
+  selectLocale(locale || ExtApi.getLocale());
   listen();
 }
 
-init();
 
 export default {
-  DEFAULT_LOCALE: DEFAULT_LOCALE,
-  locale: locale,
-  append: append,
+  init: init,
   t: translate,
+  s: translateAndSubstitude,
   i18nPage: i18nPage,
 }

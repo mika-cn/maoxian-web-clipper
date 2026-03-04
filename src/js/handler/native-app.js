@@ -1,9 +1,8 @@
 "use strict";
-
 import ENV         from '../env.js';
 import T           from '../lib/tool.js';
 import Log         from '../lib/log.js';
-import I18N        from '../lib/translation.js';
+import ExtApi      from '../lib/ext-api.js';
 import MxWcStorage from '../lib/storage.js';
 import SavingTool  from '../saving/new-saving-tool.js';
 
@@ -14,14 +13,13 @@ import {
   RefreshHistoryMessage,
 } from '../saving/native-app-message.js';
 
-
 // After we change NativeMessage as an optional permission,
 // we shouldn't cache the 'get.version' message,
 // so we always get the latest state of NativeApp.
 //
 // const typesToCache = ['get.version'];
 const typesToCache = [];
-const Client = new NativeAppClient(browser.runtime, typesToCache);
+const Client = new NativeAppClient(ExtApi.runtime, typesToCache);
 
 function disconnect(callback) {
   Client.disconnect(callback);
@@ -197,26 +195,33 @@ function updateDownloadFolder(downloadFolder) {
 
 
 function handleClippingResult(it) {
-  it.url = T.toFileUrl(it.filename);
+  it.url = T.toLocalUrl(it.filename);
   return it;
 }
 
 
 async function getInfo(callback) {
-  const r = await getVersionAsync();
+  let r;
+  try {
+    r = await getVersionAsync();
+  } catch (error) {
+    r = {ok: false, message: error.message};
+  }
+
   let ready = false, message = '';
   if(r.ok) {
     if(!T.isVersionGteq(r.version, ENV.minNativeAppVersion)) {
-      message = I18N.t('g.error.handler.native-app.version')
-        .replace('$requiredVersion', ENV.minNativeAppVersion)
-        .replace('$currentVersion', r.version);
+      message = Global.I18N.s('native-app.version-invalid', {
+        requiredVersion: ENV.minNativeAppVersion,
+        currentVersion: r.version,
+      });
     } else {
       ready = true;
     }
   } else {
     message = [
       r.message,
-      I18N.t('g.error.handler.native-app.install'),
+      Global.I18N.t('native-app.not-installed'),
     ].join('<br />');
   }
 
