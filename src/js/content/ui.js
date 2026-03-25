@@ -54,6 +54,7 @@ function throwIframeError(error) {
   const message = [
     "Unexpected error accured when loading MaoXian UI (frame) " + this.element.id,
     error.message,
+    error.stack,
     "Please force refresh current web page (Ctrl + F5) and try again. If it still not work, try restart your browser"
   ].join(", ");
   Notify.error(message);
@@ -564,7 +565,7 @@ async function submitForm(msg){
 
 function notifyErrorAndExit(error) {
   Log.error(error);
-  Notify.error(error.message);
+  Notify.errorWithStack(error);
   T.emitPageChangedEvent();
   ignoreFrameMsg();
   unbindListener();

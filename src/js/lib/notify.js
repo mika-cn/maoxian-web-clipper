@@ -14,6 +14,8 @@ function style(){
       min-width: 200px;
       width: auto;
       height: auto;
+      max-height: 500px;
+      overflow-y: auto;
       right: 10px;
       top: 111px;
       z-index: 9999999;
@@ -119,6 +121,15 @@ function danger(content) {
   })
 }
 
+function errorWithStack(error) {
+  const content = `Error: \n${error.message}\n\nStack:\n${error.stack}`;
+  add(content, {
+    type: 'danger',
+    behavior: 'manualDismiss'
+  })
+}
+
+
 /*
  * options: {
  *   type: 'success'(default), 'danger'
@@ -219,7 +230,8 @@ function generateId(){
 const Notify = {
   getContainer: getContainer,
   success: success,
-  error: danger
+  error: danger,
+  errorWithStack: errorWithStack,
 }
 
 export default Notify;
