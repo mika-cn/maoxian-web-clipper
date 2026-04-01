@@ -80,4 +80,7 @@ describe("CSS selector text", () => {
   changeTo("::unknown-element-name", "*");
   changeTo(":host(#id)[attr=value]:first-child[open]", "[attr=value]:first-child");
 
+  // nested css functions, just keep it
+  changeTo("it[max(3, min(2, *v)]", "*");
+
 });

@@ -48,7 +48,7 @@ function bump_version_json() {
   new_version=$2
   full_path=$(realpath $file_path)
   tmp_path="$(dirname $full_path)/__new_version_tmp_file__"
-  cat $full_path | sed -E "s/^  \"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+(.[[:digit:]])?\"/  \"version\": \"${new_version}\"/" > $tmp_path
+  cat $full_path | sed -E "s/^  \"version\": \"[[:digit:]]+.[[:digit:]]+.[[:digit:]]+(.[[:digit:]]+)?\"/  \"version\": \"${new_version}\"/" > $tmp_path
   mv $tmp_path $full_path
 }
 
@@ -57,7 +57,7 @@ function bump_version_js() {
   new_version=$2
   full_path=$(realpath $file_path)
   tmp_path="$(dirname $full_path)/__new_version_tmp_file__"
-  cat $full_path | sed -E "s/^  version: '[[:digit:]]+.[[:digit:]]+.[[:digit:]]+(.[[:digit:]])?'/  version: '${new_version}'/" > $tmp_path
+  cat $full_path | sed -E "s/^  version: '[[:digit:]]+.[[:digit:]]+.[[:digit:]]+(.[[:digit:]]+)?'/  version: '${new_version}'/" > $tmp_path
   mv $tmp_path $full_path
 }
 
