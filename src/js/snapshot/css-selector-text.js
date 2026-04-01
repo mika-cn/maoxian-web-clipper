@@ -142,9 +142,26 @@ const PSEUDO_ELEMENTS_DICT = {
  *
  * 2. using the universal selector(*) if the edited selector become empty.
  *
+ *
+ * Note that we are not fully parsing the selector text
+ * (css functions in each parts is not processed),
+ * So in the case that the parser throwing an Error,
+ * We just return global selector(*),
+ * These rules will be saved,
+ * it's OK, we just save a unused stylesheet rule, not a big deal.
  */
 function simplify(selectorText) {
-  return editSelectorText(selectorText, attrModifier, pseudoModifier);
+  try {
+    return editSelectorText(selectorText, attrModifier, pseudoModifier);
+  } catch (e) {
+    // something unexped happened
+    // or we can't process this selectorText correctly
+    // just accept this selectorText
+    console.warn("Something went wrong when editSelectorText()")
+    console.warn(e.message);
+    console.warn(e.stack);
+    return "*";
+  }
 }
 
 
@@ -676,7 +693,6 @@ class Matcher {
       selectorTextArgInvalid = true;
     }
 
-    // FIXME adding catch ?
     const simplifiedSelectorText = simplify(selectorText);
 
     if (simplifiedSelectorText === selectorText) {
