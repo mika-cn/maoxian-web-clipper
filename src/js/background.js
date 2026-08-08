@@ -181,6 +181,25 @@ function getBuiltinCommand(commandName) {
       }
     case '_openLastClipping':
       return {exec: 'openLastClippingResult'}
+
+    case '_openExtPage_home':
+      return {
+        exec: 'openExtensionPage',
+        args: ['home']
+      }
+
+    case '_openExtPage_setting':
+      return {
+        exec: 'openExtensionPage',
+        args: ['setting']
+      }
+
+    case '_openExtPage_history':
+      return {
+        exec: 'openExtensionPage',
+        args: ['history']
+      }
+
     default: break;
   }
 
@@ -583,7 +602,6 @@ function startClip(...args) {
     () => {}, handleError);
 }
 
-
 async function openLastClippingResult() {
   const lastClippingResult = await MxWcStorage.get('lastClippingResult');
   if (!lastClippingResult) { return; }
@@ -610,7 +628,18 @@ async function openLastClippingResult() {
   }
 }
 
-const CommandFnDict = {doNothing, startClip, openLastClippingResult};
+function openExtensionPage(extPageName) {
+  const pageUrl = MxWcLink.get(['extPage', extPageName].join('.'));
+  ExtApi.createTab(pageUrl);
+}
+
+
+const CommandFnDict = {
+  doNothing,
+  startClip,
+  openLastClippingResult,
+  openExtensionPage,
+};
 
 
 async function backupToFile() {

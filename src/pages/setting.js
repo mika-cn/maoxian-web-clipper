@@ -14,6 +14,29 @@ import MxWcTemplate from '../js/lib/template.js';
 import Notify       from '../js/lib/notify.js';
 import MxWcHandler  from '../js/lib/handler.js';
 
+const PERMISSIONS_NATIVE_APP = ["nativeMessaging"];
+const PERMISSIONS_USER_SCRIPTS = ["userScripts"];
+const PERMISSIONS_NATIVE_APP_IDX = 0;
+const PERMISSIONS_USER_SCRIPTS_IDX = 1;
+
+const optionPermissionsTable = [
+  {
+    selector: "#setting-handler-native-app .permissions",
+    permissions: PERMISSIONS_NATIVE_APP,
+    i18n_granted: "notice.success.permissions-granted",
+    i18n_not_granted: "notice.danger.native-app-permissions-not-granted",
+    requestBtnFn: requestNativeAppPermissionsAndRerender,
+    removeBtnFn: removeNativeAppPermissionsAndRerender,
+  },
+  {
+    selector: "#setting-user-script .permissions",
+    permissions: PERMISSIONS_USER_SCRIPTS,
+    i18n_granted: "notice.success.permissions-granted",
+    i18n_not_granted: "notice.danger.user-scripts-permissions-not-granted",
+    requestBtnFn: requestUserScriptsPermissionsAndRerender,
+    removeBtnFn: removeUserScriptsPermissionsAndRerender,
+  },
+];
 
 function listenMessage() {
   ExtMsg.listen('setting', function(msg) {
@@ -1403,6 +1426,15 @@ function renderSectionUserScript(id, container, template) {
   T.setHtml(container, html);
   const refreshBtn = T.findElem('refresh-user-scripts');
   T.bindOnce(refreshBtn, 'click', renderUserScripts);
+  if (MxWcLink.isChrome()) {
+    const extraStep = T.queryElem('.user-script-chromium-extra-step');
+    showElement(extraStep);
+  } else {
+    // Firefox
+    const permissions = T.queryElem("#setting-user-script .permissions");
+    renderPermissionsFragment(PERMISSIONS_USER_SCRIPTS_IDX);
+  }
+
   renderUserScripts();
 }
 
@@ -1431,6 +1463,25 @@ function renderUserScripts() {
     }
   });
 }
+
+async function requestUserScriptsPermissionsAndRerender() {
+  const granted = await ExtApi.requestPermissions(
+    {permissions: PERMISSIONS_USER_SCRIPTS});
+  if (granted) {
+    renderPermissionsFragment(PERMISSIONS_USER_SCRIPTS_IDX);
+  }
+}
+
+async function removeUserScriptsPermissionsAndRerender() {
+  const removed = await ExtApi.removePermissions(
+    {permissions: PERMISSIONS_USER_SCRIPTS});
+  if (removed) {
+    renderPermissionsFragment(PERMISSIONS_USER_SCRIPTS_IDX);
+  }
+}
+
+
+
 
 function renderSectionUserCommand(id, container, template) {
   const html = template;
@@ -1474,52 +1525,54 @@ async function renderSectionHandlerNativeApp(id, container, template) {
     initSettingHandlerNativeApp(config);
   });
 
-  const granted = await renderNativeAppPermissions();
+  const granted = await renderPermissionsFragment(PERMISSIONS_NATIVE_APP_IDX);
   if (granted) {
     renderNativeAppStatus();
   }
 }
 
-const NATIVE_APP_PERMISSIONS = {permissions: ["nativeMessaging"]};
-async function renderNativeAppPermissions() {
-  const granted = await ExtApi.containsPermissions(NATIVE_APP_PERMISSIONS);
 
-  const wrapper = T.queryElem('#setting-handler-native-app .permissions');
-  const requestBtn = T.findElem('request-native-app-permissions');
-  const removeBtn = T.findElem('remove-native-app-permissions');
+async function renderPermissionsFragment(permissionIdx) {
+  const it = optionPermissionsTable[permissionIdx];
+  const granted = await ExtApi.containsPermissions({permissions: it.permissions});
 
+  const wrapper    = T.queryElem(it.selector);
+  const requestBtn = T.queryElem('.request-permissions', wrapper);
+  const removeBtn  = T.queryElem('.remove-permissions' , wrapper);
+
+  showElement(wrapper);
   if (granted) {
-    const msg = I18N.t('notice.success.permissions-granted');
+    const msg = I18N.t(it.i18n_granted);
     renderNoticeBox(wrapper, 'success', msg);
     renderNoticeBox(wrapper, 'danger', '$BLANK');
     hideElement(requestBtn);
     showElement(removeBtn);
-    T.bindOnce(removeBtn, 'click', removeNativeAppPermissionsAndRerender);
+    T.bindOnce(removeBtn, 'click', it.removeBtnFn);
   } else {
-    const msg = I18N.t('notice.danger.native-app-permissions-not-granted');
+    const msg = I18N.t(it.i18n_not_granted);
     renderNoticeBox(wrapper, 'success', '$BLANK');
     renderNoticeBox(wrapper, 'danger', msg);
     showElement(requestBtn);
     hideElement(removeBtn);
-    T.bindOnce(requestBtn, 'click', requestNativeAppPermissionsAndRerender);
+    T.bindOnce(requestBtn, 'click', it.requestBtnFn);
   }
-
   return granted;
 }
 
-
 async function requestNativeAppPermissionsAndRerender() {
-  const granted = await ExtApi.requestPermissions(NATIVE_APP_PERMISSIONS);
+  const granted = await ExtApi.requestPermissions(
+    {permissions: PERMISSIONS_NATIVE_APP});
   if (granted) {
     // rerender
-    renderNativeAppPermissions();
+    renderPermissionsFragment(PERMISSIONS_NATIVE_APP_IDX);
     renderNativeAppStatus();
   }
 }
 
 
 async function removeNativeAppPermissionsAndRerender() {
-  const removed = await ExtApi.removePermissions(NATIVE_APP_PERMISSIONS);
+  const removed = await ExtApi.removePermissions(
+    {permissions: PERMISSIONS_NATIVE_APP});
   if (removed) {
     // disconnect Native App
     try {
@@ -1527,7 +1580,7 @@ async function removeNativeAppPermissionsAndRerender() {
       await ExtMsg.sendToBackground(message);
     } catch(e){}
     // rerender
-    renderNativeAppPermissions();
+    renderPermissionsFragment(PERMISSIONS_NATIVE_APP_IDX);
     hideNativeAppStatus();
   }
 }

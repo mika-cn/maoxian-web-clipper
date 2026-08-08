@@ -39,6 +39,7 @@ wrapAPIsToObj(_, [
   'tabs',
   'commands',
   'scripting',
+  'userScripts',
   'declarativeNetRequest',
   'webNavigation',
   'offscreen',
@@ -316,6 +317,33 @@ ExtApi.unregisterContentScripts = (filter) => {
   return _.scripting.unregisterContentScripts(filter);
 }
 
+/*****************************
+ * UserScripts
+ *****************************/
+ExtApi.isUserScriptsAvailable = () => {
+  try {
+    // Method call which throws
+    // if API permission or toggle is not enabled
+    _.userScripts.getScripts();
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+ExtApi.configUserScriptsWorld = () => {
+  if (ExtApi.isUserScriptsAvailable()) {
+    const world = {
+      messaging: false,
+      csp: "script-src: 'self'",
+    };
+    _.userScripts.configureWorld(world);
+  }
+}
+
+ExtApi.executeUserScript = (injection) => {
+  return _.userScripts.execute(injection);
+}
 
 /*****************************
  * declarativeNetRequest

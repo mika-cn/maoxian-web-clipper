@@ -3,13 +3,10 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "author": "Mika",
-  "version": "0.7.85",
+  "version": "0.8.0",
   "default_locale": "en",
   "permissions": [],
-  "optional_permissions": [
-    "nativeMessaging",
-    "cookies"
-  ],
+  "optional_permissions": [],
   "host_permissions": [
     "https://*/*",
     "http://*/*"

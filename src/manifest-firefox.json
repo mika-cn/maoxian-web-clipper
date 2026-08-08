@@ -9,6 +9,11 @@
     "declarativeNetRequestWithHostAccess",
     "scripting"
   ],
+  "optional_permissions": [
+    "userScripts",
+    "nativeMessaging",
+    "cookies"
+  ],
   "background": {
     "scripts": ["js/background.js"],
     "type": "module"
