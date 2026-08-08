@@ -45,17 +45,28 @@ function messageHandler(message, sender) {
 }
 
 async function executeScript(scriptName, args, {tabId, frameId}) {
-  throw new Error("execute user scripts is not supported yet (manifest V3)");
-  // We are waiting for userScripts.execute method to be implement
-  // by browsers.
+  if (ExtApi.isUserScriptsAvailable()) {
+    const script = await getWrappedScript(scriptName, args);
+    const injection = {
+      injectImmediately: true,
+      js: [{code: script}],
+      target: {
+        tabId: tabId,
+        allFrames: false,
+        frameIds: [frameId],
+      },
+      world: "USER_SCRIPT",
+    };
 
-  /*
-  const script = await getWrappedScript(scriptName, args);
-  return  ExtApi.executeContentScript(tabId, {
-    frameId, code: script, runAt: 'document_idle'});
-    */
+    const result = await ExtApi.executeUserScript(injection);
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    return result;
+  } else {
+    throw new Error("Executing user scripts is not supported in this browser, or you're not enable it yet");
+  }
 }
-
 
 async function getWrappedScript(scriptName, args = []) {
   const argsJson = JSON.stringify(args);
@@ -109,5 +120,6 @@ async function getUserScript(scriptName) {
 export default function init(global) {
   ExtMsg.listenBackend('backend.assistant', messageHandler);
   PlanRepository.init(global);
+  ExtApi.configUserScriptsWorld();
   Log.debug("MX backend: Assistant initialized");
 }

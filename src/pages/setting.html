@@ -19,8 +19,7 @@
           <a class="menu" href="#setting-html" i18n="title.html"></a>
           <a class="menu" href="#setting-markdown" i18n="title.markdown"></a>
           <a class="menu" href="#setting-assistant" i18n="title.assistant"></a>
-          <!-- Manifest V3 blocks user scripts -->
-          <!--<a class="menu" href="#setting-user-script" i18n="title.user-script"></a>-->
+          <a class="menu" href="#setting-user-script" i18n="title.user-script"></a>
           <a class="menu" href="#setting-user-command" i18n="title.user-command"></a>
           <a class="menu" href="#setting-advanced" i18n="title.advanced"></a>
           <hr />
@@ -446,6 +445,9 @@ const hello = () =&gt; {
             <br />
             <input id="permission-cookies" type="checkbox" data-permission="cookies"/>
             <label for="permission-cookies" i18n="permission.cookies"></label>
+            <br />
+            <input id="permission-userScripts" type="checkbox" data-permission="userScripts"/>
+            <label for="permission-userScripts" i18n="permission.user-scripts"></label>
             <br /><br />
             <button id="save-optional-permissions" i18n="button.save"></button>
           </div>
@@ -718,7 +720,20 @@ const hello = () =&gt; {
         <h2 class="center" i18n="title.user-script"></h2>
         <h3 i18n="title.user-scripts"></h3>
         <div class="notice-info" i18n="notice.user-script"></div>
+        <div class="notice-warning" i18n="notice.warning.user-scripts"></div>
+        <div class="permissions hidden">
+          <h3 i18n="title.permissions"></h3>
+          <div class="success-box"></div>
+          <div class="danger-box"></div>
+          <button class="request-permissions hidden" i18n="button.request-permissions"></button>
+          <button class="remove-permissions hidden" i18n="button.remove-permissions"></button>
+        </div>
+        <div class="user-script-chromium-extra-step hidden">
+          <br>
+          <div class="notice-info" i18n="notice.user-script.chromium-extra-step"></div>
+        </div>
         <div class="user-script">
+          <br><br>
           <table>
             <thead>
               <tr>
@@ -1299,8 +1314,8 @@ const hello = () =&gt; {
           <h3 i18n="title.permissions"></h3>
           <div class="success-box"></div>
           <div class="danger-box"></div>
-          <button class="hide" id="request-native-app-permissions" i18n="button.request-native-app-permissions"></button>
-          <button class="hide" id="remove-native-app-permissions" i18n="button.remove-native-app-permissions"></button>
+          <button class="hide request-permissions" i18n="button.request-permissions"></button>
+          <button class="hide remove-permissions" i18n="button.remove-permissions"></button>
         </div>
         <div class="status">
           <h3 i18n="title.status"></h3>

@@ -6,10 +6,7 @@
   "version": "0.7.85",
   "default_locale": "en",
   "permissions": [],
-  "optional_permissions": [
-    "nativeMessaging",
-    "cookies"
-  ],
+  "optional_permissions": [],
   "host_permissions": [
     "https://*/*",
     "http://*/*"

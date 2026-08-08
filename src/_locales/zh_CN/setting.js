@@ -11,6 +11,7 @@ const values = {
   "permission.cookies": "<strong>cookies</strong><br>允许获取 cookie ，可在发送请求时带上，以通过文件服务器的限制",
   "permission.DNR-with-host-access": "<strong>declarativeNetRequestWithHostAccess</strong><br>允许编辑『禁止修改的请求头』，主要用于修改 Referer 请求头，以通过文件服务器的限制",
   "permission.native-messaging": "<strong>nativeMessaging</strong><br>允许和『本地程序』进行通信",
+  "permission.user-scripts": "<strong>userScripts</strong><br>执行『用户脚本』以修改要裁剪的网页",
   "permission.granted": "已授予权限",
   "permission.denied": "已拒绝权限请求",
   "permission.removed": "已移除权限",
@@ -260,9 +261,12 @@ const values = {
   "notice.warning.offline-page.native-app": "$BLANK",
   "notice.warning.refresh-history.native-app": "$BLANK",
 
+  "notice.warning.user-scripts": "『用户脚本』可能非常危险，特别是网络上随意下载的脚本。你应该只使用自己信任的脚本，请在使用前，认真查看其源代码，以免被恶意脚本伤害。",
+
   "notice.danger.download-request-intercepted": "下载请求被拦截或修改，当前无法使用浏览器的下载功能来保存裁剪下来的文件。通常情况是你的浏览器开发了特殊的下载管理功能（这个管理功能拦截了所有下载请求），或者是你安装了某个下载管理扩展（这个扩展拦截所有的下载请求）。错误信息： ${errMsg}",
   "notice.danger.native-app-permissions-not-granted": "『本地程序』需要一个叫“与安装在电脑上的其他程序通讯” 的权限，才能正常工作。你必须先授予这个权限，才能使用『本地程序』",
   "notice.danger.native-app-not-ready": "「本地程序」当前不可用 <br />错误信息： ${errMsg}",
+  "notice.danger.user-scripts-permissions-not-granted": "『用户脚本』需要一个叫 “执行第三方脚本”的权限，才能正常工作。你必须先授予这个权限，才能正常使用『用户脚本』功能",
 
   "notice.danger.wiz-note-plus-ready": "成功连接为知笔记。",
   "notice.danger.wiz-note-plus-not-ready": "为知笔记当前不可用，错误日志：${errMsg} <br /> 很可能「为知笔记」没有启动。如果你尚未安装，请查看 <a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>安装页面<a/>",
@@ -277,8 +281,8 @@ const values = {
   "button.backup-to-file": "备份设置到文件",
   "button.restore-from-file": "从文件中恢复设置",
   "button.test": "测试",
-  "button.request-native-app-permissions": "授予权限",
-  "button.remove-native-app-permissions": "取消授权",
+  "button.request-permissions": "授予权限",
+  "button.remove-permissions": "取消授权",
   "button.native-app-reload": "重新加载",
 
   // notice
@@ -318,6 +322,7 @@ const values = {
   "notice.refresh-history": "当你有两个裁剪源（比如：一台电脑上的两个浏览器或两台电脑上的浏览器）并且想让浏览器上的裁剪历史保持最新的时候，这一项非常有用。",
   "notice.assistant-intro": "使用「毛线助手」，我们可以对于某个网站的网页，预先定义一个「计划」，该计划包含一系列「动作」。当你对这个网站的网页进行裁剪时，该计划就会运用到网页上面。目前支持的「动作」包括： 选中元素、隐藏元素、显示元素以及修改元素的属性。",
   "notice.user-script": '毛线用户脚本（自定义脚本）被用于修改网页的状态（特别是一些复杂的操作）。你可以 <a href="go.page:execute-user-script" target="_blank">使用『毛线助手』来执行用户脚本</a>。<br>注意我们这里说的用户脚本和用户脚本扩展（像：violentMonkey）执行的是不一样的，不要搞混咯。<br><br>你需要在本地的一个文件夹内管理毛线用户脚本，并通过点击下方链接，把其同步到 MaoXian 扩展里。<br><br><a href="go.page:write-user-script" target="_blank">如何编写用户脚本</a>',
+  "notice.user-script.chromium-extra-step": 'Chrome或Chromium 浏览器用户，需要启用『用户脚本API』才能正常使用『用户脚本』功能。<br><ul><li>首先：你需要先到扩展中心页面（chrome://extensions）。</li><li>然后：如果你的浏览器版本大于等于 138，点进去 MaoXian 扩展的详情页面，点击“允许用户脚本”。如果你的版本小于 138，请先升级你的浏览器，否则，你需要在扩展中心启用开发者模式（对象为所有扩展），才能使用『用户脚本』功能。</li></ul>',
   "notice.user-commands": '用户命令（自定义命令）可用于自定义快捷键的触发动作，查看<a href="go.page:write-user-command" target="_blank">如何编写自定义命令</a>',
   "notice.shortcuts": "在这一小节，你可以设置每个插槽所执行的命令， 可以填写内置命令，也可以填写用户命令。<br> 如果你要设置每个插槽对应的快捷键，可以在浏览器的扩展中心找到设置入口",
   "notice.public-plan-intro": "「公开的计划列表」是由 众多 MaoXian 用户分享而来的。你可以通过订阅这些列表来获取大家分享的「计划」。",
