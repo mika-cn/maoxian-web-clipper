@@ -11,6 +11,7 @@ const values = {
   "permission.cookies": "<strong>cookies</strong><br>Get cookies to send with requests to pass server restriction",
   "permission.DNR-with-host-access": "<strong>declarativeNetRequestWithHostAccess</strong><br>Enable editing forbidden request headers for web page relative files(images, fonts etc..) requests, so that we can pass the server restriction",
   "permission.native-messaging": "<strong>nativeMessaging</strong><br>Exchange messages with NativeApp",
+  "permission.user-scripts": "<strong>userScripts</strong><br>Execute user scripts to modify web pages",
   "permission.granted": "Permission granted",
   "permission.denied": "Permission request denied",
   "permission.removed": "Permission removed",
@@ -262,9 +263,12 @@ const values = {
   "notice.warning.offline-page.native-app": "$BLANK",
   "notice.warning.refresh-history.native-app": "$BLANK",
 
+  "notice.warning.user-scripts": "User scripts can be very dangerous, especially those that written by random people on the internet. So you should only use those that you can trust",
+
   "notice.danger.download-request-intercepted": "The download request was intercepted, We can't use the browser to download clipped files. This happens when the browser you are using have developed some download manager function (which intercept all download requests) or you have installed a download manager extension (which intercept all download requests). ErrMsg: ${errMsg}",
   "notice.danger.native-app-permissions-not-granted": "Native App require a permission called \"<strong>Exchange messages with programs other than the browser</strong>\" to work correctly, you must grant this permission first",
   "notice.danger.native-app-not-ready": "Native App is not ready yet.<br />ErrorMessage: ${errMsg}",
+  "notice.danger.user-scripts-permissions-not-granted": "User scripts require a permission called \"<strong>Allow unverified third-party scripts to access your data</strong>\" to work correctly, you must grant this permission first",
 
   "notice.danger.wiz-note-plus-ready": "Connected to WizNotePlus successfully.",
   "notice.danger.wiz-note-plus-not-ready": "WizNotePlus is not ready yet, error message: ${errMsg}. <br />It seems like you haven't open it. If you haven't install it, please visit: (<a href='https://github.com/altairwei/WizNotePlus/releases' target='_blank'>How to install it</a>)",
@@ -279,8 +283,8 @@ const values = {
   "button.backup-to-file": "Backup to file",
   "button.restore-from-file": "Restore from file",
   "button.test": "Test",
-  "button.request-native-app-permissions": "Grant permissions",
-  "button.remove-native-app-permissions": "Remove permissions",
+  "button.request-permissions": "Grant permissions",
+  "button.remove-permissions": "Remove permissions",
   "button.native-app-reload": "Reload",
 
 
@@ -322,6 +326,7 @@ const values = {
   "notice.refresh-history": "This is useful when you have two clipping sources(e.g. two browsers on same computer or different computers) and want to keep clipping history latest.",
   "notice.assistant-intro": "Using MaoXian Assistant, you can predefine some actions in a plan, and this plan will be applied to the webpage that you're going to clip. These actions includes picking an element, hiding an element, showing an element and changing attributes of an element.",
   "notice.user-script": 'User scripts are custom scripts that used to modify the web page\'s state. you can <a href="go.page:execute-user-script" target="_blank">execute user scripts using MaoXian Assistant</a>. <br> Note that these user scripts are not the same as those executing by user script extensions (violentMonkey for example)<br><br>You manage user scripts inside a local directory, and synchronize that directory to MaoXian<br><br><a href="go.page:write-user-script" target="_blank">How to write user scripts</a>',
+  "notice.user-script.chromium-extra-step": 'Chrome/Chromium requires you to enable usage of userScripts API on extensions center.<br> <ul><li>First, you need to open the extensions center (chrome://extensions).</li><li>Second, if your browser version is bigger or equals to 138, go to the detail page of MaoXian Web Clipper and click the "Allow User Scripts" checkbox. or if your version is below 138, please upgrade your browser first or you\'ll need to enable developer mode (for all extensions) to enable UserScripts API</li><ul>',
   "notice.user-commands": 'User commands are commands that defined by you.<br>you can assign these commands to shortcut slots (see below)<br>Learn <a href="go.page:write-user-command" target="_blank">how to write a user command</a>',
   "notice.shortcuts": "Here you can configure the command to a shortcut slot, You can use either builtin commands or user commands. <br>You can set a slot's key through your browser's extension/addon center",
   "notice.public-plan-intro": "Public Plans are contributed by every MaoXian user. so that more people can use it.",

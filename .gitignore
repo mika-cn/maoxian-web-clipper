@@ -1,6 +1,6 @@
-
 .vscode
 .ignore/
+Makefile
 yarn-error.log
 node_modules/
 dist/extension/maoxian-web-clipper

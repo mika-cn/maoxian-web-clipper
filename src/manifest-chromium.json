@@ -8,7 +8,12 @@
     "downloads.open",
     "declarativeNetRequestWithHostAccess",
     "scripting",
+    "userScripts",
     "offscreen"
+  ],
+  "optional_permissions": [
+    "nativeMessaging",
+    "cookies"
   ],
   "background": {
     "service_worker": "js/background.js",
@@ -34,6 +39,7 @@
       "world": "MAIN"
     }
   ],
+  "minimum_chrome_version": "120",
   "key": "CHROME_DEPLOY_PUBKEY",
   "update_url": "SELF_HOST_UPDATE_URL"
 }
