@@ -52,7 +52,7 @@ function appendIframe(){
 function throwIframeError(error) {
   console.error("MXWC.UI: ", error);
   const message = [
-    "Unexpected error accured when loading MaoXian UI (frame) " + this.element.id,
+    "Unexpected error occurred when loading MaoXian UI (frame) " + this.element.id,
     error.message,
     error.stack,
     "Please force refresh current web page (Ctrl + F5) and try again. If it still not work, try restart your browser"
