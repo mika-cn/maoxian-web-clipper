@@ -3,10 +3,10 @@
 
 ## Branches intro
 
-There are two main branches called "master" and "develop".
+There are two main branches called "main" and "dev".
 
-* "master" is the production branch, this is where the published extension was built from.
-* "develop" is the development branch, this is where you create your own branch from and send pull request to.
+* "main" is the production branch, this is where the published extension was built from.
+* "dev" is the development branch, this is where you create your own branch from and send pull request to.
 
 
 ## Get involved
@@ -20,23 +20,17 @@ Generally, it's a good practise to open an issue before you dive into the code. 
 
 ```shell
 git clone https://github.com/@your_user_name/maoxian-web-clipper.git
-git checkout develop
+git checkout dev
 git checkout -b feat/my-own-branch
 ```
 
 
 ### step 1. install dependencies
 
-Note that the develop environment of node is 18.15.0 (with npm 9.5.0). You better installing a latest stable one.
+You need to have node and yarn installed first, then just run:
 
 ```shell
-npm install
-```
-
-If you want to use `web-ext` to run this project which is highly recommended. you need to install `web-ext`, run belowing command to install it.
-
-```shell
-npm install -g web-ext
+yarn install
 ```
 
 ### step 2. define the required environment variables
@@ -55,56 +49,28 @@ export MX_DEV_CHROMIUM_UPDATE_URL=""
 export MX_DEV_FIREFOX_ID="maoxian-web-clipper@dev.whatever.org"
 ```
 
-### step 3. watch the project
+### step 3. build the project
 
+To build the extension,
 
 For Firefox, run:
 
 ```shell
-npm run watch-firefox
+npm run build-firefox
 ```
 
 For Chromium, run:
 
 ```shell
-npm run watch-chromium
+npm run build-chromium
 ```
 
-The watch command will watch the project's code and automatically compile it.  All compiled code will be placed in `dist/extension/maoxian-web-clipper`.
-
-### step 4. run the project
-
-In this step, we will install MaoXian (sources in `dist/extension/maoxian-web-clipper`) to the browser. There are two methods to install it.
-
-**method A: install it using `web-ext` command.**
-
-Make sure you have installed `web-ext`, runing the belowing command to check:
-
-```shell
-web-ext --version
-```
-
-after that, change directory to project's root directory, then run the command according to your browser:
-
-For Firefox, run:
-
-```shell
-npm run dev-firefox
-```
-
-For Chromium, run:
-
-```
-npm run dev-chromium
-```
-
-The command above will automatically start the target browser (with a temporary profile) and install MaoXian on it. after that, it'll watch the prject and automatically reload the extension when source files change.
-
-Use `npm run dev-firefox-lazy` or `npm run dev-chromium-lazy` to disable the auto reload behavior. these two commands are very useful when you are developing a extension page (in this case, you don't need to reload the entire extension but only the target extension page)
+After the building, All compiled code will be placed in `dist/extension/maoxian-web-clipper`.
 
 
+### step 4. install the extension to your browser
 
-**method B: install it manually**
+In this step, we will install MaoXian (sources in `dist/extension/maoxian-web-clipper`) to the browser.
 
 If you use Chromium to developing.
 
@@ -115,12 +81,11 @@ If you use Chromium to developing.
 If you use Firefox to developing.
 
 * Go to debugging page (by visit url: `about:debugging`)
-* Check _Enable add-on debugging_
+* Click _This Firefox_
 * Load Temporary Add-on (select `dist/extension/maoxian-web-clipper`)
 
 
-
-**Testing**
+## Testing
 
 ```shell
 npm test

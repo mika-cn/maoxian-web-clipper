@@ -36,6 +36,6 @@ if [ "$MX_FIREFOX_ID" = "" ]; then
   exit 1
 fi
 
-npm run build-all
+npm run build-all-production
 
 exit 0
