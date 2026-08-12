@@ -1,4 +1,8 @@
 /*
+ * We just change it to ES6 module (patch v2.19.0)
+ */
+
+/*
  * JavaScript MD5
  * https://github.com/blueimp/JavaScript-MD5
  *
@@ -21,8 +25,6 @@
 
 /* eslint-disable strict */
 
-;(function ($) {
-  'use strict'
 
   /**
    * Add integers, wrapping at 2^32.
@@ -390,13 +392,4 @@
     return rawHMACMD5(key, string)
   }
 
-  if (typeof define === 'function' && define.amd) {
-    define(function () {
-      return md5
-    })
-  } else if (typeof module === 'object' && module.exports) {
-    module.exports = md5
-  } else {
-    $.md5 = md5
-  }
-})(this)
+  export {md5 as default}
