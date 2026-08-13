@@ -1,13 +1,16 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTree = exports.add = void 0;
-const toHex_1 = require("./toHex");
-const tree_1 = require("./tree");
+import toHex_1 from './toHex.js';
+import tree_1  from './tree.js';
+
+const exports = {};
+
 // https://en.wikipedia.org/wiki/List_of_file_signatures
 let tree = {
     noOffset: null,
     offset: {},
 };
+
+
 const add = (typename, signature, additionalInfo, offset) => {
     if (offset) {
         const existing = tree.offset[toHex_1.toHex(offset)];
@@ -28,6 +31,7 @@ const add = (typename, signature, additionalInfo, offset) => {
         }
     }
 };
+
 exports.add = add;
 exports.add("gif", ["0x47", "0x49", "0x46", "0x38", "0x37", "0x61"], {
     mime: "image/gif",
@@ -1171,6 +1175,9 @@ exports.add("avif", ["0x66", "0x74", "0x79", "0x70", "0x61", "0x76", "0x69", "0x
     mime: "image/avif",
     extension: "avif",
 }, 4);
+
 const createTree = () => tree;
 exports.createTree = createTree;
-exports.default = () => tree;
+
+export default createTree;
+export exports;

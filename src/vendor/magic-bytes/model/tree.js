@@ -1,6 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createComplexNode = exports.createNode = exports.merge = void 0;
 const createMatch = (leaf) => ({
     typename: leaf.typename,
     mime: leaf.info.mime,
@@ -33,11 +31,11 @@ const merge = (node, tree) => {
     }
     return tree;
 };
-exports.merge = merge;
+
 const createNode = (typename, bytes, info) => {
     return { typename, bytes, info: info ? info : {} };
 };
-exports.createNode = createNode;
+
 const createComplexNode = (typename, bytes, info) => {
     let obj = {
         bytes: {},
@@ -58,4 +56,5 @@ const createComplexNode = (typename, bytes, info) => {
     obj.bytes[currentKey] = exports.createComplexNode(typename, path, info);
     return obj;
 };
-exports.createComplexNode = createComplexNode;
+
+export {merge, createNode, createComplexNode};

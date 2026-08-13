@@ -1,8 +1,8 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.register = exports.filetypeextension = exports.filetypemime = exports.filetypename = exports.filetypeinfo = void 0;
-const pattern_tree_1 = require("./model/pattern-tree");
-const toHex_1 = require("./model/toHex");
+
+import pattern_tree_1 from "./model/pattern-tree.js"
+import toHex_1        from "./model/toHex.js"
+
 const patternTree = pattern_tree_1.createTree();
 const filetypeinfo = (bytes) => {
     const tree = patternTree;
@@ -24,7 +24,7 @@ const filetypeinfo = (bytes) => {
     }
     return unique(found);
 };
-exports.filetypeinfo = filetypeinfo;
+
 // The nodes hold the only copy of their matches, so they are cloned on the way out.
 // Handing out the originals lets a caller mutating a result corrupt every later
 // detection in the process.
@@ -41,6 +41,7 @@ const unique = (found) => {
     }
     return result;
 };
+
 const walkTree = (index, bytes, node) => {
     let step = node;
     let guessFile = [];
@@ -64,18 +65,22 @@ const walkTree = (index, bytes, node) => {
         index += 1;
     }
 };
-exports.default = exports.filetypeinfo;
+
+
 const filetypename = (bytes) => exports.filetypeinfo(bytes).map((e) => e.typename);
-exports.filetypename = filetypename;
+
 const filetypemime = (bytes) => exports.filetypeinfo(bytes)
     .map((e) => (e.mime ? e.mime : null))
     .filter((x) => x !== null);
-exports.filetypemime = filetypemime;
+
 const filetypeextension = (bytes) => exports.filetypeinfo(bytes)
     .map((e) => (e.extension ? e.extension : null))
     .filter((x) => x !== null);
-exports.filetypeextension = filetypeextension;
+
 const register = (typename, signature, additionalInfo, offset) => {
     pattern_tree_1.add(typename, signature, additionalInfo, offset);
 };
-exports.register = register;
+
+
+export default filetypeinfo;
+export {filetypename, filetypemime, filetypeextension, filetypeinfo, register}

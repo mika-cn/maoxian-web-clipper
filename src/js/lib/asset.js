@@ -4,7 +4,7 @@ import T   from './tool.js';
 import md5 from '../../vendor/blueimp-md5/md5.js'
 import VariableRender from './variable-render.js'
 import ExtMsg from './ext-msg.js';
-import {filetypemime} from 'magic-bytes.js';
+import {filetypemime} from '../../vendor/magic-bytes/index.js';
 
 /**
  * @param {Object} params
