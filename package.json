@@ -5,26 +5,20 @@
   "main": "",
   "type": "module",
   "scripts": {
-    "build-chromium": "cross-env NODE_ENV=development MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_DEV_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_DEV_CHROMIUM_UPDATE_URL_MV3 webpack --mode=development --progress",
-    "build-firefox": "cross-env NODE_ENV=development MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_DEV_FIREFOX_ID webpack --mode=development --progress",
+    "build-chromium": "NODE_ENV=development MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_DEV_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_DEV_CHROMIUM_UPDATE_URL_MV3 node build.js",
+    "build-firefox": "NODE_ENV=development MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_DEV_FIREFOX_ID node build.js",
 
 
-    "build-chromium-production": "cross-env NODE_ENV=production MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_CHROMIUM_UPDATE_URL_MV3 webpack --mode=production --progress",
-    "build-firefox-production": "cross-env NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID webpack --mode=production --progress",
+    "build-chromium-production": "cross-env NODE_ENV=production MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_CHROMIUM_UPDATE_URL_MV3 node build.js",
+    "build-firefox-production": "cross-env NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID node build.js",
     "build-all-production": "npm run build-chromium && npm run build-firefox",
 
-    "test": "mocha --recursive",
+    "test": "NODE_ENV=test mocha --recursive",
 
 
     "sep0": "=======================================================",
     "sep1": "Belowing scripts are for the laze people",
     "sep2": "=======================================================",
-
-
-    "comment-ignore-me_autobuild": "Watch the source code changes and auto build/compile it",
-    "auto-build-chromium": "cross-env NODE_ENV=development MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_DEV_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_DEV_CHROMIUM_UPDATE_URL_MV3 webpack --mode=development --watch --progress",
-    "auto-build-firefox": "cross-env NODE_ENV=development MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_DEV_FIREFOX_ID webpack --mode=development --watch --progress",
-
 
     "comment-ignore-me_autoload": "Start the browser with a temporary profile, and auto reload the extension",
     "auto-reload-chromium": "web-ext run --target chromium --source-dir dist/extension/maoxian-web-clipper",
@@ -39,23 +33,9 @@
   "author": "Mika",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
-    "@babel/plugin-transform-runtime": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
-    "@babel/runtime": "^7.9.2",
-    "babel-loader": "^8.3.0",
-    "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^14.0.0",
-    "cross-env": "^7.0.2",
-    "esm": "^3.2.25",
     "jsdom": "^21.1.1",
     "mocha": "^12.0.0-rc.6",
-    "remove-files-webpack-plugin": "^1.5.0",
-    "sinon-chrome": "^3.0.1",
-    "webpack": "^5.61.0",
-    "webpack-cli": "^4.9.1",
-    "zip-webpack-plugin": "^4.0.3"
+    "sinon-chrome": "^3.0.1"
   },
   "dependencies": {
     "awesomplete": "^1.1.5",

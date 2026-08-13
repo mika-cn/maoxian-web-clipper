@@ -3,6 +3,7 @@
 import pattern_tree_1 from "./model/pattern-tree.js"
 import toHex_1        from "./model/toHex.js"
 
+const exports = {};
 const patternTree = pattern_tree_1.createTree();
 const filetypeinfo = (bytes) => {
     const tree = patternTree;
@@ -24,6 +25,7 @@ const filetypeinfo = (bytes) => {
     }
     return unique(found);
 };
+
 
 // The nodes hold the only copy of their matches, so they are cloned on the way out.
 // Handing out the originals lets a caller mutating a result corrupt every later
@@ -67,13 +69,13 @@ const walkTree = (index, bytes, node) => {
 };
 
 
-const filetypename = (bytes) => exports.filetypeinfo(bytes).map((e) => e.typename);
+const filetypename = (bytes) => filetypeinfo(bytes).map((e) => e.typename);
 
-const filetypemime = (bytes) => exports.filetypeinfo(bytes)
+const filetypemime = (bytes) => filetypeinfo(bytes)
     .map((e) => (e.mime ? e.mime : null))
     .filter((x) => x !== null);
 
-const filetypeextension = (bytes) => exports.filetypeinfo(bytes)
+const filetypeextension = (bytes) => filetypeinfo(bytes)
     .map((e) => (e.extension ? e.extension : null))
     .filter((x) => x !== null);
 

@@ -1178,6 +1178,6 @@ exports.add("avif", ["0x66", "0x74", "0x79", "0x70", "0x61", "0x76", "0x69", "0x
 
 const createTree = () => tree;
 exports.createTree = createTree;
+exports.default = createTree;
 
-export default createTree;
-export exports;
+export default exports;

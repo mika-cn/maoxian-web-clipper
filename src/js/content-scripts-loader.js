@@ -9,12 +9,12 @@ const VERSION = '1.0';
 const ALL_FRAME_SCRIPTS = [
   "/vendor/js/browser-polyfill.js",
   "/vendor/js/css.escape.js",
-  "/js/content-frame.js"
+  "/js/content-frame-loader.js"
 ];
 
 // execute on the top frame only
 const TOP_FRAME_SCRIPTS = [
-  "/js/content.js"
+  "/js/content-loader.js"
 ]
 
 function getScripts() {

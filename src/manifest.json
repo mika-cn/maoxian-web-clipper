@@ -21,7 +21,10 @@
         "pages/ui-selection.js",
         "pages/ui-control.html",
         "pages/ui-control.css",
-        "pages/ui-control.js"
+        "pages/ui-control.js",
+        "_locales/*",
+        "js/*",
+        "vendor/*"
       ],
       "matches": [
         "https://*/*",

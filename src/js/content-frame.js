@@ -220,6 +220,6 @@ function init() {
   }
 }
 
-init();
-Log.debug("content frame init...");
+
+export default {init};
 

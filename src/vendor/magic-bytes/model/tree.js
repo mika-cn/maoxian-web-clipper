@@ -24,10 +24,10 @@ const merge = (node, tree) => {
     }
     // Path exists already, Merge subtree
     if (tree.bytes[currentByte]) {
-        tree.bytes[currentByte] = exports.merge(exports.createNode(node.typename, path, node.info), tree.bytes[currentByte]);
+        tree.bytes[currentByte] = merge(createNode(node.typename, path, node.info), tree.bytes[currentByte]);
     }
     else { // Tree did not exist before
-        tree.bytes[currentByte] = exports.createComplexNode(node.typename, path, node.info);
+        tree.bytes[currentByte] = createComplexNode(node.typename, path, node.info);
     }
     return tree;
 };
@@ -53,8 +53,8 @@ const createComplexNode = (typename, bytes, info) => {
             bytes: {},
         };
     }
-    obj.bytes[currentKey] = exports.createComplexNode(typename, path, info);
+    obj.bytes[currentKey] = createComplexNode(typename, path, info);
     return obj;
 };
 
-export {merge, createNode, createComplexNode};
+export default {merge, createNode, createComplexNode};
