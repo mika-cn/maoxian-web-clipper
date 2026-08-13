@@ -27,11 +27,10 @@ import CapturerSvgA          from '../capturer-svg/a.js';
 import CapturerSvgImage      from '../capturer-svg/image.js';
 import CapturerMxSvgImg      from '../capturer-svg/mx-svg-img.js';
 
-import TurndownService from 'turndown';
-import * as TurndownPluginGfm from 'turndown-plugin-gfm';
+import TurndownService           from '../../vendor/js/turndown.js';
+import * as TurndownPluginGfm    from '../../vendor/js/turndown-plugin-gfm.js';
 import myTurndownPluginGfmTables from '../../vendor/my-turndown-plugin-gfm/table.js'
-
-import Mustache from 'mustache';
+import Mustache                  from '../../vendor/js/mustache.js';
 Mustache.escape = (text) => text;
 
 async function clip(elem, {config, info, storageInfo, i18nLabel, requestParams, pageMetas, frames, win, platform}){

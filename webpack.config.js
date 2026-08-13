@@ -79,13 +79,37 @@ function getCopyItems() {
   });
 
   [
-    ['webextension-polyfill/dist/browser-polyfill.js', 'vendor/js/browser-polyfill.js'],
-    ['css.escape/css.escape.js'    , 'vendor/js/css.escape.js'],
-    ['awesomplete/awesomplete.js'  , 'vendor/js/awesomplete.js']   ,
-    ['pikaday/pikaday.js'          , 'vendor/js/pikaday.js']       ,
-
-    ['awesomplete/awesomplete.css' , 'vendor/css/awesomplete.css'] ,
-    ['pikaday/css/pikaday.css'     , 'vendor/css/pikaday.css']     ,
+    [
+      'webextension-polyfill/dist/browser-polyfill.js',
+      'vendor/js/browser-polyfill.js'
+    ], [
+      'css.escape/css.escape.js',
+      'vendor/js/css.escape.js'
+    ], [
+      'awesomplete/awesomplete.js',
+      'vendor/js/awesomplete.js'
+    ], [
+      'awesomplete/awesomplete.css',
+      'vendor/css/awesomplete.css'
+    ], [
+      'pikaday/pikaday.js',
+      'vendor/js/pikaday.js'
+    ], [
+      'turndown/lib/turndown.browser.es.js',
+      'vendor/js/turndown.js'
+    ], [
+      'turndown-plugin-gfm/lib/turndown-plugin-gfm.browser.es.js',
+      'vendor/js/turndown-plugin-gfm.js'
+    ], [
+      'mustache/mustache.mjs',
+      'vendor/js/mustache.js'
+    ], [
+      'mathml2latex/lib/mathml2latex.browser.es.js',
+      'vendor/js/mathml2latex.js'
+    ], [
+      'pikaday/css/pikaday.css',
+      'vendor/css/pikaday.css'
+    ],
   ].forEach((pair) => {
     const sourceFilename = path.join(npm_folder, pair[0]);
     const targetFilename = path.join(dist_folder, pair[1]);

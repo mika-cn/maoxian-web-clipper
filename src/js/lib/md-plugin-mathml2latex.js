@@ -1,6 +1,6 @@
 "use strict";
 
-import MathML2LaTeX from 'mathml2latex';
+import MathML2LaTeX from '../../vendor/js/mathml2latex.js';
 
 // This plugin recognize MaoXian attribute: 'data-mx-formula-display'
 
