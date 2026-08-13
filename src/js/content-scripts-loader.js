@@ -3,7 +3,7 @@ import ExtApi      from '../js/lib/ext-api.js';
 import ExtMsg      from '../js/lib/ext-msg.js';
 
 // Change version if any of ALL_FRAME_SCRIPTS, TOP_FRAME_SCRIPTS or getScripts() changes
-const VERSION = '1.0';
+const VERSION = '2.0';
 
 // execute on all frames
 const ALL_FRAME_SCRIPTS = [
