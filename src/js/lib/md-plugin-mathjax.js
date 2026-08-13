@@ -1,7 +1,7 @@
 
 
 import T from './tool.js';
-import MathML2LaTeX from 'mathml2latex';
+import MathML2LaTeX from '../../vendor/js/mathml2latex.js';
 
 // Note that this formula only handle MathJAX 2.x
 

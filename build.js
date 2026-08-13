@@ -75,7 +75,7 @@ function getCopyItems() {
 
   // 3rd party js and css
   [
-    ['src/vendor/fnv1a', 'vendor/fnv1a']
+    ['src/vendor', 'vendor']
   ].forEach((pair) => {
     const sourceFilename = path.join(__dirname, pair[0]);
     const targetFilename = path.join(mx_folder, pair[1]);

@@ -5,7 +5,7 @@ import Log       from '../lib/log.js';
 import ExtMsg    from '../lib/ext-msg.js';
 import MxWcEvent from '../lib/event.js';
 
-import {getCssSelector} from 'css-selector-generator';
+import {getCssSelector} from '../../vendor/css-selector-generator/index.js';
 
 const state = {appliedSelection: null};
 
