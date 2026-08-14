@@ -32,7 +32,6 @@ That's it, Not bored registration, Not charged.
 
 Thanks to these awesome libraries for making MaoXian's development become easier.
 
-* [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
 * [JavaScript-MD5](https://github.com/blueimp/JavaScript-MD5)
 * [mustache.js](http://github.com/janl/mustache.js)
 * [turndown](https://github.com/domchristie/turndown)

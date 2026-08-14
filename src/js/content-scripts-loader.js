@@ -7,7 +7,6 @@ const VERSION = '2.0';
 
 // execute on all frames
 const ALL_FRAME_SCRIPTS = [
-  "/vendor/js/browser-polyfill.js",
   "/vendor/js/css.escape.js",
   "/js/content-frame-loader.js"
 ];

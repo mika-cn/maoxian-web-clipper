@@ -84,9 +84,6 @@ function getCopyItems() {
 
   [
     [
-      'webextension-polyfill/dist/browser-polyfill.js',
-      'vendor/js/browser-polyfill.js'
-    ], [
       'css.escape/css.escape.js',
       'vendor/js/css.escape.js'
     ], [

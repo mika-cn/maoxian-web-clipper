@@ -1,25 +1,17 @@
 "use strict";
 
 function getRootObjectOfBrowserExtensionAPI() {
-  // case A:
-  //   If the current browser environment is:
-  //     - Any browser with webextension-polyfill loaded.
-  //     - or just a firefox based browser
-  //
-  // case B:
-  //   Chromium based browser
-  //   without webextension-polyfill loaded
-  try { return browser } catch(e) { // case A
-  try { return chrome  } catch(e) { // case B
-    throw new Error("We couldn't find Browser Extension API root");
-  }};
+  if (typeof(browser) != 'undefined') { return browser; }
+  if (typeof(chrome)  != 'undefined') { return chrome; }
+  throw new Error("We couldn't find Browser Extension API root");
 }
-
 
 function wrapAPIsToObj(obj, apiNames) {
   for (const name of apiNames) {
     const descriptor = {
-      get: () => getRootObjectOfBrowserExtensionAPI()[name]
+      get: () => {
+        return getRootObjectOfBrowserExtensionAPI()[name]
+      }
     };
     Object.defineProperty(obj, name, descriptor);
   }
@@ -325,7 +317,7 @@ ExtApi.isUserScriptsAvailable = () => {
     // Method call which throws
     // if API permission or toggle is not enabled
     _.userScripts.getScripts();
-    return true;
+    return typeof(_.userScripts.execute) == 'function';
   } catch(e) {
     return false;
   }

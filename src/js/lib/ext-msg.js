@@ -26,6 +26,7 @@ import ExtApi from './ext-api.js';
  *
  */
 
+// @see https://stackoverflow.com/questions/52087734/make-promise-wait-for-a-chrome-runtime-sendmessage
 
 // return `true` means we want to use sendResponse()
 // even the listener is executed.
@@ -37,7 +38,6 @@ const MSG_IGNORED_BY_LISTENER = undefined;
 
 
 /*
- * This function needs you to have webextention-polyfill loaded
  *
  * @param {string} target
  * @param {function} listener
@@ -47,10 +47,18 @@ function listen(target, listener) {
   ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // Deprecated: sendResponse
     if(msg.target == target) {
-      // return promise to webextension-polyfill
-      return listener(msg, sender);
+      if (needToUseSendResponse()) {
+        // chromium
+        listener(msg, sender).then(sendResponse, sendResponse).catch((error) => {
+          // Unable to send the response?
+          console.error("listen: Failed to send onMessage rejected reply", err);
+        })
+        return MSG_HANDLED_ASYNC;
+      } else {
+        // firefox
+        return listener(msg, sender);
+      }
     } else {
-      // console.debug("[OtherPageMsg]"," Listening to ", target, ", but Msg's target is", msg.target, msg);
       return MSG_IGNORED_BY_LISTENER
     }
   });
@@ -66,23 +74,17 @@ function listenBackend(target, listener) {
   ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.target == target) {
       const fn = wrapBackendListener(listener);
-      if (!needPolyfill()) {
+      if (needToUseSendResponse()) {
+        // chromium
+        fn(msg, sender).then(sendResponse, sendResponse).catch((error) => {
+          // Unable to send the response?
+          console.error("listenBackend: Failed to send onMessage rejected reply", err);
+        })
+        return MSG_HANDLED_ASYNC;
+      } else {
         // firefox
         return fn(msg, sender);
       }
-
-      // chromium
-      fn(msg, sender).then(
-        (result) => {sendResponse(result)},
-        (error) => {
-          const resp = wrapErrorAsResponseThatRecognizedByPolyfill(error);
-          sendResponse(resp);
-        }
-      ).catch((error) => {
-        // Unable to send the response?
-        console.error("listenBackend: Failed to send onMessage rejected reply", err);
-      })
-      return MSG_HANDLED_ASYNC;
     } else {
       // TODO
       // Because this API is so unstable when add multiple listeners,
@@ -112,26 +114,11 @@ function wrapBackendListener(listener) {
 }
 
 
-// same logic as webextention-polyfill
-// TODO delete me if we don't use webextention-polyfill anymore
-function needPolyfill() {
+function needToUseSendResponse() {
+  // is Chromium
   return (
      typeof browser === 'undefined'
   || Object.getPrototypeOf(browser) !== Object.prototype);
-}
-
-// TODO delete me if we don't use webextention-polyfill anymore
-function wrapErrorAsResponseThatRecognizedByPolyfill(error) {
-  let message;
-
-  // Send a JSON representation of the error if the rejected value
-  // is an instance of error, or the object itself otherwise.
-  if (error && (error instanceof Error || typeof error.message === "string")) {
-    message = error.message;
-  } else {
-    message = "An unexpected error occurred";
-  }
-  return {__mozWebExtensionPolyfillReject__: true, message};
 }
 
 function sendToBackground(msg) {

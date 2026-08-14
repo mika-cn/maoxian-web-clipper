@@ -3,7 +3,6 @@
 ## Home page / Project root
 
 ```project
-webextension-polyfill => https://github.com/mozilla/webextension-polyfill
 JavaScript-MD5        => https://github.com/blueimp/JavaScript-MD5
 i18njs                => http://i18njs.com/
 turndown              => https://github.com/domchristie/turndown
@@ -16,7 +15,6 @@ pikaday               => https://github.com/Pikaday/Pikaday
 ## Lisence
 
 ```lisence
-webextension-polyfill => MPL-2.0
 JavaScript-MD5        => MIT
 i18njs                => UNKNOW
 turndown              => MIT

@@ -1,6 +1,16 @@
 (()=>{
+  let ApiRoot;
+  if (typeof(browser) != 'undefined') {
+    ApiRoot = browser;
+  }
+  else if (typeof(chrome) != 'undefined') {
+    ApiRoot = chrome;
+  } else {
+    throw new Error("We couldn't find Browser Extension API root");
+  }
+
   const path = "/js/content-frame.js";
-  const abs_path = (browser || chrome).runtime.getURL(path);
+  const abs_path = ApiRoot.runtime.getURL(path);
   console.log(abs_path);
   import(abs_path).then((module) => {
     const m = module.default;

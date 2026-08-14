@@ -1,6 +1,7 @@
 
 import T       from './tool.js';
 import Storage from './storage.js';
+import ExtApi  from './ext-api.js';
 
 // Note that: All blob url tasks should saved into storage first.
 async function get(task) {
@@ -32,7 +33,7 @@ async function get(task) {
 // An official API similar to waitUntil() is currently being discussed in the WECG.
 // For more detail, see https://github.com/w3c/webextensions/issues/416
 async function waitUntil(longRunningPromise) {
-  const keepAlive = setInterval(chrome.runtime.getPlatformInfo, 25 * 1000);
+  const keepAlive = setInterval(ExtApi.runtime.getPlatformInfo, 25 * 1000);
   try {
     return await longRunningPromise;
   } finally {
