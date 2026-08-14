@@ -13,7 +13,9 @@
     "build-firefox-production": "cross-env NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID node build.js",
     "build-all-production": "npm run build-chromium && npm run build-firefox",
 
-    "test": "NODE_ENV=test mocha --recursive",
+    "test"     : "npm run test-all",
+    "test-all" : "node test/runner.js test/*/test-*.js",
+    "test-file": "node test/runner.js ",
 
 
     "sep0": "=======================================================",
@@ -34,7 +36,6 @@
   "license": "MIT",
   "devDependencies": {
     "jsdom": "^21.1.1",
-    "mocha": "^12.0.0-rc.6",
     "sinon-chrome": "^3.0.1"
   },
   "dependencies": {

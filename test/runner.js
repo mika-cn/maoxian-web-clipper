@@ -4,39 +4,41 @@ import { fileURLToPath }      from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(path.dirname(__filename));
 
-
-let tests = [];
-let currFileTest = null;
+const state = {
+  currPath: "",
+  currDesc: "",
+  tests: [],
+  index: 0,
+  passed: 0,
+  failed: 0,
+};
 
 function describe(name, fn) {
-  //console.info("<<<< ", name, " >>>>");
+  state.currDesc = name;
   fn();
 }
 
 function test(name, fn) {
-  tests.push({name, fn});
+  state.tests.push({path: state.currPath, desc: state.currDesc, name, fn});
 }
 
 async function run() {
-  let passed = 0;
-  let failed = 0;
 
-  for (let i = 0; i < tests.length; i++) {
-    const t = tests[i];
+  for (; state.index < state.tests.length; state.index++) {
+    const t = state.tests[state.index];
     try {
       await t.fn();
-      passed += 1;
-      //console.info("    ", t.name);
+      state.passed += 1;
+      //console.info("    ", `${t.desc}/${t.name}`);
     } catch (e) {
-      failed += 1;
-      console.error("    ", "Failed: ", t.name);
+      state.failed += 1;
+      console.error("    ", "Failed: ", `${t.desc}/${t.name}`);
       console.error("    ", t.path);
-      console.error("    ", e.message);
-      console.error("    ", e.stack);
+      console.error(e);
+      console.error("\n");
     }
   }
 
-  console.info("Passed: ", passed, ", Failed: ", failed);
 }
 
 
@@ -44,12 +46,15 @@ global.describe = describe;
 global.it   = test;
 global.test = test;
 
+// load and run test files
 const files = process.argv.slice(2);
 for (let i = 0; i < files.length; i++) {
   const it = files[i];
+  state.currPath = it;
   const abs_path = it.startsWith('/') ? it : path.join(__dirname, it)
   const r = await import(abs_path);
+  await run();
 }
+console.info("Passed: ", state.passed, ", Failed: ", state.failed);
 
-run();
 

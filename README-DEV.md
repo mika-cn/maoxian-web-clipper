@@ -87,6 +87,14 @@ If you use Firefox to developing.
 
 ## Testing
 
+Run all test files:
+
 ```shell
 npm test
+```
+
+Run a specific test file:
+
+```shell
+npm run test-file test/TEST_FILE_PATH.js
 ```

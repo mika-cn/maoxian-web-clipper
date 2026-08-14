@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Run test files one by one.
 test_paths=$(ls test/*/test-*.js 2>/dev/null)
 if [ -n "$test_paths" ]; then
   for test_path in $test_paths ; do
