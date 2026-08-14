@@ -191,6 +191,14 @@ function getCopyItems() {
   return items;
 }
 
+function getRemoveItems() {
+  return [
+    'js/env.production.js',
+    'js/lib/frame-tool-firefox.js',
+    'js/lib/frame-tool-chromium.js',
+  ].map((it) => path.join(mx_folder, it));
+}
+
 
 function renderManifestWithPlatformMsg(content, path) {
   const common = JSON.parse(content.toString());
@@ -235,9 +243,9 @@ function cleanTargetDirectory() {
 
 
 function copySourceFiles() {
-  console.debug("move all file to maoxian folder");
-  const items = getCopyItems();
-  items.forEach((it) => {
+  console.debug("copy source files to maoxian folder");
+  const add_items = getCopyItems();
+  add_items.forEach((it) => {
     if (!fs.existsSync(it.from)) {
       console.error(it);
       throw new Error("File not exist: ", it.from);
@@ -248,6 +256,14 @@ function copySourceFiles() {
       fs.writeFileSync(it.to, modifiedContent, {mode: 0o660});
     } else {
       fs.cpSync(it.from, it.to, {recursive: true, force: true});
+    }
+  });
+
+  console.debug("remove environment specific files");
+  const rm_items = getRemoveItems();
+  rm_items.forEach((it) => {
+    if (fs.existsSync(it)) {
+      fs.rmSync(it, {force: true});
     }
   });
 }
