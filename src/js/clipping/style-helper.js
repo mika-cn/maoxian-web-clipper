@@ -137,7 +137,10 @@ function pElemHasNearWidth(pElem, elem, win){
 }
 
 function getFitWidth(elem, win){
-  const width = elem.getBoundingClientRect().width;
+  const selfWidth = elem.getBoundingClientRect().width;
+  const childrenMaxWidth = getChildrenMaxWidth(elem);
+  const width = (selfWidth >= childrenMaxWidth ? selfWidth : childrenMaxWidth);
+
   const widthText = getStyleText(elem, 'width', win)
   if (widthText.match(/\d+px/)) {
     // absolate width
@@ -160,6 +163,19 @@ function getFitWidth(elem, win){
       return 600;
     }
   }
+}
+
+// some elment event don't draw a box....
+// like those with css property: (display: contents)
+function getChildrenMaxWidth(elem) {
+  let maxWidth = 0;
+  [].forEach.call(elem.children, (child) => {
+    const v = child.getBoundingClientRect().width;
+    if (v > maxWidth) {
+      maxWidth = v;
+    }
+  });
+  return maxWidth;
 }
 
 // get original style text. e.g. '100px' , '50%'
