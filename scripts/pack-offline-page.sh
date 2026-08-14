@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Usage ./scripts/pack-offline-page 0.0.1
 
+if [ -z "$(command -v zip)" ]; then
+  echo "ERROR: zip is not installed"
+  exit 1
+fi
+
 file_dir=$(dirname $(realpath "$0"))
 root_dir=$(dirname $file_dir)
 

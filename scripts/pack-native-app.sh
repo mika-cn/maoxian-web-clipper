@@ -5,6 +5,11 @@
 #
 # Usage: ./scripts/pack-native-app.sh
 
+if [ -z "$(command -v web-ext-native-app-packer)" ]; then
+  echo "ERROR: web-ext-native-app-packer is not installed"
+  exit 1
+fi
+
 file_dir=$(dirname $(realpath "$0"))
 root_dir=$(dirname $file_dir)
 

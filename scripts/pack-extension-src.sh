@@ -4,6 +4,11 @@
 # AMO requires us to provide source code.
 
 # usage ./pack-extension-src.sh
+#
+if [ -z "$(command -v zip)" ]; then
+  echo "ERROR: zip is not installed"
+  exit 1
+fi
 
 file_dir=$(dirname $(realpath "$0"))
 root_dir=$(dirname $file_dir)

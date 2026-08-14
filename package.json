@@ -9,9 +9,8 @@
     "build-firefox": "NODE_ENV=development MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_DEV_FIREFOX_ID node build.js",
 
 
-    "build-chromium-production": "cross-env NODE_ENV=production MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_CHROMIUM_UPDATE_URL_MV3 node build.js",
-    "build-firefox-production": "cross-env NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID node build.js",
-    "build-all-production": "npm run build-chromium && npm run build-firefox",
+    "build-chromium-production": "NODE_ENV=production MX_PLATFORM=chromium MX_PLATFORM_ID=$MX_CHROMIUM_ID MX_PLATFORM_UPDATE_URL=$MX_CHROMIUM_UPDATE_URL_MV3 node build.js",
+    "build-firefox-production": "NODE_ENV=production MX_PLATFORM=firefox MX_PLATFORM_ID=$MX_FIREFOX_ID node build.js",
 
     "test"     : "npm run test-all",
     "test-all" : "node test/runner.js test/*/test-*.js",

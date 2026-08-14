@@ -265,34 +265,10 @@ function copySourceFiles() {
   });
 }
 
-function mkdirIfNotExist(dir) {
-  try {
-    fs.mkdirSync(dir, {recursive: true});
-  } catch(e) {
-    console.info("mkdir if not exist: ", e.message, dir);
-  }
-}
-
-function compressAsZip() {
-  // Compress dist/extension/maoxian-web-clipper
-  const manifest = JSON.parse(fs.readFileSync(manifestPath_common));
-  const zip_file = `maoxian-web-clipper-${PLATFORM}-${manifest.version}.zip`
-  const zip_path = path.join(ext_folder, zip_file);
-  // FIXME
-  // if zip_path exist, remove it
-  //if (fs.existsSync(zip_path)) {
-  //  fs.rmSync(zip_path, {force: true});
-  //}
-  console.debug("compressAsZip!", zip_file);
-}
 
 function build() {
   cleanTargetDirectory();
   copySourceFiles();
-
-  if (IS_PRODUCTION) {
-    compressAsZip();
-  }
 }
 
 function main() {
