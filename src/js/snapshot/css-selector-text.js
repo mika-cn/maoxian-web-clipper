@@ -158,6 +158,7 @@ function simplify(selectorText) {
     // or we can't process this selectorText correctly
     // just accept this selectorText
     console.warn("Something went wrong when editSelectorText()")
+    console.warn("This is an expected error, leave it along is OK");
     console.warn(e.message);
     console.warn(e.stack);
     return "*";
