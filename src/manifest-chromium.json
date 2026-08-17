@@ -39,7 +39,7 @@
       "world": "MAIN"
     }
   ],
-  "minimum_chrome_version": "120",
+  "minimum_chrome_version": "128",
   "key": "CHROME_DEPLOY_PUBKEY",
   "update_url": "SELF_HOST_UPDATE_URL"
 }
