@@ -63,7 +63,6 @@ function bump_version_js() {
 
 
 bump_version_json package.json             $new_version
-bump_version_json package-lock.json        $new_version
 bump_version_json src/manifest.json        $new_version
 bump_version_js   src/js/env.js            $new_version
 bump_version_js   src/js/env.production.js $new_version
