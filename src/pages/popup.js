@@ -38,10 +38,10 @@ function getMenuId(evTarget) {
 
 function closeWindow(){ window.close() }
 
-function showError(errorMessage) {
-  const error = T.queryElem('.error');
-  error.innerText = errorMessage;
-  error.classList.add('actived');
+function showError(error) {
+  const elem = T.queryElem('.error');
+  elem.innerText = error.message;
+  elem.classList.add('actived');
 }
 
 // can't do user action in promise, lead to (xxx may only be called from a user input handler)

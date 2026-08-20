@@ -44,20 +44,16 @@ const MSG_IGNORED_BY_LISTENER = undefined;
  *   listener should return a promise.
  */
 function listen(target, listener) {
-  ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    // Deprecated: sendResponse
+  ExtApi.listenRuntimeMsg((msg, sender, sendResponse) => {
     if(msg.target == target) {
-      if (needToUseSendResponse()) {
-        // chromium
-        listener(msg, sender).then(sendResponse, sendResponse).catch((error) => {
-          // Unable to send the response?
-          console.error("listen: Failed to send onMessage rejected reply", err);
-        })
-        return MSG_HANDLED_ASYNC;
-      } else {
-        // firefox
-        return listener(msg, sender);
-      }
+      listener(msg, sender).then(
+        (result) => { sendResponse(result); },
+        (error ) => { sendResponse(wrapErrorAsResponse(error)); }
+      ).catch((error) => {
+        // Unable to send the response?
+        console.error("listen: Failed to send onMessage rejected reply", err);
+      })
+      return MSG_HANDLED_ASYNC;
     } else {
       return MSG_IGNORED_BY_LISTENER
     }
@@ -65,61 +61,36 @@ function listen(target, listener) {
 }
 
 
-/*
- * @param {string} target
- * @param {function} listener
- *   listener should return a promise.
- */
-function listenBackend(target, listener) {
-  ExtApi.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.target == target) {
-      const fn = wrapBackendListener(listener);
-      if (needToUseSendResponse()) {
-        // chromium
-        fn(msg, sender).then(sendResponse, sendResponse).catch((error) => {
-          // Unable to send the response?
-          console.error("listenBackend: Failed to send onMessage rejected reply", err);
-        })
-        return MSG_HANDLED_ASYNC;
-      } else {
-        // firefox
-        return fn(msg, sender);
-      }
-    } else {
-      // TODO
-      // Because this API is so unstable when add multiple listeners,
-      // Maybe we can change the code to use one listener, to avoid these problems.
-      return MSG_IGNORED_BY_LISTENER
+function wrapErrorAsResponse(error) {
+  // Send a JSON representation of the error if the rejected value
+  // is an instance of error, or the object itself otherwise.
+  let message;
+
+  if (error) {
+    if (error instanceof Error) {
+      message = [
+        `${error.name}: ${error.message}\n`,
+        'stack: ', error.stack
+      ].join("\n");
     }
-  });
-}
-
-
-/*
- * When an error is rejected through backend,
- * some browsers (like Firefox) lost the stack info
- * So we pass the stack info to frontend.
- */
-function wrapBackendListener(listener) {
-  return async function backendMessageListenerWithBetterError(message, sender) {
-    try {
-      const result = await listener(message, sender)
-      return result;
-    } catch (e) {
-      console.debug(e)
-      const message = [`${e.name}: ${e.message}\n`, 'backend stack: ', e.stack].join("\n");
-      throw new Error(message, {cause: e});
+    else if (
+        typeof error == "object"
+     && typeof error.message == "string"
+    ) {
+      message = error.message;
+    }
+    else if (typeof error == "string") {
+      message = error;
     }
   }
+
+  if (!message) {
+    message = "An unexpected error occurred";
+  }
+
+  return {__reject__: true, message};
 }
 
-
-function needToUseSendResponse() {
-  // is Chromium
-  return (
-     typeof browser === 'undefined'
-  || Object.getPrototypeOf(browser) !== Object.prototype);
-}
 
 function sendToBackground(msg) {
   return sendToExtPage('background', msg);
@@ -145,8 +116,23 @@ function sendToContentFrame(msg, tabId, frameId) {
     tabId, frameId);
 }
 
+function wrapMsgResponseHandler(resolve, reject) {
+  return (it) => {
+    if (it && typeof it == 'object' && it.__reject__) {
+      // construct back the error
+      const error = new Error(it.message);
+      reject(error);
+    } else {
+      resolve(it);
+    }
+  }
+}
+
 function sendToExtPage(target, msg) {
-  return ExtApi.runtime.sendMessage(addTarget(target, msg));
+  return new Promise((resolve, reject) => {
+    const fn = wrapMsgResponseHandler(resolve, reject);
+    ExtApi.sendRuntimeMsg(addTarget(target, msg)).then(fn, reject);
+  });
 }
 
 function sendToPage(msg, pageUrl) {
@@ -207,15 +193,17 @@ function sendToTab(msg, tabId, frameId) {
     }
     if(tabId){
       const errorHandler = createErrorHandler(msg, tabId, options.frameId);
+      const okHandler = wrapMsgResponseHandler(resolve, errorHandler);
       ExtApi.sendTabMsg(tabId, msg, options)
-        .then(resolve, errorHandler)
+        .then(okHandler, errorHandler)
     } else {
       let errorHandler = () => { resolve() };
       ExtApi.getCurrentTab().then((tab) => {
         if (tab) {
           errorHandler = createErrorHandler(msg, tab.id, options.frameId);
+          const okHandler = wrapMsgResponseHandler(resolve, errorHandler);
           ExtApi.sendTabMsg(tab.id, msg, options)
-            .then(resolve, errorHandler);
+            .then(okHandler, errorHandler);
         } else {
           console.debug("Error, Can't get current tab");
           console.debug("Ignore this tab msg: ", msg.type);
@@ -228,7 +216,7 @@ function sendToTab(msg, tabId, frameId) {
 
 const ExtMsg = {
   listen,
-  listenBackend,
+  listenBackend: listen,
   sendToBackend,
   sendToBackground,
   pingContentScript,
@@ -237,6 +225,6 @@ const ExtMsg = {
   sendToPage,
   sendToExtPage,
   broadcastToContent,
-}
+};
 
 export default ExtMsg;

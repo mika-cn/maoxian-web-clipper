@@ -124,6 +124,13 @@ ExtApi.bindOnInstalledListener = (listener) => {
   _.runtime.onInstalled.addListener(listener);
 }
 
+ExtApi.listenRuntimeMsg = (listener) => {
+  _.runtime.onMessage.addListener(listener);
+}
+
+ExtApi.sendRuntimeMsg = (message) => {
+  return _.runtime.sendMessage(message);
+}
 
 /*****************************
  * Storage

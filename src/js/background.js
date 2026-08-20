@@ -487,7 +487,7 @@ async function commandListener(browserCommandName) {
       Log.debug("Not command is configured with this slot", browserCommandName);
     }
   } else {
-    Log.debug("Please use one starts with 'slog-' instead, Deprecated: ", browserCommandName);
+    Log.debug("Please use one starts with 'slot-' instead, Deprecated: ", browserCommandName);
   }
 }
 
