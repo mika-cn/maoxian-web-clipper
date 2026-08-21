@@ -1426,16 +1426,32 @@ function renderSectionUserScript(id, container, template) {
   T.setHtml(container, html);
   const refreshBtn = T.findElem('refresh-user-scripts');
   T.bindOnce(refreshBtn, 'click', renderUserScripts);
+  const isUserScriptReady = ExtApi.isUserScriptsAvailable();
+
   if (MxWcLink.isChrome()) {
     const extraStep = T.queryElem('.user-script-chromium-extra-step');
-    showElement(extraStep);
+    if (isUserScriptReady) {
+      hideElement(extraStep);
+    } else {
+      showElement(extraStep);
+    }
   } else {
     // Firefox
     const permissions = T.queryElem("#setting-user-script .permissions");
     renderPermissionsFragment(PERMISSIONS_USER_SCRIPTS_IDX);
   }
 
+  renderUserScriptUsableState(isUserScriptReady);
   renderUserScripts();
+}
+
+function renderUserScriptUsableState(isUsable) {
+  const it = T.queryElem('.user-script-usable');
+  if (isUsable || ExtApi.isUserScriptsAvailable()) {
+    showElement(it)
+  } else {
+    hideElement(it);
+  }
 }
 
 function refreshUserScripts() {
@@ -1469,6 +1485,7 @@ async function requestUserScriptsPermissionsAndRerender() {
     {permissions: PERMISSIONS_USER_SCRIPTS});
   if (granted) {
     renderPermissionsFragment(PERMISSIONS_USER_SCRIPTS_IDX);
+    renderUserScriptUsableState();
   }
 }
 
@@ -1477,6 +1494,7 @@ async function removeUserScriptsPermissionsAndRerender() {
     {permissions: PERMISSIONS_USER_SCRIPTS});
   if (removed) {
     renderPermissionsFragment(PERMISSIONS_USER_SCRIPTS_IDX);
+    renderUserScriptUsableState();
   }
 }
 
