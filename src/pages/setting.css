@@ -181,8 +181,14 @@ section {
 /********** inputs ***********/
 
 div.input-group {
-  margin-top: 5px;
+  margin-bottom: 6px;
 }
+div.input-group:hover {
+  font-weight: bold;
+  background-color: lightyellow;
+  cursor: pointer;
+}
+
 fieldset.input-group {
   border: 1px solid #ccc;
   border-radius: 5px;

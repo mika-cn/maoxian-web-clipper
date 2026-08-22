@@ -148,7 +148,9 @@ ExtApi.isCookiesEnabled = () => {
   return _.cookies !== undefined;
 }
 
-// We only get firstPartyDomain cookies
+// We only get firstPartyDomain cookies,
+// only the cookies that attach to the site
+// we're currently visiting (excluding CDN servers).
 ExtApi.getAllCookies = (url) => {
   const it = new URL(url);
   const domain = it.hostname;

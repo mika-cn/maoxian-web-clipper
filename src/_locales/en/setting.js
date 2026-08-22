@@ -8,7 +8,7 @@ const values = {
   "permission.downloads": "<strong>downloads</strong><br>Save clipped files and delete these download records except the main file",
   "permission.downloads.open": "<strong>downloads.open</strong><br>Open the clipped files form download history",
   "permission.scripting": "<strong>scripting</strong><br>Loading content scripts",
-  "permission.cookies": "<strong>cookies</strong><br>Get cookies to send with requests to pass server restriction",
+  "permission.cookies": "<strong>cookies</strong><br>Get cookies to send with requests to pass server restriction. You should keep this option disabled by default and only enabling it when you need to, then disabling it after you're done clipping the restricted site (Note that: only very few websites will use cookie as a restriction to check requests)",
   "permission.DNR-with-host-access": "<strong>declarativeNetRequestWithHostAccess</strong><br>Enable editing forbidden request headers for web page relative files(images, fonts etc..) requests, so that we can pass the server restriction",
   "permission.native-messaging": "<strong>nativeMessaging</strong><br>Exchange messages with NativeApp",
   "permission.user-scripts": "<strong>userScripts</strong><br>Execute user scripts to modify web pages",

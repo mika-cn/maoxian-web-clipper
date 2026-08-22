@@ -440,15 +440,18 @@ const hello = () =&gt; {
         <div class="optional-permissions">
           <h3 i18n="title.optional-permissions"></h3>
           <div>
-            <input id="permission-nativeMessaging" type="checkbox" data-permission="nativeMessaging"/>
-            <label for="permission-nativeMessaging" i18n="permission.native-messaging"></label>
-            <br />
-            <input id="permission-cookies" type="checkbox" data-permission="cookies"/>
-            <label for="permission-cookies" i18n="permission.cookies"></label>
-            <br />
-            <input id="permission-userScripts" type="checkbox" data-permission="userScripts"/>
-            <label for="permission-userScripts" i18n="permission.user-scripts"></label>
-            <br /><br />
+            <div class="input-group">
+              <input id="permission-nativeMessaging" type="checkbox" data-permission="nativeMessaging"/>
+              <label for="permission-nativeMessaging" i18n="permission.native-messaging"></label>
+            </div>
+            <div class="input-group">
+              <input id="permission-cookies" type="checkbox" data-permission="cookies"/>
+              <label for="permission-cookies" i18n="permission.cookies"></label>
+            </div>
+            <div class="input-group">
+              <input id="permission-userScripts" type="checkbox" data-permission="userScripts"/>
+              <label for="permission-userScripts" i18n="permission.user-scripts"></label>
+            </div>
             <button id="save-optional-permissions" i18n="button.save"></button>
           </div>
         </div>
@@ -471,18 +474,23 @@ const hello = () =&gt; {
         </div>
         <div>
           <h3 i18n="title.backup"></h3>
-          <input type="checkbox" id="backup-setting-page-config" />
-          <label for="backup-setting-page-config" i18n="label.backup-setting-page-config-input"></label>
-          <br />
-          <input type="checkbox" id="backup-history-page-config" />
-          <label for="backup-history-page-config" i18n="label.backup-history-page-config-input"></label>
-          <br />
-          <input type="checkbox" id="backup-assistant-data" />
-          <label for="backup-assistant-data" i18n="label.backup-assistant-data-input"></label>
-          <br />
-          <input type="checkbox" id="backup-selection-data" />
-          <label for="backup-selection-data" i18n="label.backup-selection-data-input"></label>
-          <br /><br />
+          <div class="input-group">
+            <input type="checkbox" id="backup-setting-page-config" />
+            <label for="backup-setting-page-config" i18n="label.backup-setting-page-config-input"></label>
+          </div>
+          <div class="input-group">
+            <input type="checkbox" id="backup-history-page-config" />
+            <label for="backup-history-page-config" i18n="label.backup-history-page-config-input"></label>
+          </div>
+          <div class="input-group">
+            <input type="checkbox" id="backup-assistant-data" />
+            <label for="backup-assistant-data" i18n="label.backup-assistant-data-input"></label>
+          </div>
+          <div class="input-group">
+            <input type="checkbox" id="backup-selection-data" />
+            <label for="backup-selection-data" i18n="label.backup-selection-data-input"></label>
+          </div>
+          <br>
           <button id="backup-to-file" i18n="button.backup-to-file"></button>
         </div>
         <h3 i18n="title.restore"></h3>
@@ -514,16 +522,20 @@ const hello = () =&gt; {
           <div class="notice-warning" i18n="notice.request-cache-warning"></div>
           <br />
           <div id="cache-switchers">
-            <input type="checkbox" id="request-cache-css" />
-            <label for="request-cache-css" i18n="label.request-cache-css-input"></label>
-            <br />
-            <input type="checkbox" id="request-cache-image" />
-            <label for="request-cache-image" i18n="label.request-cache-image-input"></label>
-            <br />
-            <input type="checkbox" id="request-cache-web-font" />
-            <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
+            <div class="input-group">
+              <input type="checkbox" id="request-cache-css" />
+              <label for="request-cache-css" i18n="label.request-cache-css-input"></label>
+            </div>
+            <div class="input-group">
+              <input type="checkbox" id="request-cache-image" />
+              <label for="request-cache-image" i18n="label.request-cache-image-input"></label>
+            </div>
+            <div class="input-group">
+              <input type="checkbox" id="request-cache-web-font" />
+              <label for="request-cache-web-font" i18n="label.request-cache-web-font-input"></label>
+            </div>
           </div>
-          </div>
+        </div>
 
           <h4 i18n="title.request-credentials"></h4>
           <div class="notice-info" i18n="notice.request-credentials"></div>
@@ -575,11 +587,15 @@ const hello = () =&gt; {
         </div>
         <div>
           <h3 i18n="title.misc"></h3>
-          <input type="checkbox" id="communicate-with-third-party" />
-          <label for="communicate-with-third-party" i18n="label.communicate-with-third-party-input"></label>
-          <br />
-          <input type="checkbox" id="auto-run-content-scripts" />
-          <label for="auto-run-content-scripts" i18n="label.auto-run-content-scripts-input"></label>
+          <div class="input-group">
+            <input type="checkbox" id="communicate-with-third-party" />
+            <label for="communicate-with-third-party" i18n="label.communicate-with-third-party-input"></label>
+          </div>
+
+          <div class="input-group">
+            <input type="checkbox" id="auto-run-content-scripts" />
+            <label for="auto-run-content-scripts" i18n="label.auto-run-content-scripts-input"></label>
+          </div>
         </div>
       </section>
     </template>
@@ -589,20 +605,26 @@ const hello = () =&gt; {
         <h2 class="center" i18n="title.general"></h2>
         <div>
           <h3 i18n="title.control"></h3>
-          <input type="checkbox" id="mouse-mode-enabled" />
-          <label for="mouse-mode-enabled" i18n="label.mouse-mode-enabled-input"></label>
-          <br />
-          <input type="checkbox" id="select-save-format-on-menus" />
-          <label for="select-save-format-on-menus" i18n="label.select-save-format-on-menus"></label>
-          <br />
-          <input type="checkbox" id="auto-input-last-category" />
-          <label for="auto-input-last-category" i18n="label.auto-input-last-category"></label>
-          <br />
-          <input type="checkbox" id="auto-input-last-tags" />
-          <label for="auto-input-last-tags" i18n="label.auto-input-last-tags"></label>
-          <br />
-          <input type="checkbox" id="remember-selection" />
-          <label for="remember-selection" i18n="label.remember-selection-input"></label>
+          <div class="input-group">
+            <input type="checkbox" id="mouse-mode-enabled" />
+            <label for="mouse-mode-enabled" i18n="label.mouse-mode-enabled-input"></label>
+          </div>
+          <div class="input-group">
+            <input type="checkbox" id="select-save-format-on-menus" />
+            <label for="select-save-format-on-menus" i18n="label.select-save-format-on-menus"></label>
+          </div>
+          <div class="input-group">
+            <input type="checkbox" id="auto-input-last-category" />
+            <label for="auto-input-last-category" i18n="label.auto-input-last-category"></label>
+          </div>
+          <div class="input-group">
+            <input type="checkbox" id="auto-input-last-tags" />
+            <label for="auto-input-last-tags" i18n="label.auto-input-last-tags"></label>
+          </div>
+          <div class="input-group">
+            <input type="checkbox" id="remember-selection" />
+            <label for="remember-selection" i18n="label.remember-selection-input"></label>
+          </div>
         </div>
         <div>
           <h3 i18n="title.file-url"></h3>
@@ -620,16 +642,17 @@ const hello = () =&gt; {
             <strong i18n="g.label.warning"></strong>:<br />
             <label i18n="notice.file-url-warning"></label>
           </div>
-          <input type="checkbox" id="file-scheme-access-input"/>
-          <label for="file-scheme-access-input" i18n="label.file-url-input"></label>
+          <div class="input-group">
+            <input type="checkbox" id="file-scheme-access-input"/>
+            <label for="file-scheme-access-input" i18n="label.file-url-input"></label>
+          </div>
         </div>
+
         <div>
           <h3 i18n="title.clipping-content"></h3>
-
-          <input type="checkbox" id="save-domain-as-tag" />
-          <label for="save-domain-as-tag" i18n="label.save-domain-tag-input"></label>
-
-          <div>
+          <div class="input-group">
+            <input type="checkbox" id="save-domain-as-tag" />
+            <label for="save-domain-as-tag" i18n="label.save-domain-tag-input"></label>
           </div>
         </div>
       </section>
@@ -642,8 +665,10 @@ const hello = () =&gt; {
         <div class="intro">
           <h3 i18n="title.intro"></h3>
           <div class="notice-info" i18n="notice.assistant-intro"></div>
-          <input type="checkbox" id="assistant-enabled"/>
-          <label for="assistant-enabled" i18n="label.assistant-enabled-input"></label>
+          <div class="input-group">
+            <input type="checkbox" id="assistant-enabled"/>
+            <label for="assistant-enabled" i18n="label.assistant-enabled-input"></label>
+          </div>
         </div>
 
         <div class="custom-plan">
@@ -681,9 +706,10 @@ const hello = () =&gt; {
             <button id="update-public-plan-now" i18n="button.update-now"></button>
           </div>
           <div class="switches">
-            <br />
-            <input type="checkbox" id="auto-update-public-plan"/>
-            <label for="auto-update-public-plan" i18n="label.auto-update-public-plan-input"></label>
+            <div class="input-group">
+              <input type="checkbox" id="auto-update-public-plan"/>
+              <label for="auto-update-public-plan" i18n="label.auto-update-public-plan-input"></label>
+            </div>
           </div>
         </div>
 
@@ -1238,8 +1264,10 @@ const hello = () =&gt; {
           <br />
           <div class="notice-info" i18n="notice.autogenerate-clipping-js"></div>
           <div>
-            <input type="checkbox" id="autogenerate-clipping-js" />
-            <label for="autogenerate-clipping-js" i18n="label.autogenerate-clipping-js-input"></label><br /><br />
+            <div class="input-group">
+              <input type="checkbox" id="autogenerate-clipping-js" />
+              <label for="autogenerate-clipping-js" i18n="label.autogenerate-clipping-js-input"></label>
+            </div>
             <label i18n="label.last-generate-time"></label>:
             <label id="last-generate-clipping-js-time">${lastGenerateClippingJsTime}</label>&nbsp;
             <button id="generate-clipping-js-now" i18n="button.generate-now"></button>
@@ -1267,8 +1295,10 @@ const hello = () =&gt; {
         <div class="detail">
           <h3 i18n="title.detail"></h3>
           <div>
-            <input type="checkbox" id="auto-refresh-history" />
-            <label for="auto-refresh-history" i18n="label.auto-refresh-history-input"></label><br /><br />
+            <div class="input-group">
+              <input type="checkbox" id="auto-refresh-history" />
+              <label for="auto-refresh-history" i18n="label.auto-refresh-history-input"></label>
+            </div>
             <label i18n="label.last-refresh-time"></label>:
             <label id="last-refresh-history-time">${lastRefreshHistoryTime}</label>&nbsp;
             <button id="refresh-history-now" i18n="button.refresh-now"></button>
@@ -1300,7 +1330,7 @@ const hello = () =&gt; {
           <button id="test-download-request" i18n="button.test"></button>
         </div>
         <hr>
-        <div class="switch">
+        <div class="input-group">
           <input type="checkbox" id="handler-browser-enabled" disabled/>
           <label for="handler-browser-enabled" i18n="label.enable-handler"></label>
         </div>
@@ -1350,7 +1380,7 @@ const hello = () =&gt; {
         <div class="notice-warning">
           <p><label i18n="handler.native-app.warning"></label></p>
         </div>
-        <div class="switch">
+        <div class="input-group">
           <input type="checkbox" id="handler-native-app-enabled" />
           <label for="handler-native-app-enabled" i18n="label.enable-handler"></label>
         </div>
@@ -1378,7 +1408,7 @@ const hello = () =&gt; {
         <div class="notice-warning">
           <p><label i18n="handler.wiz-note-plus.warning"></label></p>
         </div>
-        <div class="switch">
+        <div class="input-group">
           <input type="checkbox" id="handler-wiz-note-plus-enabled" />
           <label for="handler-wiz-note-plus-enabled" i18n="label.enable-handler"></label>
         </div>

@@ -8,7 +8,7 @@ const values = {
   "permission.downloads": "<strong>downloads</strong><br>保存裁剪下来的文件，并且从你的下载记录里，删除掉除主文件外的下载历史",
   "permission.downloads.open": "<strong>downloads.open</strong><br>打开下载下来的文件",
   "permission.scripting": "<strong>scripting</strong><br>加载扩展程序",
-  "permission.cookies": "<strong>cookies</strong><br>允许获取 cookie ，可在发送请求时带上，以通过文件服务器的限制",
+  "permission.cookies": "<strong>cookies</strong><br>允许获取 cookie ，可在发送请求时带上，以通过文件服务器的限制。默认情况下请保持此项为关闭，只在需要时才开启，并在裁剪完成后，设置回关闭状态。（注：只有极少数网站会对文件做 cookie 限制）",
   "permission.DNR-with-host-access": "<strong>declarativeNetRequestWithHostAccess</strong><br>允许编辑『禁止修改的请求头』，主要用于修改 Referer 请求头，以通过文件服务器的限制",
   "permission.native-messaging": "<strong>nativeMessaging</strong><br>允许和『本地程序』进行通信",
   "permission.user-scripts": "<strong>userScripts</strong><br>执行『用户脚本』以修改要裁剪的网页",
