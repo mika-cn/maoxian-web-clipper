@@ -68,7 +68,7 @@ bump_version_js   src/js/env.js            $new_version
 bump_version_js   src/js/env.production.js $new_version
 
 echo "Commit"
-git add package.json package-lock.json src/manifest.json src/js/env.js src/js/env.production.js
+git add package.json src/manifest.json src/js/env.js src/js/env.production.js
 git commit -m "RELEASE bump version to ${new_version}"
 
 echo "Done! bump version to ${new_version}."
